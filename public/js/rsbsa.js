@@ -165,9 +165,6 @@ function closeFormRSBSA() {
     // Show main sections again
     if (typeof showAllMainSections === 'function') showAllMainSections();
 
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
     // Update URL to home page
     if (window.location.pathname !== '/') {
         history.pushState({page: 'home'}, '', '/');
@@ -586,6 +583,12 @@ function handleRSBSAFormSubmission() {
                             removeFile();
                         }
                         closeFormRSBSA();
+                        // Scroll to top after modal closes and form is hidden
+                        setTimeout(() => {
+                            document.documentElement.scrollTop = 0;
+                            document.body.scrollTop = 0;
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 500);
                     }
                 });
             } else {

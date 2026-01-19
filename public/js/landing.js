@@ -376,7 +376,6 @@ function closeForm(formId) {
     if (formElement) formElement.style.display = 'none';
 
     showAllMainSections();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
 

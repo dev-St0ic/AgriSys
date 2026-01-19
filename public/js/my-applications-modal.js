@@ -182,37 +182,62 @@ function renderApplicationsInModal(applications) {
 }
 
 /**
- * Handle Resubmit button click - Navigate to Services section
+ * Handle Resubmit button click - Navigate to Services section and open the form
  */
 function handleResubmit(applicationType) {
     closeApplicationsModal();
 
     const typeMap = {
-        'RSBSA Registration': () => openRSBSAForm(event),
-        'Seedlings Request': () => openFormSeedlings(event),
-        'FishR Registration': () => openFormFishR(event),
-        'BoatR Registration': () => openFormBoatR(event),
-        'Training Request': () => openFormTraining(event)
+        'RSBSA Registration': {
+            formId: 'new-rsbsa',
+            openFunction: (e) => openRSBSAForm(e),
+            path: '/services/rsbsa'
+        },
+        'Seedlings Request': {
+            formId: 'seedlings-form',
+            openFunction: (e) => openFormSeedlings(e),
+            path: '/services/seedlings'
+        },
+        'FishR Registration': {
+            formId: 'fishr-form',
+            openFunction: (e) => openFormFishR(e),
+            path: '/services/fishr'
+        },
+        'BoatR Registration': {
+            formId: 'boatr-form',
+            openFunction: (e) => openFormBoatR(e),
+            path: '/services/boatr'
+        },
+        'Training Request': {
+            formId: 'training-form',
+            openFunction: (e) => openFormTraining(e),
+            path: '/services/training'
+        }
     };
 
-    const formFunction = typeMap[applicationType];
+    const formConfig = typeMap[applicationType];
 
-    if (formFunction) {
-        const servicesSection = document.getElementById('services');
-        if (servicesSection) {
-            servicesSection.scrollIntoView({ behavior: 'smooth' });
-            setTimeout(() => {
-                formFunction();
-            }, 500);
-        } else {
-            formFunction();
-        }
+    if (formConfig) {
+        // Create synthetic event
+        const syntheticEvent = new Event('click');
+        syntheticEvent.preventDefault = () => {};
+        
+        // Call the form open function
+        formConfig.openFunction(syntheticEvent);
+        
+        // Scroll to the form after a small delay to ensure it's displayed
+        setTimeout(() => {
+            const formElement = document.getElementById(formConfig.formId);
+            if (formElement) {
+                formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 600);
     } else {
         const servicesSection = document.getElementById('services');
         if (servicesSection) {
             servicesSection.scrollIntoView({ behavior: 'smooth' });
         }
-        showNotification('info', 'Please select your desired service from the available options.');
+        agrisysModal.info('Please select your desired service from the available options.', { title: 'Service Selection' });
     }
 }
 

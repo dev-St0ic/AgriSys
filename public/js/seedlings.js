@@ -39,7 +39,6 @@ function closeFormSeedlings() {
     performCompleteReset();
     hideAllForms();
     showAllMainSections();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
 
@@ -608,6 +607,12 @@ function submitSeedlingsRequest(event) {
                 onClose: () => {
                     performCompleteReset();
                     closeFormSeedlings();
+                    // Scroll to top after modal closes and form is hidden
+                    setTimeout(() => {
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 500);
                 }
             });
         } else {

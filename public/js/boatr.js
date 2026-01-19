@@ -88,8 +88,6 @@ function closeFormBoatR() {
     // Show main sections if function exists
     if (typeof showAllMainSections === 'function') showAllMainSections();
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
     // Update URL
     if (window.history && window.history.pushState) {
         history.pushState(null, '', '/services');
@@ -520,6 +518,12 @@ function submitBoatRForm(event) {
                 onClose: () => {
                     resetBoatRForm();
                     closeFormBoatR();
+                    // Scroll to top after modal closes and form is hidden
+                    setTimeout(() => {
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 500);
                 }
             });
         } else {

@@ -165,9 +165,6 @@ function closeFormTraining() {
 
         // Update URL to services page
         history.pushState({page: 'services'}, '', '/services');
-
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
@@ -281,6 +278,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             trainingForm.reset();
                             // Close form
                             closeFormTraining();
+                            // Scroll to top after modal closes and form is hidden
+                            setTimeout(() => {
+                                document.documentElement.scrollTop = 0;
+                                document.body.scrollTop = 0;
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }, 500);
                         }
                     });
                 } else {
