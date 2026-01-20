@@ -185,8 +185,6 @@
     <div class="container">
         <div class="header">
             <h1>Terms of Service</h1>
-            <p>AgriSys - Agricultural Decision Support and Records Management System</p>
-            <p class="last-updated">Effective Date: December 2025 | Last Updated: December 2025</p>
         </div>
 
         <div class="content">
@@ -663,7 +661,6 @@
                     <p><span class="emphasis">Posting of Updated Terms:</span></p>
                     <ul>
                         <li>All updates to these Terms of Service will be posted on the AgriSys platform (agrisys.site) and may also be posted on the official website of the City Agriculture Office of San Pedro, Laguna</li>
-                        <li>The "Last Updated" date at the top of this document will reflect the most recent revision</li>
                     </ul>
                     <p><span class="emphasis">Notice of Material Changes:</span></p>
                     <p>If we make material changes that significantly affect your rights, obligations, or use of AgriSys, we will provide reasonable notice through:</p>
@@ -691,7 +688,7 @@
                     <p><strong>City Agriculture Office</strong><br>
                     San Pedro City Hall<br>
                     San Pedro, Laguna, Philippines</p>
-                    <p><strong>Phone:</strong> (049) 8808-2020 Local 109<br>
+                    <p><strong>Contact:</strong> (02) 8808-2020, Local 109<br>
                     <strong>Email:</strong> agriculture.sanpedrocity@gmail.com</p>
                     <p><strong>Office Hours:</strong><br>
                     Monday to Friday, 8:00 AM - 5:00 PM (Closed on weekends and public holidays)</p>
@@ -742,7 +739,6 @@
 
             <div class="footer-info">
                 <p>© 2025 City Agriculture Office of San Pedro, Laguna. All rights reserved.</p>
-                <p>Effective Date: December 2025 | Last Updated: December 2025</p>
             </div>
         </div>
     </div>

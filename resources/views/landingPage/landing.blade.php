@@ -1877,7 +1877,7 @@
                             legal review.</p>
                         <p>All updates to these Terms of Service will be posted on the AgriSys platform (agrisys.site)
                             and may also be posted on the official website of the City Agriculture Office of San Pedro,
-                            Laguna. The "Last Updated" date will reflect the most recent revision.</p>
+                            Laguna.</p>
                         <p>Continued use of AgriSys after the posting of updated Terms of Service constitutes your
                             acceptance of and agreement to be bound by the revised terms. If you do not agree with the
                             changes, you must immediately cease using AgriSys and may request termination of your
@@ -1926,8 +1926,6 @@
                             Agriculture Office of San Pedro, Laguna is committed to modernizing agricultural service
                             delivery and supporting the livelihoods of our local farmers, fisherfolk, and livestock
                             raisers through secure, efficient, and data-driven solutions.</p>
-                        <p style="text-align: center; color: #999; font-size: 0.9em;">Effective Date: December 2025 |
-                            Last Updated: December 2025</p>
                     </div>
                 </div>
             </div>
@@ -2206,7 +2204,6 @@
                         <ol>
                             <li>All updates will be posted on the AgriSys website (agrisys.site) and the official
                                 website of the San Pedro City Agriculture Office</li>
-                            <li>The "Last Updated" date will reflect the most recent changes</li>
                             <li>If we make material changes that significantly affect how we collect, use, or share your
                                 data, we will notify you through AgriSys notifications, email (if available), or
                                 announcements at our office</li>
@@ -2260,8 +2257,6 @@
                         <p>By registering with and using AgriSys, you acknowledge that you have read and understood this
                             Privacy Notice and consent to the collection, use, storage, and sharing of your personal
                             data as described herein.</p>
-                        <p style="text-align: center; color: #999; font-size: 0.9em;">Effective Date: December 2025 |
-                            Last Updated: December 2025</p>
                     </div>
                 </div>
             </div>

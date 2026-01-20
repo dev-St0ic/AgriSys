@@ -194,9 +194,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Data Privacy Notice</h1>
-            <p>AgriSys - Agricultural Decision Support and Records Management System</p>
-            <p class="last-updated">Effective Date: December 2025 | Last Updated: December 2025</p>
+            <h1>Privacy Policy</h1>
         </div>
 
         <div class="content">
@@ -379,7 +377,6 @@
                     <h4>Notification of Changes</h4>
                     <ol>
                         <li>All updates will be posted on the AgriSys website (agrisys.site) and the official website of the San Pedro City Agriculture Office;</li>
-                        <li>The "Last Updated" date will reflect the most recent changes; and</li>
                         <li>If we make material changes that significantly affect how we collect, use, or share your data, we will notify you through AgriSys notifications, email (if available), or announcements at our office.</li>
                     </ol>
                 </div>
@@ -403,7 +400,7 @@
                     San Pedro City Hall<br>
                     San Pedro, Laguna, Philippines</p>
                     <p><strong>Email:</strong> agriculture.sanpedrocity@gmail.com<br>
-                    <strong>Phone:</strong> (049) 8808-2020 Local 109</p>
+                    <strong>Phone:</strong> (02) 8808-2020, Local 109</p>
                     <p><strong>Office Hours:</strong><br>
                     Monday to Friday, 8:00 AM - 5:00 PM (Closed on weekends and public holidays)</p>
                 </div>
@@ -427,7 +424,6 @@
 
             <div class="footer-info">
                 <p>© 2025 City Agriculture Office of San Pedro, Laguna. All rights reserved.</p>
-                <p>Effective Date: December 2025 | Last Updated: December 2025</p>
             </div>
         </div>
     </div>
