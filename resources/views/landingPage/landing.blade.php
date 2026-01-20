@@ -423,9 +423,9 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Phone:</strong>
+                            <strong>Contact:</strong>
                             <br>
-                            <p>8808-2020 Local 109</p>
+                            <p>(02) 8808-2020, Local 109</p>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -1891,7 +1891,7 @@
                             City Agriculture Office<br>
                             San Pedro City Hall<br>
                             San Pedro, Laguna, Philippines</p>
-                        <p><strong>Phone:</strong> (049) 8808-2020 Local 109<br>
+                        <p><strong>Contact:</strong>(02) 8808-2020, Local 109<br>
                             <strong>Email:</strong> agriculture.sanpedrocity@gmail.com
                         </p>
                         <p><strong>Office Hours:</strong><br>
@@ -2239,7 +2239,7 @@
                             San Pedro, Laguna, Philippines</p>
 
                         <p><strong>Email:</strong> agriculture.sanpedrocity@gmail.com<br>
-                            <strong>Phone:</strong> (049) 8808-2020 Local 109<br>
+                            <strong>Contact:</strong>(02) 8808-2020, Local 109<br>
                             <strong>Office Hours:</strong> Monday to Friday, 8:00 AM - 5:00 PM (Closed on weekends and
                             public holidays)
                         </p>
@@ -2304,7 +2304,7 @@
                 <p>City Agriculture Office<br>
                     San Pedro City Hall<br>
                     Laguna, Philippines</p>
-                <p style="margin-top: 12px;">Phone: 8808-2020 Local 109<br>
+                <p style="margin-top: 12px;">Contact: (02) 8808-2020, Local 109<br>
                     Email: <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a>
                 </p>
             </div>
