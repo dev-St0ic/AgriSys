@@ -29,8 +29,12 @@ function openFormSeedlings(event) {
     const choice = document.getElementById('seedlings-choice');
     if (choice) {
         choice.style.display = 'block';
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll to top with proper timing and multiple fallbacks
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }, 50);
     }
     history.pushState(null, '', '/services/seedlings');
 }
@@ -39,7 +43,6 @@ function closeFormSeedlings() {
     performCompleteReset();
     hideAllForms();
     showAllMainSections();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
 
@@ -608,6 +611,12 @@ function submitSeedlingsRequest(event) {
                 onClose: () => {
                     performCompleteReset();
                     closeFormSeedlings();
+                    // Scroll to top after modal closes and form is hidden
+                    setTimeout(() => {
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 500);
                 }
             });
         } else {

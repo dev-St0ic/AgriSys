@@ -320,6 +320,10 @@ function closeProfileModal() {
     }
 }
 
+/**
+ * Updated loadProfileData function - Removes emojis from activity display
+ * Makes the UI more professional and accessible
+ */
 function loadProfileData() {
     // Load application statistics and recent activity from the combined endpoint
     fetch('/api/user/applications/all', {
@@ -356,18 +360,31 @@ function loadProfileData() {
             const activityList = document.getElementById('recent-activity-list');
             if (activityList) {
                 if (data.recent_activity && data.recent_activity.length > 0) {
-                    activityList.innerHTML = data.recent_activity.map(activity => `
-                        <div class="activity-item">
-                            <div class="activity-icon">${activity.icon}</div>
-                            <div class="activity-content">
-                                <div class="activity-text">${activity.text}</div>
-                                <div class="activity-date">${activity.date}</div>
+                    activityList.innerHTML = data.recent_activity.map(activity => {
+                        // Get icon SVG based on activity type
+                        const iconSVG = getActivityIcon(activity.type);
+                        
+                        return `
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    ${iconSVG}
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">${activity.text}</div>
+                                    <div class="activity-date">${activity.date}</div>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 } else {
                     activityList.innerHTML = `
                         <div class="empty-activity">
+                            <div class="empty-activity-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 16v-4M12 8h.01"></path>
+                                </svg>
+                            </div>
                             <p>No recent activity yet</p>
                         </div>
                     `;
@@ -382,11 +399,90 @@ function loadProfileData() {
         if (activityList) {
             activityList.innerHTML = `
                 <div class="error-activity">
+                    <div class="error-activity-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
                     <p>Unable to load recent activity</p>
                 </div>
             `;
         }
     });
+}
+
+/**
+ * Get appropriate SVG icon based on activity type
+ * Replaces emoji icons with professional SVG icons
+ */
+function getActivityIcon(type) {
+    const iconMap = {
+        'application_submitted': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="13" x2="16" y2="13"></line>
+                <line x1="12" y1="17" x2="16" y2="17"></line>
+                <line x1="9" y1="13" x2="9.01" y2="13"></line>
+                <line x1="9" y1="17" x2="9.01" y2="17"></line>
+            </svg>
+        `,
+        'application_approved': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        `,
+        'application_rejected': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        `,
+        'supply_requested': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+        `,
+        'supply_received': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                <path d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="currentColor"></path>
+            </svg>
+        `,
+        'profile_updated': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+        `,
+        'training_applied': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+        `,
+        'account_verified': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+        `,
+        'default': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"></circle>
+                <path d="M12 1v6m0 6v6"></path>
+                <path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"></path>
+                <path d="M1 12h6m6 0h6"></path>
+                <path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path>
+            </svg>
+        `
+    };
+
+    return iconMap[type] || iconMap['default'];
 }
 
 // ==============================================
@@ -1786,7 +1882,7 @@ function showLogoutConfirmation() {
                 width: 48px;
                 height: 48px;
                 min-width: 48px;
-                background: linear-gradient(135deg, #fee2e2, #fecaca);
+                background: linear-gradient(135deg, #c3e9d0, #a8dfc4);
                 border-radius: 12px;
                 display: flex;
                 align-items: center;
@@ -1794,7 +1890,7 @@ function showLogoutConfirmation() {
             }
 
             .logout-icon svg {
-                color: #dc2626;
+                color: #009329;
                 width: 24px;
                 height: 24px;
             }
@@ -1858,14 +1954,14 @@ function showLogoutConfirmation() {
             }
 
             .btn-confirm-logout {
-                background: #ef4444;
+                background: #009329;
                 color: white;
-                border: 1px solid #dc2626;
+                border: 1px solid #007a21;
             }
 
             .btn-confirm-logout:hover:not(:disabled) {
-                background: #dc2626;
-                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                background: #007a21;
+                box-shadow: 0 4px 12px rgba(0, 147, 41, 0.3);
                 transform: translateY(-1px);
             }
 
@@ -2777,338 +2873,42 @@ function togglePasswordVisibility(inputId) {
 }
 
 // Enhanced Notification System with Sound Support
+/**
+ * UNIFIED NOTIFICATION SYSTEM - Uses modern toast-notifications.js
+ * Provides a consistent, user-friendly notification experience
+ * Automatically falls back to console if toast system is not available
+ */
 function showNotification(type, message) {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type} show-notification`;
-
-    // Create icon based on type
-    let icon = '';
-    switch(type) {
-        case 'success':
-            icon = '✓';
-            break;
-        case 'error':
-            icon = '⚠';
-            break;
-        case 'info':
-            icon = 'ℹ';
-            break;
-        default:
-            icon = '•';
+    // Use modern toast system if available
+    if (typeof toast !== 'undefined' && toast) {
+        // Map notification types to toast types
+        const typeMap = {
+            'success': 'success',
+            'error': 'error',
+            'info': 'info',
+            'warning': 'warning'
+        };
+        
+        const toastType = typeMap[type] || 'info';
+        toast.show(message, toastType, { duration: 5500 });
+    } else {
+        // Fallback to console if toast system not loaded
+        console.warn(`[${type.toUpperCase()}] ${message}`);
     }
-
-    notification.innerHTML = `
-        <div class="notification-container">
-            <div class="notification-icon">${icon}</div>
-            <div class="notification-content">
-                <div class="notification-message">${message}</div>
-            </div>
-            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
-        </div>
-    `;
-
-    // Add styles if not already present
-    if (!document.querySelector('#enhanced-notification-styles')) {
-        const styles = document.createElement('style');
-        styles.id = 'enhanced-notification-styles';
-        styles.textContent = `
-            /* Enhanced Notification Styles */
-            .show-notification {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) scale(0.9);
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-                padding: 0;
-                z-index: 10001;
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                border-left: 6px solid;
-                min-width: 400px;
-                max-width: 500px;
-                opacity: 0;
-                pointer-events: none;
-            }
-
-            .show-notification.notification-success {
-                border-left-color: #10b981;
-            }
-
-            .show-notification.notification-error {
-                border-left-color: #ef4444;
-            }
-
-            .show-notification.notification-info {
-                border-left-color: #3b82f6;
-            }
-
-            /* Animate in */
-            .show-notification {
-                animation: notificationSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            }
-
-            @keyframes notificationSlideIn {
-                0% {
-                    opacity: 0;
-                    transform: translate(-50%, -50%) scale(0.8);
-                }
-                100% {
-                    opacity: 1;
-                    transform: translate(-50%, -50%) scale(1);
-                }
-            }
-
-            @keyframes notificationSlideOut {
-                0% {
-                    opacity: 1;
-                    transform: translate(-50%, -50%) scale(1);
-                }
-                100% {
-                    opacity: 0;
-                    transform: translate(-50%, -50%) scale(0.8);
-                }
-            }
-
-            .notification-container {
-                display: flex;
-                align-items: center;
-                gap: 16px;
-                padding: 24px 28px;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            .notification-icon {
-                flex-shrink: 0;
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-                font-weight: bold;
-            }
-
-            .notification-success .notification-icon {
-                background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-                color: #065f46;
-            }
-
-            .notification-error .notification-icon {
-                background: linear-gradient(135deg, #fee2e2, #fecaca);
-                color: #991b1b;
-            }
-
-            .notification-info .notification-icon {
-                background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-                color: #1e40af;
-            }
-
-            .notification-content {
-                flex: 1;
-                min-width: 0;
-            }
-
-            .notification-message {
-                font-weight: 500;
-                color: #1f2937;
-                font-size: 16px;
-                line-height: 1.5;
-                word-wrap: break-word;
-            }
-
-            .notification-success .notification-message {
-                color: #065f46;
-            }
-
-            .notification-error .notification-message {
-                color: #7f1d1d;
-            }
-
-            .notification-info .notification-message {
-                color: #1e3a8a;
-            }
-
-            .notification-close {
-                flex-shrink: 0;
-                background: none;
-                border: none;
-                font-size: 28px;
-                color: #d1d5db;
-                cursor: pointer;
-                padding: 0;
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.2s ease;
-                border-radius: 50%;
-            }
-
-            .notification-close:hover {
-                color: #6b7280;
-                background: #f3f4f6;
-            }
-
-            /* Responsive Design for Mobile */
-            @media (max-width: 768px) {
-                .show-notification {
-                    min-width: 90vw;
-                    max-width: 90vw;
-                    top: 60%;
-                }
-
-                .notification-container {
-                    padding: 20px 20px;
-                }
-
-                .notification-icon {
-                    width: 40px;
-                    height: 40px;
-                    font-size: 20px;
-                }
-
-                .notification-message {
-                    font-size: 15px;
-                }
-            }
-
-            @media (max-width: 480px) {
-                .show-notification {
-                    min-width: 85vw;
-                    max-width: 85vw;
-                }
-
-                .notification-container {
-                    padding: 18px 16px;
-                    gap: 12px;
-                }
-
-                .notification-icon {
-                    width: 36px;
-                    height: 36px;
-                    font-size: 18px;
-                }
-
-                .notification-message {
-                    font-size: 14px;
-                }
-
-                .notification-close {
-                    width: 28px;
-                    height: 28px;
-                    font-size: 24px;
-                }
-            }
-        `;
-        document.head.appendChild(styles);
-    }
-
-    document.body.appendChild(notification);
-
-    // Trigger animation
-    setTimeout(() => {
-        notification.style.opacity = '1';
-        notification.style.pointerEvents = 'auto';
-    }, 10);
-
-    // Play notification sound
-    playNotificationSound(type);
-
-    // Auto remove after 5 seconds
-    const timeoutId = setTimeout(() => {
-        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
-        setTimeout(() => notification.remove(), 400);
-    }, 5000);
-
-    // Allow manual close
-    notification.querySelector('.notification-close').onclick = () => {
-        clearTimeout(timeoutId);
-        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
-        setTimeout(() => notification.remove(), 400);
-    };
 }
 
-// Notification Sound System
+// Note: Sound notifications are now handled by the toast-notifications.js system
+// These stub functions are kept for backward compatibility
 function playNotificationSound(type) {
-    // Try to use Web Audio API for better compatibility
-    try {
-        playToneNotification(type);
-    } catch (e) {
-        console.log('Web Audio API not available, notification sound skipped');
-    }
+    // Sounds are now handled by toast system - no action needed here
 }
 
 function playToneNotification(type) {
-    // Create audio context
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-    let frequency, duration;
-
-    switch(type) {
-        case 'success':
-            // Two ascending tones for success
-            frequency = [523.25, 659.25]; // C5, E5
-            duration = [150, 150];
-            break;
-        case 'error':
-            // Two descending tones for error
-            frequency = [392, 261.63]; // G4, C4
-            duration = [200, 200];
-            break;
-        case 'info':
-            // Single tone for info
-            frequency = [440]; // A4
-            duration = [150];
-            break;
-        default:
-            return;
-    }
-
-    frequency.forEach((freq, index) => {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.frequency.value = freq;
-        oscillator.type = 'sine';
-
-        const startTime = audioContext.currentTime + (index > 0 ? duration[index - 1] / 1000 : 0);
-
-        gainNode.gain.setValueAtTime(0.3, startTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration[index] / 1000);
-
-        oscillator.start(startTime);
-        oscillator.stop(startTime + duration[index] / 1000);
-    });
+    // Sounds are now handled by toast system - no action needed here
 }
 
-// Alternative: Use simple beep with fallback
 function playSimpleBeep() {
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.frequency.value = 1000; // 1kHz beep
-        oscillator.type = 'sine';
-
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.2);
-    } catch (e) {
-        // Silently fail if audio not available
-    }
+    // Sounds are now handled by toast system - no action needed here
 }
 
 // ==============================================
@@ -3755,17 +3555,6 @@ document.addEventListener('DOMContentLoaded', function() {
         maybeStartVerificationPoll();
     }, 500);
 });
-
-// /**
-//  * Hook: Stop polling on logout
-//  */
-// function logoutUserWithPolling() {
-//     // Stop polling before logging out
-//     stopVerificationPolling();
-
-//     // Then logout (your existing logout logic)
-//     logoutUser();
-// }
 
 /**
  * Hook: Stop polling when verification modal closes
@@ -5061,6 +4850,396 @@ function initForgotPassword() {
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', initForgotPassword);
+
+
+/**
+ * Force refresh user session from server
+ * Call this after admin makes changes to user account
+ */
+async function refreshUserSessionFromServer() {
+    try {
+        const response = await fetch('/api/user/refresh-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.authenticated) {
+            console.log('✅ Session refreshed from server:', data.user);
+
+            // Update window.userData with fresh data
+            if (window.userData) {
+                window.userData.status = data.user.status;
+                window.userData.username = data.user.username;
+                window.userData.name = data.user.name;
+                window.userData.user_type = data.user.user_type;
+
+                console.log('✅ window.userData updated:', window.userData);
+
+                // Update header display
+                if (typeof updateHeaderStatusDisplay === 'function') {
+                    updateHeaderStatusDisplay(data.user.status);
+                }
+
+                // Update profile button
+                if (typeof refreshProfileVerifyButton === 'function') {
+                    refreshProfileVerifyButton();
+                }
+            }
+
+            return true;
+        } else {
+            console.warn('Session refresh failed:', data.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error refreshing session:', error);
+        return false;
+    }
+}
+
+/**
+ * Modified: proceedWithStatusUpdate - now refreshes session after update
+ */
+function proceedWithStatusUpdate(id, newStatus, remarks) {
+    const updateButton = document.querySelector('#updateModal .btn-primary');
+    const originalText = updateButton.innerHTML;
+    updateButton.innerHTML =
+        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+    updateButton.disabled = true;
+
+    const endpoint = `/admin/registrations/${id}/update-status`;
+    const requestData = {
+        status: newStatus,
+        remarks: remarks
+    };
+
+    console.log('Sending request to:', endpoint);
+    console.log('Request data:', requestData);
+
+    fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            console.log('Response Status:', response.status);
+            const clonedResponse = response.clone();
+
+            return clonedResponse.json().then(jsonData => {
+                console.log('Response JSON:', jsonData);
+                return {
+                    status: response.status,
+                    ok: response.ok,
+                    data: jsonData
+                };
+            }).catch(jsonError => {
+                console.warn('Could not parse JSON response:', jsonError);
+                return response.text().then(textData => {
+                    console.log('Response Text:', textData);
+                    return {
+                        status: response.status,
+                        ok: response.ok,
+                        text: textData
+                    };
+                });
+            });
+        })
+        .then(result => {
+            console.log('Processing result:', result);
+
+            if (!result.ok) {
+                let errorMessage = `Server Error (${result.status}): `;
+
+                if (result.data && result.data.message) {
+                    errorMessage += result.data.message;
+                    if (result.data.errors) {
+                        console.error('Validation errors:', result.data.errors);
+                        errorMessage += '\n\nValidation errors:\n' + JSON.stringify(result.data.errors, null,
+                            2);
+                    }
+                } else if (result.text) {
+                    errorMessage += result.text.slice(0, 200);
+                } else {
+                    errorMessage += result.statusText || 'Unknown error';
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            if (result.data && result.data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                modal.hide();
+
+                showNotification('success', result.data.message || 'Registration status updated successfully');
+
+                console.log('Update successful, refreshing session...');
+
+                // NEW: Refresh session if user is logged in
+                if (window.userData && window.userData.id == id) {
+                    // This is the current user's account being updated
+                    console.log('Detected current user account update, refreshing session...');
+                    
+                    refreshUserSessionFromServer().then(() => {
+                        console.log('Session refreshed, reloading page...');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    });
+                } else {
+                    // Different user's account updated, just reload admin page
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+            } else {
+                throw new Error(result.data?.message || 'Unknown error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Complete error object:', error);
+            console.error('Error message:', error.message);
+            showNotification('error', 'Error updating registration status: ' + error.message);
+        })
+        .finally(() => {
+            updateButton.innerHTML = originalText;
+            updateButton.disabled = false;
+        });
+}
+
+/**
+ * Modified: proceedWithEditUser - now refreshes session after update
+ */
+function proceedWithEditUser(form, registrationId) {
+    const submitBtn = document.getElementById('editUserSubmitBtn');
+
+    // Show loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+
+    // Disable form inputs during submission
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => input.disabled = true);
+
+    // Get values
+    const jsonData = {
+        first_name: (document.getElementById('edit_first_name')?.value || '').trim(),
+        middle_name: (document.getElementById('edit_middle_name')?.value || '').trim(),
+        last_name: (document.getElementById('edit_last_name')?.value || '').trim(),
+        name_extension: (document.getElementById('edit_name_extension')?.value || '') || null,
+        sex: (document.getElementById('edit_sex')?.value || '') || null,
+        contact_number: (document.getElementById('edit_contact_number')?.value || '').trim(),
+        barangay: (document.getElementById('edit_barangay')?.value || '').trim(),
+        complete_address: (document.getElementById('edit_complete_address')?.value || '').trim(),
+        user_type: (document.getElementById('edit_user_type')?.value || '').trim(),
+        emergency_contact_name: (document.getElementById('edit_emergency_contact_name')?.value || '').trim(),
+        emergency_contact_phone: (document.getElementById('edit_emergency_contact_phone')?.value || '').trim()
+    };
+
+    console.log('Sending update data:', jsonData);
+
+    // Submit to backend
+    fetch(`/admin/registrations/${registrationId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(jsonData)
+        })
+        .then(response => {
+            return response.json().then(data => {
+                if (!response.ok) {
+                    throw {
+                        status: response.status,
+                        message: data.message || 'Update failed',
+                        errors: data.errors || {}
+                    };
+                }
+                return data;
+            });
+        })
+        .then(data => {
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                if (modal) modal.hide();
+
+                showNotification('success', data.message || 'Registration updated successfully');
+
+                console.log('Update successful, refreshing session...');
+
+                // NEW: Refresh session if user is logged in
+                if (window.userData && window.userData.id == registrationId) {
+                    console.log('Detected current user account update, refreshing session...');
+                    
+                    refreshUserSessionFromServer().then(() => {
+                        console.log('Session refreshed, reloading page...');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    });
+                } else {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+            } else {
+                throw {
+                    status: 422,
+                    message: data.message || 'Failed to update registration',
+                    errors: data.errors || {}
+                };
+            }
+        })
+        .catch(error => {
+            console.error('Error occurred:', error);
+
+            // Handle validation errors
+            if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+                const fieldMap = {
+                    'first_name': 'edit_first_name',
+                    'last_name': 'edit_last_name',
+                    'contact_number': 'edit_contact_number',
+                    'barangay': 'edit_barangay',
+                    'user_type': 'edit_user_type',
+                    'emergency_contact_name': 'edit_emergency_contact_name',
+                    'emergency_contact_phone': 'edit_emergency_contact_phone',
+                    'complete_address': 'edit_complete_address',
+                    'middle_name': 'edit_middle_name',
+                    'name_extension': 'edit_name_extension'
+                };
+
+                Object.keys(error.errors).forEach(field => {
+                    const elementId = fieldMap[field];
+                    const input = document.getElementById(elementId);
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                        if (existingFeedback) existingFeedback.remove();
+
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        const errorMessage = Array.isArray(error.errors[field]) ?
+                            error.errors[field][0] :
+                            error.errors[field];
+                        errorDiv.textContent = errorMessage;
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                });
+
+                showNotification('error', error.message);
+            } else {
+                showNotification('error', error.message || 'Error updating registration');
+            }
+
+            // Restore button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            formInputs.forEach(input => input.disabled = false);
+        });
+}
+
+/**
+ * Also refresh session after user updates their own profile
+ */
+async function handleEditProfileSubmit(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const submitBtn = document.getElementById('save-profile-btn');
+    const usernameInput = document.getElementById('edit-username');
+
+    // Get form data
+    const formData = new FormData(form);
+    const profileData = {};
+
+    // Collect editable fields
+    const editableFields = ['username', 'contact_number', 'complete_address', 'barangay'];
+
+    for (let field of editableFields) {
+        const value = formData.get(field);
+        if (value && value.trim() !== '') {
+            profileData[field] = value.trim();
+        }
+    }
+
+    // ... validation code here ...
+
+    // Set loading state
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+
+    if (btnText) btnText.style.display = 'none';
+    if (btnLoader) btnLoader.style.display = 'inline';
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/user/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(profileData),
+            credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('success', data.message || 'Profile updated successfully!');
+
+            // NEW: Refresh session from server
+            const sessionRefreshed = await refreshUserSessionFromServer();
+
+            // Close modal after short delay
+            setTimeout(() => {
+                closeEditProfileModal();
+                if (sessionRefreshed) {
+                    // Reload to get updated data everywhere
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                }
+            }, 1000);
+        } else {
+            let errorMessage = data.message || 'Failed to update profile';
+            if (data.errors) {
+                const errorMessages = Object.values(data.errors).flat();
+                errorMessage = errorMessages.join(', ');
+            }
+            showNotification('error', errorMessage);
+        }
+    } catch (error) {
+        console.error('Profile update error:', error);
+        showNotification('error', 'Network error. Please check your connection and try again.');
+    } finally {
+        // Reset button state
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoader) btnLoader.style.display = 'none';
+        submitBtn.disabled = false;
+
+        // Clear border colors on input
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.style.borderColor = '';
+        });
+    }
+}
 
 // ==============================================
 // GLOBAL FUNCTION EXPORTS

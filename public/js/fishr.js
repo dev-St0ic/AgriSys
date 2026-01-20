@@ -252,8 +252,12 @@ function openFormFishR(event) {
         }
 
 
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll to top with proper timing and multiple fallbacks
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }, 50);
 
         // Update URL without page reload
         if (window.location.pathname !== '/services/fishr') {
@@ -282,9 +286,6 @@ function closeFormFishR() {
 
     // Show main sections again
     if (typeof showAllMainSections === 'function') showAllMainSections();
-
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Update URL to home page
     if (window.location.pathname !== '/') {
@@ -528,6 +529,12 @@ function initializeFishRFormSubmission() {
 
                         // Close form and return to landing
                         closeFormFishR();
+                        // Scroll to top after modal closes and form is hidden
+                        setTimeout(() => {
+                            document.documentElement.scrollTop = 0;
+                            document.body.scrollTop = 0;
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 500);
                     }
                 });
             } else {

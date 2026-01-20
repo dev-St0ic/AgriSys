@@ -18,7 +18,7 @@ class AgrisysModal {
         }
         this.modalContainer = document.getElementById('agrisys-modal-container');
     }
-a
+
     createModalStyles() {
         if (document.getElementById('agrisys-modal-styles')) return;
 
@@ -41,6 +41,7 @@ a
                 opacity: 0;
                 visibility: hidden;
                 transition: opacity 0.3s ease, visibility 0.3s ease;
+                padding: 20px;
             }
 
             .agrisys-modal-overlay.show {
@@ -59,6 +60,7 @@ a
                 overflow: hidden;
                 transform: scale(0.9) translateY(20px);
                 transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                position: relative;
             }
 
             .agrisys-modal-overlay.show .agrisys-modal {
@@ -67,11 +69,14 @@ a
 
             /* Modal Header */
             .agrisys-modal-header {
+                background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+                color: white;
                 padding: 24px 24px 16px;
                 display: flex;
                 align-items: center;
                 gap: 16px;
-                border-bottom: 1px solid #e5e7eb;
+                border-bottom: none;
+                border-radius: 16px 16px 0 0;
             }
 
             .agrisys-modal-icon {
@@ -106,6 +111,19 @@ a
                 color: #1e40af;
             }
 
+            /* Type-specific header backgrounds */
+            .agrisys-modal-error .agrisys-modal-header {
+                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            }
+
+            .agrisys-modal-warning .agrisys-modal-header {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            }
+
+            .agrisys-modal-info .agrisys-modal-header {
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            }
+
             .agrisys-modal-title-container {
                 flex: 1;
             }
@@ -114,14 +132,14 @@ a
                 margin: 0;
                 font-size: 18px;
                 font-weight: 600;
-                color: #111827;
+                color: #ffffff;
                 line-height: 1.3;
             }
 
             .agrisys-modal-subtitle {
                 margin: 4px 0 0;
                 font-size: 13px;
-                color: #6b7280;
+                color: rgba(255, 255, 255, 0.9);
             }
 
             /* Modal Body */
@@ -237,7 +255,7 @@ a
                 background: #c82333;
             }
 
-            /* Type-specific styling */
+            /* Type-specific button styling */
             .agrisys-modal-success .agrisys-modal-btn-primary {
                 background: #40916c;
             }
@@ -278,20 +296,20 @@ a
                 width: 32px;
                 height: 32px;
                 border-radius: 50%;
-                background: #f3f4f6;
+                background: rgba(255, 255, 255, 0.15);
                 border: none;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 18px;
-                color: #6b7280;
+                color: white;
                 transition: all 0.2s ease;
             }
 
             .agrisys-modal-close:hover {
-                background: #e5e7eb;
-                color: #374151;
+                background: rgba(255, 255, 255, 0.25);
+                color: white;
             }
 
             /* Responsive */
@@ -378,6 +396,7 @@ a
      * @param {string} options.type - Modal type: 'success', 'error', 'warning', 'info'
      * @param {string} options.message - Main message to display
      * @param {string} options.title - Optional title (uses default if not provided)
+     * @param {string} options.subtitle - Optional subtitle
      * @param {string} options.reference - Optional reference number to display
      * @param {Array} options.errors - Optional array of error messages for validation errors
      * @param {Function} options.onClose - Optional callback when modal closes
@@ -391,6 +410,7 @@ a
             type = 'info',
             message = '',
             title = this.getDefaultTitle(type),
+            subtitle = null,
             reference = null,
             errors = null,
             onClose = null,
@@ -410,6 +430,7 @@ a
                     <div class="agrisys-modal-icon">${this.getIcon(type)}</div>
                     <div class="agrisys-modal-title-container">
                         <h3 class="agrisys-modal-title">${title}</h3>
+                        ${subtitle ? `<p class="agrisys-modal-subtitle">${subtitle}</p>` : ''}
                     </div>
                 </div>
                 <div class="agrisys-modal-body">

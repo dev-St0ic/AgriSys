@@ -376,7 +376,6 @@ function closeForm(formId) {
     if (formElement) formElement.style.display = 'none';
 
     showAllMainSections();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
 
@@ -582,6 +581,10 @@ function closeApplicationsModal() {
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = '';
+    }
+    // Reset filter buttons to 'All Applications'
+    if (typeof resetApplicationFilters === 'function') {
+        resetApplicationFilters();
     }
 }
 

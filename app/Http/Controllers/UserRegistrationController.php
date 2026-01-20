@@ -912,9 +912,8 @@ class UserRegistrationController extends Controller
         }
     }
 
-    /**
- * Update user registration (Admin only)
- * PUT /admin/registrations/{id}
+/**
+ * FIXED: Admin update registration (with session sync for logged-in users)
  */
 public function update(Request $request, $id)
 {
@@ -936,7 +935,7 @@ public function update(Request $request, $id)
         ], 404);
     }
 
-    // Validation rules - all fields are optional (admin can update any field)
+    // Validation rules
     $validator = Validator::make($request->all(), [
         'first_name' => 'sometimes|required|string|max:100',
         'middle_name' => 'nullable|string|max:100',
@@ -961,12 +960,6 @@ public function update(Request $request, $id)
             'max:11',
             'regex:/^09\d{9}$/'
         ],
-    ], [
-        'first_name.required' => 'First name is required',
-        'last_name.required' => 'Last name is required',
-        'contact_number.unique' => 'This contact number is already registered',
-        'contact_number.regex' => 'Contact number must start with 09 followed by 9 digits',
-        'emergency_contact_phone.regex' => 'Invalid emergency contact phone number',
     ]);
 
     if ($validator->fails()) {
@@ -982,10 +975,9 @@ public function update(Request $request, $id)
     }
 
     try {
-        // Prepare update data - only update fields that are present in request
+        // Prepare update data
         $updateData = [];
 
-        // Personal information
         if ($request->has('first_name')) {
             $updateData['first_name'] = trim($request->first_name);
         }
@@ -998,29 +990,21 @@ public function update(Request $request, $id)
         if ($request->has('name_extension')) {
             $updateData['name_extension'] = $request->name_extension ?: null;
         }
-        if ($request->has('sex')) {  
+        if ($request->has('sex')) {
             $updateData['sex'] = $request->sex ?: null;
         }
-
-        // Contact information
         if ($request->has('contact_number')) {
             $updateData['contact_number'] = trim($request->contact_number);
         }
-
-        // Address information
         if ($request->has('barangay')) {
             $updateData['barangay'] = $request->barangay;
         }
         if ($request->has('complete_address')) {
             $updateData['complete_address'] = trim($request->complete_address);
         }
-
-        // User type
         if ($request->has('user_type')) {
             $updateData['user_type'] = $request->user_type;
         }
-
-        // Emergency contact
         if ($request->has('emergency_contact_name')) {
             $updateData['emergency_contact_name'] = $request->emergency_contact_name ?
                 trim($request->emergency_contact_name) : null;
@@ -1030,7 +1014,6 @@ public function update(Request $request, $id)
                 trim($request->emergency_contact_phone) : null;
         }
 
-        // If no data to update, return warning
         if (empty($updateData)) {
             return response()->json([
                 'success' => false,
@@ -1041,10 +1024,26 @@ public function update(Request $request, $id)
         // Update the registration
         $registration->update($updateData);
 
+        // FIXED: Refresh registration data from database
+        $registration = UserRegistration::find($id);
+
+        // FIXED: If this user is currently logged in, update their session
+        if (session('user.id') == $id) {
+            session()->put('user', [
+                'id' => $registration->id,
+                'username' => $registration->username,
+                'name' => $registration->full_name ?? $registration->username,
+                'user_type' => $registration->user_type,
+                'status' => $registration->status
+            ]);
+            session()->put('user_status', $registration->status);
+        }
+
         \Log::info('Admin updated user registration', [
             'registration_id' => $id,
             'username' => $registration->username,
             'updated_fields' => array_keys($updateData),
+            'admin_id' => auth()->id()
         ]);
 
         return response()->json([
@@ -1076,9 +1075,8 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
-
     /**
-     * Update registration status
+     * FIXED: Update registration status with session sync
      */
     public function updateStatus(Request $request, $id)
     {
@@ -1117,13 +1115,10 @@ public function update(Request $request, $id)
 
             // Use model methods that trigger SMS notifications
             if ($newStatus === 'approved') {
-                // Use approve method which triggers SMS
                 $registration->approve(auth()->id());
             } elseif ($newStatus === 'rejected') {
-                // Use reject method which triggers SMS
                 $registration->reject($request->remarks ?? 'No reason provided', auth()->id());
             } else {
-                // For unverified and pending status, update directly
                 $updateData = [
                     'status' => $newStatus,
                     'approved_by' => auth()->id(),
@@ -1136,16 +1131,39 @@ public function update(Request $request, $id)
                 $registration->update($updateData);
             }
 
+            // FIXED: Refresh registration from database to get latest data
+            $registration = UserRegistration::find($id);
+
+            // FIXED: If user is currently logged in, update their session immediately
+            if (session('user.id') == $id) {
+                \Log::info('Updating session for logged-in user after status change', [
+                    'user_id' => $id,
+                    'old_status' => $oldStatus,
+                    'new_status' => $registration->status
+                ]);
+
+                session()->put('user', [
+                    'id' => $registration->id,
+                    'username' => $registration->username,
+                    'name' => $registration->full_name ?? $registration->username,
+                    'user_type' => $registration->user_type,
+                    'status' => $registration->status  // FRESH STATUS
+                ]);
+                session()->put('user_status', $registration->status);
+            }
+
             \Log::info('Registration status updated', [
                 'registration_id' => $id,
                 'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'sms_triggered' => in_array($newStatus, ['approved', 'rejected'])
+                'new_status' => $registration->status,
+                'sms_triggered' => in_array($newStatus, ['approved', 'rejected']),
+                'admin_id' => auth()->id()
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Registration status updated successfully',
+                'new_status' => $registration->status,
                 'auto_refresh' => true
             ]);
 
@@ -1223,61 +1241,72 @@ public function update(Request $request, $id)
         ]);
     }
 
-    /**
-     * Get user profile data
-     */
-    public function getUserProfile(Request $request)
-    {
-        try {
-            $userId = session('user.id');
+ /**
+ * FIXED: Get user profile with fresh data
+ */
+public function getUserProfile(Request $request)
+{
+    try {
+        $userId = session('user.id');
 
-            if (!$userId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 401);
-            }
-
-            $user = UserRegistration::find($userId);
-
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not found'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->full_name ?? $user->username,
-                    'username' => $user->username,
-                    'status' => $user->status,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'middle_name' => $user->middle_name,
-                    'name_extension' => $user->name_extension,
-                    'sex' => $user->sex, 
-                    'contact_number' => $user->contact_number,
-                    'date_of_birth' => $user->date_of_birth,
-                    'age' => $user->age,
-                    'complete_address' => $user->complete_address,
-                    'barangay' => $user->barangay,
-                    'user_type' => $user->user_type,
-                    'remarks' => $user->rejection_reason,
-                    'verified_at' => $user->approved_at,
-                ]
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Profile polling error: ' . $e->getMessage());
-
+        if (!$userId) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error retrieving user profile: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Unauthorized'
+            ], 401);
         }
+
+        $user = UserRegistration::find($userId);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        // FIXED: Also update session with fresh data from DB
+        $request->session()->put('user', [
+            'id' => $user->id,
+            'username' => $user->username,
+            'name' => $user->full_name ?? $user->username,
+            'user_type' => $user->user_type,
+            'status' => $user->status
+        ]);
+        $request->session()->put('user_status', $user->status);
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->full_name ?? $user->username,
+                'username' => $user->username,
+                'status' => $user->status,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'middle_name' => $user->middle_name,
+                'name_extension' => $user->name_extension,
+                'sex' => $user->sex, 
+                'contact_number' => $user->contact_number,
+                'date_of_birth' => $user->date_of_birth,
+                'age' => $user->age,
+                'complete_address' => $user->complete_address,
+                'barangay' => $user->barangay,
+                'user_type' => $user->user_type,
+                'remarks' => $user->rejection_reason,
+                'verified_at' => $user->approved_at,
+            ]
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Profile polling error: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error retrieving user profile: ' . $e->getMessage()
+        ], 500);
     }
+}
+
 
     /**
      * Update session data
@@ -1628,6 +1657,10 @@ public function update(Request $request, $id)
             $userRegistration->password = $request->new_password;
             $userRegistration->save();
 
+            // FIXED: Properly flush and regenerate session
+            $request->session()->flush();
+            $request->session()->regenerate();
+
             \Log::info('Password changed successfully', [
                 'user_id' => $userId,
                 'username' => $userRegistration->username,
@@ -1652,7 +1685,7 @@ public function update(Request $request, $id)
     }
 
     /**
-     * Update user profile
+     * FIXED: Update user profile with proper session sync
      */
     public function updateUserProfile(Request $request)
     {
@@ -1726,14 +1759,32 @@ public function update(Request $request, $id)
                 $updateData['username_changed_at'] = now();
             }
 
-            $registration->update(array_filter($updateData, function($value) {
+            // Filter out null values
+            $filteredData = array_filter($updateData, function($value) {
                 return $value !== null;
-            }));
+            });
 
-            $updatedUser = session('user');
-            $updatedUser['username'] = $registration->username;
-            $updatedUser['name'] = $registration->full_name ?? $registration->username;
-            session(['user' => $updatedUser]);
+            $registration->update($filteredData);
+
+            // FIXED: Refresh the user data from database
+            $registration = UserRegistration::find($userId);
+
+            // FIXED: Update session with fresh data from database
+            $request->session()->put('user', [
+                'id' => $registration->id,
+                'username' => $registration->username,
+                'name' => $registration->full_name ?? $registration->username,
+                'user_type' => $registration->user_type,
+                'status' => $registration->status  // ENSURE status is updated
+            ]);
+
+            // FIXED: Also update user_status in session separately
+            $request->session()->put('user_status', $registration->status);
+
+            \Log::info('User profile updated', [
+                'user_id' => $userId,
+                'updated_fields' => array_keys($filteredData)
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -1746,7 +1797,7 @@ public function update(Request $request, $id)
                     'complete_address' => $registration->complete_address,
                     'barangay' => $registration->barangay,
                     'name' => $registration->full_name ?? $registration->username,
-                    'status' => $registration->status,
+                    'status' => $registration->status,  // RETURN current status
                     'username_changed_at' => $registration->username_changed_at,
                 ]
             ]);
@@ -1756,6 +1807,70 @@ public function update(Request $request, $id)
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to update profile. Please try again'
+            ], 500);
+        }
+    }
+
+    /**
+     * Force session refresh endpoint
+     * Called by frontend after admin actions
+     */
+    public function refreshUserSession(Request $request)
+    {
+        $userId = session('user.id');
+        
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'authenticated' => false,
+                'message' => 'No active session'
+            ], 401);
+        }
+
+        try {
+            $user = UserRegistration::find($userId);
+            
+            if (!$user) {
+                $request->session()->flush();
+                return response()->json([
+                    'success' => false,
+                    'authenticated' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            // Update session with fresh data
+            $request->session()->put('user', [
+                'id' => $user->id,
+                'username' => $user->username,
+                'name' => $user->full_name ?? $user->username,
+                'user_type' => $user->user_type,
+                'status' => $user->status
+            ]);
+            $request->session()->put('user_status', $user->status);
+
+            \Log::info('User session refreshed', [
+                'user_id' => $userId,
+                'status' => $user->status
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'authenticated' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'status' => $user->status,
+                    'name' => $user->full_name ?? $user->username,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Session refresh error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error refreshing session'
             ], 500);
         }
     }

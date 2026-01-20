@@ -572,6 +572,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Create new user account
     Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
     // edit user account
+    // Update with session sync
     Route::put('/registrations/{id}', [UserRegistrationController::class, 'update'])->name('registrations.update');
     // Individual registration management
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
@@ -580,6 +581,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Enhanced status management with auto-refresh
     Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
     Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
+    
+    // Status update with session sync
     Route::post('/registrations/{id}/update-status', [UserRegistrationController::class, 'updateStatus'])->name('registrations.update-status');
 
     // Enhanced document viewing - supports images and files
@@ -701,11 +704,7 @@ Route::get('/api/user/session-check', function (\Illuminate\Http\Request $reques
 | User Dashboard Routes (Protected by UserSession middleware)
 |--------------------------------------------------------------------------
 */
-Route::middleware([
-    'web',
-    App\Http\Middleware\UserSession::class,
-    App\Http\Middleware\CheckSessionExpiration::class
-])->group(function () {
+Route::middleware(['web',App\Http\Middleware\UserSession::class,App\Http\Middleware\CheckSessionExpiration::class])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('user.dashboard');
 
     // User profile routes
@@ -725,6 +724,11 @@ Route::middleware([
         Route::get('/profile', [UserRegistrationController::class, 'getUserProfile'])->name('api.user.profile');
         Route::get('/applications', [UserRegistrationController::class, 'getUserApplications'])->name('api.user.applications');
         Route::post('/update-profile', [UserRegistrationController::class, 'updateUserProfile'])->name('api.user.update-profile');
+
+
+        // NEW: Explicit session refresh endpoint
+        Route::post('/refresh-session', [UserRegistrationController::class, 'refreshUserSession'])->name('api.user.refresh-session');
+
 
         // New endpoint to fetch all applications (RSBSA, Seedlings, FishR, BoatR, Training) in my applications modal
         Route::get('/applications/all', [UserApplicationsController::class, 'getAllApplications'])

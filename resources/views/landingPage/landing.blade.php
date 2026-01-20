@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('css/rsbsa.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/training.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ config('app.asset_version') }}">
+    <link rel="stylesheet" href="{{ asset('css/my-applications.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/toast-notifications.css') }}?v={{ config('app.asset_version') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
@@ -396,7 +397,7 @@
     <div id="contact-modal" class="contact-modal-overlay" style="display: none;">
         <div class="contact-modal-content">
             <div class="contact-modal-header">
-                <h3>Contact Our Support Team</h3>
+                <h3>Contact Information</h3>
                 <span class="contact-modal-close">&times;</span>
             </div>
             <div class="contact-modal-body">
@@ -409,7 +410,8 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Email</strong>
+                            <strong>Email:</strong>
+                            <br>
                             <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a>
                         </div>
                     </div>
@@ -421,8 +423,9 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Phone</strong>
-                            <p>8808-2020 Local 109</p>
+                            <strong>Contact:</strong>
+                            <br>
+                            <p>(02) 8808-2020, Local 109</p>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -433,7 +436,8 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Office Hours</strong>
+                            <strong>Office Hours:</strong>
+                            <br>
                             <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
                         </div>
                     </div>
@@ -447,7 +451,8 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Address</strong>
+                            <strong>Address:</strong>
+                            <br>
                             <span>City Agriculture Office<br>San Pedro City Hall, Laguna</span>
                         </div>
                     </div>
@@ -607,18 +612,53 @@
             </div>
         </div>
 
-        <!-- MY APPLICATIONS MODAL -->
+        <!-- MY APPLICATIONS MODAL - ENHANCED VERSION -->
         <div id="applications-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content applications-modal">
+                <!-- Modal Header -->
                 <div class="modal-header">
                     <h3>My Applications</h3>
                     <span class="modal-close" onclick="closeApplicationsModal()">&times;</span>
                 </div>
 
+                <!-- Modal Body -->
                 <div class="modal-body">
+                    <!-- Statistics Section -->
+                    <div id="applications-stats">
+                        <!-- Stats will be populated dynamically -->
+                        <div class="stats-section">
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Total Applications</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Pending Review</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Approved</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Rejected</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="filter-bar">
+                        <span class="filter-label">Filter by Status:</span>
+                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All Applications</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('pending')">Pending</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('approved')">Approved</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('rejected')">Rejected</button>
+                    </div>
+
+                    <!-- Applications Grid -->
                     <div class="applications-grid" id="applications-modal-grid">
-                        <!-- Will be populated by JavaScript -->
-                        <div class="loading-state">
+                        <!-- Applications will be populated here dynamically -->
+                        <div class="loading">
                             <div class="loader"></div>
                             <p>Loading your applications...</p>
                         </div>
@@ -1837,7 +1877,7 @@
                             legal review.</p>
                         <p>All updates to these Terms of Service will be posted on the AgriSys platform (agrisys.site)
                             and may also be posted on the official website of the City Agriculture Office of San Pedro,
-                            Laguna. The "Last Updated" date will reflect the most recent revision.</p>
+                            Laguna.</p>
                         <p>Continued use of AgriSys after the posting of updated Terms of Service constitutes your
                             acceptance of and agreement to be bound by the revised terms. If you do not agree with the
                             changes, you must immediately cease using AgriSys and may request termination of your
@@ -1851,7 +1891,7 @@
                             City Agriculture Office<br>
                             San Pedro City Hall<br>
                             San Pedro, Laguna, Philippines</p>
-                        <p><strong>Phone:</strong> (049) 8808-2020 Local 109<br>
+                        <p><strong>Contact:</strong>(02) 8808-2020, Local 109<br>
                             <strong>Email:</strong> agriculture.sanpedrocity@gmail.com
                         </p>
                         <p><strong>Office Hours:</strong><br>
@@ -1886,8 +1926,6 @@
                             Agriculture Office of San Pedro, Laguna is committed to modernizing agricultural service
                             delivery and supporting the livelihoods of our local farmers, fisherfolk, and livestock
                             raisers through secure, efficient, and data-driven solutions.</p>
-                        <p style="text-align: center; color: #999; font-size: 0.9em;">Effective Date: December 2025 |
-                            Last Updated: December 2025</p>
                     </div>
                 </div>
             </div>
@@ -2166,7 +2204,6 @@
                         <ol>
                             <li>All updates will be posted on the AgriSys website (agrisys.site) and the official
                                 website of the San Pedro City Agriculture Office</li>
-                            <li>The "Last Updated" date will reflect the most recent changes</li>
                             <li>If we make material changes that significantly affect how we collect, use, or share your
                                 data, we will notify you through AgriSys notifications, email (if available), or
                                 announcements at our office</li>
@@ -2199,7 +2236,7 @@
                             San Pedro, Laguna, Philippines</p>
 
                         <p><strong>Email:</strong> agriculture.sanpedrocity@gmail.com<br>
-                            <strong>Phone:</strong> (049) 8808-2020 Local 109<br>
+                            <strong>Contact:</strong>(02) 8808-2020, Local 109<br>
                             <strong>Office Hours:</strong> Monday to Friday, 8:00 AM - 5:00 PM (Closed on weekends and
                             public holidays)
                         </p>
@@ -2220,8 +2257,6 @@
                         <p>By registering with and using AgriSys, you acknowledge that you have read and understood this
                             Privacy Notice and consent to the collection, use, storage, and sharing of your personal
                             data as described herein.</p>
-                        <p style="text-align: center; color: #999; font-size: 0.9em;">Effective Date: December 2025 |
-                            Last Updated: December 2025</p>
                     </div>
                 </div>
             </div>
@@ -2264,7 +2299,7 @@
                 <p>City Agriculture Office<br>
                     San Pedro City Hall<br>
                     Laguna, Philippines</p>
-                <p style="margin-top: 12px;">Phone: 8808-2020 Local 109<br>
+                <p style="margin-top: 12px;">Contact: (02) 8808-2020, Local 109<br>
                     Email: <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a>
                 </p>
             </div>
@@ -2289,12 +2324,14 @@
         </div>
     </footer>
 
-    <!-- AgriSys Modal Notification System - Must load first -->
-    <script src="{{ asset('js/agrisys-modal.js') }}?v={{ config('app.asset_version') }}"></script>
+    <!-- Toast Notification System - MUST LOAD FIRST (used by all other scripts) -->
+    <script src="{{ asset('js/toast-notifications.js') }}?v={{ config('app.asset_version') }}"></script>
 
+    
     <script src="{{ asset('js/events-loader.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/slideshow.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/landing.js') }}?v={{ config('app.asset_version') }}"></script>
+    <script src="{{ asset('js/submission-service.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/seedlings.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/rsbsa.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/fishr.js') }}?v={{ config('app.asset_version') }}"></script>
@@ -2308,7 +2345,6 @@
     <script src="{{ asset('js/boatr-autofill.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/seedlings-autofill.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}?v={{ config('app.asset_version') }}"></script>
-    <script src="{{ asset('js/toast-notifications.js') }}?v={{ config('app.asset_version') }}"></script>
 
     <!-- Mobile Navigation Script -->
     <script>

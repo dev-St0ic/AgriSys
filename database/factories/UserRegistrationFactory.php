@@ -63,7 +63,7 @@ class UserRegistrationFactory extends Factory
             'barangay' => $this->faker->optional(0.7)->randomElement($allBarangays),
             'user_type' => $this->faker->optional(0.8)->randomElement(['farmer', 'fisherfolk']),
             'date_of_birth' => $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years'),
-            'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            // 'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
 
             // 'verification_token' => $this->faker->optional(0.3)->sha256(),
             'username_changed_at' => null,
@@ -86,7 +86,7 @@ class UserRegistrationFactory extends Factory
             'barangay' => null,
             'user_type' => null,
             'date_of_birth' => null,
-            'gender' => null,
+            // 'gender' => null,
             'age' => null,
             'approved_at' => null,
             'approved_by' => null,
@@ -133,7 +133,7 @@ class UserRegistrationFactory extends Factory
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
             'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
-            'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            // 'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
             'approved_at' => null,
             'approved_by' => null,
             'rejection_reason' => null,
@@ -179,7 +179,7 @@ class UserRegistrationFactory extends Factory
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
             'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
-            'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            // 'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
             'approved_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
             'approved_by' => null,
             'rejection_reason' => null,
@@ -273,7 +273,7 @@ class UserRegistrationFactory extends Factory
                 'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
             ]),
             'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
-            'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            // 'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
         ]);
     }
@@ -293,7 +293,7 @@ class UserRegistrationFactory extends Factory
             'barangay' => null,
             'user_type' => null,
             'date_of_birth' => null,
-            'gender' => null,
+            // 'gender' => null,
             'age' => null,
         ]);
     }

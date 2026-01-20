@@ -42,8 +42,12 @@ function openFormTraining(event) {
             history.pushState({page: 'training'}, 'Training Application', '/services/training');
         }
 
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll to top with proper timing and multiple fallbacks
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }, 50);
 
         console.log('Training form opened successfully');
     } else {
@@ -165,9 +169,6 @@ function closeFormTraining() {
 
         // Update URL to services page
         history.pushState({page: 'services'}, '', '/services');
-
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
@@ -281,6 +282,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             trainingForm.reset();
                             // Close form
                             closeFormTraining();
+                            // Scroll to top after modal closes and form is hidden
+                            setTimeout(() => {
+                                document.documentElement.scrollTop = 0;
+                                document.body.scrollTop = 0;
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }, 500);
                         }
                     });
                 } else {

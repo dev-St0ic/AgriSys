@@ -1,6 +1,6 @@
 // ==============================================
 // TOAST NOTIFICATION SYSTEM
-// Modern, non-intrusive notifications
+// Centered, farmer-friendly notifications
 // ==============================================
 
 class ToastNotification {
@@ -8,8 +8,9 @@ class ToastNotification {
         this.container = null;
         this.toasts = [];
         this.defaultDuration = options.duration || 5000;
-        this.maxToasts = options.maxToasts || 5;
-        this.position = options.position || 'top-right'; // top-right, top-left, bottom-right, bottom-left
+        this.maxToasts = options.maxToasts || 3;
+        this.position = options.position || 'top-center';
+        this.soundEnabled = options.soundEnabled !== undefined ? options.soundEnabled : true; // Enabled by default
         
         this.init();
     }
@@ -42,6 +43,11 @@ class ToastNotification {
         this.container.appendChild(toast);
         this.toasts.push(toast);
 
+        // Play sound if enabled
+        if (this.soundEnabled && type !== 'info') {
+            this.playNotificationSound(type);
+        }
+
         // Trigger animation
         setTimeout(() => {
             toast.classList.add('show');
@@ -66,10 +72,10 @@ class ToastNotification {
         toast.innerHTML = `
             <div class="toast-icon">${icon}</div>
             <div class="toast-content">
-                <div class="toast-title">${title}</div>
-                <div class="toast-message">${message}</div>
+                <div class="toast-title">${this.escapeHtml(title)}</div>
+                <div class="toast-message">${this.escapeHtml(message)}</div>
             </div>
-            <button class="toast-close" aria-label="Close">&times;</button>
+            <button class="toast-close" aria-label="Close notification">&times;</button>
             ${duration > 0 ? '<div class="toast-progress"></div>' : ''}
         `;
 
@@ -97,7 +103,7 @@ class ToastNotification {
             if (index > -1) {
                 this.toasts.splice(index, 1);
             }
-        }, 400);
+        }, 500);
     }
 
     getIcon(type) {
@@ -120,33 +126,124 @@ class ToastNotification {
         return titles[type] || 'Notification';
     }
 
+    // Escape HTML to prevent XSS
+    escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    /**
+     * Play notification sound based on type
+     * Uses Web Audio API for rich tone notifications
+     */
+    playNotificationSound(type) {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let frequencies, durations;
+
+            switch(type) {
+                case 'success':
+                    // Two ascending tones for success
+                    frequencies = [523.25, 659.25]; // C5, E5
+                    durations = [150, 150];
+                    break;
+                case 'error':
+                    // Two descending tones for error
+                    frequencies = [392, 261.63]; // G4, C4
+                    durations = [200, 200];
+                    break;
+                case 'warning':
+                    // Single warning tone
+                    frequencies = [554.37]; // C#5
+                    durations = [180];
+                    break;
+                default:
+                    return;
+            }
+
+            frequencies.forEach((freq, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sine';
+
+                const startTime = audioContext.currentTime + (index > 0 ? durations[index - 1] / 1000 : 0);
+
+                gainNode.gain.setValueAtTime(0.3, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + durations[index] / 1000);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + durations[index] / 1000);
+            });
+        } catch (e) {
+            // Silently fail if audio not available
+            console.debug('Audio notification unavailable:', e.message);
+        }
+    }
+
+    /**
+     * Enable notification sounds
+     */
+    enableSound() {
+        this.soundEnabled = true;
+    }
+
+    /**
+     * Disable notification sounds
+     */
+    disableSound() {
+        this.soundEnabled = false;
+    }
+
     // Convenience methods
     success(message, options = {}) {
-        return this.show(message, 'success', options);
+        return this.show(message, 'success', {
+            title: 'Success',
+            ...options
+        });
     }
 
     error(message, options = {}) {
-        return this.show(message, 'error', options);
+        return this.show(message, 'error', {
+            title: 'Error',
+            ...options
+        });
     }
 
     warning(message, options = {}) {
-        return this.show(message, 'warning', options);
+        return this.show(message, 'warning', {
+            title: 'Warning',
+            ...options
+        });
     }
 
     info(message, options = {}) {
-        return this.show(message, 'info', options);
+        return this.show(message, 'info', {
+            title: 'Information',
+            ...options
+        });
     }
 
     clearAll() {
-        this.toasts.forEach(toast => this.remove(toast));
+        this.toasts.slice().forEach(toast => this.remove(toast));
     }
 }
 
 // Initialize global toast instance
 const toast = new ToastNotification({
     duration: 5000,
-    maxToasts: 5,
-    position: 'top-right'
+    maxToasts: 3,
+    position: 'top-center'
 });
 
 // Make it globally available
@@ -174,11 +271,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Show as toast
-        toast.show(message, type);
+        if (message) {
+            toast.show(message, type);
+        }
         
         // Hide the original alert
         alert.style.display = 'none';
     });
+});
+
+// ==============================================
+// ACCESSIBILITY ENHANCEMENTS
+// ==============================================
+
+// Dismiss toast on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && toast.toasts.length > 0) {
+        const lastToast = toast.toasts[toast.toasts.length - 1];
+        if (lastToast) {
+            toast.remove(lastToast);
+        }
+    }
 });
 
 // ==============================================
@@ -187,10 +300,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /*
 // Basic usage
-toast.success('Operation completed successfully!');
-toast.error('Something went wrong!');
-toast.warning('Please check your input!');
-toast.info('New message received!');
+toast.success('Application submitted successfully!');
+toast.error('Failed to save your request. Please try again.');
+toast.warning('Please review your information before submitting.');
+toast.info('Your application is being processed.');
 
 // With custom options
 toast.success('Profile updated!', {
@@ -198,14 +311,14 @@ toast.success('Profile updated!', {
     duration: 3000
 });
 
-// With custom title
+// With longer duration
 toast.error('Failed to save changes', {
     title: 'Oops!',
     duration: 7000
 });
 
 // Without auto-dismiss (duration: 0)
-toast.info('This will stay until closed', {
+toast.info('This will stay until you close it', {
     duration: 0
 });
 
@@ -213,4 +326,4 @@ toast.info('This will stay until closed', {
 toast.clearAll();
 */
 
-console.log('Toast notification system loaded');
+console.log('🌾 Toast notification system loaded - Sound enabled by default, appears above all modals!');
