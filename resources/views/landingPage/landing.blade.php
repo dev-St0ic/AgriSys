@@ -397,7 +397,7 @@
     <div id="contact-modal" class="contact-modal-overlay" style="display: none;">
         <div class="contact-modal-content">
             <div class="contact-modal-header">
-                <h3>Contact Our Support Team</h3>
+                <h3>Contact Information</h3>
                 <span class="contact-modal-close">&times;</span>
             </div>
             <div class="contact-modal-body">
@@ -410,7 +410,8 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Email</strong>
+                            <strong>Email:</strong>
+                            <br>
                             <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a>
                         </div>
                     </div>
@@ -422,7 +423,8 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Phone</strong>
+                            <strong>Phone:</strong>
+                            <br>
                             <p>8808-2020 Local 109</p>
                         </div>
                     </div>
@@ -434,7 +436,8 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Office Hours</strong>
+                            <strong>Office Hours:</strong>
+                            <br>
                             <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
                         </div>
                     </div>
@@ -448,7 +451,8 @@
                             </svg>
                         </div>
                         <div class="contact-info-text">
-                            <strong>Address</strong>
+                            <strong>Address:</strong>
+                            <br>
                             <span>City Agriculture Office<br>San Pedro City Hall, Laguna</span>
                         </div>
                     </div>
