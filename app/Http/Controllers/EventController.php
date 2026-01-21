@@ -146,7 +146,7 @@ class EventController extends Controller
             'title' => 'required|string|max:255|unique:events,title',
             'description' => 'required|string|min:10',
             'category' => 'required|string|in:announcement,ongoing,upcoming,past',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB
             'date' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:500',
             'details' => 'nullable|string',
@@ -328,7 +328,7 @@ class EventController extends Controller
             'title' => 'required|string|max:255|unique:events,title,' . $event->id,
             'description' => 'required|string|min:10',
             'category' => 'required|string|in:announcement,ongoing,upcoming,past',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB
             'date' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:500',
             'details' => 'nullable|string',

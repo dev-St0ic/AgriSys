@@ -425,26 +425,40 @@
     <div class="modal fade" id="createEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create New Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-plus-circle me-2"></i>Create New Event
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="createEventForm" enctype="multipart/form-data" novalidate>
                     @csrf
                     <div class="modal-body">
+                        <!-- Title -->
                         <div class="mb-3">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" required>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-heading me-1 text-primary"></i>Title 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="title" class="form-control" placeholder="Enter event title" required>
                         </div>
 
+                        <!-- Description -->
                         <div class="mb-3">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea name="description" class="form-control" rows="4" required></textarea>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-1 text-primary"></i>Description 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="description" class="form-control" rows="4" placeholder="Enter event description" required></textarea>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                        <!-- Category and Status Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-1 text-primary"></i>Category 
+                                    <span class="text-danger">*</span>
+                                </label>
                                 <select name="category" class="form-select" required>
                                     <option value="">Select category...</option>
                                     <option value="announcement">Announcement</option>
@@ -453,65 +467,88 @@
                                     <option value="past">Past</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-toggle-on me-1 text-primary"></i>Status
+                                </label>
                                 <select name="is_active" class="form-select">
-                                    <option value="1" selected>Active</option>
                                     <option value="0">Inactive</option>
+                                    <option value="1" selected>Active</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Date/Time</label>
-                            <input type="text" name="date" class="form-control"
-                                placeholder="e.g., November 15, 2025 | 6:00 AM">
+                        <!-- Date and Location Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
+                                </label>
+                                <input type="text" name="date" class="form-control" placeholder="e.g., November 15, 2025 | 6:00 AM">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-map-marker-alt me-1 text-primary"></i>Location
+                                </label>
+                                <input type="text" name="location" class="form-control" placeholder="Enter event location">
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" name="location" class="form-control" placeholder="Event location">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Image</label>
+                        <!-- Image Upload -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image me-1 text-primary"></i>Event Image
+                            </label>
                             <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Max 5MB (JPEG, PNG, GIF, WebP)</small>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Max 10MB (JPEG, PNG, GIF, WebP)
+                            </small>
                         </div>
 
-                        <hr>
-                        <h6 class="mb-3">Event Details (Optional)</h6>
+                        <hr class="my-4">
 
-                        <div id="detailsContainer">
-                            <div class="detail-row mb-2">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control form-control-sm detail-key"
-                                            placeholder="Detail name">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control detail-value"
-                                                placeholder="Detail value">
-                                            <button type="button" class="btn btn-outline-danger btn-sm"
-                                                onclick="removeDetailRow(this)">Remove</button>
+                        <!-- Event Details Section -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-list-ul me-2"></i>Additional Event Details
+                                <span class="badge bg-secondary ms-2">Optional</span>
+                            </h6>
+                            
+                            <div id="detailsContainer">
+                                <div class="detail-row mb-3">
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name (e.g., Speaker, Duration)">
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control detail-value" placeholder="Detail value">
+                                                <button type="button" class="btn btn-outline-danger" onclick="removeDetailRow(this)" title="Remove this detail">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="addDetailRow()">
-                            <i class="fas fa-plus me-1"></i>Add Detail
-                        </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addDetailRow()">
+                                <i class="fas fa-plus me-1"></i>Add Another Detail
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
-                            <span class="btn-text">Create Event</span>
-                            <span class="btn-loader" style="display: none;"><span
-                                    class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <span class="btn-text">
+                                <i></i>Create Event
+                            </span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-2"></span>Creating...
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -596,8 +633,8 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status</label>
                                 <select id="edit_is_active" name="is_active" class="form-select">
-                                    <option value="1">Active</option>
                                     <option value="0">Inactive</option>
+                                    <option value="1">Active</option>
                                 </select>
                             </div>
                         </div>
@@ -616,7 +653,7 @@
                             <div id="current_event_image" class="mb-2"></div>
                             <label class="form-label">Change Image</label>
                             <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Max 5MB (JPEG, PNG, GIF, WebP)</small>
+                            <small class="text-muted">Max 10MB (JPEG, PNG, GIF, WebP)</small>
                         </div>
 
                         <hr>
@@ -829,19 +866,20 @@
         }
 
         function addDetailRow(type = 'create') {
-            const container = type === 'create' ? document.getElementById('detailsContainer') : document.getElementById(
-                'editDetailsContainer');
+            const container = type === 'create' ? document.getElementById('detailsContainer') : document.getElementById('editDetailsContainer');
             const row = document.createElement('div');
-            row.className = 'detail-row mb-2';
+            row.className = 'detail-row mb-3';
             row.innerHTML = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name (e.g., Speaker, Duration)">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control detail-value" placeholder="Detail value">
-                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDetailRow(this)">Remove</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="removeDetailRow(this)" title="Remove this detail">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2183,6 +2221,84 @@
 
         #imagePreviewModal .btn-close:hover {
             background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Modal enhancements */
+        .modal-header .modal-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+        }
+
+        /* Form labels with icons */
+        .form-label {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .form-label i {
+            font-size: 0.9rem;
+        }
+
+        /* Form controls */
+        .form-control,
+        .form-select {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Detail rows styling */
+        .detail-row {
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .detail-row:hover {
+            background-color: #e9ecef;
+        }
+
+        .detail-row .form-control-sm {
+            font-size: 0.875rem;
+        }
+
+        /* Section dividers */
+        hr {
+            border-top: 2px solid #e9ecef;
+            opacity: 1;
+        }
+
+        /* Button styling */
+        .btn-outline-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Required field indicator */
+        .text-danger {
+            font-weight: 600;
+        }
+
+        /* Badge styling */
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
         }
     </style>
 @endsection
