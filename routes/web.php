@@ -27,6 +27,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SlideshowController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AdminDashboardController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -91,7 +92,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 
     Route::middleware('admin')->group(function () {
         // Dashboard
-        Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/admin/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
 
     // edit admin profile
 
