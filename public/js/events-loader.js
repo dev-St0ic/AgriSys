@@ -2,7 +2,8 @@
 // DYNAMIC EVENTS LOADING SYSTEM (WITH SAFETY FALLBACK)
 // ===================================
 // CRITICAL: Landing page NEVER shows empty state
-// Top 3 cards show non-announcement events, featured (bottom) shows announcements only
+// Shows actual number of non-announcement events (no duplication)
+// Featured section shows announcements only
 
 let allEvents = [];
 let currentFilter = 'all';
@@ -130,7 +131,7 @@ function updateEventsSectionHeader() {
 }
 
 /**
- * Get non-announcement events (for top 3 cards)
+ * Get non-announcement events (for top cards)
  */
 function getNonAnnouncementEvents() {
     return allEvents.filter(e => e.category !== 'announcement');
@@ -144,7 +145,7 @@ function getAnnouncementEvents() {
 }
 
 /**
- * Main render function - 3 cards (non-announcement) + featured announcement
+ * Main render function - Shows actual events without duplication
  * ALWAYS displays content (never empty)
  */
 function renderEventsLayout() {
@@ -164,46 +165,41 @@ function renderEventsLayout() {
 
     let html = '';
 
-    // === TOP ROW: 3 CARDS (Non-announcement events) ===
-    html += '<div class="events-grid-top">';
-
+    // === TOP ROW: ACTUAL NON-ANNOUNCEMENT EVENTS (No duplication) ===
     const nonAnnouncementEvents = getNonAnnouncementEvents();
-    const topCards = [];
-
-    // Fill 3 cards with non-announcement events (duplicate if less than 3)
-    if (nonAnnouncementEvents.length >= 3) {
-        topCards.push(...nonAnnouncementEvents.slice(0, 3));
-    } else if (nonAnnouncementEvents.length > 0) {
-        // Use what we have and duplicate to fill 3 slots
-        for (let i = 0; i < 3; i++) {
-            topCards.push(nonAnnouncementEvents[i % nonAnnouncementEvents.length]);
-        }
+    
+    if (nonAnnouncementEvents.length > 0) {
+        // Show only actual events - 1, 2, 3, or more cards
+        html += '<div class="events-grid-top">';
+        nonAnnouncementEvents.forEach((event, index) => {
+            html += createEventCard(event, index);
+        });
+        html += '</div>';
+        
+        console.log(`✅ [Events] Rendered ${nonAnnouncementEvents.length} non-announcement event(s)`);
     } else {
-        // No non-announcement events, use fallback
-        const fallbackEvent = getFallbackEvent();
-        fallbackEvent.category = 'past_event';
-        fallbackEvent.category_label = 'Past Event';
-        for (let i = 0; i < 3; i++) {
-            topCards.push({...fallbackEvent, id: -1 - i});
-        }
+        // No non-announcement events - show informative message or skip top section
+        console.log('ℹ️ [Events] No non-announcement events to display');
     }
-
-    topCards.forEach((event, index) => {
-        html += createEventCard(event, index);
-    });
-    html += '</div>';
 
     // === FEATURED EVENT: Large section (Announcement only) ===
     const announcementEvents = getAnnouncementEvents();
-    const featuredEvent = announcementEvents.length > 0 ? announcementEvents[0] : getFallbackEvent();
-    html += createFeaturedEvent(featuredEvent);
+    if (announcementEvents.length > 0) {
+        const featuredEvent = announcementEvents[0];
+        html += createFeaturedEvent(featuredEvent);
+        console.log('✅ [Events] Rendered featured announcement');
+    } else if (nonAnnouncementEvents.length === 0) {
+        // Only show fallback if there are NO events at all
+        html += createFeaturedEvent(getFallbackEvent());
+        console.log('⚠️ [Events] No events available - showing fallback');
+    }
 
     container.innerHTML = html;
     console.log('✅ [Events] Layout rendered with ' + allEvents.length + ' event(s)');
 }
 
 /**
- * Create event card (for top row - 3 cards)
+ * Create event card (for top row)
  */
 function createEventCard(event, index = 0) {
     const imageUrl = event.image && event.image.trim()
@@ -328,7 +324,7 @@ function handleLearnMoreClick(clickEvent, eventId, isFallback = false) {
     if (isFallback) {
         // For fallback events, show contact info or redirect to contact page
         console.log('ℹ️ [Events] Fallback event - showing contact info');
-        agrisysModal.info('For more information about our agricultural programs, please contact the City Agriculture Office.\n\nPhone: (049) 123-4567\nEmail: agriculture@sanpedro.gov.ph', { title: 'Contact Information' });
+        agrisysModal.info('For more information about our agricultural programs, please contact the City Agriculture Office.\n\nContact: (02) 8808-2020, Local 109\nEmail: agriculture.sanpedrocity@gmail.com', { title: 'Contact Information' });
         return;
     }
 
@@ -602,22 +598,6 @@ function generateEventDetailsHTML(event) {
                 font-size: 0.9em;
             }
 
-            .contact-info {
-                background: #0A6953;
-                color: white;
-                padding: 30px 40px;
-                margin-top: 30px;
-                border-radius: 8px;
-            }
-
-            .contact-info h3 {
-                margin-bottom: 15px;
-            }
-
-            .contact-info p {
-                margin: 8px 0;
-            }
-
             @media (max-width: 768px) {
                 .event-overlay h1 {
                     font-size: 1.8em;
@@ -688,15 +668,6 @@ function generateEventDetailsHTML(event) {
                 <!-- Additional Details -->
                 ${detailsHTML}
 
-                <!-- Contact Information -->
-                <div class="contact-info">
-                    <h3><i class="fas fa-phone-alt me-2"></i>Need More Information?</h3>
-                    <p><strong>City Agriculture Office</strong></p>
-                    <p>Phone: (049) 123-4567</p>
-                    <p>Email: <a href="mailto:agriculture@sanpedro.gov.ph" style="color: white;">agriculture@sanpedro.gov.ph</a></p>
-                    <p>Office Hours: Monday - Friday, 8:00 AM - 5:00 PM</p>
-                </div>
-
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="window.close();">
@@ -743,4 +714,4 @@ window.loadEvents = loadEvents;
 window.handleEventCardClick = handleEventCardClick;
 window.handleLearnMoreClick = handleLearnMoreClick;
 
-console.log('✅ [Events] Enhanced loader script with new tab details view');
+console.log('✅ [Events] Enhanced loader script - shows actual events only (no duplication)');
