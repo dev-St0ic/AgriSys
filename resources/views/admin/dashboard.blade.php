@@ -3,9 +3,17 @@
 @section('title', 'Admin Dashboard - AgriSys')
 @section('page-title', 'Dashboard')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+@endpush
+
 @section('content')
-<div class="container-fluid p-4">
-    <!-- Welcome Section -->
+<div class="dashboard-wrapper p-4">
+    <!-- Welcome Section with Quick Stats -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="welcome-card">
@@ -22,116 +30,289 @@
                             <i class="fas fa-clock me-2"></i>{{ now()->format('l, F j, Y') }}
                         </p>
                     </div>
+                    <div class="quick-stats">
+                        <div class="stat-badge">
+                            <span class="badge-label">System Status</span>
+                            <span class="badge badge-success"><i class="fas fa-circle-notch fa-spin me-1"></i>Online</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CRITICAL ALERTS SECTION -->
+    <!-- CRITICAL ALERTS SECTION - First Priority -->
     @if(count($criticalAlerts) > 0)
     <div class="row mb-4">
         <div class="col-12">
-            <h5 class="section-title">
-                <i class="fas fa-exclamation-circle text-danger me-2"></i>Critical Alerts
-            </h5>
-            @foreach($criticalAlerts as $alert)
-            <div class="alert alert-{{ $alert['color'] }} alert-critical d-flex justify-content-between align-items-start mb-3" role="alert">
-                <div class="d-flex align-items-start flex-grow-1">
-                    <i class="{{ $alert['icon'] }} fa-lg me-3 mt-1"></i>
-                    <div class="flex-grow-1">
-                        <h6 class="alert-title mb-1">
-                            {{ $alert['title'] }}
-                            <span class="badge bg-dark ms-2">{{ $alert['count'] }} items</span>
-                        </h6>
-                        <p class="alert-subtitle mb-2">{{ $alert['subtitle'] }}</p>
-                        @if(count($alert['actions']) > 0)
-                        <div class="action-buttons">
-                            @foreach($alert['actions'] as $action)
-                            <a href="{{ route($action['route']) }}" class="btn btn-sm btn-outline-dark me-2">
-                                {{ $action['label'] }}
-                            </a>
-                            @endforeach
-                        </div>
-                        @endif
-                    </div>
-                </div>
+            <div class="section-header mb-3">
+                <h5 class="section-title">
+                    <i class="fas fa-exclamation-circle text-danger me-2"></i>Critical Alerts
+                </h5>
             </div>
-            @endforeach
+            <div class="alerts-grid">
+                @foreach($criticalAlerts as $alert)
+                <div class="alert-card alert-{{ $alert['color'] }}">
+                    <div class="alert-card-header">
+                        <div class="alert-icon">
+                            <i class="{{ $alert['icon'] }}"></i>
+                        </div>
+                        <div class="alert-title-section">
+                            <h6 class="alert-title">{{ $alert['title'] }}</h6>
+                            <p class="alert-subtitle">{{ $alert['subtitle'] }}</p>
+                        </div>
+                        <span class="badge badge-lg">{{ $alert['count'] }}</span>
+                    </div>
+                    @if(count($alert['actions']) > 0)
+                    <div class="alert-actions">
+                        @foreach($alert['actions'] as $action)
+                        <a href="{{ route($action['route']) }}" class="btn btn-sm btn-alert-action">
+                            {{ $action['label'] }}
+                        </a>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
         </div>
     </div>
     @endif
 
-    <!-- KEY METRICS -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
+    <!-- KEY METRICS - 2x2 GRID WITH BETTER ORGANIZATION -->
+    <div class="row mb-4 g-3">
+        <!-- First Row: Pending Approvals & Out of Stock -->
+        <div class="col-lg-6 col-md-6">
             <div class="metric-card metric-card-pending">
-                <div class="metric-icon">
-                    <i class="fas fa-hourglass-half"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-label">Pending Approvals</div>
-                    <div class="metric-number">{{ $keyMetrics['total_pending'] }}</div>
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box pending">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Pending Approvals</span>
+                            <span class="metric-number">{{ $keyMetrics['total_pending'] }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">View Details <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+
+        <div class="col-lg-6 col-md-6">
             <div class="metric-card metric-card-supply">
-                <div class="metric-icon">
-                    <i class="fas fa-warehouse"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-label">Out of Stock</div>
-                    <div class="metric-number">{{ $keyMetrics['out_of_stock_items'] }}</div>
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box supply">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Out of Stock</span>
+                            <span class="metric-number">{{ $keyMetrics['out_of_stock_items'] }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">Manage Stock <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+
+        <!-- Second Row: Total Users & Low Stock Items -->
+        <div class="col-lg-6 col-md-6">
             <div class="metric-card metric-card-users">
-                <div class="metric-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-label">Total Users</div>
-                    <div class="metric-number">{{ $keyMetrics['total_users'] }}</div>
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Total Users</span>
+                            <span class="metric-number">{{ $keyMetrics['total_users'] }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">All Users <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="metric-card metric-card-time">
-                <div class="metric-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="metric-content">
-                    <div class="metric-label">Last Updated</div>
-                    <div class="metric-number">Now</div>
+
+        <div class="col-lg-6 col-md-6">
+            <div class="metric-card metric-card-info">
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box info">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Low Stock Items</span>
+                            <span class="metric-number">{{ count($supplyAlerts['low_stock'] ?? []) }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">Monitor <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- RECENT ACTIVITY (LEFT) -->
-        <div class="col-lg-6 mb-4">
-            <div class="card card-clean">
-                <div class="card-header card-header-action">
-                    <h6 class="mb-0">
-                        <i class="fas fa-clock me-2"></i>Recent Activity - Pending Action
+    <!-- SUPPLY MANAGEMENT - DUAL COLUMN LAYOUT -->
+    <div class="row mb-4 g-3">
+        <!-- OUT OF STOCK -->
+        <div class="col-lg-6">
+            <div class="card card-enhanced">
+                <div class="card-header-enhanced">
+                    <h6 class="card-title">
+                        <i class="fas fa-times-circle text-danger me-2"></i>Out of Stock Items
                     </h6>
+                    <span class="badge bg-danger text-white">{{ count($supplyAlerts['out_of_stock']) }}</span>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body card-body-enhanced">
+                    @if(count($supplyAlerts['out_of_stock']) > 0)
+                    <div class="supply-list">
+                        @foreach($supplyAlerts['out_of_stock'] as $item)
+                        <a href="{{ $item['action_url'] }}" class="supply-item critical">
+                            <div class="supply-info">
+                                <div class="supply-name">{{ $item['item'] }}</div>
+                                <div class="supply-category">{{ $item['category'] }}</div>
+                            </div>
+                            <div class="supply-badge critical">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                        </a>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>All items in stock</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- LOW STOCK -->
+        <div class="col-lg-6">
+            <div class="card card-enhanced">
+                <div class="card-header-enhanced">
+                    <h6 class="card-title">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>Low Stock Items
+                    </h6>
+                    <span class="badge bg-warning text-dark">{{ count($supplyAlerts['low_stock']) }}</span>
+                </div>
+                <div class="card-body card-body-enhanced">
+                    @if(count($supplyAlerts['low_stock']) > 0)
+                    <div class="supply-list">
+                        @foreach($supplyAlerts['low_stock'] as $item)
+                        <a href="{{ $item['action_url'] }}" class="supply-item warning">
+                            <div class="supply-info">
+                                <div class="supply-name">{{ $item['item'] }}</div>
+                                <div class="supply-detail">{{ $item['current'] }} / {{ $item['minimum'] }} (min)</div>
+                            </div>
+                            <div class="supply-progress">
+                                <div class="progress-bar" style="width: {{ ($item['current'] / $item['minimum'] * 100) }}%"></div>
+                            </div>
+                        </a>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-leaf"></i>
+                        <p>All supplies are healthy</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION STATUS OVERVIEW WITH CHARTS -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="section-header">
+                <h5 class="section-title">
+                    <i class="fas fa-chart-bar me-2"></i>Application Status Overview
+                </h5>
+                <p class="section-subtitle">Track application submissions and approvals across all services</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4 g-3">
+        @foreach($applicationStatus as $service)
+        <div class="col-lg-4 col-md-6">
+            <div class="status-card-enhanced">
+                <div class="status-card-header">
+                    <div class="status-icon-wrapper">
+                        <i class="{{ $service['icon'] }} fa-lg"></i>
+                    </div>
+                    <div class="status-title-group">
+                        <h6 class="status-name">{{ $service['name'] }}</h6>
+                        <span class="status-total">{{ $service['pending'] + $service['approved'] + $service['rejected'] }} total</span>
+                    </div>
+                </div>
+
+                <div class="status-stats-container">
+                    <div class="status-stat">
+                        <a href="{{ route($service['route'], ['filter' => 'pending']) }}" class="stat-box pending">
+                            <span class="stat-value">{{ $service['pending'] }}</span>
+                            <span class="stat-name">Pending</span>
+                        </a>
+                    </div>
+                    <div class="status-stat">
+                        <a href="{{ route($service['route'], ['filter' => 'approved']) }}" class="stat-box approved">
+                            <span class="stat-value">{{ $service['approved'] }}</span>
+                            <span class="stat-name">Approved</span>
+                        </a>
+                    </div>
+                    <div class="status-stat">
+                        <a href="{{ route($service['route'], ['filter' => 'rejected']) }}" class="stat-box rejected">
+                            <span class="stat-value">{{ $service['rejected'] }}</span>
+                            <span class="stat-name">Rejected</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="status-action">
+                    <a href="{{ route($service['route']) }}" class="btn btn-status-action w-100">
+                        <i class="fas fa-arrow-right me-2"></i>Manage Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="row mb-4 g-3">
+        <div class="col-lg-12">
+            <div class="card card-enhanced">
+                <div class="card-header-enhanced">
+                    <h6 class="card-title">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </h6>
+                    <span class="badge bg-light text-dark">Latest</span>
+                </div>
+                <div class="card-body card-body-enhanced">
                     @if(count($recentActivity) > 0)
                     <div class="activity-list">
                         @foreach($recentActivity as $activity)
                         <a href="{{ $activity['action_url'] }}" class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-arrow-right"></i>
+                            <div class="activity-left">
+                                <div class="activity-icon">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-type">{{ $activity['type'] }}</div>
+                                    <div class="activity-name">{{ $activity['name'] }}</div>
+                                </div>
                             </div>
-                            <div class="activity-content">
-                                <div class="activity-type">{{ $activity['type'] }}</div>
-                                <div class="activity-name">{{ $activity['name'] }}</div>
-                                <div class="activity-time">{{ $activity['created_at']->diffForHumans() }}</div>
-                            </div>
-                            <div class="activity-status">
+                            <div class="activity-right">
+                                <span class="activity-time">{{ $activity['created_at']->diffForHumans() }}</span>
                                 <span class="badge badge-{{ $activity['status_color'] }}">{{ $activity['action'] }}</span>
                             </div>
                         </a>
@@ -146,97 +327,53 @@
                 </div>
             </div>
         </div>
-
-        <!-- SUPPLY ALERTS (RIGHT) -->
-        <div class="col-lg-6 mb-4">
-            <div class="card card-clean">
-                <div class="card-header card-header-action">
-                    <h6 class="mb-0">
-                        <i class="fas fa-exclamation-triangle me-2 text-danger"></i>Supply Alerts ({{ $supplyAlerts['total_issues'] }})
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    @if($supplyAlerts['total_issues'] > 0)
-                    <div class="supply-list">
-                        @if(count($supplyAlerts['out_of_stock']) > 0)
-                        <div class="supply-section">
-                            <div class="supply-section-title text-danger">
-                                <i class="fas fa-times-circle me-1"></i>Out of Stock ({{ count($supplyAlerts['out_of_stock']) }})
-                            </div>
-                            @foreach($supplyAlerts['out_of_stock'] as $item)
-                            <a href="{{ $item['action_url'] }}" class="supply-item supply-item-danger">
-                                <div class="supply-name">{{ $item['item'] }}</div>
-                                <div class="supply-category">{{ $item['category'] }}</div>
-                                <div class="supply-status">Stock: {{ $item['current'] }}</div>
-                            </a>
-                            @endforeach
-                        </div>
-                        @endif
-
-                        @if(count($supplyAlerts['low_stock']) > 0)
-                        <div class="supply-section">
-                            <div class="supply-section-title text-warning">
-                                <i class="fas fa-exclamation-triangle me-1"></i>Low Stock ({{ count($supplyAlerts['low_stock']) }})
-                            </div>
-                            @foreach($supplyAlerts['low_stock'] as $item)
-                            <a href="{{ $item['action_url'] }}" class="supply-item supply-item-warning">
-                                <div class="supply-name">{{ $item['item'] }}</div>
-                                <div class="supply-category">{{ $item['category'] }}</div>
-                                <div class="supply-status">Stock: {{ $item['current'] }} / Min: {{ $item['minimum'] }}</div>
-                            </a>
-                            @endforeach
-                        </div>
-                        @endif
-                    </div>
-                    @else
-                    <div class="empty-state">
-                        <i class="fas fa-check-circle text-success"></i>
-                        <p>All supplies are healthy</p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- APPLICATION STATUS OVERVIEW -->
-    <div class="row">
-        <div class="col-12">
-            <h5 class="section-title mb-3">
-                <i class="fas fa-chart-bar me-2"></i>Application Status Overview
-            </h5>
-        </div>
-        @foreach($applicationStatus as $service)
-        <div class="col-lg-4 col-md-6 mb-3">
-            <div class="service-status-card">
-                <div class="service-header">
-                    <i class="{{ $service['icon'] }} fa-lg me-2"></i>
-                    <span>{{ $service['name'] }}</span>
-                </div>
-                <div class="service-stats">
-                    <a href="{{ route($service['route'], ['filter' => 'pending']) }}" class="stat-item stat-pending">
-                        <span class="stat-number">{{ $service['pending'] }}</span>
-                        <span class="stat-label">Pending</span>
-                    </a>
-                    <a href="{{ route($service['route'], ['filter' => 'approved']) }}" class="stat-item stat-approved">
-                        <span class="stat-number">{{ $service['approved'] }}</span>
-                        <span class="stat-label">Approved</span>
-                    </a>
-                    <a href="{{ route($service['route'], ['filter' => 'rejected']) }}" class="stat-item stat-rejected">
-                        <span class="stat-number">{{ $service['rejected'] }}</span>
-                        <span class="stat-label">Rejected</span>
-                    </a>
-                </div>
-                <div class="service-action">
-                    <a href="{{ route($service['route']) }}" class="btn btn-sm btn-outline-primary w-100">
-                        Manage
-                    </a>
-                </div>
-            </div>
-        </div>
-        @endforeach
-    </div>
-</div>
+<script>
+    // Supply Status Chart
+    const supplyCtx = document.getElementById('supplyStatusChart')?.getContext('2d');
+    if (supplyCtx) {
+        @php
+            $totalSupplyItems = count($supplyAlerts['out_of_stock'] ?? []) + count($supplyAlerts['low_stock'] ?? []) + ($keyMetrics['total_users'] ?? 0);
+            $outOfStock = count($supplyAlerts['out_of_stock'] ?? []);
+            $lowStock = count($supplyAlerts['low_stock'] ?? []);
+            $healthy = max(0, $totalSupplyItems - $outOfStock - $lowStock);
+            $totalForChart = $outOfStock + $lowStock + $healthy;
+        @endphp
+        
+        new Chart(supplyCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Healthy', 'Low Stock', 'Out of Stock'],
+                datasets: [{
+                    data: [
+                        {{ $healthy > 0 ? $healthy : 0 }},
+                        {{ $lowStock }},
+                        {{ $outOfStock }}
+                    ],
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12 },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+</script>
 
 <style>
     :root {
@@ -246,165 +383,472 @@
         --warning: #f6c23e;
         --info: #36b9cc;
         --light: #f8f9fc;
-        --dark: #5a5c69;
+        --dark: #2e3338;
+        --gray: #858796;
     }
 
-    .container-fluid {
-        max-width: 1400px;
+    .dashboard-wrapper {
+        max-width: 1450px;
         margin: 0 auto;
+        background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+        min-height: 100vh;
+        padding: 1rem !important;
     }
 
-    /* Welcome Card */
+    /* ==================== WELCOME SECTION ==================== */
     .welcome-card {
         background: linear-gradient(135deg, var(--primary) 0%, #224abe 100%);
         color: white;
         padding: 2rem;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(78, 115, 223, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-card::before {
+        content: '';
+        position: absolute;
+        right: -50px;
+        top: -50px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
     }
 
     .greeting-title {
-        font-size: 1.75rem;
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .greeting-time {
-        opacity: 0.9;
+        opacity: 0.95;
         margin-bottom: 0;
+        font-size: 0.95rem;
     }
 
-    /* Section Title */
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 1rem;
-    }
-
-    /* Critical Alerts */
-    .alert-critical {
-        border: none;
-        border-left: 4px solid;
-        padding: 1.25rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .alert-critical.alert-danger {
-        background-color: #fff5f5;
-        border-left-color: var(--danger);
-    }
-
-    .alert-critical.alert-warning {
-        background-color: #fffaf0;
-        border-left-color: var(--warning);
-    }
-
-    .alert-title {
-        font-weight: 600;
-        color: inherit;
-    }
-
-    .alert-subtitle {
-        font-size: 0.9rem;
-        opacity: 0.8;
-        margin-bottom: 0;
-    }
-
-    .action-buttons {
+    .quick-stats {
         display: flex;
-        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .stat-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
         gap: 0.5rem;
-        margin-top: 0.75rem;
     }
 
-    .action-buttons .btn {
-        font-size: 0.85rem;
-        padding: 0.4rem 0.8rem;
+    .badge-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
     }
 
-    /* Metric Cards */
+    /* ==================== SECTION HEADERS ==================== */
+    .section-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0;
+    }
+
+    /* ==================== METRIC CARDS - 2x2 LAYOUT ==================== */
     .metric-card {
         background: white;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border-left: 4px solid;
-        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-top: 4px solid;
+        position: relative;
+        height: 100%;
     }
 
     .metric-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
     }
 
     .metric-card-pending {
-        border-left-color: var(--warning);
+        border-top-color: var(--warning);
     }
 
     .metric-card-supply {
-        border-left-color: var(--danger);
+        border-top-color: var(--danger);
     }
 
     .metric-card-users {
-        border-left-color: var(--info);
+        border-top-color: var(--info);
     }
 
-    .metric-card-time {
-        border-left-color: var(--success);
+    .metric-card-info {
+        border-top-color: var(--primary);
     }
 
-    .metric-icon {
+    .metric-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+    }
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .metric-icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.5rem;
-        opacity: 0.7;
-        min-width: 40px;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .metric-icon-box.pending {
+        background: linear-gradient(135deg, var(--warning), #fcb92d);
+    }
+
+    .metric-icon-box.supply {
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+    }
+
+    .metric-icon-box.users {
+        background: linear-gradient(135deg, var(--info), #2fa7b8);
+    }
+
+    .metric-icon-box.info {
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+    }
+
+    .metric-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        flex: 1;
     }
 
     .metric-label {
         font-size: 0.85rem;
-        color: var(--dark);
+        color: var(--gray);
         font-weight: 500;
-        margin-bottom: 0.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .metric-number {
-        font-size: 1.75rem;
+        font-size: 2rem;
         font-weight: 700;
         color: var(--dark);
     }
 
-    /* Cards */
-    .card-clean {
-        border: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border-radius: 10px;
-        overflow: hidden;
+    .metric-footer {
+        border-top: 1px solid #e3e6f0;
+        padding-top: 1rem;
+        margin-top: auto;
     }
 
-    .card-header-action {
+    .metric-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .metric-link:hover {
+        color: #224abe;
+        gap: 0.75rem;
+    }
+
+    /* ==================== ALERT CARDS ==================== */
+    .alerts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+
+    .alert-card {
+        border-radius: 12px;
+        padding: 1.25rem;
+        border-left: 5px solid;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .alert-card:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        transform: translateX(2px);
+    }
+
+    .alert-card.alert-danger {
+        background-color: #fff5f5;
+        border-left-color: var(--danger);
+    }
+
+    .alert-card.alert-warning {
+        background-color: #fffaf0;
+        border-left-color: var(--warning);
+    }
+
+    .alert-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-icon {
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 50px;
+    }
+
+    .alert-card.alert-danger .alert-icon {
+        color: var(--danger);
+    }
+
+    .alert-card.alert-warning .alert-icon {
+        color: var(--warning);
+    }
+
+    .alert-title-section {
+        flex: 1;
+    }
+
+    .alert-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .alert-subtitle {
+        font-size: 0.85rem;
+        color: var(--gray);
+        margin-bottom: 0;
+    }
+
+    .alert-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .btn-alert-action {
         background: white;
+        border: 1px solid currentColor;
+        color: var(--dark);
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-alert-action:hover {
+        background: var(--dark);
+        color: white;
+    }
+
+    /* ==================== CARD STYLES ==================== */
+    .card-enhanced {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .card-enhanced:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header-enhanced {
+        background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
         padding: 1.5rem;
+        border-bottom: 2px solid #e3e6f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .card-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .card-body-enhanced {
+        padding: 0;
+        flex: 1;
+        overflow-y: auto;
+        max-height: 450px;
+    }
+
+    .card-body-enhanced::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .card-body-enhanced::-webkit-scrollbar-track {
+        background: #f1f3f5;
+    }
+
+    .card-body-enhanced::-webkit-scrollbar-thumb {
+        background: #adb5bd;
+        border-radius: 3px;
+    }
+
+    /* ==================== SUPPLY LIST ==================== */
+    .supply-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .supply-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: white;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+        border-left: 3px solid;
         border-bottom: 1px solid #e3e6f0;
     }
 
-    .card-header-action h6 {
+    .supply-item:last-child {
+        border-bottom: none;
+    }
+
+    .supply-item.critical {
+        border-left-color: var(--danger);
+    }
+
+    .supply-item.critical:hover {
+        background: #fff5f5;
+        padding-left: 1.5rem;
+    }
+
+    .supply-item.warning {
+        border-left-color: var(--warning);
+    }
+
+    .supply-item.warning:hover {
+        background: #fffaf0;
+        padding-left: 1.5rem;
+    }
+
+    .supply-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        flex: 1;
+    }
+
+    .supply-name {
+        font-weight: 600;
+        font-size: 0.95rem;
         color: var(--dark);
     }
 
-    /* Activity List */
+    .supply-category {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    .supply-detail {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--gray);
+    }
+
+    .supply-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .supply-badge.critical {
+        background: var(--danger);
+    }
+
+    .supply-progress {
+        width: 100%;
+        max-width: 80px;
+        height: 4px;
+        background: #e3e6f0;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-left: auto;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--warning), #fcb92d);
+        transition: width 0.3s ease;
+    }
+
+    /* ==================== ACTIVITY LIST ==================== */
     .activity-list {
-        max-height: 500px;
+        max-height: 550px;
         overflow-y: auto;
+    }
+
+    .activity-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .activity-list::-webkit-scrollbar-track {
+        background: #f1f3f5;
+    }
+
+    .activity-list::-webkit-scrollbar-thumb {
+        background: #adb5bd;
+        border-radius: 3px;
     }
 
     .activity-item {
         display: flex;
         align-items: center;
-        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        padding: 1rem;
         border-bottom: 1px solid #e3e6f0;
         text-decoration: none;
         color: inherit;
@@ -417,236 +861,306 @@
 
     .activity-item:hover {
         background-color: #f8f9fc;
-        padding-left: 1.75rem;
+        padding-left: 1.25rem;
+    }
+
+    .activity-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
     }
 
     .activity-icon {
-        font-size: 0.8rem;
-        color: var(--primary);
-        margin-right: 1rem;
-        min-width: 20px;
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
     }
 
     .activity-content {
-        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
     }
 
     .activity-type {
         font-size: 0.75rem;
-        color: var(--dark);
+        color: var(--gray);
         font-weight: 600;
         text-transform: uppercase;
-        margin-bottom: 0.2rem;
     }
 
     .activity-name {
         font-size: 0.95rem;
         font-weight: 500;
         color: var(--dark);
-        margin-bottom: 0.2rem;
+    }
+
+    .activity-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-align: right;
     }
 
     .activity-time {
         font-size: 0.8rem;
-        color: #adb5bd;
+        color: var(--gray);
+        white-space: nowrap;
     }
 
-    .activity-status {
-        margin-left: 1rem;
+    /* ==================== STATUS CARDS - ENHANCED ==================== */
+    .status-card-enhanced {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        align-items: center;
+        border-top: 5px solid var(--primary);
     }
 
-    .badge-warning {
-        background-color: var(--warning) !important;
-        color: #333;
+    .status-card-enhanced:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
     }
 
-    /* Empty State */
+    .status-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .status-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .status-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .status-name {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .status-total {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    .status-stats-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .status-stat {
+        flex: 1;
+    }
+
+    .stat-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+        border: 2px solid;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .stat-box.pending {
+        background: #fffaf0;
+        border-color: var(--warning);
+        color: #cc8800;
+    }
+
+    .stat-box.pending:hover {
+        background: var(--warning);
+        color: white;
+    }
+
+    .stat-box.approved {
+        background: #f0fdf4;
+        border-color: var(--success);
+        color: #16a34a;
+    }
+
+    .stat-box.approved:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    .stat-box.rejected {
+        background: #fef2f2;
+        border-color: var(--danger);
+        color: #b91c1c;
+    }
+
+    .stat-box.rejected:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    .stat-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-action {
+        width: 100%;
+        border-top: 1px solid #e3e6f0;
+        padding-top: 1rem;
+        margin-top: auto;
+    }
+
+    .btn-status-action {
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .btn-status-action:hover {
+        box-shadow: 0 6px 16px rgba(78, 115, 223, 0.3);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
     .empty-state {
         text-align: center;
-        padding: 2rem;
-        color: #adb5bd;
+        padding: 3rem 1rem;
+        color: var(--gray);
     }
 
     .empty-state i {
-        font-size: 2.5rem;
+        font-size: 3rem;
         margin-bottom: 1rem;
         display: block;
         color: var(--success);
     }
 
-    /* Supply List */
-    .supply-list {
-        padding: 1rem;
-    }
-
-    .supply-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .supply-section:last-child {
+    .empty-state p {
+        font-size: 0.95rem;
         margin-bottom: 0;
     }
 
-    .supply-section-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        padding: 0.75rem 0;
-        margin-bottom: 0.75rem;
-        border-bottom: 2px solid;
-        border-bottom-color: inherit;
-        color: inherit;
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 992px) {
+        .greeting-title {
+            font-size: 1.5rem;
+        }
+
+        .status-stats-container {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .quick-stats {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 
-    .supply-item {
-        display: block;
-        padding: 0.75rem;
-        margin-bottom: 0.5rem;
-        border-radius: 6px;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.2s ease;
-    }
-
-    .supply-item-danger {
-        background-color: #fff5f5;
-        border-left: 3px solid var(--danger);
-    }
-
-    .supply-item-danger:hover {
-        background-color: #ffe0e0;
-    }
-
-    .supply-item-warning {
-        background-color: #fffaf0;
-        border-left: 3px solid var(--warning);
-    }
-
-    .supply-item-warning:hover {
-        background-color: #fff0d6;
-    }
-
-    .supply-name {
-        font-weight: 500;
-        font-size: 0.95rem;
-        margin-bottom: 0.2rem;
-    }
-
-    .supply-category {
-        font-size: 0.8rem;
-        opacity: 0.7;
-        margin-bottom: 0.2rem;
-    }
-
-    .supply-status {
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-
-    /* Service Status Cards */
-    .service-status-card {
-        background: white;
-        border-radius: 10px;
-        padding: 1.25rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.3s ease;
-    }
-
-    .service-status-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-
-    .service-header {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .service-stats {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    .stat-item {
-        flex: 1;
-        padding: 0.75rem;
-        border-radius: 6px;
-        text-align: center;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.2s ease;
-        border: 1px solid;
-    }
-
-    .stat-pending {
-        background-color: #fffaf0;
-        border-color: var(--warning);
-        color: #cc8800;
-    }
-
-    .stat-pending:hover {
-        background-color: var(--warning);
-        color: white;
-    }
-
-    .stat-approved {
-        background-color: #f0fdf4;
-        border-color: var(--success);
-        color: #16a34a;
-    }
-
-    .stat-approved:hover {
-        background-color: var(--success);
-        color: white;
-    }
-
-    .stat-rejected {
-        background-color: #fef2f2;
-        border-color: var(--danger);
-        color: #b91c1c;
-    }
-
-    .stat-rejected:hover {
-        background-color: var(--danger);
-        color: white;
-    }
-
-    .stat-number {
-        display: block;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 500;
-        text-transform: capitalize;
-    }
-
-    .service-action .btn {
-        font-weight: 500;
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
-        .metric-card {
-            flex-direction: column;
-            text-align: center;
+        .dashboard-wrapper {
+            padding: 0.75rem !important;
         }
 
-        .activity-item:hover {
-            padding-left: 1.5rem;
+        .metric-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        .service-stats {
+        .metric-number {
+            font-size: 1.5rem;
+        }
+
+        .activity-right {
             flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .status-stats-container {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-box {
+            padding: 0.75rem;
+        }
+
+        .alerts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-body-enhanced {
+            max-height: 400px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .greeting-title {
+            font-size: 1.3rem;
+        }
+
+        .metric-number {
+            font-size: 1.3rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+        }
+
+        .status-stats-container {
+            grid-template-columns: 1fr;
         }
     }
 </style>
