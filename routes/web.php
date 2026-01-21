@@ -27,6 +27,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SlideshowController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AdminDashboardController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -91,7 +92,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 
     Route::middleware('admin')->group(function () {
         // Dashboard
-        Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/admin/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
 
     // edit admin profile
 
@@ -241,12 +242,19 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 
     });
 
-    // ==============================================
+  // ==============================================
     // EVENT MANAGEMENT
     // ==============================================
     Route::prefix('admin/events')->name('admin.event.')->group(function () {
+        // General routes first
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
+        
+        // Special/Specific routes BEFORE generic {id} routes
+        Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
+        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
+        
+        // Generic routes with {event} parameter LAST
         Route::get('/{event}', [EventController::class, 'show'])->name('show');
         Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
         Route::post('/{event}/update', [EventController::class, 'update'])->name('update.post');
@@ -254,8 +262,6 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         Route::post('/{event}/unarchive', [EventController::class, 'unarchive'])->name('unarchive');
         Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
         Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('toggle');
-        Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
-        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
     });
 
     // ==============================================
@@ -300,6 +306,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::post('/supply-management/{category}/toggle', [SeedlingCategoryItemController::class, 'toggleCategoryStatus'])->name('supply-management.toggle');
 
   // Item Management - PUT THE MORE SPECIFIC ROUTES FIRST
+    Route::get('/items', [SeedlingCategoryItemController::class, 'indexCategories'])->name('supply-management.items');
     Route::post('/items', [SeedlingCategoryItemController::class, 'storeItem'])->name('items.store');
     Route::post('/items/{item}/toggle', [SeedlingCategoryItemController::class, 'toggleItemStatus'])->name('items.toggle');
     Route::put('/items/{item}', [SeedlingCategoryItemController::class, 'updateItem'])->name('items.update');

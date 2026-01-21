@@ -312,7 +312,7 @@
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
 
-                                            <button class="btn btn-sm btn-outline-info"
+                                            <button class="btn btn-sm btn-outline-dark"
                                                 onclick="archiveEvent({{ $event->id }})" title="Archive">
                                                 <i class="fas fa-archive"></i> Archive
                                             </button>

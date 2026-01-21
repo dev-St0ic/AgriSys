@@ -3,996 +3,1471 @@
 @section('title', 'Admin Dashboard - AgriSys')
 @section('page-title', 'Dashboard')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+@endpush
+
 @section('content')
-    <!-- Welcome Section -->
+<div class="dashboard-wrapper p-4">
+    <!-- Welcome Section with Quick Stats -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="welcome-banner card shadow-lg border-0 bg-gradient-primary text-white">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="grow" style="min-width: 0;">
-                            <h2
-                                class="mb-1 font-weight-bold"style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                @php
-                                    $hour = now()->format('H');
-                                    $greeting =
-                                        $hour < 12 ? 'Good Morning' : ($hour < 18 ? 'Good Afternoon' : 'Good Evening');
-                                @endphp
-                                {{ $greeting }}, {{ $user->name }}
-                            </h2>
-                            <p class="mb-0 opacity-75">
-                                <i class="fas fa-clock me-2"></i>{{ now()->format('l, F j, Y • g:i A') }}
-                            </p>
+            <div class="welcome-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h1 class="greeting-title">
+                            @php
+                                $hour = now()->format('H');
+                                $greeting = $hour < 12 ? 'Good Morning' : ($hour < 18 ? 'Good Afternoon' : 'Good Evening');
+                            @endphp
+                            {{ $greeting }}, {{ $user->name }}
+                        </h1>
+                        <p class="greeting-time">
+                            <i class="fas fa-clock me-2"></i>{{ now()->format('l, F j, Y') }}
+                        </p>
+                    </div>
+                    <div class="quick-stats">
+                        <div class="stat-badge">
+                            <span class="badge-label">System Status</span>
+                            <span class="badge badge-success"><i class="fas fa-circle-notch fa-spin me-1"></i>Online</span>
                         </div>
-                        {{-- <div class="d-none d-md-block">
-                            <i class="fas fa-chart-line fa-3x opacity-50"></i>
-                        </div> --}}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Key Metrics Cards -->
+    <!-- CRITICAL ALERTS SECTION - ENHANCED DESIGN -->
+    @if(count($criticalAlerts) > 0)
     <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="metric-icon bg-primary">
-                            <i class="fas fa-crown text-white"></i>
+        <div class="col-12">
+            <div class="critical-alerts-container">
+                <!-- Header with Icon -->
+                <div class="alerts-header-enhanced">
+                    <div class="alerts-header-content">
+                        <div class="alerts-header-icon">
+                            <i class="fas fa-exclamation-circle"></i>
                         </div>
-                        <div class="ms-3 grow">
-                            <div class="metric-label">Super Admins</div>
-                            <div class="metric-value text-primary">{{ $totalSuperAdmins }}</div>
-                            <div class="metric-trend">
-                                <i class="fas fa-arrow-up text-success me-1"></i>
-                                <small class="text-success">System Admins</small>
-                            </div>
+                        <div class="alerts-header-text">
+                            <h5 class="alerts-header-title">Critical Alerts</h5>
+                            <p class="alerts-header-subtitle">{{ count($criticalAlerts) }} active alert{{ count($criticalAlerts) > 1 ? 's' : '' }} require immediate attention</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="metric-icon bg-success">
-                            <i class="fas fa-users-cog text-white"></i>
-                        </div>
-                        <div class="ms-3 grow">
-                            <div class="metric-label">Admins</div>
-                            <div class="metric-value text-success">{{ $totalAdmins }}</div>
-                            <div class="metric-trend">
-                                <i class="fas fa-users text-info me-1"></i>
-                                <small class="text-info">Active Staff</small>
+                <!-- Alerts Grid -->
+                <div class="critical-alerts-grid">
+                    @foreach($criticalAlerts as $alert)
+                    <div class="critical-alert-card alert-{{ $alert['color'] }}">
+                        <!-- Alert Indicator Bar -->
+                        <div class="alert-indicator"></div>
+
+                        <!-- Main Content -->
+                        <div class="alert-card-content">
+                            <!-- Icon and Title Section -->
+                            <div class="alert-header-section">
+                                <div class="alert-icon-wrapper alert-icon-{{ $alert['color'] }}">
+                                    <i class="{{ $alert['icon'] }}"></i>
+                                </div>
+                                <div class="alert-title-wrapper">
+                                    <h6 class="alert-title-text">{{ $alert['title'] }}</h6>
+                                    <p class="alert-subtitle-text">{{ $alert['subtitle'] }}</p>
+                                </div>
+                                <div class="alert-count-badge">
+                                    <span class="count-number">{{ $alert['count'] }}</span>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="metric-icon bg-info">
-                            <i class="fas fa-warehouse text-white"></i>
-                        </div>
-                        <div class="ms-3 grow">
-                            <div class="metric-label">Supply Management</div>
-                            @if ($supplyData['total_categories'] > 0)
-                                <div class="metric-value text-info">
-                                    {{ $supplyData['active_categories'] }}/{{ $supplyData['total_categories'] }}
-                                </div>
-                                <div class="metric-trend">
-                                    @if ($supplyData['low_supply_items'] > 0 || $supplyData['out_of_supply_items'] > 0)
-                                        <i class="fas fa-exclamation-triangle text-warning me-1"></i>
-                                        <small class="text-warning">
-                                            {{ $supplyData['low_supply_items'] + $supplyData['out_of_supply_items'] }}
-                                            alerts
-                                        </small>
-                                    @else
-                                        <i class="fas fa-check-circle text-success me-1"></i>
-                                        <small class="text-success">
-                                            {{ number_format($supplyData['total_supply']) }} items in stock
-                                        </small>
-                                    @endif
-                                </div>
-                            @else
-                                <div class="metric-value text-info">0 Categories</div>
-                                <div class="metric-trend">
-                                    <i class="fas fa-info-circle text-muted me-1"></i>
-                                    <small class="text-muted">Setup your supply categories</small>
-                                </div>
+                            <!-- Action Buttons -->
+                            @if(count($alert['actions']) > 0)
+                            <div class="alert-actions-wrapper">
+                                @foreach($alert['actions'] as $action)
+                                <a href="{{ route($action['route']) }}" class="btn-alert-enhanced">
+                                    <span>{{ $action['label'] }}</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                                @endforeach
+                            </div>
                             @endif
                         </div>
                     </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- KEY METRICS - 2x2 GRID WITH BETTER ORGANIZATION -->
+    <div class="row mb-4 g-3">
+        <!-- First Row: Pending Approvals & Out of Stock -->
+        <div class="col-lg-6 col-md-6">
+            <div class="metric-card metric-card-pending">
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box pending">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Pending Approvals</span>
+                            <span class="metric-number">{{ $keyMetrics['total_pending'] }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">View Details <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="metric-icon bg-warning">
-                            <i class="fas fa-chart-bar text-white"></i>
+        <div class="col-lg-6 col-md-6">
+            <div class="metric-card metric-card-supply">
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box supply">
+                            <i class="fas fa-exclamation-circle"></i>
                         </div>
-                        <div class="ms-3 grow">
-                            <div class="metric-label">Total Applications</div>
-                            <div class="metric-value text-warning">{{ number_format($analyticsData['totals']['total']) }}
-                            </div>
-                            <div class="metric-trend">
-                                <i class="fas fa-percentage text-success me-1"></i>
-                                <small class="text-success">
-                                    @if ($analyticsData['totals']['total'] > 0)
-                                        {{ round(($analyticsData['totals']['approved'] / $analyticsData['totals']['total']) * 100, 1) }}%
-                                        approved
-                                    @else
-                                        No applications yet
-                                    @endif
-                                </small>
-                            </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Out of Stock</span>
+                            <span class="metric-number">{{ $keyMetrics['out_of_stock_items'] }}</span>
                         </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">Manage Stock <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Row: Total Users & Low Stock Items -->
+        <div class="col-lg-6 col-md-6">
+            <div class="metric-card metric-card-users">
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Total Users</span>
+                            <span class="metric-number">{{ $keyMetrics['total_users'] }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">All Users <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6">
+            <div class="metric-card metric-card-info">
+                <div class="metric-content-wrapper">
+                    <div class="metric-header">
+                        <div class="metric-icon-box info">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-label">Low Stock Items</span>
+                            <span class="metric-number">{{ count($supplyAlerts['low_stock'] ?? []) }}</span>
+                        </div>
+                    </div>
+                    <div class="metric-footer">
+                        <a href="#" class="metric-link">Monitor <i class="fas fa-arrow-right ms-1"></i></a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Application Overview Cards -->
-    <div class="row mb-4 justify-content-center">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="metric-icon bg-success">
-                            <i class="fas fa-check-circle text-white"></i>
-                        </div>
-                        <div class="ms-3 grow">
-                            <div class="metric-label">Total Approved</div>
-                            <div class="metric-value text-success counter-number"
-                                data-target="{{ $analyticsData['totals']['approved'] }}">0</div>
-                            <div class="metric-trend">
-                                @if ($analyticsData['totals']['total'] > 0)
-                                    <i class="fas fa-percentage text-success me-1"></i>
-                                    <small
-                                        class="text-success">{{ round(($analyticsData['totals']['approved'] / $analyticsData['totals']['total']) * 100, 1) }}%
-                                        approval rate</small>
-                                @else
-                                    <i class="fas fa-info-circle text-muted me-1"></i>
-                                    <small class="text-muted">No data yet</small>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+    <!-- SUPPLY MANAGEMENT SECTION WITH HEADER AND CARDS -->
+    <div class="supply-management-section">
+        <!-- SUPPLY MANAGEMENT TITLE SECTION -->
+        <div class="supply-section-header">
+            <div class="supply-header-content">
+                <div class="supply-header-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="supply-header-text">
+                    <h5 class="supply-header-title">Supply Management</h5>
+                    <p class="supply-header-subtitle">Monitor supply levels and manage stock alerts</p>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="metric-icon bg-warning">
-                            <i class="fas fa-clock text-white"></i>
-                        </div>
-                        <div class="ms-3 grow">
-                            <div class="metric-label">Total Pending</div>
-                            <div class="metric-value text-warning counter-number"
-                                data-target="{{ $analyticsData['totals']['pending'] }}">0</div>
-                            <div class="metric-trend">
-                                <i class="fas fa-hourglass-half text-warning me-1"></i>
-                                <small class="text-warning">Awaiting Review</small>
-                            </div>
-                        </div>
+        <!-- SUPPLY MANAGEMENT - DUAL COLUMN LAYOUT -->
+        <div class="row g-3 mt-0">
+            <!-- OUT OF STOCK -->
+            <div class="col-lg-6">
+                <a href="{{ route('admin.seedlings.supply-management.items', ['status' => 'out_of_stock']) }}" class="card card-enhanced supply-card-link">
+                    <div class="card-header-enhanced">
+                        <h6 class="card-title">
+                            <i class="fas fa-times-circle text-danger me-2"></i>Out of Stock Items
+                        </h6>
+                        <span class="badge bg-danger text-white">{{ count($supplyAlerts['out_of_stock']) }}</span>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="metric-icon bg-danger">
-                            <i class="fas fa-times-circle text-white"></i>
-                        </div>
-                        <div class="ms-3 grow">
-                            <div class="metric-label">Total Rejected</div>
-                            <div class="metric-value text-danger counter-number"
-                                data-target="{{ $analyticsData['totals']['rejected'] }}">0</div>
-                            <div class="metric-trend">
-                                @if ($analyticsData['totals']['total'] > 0)
-                                    <i class="fas fa-percentage text-danger me-1"></i>
-                                    <small
-                                        class="text-danger">{{ round(($analyticsData['totals']['rejected'] / $analyticsData['totals']['total']) * 100, 1) }}%
-                                        rejection rate</small>
-                                @else
-                                    <i class="fas fa-info-circle text-muted me-1"></i>
-                                    <small class="text-muted">No data yet</small>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Monthly User Registration Chart -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-success text-white py-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 font-weight-bold text-white">
-                            <i class="fas fa-chart-line me-3"></i>Monthly User Registrations
-                        </h5>
-                        <span class="badge bg-white text-success">Last 6 Months</span>
-                    </div>
-                </div>
-                <div class="card-body p-4">
-                    <div style="position: relative; height: 350px;">
-                        <canvas id="monthlyRegistrationChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Application Statistics by Service -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-gradient-primary text-white py-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 font-weight-bold">
-                            <i class="fas fa-chart-bar me-3"></i>Application Statistics by Service
-                        </h5>
-                    </div>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row justify-content-center">
-                        @foreach ($analyticsData['services'] as $serviceKey => $service)
-                            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4 d-flex">
-                                <div class="card service-card flex-fill border-0 shadow-sm position-relative">
-                                    <div class="service-header bg-{{ $service['color'] }}"></div>
-                                    <div class="card-body p-4 d-flex flex-column">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <div class="service-icon bg-{{ $service['color'] }}-light">
-                                                <i class="{{ $service['icon'] }} text-{{ $service['color'] }}"></i>
-                                            </div>
-                                            <div class="ms-3">
-                                                <h6 class="mb-1 font-weight-bold text-{{ $service['color'] }}">
-                                                    {{ $service['name'] }}
-                                                </h6>
-                                                <small class="text-muted">Service Management</small>
-                                            </div>
-                                        </div>
-
-                                        <div class="text-center mb-3">
-                                            <h2 class="mb-0 font-weight-bold text-dark counter-number"
-                                                data-target="{{ $service['total'] }}">0</h2>
-                                            <small class="text-muted">Total Applications</small>
-                                        </div>
-
-                                        <!-- Status Breakdown with enhanced design -->
-                                        <div class="row text-center mb-3">
-                                            <div class="col-4">
-                                                <div class="status-item">
-                                                    <div class="status-number text-success font-weight-bold">
-                                                        {{ $service['approved'] }}</div>
-                                                    <div class="status-label">
-                                                        <i class="fas fa-check-circle text-success me-1"></i>
-                                                        <small class="text-muted">Approved</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="status-item">
-                                                    <div class="status-number text-warning font-weight-bold">
-                                                        {{ $service['pending'] }}</div>
-                                                    <div class="status-label">
-                                                        <i class="fas fa-clock text-warning me-1"></i>
-                                                        <small class="text-muted">Pending</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="status-item">
-                                                    <div class="status-number text-danger font-weight-bold">
-                                                        {{ $service['rejected'] }}</div>
-                                                    <div class="status-label">
-                                                        <i class="fas fa-times-circle text-danger me-1"></i>
-                                                        <small class="text-muted">Rejected</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        @if ($service['total'] > 0)
-                                            <!-- Enhanced Progress Bar -->
-                                            <div class="progress-container mt-auto">
-                                                <div class="progress modern-progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-success progress-bar-animated"
-                                                        role="progressbar"
-                                                        style="width: {{ ($service['approved'] / $service['total']) * 100 }}%"
-                                                        data-toggle="tooltip"
-                                                        title="Approved: {{ $service['approved'] }}"></div>
-                                                    <div class="progress-bar bg-warning progress-bar-animated"
-                                                        role="progressbar"
-                                                        style="width: {{ ($service['pending'] / $service['total']) * 100 }}%"
-                                                        data-toggle="tooltip" title="Pending: {{ $service['pending'] }}">
-                                                    </div>
-                                                    <div class="progress-bar bg-danger progress-bar-animated"
-                                                        role="progressbar"
-                                                        style="width: {{ ($service['rejected'] / $service['total']) * 100 }}%"
-                                                        data-toggle="tooltip"
-                                                        title="Rejected: {{ $service['rejected'] }}"></div>
-                                                </div>
-                                                <div class="d-flex justify-content-between mt-2">
-                                                    <small class="text-success font-weight-bold">
-                                                        {{ round(($service['approved'] / $service['total']) * 100, 1) }}%
-                                                    </small>
-                                                    <small class="text-muted">Approval Rate</small>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <div class="progress-container mt-auto">
-                                                <div class="text-center">
-                                                    <small class="text-muted">No applications yet</small>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                    <div class="card-body card-body-enhanced">
+                        @if(count($supplyAlerts['out_of_stock']) > 0)
+                        <div class="supply-list">
+                            @foreach($supplyAlerts['out_of_stock'] as $item)
+                            <div class="supply-item critical" onclick="event.stopPropagation();">
+                                <div class="supply-info">
+                                    <div class="supply-name">{{ $item['item'] }}</div>
+                                    <div class="supply-category">{{ $item['category'] }}</div>
+                                </div>
+                                <div class="supply-badge critical">
+                                    <i class="fas fa-exclamation"></i>
                                 </div>
                             </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>All items in stock</p>
+                        </div>
+                        @endif
+                    </div>
+                </a>
+            </div>
+
+            <!-- LOW STOCK -->
+            <div class="col-lg-6">
+                <a href="{{ route('admin.seedlings.supply-management.items', ['status' => 'low_stock']) }}" class="card card-enhanced supply-card-link">
+                    <div class="card-header-enhanced">
+                        <h6 class="card-title">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>Low Stock Items
+                        </h6>
+                        <span class="badge bg-warning text-dark">{{ count($supplyAlerts['low_stock']) }}</span>
+                    </div>
+                    <div class="card-body card-body-enhanced">
+                        @if(count($supplyAlerts['low_stock']) > 0)
+                        <div class="supply-list">
+                            @foreach($supplyAlerts['low_stock'] as $item)
+                            <div class="supply-item warning" onclick="event.stopPropagation();">
+                                <div class="supply-info">
+                                    <div class="supply-name">{{ $item['item'] }}</div>
+                                    <div class="supply-detail">{{ $item['current'] }} / {{ $item['minimum'] }} (min)</div>
+                                </div>
+                                <div class="supply-progress">
+                                    <div class="progress-bar" style="width: {{ ($item['current'] / $item['minimum'] * 100) }}%"></div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <div class="empty-state">
+                            <i class="fas fa-leaf"></i>
+                            <p>All supplies are healthy</p>
+                        </div>
+                        @endif
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION STATUS OVERVIEW WITH CHARTS -->
+    <div class="row mb-4 mt-4">
+        <div class="col-12">
+            <div class="section-header">
+                <h5 class="section-title">
+                    <i class="fas fa-chart-bar me-2"></i>Application Status Overview
+                </h5>
+                <p class="section-subtitle">Track application submissions and approvals across all services</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4 g-3">
+        @foreach($applicationStatus as $service)
+        <div class="col-lg-4 col-md-6">
+            <div class="status-card-enhanced">
+                <div class="status-card-header">
+                    <div class="status-icon-wrapper">
+                        <i class="{{ $service['icon'] }} fa-lg"></i>
+                    </div>
+                    <div class="status-title-group">
+                        <h6 class="status-name">{{ $service['name'] }}</h6>
+                        <span class="status-total">{{ $service['pending'] + $service['approved'] + $service['rejected'] }} total</span>
+                    </div>
+                </div>
+
+                <div class="status-stats-container">
+                    <div class="status-stat">
+                        <a href="{{ route($service['route'], ['filter' => 'pending']) }}" class="stat-box pending">
+                            <span class="stat-value">{{ $service['pending'] }}</span>
+                            <span class="stat-name">Pending</span>
+                        </a>
+                    </div>
+                    <div class="status-stat">
+                        <a href="{{ route($service['route'], ['filter' => 'approved']) }}" class="stat-box approved">
+                            <span class="stat-value">{{ $service['approved'] }}</span>
+                            <span class="stat-name">Approved</span>
+                        </a>
+                    </div>
+                    <div class="status-stat">
+                        <a href="{{ route($service['route'], ['filter' => 'rejected']) }}" class="stat-box rejected">
+                            <span class="stat-value">{{ $service['rejected'] }}</span>
+                            <span class="stat-name">Rejected</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="status-action">
+                    <a href="{{ route($service['route']) }}" class="btn btn-status-action w-100">
+                        <i class="fas fa-arrow-right me-2"></i>Manage Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="row mb-4 g-3">
+        <div class="col-lg-12">
+            <div class="card card-enhanced">
+                <div class="card-header-enhanced">
+                    <h6 class="card-title">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </h6>
+                    <span class="badge bg-light text-dark">Latest</span>
+                </div>
+                <div class="card-body card-body-enhanced">
+                    @if(count($recentActivity) > 0)
+                    <div class="activity-list">
+                        @foreach($recentActivity as $activity)
+                        <a href="{{ $activity['action_url'] }}" class="activity-item">
+                            <div class="activity-left">
+                                <div class="activity-icon">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-type">{{ $activity['type'] }}</div>
+                                    <div class="activity-name">{{ $activity['name'] }}</div>
+                                </div>
+                            </div>
+                            <div class="activity-right">
+                                <span class="activity-time">{{ $activity['created_at']->diffForHumans() }}</span>
+                                <span class="badge badge-{{ $activity['status_color'] }}">{{ $activity['action'] }}</span>
+                            </div>
+                        </a>
                         @endforeach
                     </div>
+                    @else
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No pending activities</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 
+<script>
+    // Supply Status Chart
+    const supplyCtx = document.getElementById('supplyStatusChart')?.getContext('2d');
+    if (supplyCtx) {
+        @php
+            $totalSupplyItems = count($supplyAlerts['out_of_stock'] ?? []) + count($supplyAlerts['low_stock'] ?? []) + ($keyMetrics['total_users'] ?? 0);
+            $outOfStock = count($supplyAlerts['out_of_stock'] ?? []);
+            $lowStock = count($supplyAlerts['low_stock'] ?? []);
+            $healthy = max(0, $totalSupplyItems - $outOfStock - $lowStock);
+            $totalForChart = $outOfStock + $lowStock + $healthy;
+        @endphp
+        
+        new Chart(supplyCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Healthy', 'Low Stock', 'Out of Stock'],
+                datasets: [{
+                    data: [
+                        {{ $healthy > 0 ? $healthy : 0 }},
+                        {{ $lowStock }},
+                        {{ $outOfStock }}
+                    ],
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12 },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
 
-    <style>
-        :root {
-            --primary-color: #4e73df;
-            --success-color: #1cc88a;
-            --info-color: #36b9cc;
-            --warning-color: #f6c23e;
-            --danger-color: #e74a3b;
-            --purple-color: #6f42c1;
-            --dark-color: #5a5c69;
-            --light-color: #f8f9fc;
-            --shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+<style>
+    :root {
+        --primary: #4e73df;
+        --success: #1cc88a;
+        --danger: #e74a3b;
+        --warning: #f6c23e;
+        --info: #36b9cc;
+        --light: #f8f9fc;
+        --dark: #2e3338;
+        --gray: #858796;
+    }
+
+    .dashboard-wrapper {
+        max-width: 1450px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+        min-height: 100vh;
+        padding: 1rem !important;
+    }
+
+    /* ==================== WELCOME SECTION ==================== */
+    .welcome-card {
+        background: linear-gradient(135deg, var(--primary) 0%, #224abe 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(78, 115, 223, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-card::before {
+        content: '';
+        position: absolute;
+        right: -50px;
+        top: -50px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .greeting-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .greeting-time {
+        opacity: 0.95;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+    }
+
+    .quick-stats {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .stat-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+
+    .badge-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    /* ==================== CRITICAL ALERTS - ENHANCED DESIGN ==================== */
+    .critical-alerts-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .alerts-header-enhanced {
+        background: linear-gradient(135deg, #fff5f5 0%, #fffaf0 100%);
+        border-bottom: 2px solid #ffe5e5;
+        padding: 1.75rem 1.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alerts-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        width: 100%;
+    }
+
+    .alerts-header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.75rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.25);
+    }
+
+    .alerts-header-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .alerts-header-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .alerts-header-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0;
+    }
+
+    /* Critical Alerts Grid */
+    .critical-alerts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.25rem;
+        padding: 1.75rem;
+    }
+
+    .critical-alert-card {
+        position: relative;
+        background: white;
+        border-radius: 10px;
+        border: 1.5px solid;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .critical-alert-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+    }
+
+    .critical-alert-card.alert-danger {
+        border-color: #ffe5e5;
+        background: linear-gradient(135deg, #fff9f9 0%, #fffbfb 100%);
+    }
+
+    .critical-alert-card.alert-danger:hover {
+        border-color: var(--danger);
+    }
+
+    .critical-alert-card.alert-warning {
+        border-color: #fff3e0;
+        background: linear-gradient(135deg, #fffef9 0%, #fffdfb 100%);
+    }
+
+    .critical-alert-card.alert-warning:hover {
+        border-color: var(--warning);
+    }
+
+    .alert-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--danger), #f6c23e);
+        animation: slideIn 0.6s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            width: 0;
         }
-
-        /* Welcome Banner */
-        .welcome-banner {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
+        to {
+            width: 100%;
         }
+    }
 
-        /* .welcome-banner::before {
-                                                content: '';
-                                                position: absolute;
-                                                top: 0;
-                                                right: 0;
-                                                width: 100px;
-                                                height: 100px;
-                                                background: rgba(255, 255, 255, 0.1);
-                                                border-radius: 50%;
-                                                transform: translate(20px, -20px);
-                                            } */
+    .alert-card-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        flex: 1;
+    }
 
-        /* Metric Cards */
-        .metric-card {
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            position: relative;
-        }
+    .alert-header-section {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 
-        .metric-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
-        }
+    .alert-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
 
-        .metric-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+    .alert-icon-danger {
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.2);
+    }
+
+    .alert-icon-warning {
+        background: linear-gradient(135deg, var(--warning), #fcb92d);
+        box-shadow: 0 4px 12px rgba(246, 194, 62, 0.2);
+    }
+
+    .alert-title-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .alert-title-text {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0;
+        line-height: 1.4;
+    }
+
+    .alert-subtitle-text {
+        font-size: 0.85rem;
+        color: var(--gray);
+        margin-bottom: 0;
+        line-height: 1.4;
+    }
+
+    .alert-count-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        border-radius: 10px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.3rem;
+        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.2);
+        flex-shrink: 0;
+    }
+
+    .count-number {
+        line-height: 1;
+    }
+
+    /* Alert Actions */
+    .alert-actions-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        border-top: 1px solid #e3e6f0;
+        padding-top: 1.25rem;
+        margin-top: auto;
+    }
+
+    .btn-alert-enhanced {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.25rem;
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .btn-alert-enhanced:hover {
+        box-shadow: 0 6px 16px rgba(231, 74, 59, 0.3);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-alert-enhanced i {
+        font-size: 0.85rem;
+        transition: transform 0.2s ease;
+    }
+
+    .btn-alert-enhanced:hover i {
+        transform: translateX(4px);
+    }
+
+    /* ==================== SECTION HEADERS ==================== */
+    .section-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0;
+    }
+
+    /* ==================== SUPPLY MANAGEMENT SECTION ==================== */
+    .supply-management-section {
+        margin-bottom: 2rem;
+    }
+
+    .supply-section-header {
+        background: white;
+        border-radius: 12px 12px 0 0;
+        padding: 1.75rem;
+        border-bottom: 2px solid #e3e6f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .supply-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .supply-header-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
+    }
+
+    .supply-header-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .supply-header-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .supply-header-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0;
+    }
+
+    .supply-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .supply-card-link:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* ==================== METRIC CARDS - 2x2 LAYOUT ==================== */
+    .metric-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-top: 4px solid;
+        position: relative;
+        height: 100%;
+    }
+
+    .metric-card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
+    }
+
+    .metric-card-pending {
+        border-top-color: var(--warning);
+    }
+
+    .metric-card-supply {
+        border-top-color: var(--danger);
+    }
+
+    .metric-card-users {
+        border-top-color: var(--info);
+    }
+
+    .metric-card-info {
+        border-top-color: var(--primary);
+    }
+
+    .metric-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+    }
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .metric-icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .metric-icon-box.pending {
+        background: linear-gradient(135deg, var(--warning), #fcb92d);
+    }
+
+    .metric-icon-box.supply {
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+    }
+
+    .metric-icon-box.users {
+        background: linear-gradient(135deg, var(--info), #2fa7b8);
+    }
+
+    .metric-icon-box.info {
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+    }
+
+    .metric-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        flex: 1;
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .metric-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .metric-footer {
+        border-top: 1px solid #e3e6f0;
+        padding-top: 1rem;
+        margin-top: auto;
+    }
+
+    .metric-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .metric-link:hover {
+        color: #224abe;
+        gap: 0.75rem;
+    }
+
+    /* ==================== CARD STYLES ==================== */
+    .card-enhanced {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .card-enhanced:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header-enhanced {
+        background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+        padding: 1.5rem;
+        border-bottom: 2px solid #e3e6f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .card-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .card-body-enhanced {
+        padding: 0;
+        flex: 1;
+        overflow-y: auto;
+        max-height: 450px;
+    }
+
+    .card-body-enhanced::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .card-body-enhanced::-webkit-scrollbar-track {
+        background: #f1f3f5;
+    }
+
+    .card-body-enhanced::-webkit-scrollbar-thumb {
+        background: #adb5bd;
+        border-radius: 3px;
+    }
+
+    /* ==================== SUPPLY LIST ==================== */
+    .supply-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .supply-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: white;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+        border-left: 3px solid;
+        border-bottom: 1px solid #e3e6f0;
+    }
+
+    .supply-item:last-child {
+        border-bottom: none;
+    }
+
+    .supply-item.critical {
+        border-left-color: var(--danger);
+    }
+
+    .supply-item.critical:hover {
+        background: #fff5f5;
+        padding-left: 1.5rem;
+    }
+
+    .supply-item.warning {
+        border-left-color: var(--warning);
+    }
+
+    .supply-item.warning:hover {
+        background: #fffaf0;
+        padding-left: 1.5rem;
+    }
+
+    .supply-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        flex: 1;
+    }
+
+    .supply-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--dark);
+    }
+
+    .supply-category {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    .supply-detail {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--gray);
+    }
+
+    .supply-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .supply-badge.critical {
+        background: var(--danger);
+    }
+
+    .supply-progress {
+        width: 100%;
+        max-width: 80px;
+        height: 4px;
+        background: #e3e6f0;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-left: auto;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--warning), #fcb92d);
+        transition: width 0.3s ease;
+    }
+
+    /* ==================== ACTIVITY LIST ==================== */
+    .activity-list {
+        max-height: 550px;
+        overflow-y: auto;
+    }
+
+    .activity-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .activity-list::-webkit-scrollbar-track {
+        background: #f1f3f5;
+    }
+
+    .activity-list::-webkit-scrollbar-thumb {
+        background: #adb5bd;
+        border-radius: 3px;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #e3e6f0;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item:hover {
+        background-color: #f8f9fc;
+        padding-left: 1.25rem;
+    }
+
+    .activity-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .activity-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .activity-type {
+        font-size: 0.75rem;
+        color: var(--gray);
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .activity-name {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    .activity-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-align: right;
+    }
+
+    .activity-time {
+        font-size: 0.8rem;
+        color: var(--gray);
+        white-space: nowrap;
+    }
+
+    /* ==================== STATUS CARDS - ENHANCED ==================== */
+    .status-card-enhanced {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        align-items: center;
+        border-top: 5px solid var(--primary);
+    }
+
+    .status-card-enhanced:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
+    }
+
+    .status-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .status-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .status-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .status-name {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .status-total {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    .status-stats-container {
+        display: flex;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .status-stat {
+        flex: 1;
+    }
+
+    .stat-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+        border: 2px solid;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .stat-box.pending {
+        background: #fffaf0;
+        border-color: var(--warning);
+        color: #cc8800;
+    }
+
+    .stat-box.pending:hover {
+        background: var(--warning);
+        color: white;
+    }
+
+    .stat-box.approved {
+        background: #f0fdf4;
+        border-color: var(--success);
+        color: #16a34a;
+    }
+
+    .stat-box.approved:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    .stat-box.rejected {
+        background: #fef2f2;
+        border-color: var(--danger);
+        color: #b91c1c;
+    }
+
+    .stat-box.rejected:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    .stat-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-action {
+        width: 100%;
+        border-top: 1px solid #e3e6f0;
+        padding-top: 1rem;
+        margin-top: auto;
+    }
+
+    .btn-status-action {
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .btn-status-action:hover {
+        box-shadow: 0 6px 16px rgba(78, 115, 223, 0.3);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--gray);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+        color: var(--success);
+    }
+
+    .empty-state p {
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 992px) {
+        .greeting-title {
             font-size: 1.5rem;
-            margin-bottom: 0;
+        }
+
+        .status-stats-container {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .quick-stats {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .critical-alerts-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            padding: 0.75rem !important;
+        }
+
+        .metric-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .metric-number {
+            font-size: 1.5rem;
+        }
+
+        .activity-right {
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .status-stats-container {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-box {
+            padding: 0.75rem;
+        }
+
+        .card-body-enhanced {
+            max-height: 400px;
+        }
+
+        .critical-alerts-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .alerts-header-enhanced {
+            padding: 1.25rem;
+        }
+
+        .alert-card-content {
+            padding: 1rem;
+        }
+
+        .supply-section-header {
+            padding: 1.25rem;
+        }
+
+        .supply-header-content {
+            gap: 0.75rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .greeting-title {
+            font-size: 1.3rem;
+        }
+
+        .metric-number {
+            font-size: 1.3rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
         }
 
         .metric-label {
             font-size: 0.75rem;
-            color: #6c757d;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
         }
 
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: 0.25rem;
+        .status-stats-container {
+            grid-template-columns: 1fr;
         }
 
-        .metric-trend {
-            font-size: 0.875rem;
+        .alerts-header-content {
+            gap: 0.75rem;
         }
 
-        /* Alert Enhancements */
-        .alert-modern {
-            border-radius: 15px;
-            border: none;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            color: #856404;
-        }
-
-        .alert-icon {
-            flex-shrink: 0;
-        }
-
-        .alert-action .btn-modern {
-            border-radius: 25px;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.875rem;
-        }
-
-        /* Service Cards */
-        .service-card {
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .service-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .service-header {
-            height: 4px;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .service-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
-        .status-item {
-            padding: 0.5rem;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-        }
-
-        .status-item:hover {
-            background: rgba(0, 0, 0, 0.02);
-            transform: scale(1.05);
-        }
-
-        .status-number {
+        .alerts-header-icon {
+            width: 48px;
+            height: 48px;
             font-size: 1.5rem;
-            line-height: 1;
-            margin-bottom: 0.25rem;
         }
 
-        .status-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .alerts-header-title {
+            font-size: 1.1rem;
         }
 
-        /* Progress Enhancements */
-        .progress-container {
-            position: relative;
+        .alerts-header-subtitle {
+            font-size: 0.8rem;
         }
 
-        .modern-progress {
-            border-radius: 10px;
-            background: #f1f3f4;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            transition: width 1s ease-in-out;
-        }
-
-        .progress-bar-animated {
-            animation: progress-bar-stripes 1s linear infinite;
-        }
-
-        /* Summary Items */
-        .summary-item {
-            padding: 1rem;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .summary-item:hover {
-            background: rgba(0, 0, 0, 0.02);
-            transform: translateY(-2px);
-        }
-
-        .summary-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
+        .supply-header-icon {
+            width: 42px;
+            height: 42px;
             font-size: 1.25rem;
         }
 
-        .summary-number {
-            font-size: 2rem;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: 0.5rem;
+        .supply-header-title {
+            font-size: 1.1rem;
         }
 
-        .summary-label {
-            font-size: 0.875rem;
-            color: #6c757d;
-            font-weight: 600;
+        .supply-header-subtitle {
+            font-size: 0.8rem;
         }
+    }
+</style>
 
-        /* Action Cards */
-        .action-card {
-            display: block;
-            background: white;
-            border: 2px solid #e3e6f0;
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-            height: 120px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .action-card:hover {
-            text-decoration: none;
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: transparent;
-        }
-
-        .action-card.btn-primary:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 20px rgba(78, 115, 223, 0.3);
-        }
-
-        .action-card.btn-success:hover {
-            border-color: var(--success-color);
-            box-shadow: 0 0 20px rgba(28, 200, 138, 0.3);
-        }
-
-        .action-card.btn-info:hover {
-            border-color: var(--info-color);
-            box-shadow: 0 0 20px rgba(54, 185, 204, 0.3);
-        }
-
-        .action-card.btn-warning:hover {
-            border-color: var(--warning-color);
-            box-shadow: 0 0 20px rgba(246, 194, 62, 0.3);
-        }
-
-        .action-card.btn-danger:hover {
-            border-color: var(--danger-color);
-            box-shadow: 0 0 20px rgba(231, 74, 59, 0.3);
-        }
-
-        .action-card.btn-purple:hover {
-            border-color: var(--purple-color);
-            box-shadow: 0 0 20px rgba(111, 66, 193, 0.3);
-        }
-
-        .action-card.btn-dark:hover {
-            border-color: var(--dark-color);
-            box-shadow: 0 0 20px rgba(90, 92, 105, 0.3);
-        }
-
-        .action-card.btn-secondary:hover {
-            border-color: #6c757d;
-            box-shadow: 0 0 20px rgba(108, 117, 125, 0.3);
-        }
-
-        .action-icon {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            color: #6c757d;
-            transition: all 0.3s ease;
-        }
-
-        .action-title {
-            font-size: 0.875rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            color: #5a5c69;
-        }
-
-        .action-desc {
-            font-size: 0.75rem;
-            color: #858796;
-        }
-
-        /* Color Utilities */
-        .bg-primary-light {
-            background-color: rgba(78, 115, 223, 0.1);
-        }
-
-        .bg-success-light {
-            background-color: rgba(28, 200, 138, 0.1);
-        }
-
-        .bg-info-light {
-            background-color: rgba(54, 185, 204, 0.1);
-        }
-
-        .bg-warning-light {
-            background-color: rgba(246, 194, 62, 0.1);
-        }
-
-        .bg-danger-light {
-            background-color: rgba(231, 74, 59, 0.1);
-        }
-
-        .bg-purple-light {
-            background-color: rgba(111, 66, 193, 0.1);
-        }
-
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
-        }
-
-        .bg-gradient-dark {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #3d3e46 100%);
-        }
-
-        .badge-light-primary {
-            background-color: rgba(78, 115, 223, 0.1);
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-
-
-        /* Counter Animation */
-        .counter-number {
-            transition: all 0.3s ease;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .metric-value {
-                font-size: 1.5rem;
-            }
-
-            .summary-number {
-                font-size: 1.5rem;
-            }
-
-            .action-card {
-                height: 100px;
-                padding: 1rem;
-            }
-
-            .action-icon {
-                font-size: 1.5rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .welcome-banner {
-                margin-bottom: 1.5rem;
-            }
-
-            .welcome-banner h2 {
-                font-size: 1.25rem;
-            }
-
-            .welcome-banner p {
-                font-size: 0.875rem;
-            }
-
-            .metric-card {
-                margin-bottom: 1rem;
-            }
-
-            .metric-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-
-            .metric-label {
-                font-size: 0.7rem;
-            }
-
-            .service-card {
-                margin-bottom: 1rem;
-            }
-
-            .status-number {
-                font-size: 1.25rem;
-            }
-
-            .card-header h5 {
-                font-size: 1rem;
-            }
-
-            /* Make tables horizontally scrollable */
-            .table-responsive {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .welcome-banner h2 {
-                font-size: 1.1rem;
-            }
-
-            .metric-value {
-                font-size: 1.25rem;
-            }
-
-            .metric-label {
-                font-size: 0.65rem;
-            }
-
-            .status-label small {
-                font-size: 0.7rem;
-            }
-
-            .card-body {
-                padding: 0.75rem;
-            }
-        }
-
-        /* Animation Keyframes */
-        @keyframes progress-bar-stripes {
-            0% {
-                background-position: 1rem 0;
-            }
-
-            100% {
-                background-position: 0 0;
-            }
-        }
-    </style>
-
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!-- Enhanced JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Counter Animation
-            function animateCounters() {
-                const counters = document.querySelectorAll('.counter-number');
-
-                counters.forEach(counter => {
-                    const targetAttr = counter.getAttribute('data-target');
-                    const target = parseInt(targetAttr) || 0;
-
-                    // Skip animation if target is 0 or invalid
-                    if (target === 0) {
-                        counter.textContent = '0';
-                        return;
-                    }
-
-                    const increment = target / 60; // Animation duration roughly 1 second
-                    let current = 0;
-
-                    const timer = setInterval(() => {
-                        current += increment;
-
-                        if (current >= target) {
-                            counter.textContent = target.toLocaleString();
-                            clearInterval(timer);
-                        } else {
-                            counter.textContent = Math.floor(current).toLocaleString();
-                        }
-                    }, 16); // ~60fps
-                });
-            }
-
-            // Trigger counter animation when page loads
-            setTimeout(animateCounters, 500);
-
-            // Initialize tooltips if Bootstrap is available
-            if (typeof bootstrap !== 'undefined') {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'));
-                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
-
-            // Add hover effects to action cards
-            document.querySelectorAll('.action-card, .action-card-small').forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    const icon = this.querySelector('.action-icon, .action-icon-small');
-                    if (icon) {
-                        icon.style.transform = 'scale(1.1) rotate(5deg)';
-                    }
-                });
-
-                card.addEventListener('mouseleave', function() {
-                    const icon = this.querySelector('.action-icon, .action-icon-small');
-                    if (icon) {
-                        icon.style.transform = 'scale(1) rotate(0deg)';
-                    }
-                });
-            });
-
-            // Initialize Monthly Registration Chart
-            initMonthlyRegistrationChart();
-        });
-
-        // Monthly Registration Line Chart
-        function initMonthlyRegistrationChart() {
-            const ctx = document.getElementById('monthlyRegistrationChart');
-
-            if (!ctx) return;
-
-            // Data from Laravel
-            const monthlyData = @json($monthlyRegistrations);
-            const labels = monthlyData.map(item => item.month);
-            const data = monthlyData.map(item => item.count);
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'User Registrations',
-                        data: data,
-                        borderColor: 'rgb(40, 167, 69)',
-                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        pointBackgroundColor: 'rgb(40, 167, 69)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointHoverBackgroundColor: 'rgb(40, 167, 69)',
-                        pointHoverBorderColor: '#fff',
-                        pointHoverBorderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 13,
-                                    weight: '600'
-                                },
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            titleFont: {
-                                size: 14,
-                                weight: 'bold'
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
-                            cornerRadius: 8,
-                            displayColors: true,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += context.parsed.y + ' user' + (context.parsed.y !== 1 ? 's' : '');
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1,
-                                font: {
-                                    size: 12
-                                },
-                                callback: function(value) {
-                                    if (Number.isInteger(value)) {
-                                        return value;
-                                    }
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)',
-                                drawBorder: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Number of Registrations',
-                                font: {
-                                    size: 13,
-                                    weight: '600'
-                                },
-                                padding: 10
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: 12
-                                }
-                            },
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Month',
-                                font: {
-                                    size: 13,
-                                    weight: '600'
-                                },
-                                padding: 10
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
-        }
-    </script>
 @endsection

@@ -129,10 +129,11 @@ class EventController extends Controller
 
     /**
      * Store a new event
-     * LOGIC:
-     * - Max 3 ACTIVE events per category
-     * - Announcements must always be ACTIVE
-     * - Auto-deactivates oldest event if limit reached
+     * NEW LOGIC:
+     * - Only 1 ACTIVE event per category
+     * - NEW events default to INACTIVE status
+     * - Announcements/Ongoing/Upcoming/Past categories have 1 default active by default
+     * - User must manually activate new events if needed
      */
     public function store(Request $request)
     {
@@ -163,41 +164,28 @@ class EventController extends Controller
         try {
             DB::beginTransaction();
 
-            // ANNOUNCEMENTS MUST ALWAYS BE ACTIVE
-            $isActiveRequest = $request->category === 'announcement' ? true : $request->boolean('is_active', true);
-            $wasDeactivated = false;
-            $deactivatedCount = 0;
-
-            // Check if creating an active event in this category
-            if ($isActiveRequest) {
+            // NEW LOGIC: All new events default to INACTIVE
+            // Only if explicitly requested and not at category limit, can be active
+            $isActiveRequest = false;
+            
+            // Check if user explicitly wants this event active
+            if ($request->boolean('is_active', false)) {
+                // Check if this category already has 1 active event
                 $activeCountInCategory = Event::where('category', $request->category)
                     ->active()
                     ->notArchived()
                     ->count();
 
-                // If we already have 3 active events in this category, deactivate the oldest one
-                if ($activeCountInCategory >= 3) {
-                    $oldestEvent = Event::where('category', $request->category)
-                        ->active()
-                        ->notArchived()
-                        ->orderBy('created_at', 'asc')
-                        ->first();
-
-                    if ($oldestEvent) {
-                        $oldestEvent->update([
-                            'is_active' => false,
-                            'updated_by' => auth()->id(),
-                            'updated_at' => now()
-                        ]);
-                        $deactivatedCount = 1;
-                        $wasDeactivated = true;
-
-                        \Log::info(' [Events] Auto-deactivated oldest event (limit reached)', [
-                            'category' => $request->category,
-                            'deactivated_id' => $oldestEvent->id,
-                            'deactivated_title' => $oldestEvent->title
-                        ]);
-                    }
+                // Only allow activation if no active event exists in this category
+                if ($activeCountInCategory < 1) {
+                    $isActiveRequest = true;
+                } else {
+                    // Cannot create as active - category already has an active event
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'The ' . ucfirst($request->category) . ' category already has 1 active event. Please deactivate it first if you want to activate this new event.',
+                        'warning_type' => 'category_active_event_exists'
+                    ], 422);
                 }
             }
 
@@ -247,19 +235,14 @@ class EventController extends Controller
 
             // Build success message
             $message = 'Event "' . $event->title . '" created successfully';
-            if ($request->category === 'announcement') {
-                $message .= ' (Announcements are always active)';
-            }
-            if ($wasDeactivated) {
-                $message .= '. An older event in the ' . ucfirst($request->category) . ' category was auto-deactivated (max 3 active per category)';
+            if (!$event->is_active) {
+                $message .= ' (set to inactive - you can activate it later)';
             }
 
             return response()->json([
                 'success' => true,
                 'message' => $message,
                 'event' => $event->load('creator'),
-                'auto_deactivated' => $wasDeactivated,
-                'deactivated_count' => $deactivatedCount,
                 'category' => $event->category
             ], 201);
 
@@ -363,16 +346,25 @@ class EventController extends Controller
         try {
             DB::beginTransaction();
 
-            // SAFETY CHECK: Prevent deactivating last active event
+            // NEW LOGIC: Allow updating status freely per new rules
+            // No restrictions on deactivation in edit form
             $isActiveRequest = $request->boolean('is_active', $event->is_active);
-            $activeCount = Event::active()->count();
 
-            if ($event->is_active && !$isActiveRequest && $activeCount <= 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => ' Cannot deactivate the last active event. The landing page requires at least one active event to display.',
-                    'warning_type' => 'last_active_event'
-                ], 422);
+            // If changing to active, check 1 per category limit
+            if (!$event->is_active && $isActiveRequest) {
+                $activeCountInCategory = Event::where('category', $event->category)
+                    ->active()
+                    ->notArchived()
+                    ->where('id', '!=', $event->id)
+                    ->count();
+
+                if ($activeCountInCategory >= 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'The ' . ucfirst($event->category) . ' category already has 1 active event. Please deactivate it first.',
+                        'warning_type' => 'only_one_active_allowed'
+                    ], 422);
+                }
             }
 
             $newImagePath = $event->image_path;
@@ -567,83 +559,40 @@ class EventController extends Controller
 
     /**
      * Toggle event active status
-     * SAFETY RULES:
-     * - Announcements can NEVER be deactivated
-     * - Cannot deactivate if it's the only active event overall
-     * - Cannot deactivate if it's the only active event in its category
-     * - Cannot activate if category already has 3 active events
+     * NEW LOGIC:
+     * - Only 1 ACTIVE event per category (maximum)
+     * - Cannot activate if category already has 1 active (must deactivate that one first)
+     * - Can deactivate any event (even if it's the only active in category)
+     * - Provides clear notification when trying to activate
      */
     public function toggleStatus(Event $event)
     {
         try {
             $newStatus = !$event->is_active;
 
-            // RULE 1: Announcements must always be active - CANNOT toggle
-            if ($event->category === 'announcement') {
-                return response()->json([
-                    'success' => false,
-                    'message' => ' Announcements must always be active and cannot be deactivated. This is required to maintain landing page content.',
-                    'warning_type' => 'announcement_always_active'
-                ], 422);
-            }
-
-            // RULE 2: If trying to DEACTIVATE, check if it's the only active announcement
-            if ($event->is_active && !$newStatus && $event->category === 'announcement') {
-                $activeAnnouncementCount = Event::where('category', 'announcement')
-                    ->active()
-                    ->notArchived()
-                    ->count();
-
-                if ($activeAnnouncementCount <= 1) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => ' Cannot deactivate the only active announcement. The landing page requires at least one active announcement.',
-                        'warning_type' => 'last_active_event'
-                    ], 422);
-                }
-            }
-
-            // RULE 2B: If trying to DEACTIVATE, check if it's the only active event overall
-            if ($event->is_active && !$newStatus) {
-                $activeCount = Event::active()->count();
-
-                if ($activeCount <= 1) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => ' Cannot deactivate the last active event. The landing page requires at least one active event to display.',
-                        'warning_type' => 'last_active_event'
-                    ], 422);
-                }
-            }
-
-            // RULE 3: If trying to DEACTIVATE, check if it's the only active event in category
-            if ($event->is_active && !$newStatus) {
-                $activeCountInCategory = Event::where('category', $event->category)
-                    ->active()
-                    ->notArchived()
-                    ->count();
-
-                if ($activeCountInCategory <= 1) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => ' This is the only active event in the ' . ucfirst($event->category) . ' category. Please activate another event first, or create a new one.',
-                        'warning_type' => 'last_active_in_category'
-                    ], 422);
-                }
-            }
-
-            // RULE 4: If trying to ACTIVATE, check if category already has 3 active
+            // If trying to ACTIVATE
             if (!$event->is_active && $newStatus) {
+                // Check if this category already has an active event
                 $activeCountInCategory = Event::where('category', $event->category)
                     ->active()
                     ->notArchived()
                     ->count();
 
-                if ($activeCountInCategory >= 3) {
+                if ($activeCountInCategory >= 1) {
+                    // Get the active event details for the notification
+                    $activeEvent = Event::where('category', $event->category)
+                        ->active()
+                        ->notArchived()
+                        ->first();
+
                     return response()->json([
                         'success' => false,
-                        'message' => ' The ' . ucfirst($event->category) . ' category already has 3 active events (maximum limit). Please deactivate one first.',
-                        'warning_type' => 'category_limit_reached'
+                        'message' => 'The ' . ucfirst($event->category) . ' category already has 1 active event: "' . $activeEvent->title . '". Please deactivate it first if you want to activate this event.',
+                        'warning_type' => 'only_one_active_allowed',
+                        'active_event' => [
+                            'id' => $activeEvent->id,
+                            'title' => $activeEvent->title
+                        ]
                     ], 422);
                 }
             }
