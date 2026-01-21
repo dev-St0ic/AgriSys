@@ -519,20 +519,42 @@
         </div>
     </div>
 
-    <!-- VIEW EVENT MODAL  -->
+    <!-- VIEW EVENT MODAL -->
     <div class="modal fade" id="viewEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Event Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Event Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="eventDetailsContent">
-                    <div class="text-center">
-                        <div class="spinner-border" role="status">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
+                        <p class="text-muted mt-3">Loading event details...</p>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img id="previewImage" src="" alt="Event Image" class="img-fluid rounded" style="max-height: 85vh; object-fit: contain;">
                 </div>
             </div>
         </div>
@@ -950,6 +972,10 @@
         // View event
         async function viewEvent(eventId) {
             try {
+                // Show modal with loading state
+                const modal = new bootstrap.Modal(document.getElementById('viewEventModal'));
+                modal.show();
+                
                 const response = await fetch(`/admin/events/${eventId}`, {
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -961,69 +987,161 @@
 
                 const event = data.event;
 
-                // Build details HTML similar to archived page
+                // Build details HTML
                 let detailsHtml = '';
                 if (event.details && Object.keys(event.details).length > 0) {
                     detailsHtml = `
-                    <div class="mb-3">
-                        <h6 class="fw-bold mb-2">Additional Details:</h6>
-                        <dl class="row">
-                `;
-                    for (const [key, value] of Object.entries(event.details)) {
-                        const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ')
-                            .slice(1);
-                        detailsHtml += `
-                        <dt class="col-sm-4">${displayKey}:</dt>
-                        <dd class="col-sm-8">${value}</dd>
+                        <div class="col-12 mt-4">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>Additional Details
+                                    </h6>
+                                    <dl class="row mb-0">
                     `;
+                    for (const [key, value] of Object.entries(event.details)) {
+                        const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
+                        detailsHtml += `
+                            <dt class="col-sm-4 mb-2">${displayKey}:</dt>
+                            <dd class="col-sm-8 mb-2">${value}</dd>
+                        `;
                     }
                     detailsHtml += `
-                        </dl>
-                    </div>
-                `;
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }
 
                 const html = `
-                <div class="row">
-                    <div class="col-md-4">
-                        ${event.image ? `<img src="${event.image}" alt="${event.title}" class="img-fluid rounded">` : '<div class="bg-light p-5 text-center rounded"><i class="fas fa-image fa-3x text-muted"></i></div>'}
-                    </div>
-                    <div class="col-md-8">
-                        <h4>${event.title}</h4>
-                        <p class="text-muted">${event.description}</p>
-                        <dl class="row">
-                            <dt class="col-sm-4">Category:</dt>
-                            <dd class="col-sm-8"><span class="badge bg-info">${event.category_label}</span></dd>
+                    <div class="row g-4">
+                        <!-- Image Section -->
+                        <div class="col-md-4">
+                            ${event.image 
+                                ? `<div class="position-relative" style="cursor: pointer;" onclick="previewEventImage('${event.image}', '${event.title.replace(/'/g, "\\'")}')">
+                                    <img src="${event.image}" alt="${event.title}" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
+                                    <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
+                                        <i class="fas fa-search-plus fa-2x text-white"></i>
+                                    </div>
+                                </div>` 
+                                : `<div class="bg-light rounded shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <div class="text-center">
+                                        <i class="fas fa-image fa-4x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No image</p>
+                                    </div>
+                                </div>`
+                            }
+                        </div>
 
-                            <dt class="col-sm-4">Status:</dt>
-                            <dd class="col-sm-8"><span class="badge bg-${event.is_active ? 'success' : 'secondary'}">${event.is_active ? 'Active' : 'Inactive'}</span></dd>
+                        <!-- Details Section -->
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-3">${event.title}</h4>
+                            <p class="text-muted mb-4">${event.description}</p>
 
-                            <dt class="col-sm-4">Display Order:</dt>
-                            <dd class="col-sm-8">${event.display_order || '—'}</dd>
+                            <div class="row g-3">
+                                <!-- Category -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">Category</small>
+                                            <span class="badge bg-info fs-6">${event.category_label}</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <dt class="col-sm-4">Date:</dt>
-                            <dd class="col-sm-8">${event.date || '—'}</dd>
+                                <!-- Status -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">Status</small>
+                                            <span class="badge bg-${event.is_active ? 'success' : 'secondary'} fs-6">
+                                                ${event.is_active ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <dt class="col-sm-4">Location:</dt>
-                            <dd class="col-sm-8">${event.location || '—'}</dd>
+                                <!-- Date -->
+                                ${event.date ? `
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-calendar me-1"></i>Date/Time
+                                            </small>
+                                            <span class="fw-semibold">${event.date}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : ''}
 
-                            <dt class="col-sm-4">Created:</dt>
-                            <dd class="col-sm-8"><small>${new Date(event.created_at).toLocaleDateString()}</small></dd>
+                                <!-- Location -->
+                                ${event.location ? `
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-map-marker-alt me-1"></i>Location
+                                            </small>
+                                            <span class="fw-semibold">${event.location}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : ''}
 
-                            <dt class="col-sm-4">Updated:</dt>
-                            <dd class="col-sm-8"><small>${new Date(event.updated_at).toLocaleDateString()}</small></dd>
-                        </dl>
+                                <!-- Created Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-clock me-1"></i>Created
+                                            </small>
+                                            <span class="text-muted small">${new Date(event.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Updated Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-edit me-1"></i>Last Updated
+                                            </small>
+                                            <span class="text-muted small">${new Date(event.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Details -->
                         ${detailsHtml}
                     </div>
-                </div>
-            `;
+                `;
+                
                 document.getElementById('eventDetailsContent').innerHTML = html;
-                new bootstrap.Modal(document.getElementById('viewEventModal')).show();
+                
             } catch (error) {
-                showError(error.message);
+                document.getElementById('eventDetailsContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${error.message}
+                    </div>
+                `;
             }
         }
 
+        // Preview event image in modal
+        function previewEventImage(imageUrl, eventTitle) {
+            const previewImage = document.getElementById('previewImage');
+            previewImage.src = imageUrl;
+            previewImage.alt = eventTitle;
+            
+            const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            imagePreviewModal.show();
+        }
         // Edit event
         async function editEvent(eventId) {
             try {
@@ -2022,6 +2140,49 @@
 
         body.modal-open {
             overflow: hidden;
+        }
+        /* Image hover effect for preview */
+        .position-relative:hover .hover-overlay {
+            opacity: 1 !important;
+            transition: opacity 0.3s ease;
+        }
+
+        .position-relative::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0.375rem;
+        }
+
+        .position-relative:hover::after {
+            opacity: 1;
+        }
+
+        .hover-overlay {
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Image Preview Modal */
+        #imagePreviewModal .modal-content {
+            background: rgba(0, 0, 0, 0.9) !important;
+        }
+
+        #imagePreviewModal .btn-close {
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 1;
+            padding: 0.75rem;
+            border-radius: 50%;
+        }
+
+        #imagePreviewModal .btn-close:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 @endsection
