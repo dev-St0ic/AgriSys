@@ -242,12 +242,19 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 
     });
 
-    // ==============================================
+  // ==============================================
     // EVENT MANAGEMENT
     // ==============================================
     Route::prefix('admin/events')->name('admin.event.')->group(function () {
+        // General routes first
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
+        
+        // Special/Specific routes BEFORE generic {id} routes
+        Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
+        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
+        
+        // Generic routes with {event} parameter LAST
         Route::get('/{event}', [EventController::class, 'show'])->name('show');
         Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
         Route::post('/{event}/update', [EventController::class, 'update'])->name('update.post');
@@ -255,8 +262,6 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         Route::post('/{event}/unarchive', [EventController::class, 'unarchive'])->name('unarchive');
         Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
         Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('toggle');
-        Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
-        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
     });
 
     // ==============================================
