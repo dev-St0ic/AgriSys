@@ -41,39 +41,62 @@
         </div>
     </div>
 
-    <!-- CRITICAL ALERTS SECTION - First Priority -->
+    <!-- CRITICAL ALERTS SECTION - ENHANCED DESIGN -->
     @if(count($criticalAlerts) > 0)
     <div class="row mb-4">
         <div class="col-12">
-            <div class="section-header mb-3">
-                <h5 class="section-title">
-                    <i class="fas fa-exclamation-circle text-danger me-2"></i>Critical Alerts
-                </h5>
-            </div>
-            <div class="alerts-grid">
-                @foreach($criticalAlerts as $alert)
-                <div class="alert-card alert-{{ $alert['color'] }}">
-                    <div class="alert-card-header">
-                        <div class="alert-icon">
-                            <i class="{{ $alert['icon'] }}"></i>
+            <div class="critical-alerts-container">
+                <!-- Header with Icon -->
+                <div class="alerts-header-enhanced">
+                    <div class="alerts-header-content">
+                        <div class="alerts-header-icon">
+                            <i class="fas fa-exclamation-circle"></i>
                         </div>
-                        <div class="alert-title-section">
-                            <h6 class="alert-title">{{ $alert['title'] }}</h6>
-                            <p class="alert-subtitle">{{ $alert['subtitle'] }}</p>
+                        <div class="alerts-header-text">
+                            <h5 class="alerts-header-title">Critical Alerts</h5>
+                            <p class="alerts-header-subtitle">{{ count($criticalAlerts) }} active alert{{ count($criticalAlerts) > 1 ? 's' : '' }} require immediate attention</p>
                         </div>
-                        <span class="badge badge-lg">{{ $alert['count'] }}</span>
                     </div>
-                    @if(count($alert['actions']) > 0)
-                    <div class="alert-actions">
-                        @foreach($alert['actions'] as $action)
-                        <a href="{{ route($action['route']) }}" class="btn btn-sm btn-alert-action">
-                            {{ $action['label'] }}
-                        </a>
-                        @endforeach
-                    </div>
-                    @endif
                 </div>
-                @endforeach
+
+                <!-- Alerts Grid -->
+                <div class="critical-alerts-grid">
+                    @foreach($criticalAlerts as $alert)
+                    <div class="critical-alert-card alert-{{ $alert['color'] }}">
+                        <!-- Alert Indicator Bar -->
+                        <div class="alert-indicator"></div>
+
+                        <!-- Main Content -->
+                        <div class="alert-card-content">
+                            <!-- Icon and Title Section -->
+                            <div class="alert-header-section">
+                                <div class="alert-icon-wrapper alert-icon-{{ $alert['color'] }}">
+                                    <i class="{{ $alert['icon'] }}"></i>
+                                </div>
+                                <div class="alert-title-wrapper">
+                                    <h6 class="alert-title-text">{{ $alert['title'] }}</h6>
+                                    <p class="alert-subtitle-text">{{ $alert['subtitle'] }}</p>
+                                </div>
+                                <div class="alert-count-badge">
+                                    <span class="count-number">{{ $alert['count'] }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            @if(count($alert['actions']) > 0)
+                            <div class="alert-actions-wrapper">
+                                @foreach($alert['actions'] as $action)
+                                <a href="{{ route($action['route']) }}" class="btn-alert-enhanced">
+                                    <span>{{ $action['label'] }}</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                                @endforeach
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
@@ -160,79 +183,95 @@
         </div>
     </div>
 
-    <!-- SUPPLY MANAGEMENT - DUAL COLUMN LAYOUT -->
-    <div class="row mb-4 g-3">
-        <!-- OUT OF STOCK -->
-        <div class="col-lg-6">
-            <div class="card card-enhanced">
-                <div class="card-header-enhanced">
-                    <h6 class="card-title">
-                        <i class="fas fa-times-circle text-danger me-2"></i>Out of Stock Items
-                    </h6>
-                    <span class="badge bg-danger text-white">{{ count($supplyAlerts['out_of_stock']) }}</span>
+    <!-- SUPPLY MANAGEMENT SECTION WITH HEADER AND CARDS -->
+    <div class="supply-management-section">
+        <!-- SUPPLY MANAGEMENT TITLE SECTION -->
+        <div class="supply-section-header">
+            <div class="supply-header-content">
+                <div class="supply-header-icon">
+                    <i class="fas fa-warehouse"></i>
                 </div>
-                <div class="card-body card-body-enhanced">
-                    @if(count($supplyAlerts['out_of_stock']) > 0)
-                    <div class="supply-list">
-                        @foreach($supplyAlerts['out_of_stock'] as $item)
-                        <a href="{{ $item['action_url'] }}" class="supply-item critical">
-                            <div class="supply-info">
-                                <div class="supply-name">{{ $item['item'] }}</div>
-                                <div class="supply-category">{{ $item['category'] }}</div>
-                            </div>
-                            <div class="supply-badge critical">
-                                <i class="fas fa-exclamation"></i>
-                            </div>
-                        </a>
-                        @endforeach
-                    </div>
-                    @else
-                    <div class="empty-state">
-                        <i class="fas fa-check-circle"></i>
-                        <p>All items in stock</p>
-                    </div>
-                    @endif
+                <div class="supply-header-text">
+                    <h5 class="supply-header-title">Supply Management</h5>
+                    <p class="supply-header-subtitle">Monitor inventory levels and manage stock alerts</p>
                 </div>
             </div>
         </div>
 
-        <!-- LOW STOCK -->
-        <div class="col-lg-6">
-            <div class="card card-enhanced">
-                <div class="card-header-enhanced">
-                    <h6 class="card-title">
-                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>Low Stock Items
-                    </h6>
-                    <span class="badge bg-warning text-dark">{{ count($supplyAlerts['low_stock']) }}</span>
-                </div>
-                <div class="card-body card-body-enhanced">
-                    @if(count($supplyAlerts['low_stock']) > 0)
-                    <div class="supply-list">
-                        @foreach($supplyAlerts['low_stock'] as $item)
-                        <a href="{{ $item['action_url'] }}" class="supply-item warning">
-                            <div class="supply-info">
-                                <div class="supply-name">{{ $item['item'] }}</div>
-                                <div class="supply-detail">{{ $item['current'] }} / {{ $item['minimum'] }} (min)</div>
-                            </div>
-                            <div class="supply-progress">
-                                <div class="progress-bar" style="width: {{ ($item['current'] / $item['minimum'] * 100) }}%"></div>
-                            </div>
-                        </a>
-                        @endforeach
+        <!-- SUPPLY MANAGEMENT - DUAL COLUMN LAYOUT -->
+        <div class="row g-3 mt-0">
+            <!-- OUT OF STOCK -->
+            <div class="col-lg-6">
+                <a href="{{ route('admin.seedlings.inventory.items', ['status' => 'out_of_stock']) }}" class="card card-enhanced supply-card-link">
+                    <div class="card-header-enhanced">
+                        <h6 class="card-title">
+                            <i class="fas fa-times-circle text-danger me-2"></i>Out of Stock Items
+                        </h6>
+                        <span class="badge bg-danger text-white">{{ count($supplyAlerts['out_of_stock']) }}</span>
                     </div>
-                    @else
-                    <div class="empty-state">
-                        <i class="fas fa-leaf"></i>
-                        <p>All supplies are healthy</p>
+                    <div class="card-body card-body-enhanced">
+                        @if(count($supplyAlerts['out_of_stock']) > 0)
+                        <div class="supply-list">
+                            @foreach($supplyAlerts['out_of_stock'] as $item)
+                            <div class="supply-item critical" onclick="event.stopPropagation();">
+                                <div class="supply-info">
+                                    <div class="supply-name">{{ $item['item'] }}</div>
+                                    <div class="supply-category">{{ $item['category'] }}</div>
+                                </div>
+                                <div class="supply-badge critical">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>All items in stock</p>
+                        </div>
+                        @endif
                     </div>
-                    @endif
-                </div>
+                </a>
+            </div>
+
+            <!-- LOW STOCK -->
+            <div class="col-lg-6">
+                <a href="{{ route('admin.seedlings.inventory.items', ['status' => 'low_stock']) }}" class="card card-enhanced supply-card-link">
+                    <div class="card-header-enhanced">
+                        <h6 class="card-title">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>Low Stock Items
+                        </h6>
+                        <span class="badge bg-warning text-dark">{{ count($supplyAlerts['low_stock']) }}</span>
+                    </div>
+                    <div class="card-body card-body-enhanced">
+                        @if(count($supplyAlerts['low_stock']) > 0)
+                        <div class="supply-list">
+                            @foreach($supplyAlerts['low_stock'] as $item)
+                            <div class="supply-item warning" onclick="event.stopPropagation();">
+                                <div class="supply-info">
+                                    <div class="supply-name">{{ $item['item'] }}</div>
+                                    <div class="supply-detail">{{ $item['current'] }} / {{ $item['minimum'] }} (min)</div>
+                                </div>
+                                <div class="supply-progress">
+                                    <div class="progress-bar" style="width: {{ ($item['current'] / $item['minimum'] * 100) }}%"></div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <div class="empty-state">
+                            <i class="fas fa-leaf"></i>
+                            <p>All supplies are healthy</p>
+                        </div>
+                        @endif
+                    </div>
+                </a>
             </div>
         </div>
     </div>
 
     <!-- APPLICATION STATUS OVERVIEW WITH CHARTS -->
-    <div class="row mb-4">
+    <div class="row mb-4 mt-4">
         <div class="col-12">
             <div class="section-header">
                 <h5 class="section-title">
@@ -372,7 +411,6 @@
             }
         });
     }
-
 </script>
 
 <style>
@@ -448,6 +486,245 @@
         opacity: 0.9;
     }
 
+    /* ==================== CRITICAL ALERTS - ENHANCED DESIGN ==================== */
+    .critical-alerts-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .alerts-header-enhanced {
+        background: linear-gradient(135deg, #fff5f5 0%, #fffaf0 100%);
+        border-bottom: 2px solid #ffe5e5;
+        padding: 1.75rem 1.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .alerts-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        width: 100%;
+    }
+
+    .alerts-header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.75rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.25);
+    }
+
+    .alerts-header-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .alerts-header-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .alerts-header-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0;
+    }
+
+    /* Critical Alerts Grid */
+    .critical-alerts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.25rem;
+        padding: 1.75rem;
+    }
+
+    .critical-alert-card {
+        position: relative;
+        background: white;
+        border-radius: 10px;
+        border: 1.5px solid;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .critical-alert-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+    }
+
+    .critical-alert-card.alert-danger {
+        border-color: #ffe5e5;
+        background: linear-gradient(135deg, #fff9f9 0%, #fffbfb 100%);
+    }
+
+    .critical-alert-card.alert-danger:hover {
+        border-color: var(--danger);
+    }
+
+    .critical-alert-card.alert-warning {
+        border-color: #fff3e0;
+        background: linear-gradient(135deg, #fffef9 0%, #fffdfb 100%);
+    }
+
+    .critical-alert-card.alert-warning:hover {
+        border-color: var(--warning);
+    }
+
+    .alert-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--danger), #f6c23e);
+        animation: slideIn 0.6s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    .alert-card-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        flex: 1;
+    }
+
+    .alert-header-section {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .alert-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .alert-icon-danger {
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.2);
+    }
+
+    .alert-icon-warning {
+        background: linear-gradient(135deg, var(--warning), #fcb92d);
+        box-shadow: 0 4px 12px rgba(246, 194, 62, 0.2);
+    }
+
+    .alert-title-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .alert-title-text {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0;
+        line-height: 1.4;
+    }
+
+    .alert-subtitle-text {
+        font-size: 0.85rem;
+        color: var(--gray);
+        margin-bottom: 0;
+        line-height: 1.4;
+    }
+
+    .alert-count-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        border-radius: 10px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.3rem;
+        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.2);
+        flex-shrink: 0;
+    }
+
+    .count-number {
+        line-height: 1;
+    }
+
+    /* Alert Actions */
+    .alert-actions-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        border-top: 1px solid #e3e6f0;
+        padding-top: 1.25rem;
+        margin-top: auto;
+    }
+
+    .btn-alert-enhanced {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.25rem;
+        background: linear-gradient(135deg, var(--danger), #d63a25);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .btn-alert-enhanced:hover {
+        box-shadow: 0 6px 16px rgba(231, 74, 59, 0.3);
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-alert-enhanced i {
+        font-size: 0.85rem;
+        transition: transform 0.2s ease;
+    }
+
+    .btn-alert-enhanced:hover i {
+        transform: translateX(4px);
+    }
+
     /* ==================== SECTION HEADERS ==================== */
     .section-header {
         margin-bottom: 1.5rem;
@@ -464,6 +741,72 @@
         font-size: 0.9rem;
         color: var(--gray);
         margin-bottom: 0;
+    }
+
+    /* ==================== SUPPLY MANAGEMENT SECTION ==================== */
+    .supply-management-section {
+        margin-bottom: 2rem;
+    }
+
+    .supply-section-header {
+        background: white;
+        border-radius: 12px 12px 0 0;
+        padding: 1.75rem;
+        border-bottom: 2px solid #e3e6f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .supply-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .supply-header-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), #3d5fd5);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
+    }
+
+    .supply-header-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .supply-header-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0;
+    }
+
+    .supply-header-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0;
+    }
+
+    .supply-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .supply-card-link:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+        text-decoration: none;
+        color: inherit;
     }
 
     /* ==================== METRIC CARDS - 2x2 LAYOUT ==================== */
@@ -581,97 +924,6 @@
     .metric-link:hover {
         color: #224abe;
         gap: 0.75rem;
-    }
-
-    /* ==================== ALERT CARDS ==================== */
-    .alerts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1rem;
-    }
-
-    .alert-card {
-        border-radius: 12px;
-        padding: 1.25rem;
-        border-left: 5px solid;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-    }
-
-    .alert-card:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        transform: translateX(2px);
-    }
-
-    .alert-card.alert-danger {
-        background-color: #fff5f5;
-        border-left-color: var(--danger);
-    }
-
-    .alert-card.alert-warning {
-        background-color: #fffaf0;
-        border-left-color: var(--warning);
-    }
-
-    .alert-card-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .alert-icon {
-        font-size: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 50px;
-    }
-
-    .alert-card.alert-danger .alert-icon {
-        color: var(--danger);
-    }
-
-    .alert-card.alert-warning .alert-icon {
-        color: var(--warning);
-    }
-
-    .alert-title-section {
-        flex: 1;
-    }
-
-    .alert-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0.25rem;
-    }
-
-    .alert-subtitle {
-        font-size: 0.85rem;
-        color: var(--gray);
-        margin-bottom: 0;
-    }
-
-    .alert-actions {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 1rem;
-    }
-
-    .btn-alert-action {
-        background: white;
-        border: 1px solid currentColor;
-        color: var(--dark);
-        font-size: 0.85rem;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-    }
-
-    .btn-alert-action:hover {
-        background: var(--dark);
-        color: white;
     }
 
     /* ==================== CARD STYLES ==================== */
@@ -974,10 +1226,11 @@
     }
 
     .status-stats-container {
-        display: grid;
+        display: flex;
         grid-template-columns: repeat(3, 1fr);
         gap: 0.75rem;
         width: 100%;
+        justify-content: center;
     }
 
     .status-stat {
@@ -1103,6 +1356,10 @@
             flex-direction: column;
             align-items: flex-start;
         }
+
+        .critical-alerts-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
     }
 
     @media (max-width: 768px) {
@@ -1133,12 +1390,28 @@
             padding: 0.75rem;
         }
 
-        .alerts-grid {
+        .card-body-enhanced {
+            max-height: 400px;
+        }
+
+        .critical-alerts-grid {
             grid-template-columns: 1fr;
         }
 
-        .card-body-enhanced {
-            max-height: 400px;
+        .alerts-header-enhanced {
+            padding: 1.25rem;
+        }
+
+        .alert-card-content {
+            padding: 1rem;
+        }
+
+        .supply-section-header {
+            padding: 1.25rem;
+        }
+
+        .supply-header-content {
+            gap: 0.75rem;
         }
     }
 
@@ -1161,6 +1434,38 @@
 
         .status-stats-container {
             grid-template-columns: 1fr;
+        }
+
+        .alerts-header-content {
+            gap: 0.75rem;
+        }
+
+        .alerts-header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .alerts-header-title {
+            font-size: 1.1rem;
+        }
+
+        .alerts-header-subtitle {
+            font-size: 0.8rem;
+        }
+
+        .supply-header-icon {
+            width: 42px;
+            height: 42px;
+            font-size: 1.25rem;
+        }
+
+        .supply-header-title {
+            font-size: 1.1rem;
+        }
+
+        .supply-header-subtitle {
+            font-size: 0.8rem;
         }
     }
 </style>

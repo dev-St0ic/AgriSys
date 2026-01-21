@@ -301,6 +301,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::post('/supply-management/{category}/toggle', [SeedlingCategoryItemController::class, 'toggleCategoryStatus'])->name('supply-management.toggle');
 
   // Item Management - PUT THE MORE SPECIFIC ROUTES FIRST
+    Route::get('/items', [SeedlingCategoryItemController::class, 'indexCategories'])->name('inventory.items');
     Route::post('/items', [SeedlingCategoryItemController::class, 'storeItem'])->name('items.store');
     Route::post('/items/{item}/toggle', [SeedlingCategoryItemController::class, 'toggleItemStatus'])->name('items.toggle');
     Route::put('/items/{item}', [SeedlingCategoryItemController::class, 'updateItem'])->name('items.update');
