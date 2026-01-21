@@ -193,7 +193,7 @@
                 </div>
                 <div class="supply-header-text">
                     <h5 class="supply-header-title">Supply Management</h5>
-                    <p class="supply-header-subtitle">Monitor inventory levels and manage stock alerts</p>
+                    <p class="supply-header-subtitle">Monitor supply levels and manage stock alerts</p>
                 </div>
             </div>
         </div>
@@ -202,7 +202,7 @@
         <div class="row g-3 mt-0">
             <!-- OUT OF STOCK -->
             <div class="col-lg-6">
-                <a href="{{ route('admin.seedlings.inventory.items', ['status' => 'out_of_stock']) }}" class="card card-enhanced supply-card-link">
+                <a href="{{ route('admin.seedlings.supply-management.items', ['status' => 'out_of_stock']) }}" class="card card-enhanced supply-card-link">
                     <div class="card-header-enhanced">
                         <h6 class="card-title">
                             <i class="fas fa-times-circle text-danger me-2"></i>Out of Stock Items
@@ -236,7 +236,7 @@
 
             <!-- LOW STOCK -->
             <div class="col-lg-6">
-                <a href="{{ route('admin.seedlings.inventory.items', ['status' => 'low_stock']) }}" class="card card-enhanced supply-card-link">
+                <a href="{{ route('admin.seedlings.supply-management.items', ['status' => 'low_stock']) }}" class="card card-enhanced supply-card-link">
                     <div class="card-header-enhanced">
                         <h6 class="card-title">
                             <i class="fas fa-exclamation-triangle text-warning me-2"></i>Low Stock Items
