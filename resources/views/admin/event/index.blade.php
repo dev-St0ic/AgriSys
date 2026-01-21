@@ -1024,7 +1024,7 @@
                 document.getElementById('eventDetailsContent').innerHTML = html;
                 new bootstrap.Modal(document.getElementById('viewEventModal')).show();
             } catch (error) {
-                showError(error.message);
+                showError('Unable to view event details. ' + (error.message || 'The event could not be loaded. Please try again.'));
             }
         }
 
@@ -1038,7 +1038,7 @@
                     }
                 });
                 const data = await response.json();
-                if (!data.success) throw new Error('Failed to load event');
+                if (!data.success) throw new Error('The event details could not be loaded. Please check your connection and try again.');
                 const event = data.event;
 
                 // Populate form fields
@@ -1094,7 +1094,7 @@
 
                 new bootstrap.Modal(document.getElementById('editEventModal')).show();
             } catch (error) {
-                showError(error.message);
+                showError('Unable to edit event. ' + (error.message || 'There was a problem loading the event for editing. Please try again.'));
             }
         }
 
@@ -1237,7 +1237,7 @@
             });
 
             if (!hasChanges) {
-                showError('No changes detected. Please modify the event details before updating.');
+                showToast('info', 'No changes detected. Please modify the event details before updating.');
                 return;
             }
 
@@ -1285,7 +1285,8 @@
                 setTimeout(() => location.reload(), 800);
 
             } catch (error) {
-                showError(error.message, error.warningType || null);
+                const errorMsg = error.message || 'The event could not be updated. Please try again.';
+                showError('Unable to update event. Reason: ' + errorMsg, error.warningType || null);
             } finally {
                 document.querySelector('#editEventForm .btn-text').style.display = 'inline';
                 document.querySelector('#editEventForm .btn-loader').style.display = 'none';
@@ -1347,7 +1348,7 @@
                 document.getElementById('archive_event_name').textContent = eventTitle;
                 new bootstrap.Modal(document.getElementById('archiveEventModal')).show();
             } catch (error) {
-                showError('Failed to prepare archive dialog');
+                showError('Unable to prepare archive. The event could not be found. Please refresh the page and try again.');
             }
         }
 
@@ -1409,7 +1410,8 @@
                 setTimeout(() => location.reload(), 800);
 
             } catch (error) {
-                showError(error.message, error.warningType || null);
+                const errorMsg = error.message || 'The event could not be created. Please check all required fields and try again.';
+                showError('Unable to create event. Reason: ' + errorMsg, error.warningType || null);
             } finally {
                 document.querySelector('#createEventForm .btn-text').style.display = 'inline';
                 document.querySelector('#createEventForm .btn-loader').style.display = 'none';
@@ -1453,7 +1455,7 @@
                             warningType: data.warning_type
                         };
                     } else {
-                        throw new Error(data.message || 'Failed to archive event');
+                        throw new Error(data.message || 'Unable to archive the event. Please try again.');
                     }
                 }
 
@@ -1461,7 +1463,8 @@
                 setTimeout(() => location.reload(), 800);
 
             } catch (error) {
-                showError(error.message, error.warningType || null);
+                const errorMsg = error.message || 'The event could not be archived. Please try again.';
+                showError('Unable to archive event. Reason: ' + errorMsg, error.warningType || null);
             } finally {
                 document.querySelector('#archiveEventForm .btn-text').style.display = 'inline';
                 document.querySelector('#archiveEventForm .btn-loader').style.display = 'none';
@@ -1485,7 +1488,7 @@
                     if (data.warning_type === 'only_one_active_allowed') {
                         // New logic: Only 1 active event per category
                         const activeEvent = data.active_event ? data.active_event.title : 'another event';
-                        showWarning(data.message);
+                        showToast('warning', data.message);
                     } else if (data.warning_type === 'announcement_always_active') {
                         showToast('warning', data.message);
                     } else if (data.warning_type === 'last_active_in_category') {
@@ -1495,7 +1498,7 @@
                     } else if (data.warning_type === 'last_active_event') {
                         showToast('info', data.message);
                     } else {
-                        throw new Error(data.message || 'Failed to update status');
+                        throw new Error(data.message || 'Unable to update the event status. Please try again.');
                     }
                     return;
                 }
@@ -1504,7 +1507,8 @@
                 setTimeout(() => location.reload(), 800);
 
             } catch (error) {
-                showError(error.message);
+                const errorMsg = error.message || 'The event status could not be updated. Please try again.';
+                showError('Unable to toggle event status. Reason: ' + errorMsg);
             }
         }
         // DELETE EVENT
@@ -1525,7 +1529,7 @@
                 // Show the delete modal
                 new bootstrap.Modal(document.getElementById('deleteEventModal')).show();
             } catch (error) {
-                showError('Failed to prepare delete dialog: ' + error.message);
+                showError('Unable to prepare deletion. The event could not be found. Please refresh the page and try again.');
             }
         }
 
@@ -1561,7 +1565,7 @@
                             warningType: data.warning_type
                         };
                     } else {
-                        throw new Error(data.message || 'Failed to delete event');
+                        throw new Error(data.message || 'Unable to delete the event. Please try again.');
                     }
                     return;
                 }
@@ -1574,7 +1578,8 @@
                 }, 800);
 
             } catch (error) {
-                showError(error.message, error.warningType || null);
+                const errorMsg = error.message || 'The event could not be deleted. Please try again.';
+                showError('Unable to delete event. Reason: ' + errorMsg, error.warningType || null);
             } finally {
                 document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
                 document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
