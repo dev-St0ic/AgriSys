@@ -456,9 +456,13 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Status</label>
                                 <select name="is_active" class="form-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Inactive</option>
+                                    <option value="0" selected>Inactive (Default)</option>
+                                    <option value="1">Active</option>
                                 </select>
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Only 1 active event per category. New events default to inactive.
+                                </small>
                             </div>
                         </div>
 
@@ -1365,12 +1369,11 @@
             const category = document.querySelector('select[name="category"]').value;
             const isActive = document.querySelector('select[name="is_active"]').value;
 
-            // FRONTEND VALIDATION: Announcements are always active
-            if (category === 'announcement' && isActive === '0') {
-                showToast('warning',
-                    'Announcements must always be active. Status has been automatically set to Active.');
-                document.querySelector('select[name="is_active"]').value = '1';
-                return;
+            // NEW LOGIC: Only 1 active event per category
+            // If user wants to create as active, backend will validate
+            if (isActive === '1') {
+                // Just show a note that frontend will check on response
+                // Backend will validate if category already has active event
             }
 
             const formData = new FormData(this);
@@ -1392,10 +1395,10 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    if (data.warning_type === 'category_limit_reached') {
+                    if (data.warning_type === 'category_active_event_exists') {
+                        // New logic: Cannot create as active if category already has active event
                         throw {
-                            message: data.message +
-                                ' You can create it as inactive or deactivate an existing event first.',
+                            message: data.message,
                             warningType: data.warning_type
                         };
                     }
@@ -1479,7 +1482,11 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    if (data.warning_type === 'announcement_always_active') {
+                    if (data.warning_type === 'only_one_active_allowed') {
+                        // New logic: Only 1 active event per category
+                        const activeEvent = data.active_event ? data.active_event.title : 'another event';
+                        showWarning(data.message);
+                    } else if (data.warning_type === 'announcement_always_active') {
                         showToast('warning', data.message);
                     } else if (data.warning_type === 'last_active_in_category') {
                         showToast('info', data.message);
