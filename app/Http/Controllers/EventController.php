@@ -302,6 +302,7 @@ class EventController extends Controller
                     'archivist' => $event->archivist ? [
                         'id' => $event->archivist->id,
                         'name' => $event->archivist->name,
+                        'email' => $event->archivist->email,
                     ] : null,
                 ]
             ]);
