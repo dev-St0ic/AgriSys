@@ -163,6 +163,39 @@
         </div>
     </div>
 
+    <!-- IMAGE PREVIEW MODAL  -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-image me-2"></i><span id="previewImageTitle">Image Preview</span>
+                    </h5>
+                    <button type="button" class="btn btn-sm" data-bs-dismiss="modal" style="position: absolute; right: 1rem;">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <img id="previewImage" 
+                            src="" 
+                            alt="Event Image" 
+                            class="img-fluid rounded shadow-sm" 
+                            style="max-height: 550px; object-fit: contain;">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
+                    <a id="downloadBtn" class="btn btn-primary">
+                        <i class="fas fa-download me-2"></i>Download
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- RESTORE EVENT MODAL -->
     <div class="modal fade" id="restoreEventModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -519,32 +552,19 @@
             }
         }
 
-        // Preview event image in modal
+        // Simple image preview - Updated version 
         function previewEventImage(imageUrl, eventTitle) {
-            // Create image preview modal if it doesn't exist
-            if (!document.getElementById('imagePreviewModal')) {
-                const previewModal = document.createElement('div');
-                previewModal.id = 'imagePreviewModal';
-                previewModal.className = 'modal fade';
-                previewModal.tabIndex = '-1';
-                previewModal.innerHTML = `
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content bg-transparent border-0">
-                            <div class="modal-header border-0 pb-0">
-                                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body text-center p-0">
-                                <img id="previewImage" src="" alt="Event Image" class="img-fluid rounded" style="max-height: 85vh; object-fit: contain;">
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(previewModal);
-            }
-
             const previewImage = document.getElementById('previewImage');
+            const titleElement = document.getElementById('previewImageTitle');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
             previewImage.src = imageUrl;
             previewImage.alt = eventTitle;
+            titleElement.textContent = eventTitle;
+            
+            // Download functionality
+            downloadBtn.href = imageUrl;
+            downloadBtn.download = `${eventTitle || 'event-image'}.jpg`;
             
             const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
             imagePreviewModal.show();
@@ -783,6 +803,45 @@
                 padding: 12px 16px;
                 font-size: 0.9rem;
             }
+        }
+
+        /* Image hover effect for preview */
+        .position-relative:hover .hover-overlay {
+            opacity: 1 !important;
+            transition: opacity 0.3s ease;
+        }
+
+        .position-relative::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0.375rem;
+        }
+
+        .position-relative:hover::after {
+            opacity: 1;
+        }
+
+        .hover-overlay {
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+
+        #imagePreviewModal .btn-close {
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 1;
+            padding: 0.75rem;
+            border-radius: 50%;
+        }
+
+        #imagePreviewModal .btn-close:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 @endsection
