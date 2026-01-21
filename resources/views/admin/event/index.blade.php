@@ -1389,9 +1389,7 @@
                 submitBtn.disabled = true;
             }
         }
-
-        // Update the edit form submission to check for changes first
-        // EDIT EVENT FORM - WITH RELOAD
+        // EDIT EVENT FORM - WITH RELOAD (UPDATED - NO ANNOUNCEMENT RESTRICTIONS)
         document.getElementById('editEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1434,15 +1432,9 @@
                 return;
             }
 
-            // FRONTEND VALIDATION: Announcements cannot be set to inactive
-            const category = document.getElementById('edit_category').value;
-            const isActive = document.getElementById('edit_is_active').value;
-            const wasActive = document.getElementById('edit_is_active').dataset.originalValue;
-
-            if (category === 'announcement' && isActive === '0') {
-                showToast('warning', 'Announcements must always be active and cannot be deactivated.');
-                return;
-            }
+            // REMOVED: Announcement-specific validation
+            // Now announcements can be inactive like any other category
+            // Only rule: 1 active event per category maximum
 
             const formData = new FormData(this);
             const details = collectDetails(document.getElementById('editDetailsContainer'));
