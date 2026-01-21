@@ -6,6 +6,13 @@
 window._seedlingsChoices = null;
 let selectedItems = new Map(); // itemId -> {name, quantity, categoryName}
 
+// Filter state management
+let currentFilters = {
+    category: 'all',
+    search: '',
+    stock: 'all'
+};
+
 // ==============================================
 // MAIN NAVIGATION FUNCTIONS
 // ==============================================
@@ -146,89 +153,113 @@ function setupCategoryToggle() {
 // FILTERING AND SEARCH FUNCTIONS
 // ==============================================
 
-function filterByCategory(categoryName) {
-    // Update active tab
-    document.querySelectorAll('.seedlings-category-tab:not(.category-toggle-btn)').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    event.target.classList.add('active');
+// Initialize category tab event listeners
+function initCategoryTabs() {
+    const tabsContainer = document.getElementById('category-tabs-container');
+    if (!tabsContainer) return;
 
-    // Filter items
+    tabsContainer.addEventListener('click', function(e) {
+        const tab = e.target.closest('.seedlings-category-tab');
+        if (!tab) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const categoryName = tab.getAttribute('data-category');
+        if (categoryName) {
+            filterByCategory(categoryName);
+        }
+    });
+}
+
+// Apply all active filters to items
+function applyFilters() {
     const items = document.querySelectorAll('.seedlings-item-card');
     let visibleCount = 0;
 
     items.forEach(item => {
-        const itemCategory = item.dataset.category;
-        if (categoryName === 'all' || itemCategory === categoryName) {
+        const itemCategory = item.getAttribute('data-category');
+        const itemName = item.getAttribute('data-item-name') || '';
+        const stockStatus = item.getAttribute('data-stock-status');
+
+        // Check all filter conditions
+        const categoryMatch = currentFilters.category === 'all' || itemCategory === currentFilters.category;
+        const searchMatch = currentFilters.search === '' || itemName.toLowerCase().includes(currentFilters.search.toLowerCase());
+
+        let stockMatch = true;
+        if (currentFilters.stock !== 'all') {
+            switch(currentFilters.stock) {
+                case 'in-stock':
+                    stockMatch = stockStatus === 'in_stock';
+                    break;
+                case 'low-stock':
+                    stockMatch = stockStatus === 'low_stock';
+                    break;
+                case 'out-of-stock':
+                    stockMatch = stockStatus === 'out_of_stock';
+                    break;
+            }
+        }
+
+        // Show item only if it matches all filters
+        if (categoryMatch && searchMatch && stockMatch) {
             item.classList.remove('hidden');
+            item.style.display = '';
             visibleCount++;
         } else {
             item.classList.add('hidden');
-        }
-    });
-
-    updateNoResultsDisplay(visibleCount);
-}
-
-function searchItems() {
-    const searchTerm = document.getElementById('seedlings-search').value.toLowerCase();
-    const items = document.querySelectorAll('.seedlings-item-card');
-    let visibleCount = 0;
-
-    items.forEach(item => {
-        const itemName = item.dataset.itemName;
-        const isVisible = itemName.includes(searchTerm);
-
-        if (isVisible && !item.classList.contains('hidden')) {
-            item.style.display = 'flex';
-            visibleCount++;
-        } else if (isVisible) {
-            // Item matches search but may be hidden by category filter
-            if (!item.classList.contains('hidden')) {
-                item.style.display = 'flex';
-                visibleCount++;
-            }
-        } else {
             item.style.display = 'none';
         }
     });
 
     updateNoResultsDisplay(visibleCount);
+    currentPage = 1;
+    updatePagination();
+
+    return visibleCount;
 }
 
-function filterByStock() {
-    const stockFilter = document.getElementById('stock-filter').value;
-    const items = document.querySelectorAll('.seedlings-item-card');
-    let visibleCount = 0;
+function filterByCategory(categoryName) {
+    console.log('Filter by category:', categoryName);
 
-    items.forEach(item => {
-        const stockStatus = item.dataset.stockStatus;
-        let shouldShow = false;
+    // Update filter state
+    currentFilters.category = categoryName;
+    currentFilters.search = ''; // Clear search when changing category
 
-        switch(stockFilter) {
-            case 'all':
-                shouldShow = true;
-                break;
-            case 'in-stock':
-                shouldShow = stockStatus === 'in_stock';
-                break;
-            case 'low-stock':
-                shouldShow = stockStatus === 'low_stock';
-                break;
-            case 'out-of-stock':
-                shouldShow = stockStatus === 'out_of_stock';
-                break;
-        }
+    // Clear search input
+    const searchInput = document.getElementById('seedlings-search');
+    if (searchInput) {
+        searchInput.value = '';
+    }
 
-        if (shouldShow && item.style.display !== 'none') {
-            item.classList.remove('hidden');
-            visibleCount++;
+    // Update active tab
+    const allTabs = document.querySelectorAll('.seedlings-category-tab');
+    allTabs.forEach(tab => {
+        if (tab.getAttribute('data-category') === categoryName) {
+            tab.classList.add('active');
         } else {
-            item.classList.add('hidden');
+            tab.classList.remove('active');
         }
     });
 
-    updateNoResultsDisplay(visibleCount);
+    // Apply all filters
+    applyFilters();
+}
+
+function searchItems() {
+    const searchInput = document.getElementById('seedlings-search');
+    currentFilters.search = searchInput ? searchInput.value.trim() : '';
+
+    // Apply all filters
+    applyFilters();
+}
+
+function filterByStock() {
+    const stockSelect = document.getElementById('stock-filter');
+    currentFilters.stock = stockSelect ? stockSelect.value : 'all';
+
+    // Apply all filters
+    applyFilters();
 }
 
 function sortItems() {
@@ -281,11 +312,18 @@ function toggleItemSelection(checkbox, itemId) {
         const categoryName = checkbox.name;
         const quantity = parseInt(qtyInput.value) || 1;
 
+        // Get additional item details for cart display
+        const itemCard = checkbox.closest('.seedlings-item-card');
+        const imageSrc = itemCard.querySelector('.seedlings-item-image img')?.src || '';
+        const itemIcon = itemCard.querySelector('.seedlings-item-category i')?.className || 'fas fa-leaf';
+
         selectedItems.set(itemId, {
             id: itemId,
             name: itemName,
             categoryName: categoryName,
-            quantity: quantity
+            quantity: quantity,
+            imageSrc: imageSrc,
+            icon: itemIcon
         });
     } else {
         // Hide quantity input
@@ -296,6 +334,7 @@ function toggleItemSelection(checkbox, itemId) {
     }
 
     updateSelectionSummary();
+    updateCartItemsList();
     updateProceedButton();
 }
 
@@ -344,6 +383,7 @@ function updateQuantity(itemId) {
     }
 
     updateSelectionSummary();
+    updateCartItemsList();
 }
 
 // Show notification when user tries to exceed available stock
@@ -362,18 +402,100 @@ function showStockNotification(itemId, availableStock) {
 function updateSelectionSummary() {
     const summaryDiv = document.getElementById('selection-summary');
     const countSpan = document.getElementById('selected-count');
+    const filterCount = document.getElementById('filter-count');
 
     const totalItems = selectedItems.size;
 
     if (totalItems > 0) {
         summaryDiv.style.display = 'flex';
         countSpan.textContent = totalItems;
+        if (filterCount) {
+            filterCount.textContent = totalItems;
+        }
     } else {
         summaryDiv.style.display = 'none';
+        if (filterCount) {
+            filterCount.textContent = '0';
+        }
     }
 
     // Update the tab button badge
     updateSummaryTabBadge();
+}
+
+// New function to update cart items list
+function updateCartItemsList() {
+    const cartItemsList = document.getElementById('cart-modal-items');
+    if (!cartItemsList) return;
+
+    if (selectedItems.size === 0) {
+        cartItemsList.innerHTML = '<div class="cart-empty-message"><i class="fas fa-shopping-cart"></i>No items selected</div>';
+        return;
+    }
+
+    let html = '';
+    selectedItems.forEach((item, itemId) => {
+        html += `
+            <div class="cart-item" data-item-id="${itemId}">
+                <div class="cart-item-image">
+                    ${item.imageSrc
+                        ? `<img src="${item.imageSrc}" alt="${item.name}">`
+                        : `<i class="${item.icon}"></i>`
+                    }
+                </div>
+                <div class="cart-item-info">
+                    <div class="cart-item-name" title="${item.name}">${item.name}</div>
+                    <div class="cart-item-category">
+                        <i class="${item.icon}"></i> ${item.categoryName}
+                    </div>
+                    <span class="cart-item-quantity"><i class="fas fa-boxes"></i> Qty: ${item.quantity}</span>
+                </div>
+                <button class="cart-item-remove" onclick="removeItemFromCart('${itemId}')" title="Remove item">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    });
+
+    cartItemsList.innerHTML = html;
+}
+
+// New function to open cart modal
+function openCartModal() {
+    const modal = document.getElementById('cartModalOverlay');
+    if (!modal) return;
+
+    updateCartItemsList(); // Refresh the list
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+// New function to close cart modal
+function closeCartModal(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+
+    const modal = document.getElementById('cartModalOverlay');
+    if (!modal) return;
+
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Updated toggle function (now opens modal instead)
+function toggleCartExpansion() {
+    openCartModal();
+}
+
+// New function to remove item from cart
+function removeItemFromCart(itemId) {
+    // Find and uncheck the checkbox
+    const checkbox = document.querySelector(`input[data-item-id="${itemId}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        toggleItemSelection(checkbox, itemId);
+    }
 }
 
 function updateSummaryTabBadge() {
@@ -413,7 +535,32 @@ function clearAllSelections() {
 
     // Update UI
     updateSelectionSummary();
+    updateCartItemsList();
     updateProceedButton();
+}
+
+// Clear all items from cart with confirmation
+function clearCartItems() {
+    if (selectedItems.size === 0) return;
+
+    if (confirm('Are you sure you want to remove all items from your cart?')) {
+        clearAllSelections();
+        closeCartModal();
+    }
+}
+
+// Proceed to application form
+function proceedToApplication() {
+    if (selectedItems.size === 0) {
+        toast.warning('Please select at least one item before proceeding');
+        return;
+    }
+
+    // Close the modal first
+    closeCartModal();
+
+    // Switch to the summary tab
+    switchTab('seedlings-summary-tab');
 }
 
 // ==============================================
@@ -743,6 +890,9 @@ function restorePreviousSelections() {
 
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Initialize category tabs with event listeners
+    initCategoryTabs();
+
     // Add event listener for manual quantity input (if user types directly)
     document.querySelectorAll('.qty-input').forEach(input => {
         input.addEventListener('change', function() {
@@ -778,6 +928,210 @@ window.closeFormSeedlings = closeFormSeedlings;
 window.proceedToSeedlingsForm = proceedToSeedlingsForm;
 window.showSeedlingsTab = showSeedlingsTab;
 window.backToSeedlingsChoice = backToSeedlingsChoice;
+
+// ==============================================
+// QUICK VIEW MODAL (E-COMMERCE STYLE)
+// ==============================================
+
+function showQuickView(itemId, itemName, categoryName, description, stock, unit, stockStatus, icon, imagePath) {
+    const modal = document.getElementById('quickViewModal');
+    if (!modal) return;
+
+    // Populate modal content
+    const qvImage = document.getElementById('qv-image');
+    const qvName = document.getElementById('qv-name');
+    const qvCategory = document.getElementById('qv-category');
+    const qvDescription = document.getElementById('qv-description');
+    const qvStock = document.getElementById('qv-stock');
+    const qvStockBadge = document.getElementById('qv-stock-badge');
+
+    // Set image
+    if (imagePath) {
+        qvImage.src = imagePath;
+        qvImage.style.display = 'block';
+    } else {
+        qvImage.style.display = 'none';
+    }
+
+    // Set content
+    qvName.textContent = itemName;
+    qvCategory.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
+    qvDescription.textContent = description || 'No description available';
+    qvStock.textContent = `${stock} ${unit}`;
+
+    // Set stock badge
+    let badgeClass = '';
+    let badgeText = '';
+    if (stockStatus === 'in_stock') {
+        badgeClass = 'in_stock';
+        badgeText = 'In Stock';
+    } else if (stockStatus === 'low_stock') {
+        badgeClass = 'low_stock';
+        badgeText = 'Low Stock';
+    } else {
+        badgeClass = 'out_of_stock';
+        badgeText = 'Out of Stock';
+    }
+    qvStockBadge.className = `qv-stock-badge ${badgeClass}`;
+    qvStockBadge.textContent = badgeText;
+
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeQuickView(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+
+    const modal = document.getElementById('quickViewModal');
+    if (!modal) return;
+
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Export quick view functions
+window.showQuickView = showQuickView;
+window.closeQuickView = closeQuickView;
+
+// Export cart modal functions
+window.toggleCartExpansion = toggleCartExpansion;
+window.openCartModal = openCartModal;
+window.closeCartModal = closeCartModal;
+window.removeItemFromCart = removeItemFromCart;
+window.updateCartItemsList = updateCartItemsList;
+window.clearCartItems = clearCartItems;
+window.proceedToApplication = proceedToApplication;
+
+// Close modals on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeQuickView();
+        closeCartModal();
+    }
+});
+
+// Close cart modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('cartModalOverlay');
+    if (modal && e.target === modal) {
+        closeCartModal();
+    }
+});
+
+// ==============================================
+// PAGINATION FUNCTIONALITY
+// ==============================================
+let currentPage = 1;
+
+function getItemsPerPage() {
+    // 6 items on mobile (768px and below), 8 items on desktop
+    return window.innerWidth <= 768 ? 6 : 8;
+}
+
+function updatePagination() {
+    const itemsPerPage = getItemsPerPage();
+    const items = Array.from(document.querySelectorAll('.seedlings-item-card'));
+    // Get items that are not filtered out (only by category/search/stock filters, not pagination)
+    const visibleItems = items.filter(item => {
+        const hiddenByFilter = item.classList.contains('hidden');
+        const hiddenBySearch = item.hasAttribute('data-search-hidden');
+        return !hiddenByFilter && !hiddenBySearch;
+    });
+
+    const totalPages = Math.ceil(visibleItems.length / itemsPerPage);
+    const pagination = document.getElementById('pagination');
+
+    // Show/hide pagination based on number of items
+    if (totalPages > 1) {
+        pagination.style.display = 'flex';
+    } else {
+        pagination.style.display = 'none';
+    }
+
+    // Update pagination info
+    document.getElementById('current-page').textContent = currentPage;
+    document.getElementById('total-pages').textContent = totalPages;
+
+    // Enable/disable buttons
+    document.getElementById('prev-page').disabled = currentPage === 1;
+    document.getElementById('next-page').disabled = currentPage === totalPages || totalPages === 0;
+
+    // Show only items for current page
+    visibleItems.forEach((item, index) => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+
+        if (index >= startIndex && index < endIndex) {
+            item.style.display = 'flex';
+            item.removeAttribute('data-page-hidden');
+        } else {
+            item.style.display = 'none';
+            item.setAttribute('data-page-hidden', 'true');
+        }
+    });
+
+    // Scroll to top of items grid
+    const itemsGrid = document.getElementById('items-grid');
+    if (itemsGrid) {
+        itemsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function changePage(direction) {
+    const itemsPerPage = getItemsPerPage();
+    const items = Array.from(document.querySelectorAll('.seedlings-item-card'));
+    // Count items that are visible after filters (not pagination)
+    const visibleItems = items.filter(item => {
+        const hiddenByFilter = item.classList.contains('hidden');
+        const hiddenBySearch = item.hasAttribute('data-search-hidden');
+        return !hiddenByFilter && !hiddenBySearch;
+    });
+    const totalPages = Math.ceil(visibleItems.length / itemsPerPage);
+
+    currentPage += direction;
+
+    // Boundary checks
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    updatePagination();
+}
+
+// searchItems already calls updatePagination internally
+
+// Wrap filterByStock to ensure pagination updates
+const originalFilterByStock = filterByStock;
+window.filterByStock = function() {
+    originalFilterByStock.call(this);
+};
+
+// Wrap sortItems to ensure pagination updates
+const originalSortItems = sortItems;
+window.sortItems = function() {
+    originalSortItems.call(this);
+};
+
+// Initialize pagination on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        updatePagination();
+    }, 500);
+});
+
+// Update pagination on window resize
+let resizeTimer;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        currentPage = 1; // Reset to first page on resize
+        updatePagination();
+    }, 250);
+});
+
+// Export functions to window
 window.toggleItemSelection = toggleItemSelection;
 window.incrementQty = incrementQty;
 window.decrementQty = decrementQty;
@@ -790,5 +1144,9 @@ window.clearAllSelections = clearAllSelections;
 window.submitSeedlingsRequest = submitSeedlingsRequest;
 window.initializeCategoryTabs = initializeCategoryTabs;
 window.setupCategoryToggle = setupCategoryToggle;
+window.changePage = changePage;
+window.updatePagination = updatePagination;
+window.initCategoryTabs = initCategoryTabs;
+window.applyFilters = applyFilters;
 
 console.log('Modern Seedlings module loaded successfully');
