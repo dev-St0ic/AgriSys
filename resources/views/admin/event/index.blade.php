@@ -596,32 +596,46 @@
             </div>
         </div>
     </div>
-    <!-- EDIT EVENT MODAL -->
+    <!-- EDIT EVENT MODAL - WITH CONSISTENT DESIGN -->
     <div class="modal fade" id="editEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Edit Event
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editEventForm" enctype="multipart/form-data" novalidate>
                     @csrf
                     @method('PUT')
                     <input type="hidden" id="edit_event_id" name="event_id">
                     <div class="modal-body">
+                        <!-- Title -->
                         <div class="mb-3">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
-                            <input type="text" id="edit_title" name="title" class="form-control" required>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-heading me-1 text-primary"></i>Title 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="edit_title" name="title" class="form-control" placeholder="Enter event title" required>
                         </div>
 
+                        <!-- Description -->
                         <div class="mb-3">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea id="edit_description" name="description" class="form-control" rows="4" required></textarea>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-1 text-primary"></i>Description 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea id="edit_description" name="description" class="form-control" rows="4" placeholder="Enter event description" required></textarea>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                        <!-- Category and Status Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-1 text-primary"></i>Category 
+                                    <span class="text-danger">*</span>
+                                </label>
                                 <select id="edit_category" name="category" class="form-select" required>
                                     <option value="">Select category...</option>
                                     <option value="announcement">Announcement</option>
@@ -630,8 +644,10 @@
                                     <option value="past">Past</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-toggle-on me-1 text-primary"></i>Status
+                                </label>
                                 <select id="edit_is_active" name="is_active" class="form-select">
                                     <option value="0">Inactive</option>
                                     <option value="1">Active</option>
@@ -639,39 +655,64 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Date/Time</label>
-                            <input type="text" id="edit_date" name="date" class="form-control">
+                        <!-- Date and Location Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
+                                </label>
+                                <input type="text" id="edit_date" name="date" class="form-control" placeholder="e.g., November 15, 2025 | 6:00 AM">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-map-marker-alt me-1 text-primary"></i>Location
+                                </label>
+                                <input type="text" id="edit_location" name="location" class="form-control" placeholder="Enter event location">
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" id="edit_location" name="location" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <div id="current_event_image" class="mb-2"></div>
-                            <label class="form-label">Change Image</label>
+                        <!-- Image Upload -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image me-1 text-primary"></i>Event Image
+                            </label>
+                            <div id="current_event_image" class="mb-3"></div>
                             <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Max 10MB (JPEG, PNG, GIF, WebP)</small>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Max 10MB (JPEG, PNG, GIF, WebP)
+                            </small>
                         </div>
 
-                        <hr>
-                        <h6 class="mb-3">Event Details</h6>
+                        <hr class="my-4">
 
-                        <div id="editDetailsContainer"></div>
+                        <!-- Event Details Section -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-list-ul me-2"></i>Additional Event Details
+                                <span class="badge bg-secondary ms-2">Optional</span>
+                            </h6>
+                            
+                            <div id="editDetailsContainer">
+                                <!-- Details will be populated dynamically -->
+                            </div>
 
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="addDetailRow('edit')">
-                            <i class="fas fa-plus me-1"></i>Add Detail
-                        </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addDetailRow('edit')">
+                                <i class="fas fa-plus me-1"></i>Add Another Detail
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i></i>Cancel
+                        </button>
                         <button type="submit" class="btn btn-primary">
-                            <span class="btn-text">Update Event</span>
-                            <span class="btn-loader" style="display: none;"><span
-                                    class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+                            <span class="btn-text">
+                                <i></i>Update Event
+                            </span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-2"></span>Updating...
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -684,7 +725,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title">Archive Event</h5>
+                    <h5 class="modal-title w-100 text-center">Archive Event</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="archiveEventForm">
@@ -717,7 +758,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Permanently Delete Event</h5>
+                    <h5 class="modal-title w-100 text-center">Permanently Delete Event</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
