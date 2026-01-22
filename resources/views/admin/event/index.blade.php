@@ -425,9 +425,9 @@
     <div class="modal fade" id="createEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-plus-circle me-2"></i>Create New Event
+                        <i></i>Create New Event
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -579,7 +579,7 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i></i>Cancel
                         </button>
-                        <button type="submit" class="btn btn-success" id="create_submit_btn">
+                        <button type="submit" class="btn btn-primary" id="create_submit_btn">
                             <span class="btn-text">
                                 <i class="fas fa-save me-1"></i>Create Event
                             </span>

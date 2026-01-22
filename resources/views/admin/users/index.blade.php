@@ -415,9 +415,9 @@
     <div class="modal fade" id="addUserModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-user-plus me-2"></i>Add New User
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Add New User
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
