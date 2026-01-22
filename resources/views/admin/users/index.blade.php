@@ -24,6 +24,18 @@
             </div>
         </div>
 
+         <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div class="stat-number mb-2" id="approved-count">{{ $stats['approved'] ?? 0 }}</div>
+                    <div class="stat-label text-success">Approved</div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
@@ -31,7 +43,7 @@
                         <i class="fas fa-user-clock text-warning"></i>
                     </div>
                     <div class="stat-number mb-2" id="unverified-count">{{ $stats['unverified'] ?? 0 }}</div>
-                    <div class="stat-label text-warning">Unverified (Basic Signup)</div>
+                    <div class="stat-label text-warning">Unverified <br>(Basic Signup)</div>
                 </div>
             </div>
         </div>
@@ -44,18 +56,6 @@
                     </div>
                     <div class="stat-number mb-2" id="pending-count">{{ $stats['pending'] ?? 0 }}</div>
                     <div class="stat-label text-info">Pending Review</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div class="stat-number mb-2" id="approved-count">{{ $stats['approved'] ?? 0 }}</div>
-                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -106,12 +106,12 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control form-control-sm"
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="search" class="form-control"
                                 placeholder="Search username, name..." value="{{ request('search') }}"
                                 oninput="autoSearch()" id="searchInput">
-                            <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
+                            <button class="btn btn-outline-secondary" type="submit" title="Search"
                                 id="searchButton">
                                 <i class="fas fa-search"></i>
                             </button>
@@ -123,9 +123,9 @@
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
                         </button>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                         <a href="{{ route('admin.registrations.index') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i>Clear
                         </a>
                     </div>
                 </div>
