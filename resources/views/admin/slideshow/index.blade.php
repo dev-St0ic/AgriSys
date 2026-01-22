@@ -48,6 +48,38 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
+         /* Image hover effect for preview */
+        .position-relative:hover .hover-overlay {
+            opacity: 1 !important;
+            transition: opacity 0.3s ease;
+        }
+
+        .position-relative::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0.375rem;
+        }
+
+        .position-relative:hover::after {
+            opacity: 1;
+        }
+
+        .hover-overlay {
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+        /* When image preview is shown on top of view modal */
+        #imagePreviewModal.show {
+            z-index: 1060;
+        }
     </style>
 
     <div class="row">
@@ -473,22 +505,29 @@
         </div>
     </div>
 
-    <!-- Image Preview Modal -->
+    <!-- Image Preview Modal - Consistent Design with Header -->
     <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="imagePreviewModalLabel">Image Preview</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="imagePreviewModalLabel">
+                        <i class="fas fa-image me-2" style="color: #fff;"></i>Image Preview
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <img id="previewImage" src="#" alt="Preview" class="img-fluid">
+                <div class="modal-body text-center p-4">
+                    <img id="previewImage" src="#" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 550px; object-fit: contain;">
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Slideshow Preview Modal - With Consistent Header Design -->
     <div class="modal fade" id="slideshowPreviewModal" tabindex="-1" aria-labelledby="slideshowPreviewModalLabel"
         aria-hidden="true">
@@ -515,67 +554,95 @@
         </div>
     </div>
 
-    <!-- View Slide Modal -->
+
+    <!-- View Slide Modal - View Only (Reference Event Modal) -->
     <div class="modal fade" id="viewSlideModal" tabindex="-1" aria-labelledby="viewSlideModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="viewSlideModalLabel">
-                        <i class="fas fa-eye me-2"></i>View Slide Details
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="viewSlideModalLabel">
+                        <i></i>View Slide Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Slide Image</label>
-                                <img id="viewSlideImage" src="#" alt="Slide image" class="img-thumbnail w-100"
-                                    style="max-height: 300px; object-fit: cover;">
+                    <div class="row g-4">
+                        <!-- Image Section -->
+                        <div class="col-md-4">
+                            <div class="position-relative" style="cursor: pointer;" onclick="showImageModal(document.getElementById('viewSlideImage').src, 'Slide Preview')">
+                                <img id="viewSlideImage" src="#" alt="Slide image" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
+                                <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
+                                    <i class="fas fa-search-plus fa-2x text-white"></i>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Title</label>
-                                <p id="viewSlideTitle" class="form-control-plaintext border rounded p-2 bg-light"></p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Description</label>
-                                <p id="viewSlideDescription" class="form-control-plaintext border rounded p-2 bg-light"
-                                    style="min-height: 80px;"></p>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Display Order</label>
-                                        <p id="viewSlideOrder" class="form-control-plaintext border rounded p-2 bg-light">
-                                        </p>
+
+                        <!-- Details Section -->
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-3" id="viewSlideTitle"></h4>
+                            <p class="text-muted mb-4" id="viewSlideDescription"></p>
+
+                            <div class="row g-3">
+                                <!-- Order -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-sort-numeric-up me-1"></i>Display Order
+                                            </small>
+                                            <span class="fw-semibold" id="viewSlideOrder"></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Status</label>
-                                        <p id="viewSlideStatus" class="form-control-plaintext p-2"></p>
+
+                                <!-- Status -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">Status</small>
+                                            <p id="viewSlideStatus" class="mb-0"></p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Created</label>
-                                <p id="viewSlideCreated" class="form-control-plaintext border rounded p-2 bg-light"></p>
+
+                                <!-- Created Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-calendar me-1"></i>Created
+                                            </small>
+                                            <span class="text-muted small" id="viewSlideCreated"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Updated Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-edit me-1"></i>Last Updated
+                                            </small>
+                                            <span class="text-muted small" id="viewSlideUpdated"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="editFromViewBtn">
-                        <i class="fas fa-edit me-2"></i>Edit Slide
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
 
 @endsection
 
@@ -936,33 +1003,41 @@
             $('#imagePreviewModal').modal('show');
         }
 
-        // View slide function
+        // View slide function - Fixed with Updated Date
         function viewSlide(slide) {
-            $('#viewSlideImage').attr('src', slide.image_url);
-            $('#viewSlideTitle').text(slide.title || 'Untitled');
-            $('#viewSlideDescription').text(slide.description || 'No description');
-            $('#viewSlideOrder').text(slide.order);
+            document.getElementById('viewSlideImage').src = slide.image_url;
+            document.getElementById('viewSlideTitle').textContent = slide.title || 'Untitled';
+            document.getElementById('viewSlideDescription').textContent = slide.description || 'No description';
+            document.getElementById('viewSlideOrder').textContent = slide.order;
 
             const statusBadge = slide.is_active ?
                 '<span class="badge bg-success">Active</span>' :
                 '<span class="badge bg-secondary">Inactive</span>';
-            $('#viewSlideStatus').html(statusBadge);
+            document.getElementById('viewSlideStatus').innerHTML = statusBadge;
 
             // Format created date
             const createdDate = new Date(slide.created_at);
-            const formattedDate = createdDate.toLocaleDateString('en-US', {
+            const formattedCreatedDate = createdDate.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            $('#viewSlideCreated').text(formattedDate);
+            document.getElementById('viewSlideCreated').textContent = formattedCreatedDate;
 
-            // Store slide data for edit button
-            $('#editFromViewBtn').data('slide', slide);
+            // Format updated date
+            const updatedDate = new Date(slide.updated_at);
+            const formattedUpdatedDate = updatedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('viewSlideUpdated').textContent = formattedUpdatedDate;
 
-            $('#viewSlideModal').modal('show');
+            new bootstrap.Modal(document.getElementById('viewSlideModal')).show();
         }
 
         // Edit from view modal
