@@ -916,7 +916,7 @@
         </div>
     </div>
 
-    <!-- Edit User Registration Modal -->
+    <!-- Enhanced Edit User Registration Modal with Consistent Design -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -927,34 +927,45 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <form id="editUserForm" enctype="multipart/form-data">
                         <!-- Personal Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_first_name" class="form-label fw-semibold">
+                                            First Name 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="edit_first_name"
-                                            name="first_name" required maxlength="100">
+                                            name="first_name" required maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_middle_name" class="form-label">Middle Name</label>
+                                        <label for="edit_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
                                         <input type="text" class="form-control" id="edit_middle_name"
-                                            name="middle_name" maxlength="100">
+                                            name="middle_name" maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_last_name" class="form-label fw-semibold">
+                                            Last Name 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="edit_last_name" name="last_name"
-                                            required maxlength="100">
+                                            required maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_name_extension" class="form-label">Extension</label>
+                                        <label for="edit_name_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="edit_name_extension" name="name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -965,27 +976,35 @@
                                             <option value="V">V</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_sex" class="form-label">Sex</label>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_sex" class="form-label fw-semibold">
+                                            Sex
+                                        </label>
                                         <select class="form-select" id="edit_sex" name="sex">
                                             <option value="">Not Specified</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_contact_number" class="form-label fw-semibold">
+                                            Contact Number 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="tel" class="form-control" id="edit_contact_number"
                                             name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_user_type" class="form-label">User Type <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_user_type" class="form-label fw-semibold">
+                                            User Type 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="edit_user_type" name="user_type" required>
                                             <option value="" disabled selected>Select sector</option>
                                             <option value="farmer">Farmer</option>
@@ -1001,15 +1020,19 @@
                         </div>
 
                         <!-- Location Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_barangay" class="form-label fw-semibold">
+                                            Barangay 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="edit_barangay" name="barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -1042,69 +1065,88 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_complete_address" class="form-label">Complete Address</label>
-                                        <textarea class="form-control" id="edit_complete_address" name="complete_address" rows="3" maxlength="500"></textarea>
+                                        <label for="edit_complete_address" class="form-label fw-semibold">
+                                            Complete Address
+                                        </label>
+                                        <textarea class="form-control" id="edit_complete_address" name="complete_address" 
+                                            rows="3" maxlength="500" placeholder="Street address, building, etc."></textarea>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Maximum 500 characters
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Emergency Contact Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-phone-alt me-2"></i>Emergency Contact
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_emergency_contact_name" class="form-label">Emergency Contact Name
-                                            <span class="text-danger">*</span></label>
+                                        <label for="edit_emergency_contact_name" class="form-label fw-semibold">
+                                            Contact Name
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="edit_emergency_contact_name"
-                                            name="emergency_contact_name" required maxlength="100">
+                                            name="emergency_contact_name" required maxlength="100" placeholder="Full name">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_emergency_contact_phone" class="form-label">Emergency Contact
-                                            Phone <span class="text-danger">*</span></label>
+                                        <label for="edit_emergency_contact_phone" class="form-label fw-semibold">
+                                            Contact Phone 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="tel" class="form-control" id="edit_emergency_contact_phone"
                                             name="emergency_contact_phone" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Account Status (Read-only) -->
-                        <div class="card mb-3 bg-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Account Status (Read-only)</h6>
+                        <!-- Account Status (Read-only) Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Account Status (Read-only)
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6 mb-2">
-                                        <small class="text-muted">Current Status:</small>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block mb-2">Current Status</small>
                                         <div>
-                                            <span id="edit_status_badge" class="badge bg-secondary"></span>
+                                            <span id="edit_status_badge" class="badge bg-secondary fs-6"></span>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-2">
-                                        <small class="text-muted">Registration Date:</small>
-                                        <div id="edit_created_at"></div>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block mb-2">Registration Date</small>
+                                        <div id="edit_created_at" class="fw-semibold">-</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Info Alert -->
-                        <div class="alert alert-info mb-0">
+                        <div class="alert alert-info border-left-info mb-0">
                             <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> You can edit personal information, contact details, and location
-                            information.
-                            To change registration status, use the "Update" button from the main table.
+                            <strong>Note:</strong> You can edit personal information, contact details, and location information.
+                            To change registration status, use the "Update Status" button from the main table.
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" id="editUserSubmitBtn"
                         onclick="handleEditUserSubmit()">
                         <i class="fas fa-save me-2"></i>Save Changes
@@ -2347,6 +2389,151 @@
             top: 50%;
             transform: translateY(-50%);
             opacity: 1;
+        }
+        /* Enhanced Modal Styling for Consistency */
+        #editUserModal .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.5rem;
+        }
+
+        #editUserModal .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        #editUserModal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+        }
+
+        #editUserModal .card {
+            border: 1px solid #e9ecef !important;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        #editUserModal .card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        #editUserModal .card-header.bg-white {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+        }
+
+        #editUserModal .card-body {
+            padding: 1rem;
+        }
+
+        #editUserModal .form-label {
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        #editUserModal .form-label .text-danger {
+            margin-left: 2px;
+            font-weight: 600;
+        }
+
+        #editUserModal .form-control,
+        #editUserModal .form-select {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            transition: all 0.2s ease;
+        }
+
+        #editUserModal .form-control:focus,
+        #editUserModal .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+        }
+
+        #editUserModal .form-control.is-invalid,
+        #editUserModal .form-select.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+        }
+
+        #editUserModal .form-control.is-valid,
+        #editUserModal .form-select.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
+        }
+
+        #editUserModal .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        #editUserModal .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        #editUserModal .alert {
+            border-left: 4px solid;
+            margin-bottom: 0;
+        }
+
+        #editUserModal .alert-info {
+            border-left-color: #17a2b8;
+        }
+
+        #editUserModal .border-left-info {
+            border-left-color: #17a2b8 !important;
+        }
+
+        #editUserModal textarea {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            resize: vertical;
+        }
+
+        /* Form changed indicator styling */
+        #editUserModal .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        #editUserModal .change-indicator {
+            position: relative;
+        }
+
+        #editUserModal .change-indicator.changed::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 1;
+        }
+
+        /* Badge styling */
+        #editUserModal .badge {
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #editUserModal .modal-body {
+                max-height: 80vh;
+            }
+
+            #editUserModal .col-md-3,
+            #editUserModal .col-md-4,
+            #editUserModal .col-md-6 {
+                margin-bottom: 1rem;
+            }
         }
     </style>
 @endsection
