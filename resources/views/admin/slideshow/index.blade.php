@@ -519,6 +519,44 @@
         </div>
     </div>
 
+    <!-- Delete Slide Modal -->
+    <div class="modal fade" id="deleteSlideModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Permanently Delete Slide
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_slide_name"></strong> will:</p>
+                    </div>
+                    <ul class="mb-0">
+                        <li>Remove the slide from the database</li>
+                        <li>Delete the associated image</li>
+                        <li>Cannot be recovered</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteSlide()" id="confirm_delete_slide_btn">
+                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Image Preview Modal - Consistent Design with Header -->
     <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel"
         aria-hidden="true">
@@ -1095,23 +1133,61 @@
             });
         }
 
-        // Delete slide function
+        // delete of slide functionality
+        let currentDeleteSlideId = null;
+
+        // Delete slide function - Show modal
         function deleteSlide(slideId) {
-            if (confirm('Are you sure you want to delete this slideshow image? This action cannot be undone.')) {
-                $.ajax({
-                    url: `/admin/slideshow/${slideId}`,
+            try {
+                // Get slide name from table row
+                const row = document.querySelector(`[data-slide-id="${slideId}"]`);
+                const slideName = row ? row.querySelector('strong').textContent : 'this slide';
+
+                // Set the global variable and modal data
+                currentDeleteSlideId = slideId;
+                document.getElementById('delete_slide_name').textContent = slideName;
+
+                // Show the delete modal
+                new bootstrap.Modal(document.getElementById('deleteSlideModal')).show();
+            } catch (error) {
+                showAlert('error', 'Failed to prepare delete dialog: ' + error.message);
+            }
+        }
+
+        // Confirm delete and send AJAX request
+        async function confirmDeleteSlide() {
+            try {
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-text').style.display = 'none';
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/slideshow/${currentDeleteSlideId}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        showAlert('success', 'Slideshow image deleted successfully!');
-                        location.reload();
-                    },
-                    error: function() {
-                        showAlert('error', 'An error occurred while deleting the slide.');
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
                 });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to delete slide');
+                }
+
+                showAlert('success', data.message || 'Slideshow image deleted successfully!');
+
+                // Reload page after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+
+            } catch (error) {
+                showAlert('error', error.message || 'An error occurred while deleting the slide.');
+                
+                // Reset button state
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-text').style.display = 'inline';
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-loader').style.display = 'none';
             }
         }
 

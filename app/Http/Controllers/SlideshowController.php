@@ -129,18 +129,18 @@ class SlideshowController extends Controller
     {
         $slideshow_image = SlideshowImage::findOrFail($id);
         try {
-            $slideshow_image->delete(); // The model's boot method will handle file deletion
+            $title = $slideshow_image->title;
+            $slideshow_image->delete();
             
-            // Log activity
-            $this->logActivity('deleted', 'SlideshowImage', $id, [
-                'title' => $slideshow_image->title
+            return response()->json([
+                'success' => true,
+                'message' => 'Slideshow image deleted successfully!'
             ]);
-            
-            return redirect()->route('admin.slideshow.index')
-                ->with('success', 'Slideshow image deleted successfully!');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Error deleting slideshow image: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting slideshow image: ' . $e->getMessage()
+            ], 500);
         }
     }
 
