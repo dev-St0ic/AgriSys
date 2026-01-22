@@ -489,24 +489,27 @@
         </div>
     </div>
 
-    <!-- Slideshow Preview Modal -->
+    <!-- Slideshow Preview Modal - With Consistent Header Design -->
     <div class="modal fade" id="slideshowPreviewModal" tabindex="-1" aria-labelledby="slideshowPreviewModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="slideshowPreviewModalLabel">
-                        <i class="fas fa-play me-2"></i>Slideshow Preview
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="slideshowPreviewModalLabel">
+                        <i></i>Slideshow Preview
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
                     <div id="slideshowPreviewContainer" style="height: 400px; position: relative; overflow: hidden;">
                         <!-- Slideshow will be loaded here -->
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
