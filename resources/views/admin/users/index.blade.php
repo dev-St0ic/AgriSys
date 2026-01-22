@@ -994,8 +994,8 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
