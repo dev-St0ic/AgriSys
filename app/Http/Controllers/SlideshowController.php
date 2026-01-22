@@ -28,7 +28,7 @@ class SlideshowController extends Controller
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|in:0,1'
         ]);
 
         if ($validator->fails()) {
@@ -52,7 +52,7 @@ class SlideshowController extends Controller
                 'title' => $request->input('title'),
                 'description' => $request->input('description'),
                 'order' => $order,
-                'is_active' => $request->has('is_active')
+                'is_active' => (bool) $request->input('is_active', 0)
             ]);
 
             // Log activity
@@ -85,7 +85,7 @@ class SlideshowController extends Controller
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|in:0,1'
         ]);
 
         if ($validator->fails()) {
@@ -101,7 +101,7 @@ class SlideshowController extends Controller
                 'title' => $request->input('title'),
                 'description' => $request->input('description'),
                 'order' => $request->input('order', $slideshow_image->order),
-                'is_active' => $request->has('is_active')
+                'is_active' => (bool) $request->input('is_active', 0)
             ];
 
             // Handle image upload
