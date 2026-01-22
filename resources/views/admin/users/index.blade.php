@@ -3645,7 +3645,7 @@
 
             // Check for duplicates on server with shorter delay for real-time feel
             contactNumberCheckTimeout = setTimeout(() => {
-                fetch('/check-contact', {
+                fetch('/auth/check-contact', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
