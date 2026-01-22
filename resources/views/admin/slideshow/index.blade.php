@@ -426,16 +426,17 @@
         </div>
     </div>
 
-    <!-- Edit Slide Modal -->
+    <!-- Edit Slide Modal - Consistent Design -->
     <div class="modal fade" id="editSlideModal" tabindex="-1" aria-labelledby="editSlideModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editSlideModalLabel">
-                        <i class="fas fa-edit me-2"></i>Edit Slideshow Image
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="editSlideModalLabel">
+                        <i></i>Edit Slideshow Image
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="editSlideForm" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -444,58 +445,71 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Current Image</label>
+                                    <label class="form-label fw-bold">Current Image</label>
                                     <img id="editCurrentImage" src="#" alt="Current image"
-                                        class="img-thumbnail mb-2"
-                                        style="width: 100%; max-height: 150px; object-fit: cover;">
+                                        class="img-thumbnail mb-2 w-100"
+                                        style="max-height: 200px; object-fit: cover;">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="editImage" class="form-label">New Image (Optional)</label>
+                                    <label for="editImage" class="form-label fw-bold">
+                                        <i class="fas fa-image me-1" style="color: #007bff;"></i>New Image (Optional)
+                                    </label>
                                     <input type="file" class="form-control" id="editImage" name="image"
                                         accept="image/*" onchange="previewImage(this, 'editImagePreview')">
                                     <div class="form-text">Leave empty to keep current image</div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <img id="editImagePreview" src="#" alt="Preview" class="img-thumbnail"
-                                        style="display: none; width: 100%; max-height: 150px; object-fit: cover;">
+                                    <img id="editImagePreview" src="#" alt="Preview" class="img-thumbnail w-100"
+                                        style="display: none; max-height: 200px; object-fit: cover;">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="editTitle" class="form-label">Title</label>
+                                    <label for="editTitle" class="form-label fw-bold">
+                                        <i class="fas fa-heading me-1" style="color: #007bff;"></i>Title
+                                    </label>
                                     <input type="text" class="form-control" id="editTitle" name="title"
                                         placeholder="Enter slide title">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="editDescription" class="form-label">Description</label>
+                                    <label for="editDescription" class="form-label fw-bold">
+                                        <i class="fas fa-align-left me-1" style="color: #007bff;"></i>Description
+                                    </label>
                                     <textarea class="form-control" id="editDescription" name="description" rows="3"
                                         placeholder="Enter slide description"></textarea>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="editOrder" class="form-label">Order</label>
+                                    <label for="editOrder" class="form-label fw-bold">
+                                        <i class="fas fa-sort-numeric-up me-1" style="color: #007bff;"></i>Display Order
+                                    </label>
                                     <input type="number" class="form-control" id="editOrder" name="order"
-                                        min="0">
+                                        min="1">
                                 </div>
 
                                 <div class="mb-3">
-                                    <div class="form-check">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-toggle-on me-1" style="color: #28a745;"></i>Status
+                                    </label>
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="editIsActive"
                                             name="is_active">
                                         <label class="form-check-label" for="editIsActive">
-                                            Active (Display in slideshow)
+                                            <span class="status-text-edit">Active - Will appear in slideshow</span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i></i>Cancel
+                        </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i>Update Slide
                         </button>
