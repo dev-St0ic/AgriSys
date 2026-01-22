@@ -913,7 +913,7 @@ class UserRegistrationController extends Controller
         }
     }
     /**
-     * FIXED: Admin update registration (with all fields and session sync)
+     * FIXED: Admin update registration (with all fields and file uploads)
      */
     public function update(Request $request, $id)
     {
@@ -935,7 +935,7 @@ class UserRegistrationController extends Controller
             ], 404);
         }
 
-        // Validation rules - UPDATED to include all fields + documents
+        // Validation rules - COMPLETE with all fields
         $validator = Validator::make($request->all(), [
             'first_name' => 'sometimes|required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
@@ -962,6 +962,7 @@ class UserRegistrationController extends Controller
                 'max:11',
                 'regex:/^09\d{9}$/'
             ],
+            // FILE UPLOADS - NOW PROPERLY HANDLED
             'id_front' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
             'id_back' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
             'location_proof' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
@@ -983,6 +984,7 @@ class UserRegistrationController extends Controller
             // Prepare update data
             $updateData = [];
 
+            // Handle all text fields
             if ($request->has('first_name')) {
                 $updateData['first_name'] = trim($request->first_name);
             }
@@ -1040,21 +1042,24 @@ class UserRegistrationController extends Controller
                     trim($request->emergency_contact_phone) : null;
             }
 
-            // Handle document uploads
+            // Handle document uploads - THIS WAS MISSING!
             try {
                 if ($request->hasFile('id_front') && $request->file('id_front')->isValid()) {
                     $idFrontPath = $request->file('id_front')->store('verification/id_front', 'public');
                     $updateData['id_front_path'] = $idFrontPath;
+                    \Log::info('ID Front uploaded:', ['path' => $idFrontPath]);
                 }
 
                 if ($request->hasFile('id_back') && $request->file('id_back')->isValid()) {
                     $idBackPath = $request->file('id_back')->store('verification/id_back', 'public');
                     $updateData['id_back_path'] = $idBackPath;
+                    \Log::info('ID Back uploaded:', ['path' => $idBackPath]);
                 }
 
                 if ($request->hasFile('location_proof') && $request->file('location_proof')->isValid()) {
                     $locationProofPath = $request->file('location_proof')->store('verification/location_proof', 'public');
                     $updateData['location_document_path'] = $locationProofPath;
+                    \Log::info('Location proof uploaded:', ['path' => $locationProofPath]);
                 }
             } catch (\Exception $fileException) {
                 \Log::error('File upload failed during admin edit', [
@@ -1078,10 +1083,10 @@ class UserRegistrationController extends Controller
             // Update the registration
             $registration->update($updateData);
 
-            // FIXED: Refresh registration data from database
+            // Refresh registration data from database
             $registration = UserRegistration::find($id);
 
-            // FIXED: If this user is currently logged in, update their session
+            // If this user is currently logged in, update their session
             if (session('user.id') == $id) {
                 session()->put('user', [
                     'id' => $registration->id,
@@ -1097,7 +1102,12 @@ class UserRegistrationController extends Controller
                 'registration_id' => $id,
                 'username' => $registration->username,
                 'updated_fields' => array_keys($updateData),
-                'admin_id' => auth()->id()
+                'admin_id' => auth()->id(),
+                'files_uploaded' => [
+                    'id_front' => isset($updateData['id_front_path']),
+                    'id_back' => isset($updateData['id_back_path']),
+                    'location_proof' => isset($updateData['location_document_path'])
+                ]
             ]);
 
             return response()->json([

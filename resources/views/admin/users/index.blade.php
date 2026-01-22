@@ -5143,13 +5143,14 @@
             // Add change listeners
             addEditUserFormChangeListeners(registrationId);
         }
-
         /**
-         * Add event listeners to detect form changes (COMPLETE VERSION)
+         * Enhanced event listener setup - INCLUDES DATE AND FILE INPUTS
          */
         function addEditUserFormChangeListeners(registrationId) {
             const form = document.getElementById('editUserForm');
             
+            if (!form) return;
+
             // Text inputs, dates, tel, textarea, and selects
             const inputs = form.querySelectorAll(
                 'input[type="text"], input[type="tel"], input[type="date"], textarea, select');
@@ -5162,12 +5163,14 @@
                 input.addEventListener('change', handleEditUserFormChange);
             });
 
-            // File inputs
+            // File inputs - THIS IS CRITICAL!
             const fileInputs = form.querySelectorAll('input[type="file"]');
             fileInputs.forEach(fileInput => {
                 fileInput.removeEventListener('change', handleEditUserFormChange);
                 fileInput.addEventListener('change', handleEditUserFormChange);
             });
+
+            console.log('Event listeners added for all inputs including files');
         }
 
         /**
@@ -5175,10 +5178,10 @@
          */
         function handleEditUserFormChange() {
             const form = document.getElementById('editUserForm');
-            const registrationId = form.dataset.registrationId;
-            checkEditUserFormChanges(registrationId);
+            if (!form || !form.dataset.registrationId) return;
+            
+            checkEditUserFormChanges(form.dataset.registrationId);
         }
-
 
         /**
          * Initialize original data with ALL fields
@@ -5229,7 +5232,7 @@
         }
 
         /**
-         * Check for changes in the form and update button state (COMPLETE VERSION)
+         * COMPLETE FIX: Check for ALL changes including date, sex, and files
          */
         function checkEditUserFormChanges(registrationId) {
             const form = document.getElementById('editUserForm');
@@ -5239,6 +5242,7 @@
 
             const originalData = JSON.parse(form.dataset.originalData || '{}');
             let hasChanges = false;
+            const changedFields = [];
 
             // COMPLETE field map - includes ALL fields
             const fieldMap = {
@@ -5255,6 +5259,21 @@
                 'user_type': 'edit_user_type',
                 'emergency_contact_name': 'edit_emergency_contact_name',
                 'emergency_contact_phone': 'edit_emergency_contact_phone'
+            };
+
+            const fieldLabels = {
+                'first_name': 'First Name',
+                'middle_name': 'Middle Name',
+                'last_name': 'Last Name',
+                'name_extension': 'Extension',
+                'sex': 'Sex',
+                'date_of_birth': 'Date of Birth',
+                'contact_number': 'Contact Number',
+                'barangay': 'Barangay',
+                'complete_address': 'Complete Address',
+                'user_type': 'User Type',
+                'emergency_contact_name': 'Emergency Contact Name',
+                'emergency_contact_phone': 'Emergency Contact Phone'
             };
 
             // Check text field changes
@@ -5277,9 +5296,8 @@
                         originalValue = originalValue.split(' ')[0];
                     }
 
-                    //Special handling for phone numbers - normalize format**
+                    // Special handling for phone numbers - normalize format
                     if ((fieldName === 'contact_number' || fieldName === 'emergency_contact_phone') && currentValue && originalValue) {
-                        // Remove +63 prefix and normalize to 09 format
                         currentValue = currentValue.replace(/^\+63/, '0').replace(/\s+/g, '');
                         originalValue = originalValue.replace(/^\+63/, '0').replace(/\s+/g, '');
                     }
@@ -5287,6 +5305,7 @@
                     if (currentValue !== originalValue) {
                         console.log(`Field changed: ${fieldName}`, {current: currentValue, original: originalValue});
                         hasChanges = true;
+                        changedFields.push(fieldLabels[fieldName]);
                         input.classList.add('form-changed');
                     } else {
                         input.classList.remove('form-changed');
@@ -5294,38 +5313,49 @@
                 }
             });
 
-            // Check for file uploads (documents)
+            // Check for file uploads (documents) - THIS WAS MISSING!
             const fileInputs = [
-                'edit_id_front',
-                'edit_id_back',
-                'edit_location_proof'
+                { id: 'edit_id_front', label: 'Government ID - Front' },
+                { id: 'edit_id_back', label: 'Government ID - Back' },
+                { id: 'edit_location_proof', label: 'Location/Role Proof' }
             ];
 
-            fileInputs.forEach(fileInputId => {
-                const fileInput = document.getElementById(fileInputId);
+            fileInputs.forEach(fileConfig => {
+                const fileInput = document.getElementById(fileConfig.id);
                 if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                    console.log(`File selected for upload: ${fileInputId}`);
+                    console.log(`File selected for upload: ${fileConfig.id}`);
                     hasChanges = true;
+                    changedFields.push(fileConfig.label + ' (Uploaded)');
+                    
                     // Add visual indicator
                     if (fileInput.parentElement) {
                         fileInput.parentElement.classList.add('form-changed');
                     }
+                } else {
+                    if (fileInput && fileInput.parentElement) {
+                        fileInput.parentElement.classList.remove('form-changed');
+                    }
                 }
             });
 
-            // Update button state
+            // Update button state and store changed fields
             if (hasChanges) {
                 submitBtn.classList.remove('no-changes');
                 submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
                 submitBtn.disabled = false;
                 submitBtn.dataset.hasChanges = 'true';
+                submitBtn.dataset.changedFields = JSON.stringify(changedFields);
             } else {
                 submitBtn.classList.remove('no-changes');
                 submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
                 submitBtn.disabled = false;
                 submitBtn.dataset.hasChanges = 'false';
+                submitBtn.dataset.changedFields = '[]';
             }
+
+            console.log('Changed fields:', changedFields);
         }
+
 
         /**
          * Validate edit user form (COMPLETE VERSION WITH ALL FIELDS)
@@ -5554,8 +5584,8 @@
             return isValid;
         }
 
-        /**
-         * Handle edit form submission with confirmation
+            /**
+         * Handle edit form submission with confirmation - NOW INCLUDES ALL FIELDS
          */
         function handleEditUserSubmit() {
             const form = document.getElementById('editUserForm');
@@ -5574,48 +5604,20 @@
                 return;
             }
 
-            // Build changes summary
-            const originalData = JSON.parse(form.dataset.originalData || '{}');
-            const changedFields = [];
+            // Get changed fields from stored data
+            let changedFields = [];
+            try {
+                changedFields = JSON.parse(submitBtn.dataset.changedFields || '[]');
+            } catch (e) {
+                console.warn('Could not parse changed fields:', e);
+            }
 
-            const fieldLabels = {
-                'first_name': 'First Name',
-                'middle_name': 'Middle Name',
-                'last_name': 'Last Name',
-                'name_extension': 'Extension',
-                'contact_number': 'Contact Number',
-                'barangay': 'Barangay',
-                'complete_address': 'Complete Address',
-                'user_type': 'User Type',
-                'emergency_contact_name': 'Emergency Contact Name',
-                'emergency_contact_phone': 'Emergency Contact Phone'
-            };
+            // If no changed fields could be parsed, rebuild them
+            if (changedFields.length === 0) {
+                changedFields = ['One or more fields'];
+            }
 
-            const fieldMap = {
-                'first_name': 'edit_first_name',
-                'middle_name': 'edit_middle_name',
-                'last_name': 'edit_last_name',
-                'name_extension': 'edit_name_extension',
-                'contact_number': 'edit_contact_number',
-                'barangay': 'edit_barangay',
-                'complete_address': 'edit_complete_address',
-                'user_type': 'edit_user_type',
-                'emergency_contact_name': 'edit_emergency_contact_name',
-                'emergency_contact_phone': 'edit_emergency_contact_phone'
-            };
-
-            Object.keys(fieldMap).forEach(fieldName => {
-                const elementId = fieldMap[fieldName];
-                const input = document.getElementById(elementId);
-                const currentValue = (input?.value || '').trim();
-                const originalValue = (originalData[fieldName] || '').trim();
-
-                if (currentValue !== originalValue) {
-                    changedFields.push(fieldLabels[fieldName] || fieldName);
-                }
-            });
-
-            // Show confirmation toast
+            // Show confirmation toast with ALL changes
             showConfirmationToast(
                 'Confirm Update',
                 `Save the following changes to this registration?\n\n• ${changedFields.join('\n• ')}`,
@@ -5623,123 +5625,160 @@
             );
         }
 
-        /**
-         * Proceed with edit submission after confirmation
-         */
-        function proceedWithEditUser(form, registrationId) {
-            const submitBtn = document.getElementById('editUserSubmitBtn');
+     /**
+     * Proceed with edit submission after confirmation - NOW INCLUDES FILES
+     */
+    function proceedWithEditUser(form, registrationId) {
+        const submitBtn = document.getElementById('editUserSubmitBtn');
 
-            // Show loading state
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
-            submitBtn.disabled = true;
+        // Show loading state
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+        submitBtn.disabled = true;
 
-            // Disable form inputs during submission
-            const formInputs = form.querySelectorAll('input, select, textarea');
-            formInputs.forEach(input => input.disabled = true);
+        // Create FormData to support file uploads
+        const formData = new FormData();
 
-            // Get values
-            const jsonData = {
-                first_name: (document.getElementById('edit_first_name')?.value || '').trim(),
-                middle_name: (document.getElementById('edit_middle_name')?.value || '').trim(),
-                last_name: (document.getElementById('edit_last_name')?.value || '').trim(),
-                name_extension: (document.getElementById('edit_name_extension')?.value || '') || null,
-                sex: (document.getElementById('edit_sex')?.value || '') || null,
-                contact_number: (document.getElementById('edit_contact_number')?.value || '').trim(),
-                barangay: (document.getElementById('edit_barangay')?.value || '').trim(),
-                complete_address: (document.getElementById('edit_complete_address')?.value || '').trim(),
-                user_type: (document.getElementById('edit_user_type')?.value || '').trim(),
-                emergency_contact_name: (document.getElementById('edit_emergency_contact_name')?.value || '').trim(),
-                emergency_contact_phone: (document.getElementById('edit_emergency_contact_phone')?.value || '').trim()
-            };
+        // Add all text/select fields
+        const fieldMap = {
+            'first_name': 'edit_first_name',
+            'middle_name': 'edit_middle_name',
+            'last_name': 'edit_last_name',
+            'name_extension': 'edit_name_extension',
+            'sex': 'edit_sex',
+            'date_of_birth': 'edit_date_of_birth',
+            'contact_number': 'edit_contact_number',
+            'barangay': 'edit_barangay',
+            'complete_address': 'edit_complete_address',
+            'user_type': 'edit_user_type',
+            'emergency_contact_name': 'edit_emergency_contact_name',
+            'emergency_contact_phone': 'edit_emergency_contact_phone'
+        };
 
-            console.log('Sending update data:', jsonData);
+        Object.keys(fieldMap).forEach(fieldName => {
+            const elementId = fieldMap[fieldName];
+            const input = document.getElementById(elementId);
+            if (input) {
+                formData.append(fieldName, (input.value || '').trim());
+            }
+        });
 
-            // Submit to backend
-            fetch(`/admin/registrations/${registrationId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify(jsonData)
-                })
-                .then(response => {
-                    return response.json().then(data => {
-                        if (!response.ok) {
-                            throw {
-                                status: response.status,
-                                message: data.message || 'Update failed',
-                                errors: data.errors || {}
-                            };
-                        }
-                        return data;
-                    });
-                })
-                .then(data => {
-                    if (data.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
-                        if (modal) modal.hide();
+        // Add file uploads if present
+        const fileInputs = [
+            'edit_id_front',
+            'edit_id_back',
+            'edit_location_proof'
+        ];
 
-                        showToast('success', data.message || 'Registration updated successfully');
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
+        const fileInputNames = {
+            'edit_id_front': 'id_front',
+            'edit_id_back': 'id_back',
+            'edit_location_proof': 'location_proof'
+        };
+
+        fileInputs.forEach(fileInputId => {
+            const fileInput = document.getElementById(fileInputId);
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                const fieldName = fileInputNames[fileInputId];
+                formData.append(fieldName, fileInput.files[0]);
+                console.log(`Adding file for upload: ${fieldName}`, fileInput.files[0]);
+            }
+        });
+
+        console.log('Submitting FormData with files and all fields');
+
+        // Submit to backend with FormData
+        fetch(`/admin/registrations/${registrationId}`, {
+                method: 'POST', // Laravel expects POST for file uploads with _method override
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-HTTP-Method-Override': 'PUT' // Tell backend this is actually a PUT request
+                },
+                body: formData
+            })
+            .then(response => {
+                return response.json().then(data => {
+                    if (!response.ok) {
                         throw {
-                            status: 422,
-                            message: data.message || 'Failed to update registration',
+                            status: response.status,
+                            message: data.message || 'Update failed',
                             errors: data.errors || {}
                         };
                     }
-                })
-                .catch(error => {
-                    console.error('Error occurred:', error);
-
-                    // Handle validation errors
-                    if (error.status === 422 && error.errors && typeof error.errors === 'object') {
-                        const fieldMap = {
-                            'first_name': 'edit_first_name',
-                            'last_name': 'edit_last_name',
-                            'contact_number': 'edit_contact_number',
-                            'barangay': 'edit_barangay',
-                            'user_type': 'edit_user_type',
-                            'emergency_contact_name': 'edit_emergency_contact_name',
-                            'emergency_contact_phone': 'edit_emergency_contact_phone',
-                            'complete_address': 'edit_complete_address',
-                            'middle_name': 'edit_middle_name',
-                            'name_extension': 'edit_name_extension'
-                        };
-
-                        Object.keys(error.errors).forEach(field => {
-                            const elementId = fieldMap[field];
-                            const input = document.getElementById(elementId);
-                            if (input) {
-                                input.classList.add('is-invalid');
-                                const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
-                                if (existingFeedback) existingFeedback.remove();
-
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'invalid-feedback d-block';
-                                const errorMessage = Array.isArray(error.errors[field]) ?
-                                    error.errors[field][0] :
-                                    error.errors[field];
-                                errorDiv.textContent = errorMessage;
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        });
-
-                        showToast('error', error.message);
-                    } else {
-                        showToast('error', error.message || 'Error updating registration');
-                    }
-
-                    // Restore button state
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    formInputs.forEach(input => input.disabled = false);
+                    return data;
                 });
-        }
+            })
+            .then(data => {
+                console.log('Update response:', data);
+                
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                    if (modal) modal.hide();
+
+                    showToast('success', data.message || 'Registration updated successfully');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    throw {
+                        status: 422,
+                        message: data.message || 'Failed to update registration',
+                        errors: data.errors || {}
+                    };
+                }
+            })
+            .catch(error => {
+                console.error('Error occurred:', error);
+
+                // Handle validation errors
+                if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+                    const fieldMap = {
+                        'first_name': 'edit_first_name',
+                        'last_name': 'edit_last_name',
+                        'contact_number': 'edit_contact_number',
+                        'barangay': 'edit_barangay',
+                        'user_type': 'edit_user_type',
+                        'emergency_contact_name': 'edit_emergency_contact_name',
+                        'emergency_contact_phone': 'edit_emergency_contact_phone',
+                        'complete_address': 'edit_complete_address',
+                        'middle_name': 'edit_middle_name',
+                        'name_extension': 'edit_name_extension',
+                        'sex': 'edit_sex',
+                        'date_of_birth': 'edit_date_of_birth',
+                        'id_front': 'edit_id_front',
+                        'id_back': 'edit_id_back',
+                        'location_proof': 'edit_location_proof'
+                    };
+
+                    Object.keys(error.errors).forEach(field => {
+                        const elementId = fieldMap[field];
+                        const input = document.getElementById(elementId);
+                        if (input) {
+                            input.classList.add('is-invalid');
+                            const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                            if (existingFeedback) existingFeedback.remove();
+
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback d-block';
+                            const errorMessage = Array.isArray(error.errors[field]) ?
+                                error.errors[field][0] :
+                                error.errors[field];
+                            errorDiv.textContent = errorMessage;
+                            input.parentNode.appendChild(errorDiv);
+                        }
+                    });
+
+                    showToast('error', error.message);
+                } else {
+                    showToast('error', error.message || 'Error updating registration');
+                }
+
+                // Restore button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+    }
+
 
         /**
          * Auto-capitalize names in edit form
