@@ -761,67 +761,135 @@
         </div>
     </div>
 
-    <!-- Update Status Modal -->
+    <!-- Enhanced Update Status Modal with Consistent Design -->
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Registration Status
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Registration Status
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <!-- Registration Info -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                    <!-- Registration Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Registration Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Username:</strong> <span id="updateRegUsername"></span></p>
-                                    <p class="mb-1"><strong>Full Name:</strong> <span id="updateRegName"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Registration ID</small>
+                                        <strong id="updateRegId" class="text-primary">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Username</small>
+                                        <strong id="updateRegUsername">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Full Name</small>
+                                        <strong id="updateRegName">-</strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>User Type:</strong> <span id="updateRegType"></span></p>
-                                    <p class="mb-1"><strong>Contact Number:</strong> <span id="updateRegContact"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateRegCurrentStatus"></span></p>
-                                    <p class="mb-1"><strong>Documents:</strong> <span id="updateRegDocuments"></span>
-                                    </p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">User Type</small>
+                                        <strong id="updateRegType">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Contact Number</small>
+                                        <strong id="updateRegContact">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Status</small>
+                                        <strong id="updateRegCurrentStatus">-</strong>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <small class="text-muted d-block mb-2">Documents</small>
+                                    <div id="updateRegDocuments">-</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
+                    <!-- Update Form Card -->
                     <form id="updateForm">
                         <input type="hidden" id="updateRegistrationId">
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="unverified">Unverified (Basic Signup)</option>
-                                <option value="pending">Pending Review</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-toggle-on me-2"></i>Update Status
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required>
+                                        <option value="">Choose status...</option>
+                                        <option value="unverified">Unverified (Basic Signup)</option>
+                                        <option value="pending">Pending Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Choose the new verification status for this registration
+                                    </small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..."></textarea>
-                            <div class="form-text">Maximum 1000 characters</div>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="remarks" rows="4" 
+                                    placeholder="Add any notes or comments about this status change..."
+                                    maxlength="1000"
+                                    oninput="updateRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this status update
+                                    </small>
+                                    <small class="text-muted" id="remarksCounter">
+                                        <span id="charCount">0</span>/1000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Change Alert -->
+                        <div class="alert alert-info border-left-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> Your changes will be logged and the user will be notified of the status update.
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">Update
-                        Status</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
+                    </button>
                 </div>
             </div>
         </div>
@@ -2162,6 +2230,123 @@
             font-size: 0.875rem;
             color: #6c757d;
             word-break: break-word;
+        }
+        /* update modal */
+        #updateModal .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.5rem;
+        }
+
+        #updateModal .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        #updateModal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+        }
+
+        #updateModal .card {
+            border: 1px solid #e9ecef !important;
+            transition: all 0.2s ease;
+        }
+
+        #updateModal .card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        #updateModal .card-header.bg-white {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+        }
+
+        #updateModal .form-label {
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        #updateModal .form-label .text-danger {
+            margin-left: 2px;
+            font-weight: 600;
+        }
+
+        #updateModal .form-select,
+        #updateModal .form-control {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            transition: all 0.2s ease;
+        }
+
+        #updateModal .form-select:focus,
+        #updateModal .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+        }
+
+        #updateModal .form-control.is-invalid,
+        #updateModal .form-select.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+        }
+
+        #updateModal .form-control.is-valid,
+        #updateModal .form-select.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
+        }
+
+        #updateModal .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        #updateModal .alert {
+            border-left: 4px solid;
+            margin-bottom: 0;
+        }
+
+        #updateModal .alert-info {
+            border-left-color: #17a2b8;
+        }
+
+        #updateModal .border-left-info {
+            border-left-color: #17a2b8 !important;
+        }
+
+        #updateModal textarea {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            resize: vertical;
+        }
+
+        #remarksCounter {
+            font-weight: 500;
+        }
+
+        /* Status change indicator styling */
+        .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        .change-indicator {
+            position: relative;
+        }
+
+        .change-indicator.changed::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 1;
         }
     </style>
 @endsection
@@ -4935,6 +5120,85 @@
                     capitalizeEditName(e.target);
                 }
             });
+        });
+
+          /**
+         * Update remarks character counter
+         */
+        function updateRemarksCounter() {
+            const textarea = document.getElementById('remarks');
+            const charCount = document.getElementById('charCount');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    charCount.parentElement.classList.add('text-warning');
+                    charCount.parentElement.classList.remove('text-muted');
+                } else {
+                    charCount.parentElement.classList.remove('text-warning');
+                    charCount.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        /**
+         * Check for changes and update button state
+         */
+        function checkForChanges() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+
+            if (!statusSelect || !remarksTextarea || !updateButton) return;
+
+            if (!statusSelect.dataset.originalStatus) return;
+
+            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+            statusSelect.classList.toggle('form-changed', statusChanged);
+            statusSelect.parentElement.classList.toggle('change-indicator', true);
+            statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+            remarksTextarea.classList.toggle('form-changed', remarksChanged);
+            remarksTextarea.parentElement.classList.toggle('change-indicator', true);
+            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+            // Update button state
+            if (!statusChanged && !remarksChanged) {
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>No Changes';
+                updateButton.classList.add('no-changes');
+                updateButton.disabled = false;
+            } else {
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Status';
+                updateButton.classList.remove('no-changes');
+                updateButton.disabled = false;
+            }
+        }
+
+        // Add event listeners when modal is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateModal = document.getElementById('updateModal');
+            
+            if (updateModal) {
+                updateModal.addEventListener('shown.bs.modal', function() {
+                    const statusSelect = document.getElementById('newStatus');
+                    const remarksTextarea = document.getElementById('remarks');
+
+                    if (statusSelect) {
+                        statusSelect.addEventListener('change', checkForChanges);
+                    }
+
+                    if (remarksTextarea) {
+                        remarksTextarea.addEventListener('input', checkForChanges);
+                        remarksTextarea.addEventListener('input', updateRemarksCounter);
+                        // Initialize counter on modal show
+                        updateRemarksCounter();
+                    }
+                });
+            }
         });
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
