@@ -80,6 +80,109 @@
         #imagePreviewModal.show {
             z-index: 1060;
         }
+
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.25rem;
+            min-width: 24px;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+            margin-left: 12px;
+        }
+
+        .toast-notification .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #333;
+        }
+
+        .toast-notification .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            .toast-notification .toast-content {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 
     <div class="row">
@@ -219,7 +322,7 @@
                                                             <a class="dropdown-item" href="javascript:void(0)"
                                                                 onclick="toggleStatus({{ $slide->id }})">
                                                                 <i
-                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2"></i>
+                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 " style="color: #ffc107;"></i>
                                                                 {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
                                                             </a>
                                                         </li>
@@ -737,7 +840,7 @@
                     $('.drag-handle').css('cursor', 'move');
 
                     // Show instructions
-                    showAlert('info', 'Drag and drop slides to reorder them. Click "Done" when finished.');
+                    showToast('info', 'Drag and drop slides to reorder them. Click "Done" when finished.');
                 }
             });
 
@@ -962,7 +1065,7 @@
             const fileInput = $('#newImageInput')[0];
 
             if (!fileInput.files || fileInput.files.length === 0) {
-                showAlert('error', 'Please select an image file.');
+                showToast('error', 'Please select an image file.');
                 return false;
             }
 
@@ -1014,7 +1117,7 @@
                 },
                 success: function(response) {
                     $('#uploadProgress').css('width', '100%');
-                    showAlert('success', 'Slideshow image added successfully!');
+                    showToast('success', 'Slideshow image added successfully!');
                     $('#newAddSlideModal').modal('hide');
                     setTimeout(() => {
                         location.reload();
@@ -1030,7 +1133,7 @@
                         errorMessage = xhr.responseJSON.message;
                     }
 
-                    showAlert('error', errorMessage);
+                    showToast('error', errorMessage);
                     saveBtn.prop('disabled', false).find('.btn-text').text('Add Slide');
                     $('#uploadProgress').css('width', '0%');
                 }
@@ -1111,26 +1214,96 @@
             $('#editSlideModal').modal('show');
         }
 
-        // Toggle slide status
-        function toggleStatus(slideId) {
-            $.ajax({
-                url: `/admin/slideshow/${slideId}/toggle-status`,
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showAlert('success', response.message);
+   // Toggle slide status with toast notification
+    function toggleStatus(slideId) {
+        $.ajax({
+            url: `/admin/slideshow/${slideId}/toggle-status`,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    showToast('success', response.message);
+                    setTimeout(() => {
                         location.reload();
-                    } else {
-                        showAlert('error', response.message);
-                    }
-                },
-                error: function() {
-                    showAlert('error', 'An error occurred while updating the slide status.');
+                    }, 800);
+                } else {
+                    showToast('error', response.message);
                 }
-            });
+            },
+            error: function() {
+                showToast('error', 'An error occurred while updating the slide status.');
+            }
+        });
+    }
+
+        // Toast notification system
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
         }
 
         // delete of slide functionality
@@ -1150,7 +1323,7 @@
                 // Show the delete modal
                 new bootstrap.Modal(document.getElementById('deleteSlideModal')).show();
             } catch (error) {
-                showAlert('error', 'Failed to prepare delete dialog: ' + error.message);
+                showToast('error', 'Failed to prepare delete dialog: ' + error.message);
             }
         }
 
@@ -1175,7 +1348,7 @@
                     throw new Error(data.message || 'Failed to delete slide');
                 }
 
-                showAlert('success', data.message || 'Slideshow image deleted successfully!');
+                showToast('success', data.message || 'Slideshow image deleted successfully!');
 
                 // Reload page after 1 second
                 setTimeout(() => {
@@ -1183,7 +1356,7 @@
                 }, 800);
 
             } catch (error) {
-                showAlert('error', error.message || 'An error occurred while deleting the slide.');
+                showToast('error', error.message || 'An error occurred while deleting the slide.');
                 
                 // Reset button state
                 document.getElementById('confirm_delete_slide_btn').querySelector('.btn-text').style.display = 'inline';
@@ -1216,13 +1389,13 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        showAlert('success', response.message);
+                        showToast('success', response.message);
                     } else {
-                        showAlert('error', response.message);
+                        showToast('error', response.message);
                     }
                 },
                 error: function() {
-                    showAlert('error', 'An error occurred while updating the order.');
+                    showToast('error', 'An error occurred while updating the order.');
                 }
             });
         }
@@ -1237,11 +1410,11 @@
                         createSlideshowPreview(response.slides);
                         $('#slideshowPreviewModal').modal('show');
                     } else {
-                        showAlert('warning', 'No active slides found for preview.');
+                        showToast('warning', 'No active slides found for preview.');
                     }
                 },
                 error: function() {
-                    showAlert('error', 'Error loading slideshow preview.');
+                    showToast('error', 'Error loading slideshow preview.');
                 }
             });
         }
@@ -1281,44 +1454,6 @@
                 currentSlide = (currentSlide + 1) % slides.length;
                 $('.preview-slide').eq(currentSlide).css('opacity', '1');
             }, 3000);
-        }
-
-        // Alert function - Now uses AgriSys Modal system for consistency
-        function showAlert(type, message) {
-            if (typeof agrisysModal !== 'undefined') {
-                switch (type) {
-                    case 'success':
-                        agrisysModal.success(message);
-                        break;
-                    case 'error':
-                        agrisysModal.error(message);
-                        break;
-                    case 'warning':
-                        agrisysModal.warning(message);
-                        break;
-                    default:
-                        agrisysModal.info(message);
-                }
-            } else {
-                // Fallback to Bootstrap alerts if modal not available
-                const alertClass = type === 'success' ? 'alert-success' :
-                    type === 'error' ? 'alert-danger' :
-                    type === 'warning' ? 'alert-warning' : 'alert-info';
-
-                const alertHtml = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-
-                $('body').append(alertHtml);
-
-                // Auto-remove after 5 seconds
-                setTimeout(() => {
-                    $('.alert').fadeOut();
-                }, 5000);
-            }
         }
     </script>
 @endsection
