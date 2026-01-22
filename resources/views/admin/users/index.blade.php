@@ -916,13 +916,13 @@
         </div>
     </div>
 
-    <!-- Enhanced Edit User Registration Modal with Consistent Design -->
+    <!-- Enhanced Edit User Registration Modal with ALL Fields -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-pencil-alt me-2"></i>
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>
                         Edit Registration - <span id="editAppUsername"></span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -986,8 +986,39 @@
                                             <option value="">Not Specified</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
+                                            <option value="Preferred not to say">Preferred not to say</option>
                                         </select>
                                     </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_date_of_birth" class="form-label fw-semibold">
+                                            Date of Birth
+                                        </label>
+                                        <input type="date" class="form-control" id="edit_date_of_birth"
+                                            name="date_of_birth">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>User must be at least 18 years old
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_age" class="form-label fw-semibold">
+                                            Age (Auto-calculated)
+                                        </label>
+                                        <input type="number" class="form-control" id="edit_age"
+                                            name="age" readonly placeholder="Auto-calculated">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact & Type Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-address-card me-2"></i>Contact & Sector
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="edit_contact_number" class="form-label fw-semibold">
                                             Contact Number 
@@ -1002,7 +1033,7 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="edit_user_type" class="form-label fw-semibold">
-                                            User Type 
+                                            User Type / Sector
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="edit_user_type" name="user_type" required>
@@ -1067,6 +1098,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="edit_complete_address" class="form-label fw-semibold">
                                             Complete Address
+                                            <span class="text-danger">*</span>
                                         </label>
                                         <textarea class="form-control" id="edit_complete_address" name="complete_address" 
                                             rows="3" maxlength="500" placeholder="Street address, building, etc."></textarea>
@@ -1111,6 +1143,60 @@
                             </div>
                         </div>
 
+                        <!-- Documents Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Documents
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    View or re-upload documents. Supported formats: JPG, PNG (Max 5MB each)
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label for="edit_id_front" class="form-label fw-semibold">
+                                            Government ID - Front
+                                        </label>
+                                        <div id="edit_id_front_preview" class="mb-3"></div>
+                                        <input type="file" class="form-control" id="edit_id_front" 
+                                            accept="image/*" onchange="previewEditDocument('edit_id_front', 'edit_id_front_preview')">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Click to view or re-upload
+                                        </small>
+                                    </div>
+
+                                    <div class="col-md-6 mb-4">
+                                        <label for="edit_id_back" class="form-label fw-semibold">
+                                            Government ID - Back
+                                        </label>
+                                        <div id="edit_id_back_preview" class="mb-3"></div>
+                                        <input type="file" class="form-control" id="edit_id_back" 
+                                            accept="image/*" onchange="previewEditDocument('edit_id_back', 'edit_id_back_preview')">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Click to view or re-upload
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_location_proof" class="form-label fw-semibold">
+                                            Location/Role Proof
+                                        </label>
+                                        <div id="edit_location_proof_preview" class="mb-3"></div>
+                                        <input type="file" class="form-control" id="edit_location_proof" 
+                                            accept="image/*" onchange="previewEditDocument('edit_location_proof', 'edit_location_proof_preview')">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Click to view or re-upload
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Account Status (Read-only) Card -->
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
@@ -1137,15 +1223,15 @@
                         <!-- Info Alert -->
                         <div class="alert alert-info border-left-info mb-0">
                             <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> You can edit personal information, contact details, and location information.
-                            To change registration status, use the "Update Status" button from the main table.
+                            <strong>Note:</strong> You can edit all user information here.
+                            To change registration status or add remarks, use the "Change Status" button from the main table.
                         </div>
                     </form>
                 </div>
 
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
+                        <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" id="editUserSubmitBtn"
                         onclick="handleEditUserSubmit()">
@@ -2521,6 +2607,62 @@
         #editUserModal .badge {
             font-size: 0.875rem;
             padding: 0.5rem 0.75rem;
+        }
+
+        /* Document Preview Styles */
+        #editUserModal #edit_id_front_preview,
+        #editUserModal #edit_id_back_preview,
+        #editUserModal #edit_location_proof_preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100px;
+            justify-content: center;
+        }
+
+        #editUserModal #edit_id_front_preview img,
+        #editUserModal #edit_id_back_preview img,
+        #editUserModal #edit_location_proof_preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 0.375rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #editUserModal #edit_id_front_preview img:hover,
+        #editUserModal #edit_id_back_preview img:hover,
+        #editUserModal #edit_location_proof_preview img:hover {
+            transform: scale(1.05);
+        }
+
+        .document-preview-item {
+            text-align: center;
+            width: 100%;
+        }
+
+        .document-preview-item p {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6c757d;
+            word-break: break-word;
+        }
+
+        .document-existing-badge {
+            display: inline-block;
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            color: #004085;
+            margin-bottom: 0.75rem;
+        }
+
+        .document-existing-badge i {
+            margin-right: 0.5rem;
+            color: #0056b3;
         }
 
         /* Responsive adjustments */
@@ -4817,17 +4959,58 @@
         document.getElementById('add_contact_number')?.addEventListener('input', function() {
             validateAddContactNumber(this.value);
         });
-
-        /**
-         * Show edit user modal and load registration data
-         */
+        // Helper function to format date for HTML input (YYYY-MM-DD)
+        function formatDateForInput(dateString) {
+            if (!dateString) return '';
+            
+            try {
+                console.log('Formatting date input from:', dateString);
+                
+                // Remove any time component
+                let cleanDate = dateString;
+                if (dateString.includes(' ')) {
+                    cleanDate = dateString.split(' ')[0];
+                }
+                
+                // Handle different date formats
+                let date;
+                
+                // Try YYYY-MM-DD format first
+                if (/^\d{4}-\d{2}-\d{2}/.test(cleanDate)) {
+                    date = new Date(cleanDate + 'T00:00:00Z');
+                }
+                // Try other common formats
+                else {
+                    date = new Date(cleanDate);
+                }
+                
+                // Validate the date
+                if (isNaN(date.getTime())) {
+                    console.warn('Could not parse date:', dateString);
+                    return '';
+                }
+                
+                // Format as YYYY-MM-DD for HTML input
+                const year = date.getUTCFullYear();
+                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(date.getUTCDate()).padStart(2, '0');
+                
+                const formatted = `${year}-${month}-${day}`;
+                console.log('Formatted date result:', formatted);
+                
+                return formatted;
+            } catch (error) {
+                console.error('Error formatting date:', error, 'Input:', dateString);
+                return '';
+            }
+        }
+      // Fixed showEditUserModal function - Date of Birth section
         function showEditUserModal(registrationId) {
             if (!registrationId) {
                 showToast('error', 'Invalid registration ID');
                 return;
             }
 
-            // Fetch registration data
             fetch(`/admin/registrations/${registrationId}/details`)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -4840,7 +5023,7 @@
 
                     const data = response.data;
 
-                    // Populate editable fields
+                    // Populate all fields
                     document.getElementById('edit_first_name').value = data.first_name || '';
                     document.getElementById('edit_middle_name').value = data.middle_name || '';
                     document.getElementById('edit_last_name').value = data.last_name || '';
@@ -4852,6 +5035,41 @@
                     document.getElementById('edit_user_type').value = data.user_type || '';
                     document.getElementById('edit_emergency_contact_name').value = data.emergency_contact_name || '';
                     document.getElementById('edit_emergency_contact_phone').value = data.emergency_contact_phone || '';
+
+                    // FIXED: Handle Date of Birth properly
+                    if (data.date_of_birth) {
+                        const formattedDob = formatDateForInput(data.date_of_birth);
+                        document.getElementById('edit_date_of_birth').value = formattedDob;
+                        
+                        console.log('DOB set to:', formattedDob, 'from:', data.date_of_birth);
+                        
+                        // Auto-calculate age
+                        if (formattedDob) {
+                            const dob = new Date(formattedDob + 'T00:00:00');
+                            const today = new Date();
+                            let age = today.getFullYear() - dob.getFullYear();
+                            const monthDiff = today.getMonth() - dob.getMonth();
+                            
+                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                                age--;
+                            }
+                            document.getElementById('edit_age').value = age >= 0 ? age : '';
+                        }
+                    } else {
+                        document.getElementById('edit_date_of_birth').value = '';
+                        document.getElementById('edit_age').value = '';
+                    }
+
+                    // Display existing documents
+                    if (data.id_front_path) {
+                        displayExistingDocument(data.id_front_path, 'Government ID - Front', 'edit_id_front_preview');
+                    }
+                    if (data.id_back_path) {
+                        displayExistingDocument(data.id_back_path, 'Government ID - Back', 'edit_id_back_preview');
+                    }
+                    if (data.location_document_path) {
+                        displayExistingDocument(data.location_document_path, 'Location/Role Proof', 'edit_location_proof_preview');
+                    }
 
                     // Read-only fields
                     document.getElementById('editAppUsername').textContent = data.username || '';
@@ -4869,13 +5087,12 @@
                         minute: '2-digit'
                     });
 
-                    // Initialize form for change detection
+                    // Initialize the form
                     initializeEditUserForm(registrationId, data);
 
                     // Show the modal
                     const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
                     modal.show();
-
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -4884,19 +5101,21 @@
         }
 
         /**
-         * Initialize edit form with original data for change detection
+         * Initialize edit form with original data for change detection (FIXED)
          */
         function initializeEditUserForm(registrationId, data) {
             const form = document.getElementById('editUserForm');
             const submitBtn = document.getElementById('editUserSubmitBtn');
 
-            // Store original data for comparison
+            // Store original data for comparison - AFTER fields are populated
             const originalData = {
                 first_name: data.first_name || '',
                 middle_name: data.middle_name || '',
                 last_name: data.last_name || '',
                 name_extension: data.name_extension || '',
                 sex: data.sex || '',
+                date_of_birth: data.date_of_birth || '',
+                age: data.age || '',
                 contact_number: data.contact_number || '',
                 barangay: data.barangay || '',
                 complete_address: data.complete_address || '',
@@ -4913,22 +5132,27 @@
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
             form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
 
-            // Reset button state - ALWAYS KEEP ENABLED
+            // Reset button state
             submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
             submitBtn.disabled = false;
             submitBtn.dataset.hasChanges = 'false';
+
+            console.log('Original data stored:', originalData);
+            console.log('Form initialized for registration:', registrationId);
 
             // Add change listeners
             addEditUserFormChangeListeners(registrationId);
         }
 
         /**
-         * Add event listeners to detect form changes
+         * Add event listeners to detect form changes (COMPLETE VERSION)
          */
         function addEditUserFormChangeListeners(registrationId) {
             const form = document.getElementById('editUserForm');
+            
+            // Text inputs, dates, tel, textarea, and selects
             const inputs = form.querySelectorAll(
-                'input[type="text"], input[type="tel"], textarea, select');
+                'input[type="text"], input[type="tel"], input[type="date"], textarea, select');
 
             inputs.forEach(input => {
                 input.removeEventListener('input', handleEditUserFormChange);
@@ -4936,6 +5160,13 @@
 
                 input.addEventListener('input', handleEditUserFormChange);
                 input.addEventListener('change', handleEditUserFormChange);
+            });
+
+            // File inputs
+            const fileInputs = form.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(fileInput => {
+                fileInput.removeEventListener('change', handleEditUserFormChange);
+                fileInput.addEventListener('change', handleEditUserFormChange);
             });
         }
 
@@ -4948,8 +5179,57 @@
             checkEditUserFormChanges(registrationId);
         }
 
+
         /**
-         * Check for changes in the form and update button state
+         * Initialize original data with ALL fields
+         */
+        function initializeEditUserFormData(data) {
+        return {
+            first_name: (data.first_name || '').trim(),
+            middle_name: (data.middle_name || '').trim(),
+            last_name: (data.last_name || '').trim(),
+            name_extension: (data.name_extension || '').trim(),
+            sex: (data.sex || '').trim(),
+            date_of_birth: formatDateForInput(data.date_of_birth), // Use the formatter 
+            age: (data.age || '').toString().trim(),
+            contact_number: (data.contact_number || '').trim(),
+            barangay: (data.barangay || '').trim(),
+            complete_address: (data.complete_address || '').trim(),
+            user_type: (data.user_type || '').trim(),
+            emergency_contact_name: (data.emergency_contact_name || '').trim(),
+            emergency_contact_phone: (data.emergency_contact_phone || '').trim()
+        };
+    }
+
+        /**
+         * Initialize edit form with original data for change detection
+         */
+        function initializeEditUserForm(registrationId, data) {
+            const form = document.getElementById('editUserForm');
+            const submitBtn = document.getElementById('editUserSubmitBtn');
+
+            // Store original data for comparison - NOW INCLUDES ALL FIELDS
+            const originalData = initializeEditUserFormData(data);
+            
+            form.dataset.originalData = JSON.stringify(originalData);
+            form.dataset.registrationId = registrationId;
+
+            // Clear validation states
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+
+            // Reset button state
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            submitBtn.disabled = false;
+            submitBtn.dataset.hasChanges = 'false';
+
+            // Add change listeners
+            addEditUserFormChangeListeners(registrationId);
+        }
+
+        /**
+         * Check for changes in the form and update button state (COMPLETE VERSION)
          */
         function checkEditUserFormChanges(registrationId) {
             const form = document.getElementById('editUserForm');
@@ -4960,12 +5240,15 @@
             const originalData = JSON.parse(form.dataset.originalData || '{}');
             let hasChanges = false;
 
+            // COMPLETE field map - includes ALL fields
             const fieldMap = {
                 'first_name': 'edit_first_name',
                 'middle_name': 'edit_middle_name',
                 'last_name': 'edit_last_name',
                 'name_extension': 'edit_name_extension',
                 'sex': 'edit_sex',
+                'date_of_birth': 'edit_date_of_birth',
+                'age': 'edit_age',
                 'contact_number': 'edit_contact_number',
                 'barangay': 'edit_barangay',
                 'complete_address': 'edit_complete_address',
@@ -4974,15 +5257,35 @@
                 'emergency_contact_phone': 'edit_emergency_contact_phone'
             };
 
+            // Check text field changes
             Object.keys(fieldMap).forEach(fieldName => {
                 const elementId = fieldMap[fieldName];
                 const input = document.getElementById(elementId);
 
                 if (input) {
-                    const currentValue = (input.value || '').trim();
-                    const originalValue = (originalData[fieldName] || '').trim();
+                    let currentValue = (input.value || '').trim();
+                    let originalValue = (originalData[fieldName] || '').trim();
+                    
+                    // Normalize empty values
+                    if (currentValue === '' && originalValue === '') {
+                        return; // Skip if both are empty
+                    }
+                    
+                    // Special handling for date_of_birth
+                    if (fieldName === 'date_of_birth' && currentValue && originalValue) {
+                        currentValue = currentValue.split(' ')[0];
+                        originalValue = originalValue.split(' ')[0];
+                    }
+
+                    //Special handling for phone numbers - normalize format**
+                    if ((fieldName === 'contact_number' || fieldName === 'emergency_contact_phone') && currentValue && originalValue) {
+                        // Remove +63 prefix and normalize to 09 format
+                        currentValue = currentValue.replace(/^\+63/, '0').replace(/\s+/g, '');
+                        originalValue = originalValue.replace(/^\+63/, '0').replace(/\s+/g, '');
+                    }
 
                     if (currentValue !== originalValue) {
+                        console.log(`Field changed: ${fieldName}`, {current: currentValue, original: originalValue});
                         hasChanges = true;
                         input.classList.add('form-changed');
                     } else {
@@ -4991,7 +5294,26 @@
                 }
             });
 
-            // Update button state - ALWAYS KEEP ENABLED
+            // Check for file uploads (documents)
+            const fileInputs = [
+                'edit_id_front',
+                'edit_id_back',
+                'edit_location_proof'
+            ];
+
+            fileInputs.forEach(fileInputId => {
+                const fileInput = document.getElementById(fileInputId);
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    console.log(`File selected for upload: ${fileInputId}`);
+                    hasChanges = true;
+                    // Add visual indicator
+                    if (fileInput.parentElement) {
+                        fileInput.parentElement.classList.add('form-changed');
+                    }
+                }
+            });
+
+            // Update button state
             if (hasChanges) {
                 submitBtn.classList.remove('no-changes');
                 submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
@@ -5006,7 +5328,7 @@
         }
 
         /**
-         * Validate edit user form
+         * Validate edit user form (COMPLETE VERSION WITH ALL FIELDS)
          */
         function validateEditUserForm() {
             const form = document.getElementById('editUserForm');
@@ -5016,34 +5338,14 @@
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
 
-            const requiredFields = [{
-                    elementId: 'edit_first_name',
-                    label: 'First Name'
-                },
-                {
-                    elementId: 'edit_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    elementId: 'edit_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    elementId: 'edit_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    elementId: 'edit_user_type',
-                    label: 'User Type'
-                },
-                {
-                    elementId: 'edit_emergency_contact_name',
-                    label: 'Emergency Contact Name'
-                },
-                {
-                    elementId: 'edit_emergency_contact_phone',
-                    label: 'Emergency Contact Phone'
-                }
+            const requiredFields = [
+                { elementId: 'edit_first_name', label: 'First Name' },
+                { elementId: 'edit_last_name', label: 'Last Name' },
+                { elementId: 'edit_contact_number', label: 'Contact Number' },
+                { elementId: 'edit_barangay', label: 'Barangay' },
+                { elementId: 'edit_user_type', label: 'User Type' },
+                { elementId: 'edit_emergency_contact_name', label: 'Emergency Contact Name' },
+                { elementId: 'edit_emergency_contact_phone', label: 'Emergency Contact Phone' }
             ];
 
             // Validate required fields
@@ -5059,6 +5361,59 @@
                 }
             });
 
+            // Validate first name format
+            const firstNameInput = document.getElementById('edit_first_name');
+            if (firstNameInput && firstNameInput.value) {
+                if (firstNameInput.value.length < 2) {
+                    firstNameInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'First name must be at least 2 characters';
+                    firstNameInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+                if (firstNameInput.value.length > 100) {
+                    firstNameInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'First name cannot exceed 100 characters';
+                    firstNameInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            // Validate last name format
+            const lastNameInput = document.getElementById('edit_last_name');
+            if (lastNameInput && lastNameInput.value) {
+                if (lastNameInput.value.length < 2) {
+                    lastNameInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Last name must be at least 2 characters';
+                    lastNameInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+                if (lastNameInput.value.length > 100) {
+                    lastNameInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Last name cannot exceed 100 characters';
+                    lastNameInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            // Validate middle name (optional but check length if provided)
+            const middleNameInput = document.getElementById('edit_middle_name');
+            if (middleNameInput && middleNameInput.value && middleNameInput.value.length > 100) {
+                middleNameInput.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Middle name cannot exceed 100 characters';
+                middleNameInput.parentNode.appendChild(errorDiv);
+                isValid = false;
+            }
+
             // Validate contact number format
             const contactInput = document.getElementById('edit_contact_number');
             if (contactInput && contactInput.value.trim()) {
@@ -5069,6 +5424,27 @@
                     errorDiv.className = 'invalid-feedback d-block';
                     errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
                     contactInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            // Validate emergency contact name
+            const emergencyNameInput = document.getElementById('edit_emergency_contact_name');
+            if (emergencyNameInput && emergencyNameInput.value) {
+                if (emergencyNameInput.value.length < 2) {
+                    emergencyNameInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Emergency contact name must be at least 2 characters';
+                    emergencyNameInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+                if (emergencyNameInput.value.length > 100) {
+                    emergencyNameInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Emergency contact name cannot exceed 100 characters';
+                    emergencyNameInput.parentNode.appendChild(errorDiv);
                     isValid = false;
                 }
             }
@@ -5086,6 +5462,94 @@
                     isValid = false;
                 }
             }
+
+            // Validate date of birth (optional but check if provided)
+            const dobInput = document.getElementById('edit_date_of_birth');
+            if (dobInput && dobInput.value) {
+                const dob = new Date(dobInput.value);
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+
+                if (age < 18) {
+                    dobInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'User must be at least 18 years old';
+                    dobInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+
+                if (age > 120) {
+                    dobInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Please enter a valid date of birth';
+                    dobInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            // Validate complete address
+            const addressInput = document.getElementById('edit_complete_address');
+            if (addressInput && addressInput.value) {
+                if (addressInput.value.trim().length < 5) {
+                    addressInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Please enter a valid complete address';
+                    addressInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+                if (addressInput.value.length > 500) {
+                    addressInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Address cannot exceed 500 characters';
+                    addressInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            // Validate file uploads (optional - only check if files are selected)
+            const fileInputs = [
+                { id: 'edit_id_front', label: 'Government ID - Front' },
+                { id: 'edit_id_back', label: 'Government ID - Back' },
+                { id: 'edit_location_proof', label: 'Location/Role Proof' }
+            ];
+
+            fileInputs.forEach(file => {
+                const fileInput = document.getElementById(file.id);
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    const uploadedFile = fileInput.files[0];
+
+                    // Check file type
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                    if (!allowedTypes.includes(uploadedFile.type)) {
+                        fileInput.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = `${file.label} must be a JPG or PNG image`;
+                        fileInput.parentNode.appendChild(errorDiv);
+                        isValid = false;
+                    }
+
+                    // Check file size (5MB max)
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    if (uploadedFile.size > maxSize) {
+                        fileInput.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = `${file.label} must be less than 5MB`;
+                        fileInput.parentNode.appendChild(errorDiv);
+                        isValid = false;
+                    }
+                }
+            });
 
             return isValid;
         }
@@ -5297,6 +5761,28 @@
             }
         }
 
+        // close the edit modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editUserModal = document.getElementById('editUserModal');
+            
+            if (editUserModal) {
+                editUserModal.addEventListener('hidden.bs.modal', function() {
+                    // Clear file inputs when modal closes
+                    const fileInputs = this.querySelectorAll('input[type="file"]');
+                    fileInputs.forEach(input => {
+                        input.value = ''; // Clear the file input
+                    });
+                    
+                    // Clear previews
+                    const previews = this.querySelectorAll('[id$="_preview"]');
+                    previews.forEach(preview => {
+                        preview.innerHTML = '';
+                        preview.style.display = 'none';
+                    });
+                });
+            }
+        });
+
         // Auto-capitalize on blur
         document.addEventListener('DOMContentLoaded', function() {
             document.addEventListener('focusout', function(e) {
@@ -5387,6 +5873,227 @@
                 });
             }
         });
+
+            /**
+             * Auto-calculate age from date of birth
+             */
+            document.getElementById('edit_date_of_birth')?.addEventListener('change', function() {
+                const dob = new Date(this.value);
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const monthDiff = today.getMonth() - dob.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                
+                document.getElementById('edit_age').value = age >= 0 ? age : '';
+                
+                // Trigger change detection
+                const form = document.getElementById('editUserForm');
+                if (form && form.dataset.registrationId) {
+                    checkEditUserFormChanges(form.dataset.registrationId);
+                }
+            });
+
+            /**
+             * Preview documents in edit modal
+             */
+            function previewEditDocument(inputId, previewId) {
+                const input = document.getElementById(inputId);
+                const preview = document.getElementById(previewId);
+
+                // Clear previous preview
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+
+                // If no files selected, just clear the preview
+                if (!input.files || !input.files[0]) {
+                    console.log('No file selected for:', inputId);
+                    return;
+                }
+
+                const file = input.files[0];
+                
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                if (!allowedTypes.includes(file.type)) {
+                    if (preview) {
+                        preview.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Please select a JPG or PNG image
+                            </div>
+                        `;
+                        preview.style.display = 'flex';
+                    }
+                    input.value = ''; // Clear the input
+                    return;
+                }
+                
+                // Validate file size (5MB max)
+                const maxSize = 5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    if (preview) {
+                        preview.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                File must be less than 5MB
+                            </div>
+                        `;
+                        preview.style.display = 'flex';
+                    }
+                    input.value = ''; // Clear the input
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    if (preview) {
+                        preview.innerHTML = `
+                            <div class="document-preview-item">
+                                <img src="${e.target.result}" alt="Preview" 
+                                    style="max-width: 100%; max-height: 200px; border-radius: 8px; cursor: pointer;">
+                                <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                                    <i class="fas fa-check text-success me-2"></i>${file.name}
+                                </p>
+                            </div>
+                        `;
+                        preview.style.display = 'flex';
+                    }
+                    
+                    console.log('File preview loaded:', inputId, file.name);
+                    
+                    // Trigger change detection
+                    const form = document.getElementById('editUserForm');
+                    if (form && form.dataset.registrationId) {
+                        checkEditUserFormChanges(form.dataset.registrationId);
+                    }
+                };
+
+                reader.onerror = function(error) {
+                    console.error('File read error:', error);
+                    if (preview) {
+                        preview.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Failed to load file preview
+                            </div>
+                        `;
+                        preview.style.display = 'flex';
+                    }
+                    input.value = ''; // Clear the input
+                };
+
+                reader.readAsDataURL(file);
+            }
+
+            /**
+             * Display existing document thumbnail in preview (FIXED VERSION)
+             */
+            function displayExistingDocument(documentPath, documentName, previewId) {
+                const preview = document.getElementById(previewId);
+                if (!preview || !documentPath) {
+                    console.warn(`Preview container not found: ${previewId}`);
+                    return;
+                }
+
+                // Build the correct document URL
+                let documentUrl;
+                
+                if (documentPath.startsWith('http')) {
+                    documentUrl = documentPath;
+                } else if (documentPath.startsWith('/')) {
+                    documentUrl = documentPath;
+                } else {
+                    // Path is relative, prepend /storage/
+                    documentUrl = `/storage/${documentPath}`;
+                }
+
+                console.log(`Loading document: ${documentName} from ${documentUrl}`);
+
+                preview.innerHTML = `
+                    <div class="document-preview-item">
+                        <img 
+                            src="${documentUrl}" 
+                            alt="${documentName}" 
+                            style="max-width: 100%; max-height: 200px; border-radius: 8px; cursor: pointer;"
+                            onclick="viewDocumentFullScreen('${documentUrl}', '${documentName}')"
+                            onerror="handleDocumentLoadError(this, '${previewId}')">
+                        <p style="margin-top: 8px; font-size: 12px; color: #666;">Click to view full size</p>
+                    </div>
+                `;
+                preview.style.display = 'flex';
+            }
+
+            /**
+             * Handle document image load errors
+             */
+            function handleDocumentLoadError(imgElement, previewId) {
+                console.error(`Failed to load image for preview: ${previewId}`);
+                const preview = document.getElementById(previewId);
+                if (preview) {
+                    preview.innerHTML = `
+                        <div class="document-preview-item">
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fas fa-exclamation-circle text-warning" style="font-size: 3rem;"></i>
+                                <p style="margin-top: 10px; color: #666;">Could not load image</p>
+                                <small style="color: #999;">The image file may be missing or inaccessible</small>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            /**
+             * View document in full screen modal (ENSURE THIS EXISTS)
+             */
+            function viewDocumentFullScreen(documentUrl, documentName) {
+                // Create a unique modal ID to avoid conflicts
+                const modalId = 'documentPreviewModal_' + Date.now();
+                
+                const modalHtml = `
+                    <div class="modal fade" id="${modalId}" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-info text-white">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-image me-2"></i>${documentName}
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <img src="${documentUrl}" alt="${documentName}" 
+                                        style="max-width: 100%; max-height: 70vh; object-fit: contain;">
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="${documentUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                    </a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add modal to DOM
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = modalHtml;
+                document.body.appendChild(tempDiv.firstElementChild);
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById(modalId));
+                modal.show();
+                
+                // Clean up modal from DOM when hidden
+                document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
+                    this.remove();
+                });
+            }
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>
