@@ -1263,7 +1263,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Close
+                        <i></i>Close
                     </button>
                 </div>
             </div>
@@ -3042,7 +3042,8 @@
             };
 
             if (modalTitle) {
-                modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>${titles[documentType]}`;
+                modalTitle.classList.add('w-100', 'text-center');
+                modalTitle.innerHTML = `<i"></i>${titles[documentType]}`;
             }
 
             // Show loading
@@ -3243,7 +3244,8 @@
             // Update modal title
             const modalTitle = document.getElementById('documentModalTitle');
             if (modalTitle) {
-                modalTitle.innerHTML = '<i class="fas fa-images me-2"></i>Document Gallery';
+                modalTitle.classList.add('text-center', 'w-100');
+                modalTitle.innerHTML = '<i></i>Document Gallery';
             }
 
             console.log('Fetching documents for registration:', id);
@@ -3621,7 +3623,7 @@
                     <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
+                            <i></i>Cancel
                         </button>
                         <button type="button" class="btn btn-sm btn-primary" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
@@ -6099,8 +6101,8 @@
                         <div class="modal-dialog modal-lg modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header bg-info text-white">
-                                    <h5 class="modal-title">
-                                        <i class="fas fa-image me-2"></i>${documentName}
+                                    <h5 class="modal-title w-100 text-center">
+                                        <i></i>${documentName}
                                     </h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                 </div>
