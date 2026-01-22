@@ -160,7 +160,7 @@
                             <th class="text-center">Registration Date</th>
                             <th class="text-center">Username</th>
                             <th class="text-center">Full Name</th>
-                            <th class="text-center">User Type</th>
+                            <th class="text-center">Sector</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Documents</th>
                             <th class="text-center">Actions</th>

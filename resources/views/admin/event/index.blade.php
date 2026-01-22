@@ -242,13 +242,13 @@
                     <i class="fas fa-calendar-day me-2"></i>Events List
                 </h6>
                 <div class="btn-group gap-2">
-                    <a href="{{ route('admin.event.archived') }}" class="btn btn-info btn-sm me-2">
-                        <i class="fas fa-archive me-2"></i>View Archive ({{ $stats['archived'] ?? 0 }})
-                    </a>
-                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                         data-bs-target="#createEventModal">
                         <i class="fas fa-plus me-2"></i>Add Event
                     </button>
+                    <a href="{{ route('admin.event.archived') }}" class="btn btn-info btn-sm me-2">
+                        <i class="fas fa-archive me-2"></i>View Archive ({{ $stats['archived'] ?? 0 }})
+                    </a>
                 </div>
             </div>
 
