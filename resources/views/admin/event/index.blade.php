@@ -227,7 +227,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancel
+                            <i></i>Cancel
                         </button>
                     </div>
                 </div>
@@ -421,7 +421,7 @@
         </div>
     </div>
 
-    <!-- CREATE EVENT MODAL -->
+    <!-- CREATE EVENT MODAL - ENHANCED WITH CHARACTER LIMITS -->
     <div class="modal fade" id="createEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -440,7 +440,19 @@
                                 <i class="fas fa-heading me-1 text-primary"></i>Title 
                                 <span class="text-danger">*</span>
                             </label>
-                            <input type="text" name="title" class="form-control" placeholder="Enter event title" required>
+                            <div class="input-group">
+                                <input type="text" name="title" id="create_title" class="form-control" 
+                                    placeholder="Enter event title" 
+                                     maxlength="100" required>
+                                <span class="input-group-text">
+                                    <small><span id="create_title_count">0</span>/100</small>
+                                </span>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Clear and descriptive titles work best
+                            </small>
+                            <div class="invalid-feedback d-block" id="create_title_feedback" style="display: none;"></div>
                         </div>
 
                         <!-- Description -->
@@ -449,7 +461,19 @@
                                 <i class="fas fa-align-left me-1 text-primary"></i>Description 
                                 <span class="text-danger">*</span>
                             </label>
-                            <textarea name="description" class="form-control" rows="4" placeholder="Enter event description" required></textarea>
+                            <textarea name="description" id="create_description" class="form-control" 
+                                rows="4" placeholder="Enter event description" 
+                                maxlength="1000" required></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Include key event details
+                                </small>
+                                <small class="text-muted">
+                                    <span id="create_description_count">0</span>/1000
+                                </small>
+                            </div>
+                            <div class="invalid-feedback d-block" id="create_description_feedback" style="display: none;"></div>
                         </div>
 
                         <!-- Category and Status Row -->
@@ -459,19 +483,20 @@
                                     <i class="fas fa-tag me-1 text-primary"></i>Category 
                                     <span class="text-danger">*</span>
                                 </label>
-                                <select name="category" class="form-select" required>
+                                <select name="category" id="create_category" class="form-select" required>
                                     <option value="">Select category...</option>
                                     <option value="announcement">Announcement</option>
                                     <option value="ongoing">Ongoing</option>
                                     <option value="upcoming">Upcoming</option>
                                     <option value="past">Past</option>
                                 </select>
+                                <div class="invalid-feedback d-block" id="create_category_feedback" style="display: none;"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-toggle-on me-1 text-primary"></i>Status
                                 </label>
-                                <select name="is_active" class="form-select">
+                                <select name="is_active" id="create_is_active" class="form-select">
                                     <option value="0">Inactive</option>
                                     <option value="1" selected>Active</option>
                                 </select>
@@ -484,13 +509,17 @@
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
                                 </label>
-                                <input type="text" name="date" class="form-control" placeholder="e.g., November 15, 2025 | 6:00 AM">
+                                <input type="text" name="date" id="create_date" class="form-control" 
+                                    placeholder="e.g., November 15, 2025 | 6:00 AM" maxlength="100">
+                                <small class="text-muted d-block mt-2">Format: Month Day, Year | Time</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-map-marker-alt me-1 text-primary"></i>Location
                                 </label>
-                                <input type="text" name="location" class="form-control" placeholder="Enter event location">
+                                <input type="text" name="location" id="create_location" class="form-control" 
+                                    placeholder="Enter event location (max 150 characters)" maxlength="150">
+                                <small class="text-muted d-block mt-2">Building, venue, or address</small>
                             </div>
                         </div>
 
@@ -499,10 +528,15 @@
                             <label class="form-label fw-semibold">
                                 <i class="fas fa-image me-1 text-primary"></i>Event Image
                             </label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>Max 10MB (JPEG, PNG, GIF, WebP)
+                            <input type="file" name="image" id="create_image" class="form-control" accept="image/*">
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Maximum 10MB Supported formats: JPEG, PNG, GIF, WebP
                             </small>
+                            <div id="create_image_preview" class="mt-3" style="display: none;">
+                                <small class="text-muted d-block mb-2">Preview:</small>
+                                <img id="create_image_preview_img" src="" alt="Preview" class="rounded" 
+                                    style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                            </div>
                         </div>
 
                         <hr class="my-4">
@@ -518,12 +552,15 @@
                                 <div class="detail-row mb-3">
                                     <div class="row g-2">
                                         <div class="col-md-5">
-                                            <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name (e.g., Speaker, Duration)">
+                                            <input type="text" class="form-control form-control-sm detail-key" 
+                                                placeholder="Detail name (e.g., Speaker, Duration)" maxlength="50">
                                         </div>
                                         <div class="col-md-7">
                                             <div class="input-group input-group-sm">
-                                                <input type="text" class="form-control detail-value" placeholder="Detail value">
-                                                <button type="button" class="btn btn-outline-danger" onclick="removeDetailRow(this)" title="Remove this detail">
+                                                <input type="text" class="form-control detail-value" 
+                                                    placeholder="Detail value (max 200 characters)" maxlength="200">
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                    onclick="removeDetailRow(this)" title="Remove this detail">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
@@ -540,11 +577,11 @@
 
                     <div class="modal-footer bg-light">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i></i>Cancel
+                            <i class="fas fa-times me-1"></i>Cancel
                         </button>
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn btn-success" id="create_submit_btn">
                             <span class="btn-text">
-                                <i></i>Create Event
+                                <i class="fas fa-save me-1"></i>Create Event
                             </span>
                             <span class="btn-loader" style="display: none;">
                                 <span class="spinner-border spinner-border-sm me-2"></span>Creating...
@@ -1628,6 +1665,65 @@
             }
         });
 
+        // CHARACTER COUNTER FOR TITLE
+        document.getElementById('create_title').addEventListener('input', function() {
+            document.getElementById('create_title_count').textContent = this.value.length;
+            validateTitle();
+        });
+
+        // CHARACTER COUNTER FOR DESCRIPTION
+        document.getElementById('create_description').addEventListener('input', function() {
+            document.getElementById('create_description_count').textContent = this.value.length;
+            validateDescription();
+        });
+
+        // IMAGE PREVIEW
+        document.getElementById('create_image').addEventListener('change', function(e) {
+            const preview = document.getElementById('create_image_preview');
+            const previewImg = document.getElementById('create_image_preview_img');
+            const file = e.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImg.src = event.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // VALIDATION FUNCTIONS WITH FRIENDLY MESSAGES
+        function validateTitle() {
+            const title = document.getElementById('create_title');
+            
+            if (title.value.length === 0) {
+                return false;
+            }
+            
+            if (title.value.length < 20) {
+                return false;
+            }
+            
+            return true;
+        }
+
+        function validateDescription() {
+            const description = document.getElementById('create_description');
+            
+            if (description.value.length === 0) {
+                return false;
+            }
+            
+            if (description.value.length < 50) {
+                return false;
+            }
+            
+            return true;
+        }
+
 
         // ARCHIVE EVENT FORM
         document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
@@ -1946,7 +2042,7 @@
                 statusElement.innerHTML = statusText;
             }
         }
-
+        
         console.log('✅ Admin page loaded successfully');
     </script>
 
