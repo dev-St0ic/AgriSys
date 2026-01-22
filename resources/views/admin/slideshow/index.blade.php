@@ -1214,29 +1214,102 @@
             $('#editSlideModal').modal('show');
         }
 
-   // Toggle slide status with toast notification
-    function toggleStatus(slideId) {
-        $.ajax({
-            url: `/admin/slideshow/${slideId}/toggle-status`,
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    showToast('success', response.message);
-                    setTimeout(() => {
-                        location.reload();
-                    }, 800);
+        $(document).ready(function() {
+            // Handle edit slide form submission
+            $('#editSlideForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const slideId = this.action.split('/').pop();
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+
+                // Explicitly set is_active value (checkbox won't send if unchecked)
+                formData.delete('is_active');
+                if ($('#editIsActive').is(':checked')) {
+                    formData.append('is_active', '1');
                 } else {
-                    showToast('error', response.message);
+                    formData.append('is_active', '0');
                 }
-            },
-            error: function() {
-                showToast('error', 'An error occurred while updating the slide status.');
-            }
+
+                // Show loading state
+                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+
+                $.ajax({
+                    url: `/admin/slideshow/${slideId}`,
+                    method: 'POST',  // Laravel treats POST with _method=PUT as PUT
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('success', response.message || 'Slideshow image updated successfully!');
+                            $('#editSlideModal').modal('hide');
+                            
+                            // Reload page after a short delay
+                            setTimeout(() => {
+                                location.reload();
+                            }, 800);
+                        } else {
+                            showToast('error', response.message || 'Update failed');
+                            submitBtn.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'An error occurred while updating the slide.';
+
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors).flat().join(', ');
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 0) {
+                            errorMessage = 'Network error. Please check your connection.';
+                        }
+
+                        showToast('error', errorMessage);
+                        
+                        // Reset button
+                        submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+
+            // Update status toggle text when edit modal checkbox changes
+            $('#editIsActive').change(function() {
+                const statusText = $(this).is(':checked') ?
+                    'Active - Will appear in slideshow' :
+                    'Inactive - Hidden from slideshow';
+                $('.status-text-edit').text(statusText);
+            });
         });
-    }
+
+        // Toggle slide status with toast notification
+        function toggleStatus(slideId) {
+            $.ajax({
+                url: `/admin/slideshow/${slideId}/toggle-status`,
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('success', response.message);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 800);
+                    } else {
+                        showToast('error', response.message);
+                    }
+                },
+                error: function() {
+                    showToast('error', 'An error occurred while updating the slide status.');
+                }
+            });
+        }
 
         // Toast notification system
         function showToast(type, message) {

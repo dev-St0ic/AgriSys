@@ -32,7 +32,11 @@ class SlideshowController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         try {
@@ -58,12 +62,15 @@ class SlideshowController extends Controller
                 'is_active' => $slideshow->is_active
             ]);
 
-            return redirect()->route('admin.slideshow.index')
-                ->with('success', 'Slideshow image uploaded successfully!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Slideshow image added successfully!'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Error uploading slideshow image: ' . $e->getMessage())
-                ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading slideshow image: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -82,7 +89,11 @@ class SlideshowController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         try {
@@ -113,12 +124,15 @@ class SlideshowController extends Controller
                 'is_active' => $slideshow_image->is_active
             ]);
 
-            return redirect()->route('admin.slideshow.index')
-                ->with('success', 'Slideshow image updated successfully!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Slideshow image updated successfully!'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Error updating slideshow image: ' . $e->getMessage())
-                ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating slideshow image: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -129,8 +143,18 @@ class SlideshowController extends Controller
     {
         $slideshow_image = SlideshowImage::findOrFail($id);
         try {
+            // Delete the image file from storage
+            if ($slideshow_image->image_path && Storage::disk('public')->exists($slideshow_image->image_path)) {
+                Storage::disk('public')->delete($slideshow_image->image_path);
+            }
+
             $title = $slideshow_image->title;
             $slideshow_image->delete();
+
+            // Log activity
+            $this->logActivity('deleted', 'SlideshowImage', $id, [
+                'title' => $title
+            ]);
             
             return response()->json([
                 'success' => true,
@@ -180,6 +204,12 @@ class SlideshowController extends Controller
         try {
             $slideshow_image->update(['is_active' => !$slideshow_image->is_active]);
             $status = $slideshow_image->is_active ? 'activated' : 'deactivated';
+
+            // Log activity
+            $this->logActivity('updated', 'SlideshowImage', $slideshow_image->id, [
+                'title' => $slideshow_image->title,
+                'is_active' => $slideshow_image->is_active
+            ]);
 
             return response()->json([
                 'success' => true,
