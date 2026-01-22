@@ -224,14 +224,15 @@
     </div>
     </div>
 
-    <!-- New Improved Add Slide Modal -->
+    <!-- UPDATED: New Improved Add Slide Modal with Centered Title and Colored Icons -->
     <div class="modal fade" id="newAddSlideModal" tabindex="-1" aria-labelledby="newAddSlideModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="newAddSlideModalLabel">
-                        <i class="fas fa-plus-circle me-2"></i>Add New Slideshow Image
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="newAddSlideModalLabel">
+                        <i></i>Add New Slideshow Image
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -250,7 +251,7 @@
                             <div class="col-lg-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-image me-2"></i>Image Upload</h6>
+                                        <h6 class="mb-0"><i class="fas fa-image me-2" style="color: #007bff;"></i>Image Upload</h6>
                                     </div>
                                     <div class="card-body">
                                         <!-- Drag & Drop Area -->
@@ -301,12 +302,12 @@
                             <div class="col-lg-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Slide Details</h6>
+                                        <h6 class="mb-0"><i class="fas fa-edit me-2" style="color: #28a745;"></i>Slide Details</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label for="newTitle" class="form-label">
-                                                <i class="fas fa-heading me-1"></i>Title
+                                                <i class="fas fa-heading me-1" style="color: #007bff;"></i>Title
                                             </label>
                                             <input type="text" class="form-control" id="newTitle" name="title"
                                                 placeholder="Enter slide title (optional)" maxlength="255">
@@ -315,7 +316,7 @@
 
                                         <div class="mb-3">
                                             <label for="newDescription" class="form-label">
-                                                <i class="fas fa-align-left me-1"></i>Description
+                                                <i class="fas fa-align-left me-1" style="color: #007bff;"></i>Description
                                             </label>
                                             <textarea class="form-control" id="newDescription" name="description" rows="4"
                                                 placeholder="Enter slide description (optional)" maxlength="1000"></textarea>
@@ -328,7 +329,7 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label for="newOrder" class="form-label">
-                                                        <i class="fas fa-sort-numeric-up me-1"></i>Display Order
+                                                        <i class="fas fa-sort-numeric-up me-1" style="color: #007bff;"></i>Display Order
                                                     </label>
                                                     <input type="number" class="form-control" id="newOrder"
                                                         name="order" value="{{ $slides->max('order') + 1 }}"
@@ -339,7 +340,7 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">
-                                                        <i class="fas fa-toggle-on me-1"></i>Status
+                                                        <i class="fas fa-toggle-on me-1" style="color: #28a745;"></i>Status
                                                     </label>
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox" id="newIsActive"
@@ -357,7 +358,7 @@
                                         <div class="card bg-light">
                                             <div class="card-body">
                                                 <h6 class="card-title">
-                                                    <i class="fas fa-cog me-1"></i>Advanced Options
+                                                    <i class="fas fa-cog me-1" style="color: #ffc107;"></i>Advanced Options
                                                 </h6>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="optimizeImage">
@@ -382,7 +383,7 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
+                        <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" id="saveSlideBtn" disabled>
                         <i class="fas fa-save me-2"></i>
