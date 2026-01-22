@@ -307,17 +307,30 @@
                                             <i class="fas fa-sync"></i> Change Status
                                         </button>
 
-                                         <button class="btn btn-sm btn-outline-success"
-                                            onclick="showEditUserModal({{ $registration->id }})"
-                                            title="Edit Profile Information">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-
-
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteRegistration({{ $registration->id }})" title="Delete">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
+                                        <div class="btn-group" role="group">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)"
+                                                        onclick="showEditUserModal({{ $registration->id }})">
+                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0)"
+                                                        onclick="deleteRegistration({{ $registration->id }})">
+                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
