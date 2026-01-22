@@ -121,7 +121,7 @@
 
                         <div class="col-md-2">
                             <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
-                                <i class="fas fa-times me-1"></i> Clear
+                                <i></i> Clear
                             </a>
                         </div>
                     </div>
@@ -577,7 +577,7 @@
 
                     <div class="modal-footer bg-light">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-1"></i>Cancel
+                            <i></i>Cancel
                         </button>
                         <button type="submit" class="btn btn-success" id="create_submit_btn">
                             <span class="btn-text">
