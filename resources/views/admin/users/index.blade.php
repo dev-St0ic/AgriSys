@@ -143,12 +143,12 @@
                 </h6>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('admin.registrations.export') }}" class="btn btn-success btn-sm">
-                    <i class="fas fa-download"></i> Export CSV
-                </a>
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddUserModal()">
                     <i class="fas fa-user-plus me-2"></i>Add User
                 </button>
+                <a href="{{ route('admin.registrations.export') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-download"></i> Export CSV
+                </a>
             </div>
         </div>
 
@@ -301,17 +301,18 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-warning"
-                                            onclick="showEditUserModal({{ $registration->id }})"
-                                            title="Edit Profile Information">
-                                            <i class="fas fa-pencil-alt"></i> Edit
-                                        </button>
-
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
+
+                                         <button class="btn btn-sm btn-outline-success"
+                                            onclick="showEditUserModal({{ $registration->id }})"
+                                            title="Edit Profile Information">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+
 
                                         <button class="btn btn-sm btn-outline-danger"
                                             onclick="deleteRegistration({{ $registration->id }})" title="Delete">
