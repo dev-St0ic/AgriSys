@@ -24,6 +24,18 @@
             </div>
         </div>
 
+         <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div class="stat-number mb-2" id="approved-count">{{ $stats['approved'] ?? 0 }}</div>
+                    <div class="stat-label text-success">Approved</div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
@@ -31,7 +43,7 @@
                         <i class="fas fa-user-clock text-warning"></i>
                     </div>
                     <div class="stat-number mb-2" id="unverified-count">{{ $stats['unverified'] ?? 0 }}</div>
-                    <div class="stat-label text-warning">Unverified (Basic Signup)</div>
+                    <div class="stat-label text-warning">Unverified <br>(Basic Signup)</div>
                 </div>
             </div>
         </div>
@@ -44,18 +56,6 @@
                     </div>
                     <div class="stat-number mb-2" id="pending-count">{{ $stats['pending'] ?? 0 }}</div>
                     <div class="stat-label text-info">Pending Review</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div class="stat-number mb-2" id="approved-count">{{ $stats['approved'] ?? 0 }}</div>
-                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -106,12 +106,12 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control form-control-sm"
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="search" class="form-control"
                                 placeholder="Search username, name..." value="{{ request('search') }}"
                                 oninput="autoSearch()" id="searchInput">
-                            <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
+                            <button class="btn btn-outline-secondary" type="submit" title="Search"
                                 id="searchButton">
                                 <i class="fas fa-search"></i>
                             </button>
@@ -123,9 +123,9 @@
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
                         </button>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                         <a href="{{ route('admin.registrations.index') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i>Clear
                         </a>
                     </div>
                 </div>
@@ -143,12 +143,12 @@
                 </h6>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('admin.registrations.export') }}" class="btn btn-success btn-sm">
-                    <i class="fas fa-download"></i> Export CSV
-                </a>
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddUserModal()">
                     <i class="fas fa-user-plus me-2"></i>Add User
                 </button>
+                <a href="{{ route('admin.registrations.export') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-download"></i> Export CSV
+                </a>
             </div>
         </div>
 
@@ -160,7 +160,7 @@
                             <th class="text-center">Registration Date</th>
                             <th class="text-center">Username</th>
                             <th class="text-center">Full Name</th>
-                            <th class="text-center">User Type</th>
+                            <th class="text-center">Sector</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Documents</th>
                             <th class="text-center">Actions</th>
@@ -301,22 +301,36 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-warning"
-                                            onclick="showEditUserModal({{ $registration->id }})"
-                                            title="Edit Profile Information">
-                                            <i class="fas fa-pencil-alt"></i> Edit
-                                        </button>
-
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteRegistration({{ $registration->id }})" title="Delete">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
+                                        <div class="btn-group" role="group">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)"
+                                                        onclick="showEditUserModal({{ $registration->id }})">
+                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0)"
+                                                        onclick="deleteRegistration({{ $registration->id }})">
+                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -397,36 +411,45 @@
         </div>
     </div>
 
-    <!-- Add User Modal - UPDATED WITH DOCUMENT UPLOADS -->
+    <!-- Add User Modal - ENHANCED UI (Consistent with Event Modal) -->
     <div class="modal fade" id="addUserModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-user-plus me-2"></i>Add New User
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Add New User
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addUserForm">
                         <!-- Account Credentials -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-lock me-2"></i>Account Credentials</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-lock me-2"></i>Account Credentials
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="add_username" class="form-label">Username <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_username" class="form-label fw-semibold">
+                                            Username 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="add_username" required
-                                            pattern="^[a-zA-Z0-9_]{3,50}$" minlength="3" maxlength="50">
-                                        <div class="form-text">3-50 characters, letters, numbers, and underscores only
-                                        </div>
+                                            pattern="^[a-zA-Z0-9_]{3,50}$" minlength="3" maxlength="50"
+                                            placeholder="3-50 characters">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Letters, numbers, and underscores only
+                                        </small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="add_user_type" class="form-label">Sector <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_user_type" class="form-label fw-semibold">
+                                            Sector 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="add_user_type" required>
                                             <option value="" disabled selected>Select sector</option>
                                             <option value="farmer">Farmer</option>
@@ -437,28 +460,45 @@
                                             <option value="government-employee">Government Employee</option>
                                         </select>
                                     </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="add_sex" class="form-label fw-semibold">
+                                            Sex 
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="add_sex" name="sex" required>
+                                            <option value="">Select Sex</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_password" class="form-label">Password <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_password" class="form-label fw-semibold">
+                                            Password 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="add_password" required
-                                                minlength="8">
+                                                minlength="8" placeholder="Min 8 characters">
                                             <button class="btn btn-outline-secondary" type="button"
                                                 onclick="toggleAddPasswordVisibility('add_password')">
                                                 <i class="fas fa-eye" id="add_password_icon"></i>
                                             </button>
                                         </div>
-                                        <div class="form-text">Minimum 8 characters, must include uppercase, lowercase,
-                                            number, and special character</div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Uppercase, lowercase, number, and special character required
+                                        </small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_password_confirmation" class="form-label">Confirm Password <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_password_confirmation" class="form-label fw-semibold">
+                                            Confirm Password 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" id="add_password_confirmation"
-                                                required>
+                                                required placeholder="Re-enter password">
                                             <button class="btn btn-outline-secondary" type="button"
                                                 onclick="toggleAddPasswordVisibility('add_password_confirmation')">
                                                 <i class="fas fa-eye" id="add_password_confirmation_icon"></i>
@@ -470,30 +510,41 @@
                         </div>
 
                         <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-id-card me-2"></i>Personal Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-id-card me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="add_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_first_name" class="form-label fw-semibold">
+                                            First Name 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="add_first_name" required
-                                            maxlength="100">
+                                            maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="add_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="add_middle_name" maxlength="100">
+                                        <label for="add_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
+                                        <input type="text" class="form-control" id="add_middle_name" maxlength="100"
+                                            placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="add_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_last_name" class="form-label fw-semibold">
+                                            Last Name 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="add_last_name" required
-                                            maxlength="100">
+                                            maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="add_name_extension" class="form-label">Extension</label>
+                                        <label for="add_name_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="add_name_extension" name="name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -507,39 +558,40 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="add_date_of_birth" class="form-label">Date of Birth <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_date_of_birth" class="form-label fw-semibold">
+                                            Date of Birth 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="date" class="form-control" id="add_date_of_birth" required>
-                                    </div>
-                                      <div class="col-md-4 mb-3">
-                                        <label for="add_sex" class="form-label">Sex <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="add_sex" name="sex" required>
-                                            <option value="">Select Sex</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                        </select>
+                                        <small class="text-muted d-block mt-2">Must be at least 18 years old</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="add_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_contact_number" class="form-label fw-semibold">
+                                            Contact Number 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="tel" class="form-control" id="add_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                        <small class="text-muted d-block mt-2">09XXXXXXXXX or +639XXXXXXXXX</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Address Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Address Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Address Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_barangay" class="form-label fw-semibold">
+                                            Barangay 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="add_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -572,30 +624,39 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_complete_address" class="form-label">Complete Address <span
-                                                class="text-danger">*</span></label>
-                                        <textarea class="form-control" id="add_complete_address" required rows="3" maxlength="500"></textarea>
+                                        <label for="add_complete_address" class="form-label fw-semibold">
+                                            Complete Address 
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control" id="add_complete_address" required rows="3"
+                                            maxlength="500" placeholder="Street address, building, etc."></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Emergency Contact -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-phone-alt me-2"></i>Emergency Contact
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_emergency_contact_name" class="form-label">Emergency Contact Name
-                                            <span class="text-danger">*</span></label>
+                                        <label for="add_emergency_contact_name" class="form-label fw-semibold">
+                                            Contact Name 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="add_emergency_contact_name"
-                                            required maxlength="100">
+                                            required maxlength="100" placeholder="Full name">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_emergency_contact_phone" class="form-label">Emergency Contact
-                                            Phone <span class="text-danger">*</span></label>
+                                        <label for="add_emergency_contact_phone" class="form-label fw-semibold">
+                                            Contact Phone 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="tel" class="form-control" id="add_emergency_contact_phone"
                                             required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                                             maxlength="20">
@@ -605,26 +666,34 @@
                         </div>
 
                         <!-- Document Uploads (REQUIRED) -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Documents <span
-                                        class="badge bg-danger text-white ms-2">REQUIRED</span></h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Documents
+                                    <span class="badge bg-danger text-white ms-2">REQUIRED</span>
+                                </h6>
                             </div>
                             <div class="card-body">
-                                <p class="text-muted small mb-3">Upload documents to associate with this user. Supported
-                                    formats: JPG, PNG (Max 5MB each)</p>
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload documents to associate with this user. Supported formats: JPG, PNG (Max 5MB each)
+                                </p>
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="add_id_front" class="form-label">Government ID - Front <span
-                                                class="text-danger">*</span></label>
+                                    <div class="col-md-6 mb-4">
+                                        <label for="add_id_front" class="form-label fw-semibold">
+                                            Government ID - Front 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="file" class="form-control" id="add_id_front" accept="image/*"
                                             required onchange="previewAddDocument('add_id_front', 'add_id_front_preview')">
                                         <div id="add_id_front_preview" style="margin-top: 10px;"></div>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label for="add_id_back" class="form-label">Government ID - Back <span
-                                                class="text-danger">*</span></label>
+                                    <div class="col-md-6 mb-4">
+                                        <label for="add_id_back" class="form-label fw-semibold">
+                                            Government ID - Back 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="file" class="form-control" id="add_id_back" accept="image/*"
                                             required onchange="previewAddDocument('add_id_back', 'add_id_back_preview')">
                                         <div id="add_id_back_preview" style="margin-top: 10px;"></div>
@@ -633,8 +702,10 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_location_proof" class="form-label">Location/Role Proof <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_location_proof" class="form-label fw-semibold">
+                                            Location/Role Proof 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="file" class="form-control" id="add_location_proof"
                                             accept="image/*" required
                                             onchange="previewAddDocument('add_location_proof', 'add_location_proof_preview')">
@@ -645,97 +716,180 @@
                         </div>
 
                         <!-- Account Status -->
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Account Status</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-toggle-on me-2"></i>Account Status
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_status" class="form-label">Initial Status <span
-                                                class="text-danger">*</span></label>
+                                        <label for="add_status" class="form-label fw-semibold">
+                                            Initial Status 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="add_status" required>
                                             <option value="unverified">Unverified (Basic Signup)</option>
                                             <option value="pending">Pending Review</option>
                                             <option value="approved">Approved</option>
                                         </select>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Choose the initial verification status
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="submitAddUser()">
-                        <i class="fas fa-save me-1"></i>Create User
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="create_submit_btn_user" onclick="submitAddUser()">
+                        <span class="btn-text">
+                            <i class="fas fa-save me-1"></i>Create User
+                        </span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Creating...
+                        </span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Update Status Modal -->
+    <!-- Enhanced Update Status Modal with Consistent Design -->
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Registration Status
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Registration Status
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <!-- Registration Info -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                    <!-- Registration Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Registration Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Username:</strong> <span id="updateRegUsername"></span></p>
-                                    <p class="mb-1"><strong>Full Name:</strong> <span id="updateRegName"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Registration ID</small>
+                                        <strong id="updateRegId" class="text-primary">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Username</small>
+                                        <strong id="updateRegUsername">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Full Name</small>
+                                        <strong id="updateRegName">-</strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>User Type:</strong> <span id="updateRegType"></span></p>
-                                    <p class="mb-1"><strong>Contact Number:</strong> <span id="updateRegContact"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateRegCurrentStatus"></span></p>
-                                    <p class="mb-1"><strong>Documents:</strong> <span id="updateRegDocuments"></span>
-                                    </p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">User Type</small>
+                                        <strong id="updateRegType">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Contact Number</small>
+                                        <strong id="updateRegContact">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Status</small>
+                                        <strong id="updateRegCurrentStatus">-</strong>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <small class="text-muted d-block mb-2">Documents</small>
+                                    <div id="updateRegDocuments">-</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
+                    <!-- Update Form Card -->
                     <form id="updateForm">
                         <input type="hidden" id="updateRegistrationId">
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="unverified">Unverified (Basic Signup)</option>
-                                <option value="pending">Pending Review</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-toggle-on me-2"></i>Update Status
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required>
+                                        <option value="">Choose status...</option>
+                                        <option value="unverified">Unverified (Basic Signup)</option>
+                                        <option value="pending">Pending Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Choose the new verification status for this registration
+                                    </small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..."></textarea>
-                            <div class="form-text">Maximum 1000 characters</div>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="remarks" rows="4" 
+                                    placeholder="Add any notes or comments about this status change..."
+                                    maxlength="1000"
+                                    oninput="updateRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this status update
+                                    </small>
+                                    <small class="text-muted" id="remarksCounter">
+                                        <span id="charCount">0</span>/1000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Change Alert -->
+                        <div class="alert alert-info border-left-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> Your changes will be logged and the user will be notified of the status update.
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">Update
-                        Status</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
+                    </button>
                 </div>
             </div>
         </div>
@@ -746,8 +900,8 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-user me-2"></i>Complete Registration Details
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Complete Registration Details
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -994,8 +1148,8 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -1943,6 +2097,256 @@
 
         .alert-info {
             border-left-color: #17a2b8;
+        }
+        /* Enhanced modal styling */
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            transition: all 0.2s ease;
+        }
+
+        .card.border-0.bg-light {
+            border: 1px solid #e9ecef !important;
+        }
+
+        .card.border-0.bg-light:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header.bg-white {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+        }
+
+        .form-label {
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .form-label .text-danger {
+            margin-left: 2px;
+            font-weight: 600;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+        }
+
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+        }
+
+        .form-control.is-valid,
+        .form-select.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
+        }
+
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+        }
+
+        /* Document preview styling */
+        #add_id_front_preview,
+        #add_id_back_preview,
+        #add_location_proof_preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #add_id_front_preview img,
+        #add_id_back_preview img,
+        #add_location_proof_preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 0.375rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-preview-item {
+            text-align: center;
+        }
+
+        .document-preview-item p {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6c757d;
+            word-break: break-word;
+        }
+        /* update modal */
+        #updateModal .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.5rem;
+        }
+
+        #updateModal .modal-body {
+            padding: 1.5rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        #updateModal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+        }
+
+        #updateModal .card {
+            border: 1px solid #e9ecef !important;
+            transition: all 0.2s ease;
+        }
+
+        #updateModal .card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        #updateModal .card-header.bg-white {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+        }
+
+        #updateModal .form-label {
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        #updateModal .form-label .text-danger {
+            margin-left: 2px;
+            font-weight: 600;
+        }
+
+        #updateModal .form-select,
+        #updateModal .form-control {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            transition: all 0.2s ease;
+        }
+
+        #updateModal .form-select:focus,
+        #updateModal .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+        }
+
+        #updateModal .form-control.is-invalid,
+        #updateModal .form-select.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+        }
+
+        #updateModal .form-control.is-valid,
+        #updateModal .form-select.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
+        }
+
+        #updateModal .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        #updateModal .alert {
+            border-left: 4px solid;
+            margin-bottom: 0;
+        }
+
+        #updateModal .alert-info {
+            border-left-color: #17a2b8;
+        }
+
+        #updateModal .border-left-info {
+            border-left-color: #17a2b8 !important;
+        }
+
+        #updateModal textarea {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            resize: vertical;
+        }
+
+        #remarksCounter {
+            font-weight: 500;
+        }
+
+        /* Status change indicator styling */
+        .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        .change-indicator {
+            position: relative;
+        }
+
+        .change-indicator.changed::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 1;
         }
     </style>
 @endsection
@@ -3344,7 +3748,7 @@
             const input = document.getElementById('add_contact_number');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
 
-            // Remove existing feedback
+            // Remove existing feedback temporarily
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
 
@@ -3352,20 +3756,111 @@
                 return;
             }
 
-            // Philippine mobile number validation (09XXXXXXXXX or +639XXXXXXXXX)
-            const phoneRegex = /^(\+639|09)\d{9}$/;
+            // Philippine mobile number validation (09XXXXXXXXX)
+            const phoneRegex = /^09\d{9}$/;
 
             if (!phoneRegex.test(contactNumber.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
 
-            input.classList.add('is-valid');
             return true;
+        }
+        /**
+         * Real-time validation for contact number (admin) - with live duplicate check
+         */
+        document.getElementById('add_contact_number')?.addEventListener('input', function() {
+            validateAddContactNumber(this.value);
+            // Check for duplicates on input
+            if (this.value.length === 11) {
+                validateAddContactNumberWithDuplicate(this.value);
+            }
+        });
+
+        document.getElementById('add_contact_number')?.addEventListener('blur', function() {
+            validateAddContactNumberWithDuplicate(this.value);
+        });
+
+        let contactNumberCheckTimeout;
+
+        function validateAddContactNumber(contactNumber) {
+            const input = document.getElementById('add_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+
+            const phoneRegex = /^09\d{9}$/;
+
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateAddContactNumberWithDuplicate(contactNumber) {
+            clearTimeout(contactNumberCheckTimeout);
+            const input = document.getElementById('add_contact_number');
+            
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+
+            const phoneRegex = /^09\d{9}$/;
+            
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                return;
+            }
+
+            // Check for duplicates on server with shorter delay for real-time feel
+            contactNumberCheckTimeout = setTimeout(() => {
+                fetch('/auth/check-contact', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                        },
+                        body: JSON.stringify({
+                            contact_number: contactNumber.trim()
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const feedback = input.parentNode.querySelector('.invalid-feedback');
+                        if (feedback) feedback.remove();
+
+                        if (data.available) {
+                            input.classList.remove('is-invalid');
+                            input.classList.add('is-valid');
+                        } else {
+                            input.classList.remove('is-valid');
+                            input.classList.add('is-invalid');
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback d-block';
+                            errorDiv.textContent = 'This contact number is already registered';
+                            input.parentNode.appendChild(errorDiv);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking contact number:', error);
+                    });
+            }, 300); // Reduced from 800ms for faster real-time feedback
         }
 
         /**
@@ -3404,6 +3899,58 @@
 
             input.classList.add('is-valid');
             return true;
+        }
+        /**
+         * Real-time validation for emergency contact phone with duplicate check
+         */
+        document.getElementById('add_emergency_contact_phone')?.addEventListener('input', function() {
+            validateAddEmergencyPhone(this.value);
+            if (this.value.length === 11) {
+                validateAddEmergencyPhoneWithDuplicate(this.value);
+            }
+        });
+
+        document.getElementById('add_emergency_contact_phone')?.addEventListener('blur', function() {
+            validateAddEmergencyPhoneWithDuplicate(this.value);
+        });
+
+        function validateAddEmergencyPhone(phone) {
+            const input = document.getElementById('add_emergency_contact_phone');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!phone || phone.trim() === '') {
+                return;
+            }
+
+            const phoneRegex = /^09\d{9}$/;
+
+            if (!phoneRegex.test(phone.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        function validateAddEmergencyPhoneWithDuplicate(phone) {
+            const input = document.getElementById('add_emergency_contact_phone');
+            const phoneRegex = /^09\d{9}$/;
+            
+            if (!phoneRegex.test(phone.trim())) {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                return;
+            }
+
+            input.classList.add('is-valid');
         }
 
         /**
@@ -3702,7 +4249,7 @@
             }
 
             // Find the submit button (the one that triggered this function)
-            const submitBtn = document.querySelector('#addUserModal .btn-success');
+            const submitBtn = document.getElementById('create_submit_btn_user');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
             submitBtn.disabled = true;
@@ -4573,6 +5120,85 @@
                     capitalizeEditName(e.target);
                 }
             });
+        });
+
+          /**
+         * Update remarks character counter
+         */
+        function updateRemarksCounter() {
+            const textarea = document.getElementById('remarks');
+            const charCount = document.getElementById('charCount');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    charCount.parentElement.classList.add('text-warning');
+                    charCount.parentElement.classList.remove('text-muted');
+                } else {
+                    charCount.parentElement.classList.remove('text-warning');
+                    charCount.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        /**
+         * Check for changes and update button state
+         */
+        function checkForChanges() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+
+            if (!statusSelect || !remarksTextarea || !updateButton) return;
+
+            if (!statusSelect.dataset.originalStatus) return;
+
+            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+            statusSelect.classList.toggle('form-changed', statusChanged);
+            statusSelect.parentElement.classList.toggle('change-indicator', true);
+            statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+            remarksTextarea.classList.toggle('form-changed', remarksChanged);
+            remarksTextarea.parentElement.classList.toggle('change-indicator', true);
+            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+            // Update button state
+            if (!statusChanged && !remarksChanged) {
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>No Changes';
+                updateButton.classList.add('no-changes');
+                updateButton.disabled = false;
+            } else {
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Status';
+                updateButton.classList.remove('no-changes');
+                updateButton.disabled = false;
+            }
+        }
+
+        // Add event listeners when modal is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateModal = document.getElementById('updateModal');
+            
+            if (updateModal) {
+                updateModal.addEventListener('shown.bs.modal', function() {
+                    const statusSelect = document.getElementById('newStatus');
+                    const remarksTextarea = document.getElementById('remarks');
+
+                    if (statusSelect) {
+                        statusSelect.addEventListener('change', checkForChanges);
+                    }
+
+                    if (remarksTextarea) {
+                        remarksTextarea.addEventListener('input', checkForChanges);
+                        remarksTextarea.addEventListener('input', updateRemarksCounter);
+                        // Initialize counter on modal show
+                        updateRemarksCounter();
+                    }
+                });
+            }
         });
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');

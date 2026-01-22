@@ -121,7 +121,7 @@
 
                         <div class="col-md-2">
                             <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
-                                <i class="fas fa-times me-1"></i> Clear
+                                <i></i> Clear
                             </a>
                         </div>
                     </div>
@@ -227,7 +227,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancel
+                            <i></i>Cancel
                         </button>
                     </div>
                 </div>
@@ -242,13 +242,13 @@
                     <i class="fas fa-calendar-day me-2"></i>Events List
                 </h6>
                 <div class="btn-group gap-2">
-                    <a href="{{ route('admin.event.archived') }}" class="btn btn-info btn-sm me-2">
-                        <i class="fas fa-archive me-2"></i>View Archive ({{ $stats['archived'] ?? 0 }})
-                    </a>
-                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                         data-bs-target="#createEventModal">
                         <i class="fas fa-plus me-2"></i>Add Event
                     </button>
+                    <a href="{{ route('admin.event.archived') }}" class="btn btn-info btn-sm me-2">
+                        <i class="fas fa-archive me-2"></i>View Archive ({{ $stats['archived'] ?? 0 }})
+                    </a>
                 </div>
             </div>
 
@@ -421,97 +421,171 @@
         </div>
     </div>
 
-    <!-- CREATE EVENT MODAL -->
+    <!-- CREATE EVENT MODAL - ENHANCED WITH CHARACTER LIMITS -->
     <div class="modal fade" id="createEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create New Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Create New Event
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="createEventForm" enctype="multipart/form-data" novalidate>
                     @csrf
                     <div class="modal-body">
+                        <!-- Title -->
                         <div class="mb-3">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" required>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-heading me-1 text-primary"></i>Title 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="text" name="title" id="create_title" class="form-control" 
+                                    placeholder="Enter event title" 
+                                     maxlength="100" required>
+                                <span class="input-group-text">
+                                    <small><span id="create_title_count">0</span>/100</small>
+                                </span>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Clear and descriptive titles work best
+                            </small>
+                            <div class="invalid-feedback d-block" id="create_title_feedback" style="display: none;"></div>
                         </div>
 
+                        <!-- Description -->
                         <div class="mb-3">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea name="description" class="form-control" rows="4" required></textarea>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-1 text-primary"></i>Description 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="description" id="create_description" class="form-control" 
+                                rows="4" placeholder="Enter event description" 
+                                maxlength="1000" required></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Include key event details
+                                </small>
+                                <small class="text-muted">
+                                    <span id="create_description_count">0</span>/1000
+                                </small>
+                            </div>
+                            <div class="invalid-feedback d-block" id="create_description_feedback" style="display: none;"></div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Category <span class="text-danger">*</span></label>
-                                <select name="category" class="form-select" required>
+                        <!-- Category and Status Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-1 text-primary"></i>Category 
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <select name="category" id="create_category" class="form-select" required>
                                     <option value="">Select category...</option>
                                     <option value="announcement">Announcement</option>
                                     <option value="ongoing">Ongoing</option>
                                     <option value="upcoming">Upcoming</option>
                                     <option value="past">Past</option>
                                 </select>
+                                <div class="invalid-feedback d-block" id="create_category_feedback" style="display: none;"></div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
-                                <select name="is_active" class="form-select">
-                                    <option value="1" selected>Active</option>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-toggle-on me-1 text-primary"></i>Status
+                                </label>
+                                <select name="is_active" id="create_is_active" class="form-select">
                                     <option value="0">Inactive</option>
+                                    <option value="1" selected>Active</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Date/Time</label>
-                            <input type="text" name="date" class="form-control"
-                                placeholder="e.g., November 15, 2025 | 6:00 AM">
+                        <!-- Date and Location Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
+                                </label>
+                                <input type="text" name="date" id="create_date" class="form-control" 
+                                    placeholder="e.g., November 15, 2025 | 6:00 AM" maxlength="100">
+                                <small class="text-muted d-block mt-2">Format: Month Day, Year | Time</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-map-marker-alt me-1 text-primary"></i>Location
+                                </label>
+                                <input type="text" name="location" id="create_location" class="form-control" 
+                                    placeholder="Enter event location (max 150 characters)" maxlength="150">
+                                <small class="text-muted d-block mt-2">Building, venue, or address</small>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" name="location" class="form-control" placeholder="Event location">
+                        <!-- Image Upload -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image me-1 text-primary"></i>Event Image
+                            </label>
+                            <input type="file" name="image" id="create_image" class="form-control" accept="image/*">
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Maximum 10MB Supported formats: JPEG, PNG, GIF, WebP
+                            </small>
+                            <div id="create_image_preview" class="mt-3" style="display: none;">
+                                <small class="text-muted d-block mb-2">Preview:</small>
+                                <img id="create_image_preview_img" src="" alt="Preview" class="rounded" 
+                                    style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                            </div>
                         </div>
 
+                        <hr class="my-4">
+
+                        <!-- Event Details Section -->
                         <div class="mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Max 5MB (JPEG, PNG, GIF, WebP)</small>
-                        </div>
-
-                        <hr>
-                        <h6 class="mb-3">Event Details (Optional)</h6>
-
-                        <div id="detailsContainer">
-                            <div class="detail-row mb-2">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control form-control-sm detail-key"
-                                            placeholder="Detail name">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control detail-value"
-                                                placeholder="Detail value">
-                                            <button type="button" class="btn btn-outline-danger btn-sm"
-                                                onclick="removeDetailRow(this)">Remove</button>
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-list-ul me-2"></i>Additional Event Details
+                                <span class="badge bg-secondary ms-2">Optional</span>
+                            </h6>
+                            
+                            <div id="detailsContainer">
+                                <div class="detail-row mb-3">
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <input type="text" class="form-control form-control-sm detail-key" 
+                                                placeholder="Detail name (e.g., Speaker, Duration)" maxlength="50">
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control detail-value" 
+                                                    placeholder="Detail value (max 200 characters)" maxlength="200">
+                                                <button type="button" class="btn btn-outline-danger" 
+                                                    onclick="removeDetailRow(this)" title="Remove this detail">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="addDetailRow()">
-                            <i class="fas fa-plus me-1"></i>Add Detail
-                        </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addDetailRow()">
+                                <i class="fas fa-plus me-1"></i>Add Another Detail
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">
-                            <span class="btn-text">Create Event</span>
-                            <span class="btn-loader" style="display: none;"><span
-                                    class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="create_submit_btn">
+                            <span class="btn-text">
+                                <i class="fas fa-save me-1"></i>Create Event
+                            </span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-2"></span>Creating...
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -519,50 +593,104 @@
         </div>
     </div>
 
-    <!-- VIEW EVENT MODAL  -->
+    <!-- VIEW EVENT MODAL -->
     <div class="modal fade" id="viewEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Event Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Event Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="eventDetailsContent">
-                    <div class="text-center">
-                        <div class="spinner-border" role="status">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
+                        <p class="text-muted mt-3">Loading event details...</p>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- EDIT EVENT MODAL -->
+    <!-- Simple Enhanced Image Preview Modal -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-image me-2"></i><span id="previewImageTitle">Image Preview</span>
+                    </h5>
+                    <button type="button" class="btn btn-sm " data-bs-dismiss="modal" style="position: absolute; right: 1rem;">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center">
+                        <img id="previewImage" 
+                            src="" 
+                            alt="Event Image" 
+                            class="img-fluid rounded shadow-sm" 
+                            style="max-height: 550px; object-fit: contain;">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
+                    <a id="downloadBtn" class="btn btn-primary">
+                        <i class="fas fa-download me-2"></i>Download
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- EDIT EVENT MODAL - WITH CONSISTENT DESIGN -->
     <div class="modal fade" id="editEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Edit Event
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editEventForm" enctype="multipart/form-data" novalidate>
                     @csrf
                     @method('PUT')
                     <input type="hidden" id="edit_event_id" name="event_id">
                     <div class="modal-body">
+                        <!-- Title -->
                         <div class="mb-3">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
-                            <input type="text" id="edit_title" name="title" class="form-control" required>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-heading me-1 text-primary"></i>Title 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="edit_title" name="title" class="form-control" placeholder="Enter event title" required>
                         </div>
 
+                        <!-- Description -->
                         <div class="mb-3">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
-                            <textarea id="edit_description" name="description" class="form-control" rows="4" required></textarea>
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-1 text-primary"></i>Description 
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea id="edit_description" name="description" class="form-control" rows="4" placeholder="Enter event description" required></textarea>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                        <!-- Category and Status Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-1 text-primary"></i>Category 
+                                    <span class="text-danger">*</span>
+                                </label>
                                 <select id="edit_category" name="category" class="form-select" required>
                                     <option value="">Select category...</option>
                                     <option value="announcement">Announcement</option>
@@ -571,48 +699,75 @@
                                     <option value="past">Past</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-toggle-on me-1 text-primary"></i>Status
+                                </label>
                                 <select id="edit_is_active" name="is_active" class="form-select">
-                                    <option value="1">Active</option>
                                     <option value="0">Inactive</option>
+                                    <option value="1">Active</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Date/Time</label>
-                            <input type="text" id="edit_date" name="date" class="form-control">
+                        <!-- Date and Location Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
+                                </label>
+                                <input type="text" id="edit_date" name="date" class="form-control" placeholder="e.g., November 15, 2025 | 6:00 AM">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-map-marker-alt me-1 text-primary"></i>Location
+                                </label>
+                                <input type="text" id="edit_location" name="location" class="form-control" placeholder="Enter event location">
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" id="edit_location" name="location" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <div id="current_event_image" class="mb-2"></div>
-                            <label class="form-label">Change Image</label>
+                        <!-- Image Upload -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-image me-1 text-primary"></i>Event Image
+                            </label>
+                            <div id="current_event_image" class="mb-3"></div>
                             <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Max 5MB (JPEG, PNG, GIF, WebP)</small>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Max 10MB (JPEG, PNG, GIF, WebP)
+                            </small>
                         </div>
 
-                        <hr>
-                        <h6 class="mb-3">Event Details</h6>
+                        <hr class="my-4">
 
-                        <div id="editDetailsContainer"></div>
+                        <!-- Event Details Section -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-list-ul me-2"></i>Additional Event Details
+                                <span class="badge bg-secondary ms-2">Optional</span>
+                            </h6>
+                            
+                            <div id="editDetailsContainer">
+                                <!-- Details will be populated dynamically -->
+                            </div>
 
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="addDetailRow('edit')">
-                            <i class="fas fa-plus me-1"></i>Add Detail
-                        </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addDetailRow('edit')">
+                                <i class="fas fa-plus me-1"></i>Add Another Detail
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i></i>Cancel
+                        </button>
                         <button type="submit" class="btn btn-primary">
-                            <span class="btn-text">Update Event</span>
-                            <span class="btn-loader" style="display: none;"><span
-                                    class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+                            <span class="btn-text">
+                                <i></i>Update Event
+                            </span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="spinner-border spinner-border-sm me-2"></span>Updating...
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -625,7 +780,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title">Archive Event</h5>
+                    <h5 class="modal-title w-100 text-center">Archive Event</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="archiveEventForm">
@@ -658,7 +813,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Permanently Delete Event</h5>
+                    <h5 class="modal-title w-100 text-center">Permanently Delete Event</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -807,19 +962,20 @@
         }
 
         function addDetailRow(type = 'create') {
-            const container = type === 'create' ? document.getElementById('detailsContainer') : document.getElementById(
-                'editDetailsContainer');
+            const container = type === 'create' ? document.getElementById('detailsContainer') : document.getElementById('editDetailsContainer');
             const row = document.createElement('div');
-            row.className = 'detail-row mb-2';
+            row.className = 'detail-row mb-3';
             row.innerHTML = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name (e.g., Speaker, Duration)">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-7">
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control detail-value" placeholder="Detail value">
-                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDetailRow(this)">Remove</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="removeDetailRow(this)" title="Remove this detail">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -950,6 +1106,10 @@
         // View event
         async function viewEvent(eventId) {
             try {
+                // Show modal with loading state
+                const modal = new bootstrap.Modal(document.getElementById('viewEventModal'));
+                modal.show();
+                
                 const response = await fetch(`/admin/events/${eventId}`, {
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -961,69 +1121,169 @@
 
                 const event = data.event;
 
-                // Build details HTML similar to archived page
+                // Build details HTML
                 let detailsHtml = '';
                 if (event.details && Object.keys(event.details).length > 0) {
                     detailsHtml = `
-                    <div class="mb-3">
-                        <h6 class="fw-bold mb-2">Additional Details:</h6>
-                        <dl class="row">
-                `;
-                    for (const [key, value] of Object.entries(event.details)) {
-                        const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ')
-                            .slice(1);
-                        detailsHtml += `
-                        <dt class="col-sm-4">${displayKey}:</dt>
-                        <dd class="col-sm-8">${value}</dd>
+                        <div class="col-12 mt-4">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>Additional Details
+                                    </h6>
+                                    <dl class="row mb-0">
                     `;
+                    for (const [key, value] of Object.entries(event.details)) {
+                        const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
+                        detailsHtml += `
+                            <dt class="col-sm-4 mb-2">${displayKey}:</dt>
+                            <dd class="col-sm-8 mb-2">${value}</dd>
+                        `;
                     }
                     detailsHtml += `
-                        </dl>
-                    </div>
-                `;
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }
 
                 const html = `
-                <div class="row">
-                    <div class="col-md-4">
-                        ${event.image ? `<img src="${event.image}" alt="${event.title}" class="img-fluid rounded">` : '<div class="bg-light p-5 text-center rounded"><i class="fas fa-image fa-3x text-muted"></i></div>'}
-                    </div>
-                    <div class="col-md-8">
-                        <h4>${event.title}</h4>
-                        <p class="text-muted">${event.description}</p>
-                        <dl class="row">
-                            <dt class="col-sm-4">Category:</dt>
-                            <dd class="col-sm-8"><span class="badge bg-info">${event.category_label}</span></dd>
+                    <div class="row g-4">
+                        <!-- Image Section -->
+                        <div class="col-md-4">
+                            ${event.image 
+                                ? `<div class="position-relative" style="cursor: pointer;" onclick="previewEventImage('${event.image}', '${event.title.replace(/'/g, "\\'")}')">
+                                    <img src="${event.image}" alt="${event.title}" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
+                                    <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
+                                        <i class="fas fa-search-plus fa-2x text-white"></i>
+                                    </div>
+                                </div>` 
+                                : `<div class="bg-light rounded shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
+                                    <div class="text-center">
+                                        <i class="fas fa-image fa-4x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No image</p>
+                                    </div>
+                                </div>`
+                            }
+                        </div>
 
-                            <dt class="col-sm-4">Status:</dt>
-                            <dd class="col-sm-8"><span class="badge bg-${event.is_active ? 'success' : 'secondary'}">${event.is_active ? 'Active' : 'Inactive'}</span></dd>
+                        <!-- Details Section -->
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-3">${event.title}</h4>
+                            <p class="text-muted mb-4">${event.description}</p>
 
-                            <dt class="col-sm-4">Display Order:</dt>
-                            <dd class="col-sm-8">${event.display_order || '—'}</dd>
+                            <div class="row g-3">
+                                <!-- Category -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">Category</small>
+                                            <span class="badge bg-info fs-6">${event.category_label}</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <dt class="col-sm-4">Date:</dt>
-                            <dd class="col-sm-8">${event.date || '—'}</dd>
+                                <!-- Status -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">Status</small>
+                                            <span class="badge bg-${event.is_active ? 'success' : 'secondary'} fs-6">
+                                                ${event.is_active ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <dt class="col-sm-4">Location:</dt>
-                            <dd class="col-sm-8">${event.location || '—'}</dd>
+                                <!-- Date -->
+                                ${event.date ? `
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-calendar me-1"></i>Date/Time
+                                            </small>
+                                            <span class="fw-semibold">${event.date}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : ''}
 
-                            <dt class="col-sm-4">Created:</dt>
-                            <dd class="col-sm-8"><small>${new Date(event.created_at).toLocaleDateString()}</small></dd>
+                                <!-- Location -->
+                                ${event.location ? `
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-map-marker-alt me-1"></i>Location
+                                            </small>
+                                            <span class="fw-semibold">${event.location}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : ''}
 
-                            <dt class="col-sm-4">Updated:</dt>
-                            <dd class="col-sm-8"><small>${new Date(event.updated_at).toLocaleDateString()}</small></dd>
-                        </dl>
+                                <!-- Created Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-clock me-1"></i>Created
+                                            </small>
+                                            <span class="text-muted small">${new Date(event.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Updated Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-edit me-1"></i>Last Updated
+                                            </small>
+                                            <span class="text-muted small">${new Date(event.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Details -->
                         ${detailsHtml}
                     </div>
-                </div>
-            `;
+                `;
+                
                 document.getElementById('eventDetailsContent').innerHTML = html;
-                new bootstrap.Modal(document.getElementById('viewEventModal')).show();
+                
             } catch (error) {
-                showError(error.message);
+                document.getElementById('eventDetailsContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${error.message}
+                    </div>
+                `;
             }
         }
 
+        // Simple image preview
+        function previewEventImage(imageUrl, eventTitle) {
+            const previewImage = document.getElementById('previewImage');
+            const titleElement = document.getElementById('previewImageTitle');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            previewImage.src = imageUrl;
+            previewImage.alt = eventTitle;
+            titleElement.textContent = eventTitle;
+            
+            // Download functionality
+            downloadBtn.href = imageUrl;
+            downloadBtn.download = `${eventTitle || 'event-image'}.jpg`;
+            
+            const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            imagePreviewModal.show();
+        }
         // Edit event
         async function editEvent(eventId) {
             try {
@@ -1192,9 +1452,7 @@
                 submitBtn.disabled = true;
             }
         }
-
-        // Update the edit form submission to check for changes first
-        // EDIT EVENT FORM - WITH RELOAD
+        // EDIT EVENT FORM - WITH RELOAD (UPDATED - NO ANNOUNCEMENT RESTRICTIONS)
         document.getElementById('editEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1237,15 +1495,9 @@
                 return;
             }
 
-            // FRONTEND VALIDATION: Announcements cannot be set to inactive
-            const category = document.getElementById('edit_category').value;
-            const isActive = document.getElementById('edit_is_active').value;
-            const wasActive = document.getElementById('edit_is_active').dataset.originalValue;
-
-            if (category === 'announcement' && isActive === '0') {
-                showToast('warning', 'Announcements must always be active and cannot be deactivated.');
-                return;
-            }
+            // REMOVED: Announcement-specific validation
+            // Now announcements can be inactive like any other category
+            // Only rule: 1 active event per category maximum
 
             const formData = new FormData(this);
             const details = collectDetails(document.getElementById('editDetailsContainer'));
@@ -1412,6 +1664,65 @@
                 document.querySelector('#createEventForm .btn-loader').style.display = 'none';
             }
         });
+
+        // CHARACTER COUNTER FOR TITLE
+        document.getElementById('create_title').addEventListener('input', function() {
+            document.getElementById('create_title_count').textContent = this.value.length;
+            validateTitle();
+        });
+
+        // CHARACTER COUNTER FOR DESCRIPTION
+        document.getElementById('create_description').addEventListener('input', function() {
+            document.getElementById('create_description_count').textContent = this.value.length;
+            validateDescription();
+        });
+
+        // IMAGE PREVIEW
+        document.getElementById('create_image').addEventListener('change', function(e) {
+            const preview = document.getElementById('create_image_preview');
+            const previewImg = document.getElementById('create_image_preview_img');
+            const file = e.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImg.src = event.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // VALIDATION FUNCTIONS WITH FRIENDLY MESSAGES
+        function validateTitle() {
+            const title = document.getElementById('create_title');
+            
+            if (title.value.length === 0) {
+                return false;
+            }
+            
+            if (title.value.length < 20) {
+                return false;
+            }
+            
+            return true;
+        }
+
+        function validateDescription() {
+            const description = document.getElementById('create_description');
+            
+            if (description.value.length === 0) {
+                return false;
+            }
+            
+            if (description.value.length < 50) {
+                return false;
+            }
+            
+            return true;
+        }
 
 
         // ARCHIVE EVENT FORM
@@ -1731,7 +2042,7 @@
                 statusElement.innerHTML = statusText;
             }
         }
-
+        
         console.log('✅ Admin page loaded successfully');
     </script>
 
@@ -2022,6 +2333,127 @@
 
         body.modal-open {
             overflow: hidden;
+        }
+        /* Image hover effect for preview */
+        .position-relative:hover .hover-overlay {
+            opacity: 1 !important;
+            transition: opacity 0.3s ease;
+        }
+
+        .position-relative::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0.375rem;
+        }
+
+        .position-relative:hover::after {
+            opacity: 1;
+        }
+
+        .hover-overlay {
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Image Preview Modal
+        #imagePreviewModal .modal-content {
+            background: rgba(0, 0, 0, 0.9) !important;
+        } */
+
+        #imagePreviewModal .btn-close {
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 1;
+            padding: 0.75rem;
+            border-radius: 50%;
+        }
+
+        #imagePreviewModal .btn-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Modal enhancements */
+        .modal-header .modal-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+        }
+
+        /* Form labels with icons */
+        .form-label {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .form-label i {
+            font-size: 0.9rem;
+        }
+
+        /* Form controls */
+        .form-control,
+        .form-select {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Detail rows styling */
+        .detail-row {
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .detail-row:hover {
+            background-color: #e9ecef;
+        }
+
+        .detail-row .form-control-sm {
+            font-size: 0.875rem;
+        }
+
+        /* Section dividers */
+        hr {
+            border-top: 2px solid #e9ecef;
+            opacity: 1;
+        }
+
+        /* Button styling */
+        .btn-outline-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Required field indicator */
+        .text-danger {
+            font-weight: 600;
+        }
+
+        /* Badge styling */
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
         }
     </style>
 @endsection

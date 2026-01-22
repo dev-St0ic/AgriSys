@@ -575,7 +575,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 
     // Main user management interface
     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
-
+    
     // Create new user account
     Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
     // edit user account

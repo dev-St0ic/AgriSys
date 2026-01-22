@@ -48,6 +48,141 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
+         /* Image hover effect for preview */
+        .position-relative:hover .hover-overlay {
+            opacity: 1 !important;
+            transition: opacity 0.3s ease;
+        }
+
+        .position-relative::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 0.375rem;
+        }
+
+        .position-relative:hover::after {
+            opacity: 1;
+        }
+
+        .hover-overlay {
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+        /* When image preview is shown on top of view modal */
+        #imagePreviewModal.show {
+            z-index: 1060;
+        }
+
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.25rem;
+            min-width: 24px;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+            margin-left: 12px;
+        }
+
+        .toast-notification .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #333;
+        }
+
+        .toast-notification .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            .toast-notification .toast-content {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 
     <div class="row">
@@ -187,7 +322,7 @@
                                                             <a class="dropdown-item" href="javascript:void(0)"
                                                                 onclick="toggleStatus({{ $slide->id }})">
                                                                 <i
-                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2"></i>
+                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 " style="color: #ffc107;"></i>
                                                                 {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
                                                             </a>
                                                         </li>
@@ -224,14 +359,15 @@
     </div>
     </div>
 
-    <!-- New Improved Add Slide Modal -->
+    <!-- UPDATED: New Improved Add Slide Modal with Centered Title and Colored Icons -->
     <div class="modal fade" id="newAddSlideModal" tabindex="-1" aria-labelledby="newAddSlideModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="newAddSlideModalLabel">
-                        <i class="fas fa-plus-circle me-2"></i>Add New Slideshow Image
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="newAddSlideModalLabel">
+                        <i></i>Add New Slideshow Image
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -250,7 +386,7 @@
                             <div class="col-lg-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-image me-2"></i>Image Upload</h6>
+                                        <h6 class="mb-0"><i class="fas fa-image me-2" style="color: #007bff;"></i>Image Upload</h6>
                                     </div>
                                     <div class="card-body">
                                         <!-- Drag & Drop Area -->
@@ -301,12 +437,12 @@
                             <div class="col-lg-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Slide Details</h6>
+                                        <h6 class="mb-0"><i class="fas fa-edit me-2" style="color: #28a745;"></i>Slide Details</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label for="newTitle" class="form-label">
-                                                <i class="fas fa-heading me-1"></i>Title
+                                                <i class="fas fa-heading me-1" style="color: #007bff;"></i>Title
                                             </label>
                                             <input type="text" class="form-control" id="newTitle" name="title"
                                                 placeholder="Enter slide title (optional)" maxlength="255">
@@ -315,7 +451,7 @@
 
                                         <div class="mb-3">
                                             <label for="newDescription" class="form-label">
-                                                <i class="fas fa-align-left me-1"></i>Description
+                                                <i class="fas fa-align-left me-1" style="color: #007bff;"></i>Description
                                             </label>
                                             <textarea class="form-control" id="newDescription" name="description" rows="4"
                                                 placeholder="Enter slide description (optional)" maxlength="1000"></textarea>
@@ -328,7 +464,7 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label for="newOrder" class="form-label">
-                                                        <i class="fas fa-sort-numeric-up me-1"></i>Display Order
+                                                        <i class="fas fa-sort-numeric-up me-1" style="color: #007bff;"></i>Display Order
                                                     </label>
                                                     <input type="number" class="form-control" id="newOrder"
                                                         name="order" value="{{ $slides->max('order') + 1 }}"
@@ -339,7 +475,7 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">
-                                                        <i class="fas fa-toggle-on me-1"></i>Status
+                                                        <i class="fas fa-toggle-on me-1" style="color: #28a745;"></i>Status
                                                     </label>
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox" id="newIsActive"
@@ -357,7 +493,7 @@
                                         <div class="card bg-light">
                                             <div class="card-body">
                                                 <h6 class="card-title">
-                                                    <i class="fas fa-cog me-1"></i>Advanced Options
+                                                    <i class="fas fa-cog me-1" style="color: #ffc107;"></i>Advanced Options
                                                 </h6>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="optimizeImage">
@@ -382,7 +518,7 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
+                        <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" id="saveSlideBtn" disabled>
                         <i class="fas fa-save me-2"></i>
@@ -393,16 +529,17 @@
         </div>
     </div>
 
-    <!-- Edit Slide Modal -->
+    <!-- Edit Slide Modal - Consistent Design -->
     <div class="modal fade" id="editSlideModal" tabindex="-1" aria-labelledby="editSlideModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editSlideModalLabel">
-                        <i class="fas fa-edit me-2"></i>Edit Slideshow Image
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="editSlideModalLabel">
+                        <i></i>Edit Slideshow Image
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="editSlideForm" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -411,58 +548,71 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Current Image</label>
+                                    <label class="form-label fw-bold">Current Image</label>
                                     <img id="editCurrentImage" src="#" alt="Current image"
-                                        class="img-thumbnail mb-2"
-                                        style="width: 100%; max-height: 150px; object-fit: cover;">
+                                        class="img-thumbnail mb-2 w-100"
+                                        style="max-height: 200px; object-fit: cover;">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="editImage" class="form-label">New Image (Optional)</label>
+                                    <label for="editImage" class="form-label fw-bold">
+                                        <i class="fas fa-image me-1" style="color: #007bff;"></i>New Image (Optional)
+                                    </label>
                                     <input type="file" class="form-control" id="editImage" name="image"
                                         accept="image/*" onchange="previewImage(this, 'editImagePreview')">
                                     <div class="form-text">Leave empty to keep current image</div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <img id="editImagePreview" src="#" alt="Preview" class="img-thumbnail"
-                                        style="display: none; width: 100%; max-height: 150px; object-fit: cover;">
+                                    <img id="editImagePreview" src="#" alt="Preview" class="img-thumbnail w-100"
+                                        style="display: none; max-height: 200px; object-fit: cover;">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="editTitle" class="form-label">Title</label>
+                                    <label for="editTitle" class="form-label fw-bold">
+                                        <i class="fas fa-heading me-1" style="color: #007bff;"></i>Title
+                                    </label>
                                     <input type="text" class="form-control" id="editTitle" name="title"
                                         placeholder="Enter slide title">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="editDescription" class="form-label">Description</label>
+                                    <label for="editDescription" class="form-label fw-bold">
+                                        <i class="fas fa-align-left me-1" style="color: #007bff;"></i>Description
+                                    </label>
                                     <textarea class="form-control" id="editDescription" name="description" rows="3"
                                         placeholder="Enter slide description"></textarea>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="editOrder" class="form-label">Order</label>
+                                    <label for="editOrder" class="form-label fw-bold">
+                                        <i class="fas fa-sort-numeric-up me-1" style="color: #007bff;"></i>Display Order
+                                    </label>
                                     <input type="number" class="form-control" id="editOrder" name="order"
-                                        min="0">
+                                        min="1">
                                 </div>
 
                                 <div class="mb-3">
-                                    <div class="form-check">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-toggle-on me-1" style="color: #28a745;"></i>Status
+                                    </label>
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="editIsActive"
                                             name="is_active">
                                         <label class="form-check-label" for="editIsActive">
-                                            Active (Display in slideshow)
+                                            <span class="status-text-edit">Active - Will appear in slideshow</span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i></i>Cancel
+                        </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i>Update Slide
                         </button>
@@ -472,106 +622,182 @@
         </div>
     </div>
 
-    <!-- Image Preview Modal -->
-    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <!-- Delete Slide Modal -->
+    <div class="modal fade" id="deleteSlideModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="imagePreviewModalLabel">Image Preview</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-danger text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Permanently Delete Slide
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <img id="previewImage" src="#" alt="Preview" class="img-fluid">
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_slide_name"></strong> will:</p>
+                    </div>
+                    <ul class="mb-0">
+                        <li>Remove the slide from the database</li>
+                        <li>Delete the associated image</li>
+                        <li>Cannot be recovered</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteSlide()" id="confirm_delete_slide_btn">
+                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Slideshow Preview Modal -->
+
+    <!-- Image Preview Modal - Consistent Design with Header -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="imagePreviewModalLabel">
+                        <i class="fas fa-image me-2" style="color: #fff;"></i>Image Preview
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <img id="previewImage" src="#" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 550px; object-fit: contain;">
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Slideshow Preview Modal - With Consistent Header Design -->
     <div class="modal fade" id="slideshowPreviewModal" tabindex="-1" aria-labelledby="slideshowPreviewModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="slideshowPreviewModalLabel">
-                        <i class="fas fa-play me-2"></i>Slideshow Preview
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="slideshowPreviewModalLabel">
+                        <i></i>Slideshow Preview
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
                     <div id="slideshowPreviewContainer" style="height: 400px; position: relative; overflow: hidden;">
                         <!-- Slideshow will be loaded here -->
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- View Slide Modal -->
-    <div class="modal fade" id="viewSlideModal" tabindex="-1" aria-labelledby="viewSlideModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="viewSlideModalLabel">
-                        <i class="fas fa-eye me-2"></i>View Slide Details
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Slide Image</label>
-                                <img id="viewSlideImage" src="#" alt="Slide image" class="img-thumbnail w-100"
-                                    style="max-height: 300px; object-fit: cover;">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Title</label>
-                                <p id="viewSlideTitle" class="form-control-plaintext border rounded p-2 bg-light"></p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Description</label>
-                                <p id="viewSlideDescription" class="form-control-plaintext border rounded p-2 bg-light"
-                                    style="min-height: 80px;"></p>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Display Order</label>
-                                        <p id="viewSlideOrder" class="form-control-plaintext border rounded p-2 bg-light">
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Status</label>
-                                        <p id="viewSlideStatus" class="form-control-plaintext p-2"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Created</label>
-                                <p id="viewSlideCreated" class="form-control-plaintext border rounded p-2 bg-light"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="editFromViewBtn">
-                        <i class="fas fa-edit me-2"></i>Edit Slide
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
+
+    <!-- View Slide Modal - View Only (Reference Event Modal) -->
+    <div class="modal fade" id="viewSlideModal" tabindex="-1" aria-labelledby="viewSlideModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <div style="flex: 1;"></div>
+                    <h5 class="modal-title w-100 text-center" id="viewSlideModalLabel">
+                        <i></i>View Slide Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Image Section -->
+                        <div class="col-md-4">
+                            <div class="position-relative" style="cursor: pointer;" onclick="showImageModal(document.getElementById('viewSlideImage').src, 'Slide Preview')">
+                                <img id="viewSlideImage" src="#" alt="Slide image" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
+                                <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
+                                    <i class="fas fa-search-plus fa-2x text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details Section -->
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-3" id="viewSlideTitle"></h4>
+                            <p class="text-muted mb-4" id="viewSlideDescription"></p>
+
+                            <div class="row g-3">
+                                <!-- Order -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-sort-numeric-up me-1"></i>Display Order
+                                            </small>
+                                            <span class="fw-semibold" id="viewSlideOrder"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Status -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">Status</small>
+                                            <p id="viewSlideStatus" class="mb-0"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Created Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-calendar me-1"></i>Created
+                                            </small>
+                                            <span class="text-muted small" id="viewSlideCreated"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Updated Date -->
+                                <div class="col-sm-6">
+                                    <div class="card border-0 bg-light h-100">
+                                        <div class="card-body py-2">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-edit me-1"></i>Last Updated
+                                            </small>
+                                            <span class="text-muted small" id="viewSlideUpdated"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 @endsection
 
@@ -614,7 +840,7 @@
                     $('.drag-handle').css('cursor', 'move');
 
                     // Show instructions
-                    showAlert('info', 'Drag and drop slides to reorder them. Click "Done" when finished.');
+                    showToast('info', 'Drag and drop slides to reorder them. Click "Done" when finished.');
                 }
             });
 
@@ -839,7 +1065,7 @@
             const fileInput = $('#newImageInput')[0];
 
             if (!fileInput.files || fileInput.files.length === 0) {
-                showAlert('error', 'Please select an image file.');
+                showToast('error', 'Please select an image file.');
                 return false;
             }
 
@@ -891,7 +1117,7 @@
                 },
                 success: function(response) {
                     $('#uploadProgress').css('width', '100%');
-                    showAlert('success', 'Slideshow image added successfully!');
+                    showToast('success', 'Slideshow image added successfully!');
                     $('#newAddSlideModal').modal('hide');
                     setTimeout(() => {
                         location.reload();
@@ -907,7 +1133,7 @@
                         errorMessage = xhr.responseJSON.message;
                     }
 
-                    showAlert('error', errorMessage);
+                    showToast('error', errorMessage);
                     saveBtn.prop('disabled', false).find('.btn-text').text('Add Slide');
                     $('#uploadProgress').css('width', '0%');
                 }
@@ -932,33 +1158,41 @@
             $('#imagePreviewModal').modal('show');
         }
 
-        // View slide function
+        // View slide function - Fixed with Updated Date
         function viewSlide(slide) {
-            $('#viewSlideImage').attr('src', slide.image_url);
-            $('#viewSlideTitle').text(slide.title || 'Untitled');
-            $('#viewSlideDescription').text(slide.description || 'No description');
-            $('#viewSlideOrder').text(slide.order);
+            document.getElementById('viewSlideImage').src = slide.image_url;
+            document.getElementById('viewSlideTitle').textContent = slide.title || 'Untitled';
+            document.getElementById('viewSlideDescription').textContent = slide.description || 'No description';
+            document.getElementById('viewSlideOrder').textContent = slide.order;
 
             const statusBadge = slide.is_active ?
                 '<span class="badge bg-success">Active</span>' :
                 '<span class="badge bg-secondary">Inactive</span>';
-            $('#viewSlideStatus').html(statusBadge);
+            document.getElementById('viewSlideStatus').innerHTML = statusBadge;
 
             // Format created date
             const createdDate = new Date(slide.created_at);
-            const formattedDate = createdDate.toLocaleDateString('en-US', {
+            const formattedCreatedDate = createdDate.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            $('#viewSlideCreated').text(formattedDate);
+            document.getElementById('viewSlideCreated').textContent = formattedCreatedDate;
 
-            // Store slide data for edit button
-            $('#editFromViewBtn').data('slide', slide);
+            // Format updated date
+            const updatedDate = new Date(slide.updated_at);
+            const formattedUpdatedDate = updatedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('viewSlideUpdated').textContent = formattedUpdatedDate;
 
-            $('#viewSlideModal').modal('show');
+            new bootstrap.Modal(document.getElementById('viewSlideModal')).show();
         }
 
         // Edit from view modal
@@ -980,7 +1214,80 @@
             $('#editSlideModal').modal('show');
         }
 
-        // Toggle slide status
+        $(document).ready(function() {
+            // Handle edit slide form submission
+            $('#editSlideForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                const slideId = this.action.split('/').pop();
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+
+                // Explicitly set is_active value (checkbox won't send if unchecked)
+                formData.delete('is_active');
+                if ($('#editIsActive').is(':checked')) {
+                    formData.append('is_active', '1');
+                } else {
+                    formData.append('is_active', '0');
+                }
+
+                // Show loading state
+                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+
+                $.ajax({
+                    url: `/admin/slideshow/${slideId}`,
+                    method: 'POST',  // Laravel treats POST with _method=PUT as PUT
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('success', response.message || 'Slideshow image updated successfully!');
+                            $('#editSlideModal').modal('hide');
+                            
+                            // Reload page after a short delay
+                            setTimeout(() => {
+                                location.reload();
+                            }, 800);
+                        } else {
+                            showToast('error', response.message || 'Update failed');
+                            submitBtn.prop('disabled', false).html(originalText);
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'An error occurred while updating the slide.';
+
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors).flat().join(', ');
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 0) {
+                            errorMessage = 'Network error. Please check your connection.';
+                        }
+
+                        showToast('error', errorMessage);
+                        
+                        // Reset button
+                        submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+
+            // Update status toggle text when edit modal checkbox changes
+            $('#editIsActive').change(function() {
+                const statusText = $(this).is(':checked') ?
+                    'Active - Will appear in slideshow' :
+                    'Inactive - Hidden from slideshow';
+                $('.status-text-edit').text(statusText);
+            });
+        });
+
+        // Toggle slide status with toast notification
         function toggleStatus(slideId) {
             $.ajax({
                 url: `/admin/slideshow/${slideId}/toggle-status`,
@@ -990,35 +1297,143 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        showAlert('success', response.message);
-                        location.reload();
+                        showToast('success', response.message);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 800);
                     } else {
-                        showAlert('error', response.message);
+                        showToast('error', response.message);
                     }
                 },
                 error: function() {
-                    showAlert('error', 'An error occurred while updating the slide status.');
+                    showToast('error', 'An error occurred while updating the slide status.');
                 }
             });
         }
 
-        // Delete slide function
+        // Toast notification system
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+        // delete of slide functionality
+        let currentDeleteSlideId = null;
+
+        // Delete slide function - Show modal
         function deleteSlide(slideId) {
-            if (confirm('Are you sure you want to delete this slideshow image? This action cannot be undone.')) {
-                $.ajax({
-                    url: `/admin/slideshow/${slideId}`,
+            try {
+                // Get slide name from table row
+                const row = document.querySelector(`[data-slide-id="${slideId}"]`);
+                const slideName = row ? row.querySelector('strong').textContent : 'this slide';
+
+                // Set the global variable and modal data
+                currentDeleteSlideId = slideId;
+                document.getElementById('delete_slide_name').textContent = slideName;
+
+                // Show the delete modal
+                new bootstrap.Modal(document.getElementById('deleteSlideModal')).show();
+            } catch (error) {
+                showToast('error', 'Failed to prepare delete dialog: ' + error.message);
+            }
+        }
+
+        // Confirm delete and send AJAX request
+        async function confirmDeleteSlide() {
+            try {
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-text').style.display = 'none';
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/slideshow/${currentDeleteSlideId}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        showAlert('success', 'Slideshow image deleted successfully!');
-                        location.reload();
-                    },
-                    error: function() {
-                        showAlert('error', 'An error occurred while deleting the slide.');
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
                 });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to delete slide');
+                }
+
+                showToast('success', data.message || 'Slideshow image deleted successfully!');
+
+                // Reload page after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+
+            } catch (error) {
+                showToast('error', error.message || 'An error occurred while deleting the slide.');
+                
+                // Reset button state
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-text').style.display = 'inline';
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-loader').style.display = 'none';
             }
         }
 
@@ -1047,13 +1462,13 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        showAlert('success', response.message);
+                        showToast('success', response.message);
                     } else {
-                        showAlert('error', response.message);
+                        showToast('error', response.message);
                     }
                 },
                 error: function() {
-                    showAlert('error', 'An error occurred while updating the order.');
+                    showToast('error', 'An error occurred while updating the order.');
                 }
             });
         }
@@ -1068,11 +1483,11 @@
                         createSlideshowPreview(response.slides);
                         $('#slideshowPreviewModal').modal('show');
                     } else {
-                        showAlert('warning', 'No active slides found for preview.');
+                        showToast('warning', 'No active slides found for preview.');
                     }
                 },
                 error: function() {
-                    showAlert('error', 'Error loading slideshow preview.');
+                    showToast('error', 'Error loading slideshow preview.');
                 }
             });
         }
@@ -1112,44 +1527,6 @@
                 currentSlide = (currentSlide + 1) % slides.length;
                 $('.preview-slide').eq(currentSlide).css('opacity', '1');
             }, 3000);
-        }
-
-        // Alert function - Now uses AgriSys Modal system for consistency
-        function showAlert(type, message) {
-            if (typeof agrisysModal !== 'undefined') {
-                switch (type) {
-                    case 'success':
-                        agrisysModal.success(message);
-                        break;
-                    case 'error':
-                        agrisysModal.error(message);
-                        break;
-                    case 'warning':
-                        agrisysModal.warning(message);
-                        break;
-                    default:
-                        agrisysModal.info(message);
-                }
-            } else {
-                // Fallback to Bootstrap alerts if modal not available
-                const alertClass = type === 'success' ? 'alert-success' :
-                    type === 'error' ? 'alert-danger' :
-                    type === 'warning' ? 'alert-warning' : 'alert-info';
-
-                const alertHtml = `
-            <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-
-                $('body').append(alertHtml);
-
-                // Auto-remove after 5 seconds
-                setTimeout(() => {
-                    $('.alert').fadeOut();
-                }, 5000);
-            }
         }
     </script>
 @endsection
