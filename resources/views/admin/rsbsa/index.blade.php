@@ -699,66 +699,16 @@
 
     <!-- Application Details Modal -->
     <div class="modal fade" id="applicationModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-eye me-2"></i>
-                        Application Details - <span id="appNumberDisplay"></span>
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Application Details
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <!-- Personal Information Section -->
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Personal Information</h6>
-                            <p><strong>Application #:</strong> <span id="viewAppNumber"></span></p>
-                            <p><strong>Name:</strong> <span id="viewAppName"></span></p>
-                            <p><strong>Sex:</strong> <span id="viewAppSex"></span></p>
-                            <p><strong>Contact:</strong> <span id="viewAppContact"></span></p>
-                            <p><strong>Barangay:</strong> <span id="viewAppBarangay"></span></p>
-                        </div>
-
-                        <!-- Registration Information Section -->
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Registration Information</h6>
-                            <p><strong>Main Livelihood:</strong> <span id="viewAppLivelihood"></span></p>
-                            <p><strong>Land Area:</strong> <span id="viewAppLandArea"></span></p>
-                            <p><strong>Commodity:</strong> <span id="viewAppCommodity"></span></p>
-                            <p><strong>Current Status:</strong>
-                                <span id="viewAppStatus"></span>
-                            </p>
-                            <p><strong>Date Applied:</strong> <span id="viewAppCreatedAt"></span></p>
-                        </div>
-
-                        <!-- Farm/Work Location Section -->
-                        <div class="col-12">
-                            <h6 class="border-bottom pb-2">Location Details</h6>
-                            <p><strong>Farm/Work Location:</strong> <span id="viewAppFarmLocation"></span></p>
-                        </div>
-
-                        <!-- Supporting Document Section -->
-                        <div class="col-12">
-                            <div id="documentSection"></div>
-                        </div>
-
-                        <!-- Application Timeline Section -->
-                        <div class="col-12">
-                            <h6 class="border-bottom pb-2">Application Timeline</h6>
-                            <p><strong>Date Applied:</strong> <span id="viewAppTimelineCreated"></span></p>
-                            <p><strong>Last Updated:</strong> <span id="viewAppUpdatedAt"></span></p>
-                            <div id="additionalTimeline"></div>
-                        </div>
-
-                        <!-- Remarks Section (if exists) -->
-                        <div class="col-12" id="remarksSection" style="display: none;">
-                            <h6 class="border-bottom pb-2">Remarks</h6>
-                            <div class="alert alert-info">
-                                <p class="mb-0" id="remarksContent"></p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="modal-body" id="applicationDetails">
+                    <!-- Content will be loaded here -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -1397,116 +1347,221 @@
                                             VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
                                             ============================================ */
 
-        /* Application Details Modal - Enhanced Styling */
+        /* Application Details Modal - Enhanced Card-Based Styling */
         #applicationModal .modal-content {
             border: none;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
         }
 
         #applicationModal .modal-header {
-            border-radius: 10px 10px 0 0;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            padding: 1.25rem;
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            border-bottom: 2px solid #0b5ed7;
+            padding: 1.5rem;
         }
 
         #applicationModal .modal-header .modal-title {
-            color: #333;
+            font-size: 1.25rem;
             font-weight: 600;
-            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            color: white;
         }
 
         #applicationModal .modal-header .btn-close {
-            filter: none;
-            opacity: 0.5;
-        }
-
-        #applicationModal .modal-header .btn-close:hover {
             opacity: 0.8;
         }
 
+        #applicationModal .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
         #applicationModal .modal-footer {
-            border-radius: 0 0 10px 10px;
-            background: #f8f9fa;
+            background-color: #f8f9fa;
             border-top: 1px solid #dee2e6;
             padding: 1.25rem;
         }
 
         #applicationModal .modal-body {
-            padding: 1.5rem;
-            max-height: none;
-            overflow-y: auto;
-            overflow-x: hidden;
+            padding: 2rem;
+            background-color: #fff;
         }
 
-        /* Application Details Content */
-        #applicationDetails h6 {
-            color: #495057;
+        /* Card Styling within Application Details */
+        #applicationDetails .card {
+            border-width: 2px;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            height: 100%;
+        }
+
+        #applicationDetails .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        #applicationDetails .card-header {
+            padding: 1rem 1.25rem;
             font-weight: 600;
+            color: white;
             font-size: 0.95rem;
-            margin-bottom: 0.75rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #e9ecef;
+            letter-spacing: 0.3px;
         }
 
-        #applicationDetails p {
-            margin-bottom: 0.5rem;
-            color: #333;
-            line-height: 1.5;
-            font-size: 0.95rem;
+        #applicationDetails .card-header.bg-primary {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+        }
+
+        #applicationDetails .card-header.bg-info {
+            background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
+        }
+
+        #applicationDetails .card-header.bg-success {
+            background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
+        }
+
+        #applicationDetails .card-header.bg-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+            color: #000;
+        }
+
+        #applicationDetails .card-header.bg-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5c636a 100%) !important;
+        }
+
+        #applicationDetails .card-body {
+            padding: 1.5rem;
+            background-color: #fff;
+        }
+
+        #applicationDetails .row.g-2 > div {
+            padding-bottom: 0.5rem;
+        }
+
+        #applicationDetails .card-body > div > div {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        #applicationDetails .card-body > div > div:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
         }
 
         #applicationDetails strong {
             color: #495057;
             font-weight: 600;
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.25rem;
         }
 
-        #applicationDetails .alert {
-            background: #e7f3f5;
-            border: 1px solid #b3dde8;
-            border-left: 4px solid #17a2b8;
-            border-radius: 6px;
-            margin-top: 1rem;
+        #applicationDetails .card-body span {
+            color: #333;
+            font-size: 0.95rem;
+            display: block;
         }
 
-        #applicationDetails .alert p {
-            margin: 0;
-            color: #0c5460;
+        #applicationDetails a {
+            color: #0d6efd;
+            text-decoration: none;
         }
 
-        #applicationDetails .alert small {
-            color: #0c5460;
-            opacity: 0.8;
+        #applicationDetails a:hover {
+            text-decoration: underline;
+        }
+
+        #applicationDetails .text-muted {
+            color: #6c757d !important;
+            font-style: italic;
         }
 
         /* Badge Styling */
         #applicationDetails .badge {
-            font-size: 0.85rem;
-            padding: 0.5rem 0.75rem;
-            font-weight: 500;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
             letter-spacing: 0.5px;
-            text-transform: uppercase;
+            display: inline-block;
+            margin-top: 0.25rem;
         }
 
-        /* Scrollbar Styling for Modal Body
-            #applicationModal .modal-body::-webkit-scrollbar {
-                width: 8px;
+        /* Document Container Styling */
+        #applicationDetails .text-center.p-3 {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 2rem 1.5rem !important;
+        }
+
+        #applicationDetails .text-center i {
+            opacity: 0.7;
+            margin-bottom: 1rem;
+        }
+
+        #applicationDetails .text-center h6 {
+            font-weight: 600;
+            color: #333;
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        #applicationDetails .btn-outline-info {
+            color: #0dcaf0;
+            border-color: #0dcaf0;
+            font-size: 0.85rem;
+            padding: 0.35rem 0.75rem;
+        }
+
+        #applicationDetails .btn-outline-info:hover {
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+            color: white;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #applicationModal .modal-dialog {
+                margin: 0.5rem;
             }
 
-            #applicationModal .modal-body::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
+            #applicationModal .modal-body {
+                padding: 1.5rem 1rem;
             }
 
-            #applicationModal .modal-body::-webkit-scrollbar-thumb {
-                background: #888;
-                border-radius: 10px;
+            #applicationDetails .row.g-4 > div {
+                margin-bottom: 1rem;
             }
 
-            #applicationModal .modal-body::-webkit-scrollbar-thumb:hover {
-                background: #555;
-            } */
+            #applicationDetails .card-header {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            #applicationDetails .card-body {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #applicationModal .modal-header .modal-title {
+                font-size: 1.05rem;
+            }
+
+            #applicationModal .modal-body {
+                padding: 1rem;
+            }
+
+            #applicationDetails .text-center.p-3 {
+                padding: 1.5rem 1rem !important;
+            }
+
+            #applicationDetails .card-body span {
+                font-size: 0.9rem;
+            }
+        }
 
         /* Update Modal - Enhanced Styling */
         #updateModal .modal-content {
@@ -2931,7 +2986,7 @@
         }
 
 
-        // FIXED: Corrected document display section in viewApplication function
+        // FIXED: Corrected document display section in viewApplication function - REDESIGNED with card layout
         function viewApplication(id) {
             if (!id) {
                 showToast('error', 'Invalid application ID');
@@ -2973,29 +3028,10 @@
                         throw new Error('No application data received');
                     }
 
-                    // Populate all fields with null safety
-                    document.getElementById('appNumberDisplay').textContent = data.application_number || 'N/A';
-                    document.getElementById('viewAppNumber').textContent = data.application_number || 'N/A';
-                    document.getElementById('viewAppName').textContent = data.full_name || 'N/A';
-                    document.getElementById('viewAppSex').textContent = data.sex || 'N/A';
-                    document.getElementById('viewAppContact').textContent = data.contact_number || 'N/A';
-                    document.getElementById('viewAppBarangay').textContent = data.barangay || 'N/A';
-                    document.getElementById('viewAppLivelihood').textContent = data.main_livelihood || 'N/A';
-                    document.getElementById('viewAppLandArea').textContent = data.land_area ? data.land_area + ' ha' :
-                        'N/A';
-                    document.getElementById('viewAppCommodity').textContent = data.commodity || 'N/A';
-                    document.getElementById('viewAppFarmLocation').textContent = data.farm_location || 'N/A';
-
-                    // Format and populate timestamps
+                    // Format timestamps
                     const createdAt = new Date(data.created_at);
                     const updatedAt = new Date(data.updated_at);
-
-                    document.getElementById('viewAppCreatedAt').textContent = createdAt.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    document.getElementById('viewAppTimelineCreated').textContent = createdAt.toLocaleString('en-US', {
+                    const createdAtFormatted = createdAt.toLocaleString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
@@ -3003,7 +3039,7 @@
                         minute: '2-digit',
                         second: '2-digit'
                     });
-                    document.getElementById('viewAppUpdatedAt').textContent = updatedAt.toLocaleString('en-US', {
+                    const updatedAtFormatted = updatedAt.toLocaleString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
@@ -3015,98 +3051,152 @@
                     // Status badge with color coding
                     const statusColor = data.status_color || 'secondary';
                     const formattedStatus = data.formatted_status || getStatusText(data.status);
-                    document.getElementById('viewAppStatus').innerHTML = `
-                    <span class="badge bg-${statusColor}">${formattedStatus}</span>
-                `;
+                    const statusBadge = `<span class="badge bg-${statusColor}">${formattedStatus}</span>`;
 
-                    // Build document section
-                    const documentSection = document.getElementById('documentSection');
-                    if (data.supporting_document_path) {
-                        documentSection.innerHTML = `
-                        <div class="card border-primary">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0" style="color: #495057;">
-                                    <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
-                                </h6>
+                    // Build remarks HTML if exists
+                    const remarksHtml = data.remarks ? `
+                    <div class="col-12 mt-4">
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
                             </div>
                             <div class="card-body">
-                                <div class="text-center p-3 border border-primary rounded bg-light">
-                                    <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
-                                    <h6>Supporting Document</h6>
-                                    <span class="badge bg-primary mb-2">Uploaded</span>
-                                    <br>
-                                    <button class="btn btn-sm btn-outline-primary mt-2"
-                                        onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
-                                        <i class="fas fa-eye"></i> View Document
-                                    </button>
-                                </div>
+                                <p class="mb-0">${data.remarks}</p>
                             </div>
-                        </div>`;
-                    } else {
-                        documentSection.innerHTML = `
-                        <div class="card border-secondary">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0" style="color: #495057;">
-                                    <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="text-center p-3 border border-secondary rounded">
-                                    <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
-                                    <h6>No Document Uploaded</h6>
-                                    <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                </div>
-                            </div>
-                        </div>`;
-                    }
+                        </div>
+                    </div>` : '';
 
-                    // Build additional timeline info if available
-                    const timelineSection = document.getElementById('additionalTimeline');
+                    // Build document section HTML - SIMPLIFIED
+                    const documentHtml = data.supporting_document_path ? `
+                    <div class="text-center p-4">
+                        <i class="fas fa-file fa-4x text-success mb-3"></i>
+                        <p class="text-muted mb-3">Document Available</p>
+                        <button class="btn btn-primary" onclick="viewDocument('${data.supporting_document_path}', 'Supporting Document')">
+                            <i class="fas fa-eye me-2"></i>View Document
+                        </button>
+                    </div>` : `
+                    <div class="text-center p-4">
+                        <i class="fas fa-file-slash fa-4x text-muted mb-3"></i>
+                        <p class="text-muted">No Document Uploaded</p>
+                    </div>`;
+
+                    // Build timeline additional info if available
                     let timelineHtml = '';
-
                     if (data.reviewed_at) {
                         const reviewedAt = new Date(data.reviewed_at);
-                        timelineHtml += `<p><strong>Reviewed At:</strong> ${reviewedAt.toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    })}</p>`;
+                        timelineHtml += `<div class="col-12"><strong>Reviewed At:</strong> ${reviewedAt.toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        })}</div>`;
                     }
 
                     if (data.number_assigned_at) {
                         const assignedAt = new Date(data.number_assigned_at);
-                        timelineHtml += `<p><strong>Number Assigned:</strong> ${assignedAt.toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    })}</p>`;
+                        timelineHtml += `<div class="col-12"><strong>Number Assigned:</strong> ${assignedAt.toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        })}</div>`;
                     }
 
-                    if (timelineHtml) {
-                        timelineSection.innerHTML = timelineHtml;
-                    }
+                    // Render the card-based layout
+                    document.getElementById('applicationDetails').innerHTML = `
+                    <div class="row g-4">
+                        <!-- Personal Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12"><strong>Application #:</strong> <span class="text-primary">${data.application_number || 'N/A'}</span></div>
+                                        <div class="col-12"><strong>Full Name:</strong> ${data.full_name || '<span class="text-muted">Not provided</span>'}</div>
+                                        <div class="col-12"><strong>Sex:</strong> ${data.sex || '<span class="text-muted">Not specified</span>'}</div>
+                                        <div class="col-12"><strong>Contact Number:</strong> ${data.contact_number ? `<a href="tel:${data.contact_number}" class="text-decoration-none">${data.contact_number}</a>` : '<span class="text-muted">Not provided</span>'}</div>
+                                        <div class="col-12"><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    // Handle remarks section
-                    const remarksSection = document.getElementById('remarksSection');
-                    if (data.remarks) {
-                        remarksSection.style.display = 'block';
-                        document.getElementById('remarksContent').textContent = data.remarks;
-                    } else {
-                        remarksSection.style.display = 'none';
-                    }
+                        <!-- Livelihood Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-seedling me-2"></i>Livelihood Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12"><strong>Main Livelihood:</strong> ${data.main_livelihood || '<span class="text-muted">Not provided</span>'}</div>
+                                        <div class="col-12"><strong>Commodity:</strong> ${data.commodity || '<span class="text-muted">Not provided</span>'}</div>
+                                        <div class="col-12"><strong>Land Area:</strong> ${data.land_area ? `${data.land_area} ha` : '<span class="text-muted">Not provided</span>'}</div>
+                                        <div class="col-12"><strong>Current Status:</strong> ${statusBadge}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12"><strong>Farm/Work Location:</strong> ${data.farm_location || '<span class="text-muted">Not provided</span>'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Timeline Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Application Timeline</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12"><strong>Date Applied:</strong> ${createdAtFormatted}</div>
+                                        <div class="col-12"><strong>Last Updated:</strong> ${updatedAtFormatted}</div>
+                                        ${timelineHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Document Card -->
+                        <div class="col-12">
+                            <div class="card border-secondary">
+                                <div class="card-header bg-secondary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            ${documentHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${remarksHtml}
+                    </div>`;
 
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    const modal = document.getElementById('applicationModal');
-                    const modalBody = modal.querySelector('.modal-body');
-                    modalBody.innerHTML = `
+                    document.getElementById('applicationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         ${error.message || 'Error loading application details. Please try again.'}
