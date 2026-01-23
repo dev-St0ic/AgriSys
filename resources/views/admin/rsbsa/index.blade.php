@@ -574,40 +574,50 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-pencil-alt me-2"></i>
-                        Edit Application - <span id="editAppNumber"></span>
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-pencil-alt me-2"></i>Edit Application - <span id="editAppNumber"></span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <form id="editRsbsaForm" enctype="multipart/form-data">
                         <!-- Personal Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_rsbsa_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_rsbsa_first_name" class="form-label fw-semibold">
+                                            First Name 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="edit_rsbsa_first_name"
-                                            name="first_name" required maxlength="100">
+                                            name="first_name" required maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_rsbsa_middle_name" class="form-label">Middle Name</label>
+                                        <label for="edit_rsbsa_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
                                         <input type="text" class="form-control" id="edit_rsbsa_middle_name"
-                                            name="middle_name" maxlength="100">
+                                            name="middle_name" maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_rsbsa_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_rsbsa_last_name" class="form-label fw-semibold">
+                                            Last Name 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="edit_rsbsa_last_name"
-                                            name="last_name" required maxlength="100">
+                                            name="last_name" required maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_rsbsa_extension" class="form-label">Extension</label>
+                                        <label for="edit_rsbsa_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="edit_rsbsa_extension" name="name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -620,33 +630,45 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_rsbsa_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_rsbsa_contact_number" class="form-label fw-semibold">
+                                            Contact Number 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <input type="tel" class="form-control" id="edit_rsbsa_contact_number"
                                             name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Application Number</label>
-                                        <input type="text" class="form-control" id="edit_rsbsa_app_number" disabled>
-                                        <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_rsbsa_app_number" class="form-label fw-semibold">
+                                            Application Number
+                                        </label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_app_number" disabled placeholder="-">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Auto-generated (cannot be changed)
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Location Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_rsbsa_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_rsbsa_barangay" class="form-label fw-semibold">
+                                            Barangay 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="edit_rsbsa_barangay" name="barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -679,25 +701,33 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_rsbsa_farm_location" class="form-label">Farm/Work
-                                            Location</label>
+                                        <label for="edit_rsbsa_farm_location" class="form-label fw-semibold">
+                                            Farm/Work Location
+                                        </label>
                                         <textarea class="form-control" id="edit_rsbsa_farm_location" name="farm_location" rows="3" maxlength="500"
                                             placeholder="Specific location of farm or work area"></textarea>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Maximum 500 characters
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Livelihood Information Card - NOW EDITABLE -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-seedling me-2"></i>Livelihood Information</h6>
+                        <!-- Livelihood Information Card - NOW FULLY EDITABLE -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-seedling me-2"></i>Livelihood Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_rsbsa_livelihood" class="form-label">Main Livelihood <span
-                                                class="text-danger">*</span></label>
+                                        <label for="edit_rsbsa_livelihood" class="form-label fw-semibold">
+                                            Main Livelihood 
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="edit_rsbsa_livelihood" name="main_livelihood"
                                             required>
                                             <option value="">Select Livelihood</option>
@@ -708,54 +738,95 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_rsbsa_land_area" class="form-label">Land Area (hectares)</label>
+                                        <label for="edit_rsbsa_land_area" class="form-label fw-semibold">
+                                            Land Area (hectares)
+                                        </label>
                                         <input type="number" class="form-control" id="edit_rsbsa_land_area"
                                             name="land_area" step="0.01" min="0" max="99999.99"
                                             placeholder="0.00">
-                                        <div class="form-text">Total area in hectares</div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Total area in hectares
+                                        </small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_rsbsa_commodity" class="form-label">Commodity/Product</label>
+                                        <label for="edit_rsbsa_commodity" class="form-label fw-semibold">
+                                            Commodity/Product
+                                        </label>
                                         <input type="text" class="form-control" id="edit_rsbsa_commodity"
                                             name="commodity" maxlength="1000" placeholder="e.g., Rice, Corn, Vegetables">
-                                        <div class="form-text">Main crops, livestock, or fish</div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Main crops, livestock, or fish
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Application Status (Read-only) -->
-                        <div class="card mb-3 bg-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status (Read-only)
+                        <!-- Documents Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 5MB)
+                                </p>
+                                <div class="row">
+                                    <div class="col-12 mb-4">
+                                        <label for="edit_rsbsa_supporting_document" class="form-label fw-semibold">
+                                            Supporting Document
+                                        </label>
+                                        <div id="edit_rsbsa_supporting_document_preview" class="mb-3"></div>
+                                        <input type="file" class="form-control" id="edit_rsbsa_supporting_document" 
+                                            name="supporting_document" accept="image/*,.pdf" 
+                                            onchange="previewEditRsbsaDocument('edit_rsbsa_supporting_document', 'edit_rsbsa_supporting_document_preview')">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Click to view or upload a new document
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Status (Read-only) Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Application Status (Read-only)
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6 mb-2">
-                                        <small class="text-muted">Current Status:</small>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block mb-2">Current Status</small>
                                         <div>
-                                            <span id="edit_rsbsa_status_badge" class="badge bg-secondary"></span>
+                                            <span id="edit_rsbsa_status_badge" class="badge bg-secondary fs-6"></span>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-2">
-                                        <small class="text-muted">Date Applied:</small>
-                                        <div id="edit_rsbsa_created_at"></div>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-muted d-block mb-2">Date Applied</small>
+                                        <div id="edit_rsbsa_created_at" class="fw-semibold">-</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Info Alert -->
-                        <div class="alert alert-info mb-0">
+                        <div class="alert alert-info border-left-info mb-0">
                             <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> You can edit personal information, location, and livelihood details.
-                            To change application status, use the "Update" button from the main table.
+                            <strong>Note:</strong> You can edit all application information here.
+                            To change application status or add remarks, use the "Update" button from the main table.
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" id="editRsbsaSubmitBtn"
                         onclick="handleEditRsbsaSubmit()">
                         <i class="fas fa-save me-2"></i>Save Changes
@@ -4283,6 +4354,60 @@
         }
 
         /**
+         * Preview supporting document in edit modal
+         */
+        function previewEditRsbsaDocument(inputId, previewId) {
+            const fileInput = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const fileName = file.name.toLowerCase();
+                const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+                const isPdf = file.type === 'application/pdf' || fileName.endsWith('.pdf');
+
+                preview.innerHTML = '';
+
+                if (isImage) {
+                    // Display image preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                        img.style.maxHeight = '300px';
+                        img.style.borderRadius = '8px';
+                        img.style.border = '1px solid #dee2e6';
+                        img.style.marginBottom = '10px';
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                } else if (isPdf) {
+                    // Display PDF preview
+                    const pdfPreview = document.createElement('div');
+                    pdfPreview.className = 'alert alert-info mb-0';
+                    pdfPreview.innerHTML = `
+                        <i class="fas fa-file-pdf me-2"></i>
+                        <strong>PDF Selected:</strong> ${file.name}
+                        <br><small class="d-block mt-1">File size: ${(file.size / 1024).toFixed(2)} KB</small>
+                    `;
+                    preview.appendChild(pdfPreview);
+                } else {
+                    // Unsupported file type
+                    const unsupported = document.createElement('div');
+                    unsupported.className = 'alert alert-warning mb-0';
+                    unsupported.innerHTML = `
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>File:</strong> ${file.name}
+                        <br><small class="d-block mt-1">Supported formats: JPG, PNG, PDF</small>
+                    `;
+                    preview.appendChild(unsupported);
+                }
+            }
+        }
+
+        /**
          * Show edit RSBSA modal and load application data
          */
         function showEditRsbsaModal(applicationId) {
@@ -4329,6 +4454,49 @@
 
                     // Date applied
                     document.getElementById('edit_rsbsa_created_at').textContent = data.created_at || 'N/A';
+
+                    // Display existing supporting document preview if it exists
+                    const docPreviewContainer = document.getElementById('edit_rsbsa_supporting_document_preview');
+                    docPreviewContainer.innerHTML = '';
+                    if (data.supporting_document_path) {
+                        const docPath = data.supporting_document_path;
+                        const fileName = docPath.toLowerCase();
+                        const isPdf = fileName.endsWith('.pdf');
+
+                        if (isPdf) {
+                            // Display PDF info
+                            const pdfInfo = document.createElement('div');
+                            pdfInfo.className = 'alert alert-info mb-2';
+                            pdfInfo.innerHTML = `
+                                <i class="fas fa-file-pdf me-2"></i>
+                                <strong>Current PDF:</strong> ${fileName.split('/').pop()}
+                            `;
+                            docPreviewContainer.appendChild(pdfInfo);
+                        } else {
+                            // Display image preview
+                            const previewImg = document.createElement('img');
+                            previewImg.src = docPath;
+                            previewImg.style.maxWidth = '100%';
+                            previewImg.style.height = 'auto';
+                            previewImg.style.maxHeight = '300px';
+                            previewImg.style.borderRadius = '8px';
+                            previewImg.style.border = '1px solid #dee2e6';
+                            previewImg.style.marginBottom = '10px';
+                            previewImg.onerror = function() {
+                                this.style.display = 'none';
+                                const errorMsg = document.createElement('div');
+                                errorMsg.className = 'alert alert-warning mb-2';
+                                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>Unable to load image preview';
+                                docPreviewContainer.appendChild(errorMsg);
+                            };
+                            docPreviewContainer.appendChild(previewImg);
+                        }
+                        
+                        const existingNote = document.createElement('small');
+                        existingNote.className = 'text-muted d-block';
+                        existingNote.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Upload a new file to replace it.';
+                        docPreviewContainer.appendChild(existingNote);
+                    }
 
                     // Initialize the form for change detection
                     initializeEditRsbsaForm(applicationId, data);
@@ -4399,6 +4567,13 @@
                 input.addEventListener('input', handleRsbsaFormChange);
                 input.addEventListener('change', handleRsbsaFormChange);
             });
+
+            // Also add listener for file input
+            const fileInput = form.querySelector('input[type="file"]');
+            if (fileInput) {
+                fileInput.removeEventListener('change', handleRsbsaFormChange);
+                fileInput.addEventListener('change', handleRsbsaFormChange);
+            }
         }
 
 
@@ -4453,6 +4628,12 @@
                     }
                 }
             });
+
+            // Check if file has been selected/changed
+            const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                hasChanges = true;
+            }
 
             // Update button state based on changes - ALWAYS KEEP ENABLED
             if (hasChanges) {
@@ -4649,18 +4830,162 @@
                 }
             });
 
-            // Show confirmation toast
+            // Check if file has been selected
+            const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                changedFields.push('Supporting Document');
+            }
+
+            // Show confirmation toast with changed fields
+            const changesText = changedFields.length > 0 
+                ? `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`
+                : 'Save the changes to this RSBSA application?';
+            
             showConfirmationToast(
                 'Confirm Update',
-                `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`,
+                changesText,
                 () => proceedWithEditRsbsa(form, applicationId)
             );
         }
 
+  /**
+ * FIXED: Proceed with edit submission after confirmation
+ * The key fix: Use POST with _method spoofing instead of PUT for file uploads
+ */
+function proceedWithEditRsbsa(form, applicationId) {
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+
+    // Show loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+
+    // Create FormData - this part stays the same
+    const formData = new FormData(form);
+    
+    // CRITICAL FIX: Add _method field for Laravel to treat this as PUT
+    formData.append('_method', 'PUT');
+    
+    // DEBUG: Log FormData contents
+    console.log('📤 FormData entries:');
+    for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            console.log(`  ${key}: [File] ${value.name} (${value.size} bytes)`);
+        } else {
+            console.log(`  ${key}: "${value}"`);
+        }
+    }
+
+    // Disable form inputs AFTER collecting data
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => input.disabled = true);
+
+    // CRITICAL FIX: Use POST instead of PUT for file uploads
+    fetch(`/admin/rsbsa-applications/${applicationId}`, {
+            method: 'POST',  // Changed from 'PUT'
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+                // DO NOT set Content-Type - let browser set it with boundary for multipart/form-data
+            },
+            body: formData
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+
+            return response.json().then(data => {
+                console.log('Response data:', data);
+
+                if (!response.ok) {
+                    throw {
+                        status: response.status,
+                        message: data.message || 'Update failed',
+                        errors: data.errors || {}
+                    };
+                }
+                return data;
+            });
+        })
+        .then(data => {
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
+                if (modal) modal.hide();
+
+                showToast('success', data.message || 'Application updated successfully');
+                
+                // Reload the applications table to reflect changes
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                throw {
+                    status: 422,
+                    message: data.message || 'Failed to update application',
+                    errors: data.errors || {}
+                };
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error occurred:', error);
+
+            // Handle validation errors from server
+            if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+                console.error('🚨 Server validation errors:');
+                console.table(error.errors);
+
+                const fieldMap = {
+                    'first_name': 'edit_rsbsa_first_name',
+                    'last_name': 'edit_rsbsa_last_name',
+                    'contact_number': 'edit_rsbsa_contact_number',
+                    'barangay': 'edit_rsbsa_barangay',
+                    'main_livelihood': 'edit_rsbsa_livelihood',
+                    'land_area': 'edit_rsbsa_land_area',
+                    'farm_location': 'edit_rsbsa_farm_location',
+                    'middle_name': 'edit_rsbsa_middle_name',
+                    'name_extension': 'edit_rsbsa_extension',
+                    'commodity': 'edit_rsbsa_commodity',
+                    'supporting_document': 'edit_rsbsa_supporting_document'
+                };
+
+                Object.keys(error.errors).forEach(field => {
+                    const elementId = fieldMap[field];
+                    const input = document.getElementById(elementId);
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                        if (existingFeedback) existingFeedback.remove();
+
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        const errorMessage = Array.isArray(error.errors[field]) ?
+                            error.errors[field][0] :
+                            error.errors[field];
+                        errorDiv.textContent = errorMessage;
+                        input.parentNode.appendChild(errorDiv);
+
+                        console.error(`Field "${field}":`, errorMessage);
+                    }
+                });
+
+                showToast('error', error.message);
+            } else {
+                console.error('Unexpected error:', error.message || error);
+                showToast('error', error.message || 'Error updating application');
+            }
+
+            // Restore button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            formInputs.forEach(input => input.disabled = false);
+        });
+}
+
         /**
-         * Proceed with edit submission after confirmation
+         * Alternative approach if the above doesn't work:
+         * Manually build the request payload
          */
-        function proceedWithEditRsbsa(form, applicationId) {
+        function proceedWithEditRsbsa_Alternative(form, applicationId) {
             const submitBtn = document.getElementById('editRsbsaSubmitBtn');
 
             // Show loading state
@@ -4668,76 +4993,90 @@
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
             submitBtn.disabled = true;
 
-            // Disable form inputs during submission
+            // Manually collect form data
+            const formData = new FormData();
+            
+            // Add text fields
+            formData.append('first_name', document.getElementById('edit_rsbsa_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('edit_rsbsa_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('edit_rsbsa_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('edit_rsbsa_extension').value);
+            formData.append('contact_number', document.getElementById('edit_rsbsa_contact_number').value.trim());
+            formData.append('barangay', document.getElementById('edit_rsbsa_barangay').value);
+            formData.append('farm_location', document.getElementById('edit_rsbsa_farm_location').value.trim());
+            formData.append('main_livelihood', document.getElementById('edit_rsbsa_livelihood').value);
+            formData.append('land_area', document.getElementById('edit_rsbsa_land_area').value);
+            formData.append('commodity', document.getElementById('edit_rsbsa_commodity').value.trim());
+            
+            // Add file if present
+            const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+            if (fileInput.files && fileInput.files[0]) {
+                formData.append('supporting_document', fileInput.files[0]);
+            }
+            
+            // Add method spoofing for PUT
+            formData.append('_method', 'PUT');
+            
+            // DEBUG: Log what we're sending
+            console.log('📤 Sending FormData:');
+            for (let [key, value] of formData.entries()) {
+                if (value instanceof File) {
+                    console.log(`  ${key}: [File] ${value.name}`);
+                } else {
+                    console.log(`  ${key}: "${value}"`);
+                }
+            }
+
+            // Disable form inputs
             const formInputs = form.querySelectorAll('input, select, textarea');
             formInputs.forEach(input => input.disabled = true);
 
-            // Get values directly from elements by ID (NOT using FormData)
-            const jsonData = {
-                first_name: (document.getElementById('edit_rsbsa_first_name')?.value || '').trim(),
-                middle_name: (document.getElementById('edit_rsbsa_middle_name')?.value || '').trim(),
-                last_name: (document.getElementById('edit_rsbsa_last_name')?.value || '').trim(),
-                name_extension: (document.getElementById('edit_rsbsa_extension')?.value || '') || null,
-                contact_number: (document.getElementById('edit_rsbsa_contact_number')?.value || '').trim(),
-                barangay: (document.getElementById('edit_rsbsa_barangay')?.value || '').trim(),
-                farm_location: (document.getElementById('edit_rsbsa_farm_location')?.value || '').trim(),
-                main_livelihood: (document.getElementById('edit_rsbsa_livelihood')?.value || '').trim(),
-                land_area: document.getElementById('edit_rsbsa_land_area')?.value ? parseFloat(document.getElementById(
-                    'edit_rsbsa_land_area').value) : null,
-                commodity: (document.getElementById('edit_rsbsa_commodity')?.value || '').trim()
-            };
-
-            console.log('✅ Sending update data:', jsonData);
-
-            // Submit to backend
+            // Submit with POST (will be treated as PUT due to _method)
             fetch(`/admin/rsbsa-applications/${applicationId}`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': getCSRFToken(),
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify(jsonData)
+                    body: formData
                 })
-                .then(response => {
-                    console.log('Response status:', response.status);
+                .then(response => response.json().then(data => ({
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                })))
+                .then(({status, ok, data}) => {
+                    console.log('Response:', {status, ok, data});
 
-                    return response.json().then(data => {
-                        console.log('Response data:', data);
+                    if (!ok) {
+                        throw {
+                            status: status,
+                            message: data.message || 'Update failed',
+                            errors: data.errors || {}
+                        };
+                    }
 
-                        if (!response.ok) {
-                            throw {
-                                status: response.status,
-                                message: data.message || 'Update failed',
-                                errors: data.errors || {}
-                            };
-                        }
-                        return data;
-                    });
-                })
-                .then(data => {
                     if (data.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
                         if (modal) modal.hide();
 
                         showToast('success', data.message || 'Application updated successfully');
-                        setTimeout(() => window.location.reload(), 1500);
+                        
+                        setTimeout(() => location.reload(), 1000);
                     } else {
                         throw {
                             status: 422,
-                            message: data.message || 'Failed to update application',
+                            message: data.message || 'Failed to update',
                             errors: data.errors || {}
                         };
                     }
                 })
                 .catch(error => {
-                    console.error('❌ Error occurred:', error);
+                    console.error('Error:', error);
 
-                    // Handle validation errors from server
-                    if (error.status === 422 && error.errors && typeof error.errors === 'object') {
-                        console.error('Server validation errors:', error.errors);
-
+                    if (error.errors) {
+                        // Show field-specific errors
                         const fieldMap = {
                             'first_name': 'edit_rsbsa_first_name',
                             'last_name': 'edit_rsbsa_last_name',
@@ -4748,7 +5087,8 @@
                             'farm_location': 'edit_rsbsa_farm_location',
                             'middle_name': 'edit_rsbsa_middle_name',
                             'name_extension': 'edit_rsbsa_extension',
-                            'commodity': 'edit_rsbsa_commodity'
+                            'commodity': 'edit_rsbsa_commodity',
+                            'supporting_document': 'edit_rsbsa_supporting_document'
                         };
 
                         Object.keys(error.errors).forEach(field => {
@@ -4761,23 +5101,16 @@
 
                                 const errorDiv = document.createElement('div');
                                 errorDiv.className = 'invalid-feedback d-block';
-                                const errorMessage = Array.isArray(error.errors[field]) ?
-                                    error.errors[field][0] :
-                                    error.errors[field];
-                                errorDiv.textContent = errorMessage;
+                                errorDiv.textContent = Array.isArray(error.errors[field]) ?
+                                    error.errors[field][0] : error.errors[field];
                                 input.parentNode.appendChild(errorDiv);
-
-                                console.error(`Field "${field}":`, errorMessage);
                             }
                         });
-
-                        showToast('error', error.message);
-                    } else {
-                        console.error('Unexpected error:', error.message || error);
-                        showToast('error', error.message || 'Error updating application');
                     }
 
-                    // Restore button state
+                    showToast('error', error.message || 'Error updating application');
+
+                    // Restore form state
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
                     formInputs.forEach(input => input.disabled = false);

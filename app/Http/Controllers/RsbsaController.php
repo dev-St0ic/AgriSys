@@ -177,7 +177,15 @@ class RsbsaController extends Controller
    public function update(Request $request, $id)
 {
     try {
-        // Validate incoming data - NOW INCLUDING LIVELIHOOD FIELDS
+        // DEBUG: Log incoming request data
+        Log::info('RSBSA Update Request Received', [
+            'application_id' => $id,
+            'request_data' => $request->except(['supporting_document']),
+            'has_file' => $request->hasFile('supporting_document'),
+            'file_size' => $request->hasFile('supporting_document') ? $request->file('supporting_document')->getSize() : null,
+        ]);
+
+        // Validate incoming data - NOW INCLUDING LIVELIHOOD FIELDS AND FILE UPLOAD
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
@@ -190,6 +198,12 @@ class RsbsaController extends Controller
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
             'land_area' => 'nullable|numeric|min:0|max:99999.99',
             'commodity' => 'nullable|string|max:1000',
+            'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        Log::info('RSBSA Validation Passed', [
+            'application_id' => $id,
+            'validated_data' => array_diff_key($validated, ['supporting_document' => '']),
         ]);
 
         // Find the application
@@ -199,8 +213,22 @@ class RsbsaController extends Controller
         $originalData = $application->only([
             'first_name', 'middle_name', 'last_name', 'name_extension',
             'contact_number', 'barangay', 'farm_location',
-            'main_livelihood', 'land_area', 'commodity'
+            'main_livelihood', 'land_area', 'commodity', 'supporting_document_path'
         ]);
+
+        // Handle file upload if provided
+        if ($request->hasFile('supporting_document')) {
+            $file = $request->file('supporting_document');
+            
+            // Delete old document if exists
+            if ($application->supporting_document_path && Storage::disk('public')->exists($application->supporting_document_path)) {
+                Storage::disk('public')->delete($application->supporting_document_path);
+            }
+            
+            // Store new document
+            $path = $file->store('rsbsa-applications', 'public');
+            $validated['supporting_document_path'] = $path;
+        }
 
         // Update the application
         $application->update($validated);
@@ -243,6 +271,12 @@ class RsbsaController extends Controller
         return redirect()->back()->with('success', 'Application updated successfully');
 
     } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('RSBSA Validation Failed', [
+            'application_id' => $id,
+            'validation_errors' => $e->errors(),
+            'request_data' => $request->except(['supporting_document']),
+        ]);
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
