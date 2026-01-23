@@ -254,7 +254,6 @@
                             <th class="text-center">Application #</th>
                             <th class="text-center">Name</th>
                             <th class="text-center">Livelihood</th>
-                            <th class="text-center">Land Area</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Documents</th>
                             <th class="text-center">Actions</th>
@@ -278,10 +277,18 @@
                                     @endif
                                 </td>
                                 <td class="text-start">
-                                    <span class="badge bg-info fs-6">{{ $application->main_livelihood }}</span>
+                                     @php
+                                        $livelihoodColors = [
+                                            'Farmer' => 'success',
+                                            'Farmworker/Laborer' => 'warning',
+                                            'Fisherfolk' => 'info',
+                                            'Agri-youth' => 'primary'
+                                        ];
+                                        $bgColor = $livelihoodColors[$application->main_livelihood] ?? 'secondary';
+                                    @endphp
+                                    
+                                    <span class="badge bg-{{ $bgColor }} fs-6">{{ $application->main_livelihood }}</span>
                                 </td>
-                                <td class="text-start">
-                                    {{ $application->land_area ? $application->land_area . ' ha' : 'N/A' }}</td>
                                 <td class="text-start">
                                     <span class="badge bg-{{ $application->status_color }} fs-6">
                                         {{ $application->formatted_status }}
@@ -318,24 +325,36 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-warning"
-                                            onclick="showEditRsbsaModal({{ $application->id }})"
-                                            title="Edit Personal Information">
-                                            <i class="fas fa-pencil-alt"></i> Edit
-                                        </button>
-
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $application->id }}, '{{ $application->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
 
-                                        <!--  DELETE BUTTON -->
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteApplication({{ $application->id }})" title="Delete">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-
+                                        <div class="btn-group" role="group">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)"
+                                                        onclick="showEditRsbsaModal({{ $application->id }})">
+                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0)"
+                                                        onclick="deleteApplication({{ $application->id }})">
+                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
