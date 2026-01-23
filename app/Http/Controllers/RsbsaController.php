@@ -184,7 +184,6 @@ class RsbsaController extends Controller
             'last_name' => 'required|string|max:100',
             'name_extension' => 'nullable|string|max:10',
             'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-            'email' => 'nullable|email|max:254',
             'barangay' => 'required|string|max:100',
             'farm_location' => 'nullable|string|max:500',
             // NOW EDITABLE: Livelihood information
@@ -199,7 +198,7 @@ class RsbsaController extends Controller
         // Store original values for audit
         $originalData = $application->only([
             'first_name', 'middle_name', 'last_name', 'name_extension',
-            'contact_number', 'email', 'barangay', 'farm_location',
+            'contact_number', 'barangay', 'farm_location',
             'main_livelihood', 'land_area', 'commodity'
         ]);
 
@@ -423,7 +422,6 @@ public function updateStatus(Request $request, $id)
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
 
                 // Livelihood info

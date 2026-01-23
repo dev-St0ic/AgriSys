@@ -237,12 +237,12 @@
                 </h6>
             </div>
             <div class="d-flex gap-2">
+                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddRsbsaModal()">
+                    <i class="fas fa-user-plus me-2"></i>Add Registration
+                </button>
                 <a href="{{ route('admin.rsbsa.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
-                <button type="button" class="btn btn-primary btn-sm" onclick="showAddRsbsaModal()">
-                    <i class="fas fa-plus me-2"></i>Add Registration
-                </button>
             </div>
         </div>
         <div class="card-body">
@@ -542,12 +542,6 @@
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_rsbsa_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_rsbsa_email" name="email"
-                                            maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
                                         <label class="form-label">Application Number</label>
                                         <input type="text" class="form-control" id="edit_rsbsa_app_number" disabled>
                                         <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
@@ -704,7 +698,6 @@
                             <p><strong>Name:</strong> <span id="viewAppName"></span></p>
                             <p><strong>Sex:</strong> <span id="viewAppSex"></span></p>
                             <p><strong>Contact:</strong> <span id="viewAppContact"></span></p>
-                            <p><strong>Email:</strong> <span id="viewAppEmail"></span></p>
                             <p><strong>Barangay:</strong> <span id="viewAppBarangay"></span></p>
                         </div>
 
@@ -2035,7 +2028,7 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg" style="max-height: 90vh;">
             <div class="modal-content" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); max-height: 90vh; display: flex; flex-direction: column;">
-                <div class="modal-header bg-info text-white">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel" style="color: white; font-weight: 600;">
                         <i></i>Select Date Range
                     </h5>
@@ -2133,40 +2126,45 @@
     <div class="modal fade" id="addRsbsaModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-file-alt me-2"></i>Add New RSBSA Registration
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Add New RSBSA Registration
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addRsbsaForm" enctype="multipart/form-data">
                         <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="rsbsa_first_name" required
-                                            maxlength="100">
+                                        <label for="rsbsa_first_name" class="form-label fw-semibold">
+                                            First Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="rsbsa_first_name" required maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="rsbsa_middle_name"
-                                            maxlength="100">
+                                        <label for="rsbsa_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
+                                        <input type="text" class="form-control" id="rsbsa_middle_name" maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="rsbsa_last_name" required
-                                            maxlength="100">
+                                        <label for="rsbsa_last_name" class="form-label fw-semibold">
+                                            Last Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="rsbsa_last_name" required maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_name_extension" class="form-label">Extension</label>
+                                        <label for="rsbsa_name_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="rsbsa_name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -2179,9 +2177,10 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_sex" class="form-label">Sex <span
-                                                class="text-danger">*</span></label>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="rsbsa_sex" class="form-label fw-semibold">
+                                            Sex <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="rsbsa_sex" required>
                                             <option value="">Select</option>
                                             <option value="Male">Male</option>
@@ -2189,39 +2188,37 @@
                                             <option value="Preferred not to say">Preferred not to say</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="rsbsa_contact_number" required
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_email" class="form-label">Email (Optional)</label>
-                                        <input type="email" class="form-control" id="rsbsa_email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="rsbsa_contact_number" class="form-label fw-semibold">
+                                            Contact Number <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="tel" class="form-control" id="rsbsa_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <small class="text-muted d-block mt-2">09XXXXXXXXX or +639XXXXXXXXX</small>
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_user_id" class="form-label">Link to User Account
-                                            (Optional)</label>
-                                        <input type="number" class="form-control" id="rsbsa_user_id"
-                                            placeholder="Enter User ID if exists">
-                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                        <label for="rsbsa_user_id" class="form-label fw-semibold">
+                                            Link to User Account (Optional)
+                                        </label>
+                                        <input type="number" class="form-control" id="rsbsa_user_id" placeholder="Enter User ID if exists">
+                                        <small class="text-muted d-block mt-2">Leave blank if not associated</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Location Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="rsbsa_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="rsbsa_barangay" class="form-label fw-semibold">
+                                            Barangay <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="rsbsa_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -2254,24 +2251,28 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="rsbsa_farm_location" class="form-label">Farm/Work Location</label>
-                                        <textarea class="form-control" id="rsbsa_farm_location" rows="3" maxlength="500"
-                                            placeholder="Specific location of farm or work area"></textarea>
+                                        <label for="rsbsa_farm_location" class="form-label fw-semibold">
+                                            Farm/Work Location
+                                        </label>
+                                        <textarea class="form-control" id="rsbsa_farm_location" rows="3" maxlength="500" placeholder="Specific location of farm or work area"></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Livelihood Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-seedling me-2"></i>Livelihood Information</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-seedling me-2"></i>Livelihood Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_main_livelihood" class="form-label">Main Livelihood <span
-                                                class="text-danger">*</span></label>
+                                        <label for="rsbsa_main_livelihood" class="form-label fw-semibold">
+                                            Main Livelihood <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="rsbsa_main_livelihood" required>
                                             <option value="">Select Livelihood</option>
                                             <option value="Farmer">Farmer</option>
@@ -2281,35 +2282,41 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_land_area" class="form-label">Land Area (hectares)</label>
-                                        <input type="number" class="form-control" id="rsbsa_land_area" step="0.01"
-                                            min="0" max="99999.99" placeholder="0.00">
-                                        <div class="form-text">Total area in hectares</div>
+                                        <label for="rsbsa_land_area" class="form-label fw-semibold">
+                                            Land Area (hectares)
+                                        </label>
+                                        <input type="number" class="form-control" id="rsbsa_land_area" step="0.01" min="0" max="99999.99" placeholder="0.00">
+                                        <small class="text-muted d-block mt-2">Total area in hectares</small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_commodity" class="form-label">Commodity/Product</label>
-                                        <input type="text" class="form-control" id="rsbsa_commodity" maxlength="1000"
-                                            placeholder="e.g., Rice, Corn, Vegetables">
-                                        <div class="form-text">Main crops, livestock, or fish</div>
+                                        <label for="rsbsa_commodity" class="form-label fw-semibold">
+                                            Commodity/Product
+                                        </label>
+                                        <input type="text" class="form-control" id="rsbsa_commodity" maxlength="1000" placeholder="e.g., Rice, Corn, Vegetables">
+                                        <small class="text-muted d-block mt-2">Main crops, livestock, or fish</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Supporting Document -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
                                 </h6>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload documents. Supported formats: JPG, PNG, PDF (Max 10MB each)
+                                </p>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="rsbsa_supporting_document" class="form-label">Upload Document</label>
-                                        <input type="file" class="form-control" id="rsbsa_supporting_document"
-                                            accept="image/*,.pdf"
-                                            onchange="previewRsbsaDocument('rsbsa_supporting_document', 'rsbsa_doc_preview')">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
+                                        <label for="rsbsa_supporting_document" class="form-label fw-semibold">
+                                            Upload Document
+                                        </label>
+                                        <input type="file" class="form-control" id="rsbsa_supporting_document" accept="image/*,.pdf" onchange="previewRsbsaDocument('rsbsa_supporting_document', 'rsbsa_doc_preview')">
                                     </div>
                                     <div class="col-md-6">
                                         <div id="rsbsa_doc_preview" style="margin-top: 10px;"></div>
@@ -2319,36 +2326,45 @@
                         </div>
 
                         <!-- Application Status -->
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Application Status</h6>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-toggle-on me-2"></i>Application Status
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="rsbsa_status" class="form-label">Initial Status <span
-                                                class="text-danger">*</span></label>
+                                        <label for="rsbsa_status" class="form-label fw-semibold">
+                                            Initial Status <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="rsbsa_status" required>
                                             <option value="pending" selected>Pending</option>
                                             <option value="under_review">Under Review</option>
                                             <option value="approved">Approved</option>
                                             <option value="rejected">Rejected</option>
                                         </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="rsbsa_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="rsbsa_remarks" rows="3" maxlength="1000"
-                                            placeholder="Any notes or comments..."></textarea>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Choose the initial verification status
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="submitAddRsbsa()">
-                        <i class="fas fa-save me-1"></i>Create Application
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="submitAddRsbsa()">
+                        <span class="btn-text">
+                            <i class="fas fa-save me-1"></i>Create Registration
+                        </span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Creating...
+                        </span>
                     </button>
                 </div>
             </div>
@@ -2951,7 +2967,6 @@
                     document.getElementById('viewAppName').textContent = data.full_name || 'N/A';
                     document.getElementById('viewAppSex').textContent = data.sex || 'N/A';
                     document.getElementById('viewAppContact').textContent = data.contact_number || 'N/A';
-                    document.getElementById('viewAppEmail').textContent = data.email || 'N/A';
                     document.getElementById('viewAppBarangay').textContent = data.barangay || 'N/A';
                     document.getElementById('viewAppLivelihood').textContent = data.main_livelihood || 'N/A';
                     document.getElementById('viewAppLandArea').textContent = data.land_area ? data.land_area + ' ha' :
@@ -3830,42 +3845,6 @@
             input.classList.add('is-valid');
             return true;
         }
-
-        // Real-time validation for email
-        const rsbsaEmailInput = document.getElementById('rsbsa_email');
-        if (rsbsaEmailInput) {
-            rsbsaEmailInput.addEventListener('input', function() {
-                validateRsbsaEmail(this.value);
-            });
-        }
-
-        function validateRsbsaEmail(email) {
-            const input = document.getElementById('rsbsa_email');
-            if (!input) return;
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!email || email.trim() === '') {
-                return true; // Email is optional
-            }
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
         // Auto-capitalize name fields
         function capitalizeRsbsaName(input) {
             const value = input.value;
@@ -4020,12 +3999,6 @@
                 isValid = false;
             }
 
-            // Validate email if provided
-            const email = document.getElementById('rsbsa_email').value.trim();
-            if (email && !validateRsbsaEmail(email)) {
-                isValid = false;
-            }
-
             return isValid;
         }
 
@@ -4046,7 +4019,6 @@
             formData.append('name_extension', document.getElementById('rsbsa_name_extension').value);
             formData.append('sex', document.getElementById('rsbsa_sex').value);
             formData.append('contact_number', document.getElementById('rsbsa_contact_number').value.trim());
-            formData.append('email', document.getElementById('rsbsa_email').value.trim());
             formData.append('barangay', document.getElementById('rsbsa_barangay').value);
             formData.append('farm_location', document.getElementById('rsbsa_farm_location').value.trim());
             formData.append('main_livelihood', document.getElementById('rsbsa_main_livelihood').value);
@@ -4160,7 +4132,6 @@
                     document.getElementById('edit_rsbsa_last_name').value = data.last_name || '';
                     document.getElementById('edit_rsbsa_extension').value = data.name_extension || '';
                     document.getElementById('edit_rsbsa_contact_number').value = data.contact_number || '';
-                    document.getElementById('edit_rsbsa_email').value = data.email || '';
                     document.getElementById('edit_rsbsa_barangay').value = data.barangay || '';
                     document.getElementById('edit_rsbsa_farm_location').value = data.farm_location || '';
 
@@ -4209,7 +4180,6 @@
                 last_name: data.last_name || '',
                 name_extension: data.name_extension || '',
                 contact_number: data.contact_number || '',
-                email: data.email || '',
                 barangay: data.barangay || '',
                 farm_location: data.farm_location || '',
                 main_livelihood: data.main_livelihood || '',
@@ -4240,7 +4210,7 @@
         function addRsbsaFormChangeListeners(applicationId) {
             const form = document.getElementById('editRsbsaForm');
             const inputs = form.querySelectorAll(
-                'input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select');
+                'input[type="text"], input[type="tel"], input[type="number"], textarea, select');
 
             inputs.forEach(input => {
                 // Remove any existing listeners first
@@ -4282,7 +4252,6 @@
                 'last_name': 'edit_rsbsa_last_name',
                 'name_extension': 'edit_rsbsa_extension',
                 'contact_number': 'edit_rsbsa_contact_number',
-                'email': 'edit_rsbsa_email',
                 'barangay': 'edit_rsbsa_barangay',
                 'farm_location': 'edit_rsbsa_farm_location',
                 'main_livelihood': 'edit_rsbsa_livelihood',
@@ -4381,20 +4350,6 @@
                 }
             }
 
-            // Validate email if provided
-            const emailInput = document.getElementById('edit_rsbsa_email');
-            if (emailInput && emailInput.value.trim()) {
-                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailPattern.test(emailInput.value.trim())) {
-                    emailInput.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Invalid email format';
-                    emailInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            }
-
             // Validate land area if provided
             const landAreaInput = document.getElementById('edit_rsbsa_land_area');
             if (landAreaInput && landAreaInput.value) {
@@ -4456,31 +4411,6 @@
         }
 
         /**
-         * Validate email in edit form
-         */
-        function validateEditRsbsaEmail(input) {
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!input.value.trim()) return true;
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(input.value.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
-        /**
          * Handle edit form submission with confirmation
          */
         function handleEditRsbsaSubmit() {
@@ -4510,7 +4440,6 @@
                 'last_name': 'Last Name',
                 'name_extension': 'Extension',
                 'contact_number': 'Contact Number',
-                'email': 'Email',
                 'barangay': 'Barangay',
                 'farm_location': 'Farm Location',
                 'main_livelihood': 'Main Livelihood',
@@ -4524,7 +4453,6 @@
                 'last_name': 'edit_rsbsa_last_name',
                 'name_extension': 'edit_rsbsa_extension',
                 'contact_number': 'edit_rsbsa_contact_number',
-                'email': 'edit_rsbsa_email',
                 'barangay': 'edit_rsbsa_barangay',
                 'farm_location': 'edit_rsbsa_farm_location',
                 'main_livelihood': 'edit_rsbsa_livelihood',
@@ -4573,7 +4501,6 @@
                 last_name: (document.getElementById('edit_rsbsa_last_name')?.value || '').trim(),
                 name_extension: (document.getElementById('edit_rsbsa_extension')?.value || '') || null,
                 contact_number: (document.getElementById('edit_rsbsa_contact_number')?.value || '').trim(),
-                email: (document.getElementById('edit_rsbsa_email')?.value || '').trim(),
                 barangay: (document.getElementById('edit_rsbsa_barangay')?.value || '').trim(),
                 farm_location: (document.getElementById('edit_rsbsa_farm_location')?.value || '').trim(),
                 main_livelihood: (document.getElementById('edit_rsbsa_livelihood')?.value || '').trim(),
@@ -4639,7 +4566,6 @@
                             'contact_number': 'edit_rsbsa_contact_number',
                             'barangay': 'edit_rsbsa_barangay',
                             'main_livelihood': 'edit_rsbsa_livelihood',
-                            'email': 'edit_rsbsa_email',
                             'land_area': 'edit_rsbsa_land_area',
                             'farm_location': 'edit_rsbsa_farm_location',
                             'middle_name': 'edit_rsbsa_middle_name',
@@ -4712,14 +4638,6 @@
                 if (!phoneRegex.test(data.contact_number.trim())) {
                     errors.contact_number =
                         'Contact number must be in format: 09XXXXXXXXX or +639XXXXXXXXX (exactly 11 or 12 digits)';
-                }
-            }
-
-            // Validate email if provided
-            if (data.email && data.email.trim() !== '') {
-                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailPattern.test(data.email.trim())) {
-                    errors.email = 'Invalid email format';
                 }
             }
 
