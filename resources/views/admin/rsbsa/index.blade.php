@@ -440,62 +440,130 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Application Status
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Application Status
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <!-- Application Info -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                    <!-- Application Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Application Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>ID:</strong> <span id="updateAppId"></span></p>
-                                    <p class="mb-1"><strong>Application #:</strong> <span id="updateAppNumber"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Name:</strong> <span id="updateAppName"></span></p>
-                                    <p class="mb-1"><strong>Type:</strong> <span id="updateAppType"></span></p>
+                                    <!-- <div class="mb-2">
+                                        <small class="text-muted d-block">Application ID</small>
+                                        <strong id="updateAppId" class="text-primary">-</strong>
+                                    </div> -->
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Application #</small>
+                                        <strong id="updateAppNumber">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Applicant Name</small>
+                                        <strong id="updateAppName">-</strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Barangay:</strong> <span id="updateAppBarangay"></span></p>
-                                    <p class="mb-1"><strong>Livelihood:</strong> <span id="updateAppLivelihood"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateAppCurrentStatus"></span></p>
+                                    <!-- <div class="mb-2">
+                                        <small class="text-muted d-block">Application Type</small>
+                                        <strong id="updateAppType">-</strong>
+                                    </div> -->
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Barangay</small>
+                                        <strong id="updateAppBarangay">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Status</small>
+                                        <strong id="updateAppCurrentStatus">-</strong>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <small class="text-muted d-block mb-2">Main Livelihood</small>
+                                    <strong id="updateAppLivelihood">-</strong>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
+                    <!-- Update Form Card -->
                     <form id="updateForm">
                         <input type="hidden" id="updateApplicationId">
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="pending">Pending</option>
-                                <option value="under_review">Under Review</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-toggle-on me-2"></i>Update Status
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required>
+                                        <option value="">Choose status...</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="under_review">Under Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Choose the new status for this application
+                                    </small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..."></textarea>
-                            <div class="form-text">Maximum 1000 characters</div>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="remarks" rows="4" 
+                                    placeholder="Add any notes or comments about this status change..."
+                                    maxlength="1000"
+                                    oninput="updateRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this status update
+                                    </small>
+                                    <small class="text-muted" id="remarksCounter">
+                                        <span id="charCount">0</span>/1000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Change Alert -->
+                        <div class="alert alert-info border-left-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> Your changes will be logged and the applicant will be notified of the status update.
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">Update
-                        Status</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
+                    </button>
                 </div>
             </div>
         </div>
@@ -2798,7 +2866,7 @@
             }
 
             // Show loading state in modal
-            document.getElementById('updateAppId').innerHTML = `
+            document.getElementById('updateAppNumber').innerHTML = `
         <div class="spinner-border spinner-border-sm text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>`;
@@ -2827,17 +2895,8 @@
                     document.getElementById('updateApplicationId').value = id;
 
                     // Populate application info display with null checks
-                    document.getElementById('updateAppId').textContent = data.application_number || 'N/A';
                     document.getElementById('updateAppNumber').textContent = data.application_number || 'N/A';
                     document.getElementById('updateAppName').textContent = data.full_name || 'N/A';
-
-                    // Handle registration type with null safety
-                    const regType = data.registration_type || 'new';
-                    document.getElementById('updateAppType').innerHTML = `
-                <span class="badge bg-${regType === 'new' ? 'primary' : 'warning'}">
-                    ${regType.charAt(0).toUpperCase() + regType.slice(1)}
-                </span>`;
-
                     document.getElementById('updateAppBarangay').textContent = data.barangay || 'N/A';
                     document.getElementById('updateAppLivelihood').textContent = data.main_livelihood || 'N/A';
 
@@ -2890,6 +2949,24 @@
 
         // OPTIMIZED UPDATE STATUS FUNCTION WITH CONFIRMATION TOAST
         let isUpdating = false;
+
+        function updateRemarksCounter() {
+            const textarea = document.getElementById('remarks');
+            const charCount = document.getElementById('charCount');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    charCount.parentElement.classList.add('text-warning');
+                    charCount.parentElement.classList.remove('text-muted');
+                } else {
+                    charCount.parentElement.classList.remove('text-warning');
+                    charCount.parentElement.classList.add('text-muted');
+                }
+            }
+        }
 
         function updateApplicationStatus() {
             if (isUpdating) return;
