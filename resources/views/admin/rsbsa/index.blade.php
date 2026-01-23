@@ -28,10 +28,10 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-hourglass-start text-info"></i>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $pendingCount }}</div>
-                    <div class="stat-label text-info">Pending</div>
+                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
@@ -52,10 +52,10 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-check-circle text-success"></i>
+                        <i class="fas fa-hourglass-start text-info"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
-                    <div class="stat-label text-success">Approved</div>
+                    <div class="stat-number mb-2">{{ $pendingCount }}</div>
+                    <div class="stat-label text-info">Pending</div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -201,11 +201,11 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control form-control-sm"
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="search" class="form-control"
                                 placeholder="Search name, number, contact..." value="{{ request('search') }}"
                                 oninput="autoSearch()" id="searchInput">
-                            <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
+                            <button class="btn btn-outline-secondary" type="submit" title="Search"
                                 id="searchButton">
                                 <i class="fas fa-search"></i>
                             </button>
@@ -219,7 +219,7 @@
                     </div>
                     <div class="col-md-1">
                         <a href="{{ route('admin.rsbsa.applications') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i>Clear
                         </a>
                     </div>
                 </div>
@@ -2033,35 +2033,35 @@
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
+        <div class="modal-dialog modal-lg" style="max-height: 90vh;">
+            <div class="modal-content" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); max-height: 90vh; display: flex; flex-direction: column;">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel" style="color: white; font-weight: 600;">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="overflow-y: auto; padding: 2rem; flex: 1;">
                     <div class="row g-4">
                         <!-- Date Range Inputs -->
                         <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
+                            <div class="card border-0 bg-light h-100" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;">
                                 <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
+                                    <h6 class="card-title text-primary mb-3" style="font-weight: 600;">
                                         <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
                                     </h6>
                                     <div class="mb-3">
-                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <label for="modal_date_from" class="form-label" style="font-weight: 500; color: #495057;">From Date</label>
                                         <input type="date" id="modal_date_from" class="form-control"
-                                            value="{{ request('date_from') }}">
+                                            value="{{ request('date_from') }}" style="border-radius: 8px; border: 1px solid #e9ecef;">
                                     </div>
                                     <div class="mb-3">
-                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <label for="modal_date_to" class="form-label" style="font-weight: 500; color: #495057;">To Date</label>
                                         <input type="date" id="modal_date_to" class="form-control"
-                                            value="{{ request('date_to') }}">
+                                            value="{{ request('date_to') }}" style="border-radius: 8px; border: 1px solid #e9ecef;">
                                     </div>
-                                    <button type="button" class="btn btn-primary w-100"
+                                    <button type="button" class="btn btn-primary w-100" style="border-radius: 8px; font-weight: 500;"
                                         onclick="applyCustomDateRange()">
                                         <i class="fas fa-check me-2"></i>Apply Custom Range
                                     </button>
@@ -2071,32 +2071,32 @@
 
                         <!-- Quick Date Presets -->
                         <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
+                            <div class="card border-0 bg-light h-100" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;">
                                 <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
+                                    <h6 class="card-title text-primary mb-3" style="font-weight: 600;">
                                         <i class="fas fa-clock me-2"></i>Quick Presets
                                     </h6>
                                     <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success"
+                                        <button type="button" class="btn btn-outline-success" style="border-radius: 8px; font-weight: 500;"
                                             onclick="setDateRangeModal('today')">
                                             <i class="fas fa-calendar-day me-2"></i>Today
                                         </button>
-                                        <button type="button" class="btn btn-outline-info"
+                                        <button type="button" class="btn btn-outline-info" style="border-radius: 8px; font-weight: 500;"
                                             onclick="setDateRangeModal('week')">
                                             <i class="fas fa-calendar-week me-2"></i>This Week
                                         </button>
-                                        <button type="button" class="btn btn-outline-warning"
+                                        <button type="button" class="btn btn-outline-warning" style="border-radius: 8px; font-weight: 500;"
                                             onclick="setDateRangeModal('month')">
                                             <i class="fas fa-calendar me-2"></i>This Month
                                         </button>
-                                        <button type="button" class="btn btn-outline-primary"
+                                        <button type="button" class="btn btn-outline-primary" style="border-radius: 8px; font-weight: 500;"
                                             onclick="setDateRangeModal('year')">
                                             <i class="fas fa-calendar-alt me-2"></i>This Year
                                         </button>
                                         <hr class="my-3">
-                                        <button type="button" class="btn btn-outline-danger"
+                                        <button type="button" class="btn btn-outline-secondary w-100" style="border-radius: 8px; font-weight: 500;"
                                             onclick="clearDateRangeModal()">
-                                            <i class="fas fa-calendar-times me-2"></i>Clear Date Filter
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
                                         </button>
                                     </div>
                                 </div>
@@ -2104,10 +2104,10 @@
                         </div>
                     </div>
 
-                    <!-- Current Filter Display -->
+                    <!-- Current Filter Status -->
                     <div class="row mt-4">
                         <div class="col-12">
-                            <div class="alert alert-info mb-0" id="currentDateFilter">
+                            <div class="alert alert-info mb-0" style="border-left: 4px solid #17a2b8; border-radius: 8px;">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <span id="dateFilterStatus">
                                     @if (request('date_from') || request('date_to'))
@@ -2125,11 +2125,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
-                    </button>
                 </div>
             </div>
         </div>
