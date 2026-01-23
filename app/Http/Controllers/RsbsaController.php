@@ -421,7 +421,7 @@ public function updateStatus(Request $request, $id)
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
-                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'barangay' => 'required|string|max:100',
 
                 // Livelihood info
@@ -432,20 +432,12 @@ public function updateStatus(Request $request, $id)
 
                 // Status
                 'status' => 'nullable|in:pending,under_review,approved,rejected',
-                'remarks' => 'nullable|string|max:1000',
 
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
 
-                // User ID (optional - if creating for existing user)
-                'user_id' => 'nullable|exists:user_registration,id'
             ]);
 
-            // FIXED: Ensure user_id is explicitly set to null if not provided
-            // This is necessary because the key might not exist in the validated array
-            if (!isset($validated['user_id'])) {
-                $validated['user_id'] = null;
-            }
 
             // Generate unique application number
             $validated['application_number'] = $this->generateApplicationNumber();
@@ -488,7 +480,7 @@ public function updateStatus(Request $request, $id)
                 'application_id' => $application->id,
                 'application_number' => $application->application_number,
                 'created_by' => auth()->user()->name,
-                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
+                'linked_to_user' => isset($validated['user_id']) && $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
 
             return response()->json([
@@ -498,7 +490,6 @@ public function updateStatus(Request $request, $id)
                     'id' => $application->id,
                     'application_number' => $application->application_number,
                     'status' => $application->status,
-                    'linked_to_user' => $validated['user_id'] ? true : false
                 ]
             ], 201);
 
@@ -674,7 +665,7 @@ public function updateStatus(Request $request, $id)
                         $application->application_number,
                         $application->full_name,
                         $application->sex,
-                        $application->mobile_number,
+                        $application->contact_number,
                         $application->barangay,
                         $application->main_livelihood,
                         $application->land_area,

@@ -2195,13 +2195,6 @@
                                         <input type="tel" class="form-control" id="rsbsa_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">09XXXXXXXXX or +639XXXXXXXXX</small>
                                     </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_user_id" class="form-label fw-semibold">
-                                            Link to User Account (Optional)
-                                        </label>
-                                        <input type="number" class="form-control" id="rsbsa_user_id" placeholder="Enter User ID if exists">
-                                        <small class="text-muted d-block mt-2">Leave blank if not associated</small>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -4025,7 +4018,6 @@
             formData.append('land_area', document.getElementById('rsbsa_land_area').value);
             formData.append('commodity', document.getElementById('rsbsa_commodity').value.trim());
             formData.append('status', document.getElementById('rsbsa_status').value);
-            formData.append('remarks', document.getElementById('rsbsa_remarks').value.trim());
 
             // Add document if uploaded
             const docInput = document.getElementById('rsbsa_supporting_document');
@@ -4034,7 +4026,7 @@
             }
 
             // Find submit button
-            const submitBtn = document.querySelector('#addRsbsaModal .btn-success');
+            const submitBtn = document.querySelector('#addRsbsaModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
             submitBtn.disabled = true;
@@ -4043,7 +4035,7 @@
             fetch('/admin/rsbsa-applications/create', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'X-CSRF-TOKEN': getCSRFToken(), 
                         'Accept': 'application/json'
                     },
                     body: formData
