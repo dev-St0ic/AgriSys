@@ -575,7 +575,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-pencil-alt me-2"></i>Edit Application - <span id="editAppNumber"></span>
+                        <i></i>Edit Application - <span id="editAppNumber"></span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -766,7 +766,7 @@
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
                                 <h6 class="mb-0 fw-semibold text-primary">
-                                    <i class="fas fa-file-upload me-2"></i>Supporting Document
+                                    <i></i>Supporting Document
                                 </h6>
                             </div>
                             <div class="card-body">
@@ -818,14 +818,14 @@
                         <div class="alert alert-info border-left-info mb-0">
                             <i class="fas fa-lightbulb me-2"></i>
                             <strong>Note:</strong> You can edit all application information here.
-                            To change application status or add remarks, use the "Update" button from the main table.
+                            To change application status or add remarks, use the "Change Status" button from the main table.
                         </div>
                     </form>
                 </div>
 
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Cancel
+                        <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" id="editRsbsaSubmitBtn"
                         onclick="handleEditRsbsaSubmit()">
@@ -1275,6 +1275,7 @@
             border-radius: 12px 12px 0 0;
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-bottom: 1px solid #dee2e6;
+            text-align: center;
         }
 
         #documentModal .modal-footer {
@@ -2304,14 +2305,58 @@
         #deleteRsbsaModal .modal-backdrop {
             opacity: 0.5;
         }
+         #documentModal .modal-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            border: none !important;
+            padding: 1.5rem !important;
+        }
+        
+        /* FORCE CENTER THE DOCUMENT MODAL HEADER */
+        #documentModal .modal-header {
+            justify-content: center !important;
+            text-align: center !important;
+            position: relative !important;
+        }
+
+        #documentModal .modal-title {
+            width: 100% !important;
+            text-align: center !important;
+        }
+
+        #documentModal .btn-close {
+            position: absolute !important;
+            right: 1rem !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+        }
+
+        #documentModal .modal-header.bg-primary {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+        }
+
+        #documentModal .modal-title {
+            color: white !important;
+            font-weight: 600 !important;
+            font-size: 1.25rem !important;
+        }
+
+        #documentModal .btn-close-white {
+            filter: brightness(0) invert(1) !important;
+            opacity: 0.8 !important;
+        }
+
+        #documentModal .btn-close-white:hover {
+            opacity: 1 !important;
+        }
+
     </style>
 
     <!-- Document Viewer Modal -->
     <div class="modal fade" id="documentModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Document Viewer</h5>
+                <div class="modal-header bg-primary text-white text-center">
+                    <h5 class="modal-title align-center"><i></i>Document Viewer</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -3418,7 +3463,7 @@
                         <!-- Supporting Document Card -->
                         <div class="col-12">
                             <div class="card border-secondary">
-                                <div class="card-header bg-secondary text-white">
+                                <div class="card-header bg-primary text-center text-white">
                                     <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
                                 </div>
                                 <div class="card-body">
@@ -3483,9 +3528,9 @@
             // Update modal title if filename is provided
             const modalTitle = document.querySelector('#documentModal .modal-title');
             if (filename) {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+                modalTitle.innerHTML = `<i></i>${filename}`;
             } else {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+                modalTitle.innerHTML = `<i></i>Supporting Document`;
             }
 
             // Extract file extension and name
@@ -4566,59 +4611,235 @@
             document.body.removeChild(link);
         }
 
-        /**
-         * Preview supporting document in edit modal
+      /**
+         * Preview supporting document in edit modal - FIXED VERSION
          */
         function previewEditRsbsaDocument(inputId, previewId) {
             const fileInput = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
 
-            if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const fileName = file.name.toLowerCase();
-                const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
-                const isPdf = file.type === 'application/pdf' || fileName.endsWith('.pdf');
+            console.log('Preview function called:', inputId, previewId);
+            console.log('File input:', fileInput);
+            console.log('Preview container:', preview);
 
-                preview.innerHTML = '';
+            if (!preview) {
+                console.error('Preview container not found:', previewId);
+                return;
+            }
 
-                if (isImage) {
-                    // Display image preview
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.maxWidth = '100%';
-                        img.style.height = 'auto';
-                        img.style.maxHeight = '300px';
-                        img.style.borderRadius = '8px';
-                        img.style.border = '1px solid #dee2e6';
-                        img.style.marginBottom = '10px';
-                        preview.appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
-                } else if (isPdf) {
-                    // Display PDF preview
-                    const pdfPreview = document.createElement('div');
-                    pdfPreview.className = 'alert alert-info mb-0';
-                    pdfPreview.innerHTML = `
-                        <i class="fas fa-file-pdf me-2"></i>
-                        <strong>PDF Selected:</strong> ${file.name}
-                        <br><small class="d-block mt-1">File size: ${(file.size / 1024).toFixed(2)} KB</small>
-                    `;
-                    preview.appendChild(pdfPreview);
-                } else {
-                    // Unsupported file type
-                    const unsupported = document.createElement('div');
-                    unsupported.className = 'alert alert-warning mb-0';
-                    unsupported.innerHTML = `
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>File:</strong> ${file.name}
-                        <br><small class="d-block mt-1">Supported formats: JPG, PNG, PDF</small>
-                    `;
-                    preview.appendChild(unsupported);
+            // Clear previous preview
+            preview.innerHTML = '';
+            preview.style.display = 'none';
+
+            // If no files selected, just clear the preview
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+                console.log('No file selected');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            console.log('File selected:', file.name, file.type, file.size);
+            
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (!allowedTypes.includes(file.type) && !['jpg', 'jpeg', 'png', 'pdf'].includes(fileExtension)) {
+                preview.innerHTML = `
+                    <div class="alert alert-danger mb-2">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Please select a JPG, PNG, or PDF file
+                    </div>
+                `;
+                preview.style.display = 'block';
+                fileInput.value = ''; // Clear the input
+                return;
+            }
+            
+            // Validate file size (5MB max)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                preview.innerHTML = `
+                    <div class="alert alert-danger mb-2">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        File must be less than 5MB
+                    </div>
+                `;
+                preview.style.display = 'block';
+                fileInput.value = ''; // Clear the input
+                return;
+            }
+
+            // Check if it's a PDF
+            const isPdf = file.type === 'application/pdf' || fileExtension === 'pdf';
+
+            if (isPdf) {
+                // Show PDF info instead of preview
+                preview.innerHTML = `
+                    <div class="document-preview-item">
+                        <div class="alert alert-info mb-2">
+                            <i class="fas fa-file-pdf me-2"></i>
+                            <strong>PDF Selected:</strong> ${file.name}
+                            <br><small class="d-block mt-1">File size: ${(file.size / 1024).toFixed(2)} KB</small>
+                        </div>
+                    </div>
+                `;
+                preview.style.display = 'block';
+                
+                // Trigger change detection
+                const form = document.getElementById('editRsbsaForm');
+                if (form && form.dataset.applicationId) {
+                    checkRsbsaFormChanges(form.dataset.applicationId);
                 }
+                
+                return;
+            }
+
+            // For images, show preview
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <div class="document-preview-item">
+                        <img src="${e.target.result}" alt="Preview" 
+                            style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                            <i class="fas fa-check text-success me-2"></i>${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                        </p>
+                    </div>
+                `;
+                preview.style.display = 'block';
+                
+                console.log('Image preview loaded successfully');
+                
+                // Trigger change detection
+                const form = document.getElementById('editRsbsaForm');
+                if (form && form.dataset.applicationId) {
+                    checkRsbsaFormChanges(form.dataset.applicationId);
+                }
+            };
+
+            reader.onerror = function(error) {
+                console.error('File read error:', error);
+                preview.innerHTML = `
+                    <div class="alert alert-danger mb-2">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Failed to load file preview
+                    </div>
+                `;
+                preview.style.display = 'block';
+                fileInput.value = ''; // Clear the input
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Display existing document preview in edit modal - FIXED VERSION
+         * This function is called when loading application data
+         */
+        function displayEditRsbsaExistingDocument(documentPath, previewContainerId) {
+            const docPreviewContainer = document.getElementById(previewContainerId);
+            
+            if (!docPreviewContainer) {
+                console.error('Preview container not found:', previewContainerId);
+                return;
+            }
+
+            // Clear existing content
+            docPreviewContainer.innerHTML = '';
+
+            if (!documentPath) {
+                console.log('No document path provided');
+                return;
+            }
+
+            const fileName = documentPath.split('/').pop();
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+            const isPdf = fileExtension === 'pdf';
+            const storageUrl = `/storage/${documentPath}`;
+
+            if (isPdf) {
+                // Display PDF info with link
+                const pdfInfo = document.createElement('div');
+                pdfInfo.className = 'alert alert-info mb-2';
+                pdfInfo.innerHTML = `
+                    <i class="fas fa-file-pdf me-2"></i>
+                    <strong>Current Document:</strong> ${fileName}
+                    <br>
+                    <small class="d-block mt-2">
+                        <a href="${storageUrl}" target="_blank" class="text-info">
+                            <i class="fas fa-external-link-alt me-1"></i>View PDF
+                        </a>
+                        &nbsp;|&nbsp;
+                        <a href="${storageUrl}" download class="text-info">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                    </small>
+                `;
+                docPreviewContainer.appendChild(pdfInfo);
+            } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension)) {
+                // Display image preview
+                const imgContainer = document.createElement('div');
+                imgContainer.style.marginBottom = '10px';
+
+                const previewImg = document.createElement('img');
+                previewImg.src = storageUrl;
+                previewImg.alt = 'Document Preview';
+                previewImg.style.maxWidth = '100%';
+                previewImg.style.height = 'auto';
+                previewImg.style.maxHeight = '300px';
+                previewImg.style.borderRadius = '8px';
+                previewImg.style.border = '1px solid #dee2e6';
+                previewImg.style.display = 'block';
+                previewImg.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+
+                previewImg.onerror = function() {
+                    console.error('Image failed to load:', storageUrl);
+                    imgContainer.innerHTML = `
+                        <div class="alert alert-warning mb-2">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Unable to display image preview
+                            <br>
+                            <small class="d-block mt-2">
+                                <a href="${storageUrl}" target="_blank" class="text-warning">
+                                    <i class="fas fa-external-link-alt me-1"></i>View Image
+                                </a>
+                            </small>
+                        </div>
+                    `;
+                };
+
+                imgContainer.appendChild(previewImg);
+                docPreviewContainer.appendChild(imgContainer);
+
+                // Add file info
+                const fileInfo = document.createElement('small');
+                fileInfo.className = 'text-muted d-block';
+                fileInfo.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Current document. Upload a new file to replace it.';
+                docPreviewContainer.appendChild(fileInfo);
+            } else {
+                // Unknown file type
+                const unknownFile = document.createElement('div');
+                unknownFile.className = 'alert alert-warning mb-2';
+                unknownFile.innerHTML = `
+                    <i class="fas fa-file me-2"></i>
+                    <strong>Current Document:</strong> ${fileName}
+                    <br>
+                    <small class="d-block mt-2">
+                        <a href="${storageUrl}" target="_blank" class="text-warning">
+                            <i class="fas fa-external-link-alt me-1"></i>View
+                        </a>
+                        &nbsp;|&nbsp;
+                        <a href="${storageUrl}" download class="text-warning">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                    </small>
+                `;
+                docPreviewContainer.appendChild(unknownFile);
             }
         }
+
 
         /**
          * Show edit RSBSA modal and load application data
@@ -4671,7 +4892,8 @@
                     // Display existing supporting document preview if it exists
                     const docPreviewContainer = document.getElementById('edit_rsbsa_supporting_document_preview');
                     docPreviewContainer.innerHTML = '';
-                    if (data.supporting_document_path) {
+                    if (data.supporting_document_url) {
+                        const docUrl = data.supporting_document_url;
                         const docPath = data.supporting_document_path;
                         const fileName = docPath.toLowerCase();
                         const isPdf = fileName.endsWith('.pdf');
@@ -4688,7 +4910,7 @@
                         } else {
                             // Display image preview
                             const previewImg = document.createElement('img');
-                            previewImg.src = docPath;
+                            previewImg.src = docUrl;
                             previewImg.style.maxWidth = '100%';
                             previewImg.style.height = 'auto';
                             previewImg.style.maxHeight = '300px';
