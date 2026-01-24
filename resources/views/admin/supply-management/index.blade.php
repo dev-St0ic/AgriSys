@@ -2142,13 +2142,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
         // ==========================================
-        // CATEGORY SWITCHING + FILTERING + PAGINATION
+        // FIXED CATEGORY SWITCHING + FILTERING + PAGINATION
         // ==========================================
 
         const ITEMS_PER_PAGE = 10;
         let currentPage = {};
+        let isFilteringApplied = false;
+
+        // Store filtered results to prevent re-filtering on pagination
+        let filteredRowsCache = {};
 
         // Switch between categories
         function switchCategory(categoryId, event) {
@@ -2186,11 +2189,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const activeCategory = document.querySelector('.category-content.active');
             if (!activeCategory) return;
 
+            const categoryId = activeCategory.id.replace('category-', '');
             const statusFilter = document.querySelector('select[name="status"]').value;
             const stockStatusFilter = document.querySelector('select[name="stock_status"]').value;
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
             const rows = activeCategory.querySelectorAll('.item-row');
+            const filteredRows = [];
             let visibleCount = 0;
 
             rows.forEach(row => {
@@ -2255,19 +2260,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
 
-                row.style.display = isVisible ? '' : 'none';
-                if (isVisible) visibleCount++;
+                if (isVisible) {
+                    filteredRows.push(row);
+                    visibleCount++;
+                }
+            });
+
+            // Cache the filtered rows for this category
+            filteredRowsCache[categoryId] = filteredRows;
+
+            // Show all rows first (for proper display)
+            rows.forEach(row => {
+                row.style.display = 'none';
+            });
+
+            // Show filtered rows
+            filteredRows.forEach(row => {
+                row.style.display = '';
             });
 
             // Handle empty state
             handleEmptyState(activeCategory, visibleCount);
 
-           // Initialize pagination for non-"all" categories
-            const categoryId = activeCategory.id.replace('category-', '');
-            if (categoryId !== 'all') {
-                currentPage[categoryId] = 1; // Reset to page 1
-                displayPageItems(categoryId, 1);
-            }
+            // Reset pagination and show first page
+            currentPage[categoryId] = 1;
+            displayPageItems(categoryId, 1, filteredRows);
         }
 
         // Handle empty state message
@@ -2300,34 +2317,35 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Display paginated items
-        function displayPageItems(categoryId, page = 1) {
-            const container = document.getElementById(`category-${categoryId}`);
-            if (!container) return;
+        // Display paginated items - FIXED: Uses cached filtered rows
+        function displayPageItems(categoryId, page = 1, filteredRows = null) {
+            // Use cached filtered rows or retrieve them
+            if (!filteredRows) {
+                filteredRows = filteredRowsCache[categoryId] || [];
+            }
 
-            // Get visible rows only
-            const allRows = Array.from(container.querySelectorAll('.item-row')).filter(row => {
-                return row.style.display !== 'none';
-            });
-
-            const totalPages = Math.ceil(allRows.length / ITEMS_PER_PAGE) || 1;
+            const totalPages = Math.ceil(filteredRows.length / ITEMS_PER_PAGE) || 1;
 
             // Validate page number
             if (page < 1) page = 1;
             if (page > totalPages) page = totalPages;
 
-            currentPage[categoryId] = page; // Store current page
+            currentPage[categoryId] = page;
 
             const startIndex = (page - 1) * ITEMS_PER_PAGE;
             const endIndex = startIndex + ITEMS_PER_PAGE;
 
-            // Hide all rows
-            Array.from(container.querySelectorAll('.item-row')).forEach(row => {
+            // Hide all rows in this category
+            const container = document.getElementById(`category-${categoryId}`);
+            if (!container) return;
+
+            const allRows = Array.from(container.querySelectorAll('.item-row'));
+            allRows.forEach(row => {
                 row.style.display = 'none';
             });
 
-            // Show current page rows
-            allRows.slice(startIndex, endIndex).forEach(row => {
+            // Show only current page rows
+            filteredRows.slice(startIndex, endIndex).forEach(row => {
                 row.style.display = '';
             });
 
@@ -2399,16 +2417,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Go to specific page
-        function goToPage(categoryId, pageNum) {
-            displayPageItems(categoryId, pageNum);
-
-            const container = document.getElementById(`category-${categoryId}`);
-            if (container) {
-                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
         // Auto search with debounce
         let searchTimeout;
         function autoSearch() {
@@ -2426,7 +2434,7 @@ document.addEventListener('DOMContentLoaded', function() {
             applyFiltersToActiveCategory();
         }
 
-       // Initialize on page load
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.querySelector('select[name="status"]');
             const stockStatusSelect = document.querySelector('select[name="stock_status"]');
@@ -2451,20 +2459,22 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
                 const categoryId = container.id.replace('category-', '');
                 if (categoryId !== 'all') {
-                    displayPageItems(categoryId, 1);
+                    const filteredRows = filteredRowsCache[categoryId] || [];
+                    displayPageItems(categoryId, 1, filteredRows);
                 }
             });
         });
 
-        // CRITICAL: Add event delegation for pagination links (OUTSIDE DOMContentLoaded)
+        // CRITICAL: Add event delegation for pagination links
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('pagination-link')) {
                 e.preventDefault();
                 const catId = e.target.dataset.category;
                 const pageNum = parseInt(e.target.dataset.page);
                 if (catId && !isNaN(pageNum)) {
-                    console.log('Pagination clicked:', catId, pageNum); // Debug
-                    displayPageItems(catId, pageNum);
+                    // Use cached filtered rows for this category
+                    const filteredRows = filteredRowsCache[catId] || [];
+                    displayPageItems(catId, pageNum, filteredRows);
                     // Scroll to category
                     const container = document.getElementById(`category-${catId}`);
                     if (container) {
