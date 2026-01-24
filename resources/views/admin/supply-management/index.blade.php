@@ -67,7 +67,8 @@
         <!-- Category Navigation Tabs - SEPARATED -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- First row: Category tabs -->
                     <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center" id="categoryTabsNav">
                         <button class="category-tab-btn active" data-category="all" onclick="switchCategory('all', event)">
                             <i class="fas fa-th-large"></i> All Categories
@@ -88,15 +89,18 @@
                             </button>
                         @endif
                     </div>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
-                        style="white-space: nowrap;">
-                        <i class="fas fa-plus me-2"></i>Add Category
-                    </button>
+
+                    <!-- Second row: Add Category button (right aligned) -->
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal" style="white-space: nowrap;">
+                            <i class="fas fa-plus me-2"></i>Add Category
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filters & Search Card - NEW SEPARATED SECTION -->
+        <!-- Filters & Search Card - UPDATED -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">
@@ -104,47 +108,44 @@
                 </h6>
             </div>
             <div class="card-body">
-                <form method="GET" action="{{ route('admin.seedlings.supply-management.index') }}" id="filterForm">
-                    <div class="row g-2">
-                        <!-- Status Filter -->
-                        <div class="col-md-2">
-                            <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
-                                <option value="">All Status</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                            </select>
-                        </div>
+                <div class="row g-2">
+                    <!-- Status Filter -->
+                    <div class="col-md-2">
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
 
-                        <!-- Stock Status Filter -->
-                        <div class="col-md-2">
-                            <select name="stock_status" class="form-select form-select-sm" onchange="submitFilterForm()">
-                                <option value="">All Stock Status</option>
-                                <option value="in_stock" {{ request('stock_status') == 'in_stock' ? 'selected' : '' }}>In Stock</option>
-                                <option value="low_supply" {{ request('stock_status') == 'low_supply' ? 'selected' : '' }}>Low Supply</option>
-                                <option value="out_of_stock" {{ request('stock_status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                            </select>
-                        </div>
+                    <!-- Stock Status Filter -->
+                    <div class="col-md-2">
+                        <select name="stock_status" class="form-select form-select-sm">
+                            <option value="">All Stock Status</option>
+                            <option value="in_stock">In Stock</option>
+                            <option value="low_supply">Low Supply</option>
+                            <option value="out_of_stock">Out of Stock</option>
+                        </select>
+                    </div>
 
-                        <!-- Search -->
-                        <div class="col-md-5">
-                            <div class="input-group input-group-sm">
-                                <input type="text" name="search" class="form-control"
-                                    placeholder="Search item name, description..." value="{{ request('search') }}"
-                                    oninput="autoSearch()" id="searchInput">
-                                <button class="btn btn-outline-secondary" type="submit" title="Search" id="searchButton">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Clear Button -->
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.seedlings.supply-management.index') }}" class="btn btn-secondary btn-sm w-100">
-                                <i></i>Clear 
-                            </a>
+                    <!-- Search -->
+                    <div class="col-md-5">
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="searchInput" class="form-control"
+                                placeholder="Search item name, description..." value="">
+                            <button class="btn btn-outline-secondary" type="button" title="Search">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </div>
                     </div>
-                </form>
+
+                    <!-- Clear Button -->
+                    <div class="col-md-3">
+                        <button onclick="clearFilters()" class="btn btn-secondary btn-sm w-100">
+                            <i></i>Clear
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1074,133 +1075,6 @@
             });
             document.getElementById('showMoreBtn').style.display = 'inline-block';
             document.getElementById('showLessBtn').style.display = 'none';
-        }
-
-        // Category Tab Switching
-        function switchCategory(categoryId, event) {
-            // Update active tab button
-            document.querySelectorAll('.category-tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.closest('.category-tab-btn').classList.add('active');
-
-            // Hide all category content
-            document.querySelectorAll('.category-content').forEach(content => {
-                content.classList.remove('active');
-            });
-
-            // Show selected category content
-            const targetContent = document.getElementById(`category-${categoryId}`);
-            if (targetContent) {
-                targetContent.classList.add('active');
-            }
-
-            // Clear search
-            document.getElementById('itemSearch').value = '';
-            searchItems();
-        }
-
-        // Search Items
-        function searchItems() {
-            const searchTerm = document.getElementById('itemSearch').value.toLowerCase();
-            const activeContent = document.querySelector('.category-content.active');
-
-            if (!activeContent) return;
-
-            const rows = activeContent.querySelectorAll('.item-row');
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                // Get item name from <strong> tag or direct text
-                const nameElement = row.querySelector('strong') || row.querySelector('td:nth-child(2)');
-                const name = nameElement ? nameElement.textContent.toLowerCase() : '';
-
-                // Get description - may be in small.text-muted (individual view) or not present (all view)
-                const descriptionElements = row.querySelectorAll('small.text-muted');
-                let description = '';
-                descriptionElements.forEach(el => {
-                    // Skip reorder warnings and min/max text
-                    if (!el.textContent.includes('Needs Reorder') &&
-                        !el.textContent.includes('Min:') &&
-                        !el.textContent.includes('Max:') &&
-                        !el.textContent.includes('Reorder:')) {
-                        description += el.textContent.toLowerCase() + ' ';
-                    }
-                });
-
-                // Also check unit and supply values
-                const unit = row.querySelector('.badge.bg-secondary')?.textContent.toLowerCase() || '';
-
-                if (name.includes(searchTerm) || description.includes(searchTerm) || unit.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // If in "All Categories" view, hide category cards with no visible items
-            if (activeContent.id === 'category-all') {
-                const categoryCards = activeContent.querySelectorAll('.col-md-6');
-                categoryCards.forEach(card => {
-                    const visibleRows = card.querySelectorAll(
-                        '.item-row[style=""], .item-row:not([style*="display: none"])');
-                    const actualVisibleRows = Array.from(card.querySelectorAll('.item-row')).filter(row => row.style
-                        .display !== 'none');
-
-                    if (actualVisibleRows.length === 0 && searchTerm) {
-                        card.style.display = 'none';
-                    } else {
-                        card.style.display = '';
-                    }
-                });
-            }
-
-            // Handle empty state for search
-            const tables = activeContent.querySelectorAll('table');
-            const hasVisibleItems = visibleCount > 0;
-
-            if (!hasVisibleItems && searchTerm && tables.length > 0) {
-                // Show no results message
-                if (!activeContent.querySelector('.no-results-message')) {
-                    const noResults = document.createElement('div');
-                    noResults.className = 'no-results-message text-center py-5';
-                    noResults.innerHTML = `
-                <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No items found</h5>
-                <p class="text-muted">Try adjusting your search terms.</p>
-            `;
-
-                    // Add after the row container in All view, or after table in single view
-                    if (activeContent.id === 'category-all') {
-                        const rowContainer = activeContent.querySelector('.row');
-                        if (rowContainer) {
-                            rowContainer.after(noResults);
-                            rowContainer.style.display = 'none';
-                        }
-                    } else {
-                        const table = activeContent.querySelector('table');
-                        if (table) {
-                            table.parentElement.after(noResults);
-                            table.parentElement.style.display = 'none';
-                        }
-                    }
-                }
-            } else {
-                const noResults = activeContent.querySelector('.no-results-message');
-                if (noResults) {
-                    noResults.remove();
-
-                    // Restore visibility
-                    if (activeContent.id === 'category-all') {
-                        const rowContainer = activeContent.querySelector('.row');
-                        if (rowContainer) rowContainer.style.display = '';
-                    } else {
-                        const table = activeContent.querySelector('table');
-                        if (table) table.parentElement.style.display = '';
-                    }
-                }
-            }
         }
 
         // Show error modal (closes any open modal first)
@@ -2269,20 +2143,292 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-        let searchTimeout;
+        // ==========================================
+        // CATEGORY SWITCHING + FILTERING + PAGINATION
+        // ==========================================
 
-        // Auto search functionality
+        const ITEMS_PER_PAGE = 10;
+        let currentPage = {};
+
+        // Switch between categories
+        function switchCategory(categoryId, event) {
+            if (event) {
+                event.preventDefault();
+            }
+            
+            // Update active tab button
+            document.querySelectorAll('.category-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeBtn = event ? event.target.closest('.category-tab-btn') : null;
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+
+            // Hide all category content
+            document.querySelectorAll('.category-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected category content
+            const targetContent = document.getElementById(`category-${categoryId}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // Apply filters and pagination
+            applyFiltersToActiveCategory();
+        }
+
+        // Apply filters to the currently active category
+        function applyFiltersToActiveCategory() {
+            const activeCategory = document.querySelector('.category-content.active');
+            if (!activeCategory) return;
+
+            const statusFilter = document.querySelector('select[name="status"]').value;
+            const stockStatusFilter = document.querySelector('select[name="stock_status"]').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            const rows = activeCategory.querySelectorAll('.item-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                let isVisible = true;
+
+                // Get item name
+                const nameElement = row.querySelector('strong');
+                const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+
+                // Get item description
+                const descriptionElements = row.querySelectorAll('small.text-muted');
+                let description = '';
+                descriptionElements.forEach(el => {
+                    if (!el.textContent.includes('Needs Reorder') &&
+                        !el.textContent.includes('Min:') &&
+                        !el.textContent.includes('Max:') &&
+                        !el.textContent.includes('Reorder:')) {
+                        description += el.textContent.toLowerCase() + ' ';
+                    }
+                });
+
+                // Get status
+                const statusBadges = row.querySelectorAll('span.badge');
+                let isActive = false;
+                statusBadges.forEach(badge => {
+                    const text = badge.textContent.trim().toLowerCase();
+                    if (text === 'active') {
+                        isActive = true;
+                    }
+                });
+
+                // Get supply status
+                const supplyBadge = row.querySelector('span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
+                const currentSupply = supplyBadge ? parseInt(supplyBadge.textContent) : 0;
+
+                let stockStatus = 'in_stock';
+                if (currentSupply === 0) {
+                    stockStatus = 'out_of_stock';
+                } else if (row.textContent.includes('Needs Reorder')) {
+                    stockStatus = 'low_supply';
+                }
+
+                // Apply status filter
+                if (statusFilter) {
+                    const filterActive = statusFilter === 'active';
+                    if (isActive !== filterActive) {
+                        isVisible = false;
+                    }
+                }
+
+                // Apply stock status filter
+                if (stockStatusFilter && isVisible) {
+                    if (stockStatusFilter !== stockStatus) {
+                        isVisible = false;
+                    }
+                }
+
+                // Apply search filter
+                if (searchTerm && isVisible) {
+                    if (!name.includes(searchTerm) && !description.includes(searchTerm)) {
+                        isVisible = false;
+                    }
+                }
+
+                row.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
+            });
+
+            // Handle empty state
+            handleEmptyState(activeCategory, visibleCount);
+
+            // Initialize pagination for non-"all" categories
+            const categoryId = activeCategory.id.replace('category-', '');
+            if (categoryId !== 'all') {
+                displayPageItems(categoryId, 1);
+            }
+        }
+
+        // Handle empty state message
+        function handleEmptyState(container, visibleCount) {
+            const existingMessage = container.querySelector('.no-results-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            if (visibleCount === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results-message text-center py-5';
+                noResults.innerHTML = `
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No items found</h5>
+                    <p class="text-muted">Try adjusting your filters or search terms.</p>
+                `;
+
+                if (container.id === 'category-all') {
+                    const rowContainer = container.querySelector('.row');
+                    if (rowContainer) {
+                        rowContainer.parentElement.insertBefore(noResults, rowContainer.nextSibling);
+                    }
+                } else {
+                    const table = container.querySelector('table');
+                    if (table) {
+                        table.parentElement.parentElement.insertBefore(noResults, table.parentElement.nextSibling);
+                    }
+                }
+            }
+        }
+
+        // Display paginated items
+        function displayPageItems(categoryId, page = 1) {
+            const container = document.getElementById(`category-${categoryId}`);
+            if (!container) return;
+
+            // Get visible rows only
+            const allRows = Array.from(container.querySelectorAll('.item-row')).filter(row => {
+                return row.style.display !== 'none';
+            });
+
+            const totalPages = Math.ceil(allRows.length / ITEMS_PER_PAGE) || 1;
+
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            currentPage[categoryId] = page;
+
+            const startIndex = (page - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+
+            // Hide all rows
+            Array.from(container.querySelectorAll('.item-row')).forEach(row => {
+                row.style.display = 'none';
+            });
+
+            // Show current page rows
+            allRows.slice(startIndex, endIndex).forEach(row => {
+                row.style.display = '';
+            });
+
+            // Update pagination controls
+            updatePaginationControls(categoryId, page, totalPages);
+        }
+
+        // Update pagination controls
+        function updatePaginationControls(categoryId, currentPageNum, totalPages) {
+            const container = document.getElementById(`category-${categoryId}`);
+            if (!container) return;
+
+            const oldPagination = container.querySelector('.pagination-controls');
+            if (oldPagination) {
+                oldPagination.remove();
+            }
+
+            if (totalPages <= 1) return;
+
+            const paginationHTML = `
+                <div class="pagination-controls d-flex justify-content-center align-items-center gap-2 mt-4 mb-3">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', 1)" ${currentPageNum === 1 ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-left"></i> First
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', ${currentPageNum - 1})" ${currentPageNum === 1 ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    
+                    <div class="pagination-info">
+                        Page <span class="fw-bold">${currentPageNum}</span> of <span class="fw-bold">${totalPages}</span>
+                    </div>
+                    
+                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', ${currentPageNum + 1})" ${currentPageNum === totalPages ? 'disabled' : ''}>
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', ${totalPages})" ${currentPageNum === totalPages ? 'disabled' : ''}>
+                        Last <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+
+            const tableContainer = container.querySelector('.table-responsive');
+            if (tableContainer) {
+                tableContainer.insertAdjacentHTML('afterend', paginationHTML);
+            }
+        }
+
+        // Go to specific page
+        function goToPage(categoryId, pageNum) {
+            displayPageItems(categoryId, pageNum);
+
+            const container = document.getElementById(`category-${categoryId}`);
+            if (container) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Auto search with debounce
+        let searchTimeout;
         function autoSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                document.getElementById('filterForm').submit();
-            }, 500);
+                applyFiltersToActiveCategory();
+            }, 300);
         }
 
-        // Submit filter form when dropdowns change
-        function submitFilterForm() {
-            document.getElementById('filterForm').submit();
+        // Clear filters
+        function clearFilters() {
+            document.querySelector('select[name="status"]').value = '';
+            document.querySelector('select[name="stock_status"]').value = '';
+            document.getElementById('searchInput').value = '';
+            applyFiltersToActiveCategory();
         }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.querySelector('select[name="status"]');
+            const stockStatusSelect = document.querySelector('select[name="stock_status"]');
+            const searchInput = document.getElementById('searchInput');
+
+            if (statusSelect) {
+                statusSelect.addEventListener('change', applyFiltersToActiveCategory);
+            }
+
+            if (stockStatusSelect) {
+                stockStatusSelect.addEventListener('change', applyFiltersToActiveCategory);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', autoSearch);
+            }
+
+            // Apply initial filters
+            applyFiltersToActiveCategory();
+
+            // Initialize pagination for all individual categories
+            document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
+                const categoryId = container.id.replace('category-', '');
+                if (categoryId !== 'all') {
+                    displayPageItems(categoryId, 1);
+                }
+            });
+        });
     </script>
 
     <style>
@@ -2869,6 +3015,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
         .input-group-sm .form-control {
             border: 1px solid #dee2e6;
+        }
+        /* Pagination Controls */
+        .pagination-controls {
+            margin: 2rem 0 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .pagination-info {
+            font-size: 0.95rem;
+            color: #495057;
+            padding: 0.5rem 1rem;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .pagination-controls .btn-outline-secondary {
+            border-color: #dee2e6;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-controls .btn-outline-secondary:hover:not(:disabled) {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+
+        .pagination-controls .btn-outline-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-controls .btn-outline-secondary i {
+            margin: 0 0.25rem;
+        }
+
+        /* Responsive pagination */
+        @media (max-width: 768px) {
+            .pagination-controls {
+                flex-wrap: wrap;
+                gap: 0.5rem !important;
+            }
+
+            .pagination-controls .btn-sm {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+
+            .pagination-controls .btn-sm i {
+                margin: 0;
+            }
+
+            .pagination-controls .btn-sm span {
+                display: none;
+            }
+
+            .pagination-info {
+                min-width: auto;
+                flex: 1 1 100%;
+                order: -1;
+            }
         }
     </style>
 @endsection
