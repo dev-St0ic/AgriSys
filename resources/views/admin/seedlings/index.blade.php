@@ -687,14 +687,6 @@
                                                         name="planting_location"
                                                         value="{{ $request->planting_location }}" maxlength="500">
                                                 </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_preferred_delivery_date_{{ $request->id }}"
-                                                        class="form-label">Preferred Delivery Date</label>
-                                                    <input type="date" class="form-control"
-                                                        id="edit_preferred_delivery_date_{{ $request->id }}"
-                                                        name="preferred_delivery_date"
-                                                        value="{{ $request->preferred_delivery_date?->format('Y-m-d') }}">
-                                                </div>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="edit_purpose_{{ $request->id }}"
@@ -904,12 +896,13 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-seedling me-2"></i>Add New Seedling Request
+                        <i></i>Add New Request
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addSeedlingForm" enctype="multipart/form-data">
+                        @csrf
                         <!-- Personal Information Card -->
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
@@ -960,15 +953,6 @@
                                         <input type="tel" class="form-control" id="seedling_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
-                                        </small>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="seedling_user_id" class="form-label fw-semibold">
-                                            Link to User Account (Optional)
-                                        </label>
-                                        <input type="number" class="form-control" id="seedling_user_id" placeholder="Enter User ID if exists">
-                                        <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>Leave blank if not linked
                                         </small>
                                     </div>
                                 </div>
@@ -1066,12 +1050,6 @@
                                         </label>
                                         <input type="text" class="form-control" id="seedling_planting_location" maxlength="500" placeholder="Where will the seedlings be planted?">
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="seedling_preferred_delivery_date" class="form-label fw-semibold">
-                                            Preferred Delivery Date
-                                        </label>
-                                        <input type="date" class="form-control" id="seedling_preferred_delivery_date">
-                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="seedling_purpose" class="form-label fw-semibold">
@@ -1114,7 +1092,7 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancel
+                        <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddSeedling()">
                         <i class="fas fa-save me-1"></i>Create Request
@@ -3062,14 +3040,8 @@
             formData.append('address', document.getElementById('seedling_address').value.trim());
             formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
             formData.append('purpose', document.getElementById('seedling_purpose').value.trim());
-            formData.append('preferred_delivery_date', document.getElementById('seedling_preferred_delivery_date').value);
             formData.append('status', document.getElementById('seedling_status').value);
             formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
-
-            const userId = document.getElementById('seedling_user_id').value.trim();
-            if (userId) {
-                formData.append('user_id', userId);
-            }
 
             // Add items
             const items = document.querySelectorAll('.seedling-item-row');
@@ -3175,9 +3147,6 @@
             originalData.address = document.getElementById('edit_address_' + requestId).value;
             originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
             originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
-            originalData.preferred_delivery_date = document.getElementById('edit_preferred_delivery_date_' + requestId)
-                .value;
-
             // Store in form data attribute
             form.dataset.originalData = JSON.stringify(originalData);
 
@@ -3211,7 +3180,7 @@
             const fields = [
                 'first_name', 'middle_name', 'last_name', 'extension_name',
                 'contact_number', 'barangay', 'address',
-                'planting_location', 'purpose', 'preferred_delivery_date'
+                'planting_location', 'purpose'
             ];
 
             fields.forEach(field => {

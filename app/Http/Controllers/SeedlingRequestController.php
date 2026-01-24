@@ -154,7 +154,6 @@ class SeedlingRequestController extends Controller
             'barangay' => 'required|string|max:255',
             'planting_location' => 'nullable|string|max:500',
             'purpose' => 'nullable|string|max:1000',
-            'preferred_delivery_date' => 'nullable|date|after:today',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
 
             // Items - Dynamic array structure
@@ -175,12 +174,8 @@ class SeedlingRequestController extends Controller
                 $documentPath = $request->file('document')->store('seedling-requests', 'public');
             }
 
-            // Get user ID from session or auth
-            $userId = auth()->id() ?? session('user.id');
-
             // Create the main request
             $seedlingRequest = SeedlingRequest::create([
-                'user_id' => $userId,
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
@@ -190,7 +185,6 @@ class SeedlingRequestController extends Controller
                 'barangay' => $validated['barangay'],
                 'planting_location' => $validated['planting_location'],
                 'purpose' => $validated['purpose'],
-                'preferred_delivery_date' => $validated['preferred_delivery_date'],
                 'document_path' => $documentPath,
                 'status' => 'pending',
             ]);
@@ -307,7 +301,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         'barangay' => 'required|string|max:255',
         'planting_location' => 'nullable|string|max:500',
         'purpose' => 'nullable|string|max:1000',
-        'preferred_delivery_date' => 'nullable|date|after_or_equal:today',
     ], [
         'contact_number.required' => 'Contact number is required.',
         'contact_number.regex' => 'Please enter a valid Philippine mobile number.',
@@ -331,7 +324,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         $changedFields = [
             'first_name', 'middle_name', 'last_name', 'extension_name',
             'contact_number', 'address', 'barangay',
-            'planting_location', 'purpose', 'preferred_delivery_date'
+            'planting_location', 'purpose'
         ];
 
         foreach ($changedFields as $field) {
@@ -999,7 +992,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                     'Address',
                     'Planting Location',
                     'Purpose',
-                    'Preferred Delivery Date',
                     'Total Quantity',
                     'Items Requested',
                     'Status',
@@ -1033,7 +1025,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                         $request->address,
                         $request->planting_location ?? 'N/A',
                         $request->purpose ?? 'N/A',
-                        $request->preferred_delivery_date ?? 'N/A',
                         $request->total_quantity,
                         $itemsText,
                         ucfirst(str_replace('_', ' ', $request->status)),
