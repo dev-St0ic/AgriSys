@@ -312,7 +312,7 @@
                                                             onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')"
                                                             title="Supporting Document">
                                                             <div class="seedling-mini-doc-icon">
-                                                                <i class="fas fa-file-image text-info"></i>
+                                                                <i class="fas fa-file-alt text-primary"></i>
                                                             </div>
                                                         </button>
                                                     </div>
@@ -383,160 +383,290 @@
 
             <!-- Modals Section - OUTSIDE the table -->
             @foreach ($requests as $request)
-                <!-- View Modal -->
-                <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-eye me-2"></i>
-                                    Request Details - {{ $request->request_number }}
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <h6 class="border-bottom pb-2">Personal Information</h6>
-                                        <p><strong>Request #:</strong> {{ $request->request_number }}</p>
-                                        <p><strong>Name:</strong> {{ $request->full_name }}</p>
-                                        <p><strong>Contact:</strong> {{ $request->contact_number }}</p>
-                                        <p><strong>Barangay:</strong> {{ $request->barangay }}</p>
-                                        <p><strong>Address:</strong> {{ $request->address }}</p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6 class="border-bottom pb-2">Request Information</h6>
-                                        <p><strong>Total Quantity:</strong>
-                                            {{ $request->total_quantity }}</p>
-                                        <p><strong>Current Status:</strong>
-                                            <span
-                                                class="badge bg-{{ match ($request->status) {
-                                                    'approved' => 'success',
-                                                    'partially_approved' => 'info',
-                                                    'rejected' => 'danger',
-                                                    'under_review', 'pending' => 'warning',
-                                                    default => 'secondary',
-                                                } }}">
-                                                {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                                            </span>
-                                        </p>
-                                        <p><strong>Date Applied:</strong>
-                                            {{ $request->created_at->format('F d, Y g:i A') }}</p>
-                                        <p><strong>Last Updated:</strong>
-                                            {{ $request->updated_at->format('F d, Y g:i A') }}</p>
-                                    </div>
+            <!-- View Modal Enhanced -->
+            <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title w-100 text-center">
+                            <i></i>
+                            Seedling Request Details - {{ $request->request_number }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-4">
 
-                                    <!-- Requested Items Section -->
-                                    <div class="col-12">
-                                        <div class="card border-primary">
-                                            <div class="card-header bg-light">
-                                                <h6 class="mb-0" style="color: #495057;">
-                                                    <i class="fas fa-seedling me-2 text-primary"></i>Requested Items by
-                                                    Category
-                                                </h6>
+                            <!-- Personal Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Request #:</strong>
+                                                <span class="text-primary">{{ $request->request_number }}</span>
                                             </div>
-                                            <div class="card-body">
-                                                @php
-                                                    $itemsByCategory = $request->items->groupBy('category_id');
-                                                @endphp
-
-                                                @foreach ($itemsByCategory as $categoryId => $items)
-                                                    @php
-                                                        $category = $items->first()->category;
-                                                    @endphp
-                                                    <div class="mb-3 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
-                                                        <div
-                                                            class="d-flex justify-content-between align-items-center mb-2">
-                                                            <strong class="text-primary">
-                                                                <i
-                                                                    class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                                {{ $category->display_name }}
-                                                            </strong>
-                                                            <span class="badge bg-secondary">{{ $items->count() }}
-                                                                items</span>
-                                                        </div>
-                                                        <ul class="mb-0">
-                                                            @foreach ($items as $item)
-                                                                <li>
-                                                                    {{ $item->item_name }} -
-                                                                    {{ $item->requested_quantity }}
-                                                                    {{ $item->categoryItem->unit ?? 'pcs' }}
-                                                                    <span class="badge bg-{{ $item->status_color }} ms-2">
-                                                                        {{ ucfirst($item->status) }}
-                                                                    </span>
-                                                                    @if ($item->status === 'approved')
-                                                                        <small class="text-muted">(Stock deducted)</small>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                @endforeach
+                                            <div class="col-12">
+                                                <strong>Full Name:</strong>
+                                                <span>{{ $request->full_name }}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <strong>Contact Number:</strong>
+                                                <span>
+                                                    <a href="tel:{{ $request->contact_number }}" class="text-decoration-none">
+                                                        {{ $request->contact_number }}
+                                                    </a>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
 
-                                    <!-- Supporting Document Section -->
-                                    <div class="col-12">
-                                        @if ($request->hasDocuments())
-                                            <div class="card border-secondary">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0" style="color: #495057;">
-                                                        <i class="fas fa-folder-open me-2"
-                                                            style="color: #6c757d;"></i>Supporting Document
-                                                    </h6>
+                            <!-- Location Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Barangay:</strong>
+                                                <span>{{ $request->barangay }}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <strong>Address:</strong>
+                                                <span>{{ $request->address }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Request Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Request Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Total Quantity:</strong>
+                                                <span>{{ $request->total_quantity }} items</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <strong>Current Status:</strong>
+                                                <span>
+                                                    <span class="badge bg-{{ match ($request->status) {
+                                                        'approved' => 'success',
+                                                        'partially_approved' => 'info',
+                                                        'rejected' => 'danger',
+                                                        'under_review', 'pending' => 'warning',
+                                                        default => 'secondary',
+                                                    } }}">
+                                                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-warning">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Date Applied:</strong>
+                                                <span>{{ $request->created_at->format('F d, Y g:i A') }}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <strong>Last Updated:</strong>
+                                                <span>{{ $request->updated_at->format('F d, Y g:i A') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Information Card -->
+                            <div class="col-12">
+                                <div class="card border-secondary">
+                                    <div class="card-header bg-secondary text-white">
+                                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <strong>Planting Location:</strong>
+                                                <p class="mb-0">
+                                                    {{ $request->planting_location ?? 'Not provided' }}
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Purpose:</strong>
+                                                <p class="mb-0">
+                                                    {{ $request->purpose ?? 'Not provided' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Requested Items by Category Card -->
+                            <div class="col-12">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0 text-dark">
+                                            <i class="fas fa-seedling me-2 text-primary"></i>
+                                            <strong>Requested Items by Category</strong>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        @php
+                                            $itemsByCategory = $request->items->groupBy('category_id');
+                                        @endphp
+
+                                        @forelse($itemsByCategory as $categoryId => $items)
+                                            @php
+                                                $category = $items->first()->category;
+                                            @endphp
+                                            <div class="mb-4 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <strong class="text-primary">
+                                                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                        {{ $category->display_name }}
+                                                    </strong>
+                                                    <span class="badge bg-secondary">{{ $items->count() }} items</span>
                                                 </div>
-                                                <div class="card-body">
-                                                    <div class="text-center p-3 border border-secondary rounded bg-light">
-                                                        <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
-                                                        <h6>Supporting Document</h6>
-                                                        <span class="badge bg-secondary mb-2">Uploaded</span>
-                                                        <br>
-                                                        <button class="btn btn-sm btn-outline-info mt-2"
-                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
-                                                            <i class="fas fa-eye"></i> View Document
-                                                        </button>
-                                                    </div>
+
+                                                <!-- Items List -->
+                                                <div class="ms-3">
+                                                    @php
+                                                        $approvedItems = $items->where('status', 'approved');
+                                                        $pendingItems = $items->where('status', 'pending');
+                                                        $rejectedItems = $items->where('status', 'rejected');
+                                                    @endphp
+
+                                                    @if ($approvedItems->count() > 0)
+                                                        <div class="mb-2">
+                                                            <small class="text-success fw-semibold">✓ Approved:</small>
+                                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                                @foreach ($approvedItems as $item)
+                                                                    <span class="badge bg-success">
+                                                                        {{ $item->item_name }} 
+                                                                        <strong>({{ $item->requested_quantity }})</strong>
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endif
+
+                                                    @if ($pendingItems->count() > 0)
+                                                        <div class="mb-2">
+                                                            <small class="text-warning fw-semibold">⏳ Pending:</small>
+                                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                                @foreach ($pendingItems as $item)
+                                                                    <span class="badge bg-warning text-dark">
+                                                                        {{ $item->item_name }} 
+                                                                        <strong>({{ $item->requested_quantity }})</strong>
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endif
+
+                                                    @if ($rejectedItems->count() > 0)
+                                                        <div class="mb-2">
+                                                            <small class="text-danger fw-semibold">✗ Rejected:</small>
+                                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                                @foreach ($rejectedItems as $item)
+                                                                    <span class="badge bg-danger">
+                                                                        {{ $item->item_name }} 
+                                                                        <strong>({{ $item->requested_quantity }})</strong>
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
+                                        @empty
+                                            <div class="text-center py-3 text-muted">
+                                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                                <p>No items requested</p>
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Supporting Document Card -->
+                            <div class="col-12">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white text-center">
+                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        @if ($request->hasDocuments())
+                                            <div class="p-4 border border-primary rounded bg-light">
+                                                <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                                <h6>Supporting Document</h6>
+                                                <span class="badge bg-primary mb-3">Uploaded</span>
+                                                <br>
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
+                                                    <i class="fas fa-eye me-1"></i>View Document
+                                                </button>
+                                            </div>
                                         @else
-                                            <div class="card border-secondary">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0" style="color: #495057;">
-                                                        <i class="fas fa-folder-open me-2"
-                                                            style="color: #6c757d;"></i>Supporting Document
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="text-center p-3 border border-secondary rounded">
-                                                        <i class="fas fa-file-slash fa-3x mb-2"
-                                                            style="color: #6c757d;"></i>
-                                                        <h6>No Document Uploaded</h6>
-                                                        <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                                    </div>
-                                                </div>
+                                            <div class="p-4 border border-secondary rounded">
+                                                <i class="fas fa-file-slash fa-3x mb-3"
+                                                    style="color: #6c757d;"></i>
+                                                <h6>No Document Uploaded</h6>
+                                                <span class="badge bg-secondary">Not Uploaded</span>
                                             </div>
                                         @endif
                                     </div>
-
-                                    <!-- Remarks Section -->
-                                    @if ($request->remarks)
-                                        <div class="col-12">
-                                            <h6 class="border-bottom pb-2">Remarks</h6>
-                                            <div class="alert alert-info">
-                                                <p class="mb-0">{{ $request->remarks }}</p>
-                                            </div>
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
+
+                            <!-- Remarks Card (if exists) -->
+                            @if ($request->remarks)
+                                <div class="col-12">
+                                    <div class="card border-info">
+                                        <div class="card-header bg-info text-white">
+                                            <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-0">{{ $request->remarks }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                         </div>
                     </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i></i>Close
+                        </button>
+                    </div>
                 </div>
+            </div>
+        </div>
 
                 <!-- Edit Modal -->
                 <div class="modal fade" id="editSeedlingModal{{ $request->id }}" tabindex="-1">
@@ -1661,7 +1791,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #28a745;
+            border: 2px solid #007bff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1674,7 +1804,7 @@
         .seedling-mini-doc:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            border-color: #28a745;
+            border: 2px solid #007bff;
         }
 
         .seedling-mini-doc-icon {
@@ -1789,6 +1919,173 @@
             box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
             background-color: #fff3cd !important;
         }
+
+        /* Seedling View Modal Styling - Consistent with RSBSA */
+        #viewModal{{ $request->id }} .modal-content {
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+        }
+
+        #viewModal{{ $request->id }} .modal-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            border-bottom: 2px solid #0b5ed7;
+            padding: 1.5rem;
+        }
+
+        #viewModal{{ $request->id }} .modal-header .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+
+        #viewModal{{ $request->id }} .modal-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 1.25rem;
+        }
+
+        #viewModal{{ $request->id }} .modal-body {
+            padding: 2rem;
+            background-color: #fff;
+        }
+
+        #viewModal{{ $request->id }} .card {
+            border-width: 2px;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            height: 100%;
+        }
+
+        #viewModal{{ $request->id }} .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        #viewModal{{ $request->id }} .card-header {
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        #viewModal{{ $request->id }} .card-header.bg-primary {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+        }
+
+        #viewModal{{ $request->id }} .card-header.bg-success {
+            background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
+        }
+
+        #viewModal{{ $request->id }} .card-header.bg-info {
+            background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
+        }
+
+        #viewModal{{ $request->id }} .card-header.bg-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+            color: #000;
+        }
+
+        #viewModal{{ $request->id }} .card-header.bg-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5c636a 100%) !important;
+        }
+
+        #viewModal{{ $request->id }} .card-header.bg-light {
+            background: #f8f9fa !important;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+        }
+
+        #viewModal{{ $request->id }} .card-body {
+            padding: 1.5rem;
+            background-color: #fff;
+        }
+
+        #viewModal{{ $request->id }} .card-body > div > div {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        #viewModal{{ $request->id }} .card-body > div > div:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        #viewModal{{ $request->id }} strong {
+            color: #495057;
+            font-weight: 600;
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.25rem;
+        }
+
+        #viewModal{{ $request->id }} span {
+            color: #333;
+            font-size: 0.95rem;
+            display: block;
+        }
+
+        #viewModal{{ $request->id }} a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+        #viewModal{{ $request->id }} a:hover {
+            text-decoration: underline;
+        }
+
+        #viewModal{{ $request->id }} .badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-top: 0.25rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #viewModal{{ $request->id }} .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #viewModal{{ $request->id }} .modal-body {
+                padding: 1.5rem 1rem;
+            }
+
+            #viewModal{{ $request->id }} .row.g-4 > div {
+                margin-bottom: 1rem;
+            }
+
+            #viewModal{{ $request->id }} .card-header {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            #viewModal{{ $request->id }} .card-body {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #viewModal{{ $request->id }} .modal-header .modal-title {
+                font-size: 1.05rem;
+            }
+
+            #viewModal{{ $request->id }} .modal-body {
+                padding: 1rem;
+            }
+
+            #viewModal{{ $request->id }} .card-body span {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 
     <script>
@@ -1816,29 +2113,30 @@
             }
 
             // Create modal if it doesn't exist
+          
             if (!document.getElementById('documentModal')) {
                 const modalHTML = `
-            <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header bg-light">
-                            <h5 class="modal-title" id="documentModalLabel">
-                                <i class="fas fa-file-alt me-2"></i>Supporting Document
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-0" id="documentViewer">
-                            <!-- Document will be loaded here -->
-                        </div>
-                        <div class="modal-footer bg-light">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times me-1"></i>Close
-                            </button>
+                    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white position-relative">
+                                    <h5 class="modal-title w-100 text-center" id="documentModalLabel">
+                                        Supporting Document
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-0" id="documentViewer">
+                                    <!-- Document will be loaded here -->
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i></i>Close
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        `;
+                `;
                 document.body.insertAdjacentHTML('beforeend', modalHTML);
             }
 
