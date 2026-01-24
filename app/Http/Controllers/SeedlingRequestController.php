@@ -301,6 +301,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         'barangay' => 'required|string|max:255',
         'planting_location' => 'nullable|string|max:500',
         'purpose' => 'nullable|string|max:1000',
+        'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
     ], [
         'contact_number.required' => 'Contact number is required.',
         'contact_number.regex' => 'Please enter a valid Philippine mobile number.',
@@ -336,8 +337,21 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             }
         }
 
+       // Handle document upload separately
+        $documentData = [];
+        if ($request->hasFile('document')) {
+            $documentData['document_path'] = $request->file('document')->store('seedling-requests', 'public');
+            $changes['document'] = ['old' => $seedlingRequest->document_path, 'new' => $documentData['document_path']];
+        }
+
+        // Merge document data with other validated data (excluding the raw 'document' file)
+        $updateData = collect($validated)->except('document')->toArray();
+        if (!empty($documentData)) {
+            $updateData = array_merge($updateData, $documentData);
+        }
+
         // Update the request
-        $seedlingRequest->update($validated);
+        $seedlingRequest->update($updateData);
 
         // Log activity if there are changes
         if (!empty($changes)) {

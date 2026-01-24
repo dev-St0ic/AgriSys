@@ -76,7 +76,7 @@
                     <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                     <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                    <!-- FIXED: Match RSBSA layout exactly -->
+                    <!-- FIXED: layout exactly -->
                     <div class="row g-2">
                         <div class="col-md-2">
                             <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
@@ -177,7 +177,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($requests as $request)
-                                    <tr class="border-bottom" data-request-id="{{ $request->id }}">
+                                    <tr class="border-bottom" data-request-id="{{ $request->id }}" data-document-path="{{ $request->document_path }}">
                                         <td class="px-3 py-3 border-end">
                                             <small
                                                 class="text-muted">{{ $request->created_at->format('M d, Y') }}</small><br>
@@ -837,6 +837,44 @@
                                     </div>
                                 </div>
 
+                                <!-- Supporting Document Card EDIT MODAL-->
+                                <div class="card mb-3 border-0 bg-light">
+                                    <div class="card-header bg-white border-0 pb-0">
+                                        <h6 class="mb-0 fw-semibold text-primary">
+                                            <i class="fas fa-file-upload me-2"></i>Supporting Document
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted small mb-4">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                                        </p>
+
+                                        <!-- Current Document Display -->
+                                        <div id="edit_seedling_current_document_{{ $request->id }}" style="display: none; margin-bottom: 1.5rem;">
+                                            <div id="edit_seedling_current_doc_preview_{{ $request->id }}"></div>
+                                        </div>
+
+                                        <!-- Upload New Document Section -->
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <label for="edit_seedling_supporting_document_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Supporting Document
+                                                </label>
+                                                <input type="file" class="form-control" id="edit_seedling_supporting_document_{{ $request->id }}" 
+                                                    name="document" accept=".pdf,.jpg,.jpeg,.png" 
+                                                    onchange="previewEditSeedlingDocument('edit_seedling_supporting_document_{{ $request->id }}', 'edit_seedling_doc_preview_{{ $request->id }}')">
+                                                <small class="text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>Upload a new file to replace it.
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <!-- New Document Preview -->
+                                        <div id="edit_seedling_doc_preview_{{ $request->id }}" class="mt-3"></div>
+                                    </div>
+                                </div>
+
                                 <!-- Request Status (Read-only) Card -->
                                 <div class="card mb-3 border-0 bg-light">
                                     <div class="card-header bg-white border-0 pb-0">
@@ -1244,10 +1282,10 @@
                                         <label for="seedling_supporting_document" class="form-label fw-semibold">
                                             Upload Document
                                         </label>
-                                        <input type="file" class="form-control" id="seedling_supporting_document" accept="image/*,.pdf" onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
+                                        <input type="file" class="form-control" id="seedling_supporting_document" accept=".pdf,.jpg,.jpeg,.png" onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
                                     </div>
                                     <div class="col-md-6">
-                                        <div id="seedling_doc_preview" style="margin-top: 10px;"></div>
+                                        <div id="seedling_doc_preview"></div>
                                     </div>
                                 </div>
                             </div>
@@ -2008,7 +2046,7 @@
             background-color: #fff3cd !important;
         }
 
-        /* Seedling View Modal Styling - Consistent with RSBSA */
+        /* Seedling View Modal Styling */
         #viewModal{{ $request->id }} .modal-content {
             border: none;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -2174,7 +2212,7 @@
                 font-size: 0.9rem;
             }
         }
-        /* Seedling Update Modal - Match RSBSA Style */
+        /* Seedling Update Modal */
             #updateModal .modal-content {
                 border: none;
                 box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
@@ -2311,6 +2349,24 @@
                     font-size: 0.85rem;
                 }
             }
+                 /* Document preview styling */
+                .document-thumbnail {
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                }
+
+                .document-thumbnail:hover {
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                    transform: translateY(-2px);
+                }
+
+                .document-preview-item {
+                    transition: all 0.2s ease;
+                }
+
+                .document-preview-item:hover {
+                    transform: scale(1.02);
+                }
     </style>
 
     <script>
@@ -3670,6 +3726,11 @@
             const form = document.getElementById('editForm' + requestId);
             if (!form) return;
 
+            // Get request data from the page
+            const requestElement = document.querySelector(`tr[data-request-id="${requestId}"]`);
+            const hasDocument = requestElement ? requestElement.querySelector('.seedling-mini-doc') !== null : false;
+            const documentPath = requestElement ? requestElement.getAttribute('data-document-path') : null;
+
             // Store original values for change detection
             const originalData = {};
 
@@ -3685,6 +3746,19 @@
             originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
             // Store in form data attribute
             form.dataset.originalData = JSON.stringify(originalData);
+            form.dataset.hasOriginalDocument = hasDocument ? 'true' : 'false';
+            form.dataset.originalDocumentPath = documentPath || '';
+
+            // Display current document if exists
+            if (documentPath) {
+                const currentDocContainer = document.getElementById(`edit_seedling_current_document_${requestId}`);
+                const currentDocPreview = document.getElementById(`edit_seedling_current_doc_preview_${requestId}`);
+                
+                if (currentDocContainer && currentDocPreview) {
+                    currentDocContainer.style.display = 'block';
+                    displayEditSeedlingExistingDocument(documentPath, `edit_seedling_current_doc_preview_${requestId}`);
+                }
+            }
 
             // Clear validation states
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
@@ -3693,12 +3767,11 @@
             // Reset submit button - NO CHANGES STATE (similar to update modal)
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
             if (submitBtn) {
-                submitBtn.innerHTML = 'Save Changes'; // No icon initially
-                submitBtn.disabled = false; // Keep enabled like update modal
+                submitBtn.innerHTML = 'Save Changes';
+                submitBtn.disabled = false;
                 submitBtn.dataset.hasChanges = 'false';
             }
         }
-
 
 
         // Check for changes in edit form
@@ -3709,8 +3782,8 @@
             if (!form || !submitBtn) return;
 
             const originalData = JSON.parse(form.dataset.originalData || '{}');
-
             let hasChanges = false;
+            let changedFields = [];
 
             // Check all form fields
             const fields = [
@@ -3723,20 +3796,30 @@
                 const input = form.querySelector(`[name="${field}"]`);
                 if (input && input.value !== originalData[field]) {
                     hasChanges = true;
+                    changedFields.push(field);
                     input.classList.add('form-changed');
                 } else if (input) {
                     input.classList.remove('form-changed');
                 }
             });
 
-            // Update button state based on changes - ALWAYS KEEP ENABLED
+            // Check file input - ONLY if a NEW file was selected
+            const fileInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                hasChanges = true;
+                changedFields.push('supporting_document');
+                console.log('New file selected:', fileInput.files[0].name);
+            }
+
+            // Update button state
             if (hasChanges) {
                 submitBtn.classList.remove('no-changes');
                 submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
                 submitBtn.disabled = false;
                 submitBtn.dataset.hasChanges = 'true';
+                submitBtn.dataset.changedFields = JSON.stringify(changedFields);
             } else {
-                submitBtn.classList.add('no-changes');
+                submitBtn.classList.remove('no-changes');
                 submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
                 submitBtn.disabled = false;
                 submitBtn.dataset.hasChanges = 'false';
@@ -3749,25 +3832,22 @@
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
 
             if (!form) {
-                showToast('error', 'Form not found');
+                console.error('Form not found:', 'editForm' + requestId);
+                showToast('error', 'Form not found. Please try again.');
                 return;
             }
 
-            // Check if there are no changes
-            if (submitBtn && submitBtn.dataset.hasChanges === 'false') {
-                showToast('warning', 'No changes detected. Please modify the fields before saving.');
+            const hasChanges = submitBtn?.dataset.hasChanges === 'true';
+
+            // If no changes, show warning and return
+            if (!hasChanges) {
+                showToast('warning', 'No changes detected. Please modify the fields before updating.');
                 return;
             }
 
-            // Validate form
-            if (!validateEditSeedlingForm(requestId)) {
-                showToast('error', 'Please fix all validation errors');
-                return;
-            }
-
-            // Build changes summary
-            const originalData = JSON.parse(form.dataset.originalData || '{}');
-            const changedFields = [];
+            // Build changes summary ONLY from actually changed fields
+            const changedFieldsData = submitBtn?.dataset.changedFields ? 
+                JSON.parse(submitBtn.dataset.changedFields) : [];
 
             const fieldLabels = {
                 'first_name': 'First Name',
@@ -3778,42 +3858,17 @@
                 'barangay': 'Barangay',
                 'address': 'Address',
                 'planting_location': 'Planting Location',
-                'purpose': 'Purpose'
+                'purpose': 'Purpose',
+                'supporting_document': 'Supporting Document'
             };
 
-            const fieldMap = {
-                'first_name': `edit_first_name_${requestId}`,
-                'middle_name': `edit_middle_name_${requestId}`,
-                'last_name': `edit_last_name_${requestId}`,
-                'extension_name': `edit_extension_${requestId}`,
-                'contact_number': `edit_contact_number_${requestId}`,
-                'barangay': `edit_barangay_${requestId}`,
-                'address': `edit_address_${requestId}`,
-                'planting_location': `edit_planting_location_${requestId}`,
-                'purpose': `edit_purpose_${requestId}`
-            };
+            const changedFields = changedFieldsData.map(field => fieldLabels[field] || field);
 
-            // Check each field for changes
-            Object.keys(fieldMap).forEach(fieldName => {
-                const elementId = fieldMap[fieldName];
-                const input = document.getElementById(elementId);
-                
-                if (input) {
-                    const currentValue = (input.value || '').trim();
-                    const originalValue = (originalData[fieldName] || '').trim();
-
-                    if (currentValue !== originalValue) {
-                        changedFields.push(fieldLabels[fieldName] || fieldName);
-                    }
-                }
-            });
-
-            // Build confirmation message with changed fields
+            // Show confirmation with only changed fields
             const changesText = changedFields.length > 0 
-                ? `Save the following changes to this seedling request?\n\n• ${changedFields.join('\n• ')}`
-                : 'Save the changes to this seedling request?';
+                ? `Update this request with the following changes?\n\n• ${changedFields.join('\n• ')}`
+                : 'Update this request?';
 
-            // Show confirmation toast with detailed changes
             showConfirmationToast(
                 'Confirm Update',
                 changesText,
@@ -3897,7 +3952,75 @@
             return true;
         }
 
-        // Proceed with edit submission fixed
+        // Preview edit seedling document
+        function previewEditSeedlingDocument(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            if (!input.files || !input.files[0]) {
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('error', 'File size must not exceed 10MB');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                showToast('error', 'Only PDF, JPG, and PNG files are allowed');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                if (preview) {
+                    if (file.type.startsWith('image/')) {
+                        preview.innerHTML = `
+                            <div class="document-preview-item">
+                                <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                                    <i class="fas fa-file-image me-1"></i>${file.name}
+                                </p>
+                            </div>
+                        `;
+                    } else if (file.type === 'application/pdf') {
+                        preview.innerHTML = `
+                            <div class="document-preview-item">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                                    <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    preview.style.display = 'block';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+       
+        // Proceed with edit seedling submission with document support
         function proceedWithEditSeedling(form, requestId) {
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
 
@@ -3906,12 +4029,18 @@
                 return;
             }
 
+            // Validate form first
+            if (!validateEditSeedlingForm(requestId)) {
+                showToast('error', 'Please fix all validation errors');
+                return;
+            }
+
             // Show loading state
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
             submitBtn.disabled = true;
 
-            // Get form action - this is critical!
+            // Get form action
             const actionUrl = form.getAttribute('action');
             if (!actionUrl) {
                 showToast('error', 'Form action URL not found');
@@ -3920,18 +4049,31 @@
                 return;
             }
 
-            // Prepare FormData
+            // Prepare FormData to handle file upload
             const formData = new FormData(form);
-            
+
+            // Add document file if selected
+            const docInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
+            if (docInput && docInput.files && docInput.files[0]) {
+                // Remove old document field if exists
+                formData.delete('document');
+                // Add new document
+                formData.append('document', docInput.files[0]);
+            }
+
+            // Ensure _method is set for PUT/PATCH
+            if (!formData.has('_method')) {
+                formData.append('_method', 'PUT');
+            }
+
             // Fetch request
             fetch(actionUrl, {
-                method: 'POST',  // Laravel route model binding requires POST with _method spoofing
+                method: 'POST',
                 body: formData,
                 headers: {
                     'X-CSRF-TOKEN': getCSRFToken(),
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
-                    // DON'T set Content-Type - browser will set it with boundary
                 }
             })
             .then(response => {
@@ -3958,6 +4100,8 @@
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
                     showToast('error', data.message || 'Update failed');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 }
             })
             .catch(error => {
@@ -3967,6 +4111,8 @@
                 
                 if (error.data?.message) {
                     errorMsg = error.data.message;
+                } else if (error.data?.errors) {
+                    errorMsg = Object.values(error.data.errors).flat().join(', ');
                 } else if (error.message) {
                     errorMsg = error.message;
                 }
@@ -3975,6 +4121,243 @@
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             });
+        }
+
+        // Clear document upload in edit modal
+        function clearEditSeedlingDocument(requestId) {
+            const docInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
+            const preview = document.getElementById(`edit_seedling_doc_preview_${requestId}`);
+
+            if (docInput) {
+                docInput.value = '';
+            }
+
+            if (preview) {
+                preview.innerHTML = '';
+                preview.style.display = 'none';
+            }
+
+            showToast('info', 'Document selection cleared');
+        }
+        // Display existing document in edit modal 
+        function displayEditSeedlingExistingDocument(documentPath, previewElementId) {
+            const preview = document.getElementById(previewElementId);
+            if (!preview) {
+                console.error('Preview element not found:', previewElementId);
+                return;
+            }
+            
+            const fileExtension = documentPath.split('.').pop().toLowerCase();
+            const fileName = documentPath.split('/').pop();
+            const fileUrl = `/storage/${documentPath}`;
+            
+            // Image types 
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
+                preview.innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-auto">
+                            <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                                <img src="${fileUrl}" alt="Current document" 
+                                    style="max-width: 100%; max-height: 100%; object-fit: cover; cursor: pointer;"
+                                    onclick="viewDocument('${documentPath}', '${fileName}')"
+                                    title="Click to view full document">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } 
+            // PDF type 
+            else if (fileExtension === 'pdf') {
+                preview.innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-auto">
+                            <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #fff3cd; border: 2px solid #ffc107;">
+                                <div class="text-center">
+                                    <i class="fas fa-file-pdf fa-3x mb-2" style="color: #dc3545;"></i>
+                                    <small style="display: block; color: #666; font-size: 10px;">PDF</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex flex-column h-100 justify-content-start">
+                                <div class="mb-2">
+                                    <small class="d-block text-success fw-semibold">
+                                        <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                                    </small>
+                                    <small class="d-block text-muted mt-1">${fileName}</small>
+                                </div>
+                                <div class="mt-auto">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        onclick="viewDocument('${documentPath}', '${fileName}')"
+                                        title="View PDF">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                        onclick="downloadSeedlingDocument('${fileUrl}', '${fileName}')"
+                                        title="Download PDF">
+                                        <i class="fas fa-download me-1"></i>Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            // Other document types
+            else {
+                preview.innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-auto">
+                            <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #e2e3e5; border: 2px solid #6c757d;">
+                                <div class="text-center">
+                                    <i class="fas fa-file fa-3x mb-2" style="color: #6c757d;"></i>
+                                    <small style="display: block; color: #666; font-size: 10px;">${fileExtension.toUpperCase()}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex flex-column h-100 justify-content-start">
+                                <div class="mb-2">
+                                    <small class="d-block text-success fw-semibold">
+                                        <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                                    </small>
+                                    <small class="d-block text-muted mt-1">${fileName}</small>
+                                </div>
+                                <div class="mt-auto">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                        onclick="downloadSeedlingDocument('${fileUrl}', '${fileName}')"
+                                        title="Download document">
+                                        <i class="fas fa-download me-1"></i>Download
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Download document helper
+        function downloadSeedlingDocument(fileUrl, fileName) {
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Preview new document upload 
+        function previewEditSeedlingDocument(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            if (!input.files || !input.files[0]) {
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('error', 'File size must not exceed 10MB');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                showToast('error', 'Only PDF, JPG, and PNG files are allowed');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                if (preview) {
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+                    
+                    if (file.type.startsWith('image/')) {
+                        preview.innerHTML = `
+                            <div style="margin-top: 1rem;">
+                                <div class="alert alert-info mb-2" style="padding: 0.5rem; font-size: 0.85rem;">
+                                    <i class="fas fa-info-circle me-1"></i>New image selected
+                                </div>
+                                <div class="document-preview-item">
+                                    <img src="${e.target.result}" alt="Preview" 
+                                        style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid #007bff;">
+                                    <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                                        <i class="fas fa-file-image me-1"></i>${file.name}
+                                        <span class="text-muted">(${(file.size / 1024).toFixed(2)} KB)</span>
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    } else if (file.type === 'application/pdf') {
+                        preview.innerHTML = `
+                            <div style="margin-top: 1rem;">
+                                <div class="alert alert-info mb-2" style="padding: 0.5rem; font-size: 0.85rem;">
+                                    <i class="fas fa-info-circle me-1"></i>New PDF selected
+                                </div>
+                                <div class="document-preview-item">
+                                    <div class="text-center p-3 border rounded" style="border-color: #dc3545; background: #fff3cd;">
+                                        <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                                        <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                                            ${file.name}
+                                            <span class="text-muted d-block">(${(file.size / 1024).toFixed(2)} KB)</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    preview.style.display = 'block';
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Clear document upload 
+        function clearEditSeedlingDocument(requestId) {
+            const docInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
+            const preview = document.getElementById(`edit_seedling_doc_preview_${requestId}`);
+            const currentDocContainer = document.getElementById(`edit_seedling_current_document_${requestId}`);
+
+            if (docInput) {
+                docInput.value = '';
+            }
+
+            if (preview) {
+                preview.innerHTML = '';
+                preview.style.display = 'none';
+            }
+
+            // Show current document again if exists
+            const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
+            if (row) {
+                const documentPath = row.getAttribute('data-document-path');
+                if (documentPath && currentDocContainer) {
+                    currentDocContainer.style.display = 'block';
+                    displayEditSeedlingExistingDocument(documentPath, `edit_seedling_current_doc_preview_${requestId}`);
+                }
+            }
+
+            showToast('info', 'Document selection cleared');
         }
         // Auto-capitalize names in edit form
         function capitalizeEditName(input) {
