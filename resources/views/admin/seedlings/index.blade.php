@@ -2967,10 +2967,10 @@
             const submitButton = document.getElementById('submitBtn' + requestId);
 
             let hasChanges = false;
-            const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
 
             // Check remarks for changes - FIXED COMPARISON
             if (remarksTextarea) {
+                const originalRemarks = remarksTextarea.dataset.originalRemarks || '';
                 const currentRemarks = remarksTextarea.value || '';
                 const remarksChanged = currentRemarks.trim() !== originalRemarks.trim();
 
@@ -2980,12 +2980,6 @@
                 } else {
                     remarksTextarea.classList.remove('form-changed');
                 }
-                
-                console.log('Remarks check:', {
-                    original: originalRemarks,
-                    current: currentRemarks,
-                    changed: remarksChanged
-                });
             }
 
             // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
@@ -3012,16 +3006,14 @@
                 if (hasChanges) {
                     submitButton.classList.remove('no-changes');
                     submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
-                    // Store flag for use in submission
+                    submitButton.disabled = false;
                     submitButton.dataset.hasChanges = 'true';
                 } else {
                     submitButton.classList.add('no-changes');
                     submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-                    // Store flag for use in submission
+                    submitButton.disabled = false; // KEEP ENABLED
                     submitButton.dataset.hasChanges = 'false';
                 }
-                // IMPORTANT: Button remains enabled
-                submitButton.disabled = false;
             }
         }
 
