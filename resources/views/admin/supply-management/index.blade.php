@@ -2262,9 +2262,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Handle empty state
             handleEmptyState(activeCategory, visibleCount);
 
-            // Initialize pagination for non-"all" categories
+           // Initialize pagination for non-"all" categories
             const categoryId = activeCategory.id.replace('category-', '');
             if (categoryId !== 'all') {
+                currentPage[categoryId] = 1; // Reset to page 1
                 displayPageItems(categoryId, 1);
             }
         }
@@ -2311,10 +2312,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const totalPages = Math.ceil(allRows.length / ITEMS_PER_PAGE) || 1;
 
+            // Validate page number
             if (page < 1) page = 1;
             if (page > totalPages) page = totalPages;
 
-            currentPage[categoryId] = page;
+            currentPage[categoryId] = page; // Store current page
 
             const startIndex = (page - 1) * ITEMS_PER_PAGE;
             const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -2338,38 +2340,62 @@ document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById(`category-${categoryId}`);
             if (!container) return;
 
-            const oldPagination = container.querySelector('.pagination-controls');
+            // Remove old pagination
+            const oldPagination = container.querySelector('.pagination-wrapper');
             if (oldPagination) {
                 oldPagination.remove();
             }
 
             if (totalPages <= 1) return;
 
+            const startPage = Math.max(1, currentPageNum - 2);
+            const endPage = Math.min(totalPages, currentPageNum + 2);
+
+            let paginationItems = '';
+
+            // Previous Button
+            if (currentPageNum === 1) {
+                paginationItems += `<li class="page-item disabled"><span class="page-link">Back</span></li>`;
+            } else {
+                paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum - 1}" rel="prev">Back</a></li>`;
+            }
+
+            // Page Numbers
+            for (let page = startPage; page <= endPage; page++) {
+                if (page === currentPageNum) {
+                    paginationItems += `<li class="page-item active"><span class="page-link bg-primary border-primary">${page}</span></li>`;
+                } else {
+                    paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${page}">${page}</a></li>`;
+                }
+            }
+
+            // Next Button
+            if (currentPageNum === totalPages) {
+                paginationItems += `<li class="page-item disabled"><span class="page-link">Next</span></li>`;
+            } else {
+                paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum + 1}" rel="next">Next</a></li>`;
+            }
+
             const paginationHTML = `
-                <div class="pagination-controls d-flex justify-content-center align-items-center gap-2 mt-4 mb-3">
-                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', 1)" ${currentPageNum === 1 ? 'disabled' : ''}>
-                        <i class="fas fa-chevron-left"></i> First
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', ${currentPageNum - 1})" ${currentPageNum === 1 ? 'disabled' : ''}>
-                        <i class="fas fa-chevron-left"></i> Previous
-                    </button>
-                    
-                    <div class="pagination-info">
-                        Page <span class="fw-bold">${currentPageNum}</span> of <span class="fw-bold">${totalPages}</span>
-                    </div>
-                    
-                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', ${currentPageNum + 1})" ${currentPageNum === totalPages ? 'disabled' : ''}>
-                        Next <i class="fas fa-chevron-right"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="goToPage('${categoryId}', ${totalPages})" ${currentPageNum === totalPages ? 'disabled' : ''}>
-                        Last <i class="fas fa-chevron-right"></i>
-                    </button>
+                <div class="pagination-wrapper d-flex justify-content-center mt-4 mb-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm">
+                            ${paginationItems}
+                        </ul>
+                    </nav>
                 </div>
             `;
 
-            const tableContainer = container.querySelector('.table-responsive');
-            if (tableContainer) {
-                tableContainer.insertAdjacentHTML('afterend', paginationHTML);
+            // Find the table-responsive div and insert pagination AFTER it
+            const tableResponsive = container.querySelector('.table-responsive');
+            if (tableResponsive) {
+                tableResponsive.insertAdjacentHTML('afterend', paginationHTML);
+            } else {
+                // Fallback: insert at end of card-body
+                const cardBody = container.querySelector('.card-body');
+                if (cardBody) {
+                    cardBody.insertAdjacentHTML('beforeend', paginationHTML);
+                }
             }
         }
 
@@ -2400,7 +2426,7 @@ document.addEventListener('DOMContentLoaded', function() {
             applyFiltersToActiveCategory();
         }
 
-        // Initialize on page load
+       // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.querySelector('select[name="status"]');
             const stockStatusSelect = document.querySelector('select[name="stock_status"]');
@@ -2428,6 +2454,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     displayPageItems(categoryId, 1);
                 }
             });
+        });
+
+        // CRITICAL: Add event delegation for pagination links (OUTSIDE DOMContentLoaded)
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('pagination-link')) {
+                e.preventDefault();
+                const catId = e.target.dataset.category;
+                const pageNum = parseInt(e.target.dataset.page);
+                if (catId && !isNaN(pageNum)) {
+                    console.log('Pagination clicked:', catId, pageNum); // Debug
+                    displayPageItems(catId, pageNum);
+                    // Scroll to category
+                    const container = document.getElementById(`category-${catId}`);
+                    if (container) {
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
         });
     </script>
 
@@ -3083,5 +3127,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 order: -1;
             }
         }
+
+        @media (max-width: 576px) {
+            .pagination-controls {
+                padding: 0.75rem;
+                margin: 1.5rem 0 0.75rem 0;
+            }
+
+            .pagination-controls .btn-sm {
+                padding: 0.35rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .pagination-info {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.6rem;
+            }
+        }
+
     </style>
 @endsection
