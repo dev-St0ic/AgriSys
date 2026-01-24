@@ -151,13 +151,13 @@
                         </h6>
                     </div>
                     <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
+                            <i class="fas fa-user-plus me-2"></i>Add Request
+                        </button>
                         <a href="{{ route('admin.seedlings.export', request()->query()) }}"
                             class="btn btn-success btn-sm">
                             <i class="fas fa-download"></i> Export CSV
                         </a>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
-                            <i class="fas fa-plus me-2"></i>Add Request
-                        </button>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -402,7 +402,6 @@
                                         <p><strong>Request #:</strong> {{ $request->request_number }}</p>
                                         <p><strong>Name:</strong> {{ $request->full_name }}</p>
                                         <p><strong>Contact:</strong> {{ $request->contact_number }}</p>
-                                        <p><strong>Email:</strong> {{ $request->email ?? 'N/A' }}</p>
                                         <p><strong>Barangay:</strong> {{ $request->barangay }}</p>
                                         <p><strong>Address:</strong> {{ $request->address }}</p>
                                     </div>
@@ -625,14 +624,6 @@
                                                         required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                                                         maxlength="20">
                                                     <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="edit_email_{{ $request->id }}"
-                                                        class="form-label">Email</label>
-                                                    <input type="email" class="form-control"
-                                                        id="edit_email_{{ $request->id }}" name="email"
-                                                        value="{{ $request->email }}" maxlength="254">
-                                                    <div class="form-text">For status notifications</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
                                                     <label class="form-label">Request Number</label>
@@ -907,44 +898,49 @@
     </div>
     </div>
 
-    <!-- Add Seedling Request Modal -->
+    <!-- Add Seedling Request Modal - IMPROVED DESIGN -->
     <div class="modal fade" id="addSeedlingModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
+                    <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-seedling me-2"></i>Add New Seedling Request
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addSeedlingForm" enctype="multipart/form-data">
-                        <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="seedling_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="seedling_first_name" required
-                                            maxlength="100">
+                                        <label for="seedling_first_name" class="form-label fw-semibold">
+                                            First Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="seedling_first_name" required maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="seedling_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="seedling_middle_name"
-                                            maxlength="100">
+                                        <label for="seedling_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
+                                        <input type="text" class="form-control" id="seedling_middle_name" maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="seedling_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="seedling_last_name" required
-                                            maxlength="100">
+                                        <label for="seedling_last_name" class="form-label fw-semibold">
+                                            Last Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="seedling_last_name" required maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="seedling_extension" class="form-label">Extension</label>
+                                        <label for="seedling_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="seedling_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -958,60 +954,63 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="seedling_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="seedling_contact_number" required
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                        <label for="seedling_contact_number" class="form-label fw-semibold">
+                                            Contact Number <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="tel" class="form-control" id="seedling_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="seedling_email" class="form-label">Email (Optional)</label>
-                                        <input type="email" class="form-control" id="seedling_email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="seedling_user_id" class="form-label">Link to User Account
-                                            (Optional)</label>
-                                        <input type="number" class="form-control" id="seedling_user_id"
-                                            placeholder="Enter User ID if exists">
-                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                        <label for="seedling_user_id" class="form-label fw-semibold">
+                                            Link to User Account (Optional)
+                                        </label>
+                                        <input type="number" class="form-control" id="seedling_user_id" placeholder="Enter User ID if exists">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Leave blank if not linked
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Location Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <!-- Location Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="seedling_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="seedling_barangay" class="form-label fw-semibold">
+                                            Barangay <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="seedling_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <!-- Barangays will be populated from server data -->
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="seedling_address" class="form-label">Address <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="seedling_address" required
-                                            maxlength="500" placeholder="Full address">
+                                        <label for="seedling_address" class="form-label fw-semibold">
+                                            Address <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="seedling_address" required maxlength="500" placeholder="Full address">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Request Items -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
+                        <!-- Request Items Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0"><i class="fas fa-leaf me-2"></i>Requested Items</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-primary"
-                                        onclick="addSeedlingItemRow()">
+                                    <h6 class="mb-0 fw-semibold text-primary">
+                                        <i class="fas fa-leaf me-2"></i>Requested Items
+                                    </h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSeedlingItemRow()">
                                         <i class="fas fa-plus me-1"></i>Add Item
                                     </button>
                                 </div>
@@ -1020,26 +1019,30 @@
                                 <div id="seedling_items_container">
                                     <!-- Item rows will be added here -->
                                 </div>
-                                <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Add at least one
-                                    item to the request</p>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>Add at least one item to the request
+                                </p>
                             </div>
                         </div>
 
-                        <!-- Supporting Document -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                        <!-- Supporting Document Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
                                 </h6>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                                </p>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="seedling_supporting_document" class="form-label">Upload
-                                            Document</label>
-                                        <input type="file" class="form-control" id="seedling_supporting_document"
-                                            accept="image/*,.pdf"
-                                            onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
+                                        <label for="seedling_supporting_document" class="form-label fw-semibold">
+                                            Upload Document
+                                        </label>
+                                        <input type="file" class="form-control" id="seedling_supporting_document" accept="image/*,.pdf" onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
                                     </div>
                                     <div class="col-md-6">
                                         <div id="seedling_doc_preview" style="margin-top: 10px;"></div>
@@ -1048,42 +1051,49 @@
                             </div>
                         </div>
 
-                        <!-- Additional Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-pencil-alt me-2"></i>Additional Information</h6>
+                        <!-- Additional Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-pencil-alt me-2"></i>Additional Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="seedling_planting_location" class="form-label">Planting
-                                            Location</label>
-                                        <input type="text" class="form-control" id="seedling_planting_location"
-                                            maxlength="500" placeholder="Where will the seedlings be planted?">
+                                        <label for="seedling_planting_location" class="form-label fw-semibold">
+                                            Planting Location
+                                        </label>
+                                        <input type="text" class="form-control" id="seedling_planting_location" maxlength="500" placeholder="Where will the seedlings be planted?">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="seedling_preferred_delivery_date" class="form-label">Preferred
-                                            Delivery Date</label>
+                                        <label for="seedling_preferred_delivery_date" class="form-label fw-semibold">
+                                            Preferred Delivery Date
+                                        </label>
                                         <input type="date" class="form-control" id="seedling_preferred_delivery_date">
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="seedling_purpose" class="form-label">Purpose</label>
-                                    <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000"
-                                        placeholder="Why are you requesting these seedlings?"></textarea>
+                                    <label for="seedling_purpose" class="form-label fw-semibold">
+                                        Purpose
+                                    </label>
+                                    <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000" placeholder="Why are you requesting these seedlings?"></textarea>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Request Status -->
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Request Status</h6>
+                        <!-- Request Status Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-cog me-2"></i>Request Status
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="seedling_status" class="form-label">Initial Status <span
-                                            class="text-danger">*</span></label>
+                                    <label for="seedling_status" class="form-label fw-semibold">
+                                        Initial Status <span class="text-danger">*</span>
+                                    </label>
                                     <select class="form-select" id="seedling_status" required>
                                         <option value="pending" selected>Pending</option>
                                         <option value="under_review">Under Review</option>
@@ -1093,16 +1103,19 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="seedling_remarks" class="form-label">Remarks (Optional)</label>
-                                    <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500"
-                                        placeholder="Any notes or comments..."></textarea>
+                                    <label for="seedling_remarks" class="form-label fw-semibold">
+                                        Remarks (Optional)
+                                    </label>
+                                    <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500" placeholder="Any notes or comments..."></textarea>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddSeedling()">
                         <i class="fas fa-save me-1"></i>Create Request
                     </button>
@@ -2877,33 +2890,6 @@
             return true;
         }
 
-        // Validate seedling email
-        function validateSeedlingEmail(email) {
-            const input = document.getElementById('seedling_email');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!email || email.trim() === '') {
-                return true;
-            }
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
         // Auto-capitalize name fields
         function capitalizeSeedlingName(input) {
             const value = input.value;
@@ -3030,12 +3016,6 @@
                 isValid = false;
             }
 
-            // Validate email if provided
-            const email = document.getElementById('seedling_email').value.trim();
-            if (email && !validateSeedlingEmail(email)) {
-                isValid = false;
-            }
-
             // Validate at least one item
             const items = document.querySelectorAll('.seedling-item-row');
             let itemsValid = true;
@@ -3078,7 +3058,6 @@
             formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
             formData.append('extension_name', document.getElementById('seedling_extension').value);
             formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
-            formData.append('email', document.getElementById('seedling_email').value.trim());
             formData.append('barangay', document.getElementById('seedling_barangay').value);
             formData.append('address', document.getElementById('seedling_address').value.trim());
             formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
@@ -3168,12 +3147,6 @@
             validateSeedlingContactNumber(this.value);
         });
 
-        document.getElementById('seedling_email')?.addEventListener('input', function() {
-            validateSeedlingEmail(this.value);
-        });
-
-
-
         // Show edit modal
         function showEditSeedlingModal(requestId) {
             const modal = new bootstrap.Modal(document.getElementById('editSeedlingModal' + requestId));
@@ -3198,7 +3171,6 @@
             originalData.last_name = document.getElementById('edit_last_name_' + requestId).value;
             originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
             originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
-            originalData.email = document.getElementById('edit_email_' + requestId).value;
             originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
             originalData.address = document.getElementById('edit_address_' + requestId).value;
             originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
@@ -3238,7 +3210,7 @@
             // Check all form fields
             const fields = [
                 'first_name', 'middle_name', 'last_name', 'extension_name',
-                'contact_number', 'email', 'barangay', 'address',
+                'contact_number', 'barangay', 'address',
                 'planting_location', 'purpose', 'preferred_delivery_date'
             ];
 
@@ -3345,15 +3317,7 @@
             if (contactInput) {
                 validateEditContactNumber(contactInput, requestId);
             }
-
-            // Validate email if provided
-            const emailInput = document.getElementById('edit_email_' + requestId);
-            if (emailInput && emailInput.value.trim()) {
-                if (!validateEditEmail(emailInput, requestId)) {
-                    isValid = false;
-                }
-            }
-
+            
             return isValid;
         }
 
@@ -3377,27 +3341,6 @@
             if (input.value.trim()) {
                 input.classList.add('is-valid');
             }
-            return true;
-        }
-
-        // Validate edit email
-        function validateEditEmail(input, requestId) {
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(input.value.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
             return true;
         }
 
