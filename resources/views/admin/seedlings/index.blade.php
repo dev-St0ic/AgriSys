@@ -2921,10 +2921,17 @@
             const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
             const submitButton = document.getElementById('submitBtn' + requestId);
 
-            // Store original remarks value - FIXED
+            // FIXED: Store original remarks value properly
             if (remarksTextarea) {
-                const originalRemarks = remarksTextarea.value || '';
-                remarksTextarea.dataset.originalRemarks = originalRemarks;
+                // Get the original remarks value from the textarea (it's pre-populated from server)
+                const originalRemarks = remarksTextarea.value;
+                
+                // Store both the original value and the form reference
+                form.dataset.originalRemarks = JSON.stringify(originalRemarks);
+                remarksTextarea.dataset.originalValue = originalRemarks;
+                
+                console.log('Modal initialized - Original remarks:', originalRemarks);
+                console.log('Stored in data attribute:', form.dataset.originalRemarks);
                 
                 // Initialize character counter
                 updateSeedlingRemarksCounter(requestId);
@@ -2948,8 +2955,11 @@
                 submitButton.classList.remove('no-changes');
                 submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
                 submitButton.disabled = false;
+                submitButton.dataset.hasChanges = 'false';
             }
         }
+
+
 
         // Open update modal and initialize
         function openUpdateModal(requestId) {
@@ -2967,12 +2977,38 @@
             const submitButton = document.getElementById('submitBtn' + requestId);
 
             let hasChanges = false;
+            
+            // FIXED: Get original remarks from the stored data attribute
+            let originalRemarks = '';
+            try {
+                // First try to get from form dataset
+                originalRemarks = JSON.parse(form.dataset.originalRemarks || '""');
+            } catch (e) {
+                // Fallback to textarea dataset or empty string
+                originalRemarks = remarksTextarea?.dataset.originalValue || '';
+            }
+
+            console.log('Current check:', {
+                stored: form.dataset.originalRemarks,
+                parsed: originalRemarks,
+                current: remarksTextarea?.value || '',
+                match: (remarksTextarea?.value || '') === originalRemarks
+            });
 
             // Check remarks for changes - FIXED COMPARISON
             if (remarksTextarea) {
-                const originalRemarks = remarksTextarea.dataset.originalRemarks || '';
                 const currentRemarks = remarksTextarea.value || '';
-                const remarksChanged = currentRemarks.trim() !== originalRemarks.trim();
+                
+                // Use strict comparison after trimming
+                const remarksChanged = currentRemarks !== originalRemarks;
+
+                console.log('Remarks comparison:', {
+                    original: `"${originalRemarks}"`,
+                    current: `"${currentRemarks}"`,
+                    originalTrimmed: `"${originalRemarks.trim()}"`,
+                    currentTrimmed: `"${currentRemarks.trim()}"`,
+                    changed: remarksChanged
+                });
 
                 if (remarksChanged) {
                     hasChanges = true;
@@ -3006,16 +3042,17 @@
                 if (hasChanges) {
                     submitButton.classList.remove('no-changes');
                     submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
-                    submitButton.disabled = false;
                     submitButton.dataset.hasChanges = 'true';
                 } else {
                     submitButton.classList.add('no-changes');
                     submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-                    submitButton.disabled = false; // KEEP ENABLED
                     submitButton.dataset.hasChanges = 'false';
                 }
+                // IMPORTANT: Button remains enabled
+                submitButton.disabled = false;
             }
         }
+
 
 
         // Handle update form submission with confirmation
@@ -3266,13 +3303,14 @@
             updateModals.forEach(modalElement => {
                 const requestId = modalElement.id.replace('updateModal', '');
 
+                // Initialize modal when opened
                 modalElement.addEventListener('show.bs.modal', function() {
                     console.log('Modal opened for request:', requestId);
                     initializeSeedlingUpdateModal(requestId);
                 });
             });
 
-            // Add event listeners for real-time change detection only
+            // Add event listeners for real-time change detection
             const updateForms = document.querySelectorAll('form[id^="updateForm"]');
 
             updateForms.forEach(form => {

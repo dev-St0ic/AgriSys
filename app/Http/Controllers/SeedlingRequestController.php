@@ -702,13 +702,13 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 /**
      * Update individual items in a request (for approval/rejection) - WITH AUTOMATIC SUPPLY DEDUCTION
      */
-    public function updateItems(Request $request, SeedlingRequest $seedlingRequest)
+   public function updateItems(Request $request, SeedlingRequest $seedlingRequest)
 {
     try {
         $validated = $request->validate([
             'item_statuses' => 'required|array',
             'item_statuses.*' => 'required|in:pending,approved,rejected',
-            'remarks' => 'nullable|string|max:500',
+            'remarks' => 'nullable|string|max:1000',
         ]);
     } catch (\Illuminate\Validation\ValidationException $e) {
         if ($request->expectsJson()) {
@@ -744,8 +744,13 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             }
         }
 
-        // If no items changed, skip the entire process
-        if (!$hasItemChanges) {
+        // ✅ ALSO CHECK IF REMARKS CHANGED
+        $currentRemarks = $seedlingRequest->remarks ?? '';
+        $newRemarks = $validated['remarks'] ?? '';
+        $hasRemarksChange = $currentRemarks !== $newRemarks;
+
+        // If NEITHER items NOR remarks changed, skip
+        if (!$hasItemChanges && !$hasRemarksChange) {
             \DB::commit();
 
             if ($request->expectsJson()) {
@@ -884,7 +889,8 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             'approved_count' => $approvedCount,
             'rejected_count' => $rejectedCount,
             'new_status' => $overallStatus,
-            'old_status' => $previousStatus
+            'old_status' => $previousStatus,
+            'remarks_changed' => $hasRemarksChange
         ]);
 
         \DB::commit();
@@ -905,11 +911,11 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Items updated successfully and supplies automatically adjusted.'
+                'message' => 'Status updated successfully and supplies automatically adjusted.'
             ]);
         }
 
-        return redirect()->back()->with('success', 'Items updated successfully and supplies automatically adjusted.');
+        return redirect()->back()->with('success', 'Status updated successfully and supplies automatically adjusted.');
 
     } catch (\Exception $e) {
         \DB::rollback();
