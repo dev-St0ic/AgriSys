@@ -912,7 +912,7 @@
                                 <div class="alert alert-info border-left-info mb-0">
                                     <i class="fas fa-lightbulb me-2"></i>
                                     <strong>Note:</strong> You can edit all request information here.
-                                    To change item statuses or add remarks, use the "Change Status Items" button from the main table.
+                                    To change item statuses or add remarks, use the "Change Status" button from the main table.
                                 </div>
                             </form>
                         </div>
@@ -1352,6 +1352,40 @@
                     </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddSeedling()">
                         <i class="fas fa-save me-1"></i>Create Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE SEEDLING REQUEST MODAL -->
+    <div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">Permanently Delete Seedling Request</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_seedling_name"></strong> will:</p>
+                    </div>
+                    <ul class="mb-0">
+                        <li>Remove the seedling request from the database</li>
+                        <li>Delete all associated documents and files</li>
+                        <li>Delete all request history and logs</li>
+                        <li>Return approved supplies back to inventory</li>
+                        <li>Cannot be recovered</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()"
+                        id="confirm_delete_seedling_btn">
+                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -2366,6 +2400,66 @@
 
                 .document-preview-item:hover {
                     transform: scale(1.02);
+                }
+
+                 /* Delete Modal Styling  */
+                #deleteSeedlingModal .modal-header {
+                    border-bottom: 1px solid #f8d7da;
+                    padding: 1.25rem 1.5rem;
+                }
+
+                #deleteSeedlingModal .modal-body {
+                    padding: 1.5rem;
+                    background-color: #fff;
+                }
+
+                #deleteSeedlingModal .alert {
+                    border: 1px solid #f5c6cb;
+                    margin-bottom: 1rem;
+                }
+
+                #deleteSeedlingModal .alert strong {
+                    font-weight: 600;
+                }
+
+                #deleteSeedlingModal ul {
+                    list-style-position: inside;
+                    color: #721c24;
+                }
+
+                #deleteSeedlingModal ul li {
+                    margin-bottom: 0.5rem;
+                    line-height: 1.6;
+                }
+
+                #deleteSeedlingModal .modal-footer {
+                    border-top: 1px solid #e9ecef;
+                    padding: 1rem 1.5rem;
+                    background-color: #f8f9fa;
+                }
+
+                #deleteSeedlingModal .btn-danger {
+                    transition: all 0.2s ease;
+                }
+
+                #deleteSeedlingModal .btn-danger:hover:not(:disabled) {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+                }
+
+                #deleteSeedlingModal .btn-secondary:hover {
+                    transform: translateY(-1px);
+                }
+
+                #deleteSeedlingModal .spinner-border-sm {
+                    width: 1rem;
+                    height: 1rem;
+                    border-width: 0.2em;
+                }
+
+                /* Modal backdrop consistency */
+                #deleteSeedlingModal .modal-backdrop {
+                    opacity: 0.5;
                 }
     </style>
 
@@ -4457,6 +4551,139 @@
                 }
             }
         }
+
+        // delete modal
+        
+        // Global variable to track current delete ID
+        let currentDeleteSeedlingId = null;
+
+        /**
+         * Updated deleteSeedlingRequest function to use modal
+         */
+        function deleteSeedlingRequest(id, requestNumber) {
+            try {
+                // Set the global variable
+                currentDeleteSeedlingId = id;
+
+                // Update modal with request number
+                document.getElementById('delete_seedling_name').textContent = requestNumber;
+
+                // Show the delete modal
+                new bootstrap.Modal(document.getElementById('deleteSeedlingModal')).show();
+            } catch (error) {
+                console.error('Error preparing delete dialog:', error);
+                showToast('error', 'Failed to prepare delete dialog');
+            }
+        }
+
+        /**
+         * Confirm permanent delete for seedling request
+         */
+        async function confirmPermanentDeleteSeedling() {
+            if (!currentDeleteSeedlingId) {
+                showToast('error', 'Request ID not found');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+                deleteBtn.querySelector('.btn-text').style.display = 'none';
+                deleteBtn.querySelector('.btn-loader').style.display = 'inline';
+                deleteBtn.disabled = true;
+
+                const response = await fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to delete request');
+                }
+
+                // Close modal
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show success message
+                showToast('success', data.message || 'Seedling request deleted successfully');
+
+                // Remove the row with animation
+                const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+
+                // Reload page to refresh statistics
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+                // Reset for next use
+                currentDeleteSeedlingId = null;
+
+            } catch (error) {
+                console.error('Error deleting request:', error);
+                
+                // Close modal first
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show error
+                showToast('error', 'Error deleting request: ' + error.message);
+
+            } finally {
+                // Reset button state
+                const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+                deleteBtn.querySelector('.btn-text').style.display = 'inline';
+                deleteBtn.querySelector('.btn-loader').style.display = 'none';
+                deleteBtn.disabled = false;
+            }
+        }
+
+        /**
+         * Clean up modal on close
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteSeedlingModal = document.getElementById('deleteSeedlingModal');
+            if (deleteSeedlingModal) {
+                deleteSeedlingModal.addEventListener('hidden.bs.modal', function() {
+                    // Reset button state
+                    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+                    deleteBtn.querySelector('.btn-text').style.display = 'inline';
+                    deleteBtn.querySelector('.btn-loader').style.display = 'none';
+                    deleteBtn.disabled = false;
+
+                    // Remove any lingering backdrops
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+
+                    // Remove modal-open class from body
+                    document.body.classList.remove('modal-open');
+
+                    // Reset body overflow
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+
+                    // Reset global variable
+                    currentDeleteSeedlingId = null;
+
+                    console.log('Delete Seedling modal cleaned up');
+                });
+            }
+        });
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
