@@ -341,7 +341,7 @@
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="showEditRsbsaModal({{ $application->id }})">
-                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit
+                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit Information
                                                     </a>
                                                 </li>
                                                 <li>

@@ -356,7 +356,7 @@
                                                         <li>
                                                             <a class="dropdown-item" href="javascript:void(0)"
                                                                 onclick="showEditSeedlingModal({{ $request->id }})">
-                                                                <i class="fas fa-pencil-alt text-warning me-2"></i>Edit
+                                                                <i class="fas fa-edit me-2 text-success"></i>Edit
                                                                 Information
                                                             </a>
                                                         </li>
@@ -366,7 +366,7 @@
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                                 onclick="deleteSeedlingRequest({{ $request->id }}, '{{ $request->request_number }}')">
-                                                                <i class="fas fa-trash me-2"></i>Delete Request
+                                                                <i class="fas fa-trash me-2"></i>Delete
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -668,220 +668,229 @@
             </div>
         </div>
 
-                <!-- Edit Modal -->
-                <div class="modal fade" id="editSeedlingModal{{ $request->id }}" tabindex="-1">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-pencil-alt"></i>
-                                    Edit Request - {{ $request->request_number }}
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form method="POST" action="{{ route('admin.seedlings.update', $request) }}"
-                                    id="editForm{{ $request->id }}" class="needs-validation">
-                                    @csrf
-                                    @method('PUT')
+            <!-- Edit Modal enhanced -->
+            <div class="modal fade" id="editSeedlingModal{{ $request->id }}" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title w-100 text-center">
+                                <i></i>Edit Request - <span id="editRequestNumber{{ $request->id }}">{{ $request->request_number }}</span>
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
 
-                                    <!-- Personal Information Card -->
-                                    <div class="card mb-3">
-                                        <div class="card-header bg-light">
-                                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <div class="modal-body">
+                            <form id="editForm{{ $request->id }}" class="needs-validation"
+                                action="{{ route('admin.seedlings.update', $request) }}"
+                                method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                <!-- Personal Information Card -->
+                                <div class="card mb-3 border-0 bg-light">
+                                    <div class="card-header bg-white border-0 pb-0">
+                                        <h6 class="mb-0 fw-semibold text-primary">
+                                            <i class="fas fa-user me-2"></i>Personal Information
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <label for="edit_first_name_{{ $request->id }}" class="form-label fw-semibold">
+                                                    First Name <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_first_name_{{ $request->id }}" 
+                                                    name="first_name" value="{{ $request->first_name }}" required maxlength="100" 
+                                                    placeholder="First name" onchange="checkForEditChanges({{ $request->id }})"
+                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="edit_middle_name_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Middle Name
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_middle_name_{{ $request->id }}" 
+                                                    name="middle_name" value="{{ $request->middle_name }}" maxlength="100" 
+                                                    placeholder="Middle name (optional)" onchange="checkForEditChanges({{ $request->id }})"
+                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="edit_last_name_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Last Name <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_last_name_{{ $request->id }}" 
+                                                    name="last_name" value="{{ $request->last_name }}" required maxlength="100" 
+                                                    placeholder="Last name" onchange="checkForEditChanges({{ $request->id }})"
+                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="edit_extension_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Extension
+                                                </label>
+                                                <select class="form-select" id="edit_extension_{{ $request->id }}" 
+                                                    name="extension_name" onchange="checkForEditChanges({{ $request->id }})">
+                                                    <option value="">None</option>
+                                                    <option value="Jr." {{ $request->extension_name === 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                                    <option value="Sr." {{ $request->extension_name === 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                                    <option value="II" {{ $request->extension_name === 'II' ? 'selected' : '' }}>II</option>
+                                                    <option value="III" {{ $request->extension_name === 'III' ? 'selected' : '' }}>III</option>
+                                                    <option value="IV" {{ $request->extension_name === 'IV' ? 'selected' : '' }}>IV</option>
+                                                    <option value="V" {{ $request->extension_name === 'V' ? 'selected' : '' }}>V</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="edit_first_name_{{ $request->id }}"
-                                                        class="form-label">First Name <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_first_name_{{ $request->id }}" name="first_name"
-                                                        value="{{ $request->first_name }}" required maxlength="100">
-                                                </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="edit_middle_name_{{ $request->id }}"
-                                                        class="form-label">Middle Name</label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_middle_name_{{ $request->id }}" name="middle_name"
-                                                        value="{{ $request->middle_name }}" maxlength="100">
-                                                </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="edit_last_name_{{ $request->id }}"
-                                                        class="form-label">Last Name <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_last_name_{{ $request->id }}" name="last_name"
-                                                        value="{{ $request->last_name }}" required maxlength="100">
-                                                </div>
-                                                <div class="col-md-3 mb-3">
-                                                    <label for="edit_extension_{{ $request->id }}"
-                                                        class="form-label">Extension</label>
-                                                    <select class="form-select" id="edit_extension_{{ $request->id }}"
-                                                        name="extension_name">
-                                                        <option value="">None</option>
-                                                        <option value="Jr."
-                                                            {{ $request->extension_name === 'Jr.' ? 'selected' : '' }}>Jr.
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="edit_contact_number_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Contact Number <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="tel" class="form-control" id="edit_contact_number_{{ $request->id }}" 
+                                                    name="contact_number" value="{{ $request->contact_number }}" required 
+                                                    placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20"
+                                                    onchange="checkForEditChanges({{ $request->id }})"
+                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                                <small class="text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                                </small>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    Request Number
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_request_number_{{ $request->id }}" 
+                                                    value="{{ $request->request_number }}" disabled placeholder="-">
+                                                <small class="text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>Auto-generated (cannot be changed)
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Location Information Card -->
+                                <div class="card mb-3 border-0 bg-light">
+                                    <div class="card-header bg-white border-0 pb-0">
+                                        <h6 class="mb-0 fw-semibold text-primary">
+                                            <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="edit_barangay_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Barangay <span class="text-danger">*</span>
+                                                </label>
+                                                <select class="form-select" id="edit_barangay_{{ $request->id }}" 
+                                                    name="barangay" required onchange="checkForEditChanges({{ $request->id }})">
+                                                    <option value="">Select Barangay</option>
+                                                    @foreach ($barangays as $barangay)
+                                                        <option value="{{ $barangay }}" 
+                                                            {{ $request->barangay === $barangay ? 'selected' : '' }}>
+                                                            {{ $barangay }}
                                                         </option>
-                                                        <option value="Sr."
-                                                            {{ $request->extension_name === 'Sr.' ? 'selected' : '' }}>Sr.
-                                                        </option>
-                                                        <option value="II"
-                                                            {{ $request->extension_name === 'II' ? 'selected' : '' }}>II
-                                                        </option>
-                                                        <option value="III"
-                                                            {{ $request->extension_name === 'III' ? 'selected' : '' }}>III
-                                                        </option>
-                                                        <option value="IV"
-                                                            {{ $request->extension_name === 'IV' ? 'selected' : '' }}>IV
-                                                        </option>
-                                                        <option value="V"
-                                                            {{ $request->extension_name === 'V' ? 'selected' : '' }}>V
-                                                        </option>
-                                                    </select>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="edit_address_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Address <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_address_{{ $request->id }}" 
+                                                    name="address" value="{{ $request->address }}" required maxlength="500"
+                                                    placeholder="Full address" onchange="checkForEditChanges({{ $request->id }})"
+                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Information Card -->
+                                <div class="card mb-3 border-0 bg-light">
+                                    <div class="card-header bg-white border-0 pb-0">
+                                        <h6 class="mb-0 fw-semibold text-primary">
+                                            <i class="fas fa-info-circle me-2"></i>Additional Information
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="edit_planting_location_{{ $request->id }}" class="form-label fw-semibold">
+                                                    Planting Location
+                                                </label>
+                                                <input type="text" class="form-control" id="edit_planting_location_{{ $request->id }}" 
+                                                    name="planting_location" value="{{ $request->planting_location }}" maxlength="500"
+                                                    placeholder="Where will the seedlings be planted?" onchange="checkForEditChanges({{ $request->id }})"
+                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit_purpose_{{ $request->id }}" class="form-label fw-semibold">
+                                                Purpose
+                                            </label>
+                                            <textarea class="form-control" id="edit_purpose_{{ $request->id }}" name="purpose" rows="3" 
+                                                maxlength="1000" placeholder="Why are you requesting these seedlings?"
+                                                onchange="checkForEditChanges({{ $request->id }})"
+                                                oninput="checkForEditChanges({{ $request->id }})">{{ $request->purpose }}</textarea>
+                                            <small class="text-muted d-block mt-2">
+                                                <i class="fas fa-info-circle me-1"></i>Maximum 1000 characters
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Request Status (Read-only) Card -->
+                                <div class="card mb-3 border-0 bg-light">
+                                    <div class="card-header bg-white border-0 pb-0">
+                                        <h6 class="mb-0 fw-semibold text-primary">
+                                            <i class="fas fa-info-circle me-2"></i>Request Status (Read-only)
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <small class="text-muted d-block mb-2">Current Status</small>
+                                                <div>
+                                                    <span id="edit_status_badge_{{ $request->id }}" class="badge bg-{{ match ($request->status) {
+                                                        'approved' => 'success',
+                                                        'partially_approved' => 'info',
+                                                        'rejected' => 'danger',
+                                                        'under_review', 'pending' => 'warning',
+                                                        default => 'secondary',
+                                                    } }} fs-6">
+                                                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-md-4 mb-3">
-                                                    <label for="edit_contact_number_{{ $request->id }}"
-                                                        class="form-label">Contact Number <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="tel" class="form-control"
-                                                        id="edit_contact_number_{{ $request->id }}"
-                                                        name="contact_number" value="{{ $request->contact_number }}"
-                                                        required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
-                                                        maxlength="20">
-                                                    <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label">Request Number</label>
-                                                    <input type="text" class="form-control"
-                                                        value="{{ $request->request_number }}" disabled>
-                                                    <small class="form-text text-muted">Auto-generated (cannot be
-                                                        changed)</small>
+                                            <div class="col-md-6 mb-3">
+                                                <small class="text-muted d-block mb-2">Date Applied</small>
+                                                <div id="edit_created_at_{{ $request->id }}" class="fw-semibold">
+                                                    {{ $request->created_at->format('M d, Y g:i A') }}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <!-- Location Information Card -->
-                                    <div class="card mb-3">
-                                        <div class="card-header bg-light">
-                                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location
-                                                Information</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_barangay_{{ $request->id }}"
-                                                        class="form-label">Barangay <span
-                                                            class="text-danger">*</span></label>
-                                                    <select class="form-select" id="edit_barangay_{{ $request->id }}"
-                                                        name="barangay" required>
-                                                        <option value="">Select Barangay</option>
-                                                        @foreach ($barangays as $barangay)
-                                                            <option value="{{ $barangay }}"
-                                                                {{ $request->barangay === $barangay ? 'selected' : '' }}>
-                                                                {{ $barangay }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_address_{{ $request->id }}"
-                                                        class="form-label">Address <span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_address_{{ $request->id }}" name="address"
-                                                        value="{{ $request->address }}" required maxlength="500">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <!-- Info Alert -->
+                                <div class="alert alert-info border-left-info mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>Note:</strong> You can edit all request information here.
+                                    To change item statuses or add remarks, use the "Change Status Items" button from the main table.
+                                </div>
+                            </form>
+                        </div>
 
-                                    <!-- Additional Information Card -->
-                                    <div class="card mb-3">
-                                        <div class="card-header bg-light">
-                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional
-                                                Information</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_planting_location_{{ $request->id }}"
-                                                        class="form-label">Planting Location</label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_planting_location_{{ $request->id }}"
-                                                        name="planting_location"
-                                                        value="{{ $request->planting_location }}" maxlength="500">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="edit_purpose_{{ $request->id }}"
-                                                    class="form-label">Purpose</label>
-                                                <textarea class="form-control" id="edit_purpose_{{ $request->id }}" name="purpose" rows="3"
-                                                    maxlength="1000">{{ $request->purpose }}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Status Information (Read-only) -->
-                                    <div class="card mb-3 bg-light">
-                                        <div class="card-header bg-light border-0">
-                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Status
-                                                (Read-only)
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-4 mb-2">
-                                                    <small class="text-muted">Current Status:</small>
-                                                    <div>
-                                                        <span
-                                                            class="badge bg-{{ match ($request->status) {
-                                                                'approved' => 'success',
-                                                                'partially_approved' => 'info',
-                                                                'rejected' => 'danger',
-                                                                'under_review', 'pending' => 'warning',
-                                                                default => 'secondary',
-                                                            } }}">
-                                                            {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4 mb-2">
-                                                    <small class="text-muted">Date Applied:</small>
-                                                    <div>{{ $request->created_at->format('M d, Y g:i A') }}</div>
-                                                </div>
-                                                <div class="col-md-4 mb-2">
-                                                    <small class="text-muted">Last Updated:</small>
-                                                    <div>{{ $request->updated_at->format('M d, Y g:i A') }}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Info Alert -->
-                                    <div class="alert alert-info mb-0">
-                                        <i class="fas fa-lightbulb me-2"></i>
-                                        <strong>Note:</strong> Changes to personal or location information will be saved.
-                                        To update item statuses and approvals, use the "Update Items" button from the main
-                                        table.
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" id="editSubmitBtn{{ $request->id }}"
-                                    onclick="handleEditSeedlingSubmit({{ $request->id }})">
-                                    <i class="fas fa-save me-2"></i>Save Changes
-                                </button>
-                            </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i></i>Cancel
+                            </button>
+                            <button type="button" class="btn btn-primary" id="editSubmitBtn{{ $request->id }}"
+                                onclick="handleEditSeedlingSubmit({{ $request->id }})">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
                 <!-- UPDATED: Change Status Modal -->
             <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">
@@ -3734,7 +3743,7 @@
             }
         }
 
-        // Handle edit form submission
+        // Handle edit form submission with changes summary
         function handleEditSeedlingSubmit(requestId) {
             const form = document.getElementById('editForm' + requestId);
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
@@ -3756,10 +3765,58 @@
                 return;
             }
 
-            // Show confirmation
+            // Build changes summary
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+            const changedFields = [];
+
+            const fieldLabels = {
+                'first_name': 'First Name',
+                'middle_name': 'Middle Name',
+                'last_name': 'Last Name',
+                'extension_name': 'Extension',
+                'contact_number': 'Contact Number',
+                'barangay': 'Barangay',
+                'address': 'Address',
+                'planting_location': 'Planting Location',
+                'purpose': 'Purpose'
+            };
+
+            const fieldMap = {
+                'first_name': `edit_first_name_${requestId}`,
+                'middle_name': `edit_middle_name_${requestId}`,
+                'last_name': `edit_last_name_${requestId}`,
+                'extension_name': `edit_extension_${requestId}`,
+                'contact_number': `edit_contact_number_${requestId}`,
+                'barangay': `edit_barangay_${requestId}`,
+                'address': `edit_address_${requestId}`,
+                'planting_location': `edit_planting_location_${requestId}`,
+                'purpose': `edit_purpose_${requestId}`
+            };
+
+            // Check each field for changes
+            Object.keys(fieldMap).forEach(fieldName => {
+                const elementId = fieldMap[fieldName];
+                const input = document.getElementById(elementId);
+                
+                if (input) {
+                    const currentValue = (input.value || '').trim();
+                    const originalValue = (originalData[fieldName] || '').trim();
+
+                    if (currentValue !== originalValue) {
+                        changedFields.push(fieldLabels[fieldName] || fieldName);
+                    }
+                }
+            });
+
+            // Build confirmation message with changed fields
+            const changesText = changedFields.length > 0 
+                ? `Save the following changes to this seedling request?\n\n• ${changedFields.join('\n• ')}`
+                : 'Save the changes to this seedling request?';
+
+            // Show confirmation toast with detailed changes
             showConfirmationToast(
                 'Confirm Update',
-                'Are you sure you want to save the changes to this seedling request?',
+                changesText,
                 () => proceedWithEditSeedling(form, requestId)
             );
         }
@@ -3840,53 +3897,85 @@
             return true;
         }
 
-        // Proceed with edit submission
+        // Proceed with edit submission fixed
         function proceedWithEditSeedling(form, requestId) {
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+
+            if (!form) {
+                showToast('error', 'Form not found');
+                return;
+            }
 
             // Show loading state
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
             submitBtn.disabled = true;
 
+            // Get form action - this is critical!
+            const actionUrl = form.getAttribute('action');
+            if (!actionUrl) {
+                showToast('error', 'Form action URL not found');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Prepare FormData
             const formData = new FormData(form);
+            
+            // Fetch request
+            fetch(actionUrl, {
+                method: 'POST',  // Laravel route model binding requires POST with _method spoofing
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                    // DON'T set Content-Type - browser will set it with boundary
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw { status: response.status, data: data };
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Update response:', data);
 
-            fetch(form.getAttribute('action'), {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Close modal
-                        const modalId = 'editSeedlingModal' + requestId;
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                        if (modal) modal.hide();
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(
+                        document.getElementById('editSeedlingModal' + requestId)
+                    );
+                    if (modal) modal.hide();
 
-                        showToast('success', data.message || 'Seedling request updated successfully');
+                    showToast('success', data.message || 'Updated successfully!');
+                    
+                    // Reload page
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('error', data.message || 'Update failed');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
 
-                        // Reload page
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        throw new Error(data.message || 'Failed to update request');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error: ' + error.message);
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
+                let errorMsg = 'Error updating request';
+                
+                if (error.data?.message) {
+                    errorMsg = error.data.message;
+                } else if (error.message) {
+                    errorMsg = error.message;
+                }
+
+                showToast('error', errorMsg);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
         }
-
         // Auto-capitalize names in edit form
         function capitalizeEditName(input) {
             const value = input.value;
