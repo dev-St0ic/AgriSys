@@ -30,17 +30,6 @@
                 </div>
             </div>
 
-            <!-- Low Supply -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2.5rem;"></i>
-                        <h2 class="metric-value mb-2">{{ number_format($lowSupplyItems) }}</h2>
-                        <p class="metric-label text-warning mb-0">LOW SUPPLY</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Total Supply -->
             <div class="col-lg-3 col-md-6">
                 <div class="card metric-card border-0 shadow-sm h-100">
@@ -48,6 +37,17 @@
                         <i class="fas fa-warehouse text-success mb-3" style="font-size: 2.5rem;"></i>
                         <h2 class="metric-value mb-2">{{ number_format($totalSupply) }}</h2>
                         <p class="metric-label text-success mb-0">TOTAL SUPPLY</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Supply -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card metric-card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2.5rem;"></i>
+                        <h2 class="metric-value mb-2">{{ number_format($lowSupplyItems) }}</h2>
+                        <p class="metric-label text-warning mb-0">LOW SUPPLY</p>
                     </div>
                 </div>
             </div>
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <!-- Category Navigation Tabs -->
+        <!-- Category Navigation Tabs - SEPARATED -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -88,22 +88,63 @@
                             </button>
                         @endif
                     </div>
-                    <div class="d-flex gap-2 align-items-center flex-wrap"  style="margin-left: auto;">
-                        <div class="search-box">
-                            <div class="input-group">
-                                <span class="input-group-text bg-white">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control" id="itemSearch" placeholder="Search items..."
-                                    onkeyup="searchItems()">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
+                        style="white-space: nowrap;">
+                        <i class="fas fa-plus me-2"></i>Add Category
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Search Card - NEW SEPARATED SECTION -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-filter me-2"></i>Filters & Search
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ route('admin.seedlings.supply-management.index') }}" id="filterForm">
+                    <div class="row g-2">
+                        <!-- Status Filter -->
+                        <div class="col-md-2">
+                            <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
+                                <option value="">All Status</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Stock Status Filter -->
+                        <div class="col-md-2">
+                            <select name="stock_status" class="form-select form-select-sm" onchange="submitFilterForm()">
+                                <option value="">All Stock Status</option>
+                                <option value="in_stock" {{ request('stock_status') == 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                                <option value="low_supply" {{ request('stock_status') == 'low_supply' ? 'selected' : '' }}>Low Supply</option>
+                                <option value="out_of_stock" {{ request('stock_status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                            </select>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="col-md-5">
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="search" class="form-control"
+                                    placeholder="Search item name, description..." value="{{ request('search') }}"
+                                    oninput="autoSearch()" id="searchInput">
+                                <button class="btn btn-outline-secondary" type="submit" title="Search" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
                             </div>
                         </div>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
-                            style="white-space: nowrap;">
-                            <i class="fas fa-plus me-2"></i>Add Category
-                        </button>
+
+                        <!-- Clear Button -->
+                        <div class="col-md-3">
+                            <a href="{{ route('admin.seedlings.supply-management.index') }}" class="btn btn-secondary btn-sm w-100">
+                                <i></i>Clear 
+                            </a>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
 
@@ -2227,6 +2268,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+        let searchTimeout;
+
+        // Auto search functionality
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500);
+        }
+
+        // Submit filter form when dropdowns change
+        function submitFilterForm() {
+            document.getElementById('filterForm').submit();
+        }
     </script>
 
     <style>
@@ -2772,6 +2828,47 @@ document.addEventListener('DOMContentLoaded', function() {
         #editItemSubmitBtn.no-changes:hover {
             background-color: #6c757d;
             border-color: #6c757d;
+        }
+        /* Filters & Search Card */
+        .card[id*="filterForm"].shadow {
+            border: none;
+            border-radius: 8px;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .card-header h6 {
+            color: #0d6efd;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-select-sm, 
+        .form-control-sm {
+            height: calc(1.5em + 0.5rem + 2px);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        .form-select-sm:focus,
+        .form-control-sm:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .input-group-sm .input-group-text {
+            border: 1px solid #dee2e6;
+            background-color: #ffffff;
+        }
+
+        .input-group-sm .form-control {
+            border: 1px solid #dee2e6;
         }
     </style>
 @endsection
