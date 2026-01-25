@@ -955,12 +955,12 @@
             </div>
         </div>
     </div>
-    <!-- Supply Management Modal -->
+    <!-- Supply Management Modal - ENLARGED -->
     <div class="modal fade" id="supplyModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="fas fa-warehouse me-2"></i>Supply Management</h5>
+                <div class="modal-header bg-success text-white w-100 text-center">
+                    <h5 class="modal-title"><i></i>Supply Management</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -991,7 +991,7 @@
 
                     <!-- Supply Actions -->
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-lg-4 mb-3">
                             <div class="card h-100">
                                 <div class="card-header bg-success text-white">
                                     <i class="fas fa-arrow-up me-2"></i>Add Supply
@@ -999,22 +999,26 @@
                                 <div class="card-body">
                                     <form id="addSupplyForm" novalidate>
                                         <input type="hidden" id="add_supply_item_id" name="item_id">
-                                        <div class="mb-2">
-                                            <label class="form-label small">Quantity *</label>
-                                            <input type="number" name="quantity" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">Quantity <span style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="quantity" class="form-control"
                                                 required min="1">
                                             <div class="invalid-feedback">Please enter a quantity.</div>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Source</label>
-                                            <input type="text" name="source" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">Source</label>
+                                            <input type="text" name="source" class="form-control"
                                                 placeholder="e.g., Supplier name">
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Notes</label>
-                                            <textarea name="notes" class="form-control form-control-sm" rows="2"></textarea>
+                                        <div class="mb-3">
+                                            <label class="form-label">Notes</label>
+                                            <textarea name="notes" class="form-control" rows="5"
+                                                placeholder="Add detailed notes about this supply addition..."></textarea>
+                                            <small class="text-muted d-block mt-2">
+                                                <span id="addSupplyNoteCount">0</span>/500 characters
+                                            </small>
                                         </div>
-                                        <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <button type="submit" class="btn btn-success w-100">
                                             <i class="fas fa-plus-circle me-1"></i>Add Supply
                                         </button>
                                     </form>
@@ -1022,7 +1026,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-lg-4 mb-3">
                             <div class="card h-100">
                                 <div class="card-header bg-warning text-dark">
                                     <i class="fas fa-edit me-2"></i>Adjust Supply
@@ -1030,19 +1034,22 @@
                                 <div class="card-body">
                                     <form id="adjustSupplyForm" novalidate>
                                         <input type="hidden" id="adjust_supply_item_id" name="item_id">
-                                        <div class="mb-2">
-                                            <label class="form-label small">New Supply *</label>
-                                            <input type="number" name="new_supply" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">New Supply <span style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="new_supply" class="form-control"
                                                 required min="0">
                                             <div class="invalid-feedback">Please enter new supply amount.</div>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Reason *</label>
-                                            <textarea name="reason" class="form-control form-control-sm" rows="3" required
-                                                placeholder="Explain the adjustment..."></textarea>
-                                            <div class="invalid-feedback">Please provide a reason for adjustment.</div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Reason <span style="color: #dc3545;">*</span></label>
+                                            <textarea name="reason" class="form-control" rows="5" required
+                                                placeholder="Explain the adjustment in detail..."></textarea>
+                                            <small class="text-muted d-block mt-2">
+                                                <span id="adjustSupplyReasonCount">0</span>/500 characters
+                                            </small>
+                                            <div class="invalid-feedback">Please provide a reason.</div>
                                         </div>
-                                        <button type="submit" class="btn btn-warning btn-sm w-100">
+                                        <button type="submit" class="btn btn-warning w-100">
                                             <i class="fas fa-sync-alt me-1"></i>Adjust Supply
                                         </button>
                                     </form>
@@ -1050,7 +1057,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-lg-4 mb-3">
                             <div class="card h-100">
                                 <div class="card-header bg-danger text-white">
                                     <i class="fas fa-exclamation-triangle me-2"></i>Record Loss
@@ -1058,26 +1065,32 @@
                                 <div class="card-body">
                                     <form id="recordLossForm" novalidate>
                                         <input type="hidden" id="loss_supply_item_id" name="item_id">
-                                        <div class="mb-2">
-                                            <label class="form-label small">Quantity Lost *</label>
-                                            <input type="number" name="quantity" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">Quantity Lost <span style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="quantity" class="form-control"
                                                 required min="1">
                                             <div class="invalid-feedback">Please enter quantity lost.</div>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Reason *</label>
-                                            <select name="reason_type" class="form-select form-select-sm mb-2" required>
+                                        <div class="mb-3">
+                                            <label class="form-label">Reason Type <span style="color: #dc3545;">*</span></label>
+                                            <select name="reason_type" class="form-select mb-2" required>
                                                 <option value="">Select reason type...</option>
                                                 <option value="Expired">Expired</option>
                                                 <option value="Damaged">Damaged</option>
                                                 <option value="Lost">Lost</option>
                                                 <option value="Other">Other</option>
                                             </select>
-                                            <textarea name="reason" class="form-control form-control-sm" rows="2" required
-                                                placeholder="Additional details..."></textarea>
-                                            <div class="invalid-feedback">Please provide a reason.</div>
                                         </div>
-                                        <button type="submit" class="btn btn-danger btn-sm w-100">
+                                        <div class="mb-3">
+                                            <label class="form-label">Additional Details <span style="color: #dc3545;">*</span></label>
+                                            <textarea name="reason" class="form-control" rows="5" required
+                                                placeholder="Provide detailed information about the loss..."></textarea>
+                                            <small class="text-muted d-block mt-2">
+                                                <span id="lossReasonCount">0</span>/500 characters
+                                            </small>
+                                            <div class="invalid-feedback">Please provide details.</div>
+                                        </div>
+                                        <button type="submit" class="btn btn-danger w-100">
                                             <i class="fas fa-minus-circle me-1"></i>Record Loss
                                         </button>
                                     </form>
@@ -1087,12 +1100,12 @@
                     </div>
 
                     <!-- Supply Logs -->
-                    <div class="card">
+                    <div class="card mt-3">
                         <div class="card-header">
                             <i class="fas fa-history me-2"></i>Recent Supply Movements
                         </div>
                         <div class="card-body p-0">
-                            <div id="supply_logs" style="max-height: 300px; overflow-y: auto;">
+                            <div id="supply_logs" style="max-height: 400px; overflow-y: auto;">
                                 <div class="text-center py-3">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
@@ -1105,7 +1118,6 @@
             </div>
         </div>
     </div>
-
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -2868,6 +2880,24 @@ document.addEventListener('DOMContentLoaded', function() {
             editDescriptionTextarea.addEventListener('change', updateEditItemDescriptionCounter);
         }
     });
+    // Character counters for supply modal
+    document.getElementById('addSupplyForm').addEventListener('input', function(e) {
+        if (e.target.name === 'notes') {
+            document.getElementById('addSupplyNoteCount').textContent = e.target.value.length;
+        }
+    });
+
+    document.getElementById('adjustSupplyForm').addEventListener('input', function(e) {
+        if (e.target.name === 'reason') {
+            document.getElementById('adjustSupplyReasonCount').textContent = e.target.value.length;
+        }
+    });
+
+    document.getElementById('recordLossForm').addEventListener('input', function(e) {
+        if (e.target.name === 'reason') {
+            document.getElementById('lossReasonCount').textContent = e.target.value.length;
+        }
+    });
     </script>
 
     <style>
@@ -4025,5 +4055,34 @@ p, small, span {
         padding: 0.2rem 0.4rem !important;
     }
 }
+    /* Supply Management Modal Header - Centered */
+    #supplyModal .modal-header {
+        justify-content: center !important;
+        text-align: center !important;
+        position: relative;
+    }
+
+    #supplyModal .modal-title {
+        flex: 1;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.3rem;
+        color: #ffffff;
+    }
+
+    #supplyModal .modal-header .btn-close {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+    }
+
+    /* Ensure the header has proper styling */
+    #supplyModal .modal-header {
+        background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+        border: none;
+        padding: 1.25rem;
+    }
     </style>
 @endsection
