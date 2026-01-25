@@ -307,10 +307,10 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
 
                                         <button class="btn btn-sm btn-annexes"
@@ -424,65 +424,119 @@
     </div>
 
 
-    <!-- Update Status Modal -->
+   <!-- UPDATED: Change Status Modal with Consistent Design -->
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Registration Status
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Registration Status
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+                
                 <div class="modal-body">
-                    <!-- Registration Info -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                    <!-- Registration Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Registration Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Registration #:</strong> <span id="updateRegNumber"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Name:</strong> <span id="updateRegName"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Registration #</small>
+                                        <strong class="text-primary" id="updateRegNumber"></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Applicant Name</small>
+                                        <strong id="updateRegName"></strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Barangay:</strong> <span id="updateRegBarangay"></span></p>
-                                    <p class="mb-1"><strong>Livelihood:</strong> <span id="updateRegLivelihood"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateRegCurrentStatus"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Barangay</small>
+                                        <strong id="updateRegBarangay"></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Status</small>
+                                        <span id="updateRegCurrentStatus" style="margin-top: 0.25rem;"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
-                    <form id="updateForm">
-                        <input type="hidden" id="updateRegistrationId">
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="under_review">Under Review</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+                    <!-- Status Update Card -->
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-sync me-2"></i>Change Status
+                            </h6>
                         </div>
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..."></textarea>
-                            <div class="form-text">Maximum 1000 characters</div>
+                        <div class="card-body">
+                            <form id="updateForm">
+                                <input type="hidden" id="updateRegistrationId">
+                                
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required onchange="checkForChanges()">
+                                        <option value="">Choose status...</option>
+                                        <option value="under_review">Under Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Remarks Card -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-comment me-2"></i>Admin Remarks
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <label for="remarks" class="form-label fw-semibold">
+                                Remarks (Optional)
+                            </label>
+                            <textarea class="form-control" id="remarks" rows="4"
+                                placeholder="Add any notes or comments about this status change..."
+                                maxlength="1000"
+                                onchange="checkForChanges()"
+                                oninput="updateFishrRemarksCounterUpdate()"></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Provide context for this status change
+                                </small>
+                                <small class="text-muted" id="remarksCounterUpdate">
+                                    <span id="charCountUpdate">0</span>/1000
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info border-left-info mt-3 mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> This will update the registration status and store your remarks in the system.
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">Update
-                        Status</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateRegistrationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
+                    </button>
                 </div>
             </div>
         </div>
@@ -2216,13 +2270,13 @@
             }
         }
 
-        // Enhanced show update modal function to store original values
+       // Enhanced show update modal function to store original values
         function showUpdateModal(id, currentStatus) {
             // Show loading state in modal
-            document.getElementById('updateRegId').innerHTML = `
-            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>`;
+            document.getElementById('updateRegNumber').innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>`;
 
             // First fetch the registration details
             fetch(`/admin/fishr-registrations/${id}`, {
@@ -2252,40 +2306,37 @@
                     document.getElementById('updateRegistrationId').value = id;
 
                     // Populate registration info display
-                    document.getElementById('updateRegId').textContent = data.registration_number;
                     document.getElementById('updateRegNumber').textContent = data.registration_number;
                     document.getElementById('updateRegName').textContent = data.full_name;
                     document.getElementById('updateRegBarangay').textContent = data.barangay;
-                    document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
 
                     // Show current status with badge styling
                     const currentStatusElement = document.getElementById('updateRegCurrentStatus');
                     currentStatusElement.innerHTML = `
-                    <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                        <span class="badge bg-${data.status_color}" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">${data.formatted_status}</span>`;
 
                     // Set form values and store original values for comparison
                     const statusSelect = document.getElementById('newStatus');
                     const remarksTextarea = document.getElementById('remarks');
 
                     statusSelect.value = data.status;
-                    statusSelect.dataset.originalStatus = data.status; // Store original status
+                    statusSelect.dataset.originalStatus = data.status;
 
                     remarksTextarea.value = data.remarks || '';
-                    remarksTextarea.dataset.originalRemarks = data.remarks || ''; // Store original remarks
+                    remarksTextarea.dataset.originalRemarks = data.remarks || '';
+
+                    // Update remarks counter
+                    updateFishrRemarksCounterUpdate();
 
                     // Remove any previous change indicators
                     statusSelect.classList.remove('form-changed');
                     remarksTextarea.classList.remove('form-changed');
-                    statusSelect.parentElement.classList.remove('change-indicator', 'changed');
-                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
-
-                    // Add change indicator classes
-                    statusSelect.parentElement.classList.add('change-indicator');
-                    remarksTextarea.parentElement.classList.add('change-indicator');
 
                     // Reset update button state
-                    const updateButton = document.querySelector('#updateModal .btn-primary');
-                    updateButton.classList.remove('no-changes');
+                    const updateButton = document.getElementById('updateStatusBtn');
+                    updateButton.classList.add('no-changes');
+                    updateButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                    updateButton.disabled = false;
 
                     // Show the modal
                     const modal = new bootstrap.Modal(document.getElementById('updateModal'));
@@ -2646,37 +2697,58 @@
             document.body.removeChild(link);
         }
 
-        // Function to check for changes and provide visual feedback
+        // Check for changes and provide visual feedback
         function checkForChanges() {
             const statusSelect = document.getElementById('newStatus');
             const remarksTextarea = document.getElementById('remarks');
+            const updateButton = document.getElementById('updateStatusBtn');
 
-            if (!statusSelect.dataset.originalStatus) return; // Don't check if original values aren't set yet
+            if (!statusSelect.dataset.originalStatus) return;
 
             const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
             const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
 
             // Visual feedback for status field
             statusSelect.classList.toggle('form-changed', statusChanged);
-            statusSelect.parentElement.classList.toggle('changed', statusChanged);
 
             // Visual feedback for remarks field
             remarksTextarea.classList.toggle('form-changed', remarksChanged);
-            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
 
             // Update button state
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
+            const hasChanges = statusChanged || remarksChanged;
 
-            // Update button text based on changes
-            if (!statusChanged && !remarksChanged) {
-                updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
+            if (hasChanges) {
+                updateButton.classList.remove('no-changes');
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Status';
+                updateButton.disabled = false;
             } else {
-                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+                updateButton.classList.add('no-changes');
+                updateButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                updateButton.disabled = false;
             }
         }
 
-        // Add event listeners when document is ready
+        // Update remarks character counter
+        function updateFishrRemarksCounterUpdate() {
+            const textarea = document.getElementById('remarks');
+            const charCount = document.getElementById('charCountUpdate');
+            const counter = document.getElementById('remarksCounterUpdate');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    counter.classList.add('text-warning');
+                    counter.classList.remove('text-muted');
+                } else {
+                    counter.classList.remove('text-warning');
+                    counter.classList.add('text-muted');
+                }
+            }
+        }
+
+        /// Add event listeners when document is ready
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.getElementById('newStatus');
             const remarksTextarea = document.getElementById('remarks');
@@ -3067,6 +3139,7 @@
             const id = document.getElementById('updateRegistrationId').value;
             const newStatus = document.getElementById('newStatus').value;
             const remarks = document.getElementById('remarks').value;
+            const updateButton = document.getElementById('updateStatusBtn');
 
             if (!newStatus) {
                 showToast('error', 'Please select a status');
@@ -3097,7 +3170,7 @@
                 }
             }
 
-            // Only show confirmation - callback handles the actual update
+            // Show confirmation toast with changes
             showConfirmationToast(
                 'Confirm Update',
                 `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
@@ -3105,12 +3178,25 @@
             );
         }
 
-        // And the separate proceedWithStatusUpdate function handles the fetch
+        // Helper function to get status text
+        function getStatusText(status) {
+            switch (status) {
+                case 'under_review':
+                    return 'Under Review';
+                case 'approved':
+                    return 'Approved';
+                case 'rejected':
+                    return 'Rejected';
+                default:
+                    return status;
+            }
+        }
+
+        // Proceed with status update after confirmation
         function proceedWithStatusUpdate(id, newStatus, remarks) {
-            const updateButton = document.querySelector('#updateModal .btn-primary');
+            const updateButton = document.getElementById('updateStatusBtn');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...`;
             updateButton.disabled = true;
 
             fetch(`/admin/fishr-registrations/${id}/status`, {
@@ -3129,20 +3215,16 @@
                     const contentType = response.headers.get('content-type');
                     let data;
 
-                    // Try to parse JSON response
                     if (contentType && contentType.includes('application/json')) {
                         data = await response.json();
                     } else {
-                        // If not JSON, get text for debugging
                         const text = await response.text();
                         console.error('Non-JSON response:', text);
                         throw new Error(`Server returned ${response.status}: ${response.statusText}`);
                     }
 
-                    // Check if response was successful
                     if (!response.ok) {
-                        throw new Error(data.message ||
-                        `Server error (${response.status}): ${response.statusText}`);
+                        throw new Error(data.message || `Server error (${response.status}): ${response.statusText}`);
                     }
 
                     return data;
@@ -3160,14 +3242,12 @@
                 .catch(error => {
                     console.error('Error details:', {
                         message: error.message,
-                        stack: error.stack,
                         id: id,
                         newStatus: newStatus
                     });
 
                     let errorMessage = 'Error updating registration status: ';
 
-                    // Provide more specific error messages
                     if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
                         errorMessage += 'Network connection failed. Please check your internet connection.';
                     } else if (error.message.includes('500')) {
@@ -3187,6 +3267,7 @@
                     updateButton.disabled = false;
                 });
         }
+
 
 
         // Reset annex form
