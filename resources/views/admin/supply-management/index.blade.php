@@ -712,7 +712,7 @@
         </div>
     </div>
 
-    <!-- Create Item Modal -->
+    <!-- Add Item Modal with Helper Text -->
     <div class="modal fade" id="createItemModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -728,6 +728,9 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                                 <input type="text" name="name" class="form-control" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Enter a clear, descriptive name for the item
+                                </small>
                                 <div class="invalid-feedback">Please provide an item name.</div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -740,59 +743,89 @@
                                     <option value="pack">Pack</option>
                                     <option value="bag">Bag</option>
                                 </select>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Select the measurement unit for this item
+                                </small>
                                 <div class="invalid-feedback">Please select a unit.</div>
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
-                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <textarea name="description" class="form-control" rows="3" required maxlength="500"
+                                onchange="updateItemDescriptionCounter()"
+                                oninput="updateItemDescriptionCounter()"></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or specifications
+                                </small>
+                                <small class="text-muted" id="itemDescriptionCounter">
+                                    <span id="itemCharCount">0</span>/500
+                                </small>
+                            </div>
                             <div class="invalid-feedback">Please provide a description.</div>
                         </div>
 
                         <hr>
-                        <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Management</h6>
+                        <h6 class="text-primary mb-3"><i class="fas fa-warehouse me-2"></i>Supply Management</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Initial Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="current_supply" class="form-control" value="0"
+                                <input type="number" name="current_supply" class="form-control" placeholder="0" value="0"
                                     min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-boxes me-1"></i>Current quantity of this item in stock
+                                </small>
                                 <div class="invalid-feedback">Please provide initial supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="minimum_supply" class="form-control" value="0"
+                                <input type="number" name="minimum_supply" class="form-control" placeholder="0" value="0"
                                     min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-down me-1"></i>Lowest acceptable stock level before restocking
+                                </small>
                                 <div class="invalid-feedback">Please provide minimum supply.</div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="maximum_supply" class="form-control" min="0" required>
+                                <input type="number" name="maximum_supply" class="form-control" placeholder="e.g., 100" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-up me-1"></i>Maximum storage capacity or recommended stock level
+                                </small>
                                 <div class="invalid-feedback">Please provide maximum supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="reorder_point" class="form-control" min="0" required>
-                                <small class="text-muted">Alert when supply reaches this level</small>
+                                <input type="number" name="reorder_point" class="form-control" placeholder="e.g., 20" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-bell me-1"></i>Stock level that triggers a reorder alert/notification
+                                </small>
                                 <div class="invalid-feedback">Please provide reorder point.</div>
                             </div>
                         </div>
 
                         <hr>
-                        <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
+                        <h6 class="text-primary mb-3"><i class="fas fa-image me-2"></i>Item Image</h6>
 
                         <div class="mb-3">
                             <label class="form-label">Image <span style="color: #dc3545;">*</span></label>
                             <input type="file" name="image" class="form-control" accept="image/*" required>
-                            <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Recommended size: 300x300px | Max file size: 10MB
+                            </small>
                             <div class="invalid-feedback">Please select an image file.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Item</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add Item
+                        </button>
                     </div>
                 </form>
             </div>
@@ -2715,6 +2748,36 @@ document.addEventListener('DOMContentLoaded', function() {
             editDescriptionTextarea.addEventListener('change', updateEditCategoryDescriptionCounter);
         }
     });
+
+    // Update item description character counter
+    function updateItemDescriptionCounter() {
+        const textarea = document.querySelector('#createItemModal textarea[name="description"]');
+        const charCount = document.getElementById('itemCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            
+            // Update character count
+            charCount.textContent = currentLength;
+            
+        }
+    }
+
+    // Initialize description counter when Add Item modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const createItemModal = document.getElementById('createItemModal');
+        if (createItemModal) {
+            createItemModal.addEventListener('show.bs.modal', function() {
+                updateItemDescriptionCounter();
+            });
+        }
+
+        const itemDescriptionTextarea = document.querySelector('#createItemModal textarea[name="description"]');
+        if (itemDescriptionTextarea) {
+            itemDescriptionTextarea.addEventListener('input', updateItemDescriptionCounter);
+            itemDescriptionTextarea.addEventListener('change', updateItemDescriptionCounter);
+        }
+    });
     </script>
 
     <style>
@@ -3404,6 +3467,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 color: #495057;
                 font-weight: 500;
                 font-size: 0.95rem;
+            }
+
+            /* Item Description Counter Styling */
+            #itemDescriptionCounter {
+                font-weight: 500;
+                transition: color 0.3s ease;
+            }
+
+            #createItemModal textarea[name="description"] {
+                resize: vertical;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+
+            #createItemModal textarea[name="description"]:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            }
+
+            /* Character count indicator */
+            .text-muted #itemCharCount {
+                font-weight: 600;
             }
 
     </style>
