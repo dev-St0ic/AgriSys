@@ -532,7 +532,7 @@
 
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Cancel
+                        <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateRegistrationStatus()">
                         <i class="fas fa-save me-2"></i>Update Status
@@ -712,63 +712,87 @@
     <div class="modal fade" id="annexesModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-folder-plus me-2"></i>Manage Annexes
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Manage Annexes
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <!-- Loading State -->
                     <div id="annexesLoading" class="text-center py-4" style="display: none;">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading annexes...</p>
+                        <p class="mt-2 text-muted">Loading annexes...</p>
                     </div>
 
                     <!-- Content -->
                     <div id="annexesContent">
-                        <!-- Registration Info -->
-                        <div class="card bg-light mb-3">
+                        <!-- Registration Info Card -->
+                        <div class="card bg-light border-primary mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Registration Information
+                                </h6>
+                            </div>
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row g-3">
                                     <div class="col-md-6">
-                                        <strong>Registration #:</strong> <span id="annexRegNumber"></span><br>
-                                        <strong>Applicant:</strong> <span id="annexApplicantName"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Registration #</small>
+                                            <strong class="text-primary" id="annexRegNumber"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Applicant</small>
+                                            <strong id="annexApplicantName"></strong>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <strong>Barangay:</strong> <span id="annexBarangay"></span><br>
-                                        <strong>Status:</strong> <span id="annexStatus"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Barangay</small>
+                                            <strong id="annexBarangay"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Status</small>
+                                            <div id="annexStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Upload New Annex -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Upload New Annex Card -->
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-upload me-2"></i>Upload New Annex
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <form id="annexUploadForm" enctype="multipart/form-data">
                                     <input type="hidden" id="annexRegistrationId">
+                                    
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexFile" class="form-label">Select File *</label>
+                                                <label for="annexFile" class="form-label fw-semibold">
+                                                    Select File <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="file" class="form-control" id="annexFile"
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
                                                 <div class="invalid-feedback" id="annexFileError"></div>
-                                                <small class="text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG, GIF
-                                                    (Max: 10MB)</small>
+                                                <small class="text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>Supported: PDF, DOC, DOCX, JPG, PNG, GIF (Max: 10MB)
+                                                </small>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexTitle" class="form-label">Document Title *</label>
+                                                <label for="annexTitle" class="form-label fw-semibold">
+                                                    Document Title <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="text" class="form-control" id="annexTitle"
                                                     placeholder="e.g., Additional Certificate, Supporting Document"
                                                     required>
@@ -776,24 +800,36 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="annexDescription" class="form-label">Description</label>
+                                        <label for="annexDescription" class="form-label fw-semibold">
+                                            Description
+                                        </label>
                                         <textarea class="form-control" id="annexDescription" rows="3"
-                                            placeholder="Brief description of the document (optional)"></textarea>
-                                        <small class="text-muted"><span id="annexDescCount">0</span>/500
-                                            characters</small>
+                                            placeholder="Brief description of the document (optional)"
+                                            oninput="updateAnnexDescriptionCounter()"></textarea>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>Optional context for this document
+                                            </small>
+                                            <small class="text-muted">
+                                                <span id="annexDescCount">0</span>/500
+                                            </small>
+                                        </div>
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
-                                        <i class="fas fa-upload me-1"></i>Upload Annex
-                                    </button>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
+                                            <i class="fas fa-upload me-2"></i>Upload Annex
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
 
-                        <!-- Existing Annexes -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Existing Annexes Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-folder me-2"></i>Existing Annexes
                                 </h6>
                             </div>
@@ -805,13 +841,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Edit FishR Registration Modal -->
     <div class="modal fade" id="editFishrModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -1651,32 +1689,272 @@
         }
 
         /* Annex Document Items */
-        .annex-item {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
+      .annex-item {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .annex-item:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #6f42c1;
+    }
+
+    .annex-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .annex-title {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 8px;
+        word-break: break-word;
+        font-size: 0.95rem;
+    }
+
+    .annex-description {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 8px;
+        font-style: italic;
+        line-height: 1.4;
+    }
+
+    .annex-meta {
+        font-size: 0.8rem;
+        color: #6c757d;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .annex-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .annex-meta-item i {
+        color: #6f42c1;
+    }
+
+    .annex-item-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: 1rem;
+        flex-shrink: 0;
+    }
+
+    .annex-item-actions .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Empty State */
+    .annex-empty-state {
+        text-center py-4;
+        padding: 2rem;
+    }
+
+    .annex-empty-state i {
+        font-size: 3rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+    .annex-empty-state p {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    /* Modal specific styles */
+    #annexesModal .modal-content {
+        border: none;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+    }
+
+    #annexesModal .modal-header {
+        border-radius: 12px 12px 0 0;
+        border: none;
+        padding: 1.5rem;
+    }
+
+    #annexesModal .modal-header .modal-title {
+        font-weight: 600;
+        font-size: 1.25rem;
+        letter-spacing: 0.5px;
+    }
+
+    #annexesModal .modal-footer {
+        border-radius: 0 0 12px 12px;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        padding: 1.25rem;
+    }
+
+    #annexesModal .modal-body {
+        padding: 2rem;
+    }
+
+    #annexesModal .card {
+        border-width: 1px !important;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    #annexesModal .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
+    }
+
+    #annexesModal .card-header {
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #annexesModal .card-header h6 {
+        color: #0d6efd;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    #annexesModal .card-body {
+        padding: 1.5rem;
+    }
+
+    #annexesModal .form-label {
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    #annexesModal .form-control,
+    #annexesModal .form-select {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    #annexesModal .form-control:focus,
+    #annexesModal .form-select:focus {
+        border-color: #6f42c1;
+        box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+        outline: none;
+    }
+
+    #annexesModal .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    #annexesModal .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    #annexesModal .btn-outline-primary,
+    #annexesModal .btn-outline-success,
+    #annexesModal .btn-outline-danger {
+        border-radius: 6px;
+        padding: 0.375rem 0.75rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    #annexesModal .btn-outline-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+    }
+
+    #annexesModal .btn-outline-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(25, 135, 84, 0.3);
+    }
+
+    #annexesModal .btn-outline-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Spinner */
+    #annexesModal .spinner-border {
+        color: #0d6efd;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        #annexesModal .modal-dialog {
+            margin: 0.5rem;
         }
 
-        .annex-item:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        #annexesModal .modal-body {
+            padding: 1.5rem 1rem;
+        }
+
+        #annexesModal .modal-header,
+        #annexesModal .modal-footer {
+            padding: 1rem;
+        }
+
+        .annex-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .annex-item-actions {
+            margin-left: 0;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .annex-item-actions .btn {
+            flex: 1;
+        }
+
+        #annexesModal .card-body {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #annexesModal .modal-header .modal-title {
+            font-size: 1.05rem;
         }
 
         .annex-title {
-            color: #6f42c1;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 0.9rem;
         }
 
         .annex-meta {
-            font-size: 0.875rem;
-            color: #6c757d;
+            font-size: 0.75rem;
         }
-
+    }
         /* Modal z-index fixes for stacking */
         .modal {
             z-index: 1050;
@@ -2095,6 +2373,28 @@
                 max-height: 40vh;
             }
         }
+        /*  Modal z-index fixes for stacking */ 
+        #documentModal {
+            z-index: 1060 !important;
+        }
+
+        #documentModal .modal-backdrop {
+            z-index: 1059 !important;
+        }
+
+        #annexesModal {
+            z-index: 1050 !important;
+        }
+
+        #annexesModal .modal-backdrop {
+            z-index: 1049 !important;
+        }
+
+        /* Ensure document viewer doesn't have dark background */
+        #documentViewer {
+            background: white !important;
+            min-height: 400px;
+        }
     </style>
 @endsection
 
@@ -2465,7 +2765,8 @@
             }
 
             const documentViewer = document.getElementById('documentViewer');
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            const documentModal = document.getElementById('documentModal');
+            const modal = new bootstrap.Modal(documentModal);
 
             // Show loading state first
             documentViewer.innerHTML = `
@@ -2476,13 +2777,29 @@
                     <p class="text-muted">Loading document...</p>
                 </div>`;
 
-            // Show modal immediately with loading state
+            // Show modal
             modal.show();
+
+            // Manage z-index after modal is shown
+            setTimeout(() => {
+                const backdrop = documentModal.previousElementSibling;
+                const annexesModal = document.getElementById('annexesModal');
+                
+                if (annexesModal && annexesModal.classList.contains('show')) {
+                    // If annexes modal is open, put document modal above it
+                    documentModal.style.zIndex = '1070';
+                    if (backdrop) backdrop.style.zIndex = '1069';
+                } else {
+                    // Otherwise, use normal z-index
+                    documentModal.style.zIndex = '1060';
+                    if (backdrop) backdrop.style.zIndex = '1059';
+                }
+            }, 100);
 
             // Update modal title if filename is provided
             const modalTitle = document.querySelector('#documentModal .modal-title');
             if (filename) {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${escapeHtml(filename)}`;
             } else {
                 modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
             }
@@ -2671,6 +2988,7 @@
                 }
             }, 500);
         }
+
 
         // Helper function to toggle image zoom
         function toggleImageZoom(img) {
@@ -2916,99 +3234,320 @@
                     // Hide loading, show error
                     document.getElementById('annexesLoading').style.display = 'none';
                     document.getElementById('annexesContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading data: ${error.message}
-                    </div>
-                `;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading data: ${error.message}
+                        </div>
+                    `;
                     document.getElementById('annexesContent').style.display = 'block';
                 });
         }
+// FIXED: Load existing annexes with proper file path handling
+function loadExistingAnnexes(id) {
+    fetch(`/admin/fishr-registrations/${id}/annexes`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            const annexesList = document.getElementById('annexesList');
 
-        // Load existing annexes
-        function loadExistingAnnexes(id) {
-            fetch(`/admin/fishr-registrations/${id}/annexes`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    const annexesList = document.getElementById('annexesList');
+            if (data.success && data.annexes && data.annexes.length > 0) {
+                let annexesHtml = '';
+                data.annexes.forEach((annex, index) => {
+                    const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
 
-                    if (data.success && data.annexes && data.annexes.length > 0) {
-                        let annexesHtml = '';
-                        data.annexes.forEach((annex, index) => {
-                            const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
+                    // IMPORTANT: Ensure file_path is properly set
+                    const filePath = annex.file_path ? String(annex.file_path).trim() : '';
+                    
+                    // Store the annex data in a dataset on the row element
+                    // This will be retrieved when preview/download is clicked
+                    const annexDataJson = JSON.stringify({
+                        id: annex.id,
+                        registrationId: id,
+                        filePath: filePath,
+                        fileName: annex.file_name || annex.title || 'Document',
+                        title: annex.title,
+                        fileExtension: annex.file_extension
+                    });
 
-                            annexesHtml += `
-                            <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h6 class="mb-1 text-primary">${annex.title}</h6>
-                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
-                                            <span class="mx-2">|</span>
-                                            <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
-                                        </small>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <div class="btn-group" role="group">
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                    onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-success"
-                                                    onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                    onclick="deleteAnnex(${id}, ${annex.id})" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+                    annexesHtml += `
+                        <div class="document-item border rounded p-3 mb-3" 
+                             id="annex-${annex.id}" 
+                             data-annex-json='${annexDataJson}'>
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1 text-primary">${escapeHtml(annex.title)}</h6>
+                                    <p class="mb-1 text-muted small">${escapeHtml(annex.description || 'No description')}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="previewAnnexFixed(${annex.id})" 
+                                                title="Preview"
+                                                type="button">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="downloadAnnexFixed(${annex.id})" 
+                                                title="Download"
+                                                type="button">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                onclick="deleteAnnex(${id}, ${annex.id})" 
+                                                title="Delete"
+                                                type="button">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        `;
-                        });
-                        annexesList.innerHTML = annexesHtml;
-                    } else {
-                        annexesList.innerHTML = `
-                        <div class="text-center py-4">
-                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No annexes uploaded yet</p>
                         </div>
                     `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading annexes:', error);
-                    document.getElementById('annexesList').innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading annexes: ${error.message}
+                });
+                annexesList.innerHTML = annexesHtml;
+            } else {
+                annexesList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No annexes uploaded yet</p>
                     </div>
                 `;
-                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading annexes:', error);
+            showToast('error', 'Error loading annexes: ' + error.message);
+            document.getElementById('annexesList').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading annexes: ${error.message}
+                </div>
+            `;
+        });
+}
+
+// FIXED: Preview Annex - Retrieve data from data attribute
+function previewAnnexFixed(annexId) {
+    try {
+        // Get the annex element
+        const annexElement = document.getElementById(`annex-${annexId}`);
+        
+        if (!annexElement) {
+            showToast('error', 'Annex not found');
+            return;
+        }
+        
+        // Parse the stored JSON data
+        const annexDataJson = annexElement.getAttribute('data-annex-json');
+        if (!annexDataJson) {
+            showToast('error', 'Annex data not found');
+            return;
         }
 
-        // Upload annex with toast notifications
+        let annexData;
+        try {
+            annexData = JSON.parse(annexDataJson);
+        } catch (e) {
+            console.error('Error parsing annex data JSON:', e);
+            showToast('error', 'Error reading annex data');
+            return;
+        }
+
+        const filePath = annexData.filePath;
+        const fileName = annexData.fileName || annexData.title || 'Document';
+        
+        if (!filePath || filePath === 'undefined' || filePath === '') {
+            console.error('File path is missing or invalid:', {
+                filePath,
+                annexData
+            });
+            showToast('error', 'File path not available for this annex');
+            return;
+        }
+        
+        console.log('Preview annex:', {
+            annexId,
+            filePath,
+            fileName
+        });
+
+        // Use the existing viewDocument function
+        viewDocument(filePath, fileName, annexData.registrationId);
+
+    } catch (error) {
+        console.error('Error in previewAnnexFixed:', error);
+        showToast('error', 'Error previewing annex: ' + error.message);
+    }
+}
+
+// FIXED: Download Annex - Retrieve data from data attribute
+function downloadAnnexFixed(annexId) {
+    try {
+        // Get the annex element
+        const annexElement = document.getElementById(`annex-${annexId}`);
+        
+        if (!annexElement) {
+            showToast('error', 'Annex not found');
+            return;
+        }
+        
+        // Parse the stored JSON data
+        const annexDataJson = annexElement.getAttribute('data-annex-json');
+        if (!annexDataJson) {
+            showToast('error', 'Annex data not found');
+            return;
+        }
+
+        let annexData;
+        try {
+            annexData = JSON.parse(annexDataJson);
+        } catch (e) {
+            console.error('Error parsing annex data JSON:', e);
+            showToast('error', 'Error reading annex data');
+            return;
+        }
+
+        const filePath = annexData.filePath;
+        const fileName = annexData.fileName || annexData.title || 'Document';
+        
+        if (!filePath || filePath === 'undefined' || filePath === '') {
+            console.error('File path is missing or invalid:', {
+                filePath,
+                annexData
+            });
+            showToast('error', 'File path not available for this annex');
+            return;
+        }
+
+        console.log('Download annex:', {
+            annexId,
+            filePath,
+            fileName
+        });
+
+        // Show confirmation before downloading
+        showConfirmationToast(
+            'Download File',
+            `Download: ${fileName}?`,
+            () => proceedWithDownload(filePath, fileName)
+        );
+
+    } catch (error) {
+        console.error('Error in downloadAnnexFixed:', error);
+        showToast('error', 'Error downloading annex: ' + error.message);
+    }
+}
+
+// Utility: Format file size (if not already defined)
+function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return 'Unknown size';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Utility: Escape HTML (if not already defined)
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// FIXED: Preview Annex - Get file path from annexes list
+function previewAnnex(registrationId, annexId) {
+    // Get the annex element to retrieve file path from data attribute
+    const annexElement = document.getElementById(`annex-${annexId}`);
+    
+    if (!annexElement) {
+        showToast('error', 'Annex not found');
+        return;
+    }
+    
+    const filePath = annexElement.getAttribute('data-file-path');
+    const fileName = annexElement.getAttribute('data-file-name');
+    
+    if (!filePath || filePath === 'undefined' || filePath === '') {
+        showToast('error', 'File path not available');
+        return;
+    }
+    
+    // Use the existing viewDocument function
+    viewDocument(filePath, fileName, registrationId);
+}
+
+// FIXED: Download Annex - Get file path from annexes list
+function downloadAnnex(registrationId, annexId) {
+    // Get the annex element to retrieve file path from data attribute
+    const annexElement = document.getElementById(`annex-${annexId}`);
+    
+    if (!annexElement) {
+        showToast('error', 'Annex not found');
+        return;
+    }
+    
+    const filePath = annexElement.getAttribute('data-file-path');
+    const fileName = annexElement.getAttribute('data-file-name');
+    
+    if (!filePath || filePath === 'undefined' || filePath === '') {
+        showToast('error', 'File path not available');
+        return;
+    }
+    
+    // Show confirmation before downloading
+    showConfirmationToast(
+        'Download File',
+        `Download: ${fileName}?`,
+        () => proceedWithDownload(filePath, fileName)
+    );
+}
+
+        // Proceed with download
+        function proceedWithDownload(filePath, fileName) {
+            const fileUrl = `/storage/${filePath}`;
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName || 'document';
+            link.target = '_blank';
+            document.body.appendChild(link);
+
+            try {
+                link.click();
+                showToast('success', 'File download started');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('error', 'Failed to download file');
+            } finally {
+                document.body.removeChild(link);
+            }
+        }
+
+        // Upload annex with validation
         function uploadAnnex() {
             const id = document.getElementById('annexRegistrationId').value;
             const fileInput = document.getElementById('annexFile');
@@ -3027,18 +3566,27 @@
             }
 
             // File size validation (10MB)
-            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+            const maxFileSize = 10 * 1024 * 1024; // 10MB
+            if (fileInput.files[0].size > maxFileSize) {
                 showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+                return;
+            }
+
+            // Validate file type
+            const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif'];
+            const fileExtension = fileInput.files[0].name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                showValidationError('annexFile', 'annexFileError', 'File type not allowed. Supported: PDF, DOC, DOCX, JPG, PNG, GIF');
                 return;
             }
 
             // Clear validation errors
             clearValidationErrors();
 
-            // Show confirmation toast instead of browser confirm
+            // Show confirmation toast
             showConfirmationToast(
                 'Upload Annex',
-                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
+                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}\nSize: ${formatFileSize(fileInput.files[0].size)}`,
                 () => proceedWithAnnexUpload(id, fileInput, title, description)
             );
         }
@@ -3087,11 +3635,14 @@
                 });
         }
 
-        // Delete annex with confirmation toast
+        // Delete annex with confirmation
         function deleteAnnex(registrationId, annexId) {
+            const button = document.querySelector(`button[onclick="deleteAnnex(${registrationId}, ${annexId})"]`);
+            const fileName = button?.dataset.fileName || 'this annex';
+
             showConfirmationToast(
                 'Delete Annex',
-                'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
+                `Are you sure you want to delete "${fileName}"?\n\nThis action cannot be undone.`,
                 () => proceedWithAnnexDelete(registrationId, annexId)
             );
         }
@@ -3113,16 +3664,19 @@
                     if (data.success) {
                         showToast('success', 'Annex deleted successfully');
 
-                        // Remove from UI
+                        // Remove from UI with animation
                         const annexElement = document.getElementById(`annex-${annexId}`);
                         if (annexElement) {
-                            annexElement.remove();
-                        }
-
-                        // Reload if no annexes left
-                        const annexesList = document.getElementById('annexesList');
-                        if (!annexesList.querySelector('.document-item')) {
-                            loadExistingAnnexes(registrationId);
+                            annexElement.style.transition = 'opacity 0.3s ease';
+                            annexElement.style.opacity = '0';
+                            setTimeout(() => {
+                                annexElement.remove();
+                                // Reload if no annexes left
+                                const annexesList = document.getElementById('annexesList');
+                                if (!annexesList.querySelector('.document-item')) {
+                                    loadExistingAnnexes(document.getElementById('annexRegistrationId').value);
+                                }
+                            }, 300);
                         }
                     } else {
                         throw new Error(data.message || 'Failed to delete annex');
@@ -3133,142 +3687,6 @@
                     showToast('error', 'Failed to delete annex: ' + error.message);
                 });
         }
-
-        // Updated updateRegistrationStatus with toast notifications
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-            const updateButton = document.getElementById('updateStatusBtn');
-
-            if (!newStatus) {
-                showToast('error', 'Please select a status');
-                return;
-            }
-
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
-
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-                return;
-            }
-
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
-            }
-
-            // Show confirmation toast with changes
-            showConfirmationToast(
-                'Confirm Update',
-                `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
-                () => proceedWithStatusUpdate(id, newStatus, remarks)
-            );
-        }
-
-        // Helper function to get status text
-        function getStatusText(status) {
-            switch (status) {
-                case 'under_review':
-                    return 'Under Review';
-                case 'approved':
-                    return 'Approved';
-                case 'rejected':
-                    return 'Rejected';
-                default:
-                    return status;
-            }
-        }
-
-        // Proceed with status update after confirmation
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
-            const updateButton = document.getElementById('updateStatusBtn');
-            const originalText = updateButton.innerHTML;
-            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...`;
-            updateButton.disabled = true;
-
-            fetch(`/admin/fishr-registrations/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(async response => {
-                    const contentType = response.headers.get('content-type');
-                    let data;
-
-                    if (contentType && contentType.includes('application/json')) {
-                        data = await response.json();
-                    } else {
-                        const text = await response.text();
-                        console.error('Non-JSON response:', text);
-                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                    }
-
-                    if (!response.ok) {
-                        throw new Error(data.message || `Server error (${response.status}): ${response.statusText}`);
-                    }
-
-                    return data;
-                })
-                .then(response => {
-                    if (response.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        showToast('success', response.message);
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        throw new Error(response.message || 'Error updating status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error details:', {
-                        message: error.message,
-                        id: id,
-                        newStatus: newStatus
-                    });
-
-                    let errorMessage = 'Error updating registration status: ';
-
-                    if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-                        errorMessage += 'Network connection failed. Please check your internet connection.';
-                    } else if (error.message.includes('500')) {
-                        errorMessage += 'Server error occurred. Please check the server logs for details.';
-                    } else if (error.message.includes('404')) {
-                        errorMessage += 'Registration not found. It may have been deleted.';
-                    } else if (error.message.includes('401') || error.message.includes('403')) {
-                        errorMessage += 'You do not have permission to perform this action.';
-                    } else {
-                        errorMessage += error.message;
-                    }
-
-                    showToast('error', errorMessage);
-                })
-                .finally(() => {
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                });
-        }
-
-
 
         // Reset annex form
         function resetAnnexForm() {
@@ -3304,7 +3722,33 @@
             });
         }
 
-        // Utility function to format file sizes
+        // UPDATE ANNEX DESCRIPTION COUNTER - NEW IMPLEMENTATION
+        function updateAnnexDescriptionCounter() {
+            const textarea = document.getElementById('annexDescription');
+            const counter = document.getElementById('annexDescCount');
+
+            if (textarea && counter) {
+                const charCount = textarea.value.length;
+                counter.textContent = charCount;
+
+                // Enforce max length (500)
+                if (charCount > 500) {
+                    textarea.value = textarea.value.substring(0, 500);
+                    counter.textContent = '500';
+                }
+
+                // Change color when approaching limit
+                if (charCount > 450) {
+                    counter.parentElement.classList.add('text-warning');
+                    counter.parentElement.classList.remove('text-muted');
+                } else {
+                    counter.parentElement.classList.remove('text-warning');
+                    counter.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        // Utility: Format file size
         function formatFileSize(bytes) {
             if (!bytes || bytes === 0) return 'Unknown size';
 
@@ -3313,23 +3757,26 @@
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // Character count for annex description
+        // Utility: Escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize character counter on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', function() {
             const annexDesc = document.getElementById('annexDescription');
-            const annexDescCount = document.getElementById('annexDescCount');
-
-            if (annexDesc && annexDescCount) {
-                annexDesc.addEventListener('input', function() {
-                    const count = this.value.length;
-                    annexDescCount.textContent = count;
-
-                    if (count > 500) {
-                        this.value = this.value.substring(0, 500);
-                        annexDescCount.textContent = '500';
-                    }
-                });
+            
+            if (annexDesc) {
+                annexDesc.addEventListener('input', updateAnnexDescriptionCounter);
             }
         });
+
 
         // ========== END ANNEXES FUNCTIONALITY ==========
 
@@ -4248,6 +4695,24 @@
                 }
             }
         }
+
+        // Add this at the end of your scripts section, after all other code
+        document.addEventListener('shown.bs.modal', function(e) {
+            const modal = e.target;
+            const backdrop = modal.previousElementSibling;
+            
+            // Get all open modals
+            const openModals = document.querySelectorAll('.modal.show');
+            const modalCount = openModals.length;
+            
+            // Set z-index based on modal count
+            const baseZIndex = 1050;
+            modal.style.zIndex = baseZIndex + (modalCount * 20);
+            
+            if (backdrop && backdrop.classList.contains('modal-backdrop')) {
+                backdrop.style.zIndex = baseZIndex + (modalCount * 20) - 1;
+            }
+        });
         console.log('FishR Add Registration functionality loaded successfully');
     </script>
 @endsection

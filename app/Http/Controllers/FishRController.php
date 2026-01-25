@@ -725,6 +725,7 @@ public function update(Request $request, $id)
                         'title' => $annex->title,
                         'description' => $annex->description,
                         'file_name' => $annex->file_name,
+                        'file_path' => $annex->file_path, 
                         'file_extension' => $annex->file_extension,
                         'file_size' => $annex->file_size,
                         'formatted_file_size' => $annex->formatted_file_size,
