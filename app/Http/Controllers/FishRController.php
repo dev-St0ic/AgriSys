@@ -65,7 +65,7 @@ class FishRController extends Controller
             $totalRegistrations = FishrApplication::count();
             $underReviewCount = FishrApplication::where('status', 'under_review')->count();
             $approvedCount = FishrApplication::where('status', 'approved')->count();
-            $rejectedCount = FishrApplication::where('status', 'rejected')->count();
+            $pendingCount = FishrApplication::where('status', 'pending')->count();
 
             Log::info('FishR data loaded successfully', [
                 'total_registrations' => $totalRegistrations,
@@ -87,7 +87,7 @@ class FishRController extends Controller
                 'totalRegistrations',
                 'underReviewCount',
                 'approvedCount',
-                'rejectedCount'
+                'pendingCount'
             ));
 
         } catch (\Exception $e) {

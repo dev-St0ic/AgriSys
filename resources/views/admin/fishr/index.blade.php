@@ -28,18 +28,6 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-clock text-warning"></i>
-                    </div>
-                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
-                    <div class="stat-label text-warning">Under Review</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
                         <i class="fas fa-check-circle text-success"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $approvedCount }}</div>
@@ -52,10 +40,22 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-times-circle text-danger"></i>
+                        <i class="fas fa-clock text-warning"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $rejectedCount }}</div>
-                    <div class="stat-label text-danger">Rejected</div>
+                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                    <div class="stat-label text-warning">Under Review</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-hourglass-start text-info"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $pendingCount }}</div>
+                    <div class="stat-label text-info">Pending</div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -203,7 +203,7 @@
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name, number, contact..." value="{{ request('search') }}"
-                                oninput="autoSearch()" id="searchInput">
+                                oninput="handleSearchInput()" id="searchInput">
                             <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                 id="searchButton">
                                 <i class="fas fa-search"></i>
@@ -218,7 +218,7 @@
                     </div>
                     <div class="col-md-1">
                         <a href="{{ route('admin.fishr.requests') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i> Clear
                         </a>
                     </div>
                 </div>
@@ -830,9 +830,9 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -902,7 +902,7 @@
                     <!-- Current Filter Status -->
                     <div class="row mt-3">
                         <div class="col-12">
-                            <div class="alert alert-info mb-0">
+                            <div class="alert alert-info mb-0" style="border-left: 4px solid #17a2b8; border-radius: 8px;">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <span id="dateFilterStatus">
                                     @if (request('date_from') || request('date_to'))
@@ -3924,6 +3924,20 @@
                 });
             }
         });
+
+        // Handle search input - auto-reset when empty
+        function handleSearchInput() {
+            const searchInput = document.getElementById('searchInput');
+            const filterForm = document.getElementById('filterForm');
+            
+            if (searchInput.value.trim() === '') {
+                // If search is empty, reset and submit
+                filterForm.submit();
+            } else {
+                // If search has value, use auto-search
+                autoSearch();
+            }
+        }
         console.log('FishR Add Registration functionality loaded successfully');
     </script>
 @endsection
