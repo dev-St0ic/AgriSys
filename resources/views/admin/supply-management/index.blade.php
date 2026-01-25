@@ -1690,6 +1690,7 @@ async function proceedUpdateCategory() {
             }
         });
 
+       // UPDATED: Add Item Form Submission - Better Loading State
         document.getElementById('createItemForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1700,9 +1701,12 @@ async function proceedUpdateCategory() {
             const formData = new FormData(this);
             const submitBtn = document.querySelector('#createItemModal .btn-primary');
             const originalText = submitBtn.innerHTML;
+            const originalBgColor = submitBtn.style.backgroundColor;
 
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Adding...';
+            // Set loading state with visible spinner
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Adding...</span>';
             submitBtn.disabled = true;
+            submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
 
             try {
                 const data = await makeRequest('/admin/seedlings/items', {
@@ -1725,11 +1729,12 @@ async function proceedUpdateCategory() {
                     showError(error.message);
                 }
             } finally {
+                // Restore original state
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
+                submitBtn.style.backgroundColor = originalBgColor;
             }
         });
-
         // Supply Management Forms with Validation
 
         // add supply form submission
@@ -4151,6 +4156,46 @@ p, small, span {
         background: linear-gradient(135deg, #198754 0%, #146c43 100%);
         border: none;
         padding: 1.25rem;
+    }
+    /* Fix loading spinner color in buttons */
+    .btn-primary:disabled {
+        opacity: 0.8;
+    }
+
+    /* Ensure spinner is always visible in loading state */
+    .btn-primary .spinner-border-sm {
+        color: #ffffff !important;
+        border-color: currentColor;
+        border-right-color: transparent;
+    }
+
+    /* Make loading text visible */
+    .btn-primary:disabled span {
+        color: #ffffff !important;
+    }
+
+    /* Alternative: Add specific styling for loading state */
+    .btn.loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .btn.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 10px;
+        margin-top: -8px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spinner 0.6s linear infinite;
+    }
+
+    @keyframes spinner {
+        to { transform: rotate(360deg); }
     }
     </style>
 @endsection
