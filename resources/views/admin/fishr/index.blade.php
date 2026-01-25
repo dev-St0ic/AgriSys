@@ -236,12 +236,12 @@
                 </h6>
             </div>
             <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary btn-sm" onclick="showAddFishrModal()">
+                    <i class="fas fa-user-plus me-2"></i>Add Registration
+                </button>
                 <a href="{{ route('admin.fishr.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
-                <button type="button" class="btn btn-primary btn-sm" onclick="showAddFishrModal()">
-                    <i class="fas fa-plus me-2"></i>Add Registration
-                </button>
             </div>
         </div>
         <div class="card-body">
@@ -488,21 +488,149 @@
         </div>
     </div>
 
-    <!-- Registration Details Modal -->
+    <!-- Registration Details View Modal -->
     <div class="modal fade" id="registrationModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-fish me-2"></i>Registration Details
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Registration Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="registrationDetails">
-                    <!-- Content will be loaded here -->
+                <div class="modal-body">
+                    <div class="row g-4">
+
+                        <!-- Personal Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Registration #:</strong>
+                                            <span class="text-primary" id="viewRegNumber"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Full Name:</strong>
+                                            <span id="viewRegName"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Sex:</strong>
+                                            <span id="viewRegSex"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Contact Number:</strong>
+                                            <span>
+                                                <a href="tel:" id="viewRegContact" class="text-decoration-none"></a>
+                                            </span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Email:</strong>
+                                            <span id="viewRegEmail"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Barangay:</strong>
+                                            <span id="viewRegBarangay"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Livelihood Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Livelihood Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Main Livelihood:</strong>
+                                            <span id="viewRegLivelihood"></span>
+                                        </div>
+                                        <div class="col-12" id="viewOtherLivelihoodContainer" style="display: none;">
+                                            <strong>Other Livelihood:</strong>
+                                            <span id="viewRegOtherLivelihood"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Status & Timeline</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Current Status:</strong>
+                                            <div id="viewRegStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Date Applied:</strong>
+                                            <span id="viewRegCreatedAt"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Last Updated:</strong>
+                                            <span id="viewRegUpdatedAt"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Document Card -->
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div id="viewRegDocumentContainer">
+                                        <!-- Document info will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks Card (if exists) -->
+                        <div class="col-12" id="viewRemarksContainer" style="display: none;">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0" id="viewRegRemarks"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -2143,8 +2271,7 @@
         }
 
 
-
-        // View registration details
+        // Updated View Registration Details Function
         function viewRegistration(id) {
             if (!id) {
                 showToast('error', 'Invalid registration ID');
@@ -2152,14 +2279,6 @@
             }
 
             // Show loading state
-            document.getElementById('registrationDetails').innerHTML = `
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>`;
-
-            // Show modal while loading
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
             modal.show();
 
@@ -2181,105 +2300,82 @@
                     return response.json();
                 })
                 .then(response => {
-                    console.log('Response:', response);
-
                     if (!response.success) {
                         throw new Error('Failed to load registration details');
                     }
 
                     const data = response.data;
 
-                    if (!data) {
-                        throw new Error('No registration data received');
-                    }
+                    // Populate Personal Information
+                    document.getElementById('viewRegNumber').textContent = data.registration_number || 'N/A';
+                    document.getElementById('viewRegName').textContent = data.full_name || 'N/A';
+                    document.getElementById('viewRegSex').textContent = data.sex || 'N/A';
+                    
+                    const contactLink = document.getElementById('viewRegContact');
+                    contactLink.href = `tel:${data.contact_number}`;
+                    contactLink.textContent = data.contact_number || 'N/A';
+                    
+                    document.getElementById('viewRegEmail').textContent = data.email || 'N/A';
 
-                    // Build remarks HTML if exists
-                    const remarksHtml = data.remarks ? `
-                    <div class="col-12 mt-3">
-                        <h6 class="border-bottom pb-2">Remarks</h6>
-                        <div class="alert alert-info">
-                            <p class="mb-1">${data.remarks}</p>
-                            <small class="text-muted">
-                                ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
-                                ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
-                            </small>
-                        </div>
-                    </div>` : '';
+                    // Populate Location Information
+                    document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
 
-                    // Build document section HTML - ADD THIS SECTION
-                    let documentHtml = '';
-                    if (data.document_path) {
-                        documentHtml = `
-                        <div class="col-12">
-                            <div class="card border-secondary">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center p-3 border border-secondary rounded bg-light">
-                                        <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
-                                        <h6>Supporting Document</h6>
-                                        <span class="badge bg-secondary mb-2">Uploaded</span>
-                                        <br>
-                                        <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.document_path}', 'FishR Registration #${data.registration_number} - Supporting Document')">
-                                            <i class="fas fa-eye"></i> View Document
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
+                    // Populate Livelihood Information
+                    document.getElementById('viewRegLivelihood').textContent = data.livelihood_description || 'N/A';
+                    
+                    // Show other livelihood if exists
+                    if (data.other_livelihood) {
+                        document.getElementById('viewOtherLivelihoodContainer').style.display = 'block';
+                        document.getElementById('viewRegOtherLivelihood').textContent = data.other_livelihood;
                     } else {
-                        documentHtml = `
-                        <div class="col-12">
-                            <div class="card border-secondary">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center p-3 border border-secondary rounded">
-                                        <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
-                                        <h6>No Document Uploaded</h6>
-                                        <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
+                        document.getElementById('viewOtherLivelihoodContainer').style.display = 'none';
                     }
 
-                    // Update modal content
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Personal Information</h6>
-                            <p><strong>Registration #:</strong> ${data.registration_number || 'N/A'}</p>
-                            <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
-                            <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
-                            <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                            <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Livelihood Information</h6>
-                            <p><strong>Main Livelihood:</strong> ${data.livelihood_description || 'N/A'}</p>
-                            ${data.other_livelihood ? `<p><strong>Other Livelihood:</strong> ${data.other_livelihood}</p>` : ''}
-                            <p><strong>Current Status:</strong>
-                                <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
-                            </p>
-                            <p><strong>Date Applied:</strong> ${data.created_at || 'N/A'}</p>
-                            <p><strong>Last Updated:</strong> ${data.updated_at || 'N/A'}</p>
-                        </div>
-                        ${documentHtml}
-                        ${remarksHtml}
-                    </div>`;
+                    // Populate Status Information
+                    const statusElement = document.getElementById('viewRegStatus');
+                    statusElement.innerHTML = `<span class="badge bg-${data.status_color}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${data.formatted_status}</span>`;
+                    
+                    document.getElementById('viewRegCreatedAt').textContent = data.created_at || 'N/A';
+                    document.getElementById('viewRegUpdatedAt').textContent = data.updated_at || 'N/A';
+
+                    // Populate Supporting Document
+                    const docContainer = document.getElementById('viewRegDocumentContainer');
+                    if (data.document_path) {
+                        docContainer.innerHTML = `
+                            <div class="p-4 border border-primary rounded bg-light">
+                                <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                <h6>Supporting Document</h6>
+                                <span class="badge bg-primary mb-3">Uploaded</span>
+                                <br>
+                                <button class="btn btn-sm btn-outline-primary"
+                                    onclick="viewDocument('${data.document_path}', 'FishR Registration #${data.registration_number} - Supporting Document')">
+                                    <i class="fas fa-eye me-1"></i>View Document
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        docContainer.innerHTML = `
+                            <div class="p-4 border border-secondary rounded">
+                                <i class="fas fa-file-slash fa-3x mb-3" style="color: #6c757d;"></i>
+                                <h6>No Document Uploaded</h6>
+                                <span class="badge bg-secondary">Not Uploaded</span>
+                            </div>
+                        `;
+                    }
+
+                    // Populate Remarks if exists
+                    const remarksContainer = document.getElementById('viewRemarksContainer');
+                    if (data.remarks) {
+                        remarksContainer.style.display = 'block';
+                        document.getElementById('viewRegRemarks').textContent = data.remarks;
+                    } else {
+                        remarksContainer.style.display = 'none';
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showToast('error', error.message || 'Error loading registration details. Please try again.');
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        ${error.message || 'Error loading registration details. Please try again.'}
-                    </div>`;
+                    modal.hide();
                 });
         }
 
