@@ -839,86 +839,122 @@
     </div>
 
 
-        <!-- Edit Item Modal -->
-        <div class="modal fade" id="editItemModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
-                        <h5 class="modal-title">Edit Item</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
-                    </div>
-                    <form id="editItemForm" enctype="multipart/form-data" novalidate>
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" id="edit_item_id" name="item_id">
-                        <input type="hidden" id="edit_item_category_id" name="category_id" required>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
-                                    <input type="text" id="edit_item_name" name="name" class="form-control" required>
-                                    <div class="invalid-feedback">Please provide an item name.</div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
-                                    <select id="edit_item_unit" name="unit" class="form-select" required>
-                                        <option value="">Select unit...</option>
-                                        <option value="pcs">Pieces (pcs)</option>
-                                        <option value="kg">Kilogram (kg)</option>
-                                        <option value="L">Liter (L)</option>
-                                        <option value="pack">Pack</option>
-                                        <option value="bag">Bag</option>
-                                    </select>
-                                    <div class="invalid-feedback">Please select a unit.</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
-                                <textarea id="edit_item_description" name="description" class="form-control" rows="2" required></textarea>
-                                <div class="invalid-feedback">Please provide a description.</div>
-                            </div>
-
-                            <hr>
-                            <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Settings</h6>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
-                                    <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0" required>
-                                    <div class="invalid-feedback">Please provide minimum supply.</div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
-                                    <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0" required>
-                                    <div class="invalid-feedback">Please provide maximum supply.</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
-                                <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0" required>
-                                <small class="text-muted">Alert when supply reaches this level</small>
-                                <div class="invalid-feedback">Please provide reorder point.</div>
-                            </div>
-
-                            <hr>
-                            <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
-
-                            <div class="mb-3">
-                                <div id="current_image_preview" class="mb-2"></div>
-                                <label class="form-label">Change Image (Optional)</label>
-                                <input type="file" name="image" class="form-control" accept="image/*">
-                                <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" id="editItemSubmitBtn">Update Item</button>
-                        </div>
-                    </form>
+    <!-- Edit Item Modal -->
+    <div class="modal fade" id="editItemModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
+                    <h5 class="modal-title">Edit Item</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
+                <form id="editItemForm" enctype="multipart/form-data" novalidate>
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="edit_item_id" name="item_id">
+                    <input type="hidden" id="edit_item_category_id" name="category_id" required>
+                    <div class="modal-body">
+                        <!-- Basic Information Section -->
+                        <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Basic Information</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
+                                <input type="text" id="edit_item_name" name="name" class="form-control" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Enter a clear, descriptive name for the item
+                                </small>
+                                <div class="invalid-feedback">Please provide an item name.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
+                                <select id="edit_item_unit" name="unit" class="form-select" required>
+                                    <option value="">Select unit...</option>
+                                    <option value="pcs">Pieces (pcs)</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="L">Liter (L)</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="bag">Bag</option>
+                                </select>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Select the measurement unit for this item
+                                </small>
+                                <div class="invalid-feedback">Please select a unit.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea id="edit_item_description" name="description" class="form-control" rows="3" required maxlength="500"
+                                onchange="updateEditItemDescriptionCounter()"
+                                oninput="updateEditItemDescriptionCounter()"></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or specifications
+                                </small>
+                                <small class="text-muted" id="editItemDescriptionCounter">
+                                    <span id="editItemCharCount">0</span>/500
+                                </small>
+                            </div>
+                            <div class="invalid-feedback">Please provide a description.</div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Supply Management Section -->
+                        <h6 class="text-primary mb-3"><i class="fas fa-warehouse me-2"></i>Supply Management</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
+                                <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-down me-1"></i>Lowest acceptable stock level before restocking
+                                </small>
+                                <div class="invalid-feedback">Please provide minimum supply.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
+                                <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-up me-1"></i>Maximum storage capacity or recommended stock level
+                                </small>
+                                <div class="invalid-feedback">Please provide maximum supply.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
+                            <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0" required>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-bell me-1"></i>Stock level that triggers a reorder alert/notification
+                            </small>
+                            <div class="invalid-feedback">Please provide reorder point.</div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Item Image Section -->
+                        <h6 class="text-primary mb-3"><i class="fas fa-image me-2"></i>Item Image</h6>
+
+                        <div class="mb-3">
+                            <div id="current_image_preview" class="mb-3"></div>
+                            <label class="form-label">Change Image (Optional)</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Recommended size: 300x300px | Max file size: 10MB
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="editItemSubmitBtn">
+                            <i class="fas fa-save me-2"></i>Update Item
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-
+    </div>
     <!-- Supply Management Modal -->
     <div class="modal fade" id="supplyModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -2782,6 +2818,32 @@ document.addEventListener('DOMContentLoaded', function() {
         if (itemDescriptionTextarea) {
             itemDescriptionTextarea.addEventListener('input', updateItemDescriptionCounter);
             itemDescriptionTextarea.addEventListener('change', updateItemDescriptionCounter);
+        }
+    });
+    // Update edit item description character counter
+    function updateEditItemDescriptionCounter() {
+        const textarea = document.querySelector('#editItemModal textarea[name="description"]');
+        const charCount = document.getElementById('editItemCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            charCount.textContent = currentLength;
+        }
+    }
+
+    // Initialize edit item description counter when modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const editItemModal = document.getElementById('editItemModal');
+        if (editItemModal) {
+            editItemModal.addEventListener('show.bs.modal', function() {
+                updateEditItemDescriptionCounter();
+            });
+        }
+
+        const editDescriptionTextarea = document.querySelector('#editItemModal textarea[name="description"]');
+        if (editDescriptionTextarea) {
+            editDescriptionTextarea.addEventListener('input', updateEditItemDescriptionCounter);
+            editDescriptionTextarea.addEventListener('change', updateEditItemDescriptionCounter);
         }
     });
     </script>
