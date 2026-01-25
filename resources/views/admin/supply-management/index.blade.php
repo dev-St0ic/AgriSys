@@ -2194,6 +2194,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const stockStatusFilter = document.querySelector('select[name="stock_status"]').value;
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
+            // FIXED: Handle 'All Categories' view differently
+            if (categoryId === 'all') {
+                handleAllCategoriesFilter(statusFilter, stockStatusFilter, searchTerm);
+                return;
+            }
+
+            // Original logic for individual categories
             const rows = activeCategory.querySelectorAll('.item-row');
             const filteredRows = [];
             let visibleCount = 0;
@@ -2285,6 +2292,125 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reset pagination and show first page
             currentPage[categoryId] = 1;
             displayPageItems(categoryId, 1, filteredRows);
+        }
+
+        // NEW: Handle filtering for "All Categories" view
+        function handleAllCategoriesFilter(statusFilter, stockStatusFilter, searchTerm) {
+            const container = document.getElementById('category-all');
+            if (!container) return;
+
+            const categoryCards = container.querySelectorAll('.col-md-6');
+            let totalVisibleItems = 0;
+
+            categoryCards.forEach(card => {
+                const rows = card.querySelectorAll('.item-row');
+                let categoryVisibleCount = 0;
+
+                rows.forEach(row => {
+                    let isVisible = true;
+
+                    // Get item name
+                    const nameElement = row.querySelector('strong');
+                    const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+
+                    // Get item description
+                    const descriptionElements = row.querySelectorAll('small.text-muted');
+                    let description = '';
+                    descriptionElements.forEach(el => {
+                        if (!el.textContent.includes('Needs Reorder') &&
+                            !el.textContent.includes('Min:') &&
+                            !el.textContent.includes('Max:') &&
+                            !el.textContent.includes('Reorder:')) {
+                            description += el.textContent.toLowerCase() + ' ';
+                        }
+                    });
+
+                    // Get status
+                    const statusBadges = row.querySelectorAll('span.badge');
+                    let isActive = false;
+                    statusBadges.forEach(badge => {
+                        const text = badge.textContent.trim().toLowerCase();
+                        if (text === 'active') {
+                            isActive = true;
+                        }
+                    });
+
+                    // Get supply status
+                    const supplyBadge = row.querySelector('span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
+                    const currentSupply = supplyBadge ? parseInt(supplyBadge.textContent) : 0;
+
+                    let stockStatus = 'in_stock';
+                    if (currentSupply === 0) {
+                        stockStatus = 'out_of_stock';
+                    } else if (row.textContent.includes('Needs Reorder')) {
+                        stockStatus = 'low_supply';
+                    }
+
+                    // Apply status filter
+                    if (statusFilter) {
+                        const filterActive = statusFilter === 'active';
+                        if (isActive !== filterActive) {
+                            isVisible = false;
+                        }
+                    }
+
+                    // Apply stock status filter
+                    if (stockStatusFilter && isVisible) {
+                        if (stockStatusFilter !== stockStatus) {
+                            isVisible = false;
+                        }
+                    }
+
+                    // Apply search filter
+                    if (searchTerm && isVisible) {
+                        if (!name.includes(searchTerm) && !description.includes(searchTerm)) {
+                            isVisible = false;
+                        }
+                    }
+
+                    row.style.display = isVisible ? '' : 'none';
+                    if (isVisible) {
+                        categoryVisibleCount++;
+                    }
+                });
+
+                // Hide empty category cards
+                const table = card.querySelector('table');
+                if (table) {
+                    const emptyMessage = card.querySelector('.no-results-message');
+                    if (categoryVisibleCount === 0) {
+                        table.style.display = 'none';
+                        if (!emptyMessage) {
+                            const noResults = document.createElement('div');
+                            noResults.className = 'no-results-message text-muted text-center py-3';
+                            noResults.innerHTML = '<p>No items match your filters.</p>';
+                            table.parentElement.appendChild(noResults);
+                        }
+                    } else {
+                        table.style.display = '';
+                        if (emptyMessage) emptyMessage.remove();
+                    }
+                }
+
+                totalVisibleItems += categoryVisibleCount;
+            });
+
+            // Show/hide the "No results" message for entire All Categories view
+            let noResultsMessage = container.querySelector('.no-results-message');
+            if (totalVisibleItems === 0) {
+                if (!noResultsMessage) {
+                    noResultsMessage = document.createElement('div');
+                    noResultsMessage.className = 'no-results-message text-center py-5';
+                    noResultsMessage.innerHTML = `
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No items found</h5>
+                        <p class="text-muted">Try adjusting your filters or search terms.</p>
+                    `;
+                    container.appendChild(noResultsMessage);
+                }
+            } else {
+                if (noResultsMessage) noResultsMessage.remove();
+            }
         }
 
         // Handle empty state message
