@@ -1869,8 +1869,16 @@ async function proceedUpdateCategory() {
             }
         }
 
-        // RELOAD PAGE WHEN SUPPLY MODAL CLOSES - This ensures the main page shows updated supply counts
+      // Supply Management Modal - Store active category before reload
         document.getElementById('supplyModal').addEventListener('hidden.bs.modal', function() {
+            // Get the currently active category BEFORE reload
+            const activeCategory = document.querySelector('.category-content.active');
+            const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
+            
+            // Store the category ID in sessionStorage temporarily
+            sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
+            
+            // Reload the page
             location.reload();
         });
 
