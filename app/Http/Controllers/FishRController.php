@@ -19,7 +19,6 @@ class FishRController extends Controller
         try {
             Log::info('FishR index method called', [
                 'request_data' => $request->all(),
-                'user_id' => auth()->id(),
             ]);
 
             $query = FishrApplication::query();
@@ -130,7 +129,6 @@ class FishRController extends Controller
                     'sex' => $registration->sex,
                     'barangay' => $registration->barangay,
                     'contact_number' => $registration->contact_number,
-                    'email' => $registration->email,
                     'main_livelihood' => $registration->main_livelihood,
                     'livelihood_description' => $registration->livelihood_description,
                     'other_livelihood' => $registration->other_livelihood,
@@ -173,7 +171,6 @@ public function update(Request $request, $id)
             'name_extension' => 'nullable|string|max:10',
             'sex' => 'required|in:Male,Female,Preferred not to say',
             'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-            'email' => 'nullable|email|max:254',
             'barangay' => 'required|string|max:100',
         ]);
 
@@ -321,7 +318,6 @@ public function update(Request $request, $id)
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
 
                 // Livelihood info
@@ -335,14 +331,7 @@ public function update(Request $request, $id)
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
 
-                // IMPORTANT: Make user_id optional like RSBSA
-                'user_id' => 'nullable|exists:user_registration,id'
             ]);
-
-            // CHANGE: Set user_id to null if not provided (this is how RSBSA does it)
-            if (!isset($validated['user_id'])) {
-                $validated['user_id'] = null;
-            }
 
             // Generate unique registration number
             $validated['registration_number'] = $this->generateRegistrationNumber();
@@ -391,7 +380,6 @@ public function update(Request $request, $id)
                 'registration_id' => $registration->id,
                 'registration_number' => $registration->registration_number,
                 'created_by' => auth()->user()->name,
-                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
 
             return response()->json([
@@ -400,8 +388,7 @@ public function update(Request $request, $id)
                 'data' => [
                     'id' => $registration->id,
                     'registration_number' => $registration->registration_number,
-                    'status' => $registration->status,
-                    'linked_to_user' => $validated['user_id'] ? true : false
+                    'status' => $registration->status
                 ]
             ], 201);
 
@@ -849,7 +836,6 @@ public function update(Request $request, $id)
             Log::info('Preview FishR annex request', [
                 'registration_id' => $id,
                 'annex_id' => $annexId,
-                'user_id' => auth()->id()
             ]);
 
             $registration = FishrApplication::findOrFail($id);

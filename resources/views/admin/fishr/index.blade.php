@@ -527,10 +527,6 @@
                                                 <a href="tel:" id="viewRegContact" class="text-decoration-none"></a>
                                             </span>
                                         </div>
-                                        <div class="col-12">
-                                            <strong>Email:</strong>
-                                            <span id="viewRegEmail"></span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -833,12 +829,6 @@
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_email" name="email"
-                                            maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1052,44 +1042,51 @@
             </div>
         </div>
     </div>
-    <!-- Add FishR Registration Modal -->
+    <!-- Add FishR Registration Modal updated -->
     <div class="modal fade" id="addFishrModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-fish me-2"></i>Add New FishR Registration
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Add New FishR Registration
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addFishrForm" enctype="multipart/form-data">
-                        <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        @csrf
+                        
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_first_name" required
-                                            maxlength="100">
+                                        <label for="fishr_first_name" class="form-label fw-semibold">
+                                            First Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_first_name" required maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="fishr_middle_name"
-                                            maxlength="100">
+                                        <label for="fishr_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_middle_name" maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_last_name" required
-                                            maxlength="100">
+                                        <label for="fishr_last_name" class="form-label fw-semibold">
+                                            Last Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_last_name" required maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_name_extension" class="form-label">Extension</label>
+                                        <label for="fishr_name_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="fishr_name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -1103,8 +1100,9 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="fishr_sex" class="form-label">Sex <span
-                                                class="text-danger">*</span></label>
+                                        <label for="fishr_sex" class="form-label fw-semibold">
+                                            Sex <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="fishr_sex" required>
                                             <option value="">Select</option>
                                             <option value="Male">Male</option>
@@ -1113,38 +1111,31 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="fishr_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="fishr_contact_number" required
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="fishr_email" class="form-label">Email (Optional)</label>
-                                        <input type="email" class="form-control" id="fishr_email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="fishr_user_id" class="form-label">Link to User Account
-                                            (Optional)</label>
-                                        <input type="number" class="form-control" id="fishr_user_id"
-                                            placeholder="Enter User ID if exists">
-                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                        <label for="fishr_contact_number" class="form-label fw-semibold">
+                                            Contact Number <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="tel" class="form-control" id="fishr_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Location Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <!-- Location Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="fishr_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="fishr_barangay" class="form-label fw-semibold">
+                                            Barangay <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="fishr_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -1180,18 +1171,20 @@
                             </div>
                         </div>
 
-                        <!-- Livelihood Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Livelihood Information</h6>
+                        <!-- Livelihood Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-fish me-2"></i>Livelihood Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_main_livelihood" class="form-label">Main Livelihood <span
-                                                class="text-danger">*</span></label>
-                                        <select class="form-select" id="fishr_main_livelihood" required
-                                            onchange="toggleOtherLivelihood()">
+                                        <label for="fishr_main_livelihood" class="form-label fw-semibold">
+                                            Main Livelihood <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="fishr_main_livelihood" required onchange="toggleOtherLivelihood()">
                                             <option value="">Select Livelihood</option>
                                             <option value="capture">Capture Fishing</option>
                                             <option value="aquaculture">Aquaculture</option>
@@ -1201,29 +1194,36 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3" id="other_livelihood_container" style="display: none;">
-                                        <label for="fishr_other_livelihood" class="form-label">Specify Other Livelihood
-                                            <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_other_livelihood"
-                                            maxlength="255" placeholder="Please specify...">
+                                        <label for="fishr_other_livelihood" class="form-label fw-semibold">
+                                            Specify Other Livelihood <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_other_livelihood" maxlength="255" placeholder="Please specify...">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Supporting Document -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                        <!-- Supporting Document Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
                                 </h6>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                                </p>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_supporting_document" class="form-label">Upload Document</label>
-                                        <input type="file" class="form-control" id="fishr_supporting_document" name="supporting_document"
-                                            accept="image/*,.pdf"
-                                            onchange="previewFishrDocument('fishr_supporting_document', 'fishr_doc_preview')">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
+                                        <label for="fishr_supporting_document" class="form-label fw-semibold">
+                                            Upload Document
+                                        </label>
+                                        <input type="file" class="form-control" id="fishr_supporting_document" name="supporting_document" accept=".pdf,.jpg,.jpeg,.png" onchange="previewFishrDocument('fishr_supporting_document', 'fishr_doc_preview')">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Accepted: JPG, PNG, PDF (Max 10MB)
+                                        </small>
                                     </div>
                                     <div class="col-md-6">
                                         <div id="fishr_doc_preview" style="margin-top: 10px;"></div>
@@ -1232,16 +1232,19 @@
                             </div>
                         </div>
 
-                        <!-- Registration Status -->
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Registration Status</h6>
+                        <!-- Registration Status Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-cog me-2"></i>Registration Status
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_status" class="form-label">Initial Status <span
-                                                class="text-danger">*</span></label>
+                                        <label for="fishr_status" class="form-label fw-semibold">
+                                            Initial Status <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="fishr_status" required>
                                             <option value="under_review" selected>Under Review</option>
                                             <option value="approved">Approved</option>
@@ -1249,17 +1252,23 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="fishr_remarks" rows="3" maxlength="1000"
-                                            placeholder="Any notes or comments..."></textarea>
+                                        <label for="fishr_remarks" class="form-label fw-semibold">
+                                            Remarks (Optional)
+                                        </label>
+                                        <textarea class="form-control" id="fishr_remarks" rows="3" maxlength="1000" placeholder="Any notes or comments..."></textarea>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Maximum 1000 characters
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddFishr()">
                         <i class="fas fa-save me-1"></i>Create Registration
                     </button>
@@ -2315,7 +2324,6 @@
                     contactLink.href = `tel:${data.contact_number}`;
                     contactLink.textContent = data.contact_number || 'N/A';
                     
-                    document.getElementById('viewRegEmail').textContent = data.email || 'N/A';
 
                     // Populate Location Information
                     document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
@@ -3292,7 +3300,7 @@
                 });
         }
 
-        // Show add FishR modal
+        // Show add FishR modal - Enhanced
         function showAddFishrModal() {
             const modal = new bootstrap.Modal(document.getElementById('addFishrModal'));
 
@@ -3355,37 +3363,6 @@
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
                 errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
-        // Real-time validation for email
-        document.getElementById('fishr_email')?.addEventListener('input', function() {
-            validateFishrEmail(this.value);
-        });
-
-        function validateFishrEmail(email) {
-            const input = document.getElementById('fishr_email');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!email || email.trim() === '') {
-                return true; // Email is optional
-            }
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -3474,39 +3451,19 @@
             reader.readAsDataURL(file);
         }
 
-        // Validate FishR form
+        // Validate FishR form - Enhanced
         function validateFishrForm() {
             let isValid = true;
 
             // Required fields
-            const requiredFields = [{
-                    id: 'fishr_first_name',
-                    label: 'First Name'
-                },
-                {
-                    id: 'fishr_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    id: 'fishr_sex',
-                    label: 'Sex'
-                },
-                {
-                    id: 'fishr_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    id: 'fishr_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    id: 'fishr_main_livelihood',
-                    label: 'Main Livelihood'
-                },
-                {
-                    id: 'fishr_status',
-                    label: 'Status'
-                }
+            const requiredFields = [
+                { id: 'fishr_first_name', label: 'First Name' },
+                { id: 'fishr_last_name', label: 'Last Name' },
+                { id: 'fishr_sex', label: 'Sex' },
+                { id: 'fishr_contact_number', label: 'Contact Number' },
+                { id: 'fishr_barangay', label: 'Barangay' },
+                { id: 'fishr_main_livelihood', label: 'Main Livelihood' },
+                { id: 'fishr_status', label: 'Status' }
             ];
 
             requiredFields.forEach(field => {
@@ -3543,18 +3500,184 @@
 
             // Validate contact number
             const contactNumber = document.getElementById('fishr_contact_number').value.trim();
-            if (!validateFishrContactNumber(contactNumber)) {
-                isValid = false;
-            }
-
-            // Validate email if provided
-            const email = document.getElementById('fishr_email').value.trim();
-            if (email && !validateFishrEmail(email)) {
+            if (contactNumber && !validateFishrContactNumber(contactNumber)) {
                 isValid = false;
             }
 
             return isValid;
         }
+
+        // Validate FishR contact number - Enhanced
+        function validateFishrContactNumber(contactNumber) {
+            const input = document.getElementById('fishr_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Submit add FishR form - Enhanced
+        function submitAddFishr() {
+            // Validate form
+            if (!validateFishrForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+
+            formData.append('first_name', document.getElementById('fishr_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('fishr_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('fishr_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('fishr_name_extension').value);
+            formData.append('sex', document.getElementById('fishr_sex').value);
+            formData.append('contact_number', document.getElementById('fishr_contact_number').value.trim());
+            formData.append('barangay', document.getElementById('fishr_barangay').value);
+            formData.append('main_livelihood', document.getElementById('fishr_main_livelihood').value);
+
+            // Add other livelihood if 'others' is selected
+            if (document.getElementById('fishr_main_livelihood').value === 'others') {
+                formData.append('other_livelihood', document.getElementById('fishr_other_livelihood').value.trim());
+            }
+
+            formData.append('status', document.getElementById('fishr_status').value);
+            formData.append('remarks', document.getElementById('fishr_remarks').value.trim());
+
+            // Add document if uploaded
+            const docInput = document.getElementById('fishr_supporting_document');
+            if (docInput.files && docInput.files[0]) {
+                formData.append('supporting_document', docInput.files[0]);
+            }
+
+            // Find submit button
+            const submitBtn = document.querySelector('#addFishrModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Creating...';
+            submitBtn.disabled = true;
+
+            // Submit to backend
+            fetch('/admin/fishr-registrations/create', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addFishrModal'));
+                        modal.hide();
+
+                        // Show success message
+                        showToast('success', data.message || 'FishR registration created successfully');
+
+                        // Reload page after short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // Show validation errors
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('fishr_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.remove();
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create FishR registration');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the registration');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+        }
+
+        // Auto-capitalize name fields
+        function capitalizeFishrName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        // Add event listeners for auto-capitalization on blur
+        document.addEventListener('DOMContentLoaded', function() {
+            const addFishrModal = document.getElementById('addFishrModal');
+            
+            if (addFishrModal) {
+                addFishrModal.addEventListener('shown.bs.modal', function() {
+                    const firstNameInput = document.getElementById('fishr_first_name');
+                    const middleNameInput = document.getElementById('fishr_middle_name');
+                    const lastNameInput = document.getElementById('fishr_last_name');
+
+                    if (firstNameInput) {
+                        firstNameInput.addEventListener('blur', function() {
+                            capitalizeFishrName(this);
+                        });
+                    }
+
+                    if (middleNameInput) {
+                        middleNameInput.addEventListener('blur', function() {
+                            capitalizeFishrName(this);
+                        });
+                    }
+
+                    if (lastNameInput) {
+                        lastNameInput.addEventListener('blur', function() {
+                            capitalizeFishrName(this);
+                        });
+                    }
+
+                    // Real-time validation for contact number
+                    const contactInput = document.getElementById('fishr_contact_number');
+                    if (contactInput) {
+                        contactInput.addEventListener('input', function() {
+                            validateFishrContactNumber(this.value);
+                        });
+                    }
+
+                });
+            }
+        });
 
         // Submit add FishR form
         function submitAddFishr() {
@@ -3573,7 +3696,6 @@
             formData.append('name_extension', document.getElementById('fishr_name_extension').value);
             formData.append('sex', document.getElementById('fishr_sex').value);
             formData.append('contact_number', document.getElementById('fishr_contact_number').value.trim());
-            formData.append('email', document.getElementById('fishr_email').value.trim());
             formData.append('barangay', document.getElementById('fishr_barangay').value);
             formData.append('main_livelihood', document.getElementById('fishr_main_livelihood').value);
 
@@ -3585,10 +3707,6 @@
             formData.append('status', document.getElementById('fishr_status').value);
             formData.append('remarks', document.getElementById('fishr_remarks').value.trim());
 
-            const userId = document.getElementById('fishr_user_id').value.trim();
-            if (userId) {
-                formData.append('user_id', userId);
-            }
             // Add document if uploaded
             const docInput = document.getElementById('fishr_supporting_document');
             if (docInput.files && docInput.files[0]) {
@@ -3713,9 +3831,6 @@
                         const contactEl = document.getElementById('edit_contact_number');
                         if (contactEl) contactEl.value = data.contact_number || '';
 
-                        const emailEl = document.getElementById('edit_email');
-                        if (emailEl) emailEl.value = data.email || '';
-
                         const barangayEl = document.getElementById('edit_barangay');
                         if (barangayEl) barangayEl.value = data.barangay || '';
 
@@ -3740,7 +3855,6 @@
                             name_extension: data.name_extension || '',
                             sex: data.sex || '',
                             contact_number: data.contact_number || '',
-                            email: data.email || '',
                             barangay: data.barangay || ''
                         };
 
@@ -3798,7 +3912,7 @@
 
             const fields = [
                 'first_name', 'middle_name', 'last_name', 'name_extension',
-                'sex', 'contact_number', 'email', 'barangay'
+                'sex', 'contact_number', 'barangay'
             ];
 
             fields.forEach(field => {
@@ -3906,23 +4020,6 @@
                     errorDiv.className = 'invalid-feedback d-block';
                     errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
                     contactInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            }
-
-            // Validate email if provided
-            const emailInput = form.querySelector('[name="email"]');
-            if (emailInput && emailInput.value.trim()) {
-                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailPattern.test(emailInput.value.trim())) {
-                    emailInput.classList.add('is-invalid');
-                    const feedback = emailInput.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
-
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Invalid email format';
-                    emailInput.parentNode.appendChild(errorDiv);
                     isValid = false;
                 }
             }
