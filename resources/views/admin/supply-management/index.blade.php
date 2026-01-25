@@ -2898,6 +2898,74 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('lossReasonCount').textContent = e.target.value.length;
         }
     });
+    // Auto-capitalize category name (capitalize first letter of each word)
+    function capitalizeWords(str) {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+            .replace(/\s+/g, ' ') // Remove extra spaces
+            .trim();
+    }
+
+    // Initialize auto-capitalization for Create Category Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryNameInput = document.querySelector('#createCategoryModal input[name="name"]');
+        
+        if (categoryNameInput) {
+            categoryNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                    // Update display name as well
+                    document.getElementById('display_name_hidden').value = this.value;
+                }
+            });
+        }
+    });
+
+    // Initialize auto-capitalization for Edit Category Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const editCategoryNameInput = document.getElementById('edit_category_name');
+        
+        if (editCategoryNameInput) {
+            editCategoryNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                    // Update display name as well
+                    document.getElementById('edit_display_name_hidden').value = this.value;
+                    checkForCategoryChanges();
+                }
+            });
+        }
+    });
+
+    // Initialize auto-capitalization for Create Item Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const itemNameInput = document.querySelector('#createItemModal input[name="name"]');
+        
+        if (itemNameInput) {
+            itemNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                }
+            });
+        }
+    });
+
+    // Initialize auto-capitalization for Edit Item Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const editItemNameInput = document.getElementById('edit_item_name');
+        
+        if (editItemNameInput) {
+            editItemNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                    checkForItemChanges();
+                }
+            });
+        }
+    });
     </script>
 
     <style>
