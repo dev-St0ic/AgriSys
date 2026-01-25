@@ -560,7 +560,7 @@
         <div id="toastContainer" class="toast-container"></div>
     </div>
 
-    <!-- Create Category Modal -->
+     <!-- Create Category Modal - IMPROVED with Word Count -->
     <div class="modal fade" id="createCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -577,7 +577,7 @@
                             <input type="hidden" name="display_name" id="display_name_hidden">
                             <div class="invalid-feedback">Please provide a category name.</div>
                         </div>
-                       <div class="mb-3">
+                        <div class="mb-3">
                             <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
                             <select name="icon" id="create_icon" class="form-select" required
                                 onchange="updateIconPreview('create')">
@@ -613,8 +613,18 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
-                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <textarea name="description" class="form-control" rows="2" required maxlength="500"
+                                onchange="updateCategoryDescriptionCounter()"
+                                oninput="updateCategoryDescriptionCounter()"></textarea>
                             <div class="invalid-feedback">Please provide a description.</div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>Describe what this category contains
+                                </small>
+                                <small class="text-muted" id="categoryDescriptionCounter">
+                                    <span id="categoryCharCount">0</span>/500
+                                </small>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -625,6 +635,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Edit Category Modal -->
     <div class="modal fade" id="editCategoryModal" tabindex="-1">
@@ -682,6 +693,14 @@
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
                             <textarea id="edit_category_description" name="description" class="form-control" rows="2" required></textarea>
                             <div class="invalid-feedback">Please provide a description.</div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Describe what this category contains
+                            </small>
+                            <small class="text-muted" id="editCategoryDescriptionCounter">
+                                <span id="editCategoryCharCount">0</span>/500
+                            </small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -2632,6 +2651,70 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+          // Update category description character counter
+    function updateCategoryDescriptionCounter() {
+        const textarea = document.querySelector('#createCategoryModal textarea[name="description"]');
+        const charCount = document.getElementById('categoryCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            
+            // Update character count only
+            charCount.textContent = currentLength;
+        }
+    }
+
+    // Update icon preview
+    function updateIconPreview(type) {
+        const select = document.getElementById(`${type}_icon`);
+        const preview = document.getElementById(`${type}_icon_preview`);
+        const iconClass = select.value;
+        preview.className = iconClass ? `fas ${iconClass} fa-2x` : 'fas fa-leaf fa-2x';
+    }
+
+    // Initialize description counter when modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const createCategoryModal = document.getElementById('createCategoryModal');
+        if (createCategoryModal) {
+            createCategoryModal.addEventListener('show.bs.modal', function() {
+                updateCategoryDescriptionCounter();
+            });
+        }
+
+        const descriptionTextarea = document.querySelector('#createCategoryModal textarea[name="description"]');
+        if (descriptionTextarea) {
+            descriptionTextarea.addEventListener('input', updateCategoryDescriptionCounter);
+            descriptionTextarea.addEventListener('change', updateCategoryDescriptionCounter);
+        }
+    });
+    // Update edit category description character counter
+    function updateEditCategoryDescriptionCounter() {
+        const textarea = document.querySelector('#editCategoryModal textarea[name="description"]');
+        const charCount = document.getElementById('editCategoryCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            
+            // Update character count only
+            charCount.textContent = currentLength;
+        }
+    }
+
+    // Initialize edit category description counter when modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const editCategoryModal = document.getElementById('editCategoryModal');
+        if (editCategoryModal) {
+            editCategoryModal.addEventListener('show.bs.modal', function() {
+                updateEditCategoryDescriptionCounter();
+            });
+        }
+
+        const editDescriptionTextarea = document.querySelector('#editCategoryModal textarea[name="description"]');
+        if (editDescriptionTextarea) {
+            editDescriptionTextarea.addEventListener('input', updateEditCategoryDescriptionCounter);
+            editDescriptionTextarea.addEventListener('change', updateEditCategoryDescriptionCounter);
+        }
+    });
     </script>
 
     <style>
@@ -3303,6 +3386,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 padding: 0.4rem 0.6rem;
             }
         }
+        /* Create Category Modal Styles */
+            #createCategoryModal .form-control,
+            #createCategoryModal .form-select {
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
+                transition: all 0.3s ease;
+            }
+
+            #createCategoryModal .form-control:focus,
+            #createCategoryModal .form-select:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            }
+
+            #createCategoryModal .form-label {
+                color: #495057;
+                font-weight: 500;
+                font-size: 0.95rem;
+            }
 
     </style>
 @endsection
