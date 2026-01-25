@@ -1251,15 +1251,33 @@
                                             <option value="rejected">Rejected</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="fishr_remarks" class="form-label fw-semibold">
-                                            Remarks (Optional)
-                                        </label>
-                                        <textarea class="form-control" id="fishr_remarks" rows="3" maxlength="1000" placeholder="Any notes or comments..."></textarea>
-                                        <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>Maximum 1000 characters
-                                        </small>
-                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks Card -->
+                        <div class="card border-0 bg-light mt-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="fishr_remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="fishr_remarks" rows="4"
+                                    placeholder="Add any comments about this registration..."
+                                    maxlength="1000"
+                                    oninput="updateFishrRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this registration
+                                    </small>
+                                    <small class="text-muted" id="remarksCounterFishr">
+                                        <span id="charCountFishr">0</span>/1000
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -4129,6 +4147,24 @@
             } else {
                 // If search has value, use auto-search
                 autoSearch();
+            }
+        }
+        // Update remarks character counter 
+        function updateFishrRemarksCounter() {
+            const textarea = document.getElementById('fishr_remarks');
+            const charCount = document.getElementById('charCountFishr');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    charCount.parentElement.classList.add('text-warning');
+                    charCount.parentElement.classList.remove('text-muted');
+                } else {
+                    charCount.parentElement.classList.remove('text-warning');
+                    charCount.parentElement.classList.add('text-muted');
+                }
             }
         }
         console.log('FishR Add Registration functionality loaded successfully');

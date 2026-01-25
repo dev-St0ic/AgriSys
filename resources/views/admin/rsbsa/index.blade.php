@@ -2696,6 +2696,32 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Admin Remarks -->
+                        <div class="card border-0 bg-light mt-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="rsbsa_remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="rsbsa_remarks" rows="4"
+                                    placeholder="Add any comments or notes about this registration..."
+                                    maxlength="1000"
+                                    oninput="updateRsbsaRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this registration
+                                    </small>
+                                    <small class="text-muted" id="rsbsaRemarksCounter">
+                                        <span id="rsbsaCharCount">0</span>/1000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer bg-light">
@@ -4533,6 +4559,7 @@
             formData.append('land_area', document.getElementById('rsbsa_land_area').value);
             formData.append('commodity', document.getElementById('rsbsa_commodity').value.trim());
             formData.append('status', document.getElementById('rsbsa_status').value);
+            formData.append('remarks', document.getElementById('rsbsa_remarks').value.trim());
 
             // Add document if uploaded
             const docInput = document.getElementById('rsbsa_supporting_document');
@@ -5630,5 +5657,21 @@ function proceedWithEditRsbsa(form, applicationId) {
                 }
             });
         });
+        function updateRsbsaRemarksCounter() {
+            const textarea = document.getElementById('rsbsa_remarks');
+            const charCount = document.getElementById('rsbsaCharCount');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                if (textarea.value.length > 900) {
+                    charCount.parentElement.classList.add('text-warning');
+                    charCount.parentElement.classList.remove('text-muted');
+                } else {
+                    charCount.parentElement.classList.remove('text-warning');
+                    charCount.parentElement.classList.add('text-muted');
+                }
+            }
+        }
     </script>
 @endsection
