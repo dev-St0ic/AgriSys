@@ -160,7 +160,9 @@
                                 <div>
                                     <h5 class="mb-0">
                                         <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                        {{ $category->display_name }}
+                                        <span class="category-name" title="{{ $category->display_name }}">
+                                            {{ $category->display_name }}
+                                        </span>
                                         @if (!$category->is_active)
                                             <span class="badge bg-warning">Inactive</span>
                                         @endif
@@ -248,13 +250,14 @@
                                                                 </div>
                                                             @endif
                                                         </td>
-                                                        <td>
-                                                            <strong>{{ $item->name }}</strong>
+                                                        <td style="max-width: 200px; width: 200px;">
+                                                            <strong class="item-name" title="{{ $item->name }}">{{ $item->name }}</strong>
                                                             @if ($item->needsReorder())
-                                                                <br><small class="text-warning"><i
-                                                                        class="fas fa-exclamation-triangle"></i> Needs
-                                                                    Reorder</small>
+                                                                <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Needs Reorder</small>
                                                             @endif
+                                                            <small class="text-muted description-truncate" title="{{ $item->description }}">
+                                                                {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
+                                                            </small>
                                                         </td>
                                                         <td><span class="badge bg-secondary">{{ $item->unit }}</span>
                                                         </td>
@@ -349,7 +352,9 @@
                         <div>
                             <h4 class="mb-1">
                                 <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                {{ $category->display_name }}
+                                <span class="category-name" title="{{ $category->display_name }}">
+                                    {{ $category->display_name }}
+                                </span>
                                 @if (!$category->is_active)
                                     <span class="badge bg-warning">Inactive</span>
                                 @endif
@@ -439,16 +444,17 @@
                                                         </div>
                                                     @endif
                                                 </td>
-                                                <td>
-                                                    <strong class="d-block">{{ $item->name }}</strong>
-                                                    @if ($item->needsReorder())
-                                                        <small class="text-warning">
-                                                            <i class="fas fa-exclamation-triangle"></i> Needs Reorder
-                                                        </small>
+                                                <td style="max-width: 200px; width: 200px;">
+                                                    <strong class="item-name" title="{{ $item->name }}">{{ $item->name }}</strong>
+                                                   @if ($item->needsReorder())
+                                                        <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Needs Reorder</small>
                                                     @endif
+                                                    <small class="text-muted description-truncate" title="{{ $item->description }}">
+                                                        {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
+                                                    </small>
                                                 </td>
-                                                <td>
-                                                    <small class="text-muted">
+                                                <td style="max-width: 150px; width: 150px;">
+                                                    <small class="text-muted description-truncate" title="{{ $item->description }}">
                                                         {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
                                                     </small>
                                                 </td>
@@ -3103,18 +3109,6 @@ document.addEventListener('DOMContentLoaded', function() {
             display: block;
         }
 
-        /* Table Improvements */
-       .table thead th {
-            background: #0a58ca ;
-            color: #ffffff;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #0a58ca;
-            padding: 1rem 0.75rem;
-        }
-
         .item-row:hover {
             background-color: #f8f9fa;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -3491,6 +3485,461 @@ document.addEventListener('DOMContentLoaded', function() {
             .text-muted #itemCharCount {
                 font-weight: 600;
             }
+        /* Text Truncation for Tables */
+        .truncate-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: block;
+        }
 
+        .truncate-text-long {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+            display: block;
+        }
+
+        .truncate-text-medium {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            display: block;
+        }
+
+        .truncate-text-short {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+            display: block;
+        }
+/* ================================
+   COMPREHENSIVE TEXT OVERFLOW FIXES
+   ================================ */
+
+/* Category Name - Primary Fix - AGGRESSIVE */
+.category-name {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+    width: 150px !important;
+    vertical-align: middle;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+    line-height: 1.4;
+}
+
+/* Span wrapper for category */
+h5 .category-name,
+h4 .category-name {
+    max-width: 150px !important;
+    width: 150px !important;
+}
+
+/* Item Name in Tables */
+.item-name {
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    min-width: 0;
+}
+
+/* Description Truncation - Works in any context */
+.description-truncate {
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    word-break: break-all;
+}
+
+/* Table Headers - Fix Truncation */
+.table thead th {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100%;
+    padding: 1rem 0.75rem;
+    background: #0a58ca;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #0a58ca;
+    word-break: break-word;
+}
+
+/* Category Header Container - Fix Wrapping */
+.card-header h5,
+.card-header h4 {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+    word-break: normal;
+    margin: 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 1;
+}
+
+/* Card Header with Category Title */
+.card-header .d-flex {
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+}
+
+/* Category description in header */
+.card-header small.text-muted {
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+/* Badge spacing fix */
+.card-header .badge {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Icon in header */
+.card-header i {
+    flex-shrink: 0;
+}
+
+/* Modal Dialog Text */
+.modal-body label,
+.modal-body .form-label {
+    white-space: normal !important;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Form Control Labels */
+.form-label {
+    display: block;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Button Text Fix */
+.btn {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%;
+}
+
+.btn span {
+    display: inline;
+    word-break: break-word;
+}
+
+/* Search Input Fix */
+.input-group .form-control {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Select dropdown Fix */
+.form-select {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Table Cell Content */
+.table td {
+    overflow: visible !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.table td strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.table td small {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.table td small.description-truncate {
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Tooltip Text */
+.tooltip-inner {
+    max-width: 250px;
+    word-break: break-word;
+    white-space: normal !important;
+    text-align: left;
+    overflow-wrap: break-word;
+}
+
+/* Alert Messages */
+.alert {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+/* Toast Notifications */
+.toast-notification .toast-content span {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.confirmation-toast .toast-body p {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    max-width: 100%;
+}
+
+/* Card Title Fix */
+.card-title,
+.modal-title {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Paragraph Text */
+p, small, span {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ================================
+   RESPONSIVE ADJUSTMENTS
+   ================================ */
+
+/* Large Screens (lg) */
+@media (min-width: 1200px) {
+    .category-name {
+        max-width: 300px !important;
+    }
+    
+    .item-name {
+        max-width: 200px !important;
+    }
+    
+    .description-truncate {
+        max-width: 150px !important;
+    }
+}
+
+/* Medium Screens (md) */
+@media (max-width: 1199px) {
+    .category-name {
+        max-width: 180px !important;
+        width: 180px !important;
+    }
+    
+    .item-name {
+        max-width: 160px !important;
+    }
+    
+    .description-truncate {
+        max-width: 120px !important;
+    }
+
+    .card-header h5,
+    .card-header h4 {
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+}
+
+/* Small Screens (sm) */
+@media (max-width: 768px) {
+    .category-name {
+        max-width: 120px !important;
+        width: 120px !important;
+    }
+    
+    .item-name {
+        max-width: 120px !important;
+    }
+    
+    .description-truncate {
+        max-width: 80px !important;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .card-header h5,
+    .card-header h4 {
+        flex-direction: row !important;
+        width: 100%;
+    }
+
+    .card-header .d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100%;
+    }
+
+    .btn {
+        white-space: normal !important;
+        word-break: break-word;
+    }
+
+    .modal-body {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table td {
+        padding: 0.75rem 0.5rem !important;
+    }
+}
+
+/* Extra Small Screens (xs) */
+@media (max-width: 576px) {
+    .category-name {
+        max-width: 100px !important;
+    }
+    
+    .item-name {
+        max-width: 90px !important;
+    }
+    
+    .description-truncate {
+        max-width: 60px !important;
+    }
+
+    .table {
+        font-size: 0.75rem;
+    }
+
+    .table td, 
+    .table th {
+        padding: 0.5rem 0.25rem !important;
+        font-size: 0.7rem;
+    }
+
+    .table thead th {
+        font-size: 0.65rem !important;
+    }
+
+    .btn-sm {
+        font-size: 0.65rem !important;
+        padding: 0.25rem 0.5rem !important;
+        white-space: normal;
+    }
+
+    .card-header {
+        padding: 0.75rem !important;
+    }
+
+    .card-header h5,
+    .card-header h4 {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
+        flex-wrap: nowrap;
+    }
+
+    .badge {
+        font-size: 0.6rem !important;
+        padding: 0.25rem 0.4rem !important;
+        white-space: nowrap;
+    }
+
+    .toast-notification,
+    .confirmation-toast {
+        min-width: 95vw !important;
+        max-width: 95vw !important;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem !important;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+    }
+
+    /* Ensure buttons don't overflow */
+    .btn-group,
+    .dropdown-menu {
+        max-width: 100%;
+        overflow: hidden;
+    }
+}
+
+/* Ultra Small Screens (xs and smaller) */
+@media (max-width: 360px) {
+    .category-name {
+        max-width: 80px !important;
+    }
+    
+    .item-name {
+        max-width: 70px !important;
+    }
+    
+    .description-truncate {
+        max-width: 50px !important;
+    }
+
+    .badge {
+        font-size: 0.55rem !important;
+        padding: 0.2rem 0.3rem !important;
+    }
+
+    .table {
+        font-size: 0.65rem;
+    }
+
+    .btn-sm {
+        font-size: 0.6rem !important;
+        padding: 0.2rem 0.4rem !important;
+    }
+}
     </style>
 @endsection
