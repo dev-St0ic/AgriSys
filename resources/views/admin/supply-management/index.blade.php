@@ -1082,12 +1082,18 @@
             showToast('error', message);
         }
 
-        // Show success modal (closes any open modal first)
+        // FIXED Show success modal (closes any open modal first)
         function showSuccess(message, shouldReload = true) {
             showToast('success', message);
             
             if (shouldReload) {
+                // Get the currently active category BEFORE reload
+                const activeCategory = document.querySelector('.category-content.active');
+                const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
+                
                 setTimeout(() => {
+                    // Store the category ID in sessionStorage temporarily
+                    sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
                     location.reload();
                 }, 1500);
             }
@@ -2562,6 +2568,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            
+            // Check if we need to switch back to a category after reload
+            const pendingCategory = sessionStorage.getItem('pendingCategorySwitch');
+            if (pendingCategory) {
+                setTimeout(() => {
+                    switchCategory(pendingCategory);
+                    // Set active button
+                    document.querySelectorAll('.category-tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.category === pendingCategory) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    sessionStorage.removeItem('pendingCategorySwitch');
+                }, 100);
+            }
+
             const statusSelect = document.querySelector('select[name="status"]');
             const stockStatusSelect = document.querySelector('select[name="stock_status"]');
             const searchInput = document.getElementById('searchInput');
@@ -2935,14 +2958,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         /* Table Improvements */
-        .table thead th {
-            background: #f8f9fa;
-            color: #495057;
+       .table thead th {
+            background: #0a58ca ;
+            color: #ffffff;
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid #dee2e6;
+            border-bottom: 2px solid #0a58ca;
             padding: 1rem 0.75rem;
         }
 
