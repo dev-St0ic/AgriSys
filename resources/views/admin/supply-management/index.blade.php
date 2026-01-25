@@ -1523,20 +1523,31 @@ async function proceedUpdateCategory() {
             );
         }
 
+        // Handle category deletion after confirmation
         async function proceedDeleteCategory(categoryId) {
-            try {
-                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
+        try {
+            const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // Check if the deleted category is the currently active one
+            const activeCategory = document.querySelector('.category-content.active');
+            const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : null;
+            
+            // If deleted category is active, redirect to "All Categories"
+            if (activeCategoryId === categoryId.toString()) {
+                sessionStorage.setItem('pendingCategorySwitch', 'all');
             }
+            
+            showSuccess(data.message);
+        } catch (error) {
+            showError(error.message);
         }
+    }
 
         // Supply Management Functions
         async function manageSupply(itemId) {
@@ -1666,9 +1677,12 @@ async function proceedUpdateCategory() {
             const formData = new FormData(this);
             const submitBtn = document.querySelector('#createCategoryModal .btn-primary');
             const originalText = submitBtn.innerHTML;
+            const originalBgColor = submitBtn.style.backgroundColor;
 
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Creating...';
+            // Set loading state with visible spinner - WHITE TEXT
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Creating...</span>';
             submitBtn.disabled = true;
+            submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
 
             try {
                 const data = await makeRequest('/admin/seedlings/supply-management', {
@@ -1685,8 +1699,10 @@ async function proceedUpdateCategory() {
             } catch (error) {
                 showError(error.message);
             } finally {
+                // Restore original state
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
+                submitBtn.style.backgroundColor = originalBgColor;
             }
         });
 
