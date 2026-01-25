@@ -1719,6 +1719,8 @@ async function proceedUpdateCategory() {
         });
 
         // Supply Management Forms with Validation
+
+        // add supply form submission
         document.getElementById('addSupplyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1728,7 +1730,18 @@ async function proceedUpdateCategory() {
 
             const itemId = document.getElementById('add_supply_item_id').value;
             const formData = new FormData(this);
+            const quantity = formData.get('quantity');
+            const source = formData.get('source');
+            const notes = formData.get('notes');
 
+            showConfirmationToast(
+                'Add Supply',
+                `Confirm adding supply?\n\nQuantity: ${quantity}\nSource: ${source || 'Not specified'}\nNotes: ${notes || 'None'}`,
+                () => proceedAddSupply(itemId, formData)
+            );
+        });
+
+        async function proceedAddSupply(itemId, formData) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/supply/add`, {
                     method: 'POST',
@@ -1740,19 +1753,17 @@ async function proceedUpdateCategory() {
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                // Show success message using toast
                 showToast('success', data.message);
-
-                // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
                 loadSupplyLogs(itemId);
-                this.reset();
-                this.classList.remove('was-validated');
+                document.getElementById('addSupplyForm').reset();
+                document.getElementById('addSupplyForm').classList.remove('was-validated');
             } catch (error) {
                 showError(error.message);
             }
-        });
-
+        }
+        
+        // adjust supply form submission
         document.getElementById('adjustSupplyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1762,9 +1773,17 @@ async function proceedUpdateCategory() {
 
             const itemId = document.getElementById('adjust_supply_item_id').value;
             const formData = new FormData(this);
+            const newSupply = formData.get('new_supply');
+            const reason = formData.get('reason');
 
-            if (!confirm('Are you sure you want to adjust the supply manually?')) return;
-
+            showConfirmationToast(
+                'Adjust Supply',
+                `Confirm manual supply adjustment?\n\nNew Supply: ${newSupply}\nReason: ${reason}`,
+                () => proceedAdjustSupply(itemId, formData)
+            );
+        });
+    
+        async function proceedAdjustSupply(itemId, formData) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/supply/adjust`, {
                     method: 'POST',
@@ -1776,19 +1795,16 @@ async function proceedUpdateCategory() {
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                // Show success message using toast
                 showToast('success', data.message);
-
-                // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
                 loadSupplyLogs(itemId);
-                this.reset();
-                this.classList.remove('was-validated');
+                document.getElementById('adjustSupplyForm').reset();
+                document.getElementById('adjustSupplyForm').classList.remove('was-validated');
             } catch (error) {
                 showError(error.message);
             }
-        });
-
+        }
+        // record loss form submission
         document.getElementById('recordLossForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1800,9 +1816,17 @@ async function proceedUpdateCategory() {
             const formData = new FormData(this);
             const reasonType = formData.get('reason_type');
             const reason = formData.get('reason');
-            const fullReason = `${reasonType}: ${reason}`;
+            const quantity = formData.get('quantity');
 
-            if (!confirm('Are you sure you want to record this supply loss?')) return;
+            showConfirmationToast(
+                'Record Supply Loss',
+                `Confirm recording supply loss?\n\nQuantity Lost: ${quantity}\nReason: ${reasonType}\nDetails: ${reason}`,
+                () => proceedRecordLoss(itemId, formData, reasonType, reason, quantity)
+            );
+        });
+
+        async function proceedRecordLoss(itemId, formData, reasonType, reason, quantity) {
+            const fullReason = `${reasonType}: ${reason}`;
 
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/supply/loss`, {
@@ -1813,23 +1837,21 @@ async function proceedUpdateCategory() {
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        quantity: formData.get('quantity'),
+                        quantity: quantity,
                         reason: fullReason
                     })
                 });
 
-                // Show success message using toast
                 showToast('success', data.message);
-
-                // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
                 loadSupplyLogs(itemId);
-                this.reset();
-                this.classList.remove('was-validated');
+                document.getElementById('recordLossForm').reset();
+                document.getElementById('recordLossForm').classList.remove('was-validated');
             } catch (error) {
                 showError(error.message);
             }
-        });
+        }
+
         // RELOAD PAGE WHEN SUPPLY MODAL CLOSES - This ensures the main page shows updated supply counts
         document.getElementById('supplyModal').addEventListener('hidden.bs.modal', function() {
             location.reload();
