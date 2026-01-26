@@ -201,7 +201,7 @@
                                             <button type="button" class="btn btn-sm btn-outline-info"
                                                 onclick="viewDocument('{{ $training->document_path }}', 'Training Request - {{ $training->full_name }}')"
                                                 title="View Document">
-                                                <i class="fas fa-file-alt"></i> View
+                                                <i class="fas fa-file-alt"></i>
                                             </button>
                                         @else
                                             <div class="text-center">
@@ -391,25 +391,30 @@
         </div>
     </div>
 
-    <!-- Application Details Modal -->
+    <!-- Application Details Modal enhanced-->
     <div class="modal fade" id="applicationModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-graduation-cap me-2"></i>Application Details
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Application Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="applicationDetails">
-                    <!-- Content will be loaded here -->
+                <div class="modal-body">
+                    <div id="applicationDetails">
+                        <!-- Content will be loaded here -->
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Enhanced Document Viewer Modal -->
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
@@ -1714,16 +1719,20 @@
                 });
         }
 
-        // View application details
+        // UPDATED: View application details - FIXED remarks display
         function viewApplication(id) {
-            document.getElementById('applicationDetails').innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>`;
-
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+            const detailsContainer = document.getElementById('applicationDetails');
+            
+            // Show loading state
+            detailsContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted">Loading application details...</p>
+                </div>`;
+            
             modal.show();
 
             fetch(`/admin/training/requests/${id}`)
@@ -1736,95 +1745,188 @@
 
                     const data = response.data;
 
-                    // Build remarks HTML if exists
-                    const remarksHtml = data.remarks ? `
-                <div class="col-12 mt-3">
-                    <h6 class="border-bottom pb-2">Remarks</h6>
-                    <div class="alert alert-info">
-                        <p class="mb-1">${data.remarks}</p>
-                        <small class="text-muted">
-                            ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
-                            ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
-                        </small>
-                    </div>
-                </div>` : '';
-
                     // Supporting documents
                     let documentHtml = '';
                     if (data.document_path) {
                         documentHtml = `
-                    <div class="col-12">
-                        <div class="card border-secondary">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="text-center p-3 border border-secondary rounded bg-light">
-                                    <i class="fas fa-file-alt fa-3x mb-2 text-info"></i>
-                                    <h6>Supporting Document</h6>
-                                    <span class="badge bg-info mb-2">Uploaded</span>
-                                    <br>
-                                    <button class="btn btn-sm btn-outline-info mt-2"
-                                        onclick="viewDocument('${data.document_path}', 'Training Request - ${data.full_name}')">
-                                        <i class="fas fa-eye"></i> View Document
-                                    </button>
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="p-4 border border-primary rounded bg-light">
+                                        <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                        <h6>Supporting Document</h6>
+                                        <span class="badge bg-primary mb-3">Uploaded</span>
+                                        <br>
+                                        <button class="btn btn-sm btn-outline-primary mt-2"
+                                            onclick="viewDocument('${data.document_path}', 'Training Request - ${escapeHtml(data.full_name)}')">
+                                            <i class="fas fa-eye me-1"></i>View Document
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>`;
+                        </div>`;
                     } else {
                         documentHtml = `
-                    <div class="col-12">
-                        <div class="card border-secondary">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="text-center p-3 border border-secondary rounded">
-                                    <i class="fas fa-file-slash fa-3x mb-2 text-muted"></i>
-                                    <h6>No Document Uploaded</h6>
-                                    <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="p-4 border border-secondary rounded">
+                                        <i class="fas fa-file-slash fa-3x mb-3" style="color: #6c757d;"></i>
+                                        <h6>No Document Uploaded</h6>
+                                        <span class="badge bg-secondary">Not Uploaded</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>`;
+                        </div>`;
                     }
 
-                    document.getElementById('applicationDetails').innerHTML = `
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <h6 class="border-bottom pb-2">Personal Information</h6>
-                        <p><strong>Application #:</strong> ${data.application_number}</p>
-                        <p><strong>Full Name:</strong> ${data.full_name}</p>
-                        <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="border-bottom pb-2">Training Information</h6>
-                        <p><strong>Training Type:</strong> ${data.training_type_display}</p>
-                        <p><strong>Status:</strong>
-                            <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
-                        </p>
-                        <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                        <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                    </div>
-                    <div class="col-md-6 mt-3">
-                        <h6 class="border-bottom pb-2">Location Information</h6>
-                        <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                    </div>
-                    ${documentHtml}
-                    ${remarksHtml}
-                </div>`;
+                    // Build remarks HTML - ONLY IF THERE ARE REMARKS
+                    let remarksHtml = '';
+                    if (data.remarks && String(data.remarks).trim() !== '') {
+                        remarksHtml = `
+                        <!-- Remarks Card -->
+                        <div class="col-12">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(data.remarks)}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+
+                    detailsContainer.innerHTML = `
+                        <div class="row g-4">
+
+                            <!-- Personal Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Application #:</strong>
+                                                <span class="text-primary d-block">${escapeHtml(data.application_number)}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <strong>Full Name:</strong>
+                                                <span class="d-block">${escapeHtml(data.full_name)}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <strong>Contact Number:</strong>
+                                                <span>
+                                                    <a href="tel:${data.contact_number}" class="text-decoration-none">${escapeHtml(data.contact_number || 'N/A')}</a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Location Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Barangay:</strong>
+                                                <span class="d-block">${escapeHtml(data.barangay || 'N/A')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Training Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Training Type:</strong>
+                                                <span class="badge bg-info d-block mt-1" style="width: fit-content;">${escapeHtml(data.training_type_display)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status Information Card -->
+                            <div class="col-md-6">
+                                <div class="card h-100 border-warning">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Status & Timeline</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <strong>Current Status:</strong>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-${data.status_color}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${escapeHtml(data.formatted_status)}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mt-3">
+                                                <strong>Date Applied:</strong>
+                                                <span class="d-block">${escapeHtml(data.created_at)}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <strong>Last Updated:</strong>
+                                                <span class="d-block">${escapeHtml(data.updated_at)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Supporting Document Card -->
+                            ${documentHtml}
+
+                            <!-- Remarks Card (ONLY SHOWN IF REMARKS EXIST) -->
+                            ${remarksHtml}
+
+                        </div>
+                    `;
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showToast('error', error.message || 'Error loading application details. Please try again.');
-                    document.getElementById('applicationDetails').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    ${error.message || 'Error loading application details. Please try again.'}
-                </div>`;
+                    detailsContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            ${error.message || 'Error loading application details. Please try again.'}
+                        </div>`;
                 });
         }
+
+        // HELPER: Escape HTML
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(unsafe).replace(/[&<>"']/g, m => map[m]);
+        }
+
         // UNIFIED document viewing function
         function viewDocument(path, filename = null, applicationId = null) {
             // Input validation

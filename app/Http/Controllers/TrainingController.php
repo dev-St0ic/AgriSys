@@ -308,38 +308,73 @@ class TrainingController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:under_review,approved,rejected',
-            'remarks' => 'nullable|string|max:1000'
-        ]);
+        try {
+            $request->validate([
+                'status' => 'required|in:under_review,approved,rejected',
+                'remarks' => 'nullable|string|max:1000'
+            ]);
 
-        $training = TrainingApplication::findOrFail($id);
-        $previousStatus = $training->status;
+            $training = TrainingApplication::findOrFail($id);
+            $previousStatus = $training->status;
 
-        // Update using trait method to trigger SMS notification
-        $training->updateStatusWithNotification($request->status, $request->remarks);
+            // FIXED: Directly update status and remarks together
+            $training->update([
+                'status' => $request->status,
+                'remarks' => $request->remarks ?? null, // Explicitly handle remarks
+                'status_updated_at' => now(),
+                'updated_by' => Auth::id()
+            ]);
 
-        // Update additional fields manually
-        $training->update([
-            'status_updated_at' => now(),
-            'updated_by' => Auth::id()
-        ]);
+            // Call the notification method if it exists and doesn't handle updates
+            if (method_exists($training, 'updateStatusWithNotification')) {
+                // If the method exists but only handles notifications, call it
+                // Make sure it doesn't overwrite our manual update
+                $training->notifyStatusChange($request->status);
+            }
 
-        $this->logActivity('updated_status', 'TrainingApplication', $training->id, [
-            'new_status' => $request->status,
-            'remarks' => $request->remarks,
-            'application_number' => $training->application_number
-        ]);
+            $this->logActivity('updated_status', 'TrainingApplication', $training->id, [
+                'new_status' => $request->status,
+                'remarks' => $request->remarks,
+                'application_number' => $training->application_number
+            ]);
 
-        // Send admin notification about status change
-        NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
+            // Send admin notification about status change
+            NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Training application status updated successfully',
-            'data' => $training->fresh(['updatedBy'])
-        ]);
+            Log::info('Training application status updated', [
+                'application_id' => $id,
+                'application_number' => $training->application_number,
+                'new_status' => $request->status,
+                'remarks_added' => !empty($request->remarks),
+                'updated_by' => auth()->user()->name ?? 'System'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Training application status updated successfully',
+                'data' => $training->fresh(['updatedBy'])
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error updating training status', [
+                'application_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the status: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
 
     /**
      * Delete a training application
