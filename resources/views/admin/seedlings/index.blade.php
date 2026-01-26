@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-              <div class="col-xl col-md-6 mb-4 mb-xl-0">
+            <div class="col-xl col-md-6 mb-4 mb-xl-0">
                 <div class="card stat-card shadow h-100">
                     <div class="card-body text-center py-3">
                         <div class="stat-icon mb-2">
@@ -81,7 +81,8 @@
                         <div class="col-md-2">
                             <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
+                                </option>
                                 <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
                                     Under Review</option>
                                 <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Fully
@@ -177,7 +178,8 @@
                             </thead>
                             <tbody>
                                 @foreach ($requests as $request)
-                                    <tr class="border-bottom" data-request-id="{{ $request->id }}" data-document-path="{{ $request->document_path }}">
+                                    <tr class="border-bottom" data-request-id="{{ $request->id }}"
+                                        data-document-path="{{ $request->document_path }}">
                                         <td class="px-3 py-3 border-end">
                                             <small
                                                 class="text-muted">{{ $request->created_at->format('M d, Y') }}</small><br>
@@ -383,767 +385,831 @@
 
             <!-- Modals Section - OUTSIDE the table -->
             @foreach ($requests as $request)
-            <!-- View Modal Enhanced -->
-            <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title w-100 text-center">
-                            <i></i>
-                            Seedling Request Details - {{ $request->request_number }}
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row g-4">
-
-                            <!-- Personal Information Card -->
-                            <div class="col-md-6">
-                                <div class="card h-100 border-primary">
-                                    <div class="card-header bg-primary text-white">
-                                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-2">
-                                            <div class="col-12">
-                                                <strong>Request #:</strong>
-                                                <span class="text-primary">{{ $request->request_number }}</span>
-                                            </div>
-                                            <div class="col-12">
-                                                <strong>Full Name:</strong>
-                                                <span>{{ $request->full_name }}</span>
-                                            </div>
-                                            <div class="col-12">
-                                                <strong>Contact Number:</strong>
-                                                <span>
-                                                    <a href="tel:{{ $request->contact_number }}" class="text-decoration-none">
-                                                        {{ $request->contact_number }}
-                                                    </a>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- View Modal Enhanced -->
+                <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title w-100 text-center">
+                                    <i></i>
+                                    Seedling Request Details - {{ $request->request_number }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
                             </div>
+                            <div class="modal-body">
+                                <div class="row g-4">
 
-                            <!-- Location Information Card -->
-                            <div class="col-md-6">
-                                <div class="card h-100 border-success">
-                                    <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-2">
-                                            <div class="col-12">
-                                                <strong>Barangay:</strong>
-                                                <span>{{ $request->barangay }}</span>
+                                    <!-- Personal Information Card -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-primary">
+                                            <div class="card-header bg-primary text-white">
+                                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information
+                                                </h6>
                                             </div>
-                                            <div class="col-12">
-                                                <strong>Address:</strong>
-                                                <span>{{ $request->address }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Request Information Card -->
-                            <div class="col-md-6">
-                                <div class="card h-100 border-info">
-                                    <div class="card-header bg-info text-white">
-                                        <h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Request Information</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-2">
-                                            <div class="col-12">
-                                                <strong>Total Quantity:</strong>
-                                                <span>{{ $request->total_quantity }} items</span>
-                                            </div>
-                                            <div class="col-12">
-                                                <strong>Current Status:</strong>
-                                                <span>
-                                                    <span class="badge bg-{{ match ($request->status) {
-                                                        'approved' => 'success',
-                                                        'partially_approved' => 'info',
-                                                        'rejected' => 'danger',
-                                                        'under_review', 'pending' => 'warning',
-                                                        default => 'secondary',
-                                                    } }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                                                    </span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Timeline Information Card -->
-                            <div class="col-md-6">
-                                <div class="card h-100 border-warning">
-                                    <div class="card-header bg-warning text-dark">
-                                        <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-2">
-                                            <div class="col-12">
-                                                <strong>Date Applied:</strong>
-                                                <span>{{ $request->created_at->format('F d, Y g:i A') }}</span>
-                                            </div>
-                                            <div class="col-12">
-                                                <strong>Last Updated:</strong>
-                                                <span>{{ $request->updated_at->format('F d, Y g:i A') }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Additional Information Card -->
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-secondary text-white">
-                                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <strong>Planting Location:</strong>
-                                                <p class="mb-0">
-                                                    {{ $request->planting_location ?? 'Not provided' }}
-                                                </p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <strong>Purpose:</strong>
-                                                <p class="mb-0">
-                                                    {{ $request->purpose ?? 'Not provided' }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Requested Items by Category Card -->
-                            <div class="col-12">
-                                <div class="card border-primary">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0 text-dark">
-                                            <i class="fas fa-seedling me-2 text-primary"></i>
-                                            <strong>Requested Items by Category</strong>
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        @php
-                                            $itemsByCategory = $request->items->groupBy('category_id');
-                                        @endphp
-
-                                        @forelse($itemsByCategory as $categoryId => $items)
-                                            @php
-                                                $category = $items->first()->category;
-                                            @endphp
-                                            <div class="mb-4 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <strong class="text-primary">
-                                                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                        {{ $category->display_name }}
-                                                    </strong>
-                                                    <span class="badge bg-secondary">{{ $items->count() }} items</span>
+                                            <div class="card-body">
+                                                <div class="row g-2">
+                                                    <div class="col-12">
+                                                        <strong>Request #:</strong>
+                                                        <span class="text-primary">{{ $request->request_number }}</span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <strong>Full Name:</strong>
+                                                        <span>{{ $request->full_name }}</span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <strong>Contact Number:</strong>
+                                                        <span>
+                                                            <a href="tel:{{ $request->contact_number }}"
+                                                                class="text-decoration-none">
+                                                                {{ $request->contact_number }}
+                                                            </a>
+                                                        </span>
+                                                    </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                                <!-- Items List -->
-                                                <div class="ms-3">
+                                    <!-- Location Information Card -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-success">
+                                            <div class="card-header bg-success text-white">
+                                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location
+                                                    Information</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-2">
+                                                    <div class="col-12">
+                                                        <strong>Barangay:</strong>
+                                                        <span>{{ $request->barangay }}</span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <strong>Address:</strong>
+                                                        <span>{{ $request->address }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Request Information Card -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Request
+                                                    Information</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-2">
+                                                    <div class="col-12">
+                                                        <strong>Total Quantity:</strong>
+                                                        <span>{{ $request->total_quantity }} items</span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <strong>Current Status:</strong>
+                                                        <span>
+                                                            <span
+                                                                class="badge bg-{{ match ($request->status) {
+                                                                    'approved' => 'success',
+                                                                    'partially_approved' => 'info',
+                                                                    'rejected' => 'danger',
+                                                                    'under_review', 'pending' => 'warning',
+                                                                    default => 'secondary',
+                                                                } }}">
+                                                                {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Timeline Information Card -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-warning">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-2">
+                                                    <div class="col-12">
+                                                        <strong>Date Applied:</strong>
+                                                        <span>{{ $request->created_at->format('F d, Y g:i A') }}</span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <strong>Last Updated:</strong>
+                                                        <span>{{ $request->updated_at->format('F d, Y g:i A') }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Additional Information Card -->
+                                    <div class="col-12">
+                                        <div class="card border-secondary">
+                                            <div class="card-header bg-secondary text-white">
+                                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional
+                                                    Information</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <strong>Planting Location:</strong>
+                                                        <p class="mb-0">
+                                                            {{ $request->planting_location ?? 'Not provided' }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <strong>Purpose:</strong>
+                                                        <p class="mb-0">
+                                                            {{ $request->purpose ?? 'Not provided' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Requested Items by Category Card -->
+                                    <div class="col-12">
+                                        <div class="card border-primary">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0 text-dark">
+                                                    <i class="fas fa-seedling me-2 text-primary"></i>
+                                                    <strong>Requested Items by Category</strong>
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                @php
+                                                    $itemsByCategory = $request->items->groupBy('category_id');
+                                                @endphp
+
+                                                @forelse($itemsByCategory as $categoryId => $items)
                                                     @php
-                                                        $approvedItems = $items->where('status', 'approved');
-                                                        $pendingItems = $items->where('status', 'pending');
-                                                        $rejectedItems = $items->where('status', 'rejected');
+                                                        $category = $items->first()->category;
                                                     @endphp
-
-                                                    @if ($approvedItems->count() > 0)
-                                                        <div class="mb-2">
-                                                            <small class="text-success fw-semibold">✓ Approved:</small>
-                                                            <div class="d-flex flex-wrap gap-2 mt-1">
-                                                                @foreach ($approvedItems as $item)
-                                                                    <span class="badge bg-success">
-                                                                        {{ $item->item_name }} 
-                                                                        <strong>({{ $item->requested_quantity }})</strong>
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
+                                                    <div class="mb-4 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center mb-3">
+                                                            <strong class="text-primary">
+                                                                <i
+                                                                    class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                                {{ $category->display_name }}
+                                                            </strong>
+                                                            <span class="badge bg-secondary">{{ $items->count() }}
+                                                                items</span>
                                                         </div>
-                                                    @endif
 
-                                                    @if ($pendingItems->count() > 0)
-                                                        <div class="mb-2">
-                                                            <small class="text-warning fw-semibold">⏳ Pending:</small>
-                                                            <div class="d-flex flex-wrap gap-2 mt-1">
-                                                                @foreach ($pendingItems as $item)
-                                                                    <span class="badge bg-warning text-dark">
-                                                                        {{ $item->item_name }} 
-                                                                        <strong>({{ $item->requested_quantity }})</strong>
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
+                                                        <!-- Items List -->
+                                                        <div class="ms-3">
+                                                            @php
+                                                                $approvedItems = $items->where('status', 'approved');
+                                                                $pendingItems = $items->where('status', 'pending');
+                                                                $rejectedItems = $items->where('status', 'rejected');
+                                                            @endphp
 
-                                                    @if ($rejectedItems->count() > 0)
-                                                        <div class="mb-2">
-                                                            <small class="text-danger fw-semibold">✗ Rejected:</small>
-                                                            <div class="d-flex flex-wrap gap-2 mt-1">
-                                                                @foreach ($rejectedItems as $item)
-                                                                    <span class="badge bg-danger">
-                                                                        {{ $item->item_name }} 
-                                                                        <strong>({{ $item->requested_quantity }})</strong>
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
+                                                            @if ($approvedItems->count() > 0)
+                                                                <div class="mb-2">
+                                                                    <small class="text-success fw-semibold">✓
+                                                                        Approved:</small>
+                                                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                                                        @foreach ($approvedItems as $item)
+                                                                            <span class="badge bg-success">
+                                                                                {{ $item->item_name }}
+                                                                                <strong>({{ $item->requested_quantity }})</strong>
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            @endif
+
+                                                            @if ($pendingItems->count() > 0)
+                                                                <div class="mb-2">
+                                                                    <small class="text-warning fw-semibold">⏳
+                                                                        Pending:</small>
+                                                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                                                        @foreach ($pendingItems as $item)
+                                                                            <span class="badge bg-warning text-dark">
+                                                                                {{ $item->item_name }}
+                                                                                <strong>({{ $item->requested_quantity }})</strong>
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            @endif
+
+                                                            @if ($rejectedItems->count() > 0)
+                                                                <div class="mb-2">
+                                                                    <small class="text-danger fw-semibold">✗
+                                                                        Rejected:</small>
+                                                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                                                        @foreach ($rejectedItems as $item)
+                                                                            <span class="badge bg-danger">
+                                                                                {{ $item->item_name }}
+                                                                                <strong>({{ $item->requested_quantity }})</strong>
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            @endif
                                                         </div>
-                                                    @endif
+                                                    </div>
+                                                @empty
+                                                    <div class="text-center py-3 text-muted">
+                                                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                                                        <p>No items requested</p>
+                                                    </div>
+                                                @endforelse
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Supporting Document Card -->
+                                    <div class="col-12">
+                                        <div class="card border-primary">
+                                            <div class="card-header bg-primary text-white text-center">
+                                                <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting
+                                                    Document</h6>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                @if ($request->hasDocuments())
+                                                    <div class="p-4 border border-primary rounded bg-light">
+                                                        <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                                        <h6>Supporting Document</h6>
+                                                        <span class="badge bg-primary mb-3">Uploaded</span>
+                                                        <br>
+                                                        <button class="btn btn-sm btn-outline-primary"
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
+                                                            <i class="fas fa-eye me-1"></i>View Document
+                                                        </button>
+                                                    </div>
+                                                @else
+                                                    <div class="p-4 border border-secondary rounded">
+                                                        <i class="fas fa-file-slash fa-3x mb-3"
+                                                            style="color: #6c757d;"></i>
+                                                        <h6>No Document Uploaded</h6>
+                                                        <span class="badge bg-secondary">Not Uploaded</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Remarks Card (if exists) -->
+                                    @if ($request->remarks)
+                                        <div class="col-12">
+                                            <div class="card border-info">
+                                                <div class="card-header bg-info text-white">
+                                                    <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin
+                                                        Remarks</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="mb-0">{{ $request->remarks }}</p>
                                                 </div>
                                             </div>
-                                        @empty
-                                            <div class="text-center py-3 text-muted">
-                                                <i class="fas fa-inbox fa-2x mb-2"></i>
-                                                <p>No items requested</p>
-                                            </div>
-                                        @endforelse
-                                    </div>
+                                        </div>
+                                    @endif
+
                                 </div>
                             </div>
-                            
-                            <!-- Supporting Document Card -->
-                            <div class="col-12">
-                                <div class="card border-primary">
-                                    <div class="card-header bg-primary text-white text-center">
-                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body text-center">
-                                        @if ($request->hasDocuments())
-                                            <div class="p-4 border border-primary rounded bg-light">
-                                                <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
-                                                <h6>Supporting Document</h6>
-                                                <span class="badge bg-primary mb-3">Uploaded</span>
-                                                <br>
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
-                                                    <i class="fas fa-eye me-1"></i>View Document
-                                                </button>
-                                            </div>
-                                        @else
-                                            <div class="p-4 border border-secondary rounded">
-                                                <i class="fas fa-file-slash fa-3x mb-3"
-                                                    style="color: #6c757d;"></i>
-                                                <h6>No Document Uploaded</h6>
-                                                <span class="badge bg-secondary">Not Uploaded</span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i></i>Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Modal enhanced -->
+                <div class="modal fade" id="editSeedlingModal{{ $request->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title w-100 text-center">
+                                    <i></i>Edit Request - <span
+                                        id="editRequestNumber{{ $request->id }}">{{ $request->request_number }}</span>
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
                             </div>
 
-                            <!-- Remarks Card (if exists) -->
-                            @if ($request->remarks)
-                                <div class="col-12">
-                                    <div class="card border-info">
-                                        <div class="card-header bg-info text-white">
-                                            <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                            <div class="modal-body">
+                                <form id="editForm{{ $request->id }}" class="needs-validation"
+                                    action="{{ route('admin.seedlings.update', $request) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+
+                                    <!-- Personal Information Card -->
+                                    <div class="card mb-3 border-0 bg-light">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-user me-2"></i>Personal Information
+                                            </h6>
                                         </div>
                                         <div class="card-body">
-                                            <p class="mb-0">{{ $request->remarks }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i></i>Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-            <!-- Edit Modal enhanced -->
-            <div class="modal fade" id="editSeedlingModal{{ $request->id }}" tabindex="-1">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title w-100 text-center">
-                                <i></i>Edit Request - <span id="editRequestNumber{{ $request->id }}">{{ $request->request_number }}</span>
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <form id="editForm{{ $request->id }}" class="needs-validation"
-                                action="{{ route('admin.seedlings.update', $request) }}"
-                                method="POST">
-                                @csrf
-                                @method('PUT')
-
-                                <!-- Personal Information Card -->
-                                <div class="card mb-3 border-0 bg-light">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-user me-2"></i>Personal Information
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="edit_first_name_{{ $request->id }}" class="form-label fw-semibold">
-                                                    First Name <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="text" class="form-control" id="edit_first_name_{{ $request->id }}" 
-                                                    name="first_name" value="{{ $request->first_name }}" required maxlength="100" 
-                                                    placeholder="First name" onchange="checkForEditChanges({{ $request->id }})"
-                                                    oninput="checkForEditChanges({{ $request->id }})">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="edit_middle_name_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Middle Name
-                                                </label>
-                                                <input type="text" class="form-control" id="edit_middle_name_{{ $request->id }}" 
-                                                    name="middle_name" value="{{ $request->middle_name }}" maxlength="100" 
-                                                    placeholder="Middle name (optional)" onchange="checkForEditChanges({{ $request->id }})"
-                                                    oninput="checkForEditChanges({{ $request->id }})">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="edit_last_name_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Last Name <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="text" class="form-control" id="edit_last_name_{{ $request->id }}" 
-                                                    name="last_name" value="{{ $request->last_name }}" required maxlength="100" 
-                                                    placeholder="Last name" onchange="checkForEditChanges({{ $request->id }})"
-                                                    oninput="checkForEditChanges({{ $request->id }})">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="edit_extension_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Extension
-                                                </label>
-                                                <select class="form-select" id="edit_extension_{{ $request->id }}" 
-                                                    name="extension_name" onchange="checkForEditChanges({{ $request->id }})">
-                                                    <option value="">None</option>
-                                                    <option value="Jr." {{ $request->extension_name === 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                                    <option value="Sr." {{ $request->extension_name === 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                                    <option value="II" {{ $request->extension_name === 'II' ? 'selected' : '' }}>II</option>
-                                                    <option value="III" {{ $request->extension_name === 'III' ? 'selected' : '' }}>III</option>
-                                                    <option value="IV" {{ $request->extension_name === 'IV' ? 'selected' : '' }}>IV</option>
-                                                    <option value="V" {{ $request->extension_name === 'V' ? 'selected' : '' }}>V</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="edit_contact_number_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Contact Number <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="tel" class="form-control" id="edit_contact_number_{{ $request->id }}" 
-                                                    name="contact_number" value="{{ $request->contact_number }}" required 
-                                                    placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20"
-                                                    onchange="checkForEditChanges({{ $request->id }})"
-                                                    oninput="checkForEditChanges({{ $request->id }})">
-                                                <small class="text-muted d-block mt-2">
-                                                    <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
-                                                </small>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label fw-semibold">
-                                                    Request Number
-                                                </label>
-                                                <input type="text" class="form-control" id="edit_request_number_{{ $request->id }}" 
-                                                    value="{{ $request->request_number }}" disabled placeholder="-">
-                                                <small class="text-muted d-block mt-2">
-                                                    <i class="fas fa-info-circle me-1"></i>Auto-generated (cannot be changed)
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Location Information Card -->
-                                <div class="card mb-3 border-0 bg-light">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-map-marker-alt me-2"></i>Location Information
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="edit_barangay_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Barangay <span class="text-danger">*</span>
-                                                </label>
-                                                <select class="form-select" id="edit_barangay_{{ $request->id }}" 
-                                                    name="barangay" required onchange="checkForEditChanges({{ $request->id }})">
-                                                    <option value="">Select Barangay</option>
-                                                    @foreach ($barangays as $barangay)
-                                                        <option value="{{ $barangay }}" 
-                                                            {{ $request->barangay === $barangay ? 'selected' : '' }}>
-                                                            {{ $barangay }}
+                                            <div class="row">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_first_name_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        First Name <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_first_name_{{ $request->id }}" name="first_name"
+                                                        value="{{ $request->first_name }}" required maxlength="100"
+                                                        placeholder="First name"
+                                                        onchange="checkForEditChanges({{ $request->id }})"
+                                                        oninput="checkForEditChanges({{ $request->id }})">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_middle_name_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Middle Name
+                                                    </label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_middle_name_{{ $request->id }}" name="middle_name"
+                                                        value="{{ $request->middle_name }}" maxlength="100"
+                                                        placeholder="Middle name (optional)"
+                                                        onchange="checkForEditChanges({{ $request->id }})"
+                                                        oninput="checkForEditChanges({{ $request->id }})">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_last_name_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Last Name <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_last_name_{{ $request->id }}" name="last_name"
+                                                        value="{{ $request->last_name }}" required maxlength="100"
+                                                        placeholder="Last name"
+                                                        onchange="checkForEditChanges({{ $request->id }})"
+                                                        oninput="checkForEditChanges({{ $request->id }})">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_extension_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Extension
+                                                    </label>
+                                                    <select class="form-select" id="edit_extension_{{ $request->id }}"
+                                                        name="extension_name"
+                                                        onchange="checkForEditChanges({{ $request->id }})">
+                                                        <option value="">None</option>
+                                                        <option value="Jr."
+                                                            {{ $request->extension_name === 'Jr.' ? 'selected' : '' }}>Jr.
                                                         </option>
-                                                    @endforeach
-                                                </select>
+                                                        <option value="Sr."
+                                                            {{ $request->extension_name === 'Sr.' ? 'selected' : '' }}>Sr.
+                                                        </option>
+                                                        <option value="II"
+                                                            {{ $request->extension_name === 'II' ? 'selected' : '' }}>II
+                                                        </option>
+                                                        <option value="III"
+                                                            {{ $request->extension_name === 'III' ? 'selected' : '' }}>III
+                                                        </option>
+                                                        <option value="IV"
+                                                            {{ $request->extension_name === 'IV' ? 'selected' : '' }}>IV
+                                                        </option>
+                                                        <option value="V"
+                                                            {{ $request->extension_name === 'V' ? 'selected' : '' }}>V
+                                                        </option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="edit_address_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Address <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="text" class="form-control" id="edit_address_{{ $request->id }}" 
-                                                    name="address" value="{{ $request->address }}" required maxlength="500"
-                                                    placeholder="Full address" onchange="checkForEditChanges({{ $request->id }})"
-                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_contact_number_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Contact Number <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="tel" class="form-control"
+                                                        id="edit_contact_number_{{ $request->id }}"
+                                                        name="contact_number" value="{{ $request->contact_number }}"
+                                                        required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
+                                                        maxlength="20"
+                                                        onchange="checkForEditChanges({{ $request->id }})"
+                                                        oninput="checkForEditChanges({{ $request->id }})">
+                                                    <small class="text-muted d-block mt-2">
+                                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label fw-semibold">
+                                                        Request Number
+                                                    </label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_request_number_{{ $request->id }}"
+                                                        value="{{ $request->request_number }}" disabled placeholder="-">
+                                                    <small class="text-muted d-block mt-2">
+                                                        <i class="fas fa-info-circle me-1"></i>Auto-generated (cannot be
+                                                        changed)
+                                                    </small>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Additional Information Card -->
-                                <div class="card mb-3 border-0 bg-light">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-info-circle me-2"></i>Additional Information
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="edit_planting_location_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Planting Location
-                                                </label>
-                                                <input type="text" class="form-control" id="edit_planting_location_{{ $request->id }}" 
-                                                    name="planting_location" value="{{ $request->planting_location }}" maxlength="500"
-                                                    placeholder="Where will the seedlings be planted?" onchange="checkForEditChanges({{ $request->id }})"
-                                                    oninput="checkForEditChanges({{ $request->id }})">
+                                    <!-- Location Information Card -->
+                                    <div class="card mb-3 border-0 bg-light">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_barangay_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Barangay <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select class="form-select" id="edit_barangay_{{ $request->id }}"
+                                                        name="barangay" required
+                                                        onchange="checkForEditChanges({{ $request->id }})">
+                                                        <option value="">Select Barangay</option>
+                                                        @foreach ($barangays as $barangay)
+                                                            <option value="{{ $barangay }}"
+                                                                {{ $request->barangay === $barangay ? 'selected' : '' }}>
+                                                                {{ $barangay }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_address_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Address <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_address_{{ $request->id }}" name="address"
+                                                        value="{{ $request->address }}" required maxlength="500"
+                                                        placeholder="Full address"
+                                                        onchange="checkForEditChanges({{ $request->id }})"
+                                                        oninput="checkForEditChanges({{ $request->id }})">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="edit_purpose_{{ $request->id }}" class="form-label fw-semibold">
-                                                Purpose
-                                            </label>
-                                            <textarea class="form-control" id="edit_purpose_{{ $request->id }}" name="purpose" rows="3" 
-                                                maxlength="1000" placeholder="Why are you requesting these seedlings?"
-                                                onchange="checkForEditChanges({{ $request->id }})"
-                                                oninput="checkForEditChanges({{ $request->id }})">{{ $request->purpose }}</textarea>
-                                            <small class="text-muted d-block mt-2">
-                                                <i class="fas fa-info-circle me-1"></i>Maximum 1000 characters
-                                            </small>
-                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Supporting Document Card EDIT MODAL-->
-                                <div class="card mb-3 border-0 bg-light">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-file-upload me-2"></i>Supporting Document
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="text-muted small mb-4">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
-                                        </p>
-
-                                        <!-- Current Document Display -->
-                                        <div id="edit_seedling_current_document_{{ $request->id }}" style="display: none; margin-bottom: 1.5rem;">
-                                            <div id="edit_seedling_current_doc_preview_{{ $request->id }}"></div>
+                                    <!-- Additional Information Card -->
+                                    <div class="card mb-3 border-0 bg-light">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-info-circle me-2"></i>Additional Information
+                                            </h6>
                                         </div>
-
-                                        <!-- Upload New Document Section -->
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <label for="edit_seedling_supporting_document_{{ $request->id }}" class="form-label fw-semibold">
-                                                    Supporting Document
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_planting_location_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Planting Location
+                                                    </label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_planting_location_{{ $request->id }}"
+                                                        name="planting_location"
+                                                        value="{{ $request->planting_location }}" maxlength="500"
+                                                        placeholder="Where will the seedlings be planted?"
+                                                        onchange="checkForEditChanges({{ $request->id }})"
+                                                        oninput="checkForEditChanges({{ $request->id }})">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_purpose_{{ $request->id }}"
+                                                    class="form-label fw-semibold">
+                                                    Purpose
                                                 </label>
-                                                <input type="file" class="form-control" id="edit_seedling_supporting_document_{{ $request->id }}" 
-                                                    name="document" accept=".pdf,.jpg,.jpeg,.png" 
-                                                    onchange="previewEditSeedlingDocument('edit_seedling_supporting_document_{{ $request->id }}', 'edit_seedling_doc_preview_{{ $request->id }}')">
+                                                <textarea class="form-control" id="edit_purpose_{{ $request->id }}" name="purpose" rows="3"
+                                                    maxlength="1000" placeholder="Why are you requesting these seedlings?"
+                                                    onchange="checkForEditChanges({{ $request->id }})" oninput="checkForEditChanges({{ $request->id }})">{{ $request->purpose }}</textarea>
                                                 <small class="text-muted d-block mt-2">
-                                                    <i class="fas fa-info-circle me-1"></i>Upload a new file to replace it.
+                                                    <i class="fas fa-info-circle me-1"></i>Maximum 1000 characters
                                                 </small>
                                             </div>
                                         </div>
-
-                                        <!-- New Document Preview -->
-                                        <div id="edit_seedling_doc_preview_{{ $request->id }}" class="mt-3"></div>
                                     </div>
-                                </div>
 
-                                <!-- Request Status (Read-only) Card -->
-                                <div class="card mb-3 border-0 bg-light">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-info-circle me-2"></i>Request Status (Read-only)
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <small class="text-muted d-block mb-2">Current Status</small>
-                                                <div>
-                                                    <span id="edit_status_badge_{{ $request->id }}" class="badge bg-{{ match ($request->status) {
-                                                        'approved' => 'success',
-                                                        'partially_approved' => 'info',
-                                                        'rejected' => 'danger',
-                                                        'under_review', 'pending' => 'warning',
-                                                        default => 'secondary',
-                                                    } }} fs-6">
-                                                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                                                    </span>
+                                    <!-- Supporting Document Card EDIT MODAL-->
+                                    <div class="card mb-3 border-0 bg-light">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-file-upload me-2"></i>Supporting Document
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="text-muted small mb-4">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                View or upload supporting document. Supported formats: JPG, PNG, PDF (Max
+                                                10MB)
+                                            </p>
+
+                                            <!-- Current Document Display -->
+                                            <div id="edit_seedling_current_document_{{ $request->id }}"
+                                                style="display: none; margin-bottom: 1.5rem;">
+                                                <div id="edit_seedling_current_doc_preview_{{ $request->id }}"></div>
+                                            </div>
+
+                                            <!-- Upload New Document Section -->
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <label for="edit_seedling_supporting_document_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Supporting Document
+                                                    </label>
+                                                    <input type="file" class="form-control"
+                                                        id="edit_seedling_supporting_document_{{ $request->id }}"
+                                                        name="document" accept=".pdf,.jpg,.jpeg,.png"
+                                                        onchange="previewEditSeedlingDocument('edit_seedling_supporting_document_{{ $request->id }}', 'edit_seedling_doc_preview_{{ $request->id }}')">
+                                                    <small class="text-muted d-block mt-2">
+                                                        <i class="fas fa-info-circle me-1"></i>Upload a new file to replace
+                                                        it.
+                                                    </small>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 mb-3">
-                                                <small class="text-muted d-block mb-2">Date Applied</small>
-                                                <div id="edit_created_at_{{ $request->id }}" class="fw-semibold">
-                                                    {{ $request->created_at->format('M d, Y g:i A') }}
+
+                                            <!-- New Document Preview -->
+                                            <div id="edit_seedling_doc_preview_{{ $request->id }}" class="mt-3">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Request Status (Read-only) Card -->
+                                    <div class="card mb-3 border-0 bg-light">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-info-circle me-2"></i>Request Status (Read-only)
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <small class="text-muted d-block mb-2">Current Status</small>
+                                                    <div>
+                                                        <span id="edit_status_badge_{{ $request->id }}"
+                                                            class="badge bg-{{ match ($request->status) {
+                                                                'approved' => 'success',
+                                                                'partially_approved' => 'info',
+                                                                'rejected' => 'danger',
+                                                                'under_review', 'pending' => 'warning',
+                                                                default => 'secondary',
+                                                            } }} fs-6">
+                                                            {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <small class="text-muted d-block mb-2">Date Applied</small>
+                                                    <div id="edit_created_at_{{ $request->id }}" class="fw-semibold">
+                                                        {{ $request->created_at->format('M d, Y g:i A') }}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Info Alert -->
-                                <div class="alert alert-info border-left-info mb-0">
-                                    <i class="fas fa-lightbulb me-2"></i>
-                                    <strong>Note:</strong> You can edit all request information here.
-                                    To change item statuses or add remarks, use the "Change Status" button from the main table.
-                                </div>
-                            </form>
-                        </div>
+                                    <!-- Info Alert -->
+                                    <div class="alert alert-info border-left-info mb-0">
+                                        <i class="fas fa-lightbulb me-2"></i>
+                                        <strong>Note:</strong> You can edit all request information here.
+                                        To change item statuses or add remarks, use the "Change Status" button from the main
+                                        table.
+                                    </div>
+                                </form>
+                            </div>
 
-                        <div class="modal-footer bg-light">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i></i>Cancel
-                            </button>
-                            <button type="button" class="btn btn-primary" id="editSubmitBtn{{ $request->id }}"
-                                onclick="handleEditSeedlingSubmit({{ $request->id }})">
-                                <i class="fas fa-save me-2"></i>Save Changes
-                            </button>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i></i>Cancel
+                                </button>
+                                <button type="button" class="btn btn-primary" id="editSubmitBtn{{ $request->id }}"
+                                    onclick="handleEditSeedlingSubmit({{ $request->id }})">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
                 <!-- UPDATED: Change Status Modal -->
-            <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title w-100 text-center">
-                                <i></i>
-                                Change Status Items - {{ $request->request_number }}
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white"
-                                data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form method="POST" action="{{ route('admin.seedlings.update-items', $request) }}"
-                                id="updateForm{{ $request->id }}">
-                                @csrf
-                                @method('PATCH')
+                <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title w-100 text-center">
+                                    <i></i>
+                                    Change Status Items - {{ $request->request_number }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.seedlings.update-items', $request) }}"
+                                    id="updateForm{{ $request->id }}">
+                                    @csrf
+                                    @method('PATCH')
 
-                                <!-- Request Information Card -->
-                                <div class="card bg-light border-primary mb-4">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-info-circle me-2"></i>Request Information
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <div class="mb-2">
-                                                    <small class="text-muted d-block">Request #</small>
-                                                    <strong class="text-primary">{{ $request->request_number }}</strong>
+                                    <!-- Request Information Card -->
+                                    <div class="card bg-light border-primary mb-4">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-info-circle me-2"></i>Request Information
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Request #</small>
+                                                        <strong
+                                                            class="text-primary">{{ $request->request_number }}</strong>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Applicant Name</small>
+                                                        <strong>{{ $request->full_name }}</strong>
+                                                    </div>
                                                 </div>
-                                                <div class="mb-2">
-                                                    <small class="text-muted d-block">Applicant Name</small>
-                                                    <strong>{{ $request->full_name }}</strong>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-2">
-                                                    <small class="text-muted d-block">Barangay</small>
-                                                    <strong>{{ $request->barangay }}</strong>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <small class="text-muted d-block">Current Status</small>
-                                                    <span class="badge bg-{{ match ($request->status) {
-                                                        'approved' => 'success',
-                                                        'partially_approved' => 'info',
-                                                        'rejected' => 'danger',
-                                                        'under_review', 'pending' => 'warning',
-                                                        default => 'secondary',
-                                                    } }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                                                    </span>
+                                                <div class="col-md-6">
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Barangay</small>
+                                                        <strong>{{ $request->barangay }}</strong>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <small class="text-muted d-block">Current Status</small>
+                                                        <span
+                                                            class="badge bg-{{ match ($request->status) {
+                                                                'approved' => 'success',
+                                                                'partially_approved' => 'info',
+                                                                'rejected' => 'danger',
+                                                                'under_review', 'pending' => 'warning',
+                                                                default => 'secondary',
+                                                            } }}">
+                                                            {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Items Update Card -->
-                                <div class="card border-0 bg-light mb-3">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-seedling me-2"></i>Update Item Status
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        @php
-                                            $itemsByCategory = $request->items->groupBy('category_id');
-                                        @endphp
-
-                                        @foreach ($itemsByCategory as $categoryId => $items)
+                                    <!-- Items Update Card -->
+                                    <div class="card border-0 bg-light mb-3">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-seedling me-2"></i>Update Item Status
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
                                             @php
-                                                $category = $items->first()->category;
+                                                $itemsByCategory = $request->items->groupBy('category_id');
                                             @endphp
-                                            <div class="mb-4 p-3 border-0 bg-white rounded-3 shadow-sm">
-                                                <h6 class="mb-3 fw-bold text-primary">
-                                                    <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                    {{ $category->display_name }}
-                                                </h6>
 
-                                                @foreach ($items as $item)
-                                                    @php
-                                                        $stockCheck = $item->categoryItem
-                                                            ? $item->categoryItem->checkSupplyAvailability(
-                                                                $item->requested_quantity,
-                                                            )
-                                                            : [
-                                                                'available' => false,
-                                                                'current_supply' => 0,
-                                                            ];
-                                                    @endphp
+                                            @foreach ($itemsByCategory as $categoryId => $items)
+                                                @php
+                                                    $category = $items->first()->category;
+                                                @endphp
+                                                <div class="mb-4 p-3 border-0 bg-white rounded-3 shadow-sm">
+                                                    <h6 class="mb-3 fw-bold text-primary">
+                                                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                        {{ $category->display_name }}
+                                                    </h6>
 
-                                                    <div class="item-card d-flex align-items-center justify-content-between mb-3 p-3
+                                                    @foreach ($items as $item)
+                                                        @php
+                                                            $stockCheck = $item->categoryItem
+                                                                ? $item->categoryItem->checkSupplyAvailability(
+                                                                    $item->requested_quantity,
+                                                                )
+                                                                : [
+                                                                    'available' => false,
+                                                                    'current_supply' => 0,
+                                                                ];
+                                                        @endphp
+
+                                                        <div class="item-card d-flex align-items-center justify-content-between mb-3 p-3
                                                         {{ $item->status === 'approved'
                                                             ? 'bg-success bg-opacity-10 border border-success'
                                                             : ($item->status === 'rejected'
                                                                 ? 'bg-danger bg-opacity-10 border border-danger'
                                                                 : 'bg-light border') }}
                                                         rounded-3"
-                                                        data-item-id="{{ $item->id }}"
-                                                        data-original-status="{{ $item->status }}">
-                                                        <div class="flex-grow-1">
-                                                            <div class="d-flex align-items-center mb-2">
-                                                                <span
-                                                                    class="fw-medium text-dark">{{ $item->item_name }}</span>
-                                                                <span class="badge bg-light text-muted ms-2">
-                                                                    {{ $item->requested_quantity }}
-                                                                    {{ $item->categoryItem->unit ?? 'pcs' }}
-                                                                </span>
-                                                            </div>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <small class="text-muted">Requested:</small>
-                                                                <small
-                                                                    class="fw-medium">{{ $item->requested_quantity }}</small>
-                                                                <span class="text-muted">•</span>
-                                                                <small
-                                                                    class="{{ $stockCheck['available'] ? 'text-success' : 'text-warning' }}">
-                                                                    <i class="fas fa-box me-1"></i>Stock:
+                                                            data-item-id="{{ $item->id }}"
+                                                            data-original-status="{{ $item->status }}">
+                                                            <div class="flex-grow-1">
+                                                                <div class="d-flex align-items-center mb-2">
                                                                     <span
-                                                                        class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
-                                                                    @if ($stockCheck['available'])
-                                                                        <i class="fas fa-check text-success ms-1"></i>
-                                                                    @else
+                                                                        class="fw-medium text-dark">{{ $item->item_name }}</span>
+                                                                    <span class="badge bg-light text-muted ms-2">
+                                                                        {{ $item->requested_quantity }}
+                                                                        {{ $item->categoryItem->unit ?? 'pcs' }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <small class="text-muted">Requested:</small>
+                                                                    <small
+                                                                        class="fw-medium">{{ $item->requested_quantity }}</small>
+                                                                    <span class="text-muted">•</span>
+                                                                    <small
+                                                                        class="{{ $stockCheck['available'] ? 'text-success' : 'text-warning' }}">
+                                                                        <i class="fas fa-box me-1"></i>Stock:
+                                                                        <span
+                                                                            class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
+                                                                        @if ($stockCheck['available'])
+                                                                            <i class="fas fa-check text-success ms-1"></i>
+                                                                        @else
+                                                                            <i
+                                                                                class="fas fa-exclamation-triangle text-warning ms-1"></i>
+                                                                        @endif
+                                                                    </small>
+                                                                </div>
+                                                                @if (!$stockCheck['available'])
+                                                                    <span class="badge bg-warning text-dark mt-2">
                                                                         <i
-                                                                            class="fas fa-exclamation-triangle text-warning ms-1"></i>
-                                                                    @endif
-                                                                </small>
+                                                                            class="fas fa-exclamation-triangle me-1"></i>Insufficient
+                                                                        Stock
+                                                                    </span>
+                                                                @endif
                                                             </div>
-                                                            @if (!$stockCheck['available'])
-                                                                <span class="badge bg-warning text-dark mt-2">
-                                                                    <i
-                                                                        class="fas fa-exclamation-triangle me-1"></i>Insufficient
-                                                                    Stock
-                                                                </span>
-                                                            @endif
+                                                            <div class="ms-3">
+                                                                <select name="item_statuses[{{ $item->id }}]"
+                                                                    class="form-select form-select-sm border-light"
+                                                                    style="min-width: 130px;"
+                                                                    data-item-id="{{ $item->id }}"
+                                                                    onchange="checkForSeedlingChanges({{ $request->id }})">
+                                                                    <option value="pending"
+                                                                        {{ $item->status === 'pending' ? 'selected' : '' }}>
+                                                                        Pending
+                                                                    </option>
+                                                                    <option value="approved"
+                                                                        {{ $item->status === 'approved' ? 'selected' : '' }}
+                                                                        {{ !$stockCheck['available'] ? 'disabled' : '' }}>
+                                                                        Approved{{ !$stockCheck['available'] ? ' (No Stock)' : '' }}
+                                                                    </option>
+                                                                    <option value="rejected"
+                                                                        {{ $item->status === 'rejected' ? 'selected' : '' }}>
+                                                                        Rejected
+                                                                    </option>
+                                                                </select>
+                                                            </div>
                                                         </div>
-                                                        <div class="ms-3">
-                                                            <select name="item_statuses[{{ $item->id }}]"
-                                                                class="form-select form-select-sm border-light"
-                                                                style="min-width: 130px;" data-item-id="{{ $item->id }}"
-                                                                onchange="checkForSeedlingChanges({{ $request->id }})">
-                                                                <option value="pending"
-                                                                    {{ $item->status === 'pending' ? 'selected' : '' }}>
-                                                                    Pending
-                                                                </option>
-                                                                <option value="approved"
-                                                                    {{ $item->status === 'approved' ? 'selected' : '' }}
-                                                                    {{ !$stockCheck['available'] ? 'disabled' : '' }}>
-                                                                    Approved{{ !$stockCheck['available'] ? ' (No Stock)' : '' }}
-                                                                </option>
-                                                                <option value="rejected"
-                                                                    {{ $item->status === 'rejected' ? 'selected' : '' }}>
-                                                                    Rejected
-                                                                </option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- Remarks Card -->
-                                <div class="card border-0 bg-light mb-3">
-                                    <div class="card-header bg-white border-0 pb-0">
-                                        <h6 class="mb-0 fw-semibold text-primary">
-                                            <i class="fas fa-comment me-2"></i>Admin Remarks
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <label for="remarks{{ $request->id }}" class="form-label fw-semibold">
-                                            Remarks (Optional)
-                                        </label>
-                                        <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="4"
-                                            placeholder="Add any comments about this status change..."
-                                            maxlength="1000"
-                                            onchange="checkForSeedlingChanges({{ $request->id }})"
-                                            oninput="updateSeedlingRemarksCounter({{ $request->id }}); checkForSeedlingChanges({{ $request->id }})">{{ $request->remarks }}</textarea>
-                                        <div class="d-flex justify-content-between align-items-center mt-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-info-circle me-1"></i>
-                                                Provide context for this status update
-                                            </small>
-                                            <small class="text-muted" id="remarksCounter{{ $request->id }}">
-                                                <span id="charCount{{ $request->id }}">{{ strlen($request->remarks ?? '') }}</span>/1000
-                                            </small>
+                                                    @endforeach
+                                                </div>
+                                            @endforeach
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Info Alert -->
-                                <div class="alert alert-info border-left-info mb-0">
-                                    <i class="fas fa-lightbulb me-2"></i>
-                                    <strong>Note:</strong> Your changes will be logged and item statuses will be updated accordingly.
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer bg-light">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i></i>Cancel
-                            </button>
-                            <button type="button" class="btn btn-primary" id="submitBtn{{ $request->id }}"
-                                onclick="handleSeedlingUpdateSubmit({{ $request->id }})">
-                                <i class="fas fa-save me-2"></i>Update Items
-                            </button>
+                                    <!-- Remarks Card -->
+                                    <div class="card border-0 bg-light mb-3">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-comment me-2"></i>Admin Remarks
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <label for="remarks{{ $request->id }}" class="form-label fw-semibold">
+                                                Remarks (Optional)
+                                            </label>
+                                            <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="4"
+                                                placeholder="Add any comments about this status change..." maxlength="1000"
+                                                onchange="checkForSeedlingChanges({{ $request->id }})"
+                                                oninput="updateSeedlingRemarksCounter({{ $request->id }}); checkForSeedlingChanges({{ $request->id }})">{{ $request->remarks }}</textarea>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Provide context for this status update
+                                                </small>
+                                                <small class="text-muted" id="remarksCounter{{ $request->id }}">
+                                                    <span
+                                                        id="charCount{{ $request->id }}">{{ strlen($request->remarks ?? '') }}</span>/1000
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Info Alert -->
+                                    <div class="alert alert-info border-left-info mb-0">
+                                        <i class="fas fa-lightbulb me-2"></i>
+                                        <strong>Note:</strong> Your changes will be logged and item statuses will be updated
+                                        accordingly.
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i></i>Cancel
+                                </button>
+                                <button type="button" class="btn btn-primary" id="submitBtn{{ $request->id }}"
+                                    onclick="handleSeedlingUpdateSubmit({{ $request->id }})">
+                                    <i class="fas fa-save me-2"></i>Update Items
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             @endforeach
-            </div>
-        </div>
+    </div>
+    </div>
     </div>
 
     <!-- Add Seedling Request Modal - IMPROVED DESIGN -->
@@ -1172,19 +1238,22 @@
                                         <label for="seedling_first_name" class="form-label fw-semibold">
                                             First Name <span class="text-danger">*</span>
                                         </label>
-                                        <input type="text" class="form-control" id="seedling_first_name" required maxlength="100" placeholder="First name">
+                                        <input type="text" class="form-control" id="seedling_first_name" required
+                                            maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="seedling_middle_name" class="form-label fw-semibold">
                                             Middle Name
                                         </label>
-                                        <input type="text" class="form-control" id="seedling_middle_name" maxlength="100" placeholder="Middle name (optional)">
+                                        <input type="text" class="form-control" id="seedling_middle_name"
+                                            maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="seedling_last_name" class="form-label fw-semibold">
                                             Last Name <span class="text-danger">*</span>
                                         </label>
-                                        <input type="text" class="form-control" id="seedling_last_name" required maxlength="100" placeholder="Last name">
+                                        <input type="text" class="form-control" id="seedling_last_name" required
+                                            maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="seedling_extension" class="form-label fw-semibold">
@@ -1206,7 +1275,8 @@
                                         <label for="seedling_contact_number" class="form-label fw-semibold">
                                             Contact Number <span class="text-danger">*</span>
                                         </label>
-                                        <input type="tel" class="form-control" id="seedling_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <input type="tel" class="form-control" id="seedling_contact_number" required
+                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
                                         </small>
@@ -1237,7 +1307,8 @@
                                         <label for="seedling_address" class="form-label fw-semibold">
                                             Address <span class="text-danger">*</span>
                                         </label>
-                                        <input type="text" class="form-control" id="seedling_address" required maxlength="500" placeholder="Full address">
+                                        <input type="text" class="form-control" id="seedling_address" required
+                                            maxlength="500" placeholder="Full address">
                                     </div>
                                 </div>
                             </div>
@@ -1250,7 +1321,8 @@
                                     <h6 class="mb-0 fw-semibold text-primary">
                                         <i class="fas fa-leaf me-2"></i>Requested Items
                                     </h6>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSeedlingItemRow()">
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addSeedlingItemRow()">
                                         <i class="fas fa-plus me-1"></i>Add Item
                                     </button>
                                 </div>
@@ -1282,7 +1354,9 @@
                                         <label for="seedling_supporting_document" class="form-label fw-semibold">
                                             Upload Document
                                         </label>
-                                        <input type="file" class="form-control" id="seedling_supporting_document" accept=".pdf,.jpg,.jpeg,.png" onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
+                                        <input type="file" class="form-control" id="seedling_supporting_document"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
                                     </div>
                                     <div class="col-md-6">
                                         <div id="seedling_doc_preview"></div>
@@ -1304,14 +1378,16 @@
                                         <label for="seedling_planting_location" class="form-label fw-semibold">
                                             Planting Location
                                         </label>
-                                        <input type="text" class="form-control" id="seedling_planting_location" maxlength="500" placeholder="Where will the seedlings be planted?">
+                                        <input type="text" class="form-control" id="seedling_planting_location"
+                                            maxlength="500" placeholder="Where will the seedlings be planted?">
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="seedling_purpose" class="form-label fw-semibold">
                                         Purpose
                                     </label>
-                                    <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000" placeholder="Why are you requesting these seedlings?"></textarea>
+                                    <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000"
+                                        placeholder="Why are you requesting these seedlings?"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -1340,7 +1416,8 @@
                                     <label for="seedling_remarks" class="form-label fw-semibold">
                                         Remarks (Optional)
                                     </label>
-                                    <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500" placeholder="Any notes or comments..."></textarea>
+                                    <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500"
+                                        placeholder="Any notes or comments..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -1369,7 +1446,8 @@
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_seedling_name"></strong> will:</p>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong
+                                id="delete_seedling_name"></strong> will:</p>
                     </div>
                     <ul class="mb-0">
                         <li>Remove the seedling request from the database</li>
@@ -2081,37 +2159,37 @@
         }
 
         /* Seedling View Modal Styling */
-        #viewModal{{ $request->id }} .modal-content {
+        [id^="viewModal"] .modal-content {
             border: none;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-radius: 8px;
         }
 
-        #viewModal{{ $request->id }} .modal-header {
+        [id^="viewModal"] .modal-header {
             background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
             border-bottom: 2px solid #0b5ed7;
             padding: 1.5rem;
         }
 
-        #viewModal{{ $request->id }} .modal-header .modal-title {
+        [id^="viewModal"] .modal-header .modal-title {
             font-size: 1.25rem;
             font-weight: 600;
             letter-spacing: 0.5px;
             color: white;
         }
 
-        #viewModal{{ $request->id }} .modal-footer {
+        [id^="viewModal"] .modal-footer {
             background-color: #f8f9fa;
             border-top: 1px solid #dee2e6;
             padding: 1.25rem;
         }
 
-        #viewModal{{ $request->id }} .modal-body {
+        [id^="viewModal"] .modal-body {
             padding: 2rem;
             background-color: #fff;
         }
 
-        #viewModal{{ $request->id }} .card {
+        [id^="viewModal"] .card {
             border-width: 2px;
             border-radius: 8px;
             overflow: hidden;
@@ -2120,12 +2198,12 @@
             height: 100%;
         }
 
-        #viewModal{{ $request->id }} .card:hover {
+        [id^="viewModal"] .card:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             transform: translateY(-2px);
         }
 
-        #viewModal{{ $request->id }} .card-header {
+        [id^="viewModal"] .card-header {
             padding: 1rem 1.25rem;
             font-weight: 600;
             color: white;
@@ -2133,49 +2211,49 @@
             letter-spacing: 0.3px;
         }
 
-        #viewModal{{ $request->id }} .card-header.bg-primary {
+        [id^="viewModal"] .card-header.bg-primary {
             background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
         }
 
-        #viewModal{{ $request->id }} .card-header.bg-success {
+        [id^="viewModal"] .card-header.bg-success {
             background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
         }
 
-        #viewModal{{ $request->id }} .card-header.bg-info {
+        [id^="viewModal"] .card-header.bg-info {
             background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
         }
 
-        #viewModal{{ $request->id }} .card-header.bg-warning {
+        [id^="viewModal"] .card-header.bg-warning {
             background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
             color: #000;
         }
 
-        #viewModal{{ $request->id }} .card-header.bg-secondary {
+        [id^="viewModal"] .card-header.bg-secondary {
             background: linear-gradient(135deg, #6c757d 0%, #5c636a 100%) !important;
         }
 
-        #viewModal{{ $request->id }} .card-header.bg-light {
+        [id^="viewModal"] .card-header.bg-light {
             background: #f8f9fa !important;
             border-bottom: 1px solid #e9ecef;
             font-weight: 600;
         }
 
-        #viewModal{{ $request->id }} .card-body {
+        [id^="viewModal"] .card-body {
             padding: 1.5rem;
             background-color: #fff;
         }
 
-        #viewModal{{ $request->id }} .card-body > div > div {
+        [id^="viewModal"] .card-body>div>div {
             padding: 0.5rem 0;
             border-bottom: 1px solid #f0f0f0;
         }
 
-        #viewModal{{ $request->id }} .card-body > div > div:last-child {
+        [id^="viewModal"] .card-body>div>div:last-child {
             border-bottom: none;
             padding-bottom: 0;
         }
 
-        #viewModal{{ $request->id }} strong {
+        [id^="viewModal"] strong {
             color: #495057;
             font-weight: 600;
             display: block;
@@ -2185,22 +2263,22 @@
             margin-bottom: 0.25rem;
         }
 
-        #viewModal{{ $request->id }} span {
+        [id^="viewModal"] span {
             color: #333;
             font-size: 0.95rem;
             display: block;
         }
 
-        #viewModal{{ $request->id }} a {
+        [id^="viewModal"] a {
             color: #0d6efd;
             text-decoration: none;
         }
 
-        #viewModal{{ $request->id }} a:hover {
+        [id^="viewModal"] a:hover {
             text-decoration: underline;
         }
 
-        #viewModal{{ $request->id }} .badge {
+        [id^="viewModal"] .badge {
             font-size: 0.8rem;
             padding: 0.4rem 0.8rem;
             font-weight: 600;
@@ -2211,256 +2289,258 @@
 
         /* Responsive Adjustments */
         @media (max-width: 768px) {
-            #viewModal{{ $request->id }} .modal-dialog {
+            [id^="viewModal"] .modal-dialog {
                 margin: 0.5rem;
             }
 
-            #viewModal{{ $request->id }} .modal-body {
+            [id^="viewModal"] .modal-body {
                 padding: 1.5rem 1rem;
             }
 
-            #viewModal{{ $request->id }} .row.g-4 > div {
+            [id^="viewModal"] .row.g-4>div {
                 margin-bottom: 1rem;
             }
 
-            #viewModal{{ $request->id }} .card-header {
+            [id^="viewModal"] .card-header {
                 padding: 0.75rem 1rem;
                 font-size: 0.9rem;
             }
 
-            #viewModal{{ $request->id }} .card-body {
+            [id^="viewModal"] .card-body {
                 padding: 1rem;
             }
         }
 
         @media (max-width: 576px) {
-            #viewModal{{ $request->id }} .modal-header .modal-title {
+            [id^="viewModal"] .modal-header .modal-title {
                 font-size: 1.05rem;
             }
 
-            #viewModal{{ $request->id }} .modal-body {
+            [id^="viewModal"] .modal-body {
                 padding: 1rem;
             }
 
-            #viewModal{{ $request->id }} .card-body span {
+            [id^="viewModal"] .card-body span {
                 font-size: 0.9rem;
             }
         }
+
         /* Seedling Update Modal */
-            #updateModal .modal-content {
-                border: none;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-                border-radius: 12px;
-            }
+        #updateModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
 
-            #updateModal .modal-header {
-                border-radius: 12px 12px 0 0;
-                border: none;
-                padding: 1.5rem;
-            }
+        #updateModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            border: none;
+            padding: 1.5rem;
+        }
 
-            #updateModal .modal-header .modal-title {
-                display: block;
-                font-weight: 600;
-                font-size: 1.25rem;
-            }
+        #updateModal .modal-header .modal-title {
+            display: block;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
 
-            #updateModal .modal-header .btn-close {
-                filter: brightness(0) invert(1);
-            }
+        #updateModal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
 
-            #updateModal .modal-footer {
-                border-radius: 0 0 12px 12px;
-                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                border-top: 1px solid #dee2e6;
-                padding: 1.5rem;
+        #updateModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+
+        #updateModal .modal-body {
+            padding: 2rem;
+        }
+
+        /* Request Info Card in Update Modal */
+        #updateModal .card.bg-light {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        #updateModal .card.bg-light:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #updateModal .card-body {
+            padding: 1.5rem;
+        }
+
+        #updateModal .card-title,
+        #updateModal .card-header h6 {
+            color: #007bff;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #updateModal .card-body strong {
+            color: #495057;
+            font-weight: 600;
+        }
+
+        #updateModal .badge {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Form Controls in Update Modal */
+        #updateModal .form-label {
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #updateModal .form-select,
+        #updateModal .form-control {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        #updateModal .form-select:focus,
+        #updateModal .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            outline: none;
+        }
+
+        /* Buttons */
+        #updateModal .modal-footer .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        #updateModal .modal-footer .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #updateModal .modal-footer .btn-primary.no-changes {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #updateModal .modal-dialog {
+                margin: 0.5rem;
             }
 
             #updateModal .modal-body {
-                padding: 2rem;
+                padding: 1rem;
             }
 
-            /* Request Info Card in Update Modal */
-            #updateModal .card.bg-light {
-                background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-                border: none;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                transition: all 0.3s ease;
+            #updateModal .modal-header,
+            #updateModal .modal-footer {
+                padding: 1rem;
             }
 
-            #updateModal .card.bg-light:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            }
-
-            #updateModal .card-body {
-                padding: 1.5rem;
-            }
-
-            #updateModal .card-title,
-            #updateModal .card-header h6 {
-                color: #007bff;
-                font-weight: 600;
-                font-size: 1rem;
-                margin-bottom: 1.5rem;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            #updateModal .card-body strong {
-                color: #495057;
-                font-weight: 600;
-            }
-
-            #updateModal .badge {
+            #updateModal .modal-footer .btn {
+                padding: 0.6rem 1.2rem;
                 font-size: 0.85rem;
-                padding: 0.5rem 0.75rem;
-                font-weight: 500;
             }
+        }
 
-            /* Form Controls in Update Modal */
-            #updateModal .form-label {
-                color: #495057;
-                font-weight: 600;
-                font-size: 0.95rem;
-                margin-bottom: 0.75rem;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
+        /* Document preview styling */
+        .document-thumbnail {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
 
-            #updateModal .form-select,
-            #updateModal .form-control {
-                border-radius: 8px;
-                border: 1px solid #e9ecef;
-                padding: 0.75rem;
-                transition: all 0.3s ease;
-                font-size: 0.95rem;
-            }
+        .document-thumbnail:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-2px);
+        }
 
-            #updateModal .form-select:focus,
-            #updateModal .form-control:focus {
-                border-color: #28a745;
-                box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-                outline: none;
-            }
+        .document-preview-item {
+            transition: all 0.2s ease;
+        }
 
-            /* Buttons */
-            #updateModal .modal-footer .btn-primary {
-                background-color: #28a745;
-                border-color: #28a745;
-            }
+        .document-preview-item:hover {
+            transform: scale(1.02);
+        }
 
-            #updateModal .modal-footer .btn-primary:hover {
-                background-color: #218838;
-                border-color: #1e7e34;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            }
+        /* Delete Modal Styling  */
+        #deleteSeedlingModal .modal-header {
+            border-bottom: 1px solid #f8d7da;
+            padding: 1.25rem 1.5rem;
+        }
 
-            #updateModal .modal-footer .btn-primary.no-changes {
-                opacity: 0.6;
-                cursor: not-allowed;
-            }
+        #deleteSeedlingModal .modal-body {
+            padding: 1.5rem;
+            background-color: #fff;
+        }
 
-            /* Responsive Adjustments */
-            @media (max-width: 768px) {
-                #updateModal .modal-dialog {
-                    margin: 0.5rem;
-                }
+        #deleteSeedlingModal .alert {
+            border: 1px solid #f5c6cb;
+            margin-bottom: 1rem;
+        }
 
-                #updateModal .modal-body {
-                    padding: 1rem;
-                }
+        #deleteSeedlingModal .alert strong {
+            font-weight: 600;
+        }
 
-                #updateModal .modal-header,
-                #updateModal .modal-footer {
-                    padding: 1rem;
-                }
+        #deleteSeedlingModal ul {
+            list-style-position: inside;
+            color: #721c24;
+        }
 
-                #updateModal .modal-footer .btn {
-                    padding: 0.6rem 1.2rem;
-                    font-size: 0.85rem;
-                }
-            }
-                 /* Document preview styling */
-                .document-thumbnail {
-                    transition: all 0.3s ease;
-                    cursor: pointer;
-                }
+        #deleteSeedlingModal ul li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
 
-                .document-thumbnail:hover {
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-                    transform: translateY(-2px);
-                }
+        #deleteSeedlingModal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+        }
 
-                .document-preview-item {
-                    transition: all 0.2s ease;
-                }
+        #deleteSeedlingModal .btn-danger {
+            transition: all 0.2s ease;
+        }
 
-                .document-preview-item:hover {
-                    transform: scale(1.02);
-                }
+        #deleteSeedlingModal .btn-danger:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
 
-                 /* Delete Modal Styling  */
-                #deleteSeedlingModal .modal-header {
-                    border-bottom: 1px solid #f8d7da;
-                    padding: 1.25rem 1.5rem;
-                }
+        #deleteSeedlingModal .btn-secondary:hover {
+            transform: translateY(-1px);
+        }
 
-                #deleteSeedlingModal .modal-body {
-                    padding: 1.5rem;
-                    background-color: #fff;
-                }
+        #deleteSeedlingModal .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+        }
 
-                #deleteSeedlingModal .alert {
-                    border: 1px solid #f5c6cb;
-                    margin-bottom: 1rem;
-                }
-
-                #deleteSeedlingModal .alert strong {
-                    font-weight: 600;
-                }
-
-                #deleteSeedlingModal ul {
-                    list-style-position: inside;
-                    color: #721c24;
-                }
-
-                #deleteSeedlingModal ul li {
-                    margin-bottom: 0.5rem;
-                    line-height: 1.6;
-                }
-
-                #deleteSeedlingModal .modal-footer {
-                    border-top: 1px solid #e9ecef;
-                    padding: 1rem 1.5rem;
-                    background-color: #f8f9fa;
-                }
-
-                #deleteSeedlingModal .btn-danger {
-                    transition: all 0.2s ease;
-                }
-
-                #deleteSeedlingModal .btn-danger:hover:not(:disabled) {
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-                }
-
-                #deleteSeedlingModal .btn-secondary:hover {
-                    transform: translateY(-1px);
-                }
-
-                #deleteSeedlingModal .spinner-border-sm {
-                    width: 1rem;
-                    height: 1rem;
-                    border-width: 0.2em;
-                }
-
-                /* Modal backdrop consistency */
-                #deleteSeedlingModal .modal-backdrop {
-                    opacity: 0.5;
-                }
+        /* Modal backdrop consistency */
+        #deleteSeedlingModal .modal-backdrop {
+            opacity: 0.5;
+        }
     </style>
 
     <script>
@@ -2488,7 +2568,7 @@
             }
 
             // Create modal if it doesn't exist
-          
+
             if (!document.getElementById('documentModal')) {
                 const modalHTML = `
                     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
@@ -3019,14 +3099,14 @@
             if (remarksTextarea) {
                 // Get the original remarks value from the textarea (it's pre-populated from server)
                 const originalRemarks = remarksTextarea.value;
-                
+
                 // Store both the original value and the form reference
                 form.dataset.originalRemarks = JSON.stringify(originalRemarks);
                 remarksTextarea.dataset.originalValue = originalRemarks;
-                
+
                 console.log('Modal initialized - Original remarks:', originalRemarks);
                 console.log('Stored in data attribute:', form.dataset.originalRemarks);
-                
+
                 // Initialize character counter
                 updateSeedlingRemarksCounter(requestId);
             }
@@ -3071,7 +3151,7 @@
             const submitButton = document.getElementById('submitBtn' + requestId);
 
             let hasChanges = false;
-            
+
             // FIXED: Get original remarks from the stored data attribute
             let originalRemarks = '';
             try {
@@ -3092,7 +3172,7 @@
             // Check remarks for changes - FIXED COMPARISON
             if (remarksTextarea) {
                 const currentRemarks = remarksTextarea.value || '';
-                
+
                 // Use strict comparison after trimming
                 const remarksChanged = currentRemarks !== originalRemarks;
 
@@ -3877,7 +3957,7 @@
             if (documentPath) {
                 const currentDocContainer = document.getElementById(`edit_seedling_current_document_${requestId}`);
                 const currentDocPreview = document.getElementById(`edit_seedling_current_doc_preview_${requestId}`);
-                
+
                 if (currentDocContainer && currentDocPreview) {
                     currentDocContainer.style.display = 'block';
                     displayEditSeedlingExistingDocument(documentPath, `edit_seedling_current_doc_preview_${requestId}`);
@@ -3970,7 +4050,7 @@
             }
 
             // Build changes summary ONLY from actually changed fields
-            const changedFieldsData = submitBtn?.dataset.changedFields ? 
+            const changedFieldsData = submitBtn?.dataset.changedFields ?
                 JSON.parse(submitBtn.dataset.changedFields) : [];
 
             const fieldLabels = {
@@ -3989,9 +4069,9 @@
             const changedFields = changedFieldsData.map(field => fieldLabels[field] || field);
 
             // Show confirmation with only changed fields
-            const changesText = changedFields.length > 0 
-                ? `Update this request with the following changes?\n\n• ${changedFields.join('\n• ')}`
-                : 'Update this request?';
+            const changesText = changedFields.length > 0 ?
+                `Update this request with the following changes?\n\n• ${changedFields.join('\n• ')}` :
+                'Update this request?';
 
             showConfirmationToast(
                 'Confirm Update',
@@ -4049,7 +4129,7 @@
             if (contactInput) {
                 validateEditContactNumber(contactInput, requestId);
             }
-            
+
             return isValid;
         }
 
@@ -4143,7 +4223,7 @@
 
             reader.readAsDataURL(file);
         }
-       
+
         // Proceed with edit seedling submission with document support
         function proceedWithEditSeedling(form, requestId) {
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
@@ -4192,59 +4272,62 @@
 
             // Fetch request
             fetch(actionUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw { status: response.status, data: data };
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Update response:', data);
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw {
+                                status: response.status,
+                                data: data
+                            };
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Update response:', data);
 
-                if (data.success) {
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(
-                        document.getElementById('editSeedlingModal' + requestId)
-                    );
-                    if (modal) modal.hide();
+                    if (data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(
+                            document.getElementById('editSeedlingModal' + requestId)
+                        );
+                        if (modal) modal.hide();
 
-                    showToast('success', data.message || 'Updated successfully!');
-                    
-                    // Reload page
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    showToast('error', data.message || 'Update failed');
+                        showToast('success', data.message || 'Updated successfully!');
+
+                        // Reload page
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        showToast('error', data.message || 'Update failed');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+
+                    let errorMsg = 'Error updating request';
+
+                    if (error.data?.message) {
+                        errorMsg = error.data.message;
+                    } else if (error.data?.errors) {
+                        errorMsg = Object.values(error.data.errors).flat().join(', ');
+                    } else if (error.message) {
+                        errorMsg = error.message;
+                    }
+
+                    showToast('error', errorMsg);
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-
-                let errorMsg = 'Error updating request';
-                
-                if (error.data?.message) {
-                    errorMsg = error.data.message;
-                } else if (error.data?.errors) {
-                    errorMsg = Object.values(error.data.errors).flat().join(', ');
-                } else if (error.message) {
-                    errorMsg = error.message;
-                }
-
-                showToast('error', errorMsg);
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+                });
         }
 
         // Clear document upload in edit modal
@@ -4263,25 +4346,25 @@
 
             showToast('info', 'Document selection cleared');
         }
-        // Display existing document in edit modal 
+        // Display existing document in edit modal
         function displayEditSeedlingExistingDocument(documentPath, previewElementId) {
             const preview = document.getElementById(previewElementId);
             if (!preview) {
                 console.error('Preview element not found:', previewElementId);
                 return;
             }
-            
+
             const fileExtension = documentPath.split('.').pop().toLowerCase();
             const fileName = documentPath.split('/').pop();
             const fileUrl = `/storage/${documentPath}`;
-            
-            // Image types 
+
+            // Image types
             if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
                 preview.innerHTML = `
                     <div class="row g-3">
                         <div class="col-auto">
                             <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                                <img src="${fileUrl}" alt="Current document" 
+                                <img src="${fileUrl}" alt="Current document"
                                     style="max-width: 100%; max-height: 100%; object-fit: cover; cursor: pointer;"
                                     onclick="viewDocument('${documentPath}', '${fileName}')"
                                     title="Click to view full document">
@@ -4289,8 +4372,8 @@
                         </div>
                     </div>
                 `;
-            } 
-            // PDF type 
+            }
+            // PDF type
             else if (fileExtension === 'pdf') {
                 preview.innerHTML = `
                     <div class="row g-3">
@@ -4311,12 +4394,12 @@
                                     <small class="d-block text-muted mt-1">${fileName}</small>
                                 </div>
                                 <div class="mt-auto">
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
                                         onclick="viewDocument('${documentPath}', '${fileName}')"
                                         title="View PDF">
                                         <i class="fas fa-eye me-1"></i>View
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
                                         onclick="downloadSeedlingDocument('${fileUrl}', '${fileName}')"
                                         title="Download PDF">
                                         <i class="fas fa-download me-1"></i>Download
@@ -4348,7 +4431,7 @@
                                     <small class="d-block text-muted mt-1">${fileName}</small>
                                 </div>
                                 <div class="mt-auto">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
                                         onclick="downloadSeedlingDocument('${fileUrl}', '${fileName}')"
                                         title="Download document">
                                         <i class="fas fa-download me-1"></i>Download
@@ -4371,7 +4454,7 @@
             document.body.removeChild(link);
         }
 
-        // Preview new document upload 
+        // Preview new document upload
         function previewEditSeedlingDocument(inputId, previewId) {
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
@@ -4414,7 +4497,7 @@
             reader.onload = function(e) {
                 if (preview) {
                     const fileExtension = file.name.split('.').pop().toLowerCase();
-                    
+
                     if (file.type.startsWith('image/')) {
                         preview.innerHTML = `
                             <div style="margin-top: 1rem;">
@@ -4422,7 +4505,7 @@
                                     <i class="fas fa-info-circle me-1"></i>New image selected
                                 </div>
                                 <div class="document-preview-item">
-                                    <img src="${e.target.result}" alt="Preview" 
+                                    <img src="${e.target.result}" alt="Preview"
                                         style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid #007bff;">
                                     <p style="margin-top: 8px; font-size: 12px; color: #666;">
                                         <i class="fas fa-file-image me-1"></i>${file.name}
@@ -4456,7 +4539,7 @@
             reader.readAsDataURL(file);
         }
 
-        // Clear document upload 
+        // Clear document upload
         function clearEditSeedlingDocument(requestId) {
             const docInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
             const preview = document.getElementById(`edit_seedling_doc_preview_${requestId}`);
@@ -4537,10 +4620,10 @@
         function updateSeedlingRemarksCounter(requestId) {
             const textarea = document.getElementById('remarks' + requestId);
             const charCount = document.getElementById('charCount' + requestId);
-            
+
             if (textarea && charCount) {
                 charCount.textContent = textarea.value.length;
-                
+
                 // Change color based on length
                 if (textarea.value.length > 900) {
                     charCount.parentElement.classList.add('text-warning');
@@ -4553,7 +4636,7 @@
         }
 
         // delete modal
-        
+
         // Global variable to track current delete ID
         let currentDeleteSeedlingId = null;
 
@@ -4634,7 +4717,7 @@
 
             } catch (error) {
                 console.error('Error deleting request:', error);
-                
+
                 // Close modal first
                 const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
                 if (deleteModal) {
