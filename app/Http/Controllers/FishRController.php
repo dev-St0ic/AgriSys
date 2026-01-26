@@ -157,7 +157,7 @@ class FishRController extends Controller
         }
     }
 
-   /**
+ /**
  * Update the specified FishR registration (Personal info editing)
  */
 public function update(Request $request, $id)
@@ -172,12 +172,33 @@ public function update(Request $request, $id)
             'sex' => 'required|in:Male,Female,Preferred not to say',
             'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
             'barangay' => 'required|string|max:100',
+
+            // NOW EDITABLE: Livelihood info
+            'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
+            'other_livelihood' => 'nullable|string|max:255',
+            
+            // Document - FIXED: accept image files and pdf
+            'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
 
         // Find the registration
         $registration = FishrApplication::findOrFail($id);
 
-        // Update the registration with only personal info
+        // Handle document upload - FIXED
+        if ($request->hasFile('supporting_document')) {
+            // Delete old document if exists
+            if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
+                Storage::disk('public')->delete($registration->document_path);
+            }
+
+            // Upload new document
+            $file = $request->file('supporting_document');
+            $filename = 'fishr_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('fishr_documents', $filename, 'public');
+            $validated['document_path'] = $path;
+        }
+
+        // Update the registration with all fields
         $registration->update($validated);
 
         $this->logActivity('updated', 'FishrApplication', $registration->id, [
@@ -189,7 +210,8 @@ public function update(Request $request, $id)
             'registration_id' => $registration->id,
             'registration_number' => $registration->registration_number,
             'updated_by' => auth()->user()->name,
-            'fields_updated' => array_keys($validated)
+            'fields_updated' => array_keys($validated),
+            'document_updated' => $request->hasFile('supporting_document') ? 'yes' : 'no'
         ]);
 
         return response()->json([
@@ -198,7 +220,8 @@ public function update(Request $request, $id)
             'data' => [
                 'id' => $registration->id,
                 'full_name' => $registration->full_name,
-                'updated_at' => $registration->updated_at->format('M d, Y h:i A')
+                'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
+                'document_path' => $registration->document_path
             ]
         ]);
 

@@ -850,91 +850,121 @@
             </div>
         </div>
     </div>
-    <!-- Edit FishR Registration Modal -->
-    <div class="modal fade" id="editFishrModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-pencil-alt me-2"></i>Edit Registration
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" id="editFishrForm" class="needs-validation">
-                        @csrf
-                        @method('PUT')
+   <!-- Edit FishR Registration Modal - RSBSA Design -->
+<div class="modal fade" id="editFishrModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title w-100 text-center">
+                    <i></i>Edit Registration - <span id="editFishrNumber"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
 
-                        <!-- Personal Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_first_name"
-                                            name="first_name" required maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="edit_middle_name"
-                                            name="middle_name" maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_last_name" name="last_name"
-                                            required maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_name_extension" class="form-label">Extension</label>
-                                        <select class="form-select" id="edit_name_extension" name="name_extension">
-                                            <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                        </select>
-                                    </div>
+            <div class="modal-body">
+                <form id="editFishrForm" enctype="multipart/form-data">
+                    <!-- Personal Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_first_name" class="form-label fw-semibold">
+                                        First Name 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_first_name"
+                                        name="first_name" required maxlength="100" placeholder="First name">
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_sex" class="form-label">Sex <span
-                                                class="text-danger">*</span></label>
-                                        <select class="form-select" id="edit_sex" name="sex" required>
-                                            <option value="">Select</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Preferred not to say">Preferred not to say</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="edit_contact_number"
-                                            name="contact_number" required placeholder="09XXXXXXXXX"
-                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_middle_name" class="form-label fw-semibold">
+                                        Middle Name
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_middle_name"
+                                        name="middle_name" maxlength="100" placeholder="Middle name (optional)">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_last_name" class="form-label fw-semibold">
+                                        Last Name 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_last_name"
+                                        name="last_name" required maxlength="100" placeholder="Last name">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_extension" class="form-label fw-semibold">
+                                        Extension
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_extension" name="name_extension">
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_sex" class="form-label fw-semibold">
+                                        Sex 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_sex" name="sex" required>
+                                        <option value="">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Preferred not to say">Preferred not to say</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_contact_number" class="form-label fw-semibold">
+                                        Contact Number 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" class="form-control" id="edit_fishr_contact_number"
+                                        name="contact_number" required placeholder="09XXXXXXXXX"
+                                        pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_reg_number" class="form-label fw-semibold">
+                                        Registration Number
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_reg_number" disabled placeholder="-">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Auto-generated (cannot be changed)
+                                    </small>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Location Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="edit_barangay" class="form-label">Barangay <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-select" id="edit_barangay" name="barangay" required>
+                    <!-- Location Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_fishr_barangay" class="form-label fw-semibold">
+                                        Barangay 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_barangay" name="barangay" required>
                                         <option value="">Select Barangay</option>
                                         <option value="Bagong Silang">Bagong Silang</option>
                                         <option value="Calendola">Calendola</option>
@@ -967,50 +997,116 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Status Information (Read-only) -->
-                        <div class="card mb-3 bg-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Registration Status (Read-only)
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Current Status:</small>
-                                        <div>
-                                            <span id="edit_status_display" class="badge bg-secondary"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Date Applied:</small>
-                                        <div id="edit_date_applied"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Last Updated:</small>
-                                        <div id="edit_last_updated"></div>
-                                    </div>
+                    <!-- Livelihood Information Card - NOW FULLY EDITABLE -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-fish me-2"></i>Livelihood Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_livelihood" class="form-label fw-semibold">
+                                        Main Livelihood 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_livelihood" name="main_livelihood"
+                                        required onchange="toggleEditOtherFishrLivelihood()">
+                                        <option value="">Select Livelihood</option>
+                                        <option value="capture">Capture Fishing</option>
+                                        <option value="aquaculture">Aquaculture</option>
+                                        <option value="vending">Fish Vending</option>
+                                        <option value="processing">Fish Processing</option>
+                                        <option value="others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3" id="edit_other_fishr_livelihood_container" style="display: none;">
+                                    <label for="edit_fishr_other_livelihood" class="form-label fw-semibold">
+                                        Specify Other Livelihood <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_other_livelihood" 
+                                        name="other_livelihood" maxlength="255" placeholder="Please specify...">
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Info Alert -->
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> You can only edit personal and location information here.
-                            To update the registration status, use the "Update Status" button from the main table.
+                    <!-- Documents Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-file-upload me-2"></i>Supporting Document
+                            </h6>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="editSubmitBtn" onclick="handleEditFishrSubmit()">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-4">
+                                <i class="fas fa-info-circle me-1"></i>
+                                View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                            </p>
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <label for="edit_fishr_supporting_document" class="form-label fw-semibold">
+                                        Supporting Document
+                                    </label>
+                                    <div id="edit_fishr_supporting_document_preview" class="mb-3"></div>
+                                    <input type="file" class="form-control" id="edit_fishr_supporting_document" 
+                                        name="supporting_document" accept="image/*,.pdf" 
+                                        onchange="previewEditFishrDocument('edit_fishr_supporting_document', 'edit_fishr_supporting_document_preview')">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Click to view or upload a new document
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Status (Read-only) Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-info-circle me-2"></i>Registration Status (Read-only)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Current Status</small>
+                                    <div>
+                                        <span id="edit_fishr_status_badge" class="badge bg-secondary fs-6"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Date Applied</small>
+                                    <div id="edit_fishr_created_at" class="fw-semibold">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info border-left-info mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> You can edit all registration information here.
+                        To change registration status or add remarks, use the "Change Status" button from the main table.
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="editFishrSubmitBtn"
+                    onclick="handleEditFishrSubmit()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
             </div>
         </div>
     </div>
+</div>
 
 
     <!-- Document Preview Modal -->
@@ -4318,319 +4414,676 @@ function downloadAnnex(registrationId, annexId) {
                 });
         }
 
-        // Show edit modal
-        function showEditFishrModal(id) {
-            const modal = new bootstrap.Modal(document.getElementById('editFishrModal'));
+       /**
+ * Show Edit FishR Modal - Opens modal and loads registration data
+ */
+function showEditFishrModal(registrationId) {
+    const modal = new bootstrap.Modal(document.getElementById('editFishrModal'));
+    
+    // Show loading state
+    document.getElementById('editFishrNumber').textContent = 'Loading...';
+    
+    // Show modal
+    modal.show();
+    
+    // Fetch registration details
+    fetch(`/admin/fishr-registrations/${registrationId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) throw new Error(response.message || 'Failed to load registration');
+            
+            const data = response.data;
+            
+            // Update modal title
+            document.getElementById('editFishrNumber').textContent = data.registration_number;
+            
+            // Initialize form with data
+            initializeEditFishrForm(registrationId, data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Error loading registration: ' + error.message);
+            modal.hide();
+        });
+}
 
-            // Initialize the modal with existing values
-            initializeEditFishrModal(id);
+/**
+ * Initialize Edit Form with registration data
+ */
+function initializeEditFishrForm(registrationId, data) {
+    const form = document.getElementById('editFishrForm');
+    
+    // Populate personal information
+    document.getElementById('edit_fishr_first_name').value = data.first_name || '';
+    document.getElementById('edit_fishr_middle_name').value = data.middle_name || '';
+    document.getElementById('edit_fishr_last_name').value = data.last_name || '';
+    document.getElementById('edit_fishr_extension').value = data.name_extension || '';
+    document.getElementById('edit_fishr_sex').value = data.sex || '';
+    document.getElementById('edit_fishr_contact_number').value = data.contact_number || '';
+    
+    // Populate location
+    document.getElementById('edit_fishr_barangay').value = data.barangay || '';
+    
+    // Populate livelihood
+    document.getElementById('edit_fishr_livelihood').value = data.main_livelihood || '';
+    document.getElementById('edit_fishr_other_livelihood').value = data.other_livelihood || '';
+    
+    // Toggle other livelihood field
+    toggleEditOtherFishrLivelihood();
+    
+    // Populate registration number (read-only)
+    document.getElementById('edit_fishr_reg_number').value = data.registration_number || '';
+    
+    // Populate status badge
+    const statusBadge = document.getElementById('edit_fishr_status_badge');
+    statusBadge.className = `badge bg-${data.status_color} fs-6`;
+    statusBadge.textContent = data.formatted_status;
+    
+    // Populate date applied
+    document.getElementById('edit_fishr_created_at').textContent = data.created_at || '-';
+    
+    // Handle document preview
+    const previewContainer = document.getElementById('edit_fishr_supporting_document_preview');
+    if (data.document_path) {
+        previewContainer.innerHTML = `
+            <div class="alert alert-info mb-3">
+                <i class="fas fa-file me-2"></i>
+                <strong>Current Document:</strong>
+                <button class="btn btn-sm btn-outline-primary ms-2" 
+                        onclick="viewDocument('${data.document_path}', 'Current Supporting Document')">
+                    <i class="fas fa-eye me-1"></i>View
+                </button>
+            </div>
+        `;
+    } else {
+        previewContainer.innerHTML = '<small class="text-muted d-block">No document currently uploaded</small>';
+    }
+    
+    // Store original data for change detection
+    const originalData = {
+        first_name: data.first_name || '',
+        middle_name: data.middle_name || '',
+        last_name: data.last_name || '',
+        name_extension: data.name_extension || '',
+        sex: data.sex || '',
+        contact_number: data.contact_number || '',
+        barangay: data.barangay || '',
+        main_livelihood: data.main_livelihood || '',
+        other_livelihood: data.other_livelihood || ''
+    };
+    
+    form.dataset.originalData = JSON.stringify(originalData);
+    form.dataset.registrationId = registrationId;
+    
+    // Clear validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    
+    // Reset button state
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    
+    // Add change listeners
+    addEditFishrFormChangeListeners(registrationId);
+}
 
-            modal.show();
-        }
+/**
+ * Toggle Edit Other Livelihood Field
+ */
+function toggleEditOtherFishrLivelihood() {
+    const mainLivelihood = document.getElementById('edit_fishr_livelihood').value;
+    const container = document.getElementById('edit_other_fishr_livelihood_container');
+    const input = document.getElementById('edit_fishr_other_livelihood');
+    
+    if (mainLivelihood === 'others') {
+        container.style.display = 'block';
+        input.required = true;
+    } else {
+        container.style.display = 'none';
+        input.required = false;
+    }
+    
+    // Trigger change detection
+    const form = document.getElementById('editFishrForm');
+    if (form.dataset.registrationId) {
+        checkEditFishrFormChanges(form.dataset.registrationId);
+    }
+}
 
-        // Initialize edit modal with existing data
-        function initializeEditFishrModal(id) {
-            // Wait for modal to be fully loaded
-            setTimeout(() => {
-                // Fetch registration details
-                fetch(`/admin/fishr-registrations/${id}`, {
-                        method: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                'content')
-                        },
-                        credentials: 'same-origin'
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        return response.json();
-                    })
-                    .then(response => {
-                        if (!response.success) throw new Error(response.message || 'Failed to load data');
+/**
+ * Add Change Listeners to Edit Form
+ */
+function addEditFishrFormChangeListeners(registrationId) {
+    const form = document.getElementById('editFishrForm');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', () => handleEditFishrFormChange());
+        input.addEventListener('input', () => handleEditFishrFormChange());
+    });
+    
+    // Special handler for livelihood change
+    document.getElementById('edit_fishr_livelihood').addEventListener('change', toggleEditOtherFishrLivelihood);
+}
 
-                        const data = response.data;
+/**
+ * Handle Edit Form Change
+ */
+function handleEditFishrFormChange() {
+    const form = document.getElementById('editFishrForm');
+    if (form.dataset.registrationId) {
+        checkEditFishrFormChanges(form.dataset.registrationId);
+    }
+}
 
-                        // Populate form fields - CHECK IF ELEMENT EXISTS FIRST
-                        const firstNameEl = document.getElementById('edit_first_name');
-                        if (!firstNameEl) {
-                            throw new Error(
-                                'Form elements not found. Make sure the modal is properly rendered.');
-                        }
-
-                        firstNameEl.value = data.first_name || '';
-
-                        const middleNameEl = document.getElementById('edit_middle_name');
-                        if (middleNameEl) middleNameEl.value = data.middle_name || '';
-
-                        const lastNameEl = document.getElementById('edit_last_name');
-                        if (lastNameEl) lastNameEl.value = data.last_name || '';
-
-                        const extensionEl = document.getElementById('edit_name_extension');
-                        if (extensionEl) extensionEl.value = data.name_extension || '';
-
-                        const sexEl = document.getElementById('edit_sex');
-                        if (sexEl) sexEl.value = data.sex || '';
-
-                        const contactEl = document.getElementById('edit_contact_number');
-                        if (contactEl) contactEl.value = data.contact_number || '';
-
-                        const barangayEl = document.getElementById('edit_barangay');
-                        if (barangayEl) barangayEl.value = data.barangay || '';
-
-                        // Populate read-only fields
-                        const statusEl = document.getElementById('edit_status_display');
-                        if (statusEl) {
-                            statusEl.innerHTML =
-                                `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
-                        }
-
-                        const dateEl = document.getElementById('edit_date_applied');
-                        if (dateEl) dateEl.textContent = data.created_at || 'N/A';
-
-                        const updatedEl = document.getElementById('edit_last_updated');
-                        if (updatedEl) updatedEl.textContent = data.updated_at || 'N/A';
-
-                        // Store original data for change detection
-                        const originalData = {
-                            first_name: data.first_name || '',
-                            middle_name: data.middle_name || '',
-                            last_name: data.last_name || '',
-                            name_extension: data.name_extension || '',
-                            sex: data.sex || '',
-                            contact_number: data.contact_number || '',
-                            barangay: data.barangay || ''
-                        };
-
-                        const form = document.getElementById('editFishrForm');
-                        if (form) {
-                            form.dataset.originalData = JSON.stringify(originalData);
-                            form.dataset.registrationId = id;
-                        }
-
-                        // Clear validation states
-                        document.querySelectorAll('#editFishrForm .is-invalid').forEach(el => el.classList
-                            .remove('is-invalid'));
-                        document.querySelectorAll('#editFishrForm .invalid-feedback').forEach(el => el
-                    .remove());
-
-                        // Reset button state
-                        const submitBtn = document.getElementById('editSubmitBtn');
-                        if (submitBtn) {
-                            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                            submitBtn.disabled = false;
-                            submitBtn.dataset.hasChanges = 'false';
-                        }
-
-                        // Add change detection
-                        addEditFishrChangeDetection();
-
-                    })
-                    .catch(error => {
-                        console.error('Error loading registration:', error);
-                        showToast('error', 'Failed to load registration: ' + error.message);
-                    });
-            }, 300); // Wait for modal animation
-        }
-
-        // Add change detection to edit form
-        function addEditFishrChangeDetection() {
-            const form = document.getElementById('editFishrForm');
-            const inputs = form.querySelectorAll('input, select, textarea');
-
-            inputs.forEach(input => {
-                input.addEventListener('change', () => checkForEditFishrChanges());
-                input.addEventListener('input', () => checkForEditFishrChanges());
-            });
-        }
-
-        // Check for changes in edit form
-        function checkForEditFishrChanges() {
-            const form = document.getElementById('editFishrForm');
-            const submitBtn = document.getElementById('editSubmitBtn');
-
-            if (!form.dataset.originalData) return;
-
-            const originalData = JSON.parse(form.dataset.originalData);
-            let hasChanges = false;
-
-            const fields = [
-                'first_name', 'middle_name', 'last_name', 'name_extension',
-                'sex', 'contact_number', 'barangay'
-            ];
-
-            fields.forEach(field => {
-                const input = form.querySelector(`[name="${field}"]`);
-                if (input && input.value !== originalData[field]) {
-                    hasChanges = true;
-                    input.classList.add('form-changed');
-                } else if (input) {
-                    input.classList.remove('form-changed');
-                }
-            });
-
-            // Update button state
-            if (hasChanges) {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'true';
+/**
+ * Check for Form Changes and Update UI
+ */
+function checkEditFishrFormChanges(registrationId) {
+    const form = document.getElementById('editFishrForm');
+    if (!form.dataset.originalData) return;
+    
+    const originalData = JSON.parse(form.dataset.originalData);
+    let hasChanges = false;
+    
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'sex', 'contact_number', 'barangay', 'main_livelihood', 'other_livelihood'
+    ];
+    
+    fields.forEach(field => {
+        const fieldElement = form.querySelector(`[name="${field}"]`);
+        if (fieldElement) {
+            const currentValue = fieldElement.value;
+            const originalValue = originalData[field] || '';
+            
+            if (currentValue !== originalValue) {
+                hasChanges = true;
+                fieldElement.classList.add('form-changed');
             } else {
-                submitBtn.classList.add('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'false';
+                fieldElement.classList.remove('form-changed');
             }
         }
+    });
+    
+    // Also check for file input changes
+    const fileInput = document.getElementById('edit_fishr_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        hasChanges = true;
+    }
+    
+    // Update button state
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
+    if (hasChanges) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    }
+    
+    form.dataset.hasChanges = hasChanges;
+}
 
-        // Handle edit form submission
-        function handleEditFishrSubmit() {
-            const form = document.getElementById('editFishrForm');
-            const submitBtn = document.getElementById('editSubmitBtn');
-            const registrationId = form.dataset.registrationId;
-
-            // Check if there are no changes
-            if (submitBtn.dataset.hasChanges === 'false') {
-                showToast('warning', 'No changes detected. Please modify the fields before saving.');
-                return;
-            }
-
-            // Validate form
-            if (!validateEditFishrForm()) {
-                showToast('error', 'Please fix all validation errors');
-                return;
-            }
-
-            // Show confirmation
-            showConfirmationToast(
-                'Confirm Update',
-                'Are you sure you want to save the changes to this registration?',
-                () => proceedWithEditFishr(form, registrationId)
-            );
+/**
+ * Validate Edit FishR Form
+ */
+function validateEditFishrForm() {
+    const form = document.getElementById('editFishrForm');
+    let isValid = true;
+    
+    // Required fields
+    const requiredFields = [
+        { name: 'first_name', label: 'First Name', element: 'edit_fishr_first_name' },
+        { name: 'last_name', label: 'Last Name', element: 'edit_fishr_last_name' },
+        { name: 'sex', label: 'Sex', element: 'edit_fishr_sex' },
+        { name: 'contact_number', label: 'Contact Number', element: 'edit_fishr_contact_number' },
+        { name: 'barangay', label: 'Barangay', element: 'edit_fishr_barangay' },
+        { name: 'main_livelihood', label: 'Main Livelihood', element: 'edit_fishr_livelihood' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.element);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            input.parentNode.appendChild(errorDiv);
+            isValid = false;
         }
+    });
+    
+    // Validate other livelihood if main is 'others'
+    const mainLivelihood = document.getElementById('edit_fishr_livelihood').value;
+    if (mainLivelihood === 'others') {
+        const otherLivelihood = document.getElementById('edit_fishr_other_livelihood');
+        if (!otherLivelihood.value || otherLivelihood.value.trim() === '') {
+            otherLivelihood.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please specify the other livelihood';
+            
+            const existingError = otherLivelihood.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            otherLivelihood.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+    
+    // Validate contact number
+    const contactInput = document.getElementById('edit_fishr_contact_number');
+    if (contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            
+            const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
 
-        // Validate edit form
-        function validateEditFishrForm() {
-            const form = document.getElementById('editFishrForm');
-            let isValid = true;
-
-            const requiredFields = [{
-                    name: 'first_name',
-                    label: 'First Name'
-                },
-                {
-                    name: 'last_name',
-                    label: 'Last Name'
-                },
-                {
-                    name: 'sex',
-                    label: 'Sex'
-                },
-                {
-                    name: 'contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    name: 'barangay',
-                    label: 'Barangay'
-                }
-            ];
-
-            requiredFields.forEach(field => {
-                const input = form.querySelector(`[name="${field.name}"]`);
-                if (input && (!input.value || input.value.trim() === '')) {
+/**
+ * Handle Edit FishR Form Submission
+ */
+function handleEditFishrSubmit() {
+    const form = document.getElementById('editFishrForm');
+    const registrationId = form.dataset.registrationId;
+    
+    // Validate form
+    if (!validateEditFishrForm()) {
+        showToast('error', 'Please fix all validation errors');
+        return;
+    }
+    
+    // Build summary of changes
+    const changedFields = [];
+    if (form.dataset.originalData) {
+        const originalData = JSON.parse(form.dataset.originalData);
+        const fieldLabels = {
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
+            'contact_number': 'Contact Number',
+            'barangay': 'Barangay',
+            'main_livelihood': 'Main Livelihood'
+        };
+        
+        Object.keys(fieldLabels).forEach(field => {
+            const element = form.querySelector(`[name="${field}"]`);
+            if (element && element.value !== originalData[field]) {
+                changedFields.push(fieldLabels[field]);
+            }
+        });
+    }
+    
+    // Show confirmation
+    const message = changedFields.length > 0 
+        ? `Changed fields: ${changedFields.join(', ')}\n\nSave changes?`
+        : 'Save changes?';
+    
+    showConfirmationToast(
+        'Confirm Update',
+        message,
+        () => proceedWithEditFishr(form, registrationId)
+    );
+}
+/**
+ * Proceed with Edit FishR Submission - FIXED
+ */
+function proceedWithEditFishr(form, registrationId) {
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+    
+    // Build FormData - CRITICAL FIX: Use POST with _method for multipart
+    const formData = new FormData();
+    
+    // Add _method for Laravel to recognize this as PUT request
+    formData.append('_method', 'PUT');
+    
+    // Append all form fields
+    formData.append('first_name', document.getElementById('edit_fishr_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('edit_fishr_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('edit_fishr_last_name').value.trim());
+    formData.append('name_extension', document.getElementById('edit_fishr_extension').value.trim());
+    formData.append('sex', document.getElementById('edit_fishr_sex').value.trim());
+    formData.append('contact_number', document.getElementById('edit_fishr_contact_number').value.trim());
+    formData.append('barangay', document.getElementById('edit_fishr_barangay').value.trim());
+    formData.append('main_livelihood', document.getElementById('edit_fishr_livelihood').value.trim());
+    formData.append('other_livelihood', document.getElementById('edit_fishr_other_livelihood').value.trim());
+    
+    // Add CSRF token explicitly
+    formData.append('_token', getCSRFToken());
+    
+    // Add document file if selected
+    const fileInput = document.getElementById('edit_fishr_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        console.log('File selected:', fileInput.files[0].name);
+        formData.append('supporting_document', fileInput.files[0]);
+    }
+    
+    console.log('Sending update request for registration:', registrationId);
+    
+    // CRITICAL FIX: Use POST method (not PUT) with _method field for multipart/form-data
+    fetch(`/admin/fishr-registrations/${registrationId}`, {
+        method: 'POST',  // Changed from PUT to POST
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+            // DO NOT set Content-Type - let browser set it automatically for multipart/form-data
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        
+        if (!response.ok && response.status !== 422) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        
+        if (data.success) {
+            showToast('success', data.message || 'Registration updated successfully');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editFishrModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Wait a moment then reload to show all changes
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else if (data.errors) {
+            // Handle validation errors
+            console.log('Validation errors:', data.errors);
+            
+            let errorCount = 0;
+            Object.keys(data.errors).forEach(field => {
+                // Map backend field names to form input IDs
+                const fieldMap = {
+                    'first_name': 'edit_fishr_first_name',
+                    'middle_name': 'edit_fishr_middle_name',
+                    'last_name': 'edit_fishr_last_name',
+                    'name_extension': 'edit_fishr_extension',
+                    'sex': 'edit_fishr_sex',
+                    'contact_number': 'edit_fishr_contact_number',
+                    'barangay': 'edit_fishr_barangay',
+                    'main_livelihood': 'edit_fishr_livelihood',
+                    'other_livelihood': 'edit_fishr_other_livelihood',
+                    'supporting_document': 'edit_fishr_supporting_document'
+                };
+                
+                const inputId = fieldMap[field] || 'edit_fishr_' + field;
+                const input = document.getElementById(inputId);
+                
+                if (input) {
                     input.classList.add('is-invalid');
-                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
-
+                    
+                    // Remove old error message if exists
+                    const oldError = input.parentNode.querySelector('.invalid-feedback');
+                    if (oldError) oldError.remove();
+                    
+                    // Add new error message
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = field.label + ' is required';
+                    errorDiv.textContent = data.errors[field][0] || 'Invalid value';
                     input.parentNode.appendChild(errorDiv);
-                    isValid = false;
+                    errorCount++;
                 }
             });
+            
+            showToast('error', `Please fix ${errorCount} validation error(s)`);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        } else {
+            throw new Error(data.message || 'Update failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Error updating registration: ' + error.message);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+/**
+ * Update table row with latest data
+ */
+function updateTableRow(registrationId) {
+    try {
+        fetch(`/admin/fishr-registrations/${registrationId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch updated data');
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) return;
 
-            // Validate contact number
-            const contactInput = form.querySelector('[name="contact_number"]');
-            if (contactInput && contactInput.value.trim()) {
-                const phoneRegex = /^(\+639|09)\d{9}$/;
-                if (!phoneRegex.test(contactInput.value.trim())) {
-                    contactInput.classList.add('is-invalid');
-                    const feedback = contactInput.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
+            const data = response.data;
+            const row = document.querySelector(`tr[data-registration-id="${registrationId}"]`);
+            
+            if (!row) return;
 
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                    contactInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
+            const cells = row.querySelectorAll('td');
+            
+            // Update Name (Column 2)
+            if (cells[2]) {
+                cells[2].textContent = data.full_name;
             }
 
-            return isValid;
-        }
-
-        // Proceed with edit submission
-        function proceedWithEditFishr(form, registrationId) {
-            const submitBtn = document.getElementById('editSubmitBtn');
-
-            // Show loading state
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
-            submitBtn.disabled = true;
-
-            const formData = new FormData(form);
-
-            fetch(`/admin/fishr-registrations/${registrationId}`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Close modal
-                        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('editFishrModal'));
-                        if (modalInstance) modalInstance.hide();
-
-                        showToast('success', data.message || 'Registration updated successfully');
-
-                        // Reload page
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        throw new Error(data.message || 'Failed to update registration');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error: ' + error.message);
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
-        }
-
-
-        // Auto-capitalize names in edit form
-        function capitalizeEditFishrName(input) {
-            const value = input.value;
-            if (value.length > 0) {
-                input.value = value
-                    .toLowerCase()
-                    .split(' ')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
+            // Update Livelihood (Column 3)
+            if (cells[3]) {
+                cells[3].innerHTML = `<span class="badge bg-info fs-6">${data.livelihood_description}</span>`;
             }
+
+            // Highlight row
+            row.style.backgroundColor = '#fff3cd';
+            setTimeout(() => {
+                row.style.transition = 'background-color 0.3s ease';
+                row.style.backgroundColor = '';
+            }, 100);
+        })
+        .catch(error => console.error('Error updating row:', error));
+    } catch (error) {
+        console.error('Error in updateTableRow:', error);
+    }
+}
+
+/**
+ * Preview Edit FishR Document
+ */
+function previewEditFishrDocument(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    
+    if (!input.files || !input.files[0]) {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    const file = input.files[0];
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('error', 'File size must not exceed 10MB');
+        input.value = '';
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const allowedTypes = ['jpg', 'jpeg', 'png', 'pdf'];
+    
+    if (!allowedTypes.includes(fileExtension)) {
+        showToast('error', 'File type not supported. Allowed: JPG, PNG, PDF');
+        input.value = '';
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    if (fileExtension === 'pdf') {
+        preview.innerHTML = `
+            <div class="alert alert-success mb-2">
+                <i class="fas fa-file-pdf text-danger me-2"></i>
+                <strong>${file.name}</strong> (${(file.size / 1024).toFixed(2)} KB)
+            </div>
+        `;
+        preview.style.display = 'block';
+    } else {
+        // For images, show preview
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <div class="document-preview-item">
+                    <img src="${e.target.result}" alt="Preview" 
+                        style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                        <i class="fas fa-check text-success me-2"></i>${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                    </p>
+                </div>
+            `;
+            preview.style.display = 'block';
+            
+            console.log('Image preview loaded successfully');
+            
+            // Trigger change detection
+            const form = document.getElementById('editFishrForm');
+            if (form && form.dataset.registrationId) {
+                checkEditFishrFormChanges(form.dataset.registrationId);
+            }
+        };
+
+        reader.onerror = function(error) {
+            console.error('File read error:', error);
+            preview.innerHTML = `
+                <div class="alert alert-danger mb-2">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Failed to load file preview
+                </div>
+            `;
+            preview.style.display = 'block';
+            input.value = '';
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
+/**
+ * Auto-capitalize names in edit form
+ */
+function capitalizeEditFishrName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
+        // Trigger change detection after capitalization
+        const form = document.getElementById('editFishrForm');
+        if (form && form.dataset.registrationId) {
+            checkEditFishrFormChanges(form.dataset.registrationId);
         }
+    }
+}
+
+/**
+ * Initialize name field auto-capitalize when modal is shown
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up event delegation for dynamically added elements
+    document.addEventListener('focusout', function(e) {
+        if (e.target.id === 'edit_fishr_first_name' ||
+            e.target.id === 'edit_fishr_middle_name' ||
+            e.target.id === 'edit_fishr_last_name') {
+            capitalizeEditFishrName(e.target);
+        }
+    });
+
+    // Add contact number validation
+    const contactInput = document.getElementById('edit_fishr_contact_number');
+    if (contactInput) {
+        contactInput.addEventListener('input', function() {
+            validateEditFishrContactNumber(this.value);
+        });
+    }
+});
+
+/**
+ * Validate contact number in edit form
+ */
+function validateEditFishrContactNumber(contactNumber) {
+    const input = document.getElementById('edit_fishr_contact_number');
+    const feedback = input.parentNode.querySelector('.invalid-feedback');
+    if (feedback) feedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    if (!contactNumber.trim()) return true;
+
+    const phoneRegex = /^(\+639|09)\d{9}$/;
+
+    if (!phoneRegex.test(contactNumber.trim())) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    input.classList.add('is-valid');
+    return true;
+}
+
 
         // Add event listeners for blur on name fields
         document.addEventListener('DOMContentLoaded', function() {
@@ -4713,6 +5166,74 @@ function downloadAnnex(registrationId, annexId) {
                 backdrop.style.zIndex = baseZIndex + (modalCount * 20) - 1;
             }
         });
+
+        /**
+         * Auto-capitalize names in edit form
+         */
+        function capitalizeEditFishrName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                // Trigger change detection after capitalization
+                const form = document.getElementById('editFishrForm');
+                if (form && form.dataset.registrationId) {
+                    checkEditFishrFormChanges(form.dataset.registrationId);
+                }
+            }
+        }
+
+        /**
+         * Initialize name field auto-capitalize when modal is shown
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event delegation for dynamically added elements
+            document.addEventListener('focusout', function(e) {
+                if (e.target.id === 'edit_fishr_first_name' ||
+                    e.target.id === 'edit_fishr_middle_name' ||
+                    e.target.id === 'edit_fishr_last_name') {
+                    capitalizeEditFishrName(e.target);
+                }
+            });
+
+            // Add contact number validation
+            const contactInput = document.getElementById('edit_fishr_contact_number');
+            if (contactInput) {
+                contactInput.addEventListener('input', function() {
+                    validateEditFishrContactNumber(this.value);
+                });
+            }
+        });
+
+        /**
+         * Validate contact number in edit form
+         */
+        function validateEditFishrContactNumber(contactNumber) {
+            const input = document.getElementById('edit_fishr_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!contactNumber.trim()) return true;
+
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
         console.log('FishR Add Registration functionality loaded successfully');
     </script>
 @endsection
