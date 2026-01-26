@@ -108,7 +108,6 @@ class TrainingController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:255',
 
                 // Training info
@@ -119,21 +118,14 @@ class TrainingController extends Controller
                 'remarks' => 'nullable|string|max:1000',
 
                 // CHANGED: Single document instead of array
-                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-
-                // Optional user link
-                'user_id' => 'nullable|exists:user_registration,id'
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240'
+                
             ], [
                 'barangay.required' => 'Barangay is required',
                 'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
                 'supporting_document.max' => 'Document must not exceed 10MB',
                 'supporting_document.mimes' => 'Only JPG, PNG, and PDF files are allowed'
             ]);
-
-            // Set user_id to null if not provided
-            if (!isset($validated['user_id'])) {
-                $validated['user_id'] = null;
-            }
 
             // Generate unique application number
             $validated['application_number'] = $this->generateApplicationNumber();
@@ -172,7 +164,6 @@ class TrainingController extends Controller
                 'application_id' => $training->id,
                 'application_number' => $training->application_number,
                 'created_by' => auth()->user()->name,
-                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
 
             return response()->json([
@@ -182,7 +173,6 @@ class TrainingController extends Controller
                     'id' => $training->id,
                     'application_number' => $training->application_number,
                     'status' => $training->status,
-                    'linked_to_user' => $validated['user_id'] ? true : false
                 ]
             ], 201);
 
@@ -235,7 +225,6 @@ class TrainingController extends Controller
                 'name_extension' => $training->name_extension,
                 'full_name' => $training->full_name,
                 'contact_number' => $training->contact_number,
-                'email' => $training->email,
                 'barangay' => $training->barangay,
                 'training_type' => $training->training_type,
                 'training_type_display' => $training->training_type_display,
@@ -268,7 +257,6 @@ class TrainingController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:255',
                 'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
             ], [
@@ -458,7 +446,6 @@ class TrainingController extends Controller
                     'Application Number',
                     'Full Name',
                     'Contact Number',
-                    'Email',
                     'Training Type',
                     'Status',
                     'Has Document',
@@ -474,7 +461,6 @@ class TrainingController extends Controller
                         $application->application_number,
                         $application->full_name,
                         $application->contact_number ?? 'N/A',
-                        $application->email ?? 'N/A',
                         $application->training_type_display,
                         $application->formatted_status,
                         $application->hasDocument() ? 'Yes' : 'No',

@@ -123,7 +123,7 @@
                     <div class="col-md-4">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
-                                placeholder="Search name, number, email..." value="{{ request('search') }}"
+                                placeholder="Search name, number..." value="{{ request('search') }}"
                                 oninput="autoSearch()" id="searchInput">
                             <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                 id="searchButton">
@@ -158,7 +158,7 @@
             </div>
             <div class="d-flex gap-2">
                  <button type="button" class="btn btn-primary btn-sm" onclick="showAddTrainingModal()">
-                    <i class="fas fa-plus me-2"></i>Add Registration
+                    <i class="fas fa-user-plus me-2"></i>Add Registration
                 </button>
                 <a href="{{ route('admin.training.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
@@ -350,7 +350,6 @@
                                     <p class="mb-1"><strong>Application #:</strong> <span id="updateAppNumber"></span>
                                     </p>
                                     <p class="mb-1"><strong>Name:</strong> <span id="updateAppName"></span></p>
-                                    <p class="mb-1"><strong>Email:</strong> <span id="updateAppEmail"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>Contact:</strong> <span id="updateAppMobile"></span></p>
@@ -533,44 +532,54 @@
         </div>
     </div>
 
-    <!-- Add training Modal  -->
+    <!-- Add training Modal - UPDATED WITH FISHR DESIGN -->
     <div class="modal fade" id="addTrainingModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-graduation-cap me-2"></i>Add New Training Application
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Add New Training Application
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addTrainingForm" enctype="multipart/form-data">
-                        <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="training_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="training_first_name" class="form-label fw-semibold">
+                                            First Name <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="training_first_name" required
-                                            maxlength="100">
+                                            maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="training_middle_name" class="form-label">Middle Name</label>
+                                        <label for="training_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
                                         <input type="text" class="form-control" id="training_middle_name"
-                                            maxlength="100">
+                                            maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="training_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
+                                        <label for="training_last_name" class="form-label fw-semibold">
+                                            Last Name <span class="text-danger">*</span>
+                                        </label>
                                         <input type="text" class="form-control" id="training_last_name" required
-                                            maxlength="100">
+                                            maxlength="100" placeholder="Last name">
                                     </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="training_name_extension" class="form-label">Extension</label>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="training_name_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="training_name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -581,41 +590,33 @@
                                             <option value="V">V</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="training_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="training_contact_number" class="form-label fw-semibold">
+                                            Contact Number <span class="text-danger">*</span>
+                                        </label>
                                         <input type="tel" class="form-control" id="training_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="training_email" class="form-label">Email (Optional)</label>
-                                        <input type="email" class="form-control" id="training_email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="training_user_id" class="form-label">Link to User Account
-                                            (Optional)</label>
-                                        <input type="number" class="form-control" id="training_user_id"
-                                            placeholder="Enter User ID if exists">
-                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Location Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <!-- Location Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="training_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="training_barangay" class="form-label fw-semibold">
+                                            Barangay <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="training_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -651,16 +652,19 @@
                             </div>
                         </div>
 
-                        <!-- Training Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information</h6>
+                        <!-- Training Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-book me-2"></i>Training Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="training_type" class="form-label">Training Type <span
-                                                class="text-danger">*</span></label>
+                                        <label for="training_type" class="form-label fw-semibold">
+                                            Training Type <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="training_type" required>
                                             <option value="">Select Training Type</option>
                                             <option value="tilapia_hito">Tilapia and Hito</option>
@@ -676,56 +680,91 @@
                             </div>
                         </div>
 
-                        <!-- Supporting Documents -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Documents (Optional)
+                        <!-- Supporting Documents Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
                                 </h6>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                                </p>
                                 <div class="row">
-                                    <div class="col-md-12 mb-3">
-                                        <label for="training_supporting_documents" class="form-label">Upload
-                                            Documents</label>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="training_supporting_document" class="form-label fw-semibold">
+                                            Upload Document
+                                        </label>
                                         <input type="file" class="form-control" id="training_supporting_document"
-                                            accept="image/*,.pdf" onchange="previewTrainingDocument()">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
+                                            accept=".pdf,.jpg,.jpeg,.png" onchange="previewTrainingDocument()">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Accepted: JPG, PNG, PDF (Max 10MB)
+                                        </small>
                                     </div>
-                                    <div class="col-md-12">
-                                        <div id="training_doc_preview" class="d-flex flex-wrap gap-2"></div>
+                                    <div class="col-md-6">
+                                        <div id="training_doc_preview" style="margin-top: 10px;"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Application Status -->
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Application Status</h6>
+                        <!-- Application Status Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-cog me-2"></i>Application Status
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="training_status" class="form-label">Initial Status <span
-                                                class="text-danger">*</span></label>
+                                        <label for="training_status" class="form-label fw-semibold">
+                                            Initial Status <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="training_status" required>
                                             <option value="under_review" selected>Under Review</option>
                                             <option value="approved">Approved</option>
                                             <option value="rejected">Rejected</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="training_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="training_remarks" rows="3" maxlength="1000"
-                                            placeholder="Any notes or comments..."></textarea>
-                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="training_remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="training_remarks" rows="4"
+                                    placeholder="Add any comments about this application..."
+                                    maxlength="1000"
+                                    oninput="updateTrainingRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this registration
+                                    </small>
+                                    <small class="text-muted" id="remarksCounterTraining">
+                                        <span id="charCountTraining">0</span>/1000
+                                    </small>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddTraining()">
                         <i class="fas fa-save me-1"></i>Create Application
                     </button>
@@ -733,6 +772,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Edit Training Modal -->
     <div class="modal fade" id="editTrainingModal" tabindex="-1">
@@ -795,12 +835,6 @@
                                             name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_training_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_training_email"
-                                            name="email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">Application Number</label>
@@ -1561,7 +1595,6 @@
                     // Populate application info
                     document.getElementById('updateAppNumber').textContent = data.application_number;
                     document.getElementById('updateAppName').textContent = data.full_name;
-                    document.getElementById('updateAppEmail').textContent = data.email || 'N/A';
                     document.getElementById('updateAppMobile').textContent = data.contact_number || 'N/A';
                     document.getElementById('updateAppTraining').textContent = data.training_type_display;
                     document.getElementById('updateAppCurrentStatus').innerHTML = `
@@ -1764,7 +1797,6 @@
                         <p><strong>Application #:</strong> ${data.application_number}</p>
                         <p><strong>Full Name:</strong> ${data.full_name}</p>
                         <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                        <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                     </div>
                     <div class="col-md-6">
                         <h6 class="border-bottom pb-2">Training Information</h6>
@@ -2418,37 +2450,6 @@
             return true;
         }
 
-        // Real-time validation for email
-        document.getElementById('training_email')?.addEventListener('input', function() {
-            validateTrainingEmail(this.value);
-        });
-
-        function validateTrainingEmail(email) {
-            const input = document.getElementById('training_email');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!email || email.trim() === '') {
-                return true; // Email is optional
-            }
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
         // Auto-capitalize name fields
         function capitalizeTrainingName(input) {
             const value = input.value;
@@ -2576,12 +2577,6 @@
                 isValid = false;
             }
 
-            // Validate email if provided
-            const email = document.getElementById('training_email').value.trim();
-            if (email && !validateTrainingEmail(email)) {
-                isValid = false;
-            }
-
             return isValid;
         }
 
@@ -2602,15 +2597,9 @@
             formData.append('name_extension', document.getElementById('training_name_extension').value);
             formData.append('barangay', document.getElementById('training_barangay').value.trim());
             formData.append('contact_number', document.getElementById('training_contact_number').value.trim());
-            formData.append('email', document.getElementById('training_email').value.trim());
             formData.append('training_type', document.getElementById('training_type').value);
             formData.append('status', document.getElementById('training_status').value);
             formData.append('remarks', document.getElementById('training_remarks').value.trim());
-
-            const userId = document.getElementById('training_user_id').value.trim();
-            if (userId) {
-                formData.append('user_id', userId);
-            }
 
             // Add document if uploaded
             const docInput = document.getElementById('training_supporting_document');
@@ -2795,7 +2784,6 @@
                         document.getElementById('edit_training_last_name').value = training.last_name || '';
                         document.getElementById('edit_training_extension').value = training.name_extension || '';
                         document.getElementById('edit_training_contact').value = training.contact_number || '';
-                        document.getElementById('edit_training_email').value = training.email || '';
                         document.getElementById('edit_training_barangay').value = training.barangay || '';
                         document.getElementById('edit_training_type').value = training.training_type || '';
                         document.getElementById('edit_training_app_number').value = training.application_number || '';
@@ -2832,7 +2820,6 @@
                 last_name: document.getElementById('edit_training_last_name').value,
                 name_extension: document.getElementById('edit_training_extension').value,
                 contact_number: document.getElementById('edit_training_contact').value,
-                email: document.getElementById('edit_training_email').value,
                 barangay: document.getElementById('edit_training_barangay').value,
                 training_type: document.getElementById('edit_training_type').value
             };
@@ -2861,7 +2848,6 @@
                 'last_name': 'edit_training_last_name',
                 'name_extension': 'edit_training_extension',
                 'contact_number': 'edit_training_contact',
-                'email': 'edit_training_email',
                 'barangay': 'edit_training_barangay',
                 'training_type': 'edit_training_type'
             };
@@ -2964,11 +2950,6 @@
                 isValid = false;
             }
 
-            const email = document.getElementById('edit_training_email').value.trim();
-            if (email && !validateEditTrainingEmail(document.getElementById('edit_training_email'))) {
-                isValid = false;
-            }
-
             return isValid;
         }
 
@@ -2998,32 +2979,6 @@
             return true;
         }
 
-        // Validate edit training email
-        function validateEditTrainingEmail(input) {
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            const email = input.value.trim();
-            if (!email) {
-                return true;
-            }
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email)) {
-                input.classList.add('is-invalid');
-                const newFeedback = document.createElement('div');
-                newFeedback.className = 'invalid-feedback d-block';
-                newFeedback.textContent = 'Please enter a valid email address';
-                input.parentNode.appendChild(newFeedback);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
         // Proceed with edit submission
         function proceedWithEditTraining() {
             const form = document.getElementById('editTrainingForm');
@@ -3044,7 +2999,6 @@
             formData.append('last_name', document.getElementById('edit_training_last_name').value.trim());
             formData.append('name_extension', document.getElementById('edit_training_extension').value);
             formData.append('contact_number', document.getElementById('edit_training_contact').value.trim());
-            formData.append('email', document.getElementById('edit_training_email').value.trim());
             formData.append('barangay', document.getElementById('edit_training_barangay').value);
             formData.append('training_type', document.getElementById('edit_training_type').value);
             formData.append('_method', 'PUT');
@@ -3087,7 +3041,7 @@
             if (!form) return;
 
             const fields = ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name',
-                'edit_training_extension', 'edit_training_contact', 'edit_training_email',
+                'edit_training_extension', 'edit_training_contact', 
                 'edit_training_barangay', 'edit_training_type'
             ];
 
@@ -3097,9 +3051,7 @@
                     element.addEventListener('blur', function() {
                         if (id.includes('contact')) {
                             validateEditTrainingContactNumber(this);
-                        } else if (id.includes('email')) {
-                            validateEditTrainingEmail(this);
-                        }
+                        } 
                         checkForEditTrainingChanges();
                     });
 
@@ -3124,6 +3076,33 @@
             const metaTag = document.querySelector('meta[name="csrf-token"]');
             return metaTag ? metaTag.getAttribute('content') : '';
         }
+
+        // Update remarks character counter for training
+        function updateTrainingRemarksCounter() {
+            const textarea = document.getElementById('training_remarks');
+            const charCount = document.getElementById('charCountTraining');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    charCount.parentElement.classList.add('text-warning');
+                    charCount.parentElement.classList.remove('text-muted');
+                } else {
+                    charCount.parentElement.classList.remove('text-warning');
+                    charCount.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        // Initialize counter on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('training_remarks');
+            if (textarea) {
+                textarea.addEventListener('input', updateTrainingRemarksCounter);
+            }
+        });
         console.log('Training Add Application functionality loaded successfully');
     </script>
 @endsection
