@@ -1881,7 +1881,39 @@
         </div>
     </div>
 </div>
-
+<!-- DELETE MODAL FOR BOATR -->
+<div class="modal fade" id="deleteBoatrModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title w-100 text-center">Permanently Delete BoatR Registration</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_boatr_name"></strong> will:</p>
+                </div>
+                <ul class="mb-0">
+                    <li>Remove the BoatR application from the database</li>
+                    <li>Delete all associated documents and files</li>
+                    <li>Delete all annexes and attachments</li>
+                    <li>Delete all application history and logs</li>
+                    <li>Cannot be recovered</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteBoatr()"
+                    id="confirm_delete_boatr_btn">
+                    <span class="btn-text">Yes, Delete Permanently</span>
+                    <span class="btn-loader" style="display: none;"><span
+                            class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
     <style>
         /* Document count badge on mini docs */
         .boatr-doc-count {
@@ -4559,14 +4591,186 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 });
         }
 
-        // Delete registration with confirmation toast
         function deleteRegistration(id, applicationNumber) {
-            showConfirmationToast(
-                'Delete Application',
-                `Are you sure you want to delete application ${applicationNumber}?\n\nThis action cannot be undone and will also delete:\n• All associated documents\n• All inspection records\n• All annexes`,
-                () => proceedWithRegistrationDelete(id, applicationNumber)
-            );
+            console.log('=== deleteRegistration called ===', { id, applicationNumber });
+            
+            try {
+                // Validate inputs
+                if (!id || !applicationNumber) {
+                    showToast('error', 'Invalid application data');
+                    return;
+                }
+
+                // Set the application number in the modal
+                const nameElement = document.getElementById('delete_boatr_name');
+                if (!nameElement) {
+                    console.error('Modal name element not found');
+                    showToast('error', 'Delete modal not found in page');
+                    return;
+                }
+
+                nameElement.textContent = applicationNumber;
+
+                // Store the ID globally for use in confirmation function
+                window.currentDeleteBoatrId = id;
+                
+                console.log('Showing delete modal for ID:', id);
+
+                // Show the delete modal
+                const deleteModal = document.getElementById('deleteBoatrModal');
+                if (!deleteModal) {
+                    console.error('Delete modal element not found');
+                    showToast('error', 'Delete modal not found');
+                    return;
+                }
+
+                const modal = new bootstrap.Modal(deleteModal);
+                modal.show();
+                
+            } catch (error) {
+                console.error('Error preparing delete dialog:', error);
+                showToast('error', 'Failed to open delete dialog: ' + error.message);
+            }
         }
+
+        /**
+ * Confirm permanent delete for BoatR registration
+ */
+function confirmPermanentDeleteBoatr() {
+    console.log('=== confirmPermanentDeleteBoatr called ===');
+    
+    const id = window.currentDeleteBoatrId;
+    
+    if (!id) {
+        showToast('error', 'Application ID not found');
+        console.error('currentDeleteBoatrId is not set');
+        return;
+    }
+
+    console.log('Deleting application ID:', id);
+
+    try {
+        // Show loading state
+        const deleteBtn = document.getElementById('confirm_delete_boatr_btn');
+        if (!deleteBtn) {
+            console.error('Delete button not found');
+            showToast('error', 'Delete button not found');
+            return;
+        }
+
+        const btnText = deleteBtn.querySelector('.btn-text');
+        const btnLoader = deleteBtn.querySelector('.btn-loader');
+        
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoader) btnLoader.style.display = 'inline';
+        deleteBtn.disabled = true;
+
+        const url = `/admin/boatr/requests/${id}`;
+        console.log('Sending DELETE request to:', url);
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw {
+                        status: response.status,
+                        message: data.message || 'Delete failed'
+                    };
+                }).catch(err => {
+                    throw {
+                        status: response.status,
+                        message: err.message || `HTTP ${response.status}`
+                    };
+                });
+            }
+            
+            return response.json();
+        })
+        .then(data => {
+            console.log('Delete response:', data);
+            
+            if (data.success) {
+                // Close modal
+                const deleteModalEl = document.getElementById('deleteBoatrModal');
+                const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show success message
+                showToast('success', data.message || 'Application deleted successfully');
+
+                // Remove the row with animation
+                const row = document.getElementById(`registration-${id}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        // Check if table is empty
+                        const tbody = document.querySelector('#registrationsTable tbody');
+                        if (tbody && tbody.children.length === 0) {
+                            // Reload page to show empty state
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                    }, 300);
+                } else {
+                    // Fallback: reload page
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+
+                // Reset for next use
+                window.currentDeleteBoatrId = null;
+            } else {
+                throw new Error(data.message || 'Delete operation failed');
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            
+            // Close modal
+            const deleteModalEl = document.getElementById('deleteBoatrModal');
+            const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+            if (deleteModal) {
+                deleteModal.hide();
+            }
+
+            // Show error
+            const errorMsg = error.message || 'Unknown error occurred';
+            showToast('error', 'Error: ' + errorMsg);
+
+        })
+        .finally(() => {
+            // Reset button state
+            const deleteBtn = document.getElementById('confirm_delete_boatr_btn');
+            const btnText = deleteBtn.querySelector('.btn-text');
+            const btnLoader = deleteBtn.querySelector('.btn-loader');
+            
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoader) btnLoader.style.display = 'none';
+            deleteBtn.disabled = false;
+        });
+
+    } catch (error) {
+        console.error('Fatal error in confirmPermanentDeleteBoatr:', error);
+        showToast('error', 'Fatal error: ' + error.message);
+    }
+}
 
         // Proceed with registration deletion
         function proceedWithRegistrationDelete(id, applicationNumber) {
@@ -7923,91 +8127,158 @@ function updateEditBoatrInspectionCounter() {
             }
         }
 
-    /**
- * Handle Edit BoatR Form Submission
- * Called when Save Changes button is clicked
+  /**
+ * Handle Edit BoatR Form Submission - with changes summary
  */
 function handleEditBoatrSubmit() {
-    console.log('=== handleEditBoatrSubmit called ===');
-    
-    // Get the form with the CORRECT ID
     const form = document.getElementById('editBoatrForm');
-    
-    if (!form) {
-        console.error('Form not found: editBoatrForm');
-        showToast('error', 'Form not found in the page. Please close and reopen the modal.');
-        return;
-    }
-
-    // Get registration ID from form dataset
     const registrationId = form.dataset.registrationId;
-    
-    if (!registrationId) {
-        console.error('Registration ID not found in form dataset');
-        showToast('error', 'Registration ID not found. Please close and reopen the modal.');
+    const submitBtn = document.getElementById('editBoatrSubmitBtn');
+
+    // Validate form first
+    if (!validateEditBoatrForm()) {
+        showToast('error', 'Please fix all validation errors');
         return;
     }
 
-    console.log('Form found and registration ID:', registrationId);
-    
-    // Check if form has changes
     const hasChanges = form.dataset.hasChanges === 'true';
-    
+
+    // If no changes, show warning and return
     if (!hasChanges) {
-        showToast('info', 'No changes to save');
+        showToast('warning', 'No changes detected. Please modify the fields before updating.');
         return;
     }
 
-    // Validate required fields
-    const requiredFields = [
-        { id: 'edit_boatr_first_name', label: 'First Name' },
-        { id: 'edit_boatr_last_name', label: 'Last Name' },
-        { id: 'edit_boatr_contact_number', label: 'Contact Number' },
-        { id: 'edit_boatr_barangay', label: 'Barangay' },
-        { id: 'edit_boatr_vessel_name', label: 'Vessel Name' },
-        { id: 'edit_boatr_boat_type', label: 'Boat Type' },
-        { id: 'edit_boatr_boat_length', label: 'Length' },
-        { id: 'edit_boatr_boat_width', label: 'Width' },
-        { id: 'edit_boatr_boat_depth', label: 'Depth' },
-        { id: 'edit_boatr_engine_type', label: 'Engine Type' },
-        { id: 'edit_boatr_engine_horsepower', label: 'Horsepower' },
-        { id: 'edit_boatr_primary_fishing_gear', label: 'Fishing Gear' }
+    // Build changes summary ONLY from actually changed fields
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let changedFields = [];
+
+    const fieldLabels = {
+        'first_name': 'First Name',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'name_extension': 'Extension',
+        'contact_number': 'Contact Number',
+        'barangay': 'Barangay',
+        'vessel_name': 'Vessel Name',
+        'boat_type': 'Boat Type',
+        'boat_length': 'Boat Length',
+        'boat_width': 'Boat Width',
+        'boat_depth': 'Boat Depth',
+        'engine_type': 'Engine Type',
+        'engine_horsepower': 'Engine Horsepower',
+        'primary_fishing_gear': 'Primary Fishing Gear',
+        'inspection_notes': 'Inspection Notes',
+        'supporting_document': 'Supporting Document',
+        'inspection_document': 'Inspection Document'
+    };
+
+    // Check which fields have changed
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'contact_number', 'barangay', 'vessel_name', 'boat_type',
+        'boat_length', 'boat_width', 'boat_depth', 'engine_type',
+        'engine_horsepower', 'primary_fishing_gear', 'inspection_notes'
     ];
 
-    let isValid = true;
-    const errors = [];
+    fields.forEach(field => {
+        const fieldElement = form.querySelector(`[name="${field}"]`);
+        if (fieldElement) {
+            // Convert to string and trim for proper comparison
+            const currentValue = String(fieldElement.value || '').trim();
+            const originalValue = String(originalData[field] || '').trim();
 
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        if (!input) {
-            console.warn(`Field not found: ${field.id}`);
-            return;
+            if (currentValue !== originalValue) {
+                changedFields.push(fieldLabels[field] || field);
+            }
         }
+    });
 
-        const value = input.value.trim();
-        
-        if (!value) {
+    // Check file inputs - ONLY if a NEW file was selected
+    const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
+    if (supportingDocInput && supportingDocInput.files && supportingDocInput.files.length > 0) {
+        changedFields.push('Supporting Document');
+    }
+
+    const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
+    if (inspectionDocInput && inspectionDocInput.files && inspectionDocInput.files.length > 0) {
+        changedFields.push('Inspection Document');
+    }
+
+    // Build confirmation message
+    const changesText = changedFields.length > 0 
+        ? `Update this BoatR application with the following changes?\n\n• ${changedFields.join('\n• ')}`
+        : 'Update this BoatR application?';
+
+    // Show confirmation with only changed fields
+    showConfirmationToast(
+        'Confirm Update',
+        changesText,
+        () => proceedWithEditBoatrSubmit(form, registrationId)
+    );
+}
+
+/**
+ * Validate Edit BoatR Form
+ */
+function validateEditBoatrForm() {
+    const form = document.getElementById('editBoatrForm');
+    let isValid = true;
+    
+    // Required fields
+    const requiredFields = [
+        { name: 'first_name', label: 'First Name', element: 'edit_boatr_first_name' },
+        { name: 'last_name', label: 'Last Name', element: 'edit_boatr_last_name' },
+        { name: 'contact_number', label: 'Contact Number', element: 'edit_boatr_contact_number' },
+        { name: 'barangay', label: 'Barangay', element: 'edit_boatr_barangay' },
+        { name: 'vessel_name', label: 'Vessel Name', element: 'edit_boatr_vessel_name' },
+        { name: 'boat_type', label: 'Boat Type', element: 'edit_boatr_boat_type' },
+        { name: 'boat_length', label: 'Boat Length', element: 'edit_boatr_boat_length' },
+        { name: 'boat_width', label: 'Boat Width', element: 'edit_boatr_boat_width' },
+        { name: 'boat_depth', label: 'Boat Depth', element: 'edit_boatr_boat_depth' },
+        { name: 'engine_type', label: 'Engine Type', element: 'edit_boatr_engine_type' },
+        { name: 'engine_horsepower', label: 'Engine Horsepower', element: 'edit_boatr_engine_horsepower' },
+        { name: 'primary_fishing_gear', label: 'Primary Fishing Gear', element: 'edit_boatr_primary_fishing_gear' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.element);
+        if (input && (!input.value || input.value.trim() === '')) {
             input.classList.add('is-invalid');
-            errors.push(`${field.label} is required`);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            input.parentNode.appendChild(errorDiv);
             isValid = false;
         } else {
             input.classList.remove('is-invalid');
         }
     });
-
-    if (!isValid) {
-        showToast('error', errors[0] || 'Please fill all required fields');
-        return;
+    
+    // Validate contact number
+    const contactInput = document.getElementById('edit_boatr_contact_number');
+    if (contactInput && contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            
+            const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
     }
-
-    // Show confirmation
-    showConfirmationToast(
-        'Confirm Changes',
-        'Are you sure you want to save the changes?',
-        () => proceedWithEditBoatrSubmit(form, registrationId)
-    );
+    
+    return isValid;
 }
-
 
         // Proceed with update
         function proceedWithEditBoatr(form, registrationId) {
@@ -8398,6 +8669,41 @@ function handleEditBoatrSubmit() {
                 document.body.removeChild(link);
             }
         }
+        // Cleanup modal on close
+    // Cleanup modal on close
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteBoatrModal = document.getElementById('deleteBoatrModal');
+    if (deleteBoatrModal) {
+        deleteBoatrModal.addEventListener('hidden.bs.modal', function() {
+            console.log('Delete modal hidden - cleaning up');
+            
+            // Reset button state
+            const deleteBtn = document.getElementById('confirm_delete_boatr_btn');
+            if (deleteBtn) {
+                const btnText = deleteBtn.querySelector('.btn-text');
+                const btnLoader = deleteBtn.querySelector('.btn-loader');
+                
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoader) btnLoader.style.display = 'none';
+                deleteBtn.disabled = false;
+            }
 
+            // Remove any lingering backdrops
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+
+            // Remove modal-open class from body
+            document.body.classList.remove('modal-open');
+
+            // Reset body overflow
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+
+            // Reset global variable
+            window.currentDeleteBoatrId = null;
+
+            console.log('Delete modal cleanup complete');
+        });
+    }
+});
     </script>
 @endsection
