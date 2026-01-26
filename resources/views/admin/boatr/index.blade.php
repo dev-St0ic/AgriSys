@@ -241,7 +241,7 @@
                                                         onclick="viewDocuments({{ $registration->id }})"
                                                         title="User Documents">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-file-image text-info"></i>
+                                                            <i class="fas fa-file-alt text-primary"></i>
                                                         </div>
                                                     </div>
                                                 @endif
@@ -250,7 +250,7 @@
                                                         onclick="viewDocuments({{ $registration->id }})"
                                                         title="Inspection Documents">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-clipboard-check text-success"></i>
+                                                            <i class="fas fa-file-alt text-primary"></i>
                                                         </div>
                                                     </div>
                                                 @endif
@@ -258,7 +258,7 @@
                                                     <div class="boatr-mini-doc"
                                                         onclick="viewDocuments({{ $registration->id }})" title="Annexes">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-folder text-warning"></i>
+                                                            <i class="fas fa-file-alt text-primary"></i>
                                                         </div>
                                                     </div>
                                                 @endif
@@ -302,14 +302,6 @@
                                             <i class="fas fa-folder-plus me-1"></i>Annexes
                                         </button>
 
-                                        @if (!$registration->inspection_completed)
-                                            <button class="btn btn-sm btn-outline-success"
-                                                onclick="showInspectionModal({{ $registration->id }})"
-                                                title="Complete Inspection">
-                                                <i class="fas fa-clipboard-check me-1"></i>Inspection
-                                            </button>
-                                        @endif
-
                                         <!-- Dropdown for More Actions -->
                                         <div class="btn-group" role="group">
                                             <button type="button"
@@ -318,6 +310,12 @@
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)"
+                                                        onclick="showInspectionModal({{ $registration->id }})">
+                                                        <i class="fas fa-clipboard-check text-info me-2"></i>Complete Inspection
+                                                    </a>
+                                                </li>
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="showEditBoatrModal({{ $registration->id }})">
@@ -2209,7 +2207,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #1cc88a;
+            border: 2px solid #0d6efd;
             display: flex;
             align-items: center;
             justify-content: center;
