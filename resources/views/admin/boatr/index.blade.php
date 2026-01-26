@@ -1488,398 +1488,399 @@
         </div>
     </div>
 
-        <!-- Edit BoatR Modal - ENHANCED WITH INSPECTION FILE UPLOAD -->
-        <div class="modal fade" id="editBoatrModal" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title w-100 text-center">
-                            <i class="fas fa-pencil-alt me-2"></i>Edit BoatR Application - <span id="editBoatrNumber"></span>
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+     <!-- Edit BoatR Modal - FIXED FORM ID -->
+<div class="modal fade" id="editBoatrModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title w-100 text-center">
+                    <i></i>Edit BoatR Application - <span id="editBoatrNumber"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- THIS IS THE KEY FIX: id="editBoatrForm" -->
+                <form id="editBoatrForm" enctype="multipart/form-data">
+                    <!-- Personal Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_first_name" class="form-label fw-semibold">
+                                        First Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_first_name" 
+                                        name="first_name" required maxlength="100" placeholder="First name">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_middle_name" class="form-label fw-semibold">
+                                        Middle Name
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_middle_name"
+                                        name="middle_name" maxlength="100" placeholder="Middle name (optional)">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_last_name" class="form-label fw-semibold">
+                                        Last Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_last_name"
+                                        name="last_name" required maxlength="100" placeholder="Last name">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_extension" class="form-label fw-semibold">
+                                        Extension
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_extension" name="name_extension">
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_contact_number" class="form-label fw-semibold">
+                                        Contact Number <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" class="form-control" id="edit_boatr_contact_number"
+                                        name="contact_number" required placeholder="09XXXXXXXXX"
+                                        pattern="^09\d{9}$" maxlength="11">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX (11 digits)
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_barangay" class="form-label fw-semibold">
+                                        Barangay <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_barangay" name="barangay" required>
+                                        <option value="">Select Barangay</option>
+                                        <option value="Bagong Silang">Bagong Silang</option>
+                                        <option value="Calendola">Calendola</option>
+                                        <option value="Chrysanthemum">Chrysanthemum</option>
+                                        <option value="Cuyab">Cuyab</option>
+                                        <option value="Estrella">Estrella</option>
+                                        <option value="Fatima">Fatima</option>
+                                        <option value="G.S.I.S.">G.S.I.S.</option>
+                                        <option value="Landayan">Landayan</option>
+                                        <option value="Langgam">Langgam</option>
+                                        <option value="Laram">Laram</option>
+                                        <option value="Magsaysay">Magsaysay</option>
+                                        <option value="Maharlika">Maharlika</option>
+                                        <option value="Narra">Narra</option>
+                                        <option value="Nueva">Nueva</option>
+                                        <option value="Pacita 1">Pacita 1</option>
+                                        <option value="Pacita 2">Pacita 2</option>
+                                        <option value="Poblacion">Poblacion</option>
+                                        <option value="Riverside">Riverside</option>
+                                        <option value="Rosario">Rosario</option>
+                                        <option value="Sampaguita Village">Sampaguita Village</option>
+                                        <option value="San Antonio">San Antonio</option>
+                                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                        <option value="San Roque">San Roque</option>
+                                        <option value="San Vicente">San Vicente</option>
+                                        <option value="Santo Niño">Santo Niño</option>
+                                        <option value="United Bayanihan">United Bayanihan</option>
+                                        <option value="United Better Living">United Better Living</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="modal-body">
-                        <form id="editBoatrForm" enctype="multipart/form-data">
-                            <!-- Personal Information Card -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-user me-2"></i>Personal Information
-                                    </h6>
+                    <!-- Vessel Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-ship me-2"></i>Vessel Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_vessel_name" class="form-label fw-semibold">
+                                        Vessel Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_vessel_name"
+                                        name="vessel_name" required maxlength="100" placeholder="Vessel name">
                                 </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-3 mb-3">
-                                            <label for="edit_boatr_first_name" class="form-label fw-semibold">
-                                                First Name <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control" id="edit_boatr_first_name" 
-                                                name="first_name" required maxlength="100" placeholder="First name">
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="edit_boatr_middle_name" class="form-label fw-semibold">
-                                                Middle Name
-                                            </label>
-                                            <input type="text" class="form-control" id="edit_boatr_middle_name"
-                                                name="middle_name" maxlength="100" placeholder="Middle name (optional)">
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="edit_boatr_last_name" class="form-label fw-semibold">
-                                                Last Name <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control" id="edit_boatr_last_name"
-                                                name="last_name" required maxlength="100" placeholder="Last name">
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label for="edit_boatr_extension" class="form-label fw-semibold">
-                                                Extension
-                                            </label>
-                                            <select class="form-select" id="edit_boatr_extension" name="name_extension">
-                                                <option value="">None</option>
-                                                <option value="Jr.">Jr.</option>
-                                                <option value="Sr.">Sr.</option>
-                                                <option value="II">II</option>
-                                                <option value="III">III</option>
-                                                <option value="IV">IV</option>
-                                                <option value="V">V</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="edit_boatr_contact_number" class="form-label fw-semibold">
-                                                Contact Number <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="tel" class="form-control" id="edit_boatr_contact_number"
-                                                name="contact_number" required placeholder="09XXXXXXXXX"
-                                                pattern="^09\d{9}$" maxlength="20">
-                                            <small class="text-muted d-block mt-2">
-                                                <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX (11 digits)
-                                            </small>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="edit_boatr_barangay" class="form-label fw-semibold">
-                                                Barangay <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" id="edit_boatr_barangay" name="barangay" required>
-                                                <option value="">Select Barangay</option>
-                                                <option value="Bagong Silang">Bagong Silang</option>
-                                                <option value="Calendola">Calendola</option>
-                                                <option value="Chrysanthemum">Chrysanthemum</option>
-                                                <option value="Cuyab">Cuyab</option>
-                                                <option value="Estrella">Estrella</option>
-                                                <option value="Fatima">Fatima</option>
-                                                <option value="G.S.I.S.">G.S.I.S.</option>
-                                                <option value="Landayan">Landayan</option>
-                                                <option value="Langgam">Langgam</option>
-                                                <option value="Laram">Laram</option>
-                                                <option value="Magsaysay">Magsaysay</option>
-                                                <option value="Maharlika">Maharlika</option>
-                                                <option value="Narra">Narra</option>
-                                                <option value="Nueva">Nueva</option>
-                                                <option value="Pacita 1">Pacita 1</option>
-                                                <option value="Pacita 2">Pacita 2</option>
-                                                <option value="Poblacion">Poblacion</option>
-                                                <option value="Riverside">Riverside</option>
-                                                <option value="Rosario">Rosario</option>
-                                                <option value="Sampaguita Village">Sampaguita Village</option>
-                                                <option value="San Antonio">San Antonio</option>
-                                                <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                                                <option value="San Roque">San Roque</option>
-                                                <option value="San Vicente">San Vicente</option>
-                                                <option value="Santo Niño">Santo Niño</option>
-                                                <option value="United Bayanihan">United Bayanihan</option>
-                                                <option value="United Better Living">United Better Living</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_type" class="form-label fw-semibold">
+                                        Boat Type <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_boat_type" name="boat_type" required>
+                                        <option value="">Select Boat Type</option>
+                                        <option value="Spoon">Spoon</option>
+                                        <option value="Plumb">Plumb</option>
+                                        <option value="Banca">Banca</option>
+                                        <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
+                                        <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom</option>
+                                        <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_fishr_number" class="form-label fw-semibold">
+                                        FishR Number
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_fishr_number"
+                                        name="fishr_number" disabled placeholder="Auto-filled">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Read-only (cannot be changed)
+                                    </small>
                                 </div>
                             </div>
-
-                            <!-- Vessel Information Card -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-ship me-2"></i>Vessel Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label for="edit_boatr_vessel_name" class="form-label fw-semibold">
-                                                Vessel Name <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control" id="edit_boatr_vessel_name"
-                                                name="vessel_name" required maxlength="100" placeholder="Vessel name">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="edit_boatr_boat_type" class="form-label fw-semibold">
-                                                Boat Type <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" id="edit_boatr_boat_type" name="boat_type" required>
-                                                <option value="">Select Boat Type</option>
-                                                <option value="Spoon">Spoon</option>
-                                                <option value="Plumb">Plumb</option>
-                                                <option value="Banca">Banca</option>
-                                                <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
-                                                <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom</option>
-                                                <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="edit_boatr_fishr_number" class="form-label fw-semibold">
-                                                FishR Number
-                                            </label>
-                                            <input type="text" class="form-control" id="edit_boatr_fishr_number"
-                                                name="fishr_number" disabled placeholder="Auto-filled">
-                                            <small class="text-muted d-block mt-2">
-                                                <i class="fas fa-info-circle me-1"></i>Read-only (cannot be changed)
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Boat Dimensions Card -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-ruler me-2"></i>Boat Dimensions (in feet)
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label for="edit_boatr_boat_length" class="form-label fw-semibold">
-                                                Length <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="number" class="form-control" id="edit_boatr_boat_length"
-                                                name="boat_length" step="0.01" min="0.1" required placeholder="0.00">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="edit_boatr_boat_width" class="form-label fw-semibold">
-                                                Width <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="number" class="form-control" id="edit_boatr_boat_width"
-                                                name="boat_width" step="0.01" min="0.1" required placeholder="0.00">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="edit_boatr_boat_depth" class="form-label fw-semibold">
-                                                Depth <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="number" class="form-control" id="edit_boatr_boat_depth"
-                                                name="boat_depth" step="0.01" min="0.1" required placeholder="0.00">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Engine Information Card -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-cog me-2"></i>Engine Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="edit_boatr_engine_type" class="form-label fw-semibold">
-                                                Engine Type <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control" id="edit_boatr_engine_type"
-                                                name="engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="edit_boatr_engine_horsepower" class="form-label fw-semibold">
-                                                Engine Horsepower <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="number" class="form-control" id="edit_boatr_engine_horsepower"
-                                                name="engine_horsepower" min="1" max="9999" required placeholder="0">
-                                            <small class="text-muted d-block mt-2">HP</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Fishing Information Card -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-fish me-2"></i>Fishing Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-12 mb-3">
-                                            <label for="edit_boatr_primary_fishing_gear" class="form-label fw-semibold">
-                                                Primary Fishing Gear <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" id="edit_boatr_primary_fishing_gear"
-                                                name="primary_fishing_gear" required>
-                                                <option value="">Select Fishing Gear</option>
-                                                <option value="Hook and Line">Hook and Line</option>
-                                                <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
-                                                <option value="Fish Trap">Fish Trap</option>
-                                                <option value="Fish Coral">Fish Coral</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Supporting Document Card -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-file-upload me-2"></i>Supporting Document
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-muted small mb-4">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
-                                    </p>
-
-                                    <!-- Current Document Display -->
-                                    <div id="edit_boatr_current_document" style="display: none; margin-bottom: 1.5rem;">
-                                        <label class="form-label fw-semibold text-muted mb-2">Current Document</label>
-                                        <div id="edit_boatr_supporting_document_preview"></div>
-                                    </div>
-
-                                    <!-- Upload New Document Section -->
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <label for="edit_boatr_supporting_document" class="form-label fw-semibold">
-                                                Supporting Document
-                                            </label>
-                                            <input type="file" class="form-control" id="edit_boatr_supporting_document"
-                                                name="supporting_document" accept="image/*,.pdf"
-                                                onchange="previewEditBoatrDocument('edit_boatr_supporting_document', 'edit_boatr_new_doc_preview')">
-                                            <small class="text-muted d-block mt-2">
-                                                <i class="fas fa-info-circle me-1"></i>Upload a new file to replace it.
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <!-- New Document Preview -->
-                                    <div id="edit_boatr_new_doc_preview" class="mt-3"></div>
-                                </div>
-                            </div>
-
-                            <!-- Inspection Information Card - WITH FILE UPLOAD -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-clipboard-check me-2"></i>Inspection Information
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-md-6 mb-3">
-                                            <small class="text-muted d-block mb-2">Inspection Status</small>
-                                            <div>
-                                                <span id="edit_boatr_inspection_status_badge" class="badge bg-secondary fs-6"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <small class="text-muted d-block mb-2">Inspection Date</small>
-                                            <div id="edit_boatr_inspection_date" class="fw-semibold">-</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Current Inspection Document Display -->
-                                    <div id="edit_boatr_inspection_doc_container" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #0d6efd;">
-                                        <label class="form-label fw-semibold text-primary mb-2">Current Inspection Document</label>
-                                        <div id="edit_boatr_inspection_doc_preview"></div>
-                                    </div>
-
-                                    <!-- Inspection Notes -->
-                                    <div class="row mb-3">
-                                        <div class="col-md-12 mb-3">
-                                            <label for="edit_boatr_inspection_notes" class="form-label fw-semibold">
-                                                Inspection Notes
-                                            </label>
-                                            <textarea class="form-control" id="edit_boatr_inspection_notes"
-                                                name="inspection_notes" rows="3" maxlength="2000"
-                                                placeholder="Add or edit inspection notes..."
-                                                oninput="updateEditBoatrInspectionCounter()"></textarea>
-                                            <div class="d-flex justify-content-between align-items-center mt-2">
-                                                <small class="text-muted">
-                                                    <i class="fas fa-info-circle me-1"></i>Inspection observations
-                                                </small>
-                                                <small class="text-muted" id="edit_boatr_inspection_counter">
-                                                    <span id="edit_boatr_inspection_char_count">0</span>/2000
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Upload New Inspection Document -->
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <label for="edit_boatr_inspection_document" class="form-label fw-semibold">
-                                                Upload Inspection Document
-                                            </label>
-                                            <input type="file" class="form-control" id="edit_boatr_inspection_document"
-                                                name="inspection_document" accept=".pdf,.jpg,.jpeg,.png"
-                                                onchange="previewEditBoatrInspectionDocument('edit_boatr_inspection_document', 'edit_boatr_inspection_doc_upload_preview')">
-                                            <small class="text-muted d-block mt-2">
-                                                <i class="fas fa-info-circle me-1"></i>Upload inspection report, boat photos, or supporting documents (PDF, JPG, PNG - Max 10MB)
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                    <!-- New Inspection Document Preview -->
-                                    <div id="edit_boatr_inspection_doc_upload_preview" class="mt-3"></div>
-                                </div>
-                            </div>
-
-                            <!-- Application Status (Read-only) Card -->
-                            <div class="card mb-3 border-0 bg-light">
-                                <div class="card-header bg-white border-0 pb-0">
-                                    <h6 class="mb-0 fw-semibold text-primary">
-                                        <i class="fas fa-info-circle me-2"></i>Application Status (Read-only)
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <small class="text-muted d-block mb-2">Current Status</small>
-                                            <div>
-                                                <span id="edit_boatr_status_badge" class="badge bg-secondary fs-6"></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <small class="text-muted d-block mb-2">Date Applied</small>
-                                            <div id="edit_boatr_created_at" class="fw-semibold">-</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Info Alert -->
-                            <div class="alert alert-info border-left-info mb-0">
-                                <i class="fas fa-lightbulb me-2"></i>
-                                <strong>Note:</strong> You can edit vessel, boat, and engine information here.
-                                To change application status or add admin remarks, use the "Change Status" button from the main table.
-                            </div>
-                        </form>
+                        </div>
                     </div>
 
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-1"></i>Cancel
-                        </button>
-                        <button type="button" class="btn btn-primary" id="editBoatrSubmitBtn"
-                            onclick="handleEditBoatrSubmit()">
-                            <i class="fas fa-save me-2"></i>Save Changes
-                        </button>
+                    <!-- Boat Dimensions Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-ruler me-2"></i>Boat Dimensions (in feet)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_length" class="form-label fw-semibold">
+                                        Length <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_boat_length"
+                                        name="boat_length" step="0.01" min="0.1" required placeholder="0.00">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_width" class="form-label fw-semibold">
+                                        Width <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_boat_width"
+                                        name="boat_width" step="0.01" min="0.1" required placeholder="0.00">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_depth" class="form-label fw-semibold">
+                                        Depth <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_boat_depth"
+                                        name="boat_depth" step="0.01" min="0.1" required placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Engine Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-cog me-2"></i>Engine Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_engine_type" class="form-label fw-semibold">
+                                        Engine Type <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_engine_type"
+                                        name="engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_engine_horsepower" class="form-label fw-semibold">
+                                        Engine Horsepower <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_engine_horsepower"
+                                        name="engine_horsepower" min="1" max="9999" required placeholder="0">
+                                    <small class="text-muted d-block mt-2">HP</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fishing Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-fish me-2"></i>Fishing Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_boatr_primary_fishing_gear" class="form-label fw-semibold">
+                                        Primary Fishing Gear <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_primary_fishing_gear"
+                                        name="primary_fishing_gear" required>
+                                        <option value="">Select Fishing Gear</option>
+                                        <option value="Hook and Line">Hook and Line</option>
+                                        <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
+                                        <option value="Fish Trap">Fish Trap</option>
+                                        <option value="Fish Coral">Fish Coral</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Supporting Document Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-file-upload me-2"></i>Supporting Document
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-4">
+                                <i class="fas fa-info-circle me-1"></i>
+                                View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                            </p>
+
+                            <!-- Current Document Display -->
+                            <div id="edit_boatr_current_document" style="display: none; margin-bottom: 1.5rem;">
+                                <label class="form-label fw-semibold text-muted mb-2">Current Document</label>
+                                <div id="edit_boatr_supporting_document_preview"></div>
+                            </div>
+
+                            <!-- Upload New Document Section -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="edit_boatr_supporting_document" class="form-label fw-semibold">
+                                        Supporting Document
+                                    </label>
+                                    <input type="file" class="form-control" id="edit_boatr_supporting_document"
+                                        name="supporting_document" accept="image/*,.pdf"
+                                        onchange="previewEditBoatrDocument('edit_boatr_supporting_document', 'edit_boatr_new_doc_preview')">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Upload a new file to replace it.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- New Document Preview -->
+                            <div id="edit_boatr_new_doc_preview" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Inspection Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-clipboard-check me-2"></i>Inspection Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Inspection Status</small>
+                                    <div>
+                                        <span id="edit_boatr_inspection_status_badge" class="badge bg-secondary fs-6"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Inspection Date</small>
+                                    <div id="edit_boatr_inspection_date" class="fw-semibold">-</div>
+                                </div>
+                            </div>
+
+                            <!-- Current Inspection Document Display -->
+                            <div id="edit_boatr_inspection_doc_container" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #0d6efd;">
+                                <label class="form-label fw-semibold text-primary mb-2">Current Inspection Document</label>
+                                <div id="edit_boatr_inspection_doc_preview"></div>
+                            </div>
+
+                            <!-- Inspection Notes -->
+                            <div class="row mb-3">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_boatr_inspection_notes" class="form-label fw-semibold">
+                                        Inspection Notes
+                                    </label>
+                                    <textarea class="form-control" id="edit_boatr_inspection_notes"
+                                        name="inspection_notes" rows="3" maxlength="2000"
+                                        placeholder="Add or edit inspection notes..."
+                                        oninput="updateEditBoatrInspectionCounter()"></textarea>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Inspection observations
+                                        </small>
+                                        <small class="text-muted" id="edit_boatr_inspection_counter">
+                                            <span id="edit_boatr_inspection_char_count">0</span>/2000
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Replace New Inspection Document -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="edit_boatr_inspection_document" class="form-label fw-semibold">
+                                        Replace Inspection Document
+                                    </label>
+                                    <input type="file" class="form-control" id="edit_boatr_inspection_document"
+                                        name="inspection_document" accept=".pdf,.jpg,.jpeg,.png"
+                                        onchange="previewEditBoatrInspectionDocument('edit_boatr_inspection_document', 'edit_boatr_inspection_doc_upload_preview')">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Replace inspection report, boat photos, or supporting documents (PDF, JPG, PNG - Max 10MB)
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- New Inspection Document Preview -->
+                            <div id="edit_boatr_inspection_doc_upload_preview" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Application Status (Read-only) Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-info-circle me-2"></i>Application Status (Read-only)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Current Status</small>
+                                    <div>
+                                        <span id="edit_boatr_status_badge" class="badge bg-secondary fs-6"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Date Applied</small>
+                                    <div id="edit_boatr_created_at" class="fw-semibold">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info border-left-info mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> You can edit vessel, boat, and engine information here.
+                        To change application status or add admin remarks, use the "Change Status" button from the main table.
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="editBoatrSubmitBtn"
+                    onclick="handleEditBoatrSubmit()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
             </div>
         </div>
+    </div>
+</div>
 
     <style>
         /* Document count badge on mini docs */
@@ -6187,6 +6188,18 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
 
             allModals.forEach(modal => {
                 modal.addEventListener('hidden.bs.modal', function() {
+
+                // Remove old tooltip/popover instances
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                        const instance = bootstrap.Tooltip.getInstance(el);
+                        if (instance) instance.dispose();
+                    });
+                    
+                    // Clean up dropdowns
+                    document.querySelectorAll('.dropdown-toggle').forEach(el => {
+                        const instance = bootstrap.Dropdown.getInstance(el);
+                        if (instance) instance.dispose();
+                    });
                     // Remove all modal backdrops
                     document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop
                         .remove());
@@ -6829,7 +6842,7 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
         }
 
   /**
- * FIXED: Show Edit BoatR Modal - Enhanced with Inspection Fields & File Upload
+ * FIXED: Show Edit BoatR Modal - Works with correct form ID
  */
 function showEditBoatrModal(registrationId) {
     console.log('=== Opening Edit BoatR Modal ===', { registrationId });
@@ -6882,6 +6895,12 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     
     const form = document.getElementById('editBoatrForm');
     
+    if (!form) {
+        showToast('error', 'Form element not found in DOM');
+        console.error('editBoatrForm not found');
+        return;
+    }
+
     // === Personal Information ===
     document.getElementById('edit_boatr_first_name').value = data.first_name || '';
     document.getElementById('edit_boatr_middle_name').value = data.middle_name || '';
@@ -6906,6 +6925,30 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     
     // === Fishing Information ===
     document.getElementById('edit_boatr_primary_fishing_gear').value = data.primary_fishing_gear || '';
+    
+    // === Store Original Data for Change Detection ===
+    //  IMPORTANT: Store AFTER populating fields
+    const originalData = {
+        first_name: data.first_name || '',
+        middle_name: data.middle_name || '',
+        last_name: data.last_name || '',
+        name_extension: data.name_extension || '',
+        contact_number: data.contact_number || '',
+        barangay: data.barangay || '',
+        vessel_name: data.vessel_name || '',
+        boat_type: data.boat_type || '',
+        boat_length: data.boat_length || '',
+        boat_width: data.boat_width || '',
+        boat_depth: data.boat_depth || '',
+        engine_type: data.engine_type || '',
+        engine_horsepower: data.engine_horsepower || '',
+        primary_fishing_gear: data.primary_fishing_gear || '',
+        inspection_notes: data.inspection_notes || ''
+    };
+    
+    form.dataset.originalData = JSON.stringify(originalData);
+    form.dataset.registrationId = registrationId;
+    form.dataset.hasChanges = 'false';  // Set to false initially
     
     // === Handle Supporting Document Preview ===
     const previewContainer = document.getElementById('edit_boatr_supporting_document_preview');
@@ -6936,12 +6979,10 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     const inspectionDocContainer = document.getElementById('edit_boatr_inspection_doc_container');
     const inspectionDocPreview = document.getElementById('edit_boatr_inspection_doc_preview');
     
-    // Check if inspection is completed and has documents
     if (data.inspection_completed && data.inspection_documents && data.inspection_documents.length > 0) {
         inspectionDocContainer.style.display = 'block';
         const inspectionDoc = data.inspection_documents[0];
         
-        // Display the existing inspection document
         const inspectionDocInfo = `
             <div class="row g-3">
                 <div class="col-md-6">
@@ -6977,32 +7018,10 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     
     document.getElementById('edit_boatr_created_at').textContent = data.created_at || '-';
     
-    // === Store Original Data for Change Detection ===
-    const originalData = {
-        first_name: data.first_name || '',
-        middle_name: data.middle_name || '',
-        last_name: data.last_name || '',
-        name_extension: data.name_extension || '',
-        contact_number: data.contact_number || '',
-        barangay: data.barangay || '',
-        vessel_name: data.vessel_name || '',
-        boat_type: data.boat_type || '',
-        boat_length: data.boat_length || '',
-        boat_width: data.boat_width || '',
-        boat_depth: data.boat_depth || '',
-        engine_type: data.engine_type || '',
-        engine_horsepower: data.engine_horsepower || '',
-        primary_fishing_gear: data.primary_fishing_gear || '',
-        inspection_notes: data.inspection_notes || ''
-    };
-    
-    form.dataset.originalData = JSON.stringify(originalData);
-    form.dataset.registrationId = registrationId;
-    form.dataset.hasChanges = 'false';
-    
     // Clear validation states
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
     
     // Reset file inputs
     const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
@@ -7014,9 +7033,10 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     // Reset button state
     const submitBtn = document.getElementById('editBoatrSubmitBtn');
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    submitBtn.classList.add('no-changes');  // Add no-changes class
+    submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
     
-    // Add change listeners
+    //  CRITICAL: Add listeners AFTER storing original data
     addEditBoatrFormChangeListeners(registrationId);
     
     // Reset counter
@@ -7024,6 +7044,7 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     
     console.log('Edit form initialized successfully');
 }
+
 /**
  * Display existing document in edit form
  */
@@ -7098,13 +7119,19 @@ function displayEditBoatrExistingDocument(documentPath, previewElementId) {
     }
 }
 /**
- * Add change listeners to edit form
+ * FIXED: Add change listeners to edit form
  */
 function addEditBoatrFormChangeListeners(registrationId) {
     const form = document.getElementById('editBoatrForm');
+    
+    if (!form) {
+        console.error('Form not found for adding listeners');
+        return;
+    }
+
     const inputs = form.querySelectorAll('input, select, textarea');
     
-    // Remove old listeners
+    // Remove old listeners to prevent duplicates
     inputs.forEach(input => {
         input.removeEventListener('change', handleEditBoatrFormChange);
         input.removeEventListener('input', handleEditBoatrFormChange);
@@ -7116,39 +7143,53 @@ function addEditBoatrFormChangeListeners(registrationId) {
         input.addEventListener('input', () => handleEditBoatrFormChange(registrationId));
     });
 }
-
 /**
- * Handle edit form change
+ * FIXED: Handle edit form change
  */
-
 function handleEditBoatrFormChange(registrationId) {
     checkEditBoatrFormChanges(registrationId);
 }
 
 /**
- * Check for form changes - FIXED
+ * FIXED: Check for form changes - Proper comparison
  */
 function checkEditBoatrFormChanges(registrationId) {
     const form = document.getElementById('editBoatrForm');
-    if (!form.dataset.originalData) return;
+    
+    if (!form || !form.dataset.originalData) {
+        console.warn('Form or original data not found');
+        return;
+    }
 
     const originalData = JSON.parse(form.dataset.originalData || '{}');
     let hasChanges = false;
 
     const fields = [
-        'first_name', 'middle_name', 'last_name', 'extension',
-        'contact_number', 'barangay', 'vessel_name', 'boat_type',
-        'boat_length', 'boat_width', 'boat_depth', 'engine_type',
-        'engine_horsepower', 'primary_fishing_gear', 'inspection_notes'
+        { id: 'edit_boatr_first_name', key: 'first_name' },
+        { id: 'edit_boatr_middle_name', key: 'middle_name' },
+        { id: 'edit_boatr_last_name', key: 'last_name' },
+        { id: 'edit_boatr_extension', key: 'name_extension' },
+        { id: 'edit_boatr_contact_number', key: 'contact_number' },
+        { id: 'edit_boatr_barangay', key: 'barangay' },
+        { id: 'edit_boatr_vessel_name', key: 'vessel_name' },
+        { id: 'edit_boatr_boat_type', key: 'boat_type' },
+        { id: 'edit_boatr_boat_length', key: 'boat_length' },
+        { id: 'edit_boatr_boat_width', key: 'boat_width' },
+        { id: 'edit_boatr_boat_depth', key: 'boat_depth' },
+        { id: 'edit_boatr_engine_type', key: 'engine_type' },
+        { id: 'edit_boatr_engine_horsepower', key: 'engine_horsepower' },
+        { id: 'edit_boatr_primary_fishing_gear', key: 'primary_fishing_gear' },
+        { id: 'edit_boatr_inspection_notes', key: 'inspection_notes' }
     ];
 
     fields.forEach(field => {
-        const fieldElement = form.querySelector(`[name="${field}"]`) || 
-                            form.querySelector(`#edit_boatr_${field}`);
+        const fieldElement = document.getElementById(field.id);
         if (fieldElement) {
-            const currentValue = fieldElement.value;
-            const originalKey = field === 'extension' ? 'name_extension' : field;
-            const originalValue = originalData[originalKey] || '';
+            //  Important: Convert to string and trim for proper comparison
+            const currentValue = String(fieldElement.value || '').trim();
+            const originalValue = String(originalData[field.key] || '').trim();
+
+            console.log(`${field.id}: "${currentValue}" vs "${originalValue}" = ${currentValue === originalValue ? 'SAME' : 'CHANGED'}`);
 
             if (currentValue !== originalValue) {
                 hasChanges = true;
@@ -7163,209 +7204,190 @@ function checkEditBoatrFormChanges(registrationId) {
     const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
     if (supportingDocInput && supportingDocInput.files && supportingDocInput.files.length > 0) {
         hasChanges = true;
+        console.log('Supporting document file detected');
     }
 
     const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
     if (inspectionDocInput && inspectionDocInput.files && inspectionDocInput.files.length > 0) {
         hasChanges = true;
+        console.log('Inspection document file detected');
     }
 
     // Update button state
     const submitBtn = document.getElementById('editBoatrSubmitBtn');
-    if (hasChanges) {
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-    } else {
-        submitBtn.classList.add('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-        submitBtn.disabled = false;
+    if (submitBtn) {
+        if (hasChanges) {
+            submitBtn.classList.remove('no-changes');
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.classList.add('no-changes');
+            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+            submitBtn.disabled = false;
+        }
     }
 
-    form.dataset.hasChanges = hasChanges;
+    form.dataset.hasChanges = hasChanges ? 'true' : 'false';
+    console.log('Form has changes:', hasChanges);
 }
 
+
 /**
- * Handle edit form submission
+ * FIXED: Proceed with Edit BoatR Submission
  */
-function handleEditBoatrSubmit() {
-    const form = document.getElementById('editBoatrForm');
-    const registrationId = form.dataset.registrationId;
-
-    console.log('=== handleEditBoatrSubmit ===', { registrationId });
-
-    if (!validateEditBoatrForm()) {
-        showToast('error', 'Please fix all validation errors');
+function proceedWithEditBoatrSubmit(form, registrationId) {
+    console.log('=== proceedWithEditBoatrSubmit ===', { registrationId });
+    
+    const submitBtn = document.getElementById('editBoatrSubmitBtn');
+    
+    if (!submitBtn) {
+        console.error('Submit button not found');
+        showToast('error', 'Submit button not found');
         return;
     }
 
-    showConfirmationToast(
-        'Confirm Update',
-        'Are you sure you want to save changes to this BoatR application?',
-        () => proceedWithEditBoatr(form, registrationId)
-    );
-}
-
-
-/**
- * Validate edit form
- */
-function validateEditBoatrForm() {
-    let isValid = true;
-    const errors = [];
-
-    const requiredFields = [
-        { id: 'edit_boatr_first_name', label: 'First Name' },
-        { id: 'edit_boatr_last_name', label: 'Last Name' },
-        { id: 'edit_boatr_contact_number', label: 'Contact Number' },
-        { id: 'edit_boatr_barangay', label: 'Barangay' },
-        { id: 'edit_boatr_vessel_name', label: 'Vessel Name' },
-        { id: 'edit_boatr_boat_type', label: 'Boat Type' },
-        { id: 'edit_boatr_boat_length', label: 'Boat Length' },
-        { id: 'edit_boatr_boat_width', label: 'Boat Width' },
-        { id: 'edit_boatr_boat_depth', label: 'Boat Depth' },
-        { id: 'edit_boatr_engine_type', label: 'Engine Type' },
-        { id: 'edit_boatr_engine_horsepower', label: 'Engine Horsepower' },
-        { id: 'edit_boatr_primary_fishing_gear', label: 'Primary Fishing Gear' }
-    ];
-
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        if (input && (!input.value || input.value.trim() === '')) {
-            input.classList.add('is-invalid');
-            errors.push(`${field.label} is required`);
-            isValid = false;
-        } else if (input) {
-            input.classList.remove('is-invalid');
-        }
-    });
-
-    // Validate contact number format
-    const contactInput = document.getElementById('edit_boatr_contact_number');
-    if (contactInput && contactInput.value) {
-        const phoneRegex = /^09\d{9}$/;
-        if (!phoneRegex.test(contactInput.value.trim())) {
-            contactInput.classList.add('is-invalid');
-            errors.push('Contact number must be 09XXXXXXXXX (11 digits)');
-            isValid = false;
-        }
-    }
-
-    if (!isValid) {
-        console.log('Validation errors:', errors);
-    }
-
-    return isValid;
-}
-
-
-/**
- * Proceed with edit submission
- */
-function proceedWithEditBoatr(form, registrationId) {
-    console.log('=== proceedWithEditBoatr ===', { registrationId });
-    
-    const submitBtn = document.getElementById('editBoatrSubmitBtn');
     const originalText = submitBtn.innerHTML;
-    
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
     submitBtn.disabled = true;
 
+    // Build FormData with proper field mapping
     const formData = new FormData();
     
-    // === Add text fields ===
-    formData.append('first_name', document.getElementById('edit_boatr_first_name').value.trim());
-    formData.append('middle_name', document.getElementById('edit_boatr_middle_name').value.trim());
-    formData.append('last_name', document.getElementById('edit_boatr_last_name').value.trim());
-    formData.append('name_extension', document.getElementById('edit_boatr_extension').value || '');
-    formData.append('contact_number', document.getElementById('edit_boatr_contact_number').value.trim());
-    formData.append('barangay', document.getElementById('edit_boatr_barangay').value.trim());
-    formData.append('vessel_name', document.getElementById('edit_boatr_vessel_name').value.trim());
-    formData.append('boat_type', document.getElementById('edit_boatr_boat_type').value.trim());
-    formData.append('boat_length', document.getElementById('edit_boatr_boat_length').value.trim());
-    formData.append('boat_width', document.getElementById('edit_boatr_boat_width').value.trim());
-    formData.append('boat_depth', document.getElementById('edit_boatr_boat_depth').value.trim());
-    formData.append('engine_type', document.getElementById('edit_boatr_engine_type').value.trim());
-    formData.append('engine_horsepower', document.getElementById('edit_boatr_engine_horsepower').value.trim());
-    formData.append('primary_fishing_gear', document.getElementById('edit_boatr_primary_fishing_gear').value.trim());
-    formData.append('inspection_notes', document.getElementById('edit_boatr_inspection_notes').value.trim());
+    const fieldMap = {
+        'edit_boatr_first_name': 'first_name',
+        'edit_boatr_middle_name': 'middle_name',
+        'edit_boatr_last_name': 'last_name',
+        'edit_boatr_extension': 'name_extension',
+        'edit_boatr_contact_number': 'contact_number',
+        'edit_boatr_barangay': 'barangay',
+        'edit_boatr_vessel_name': 'vessel_name',
+        'edit_boatr_boat_type': 'boat_type',
+        'edit_boatr_boat_length': 'boat_length',
+        'edit_boatr_boat_width': 'boat_width',
+        'edit_boatr_boat_depth': 'boat_depth',
+        'edit_boatr_engine_type': 'engine_type',
+        'edit_boatr_engine_horsepower': 'engine_horsepower',
+        'edit_boatr_primary_fishing_gear': 'primary_fishing_gear',
+        'edit_boatr_inspection_notes': 'inspection_notes'
+    };
 
-    // === Add supporting document if uploaded ===
-    const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
-    if (supportingDocInput && supportingDocInput.files && supportingDocInput.files[0]) {
-        formData.append('supporting_document', supportingDocInput.files[0]);
-        console.log('Adding supporting document:', supportingDocInput.files[0].name);
+    // Add form fields
+    Object.keys(fieldMap).forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            formData.append(fieldMap[fieldId], input.value.trim());
+        }
+    });
+
+    // Add file uploads if present
+    const supportingDoc = document.getElementById('edit_boatr_supporting_document');
+    if (supportingDoc && supportingDoc.files[0]) {
+        formData.append('supporting_document', supportingDoc.files[0]);
+        console.log('Added supporting document:', supportingDoc.files[0].name);
     }
 
-    // === Add inspection document if uploaded ===
-    const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
-    if (inspectionDocInput && inspectionDocInput.files && inspectionDocInput.files[0]) {
-        formData.append('inspection_document', inspectionDocInput.files[0]);
-        console.log('Adding inspection document:', inspectionDocInput.files[0].name);
+    const inspectionDoc = document.getElementById('edit_boatr_inspection_document');
+    if (inspectionDoc && inspectionDoc.files[0]) {
+        formData.append('inspection_document', inspectionDoc.files[0]);
+        // Signal backend to REPLACE the inspection document, not add
+        formData.append('replace_inspection_document', '1');
+        console.log('Added inspection document (REPLACE mode):', inspectionDoc.files[0].name);
     }
 
-    console.log('Sending form data to:', `/admin/boatr/requests/${registrationId}`);
+    // CRITICAL: Add _method = PUT for Laravel method spoofing
+    // This tells Laravel to treat the POST request as a PUT request
+    formData.append('_method', 'PUT');
 
+    console.log('Sending request with:');
+    console.log('- Method: POST (with _method=PUT in FormData)');
+    console.log('- URL: /admin/boatr/requests/' + registrationId);
+    console.log('- Content-Type: multipart/form-data (auto-set by browser)');
+
+    // Send request
+    // NOTE: Use POST method with _method=PUT in FormData
+    // Laravel will intercept the _method parameter and treat this as a PUT request
     fetch(`/admin/boatr/requests/${registrationId}`, {
-        method: 'POST',
+        method: 'POST',  // Use POST with _method=PUT (required for multipart with Laravel)
         headers: {
             'X-CSRF-TOKEN': getCSRFToken(),
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
+            // IMPORTANT: Do NOT set Content-Type header
+            // Let the browser automatically set it to multipart/form-data
         },
-        body: formData
+        body: formData  // FormData handles the multipart encoding
     })
     .then(response => {
-        console.log('Response status:', response.status);
-        return response.json().then(data => ({
-            status: response.status,
-            data: data
-        }));
+        console.log('Response received');
+        console.log('Status:', response.status);
+        console.log('Status Text:', response.statusText);
+        
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                };
+            }).catch(parseError => {
+                // If response is not JSON, throw a generic error
+                throw {
+                    status: response.status,
+                    statusText: response.statusText,
+                    message: `HTTP ${response.status}: ${response.statusText}`
+                };
+            });
+        }
+        
+        return response.json();
     })
-    .then(({ status, data }) => {
-        console.log('Response data:', data);
-
-        if (status === 200 && data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal'));
-            if (modal) modal.hide();
-
-            showToast('success', data.message || 'BoatR application updated successfully');
+    .then(data => {
+        console.log('Success response:', data);
+        
+        if (data.success) {
+            showToast('success', data.message || 'Changes saved successfully');
             
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            // Handle validation errors
-            if (data.errors) {
-                Object.keys(data.errors).forEach(field => {
-                    const input = document.getElementById('edit_boatr_' + field) || 
-                                document.querySelector(`[name="${field}"]`);
-                    
-                    if (input) {
-                        input.classList.add('is-invalid');
-                        const errorDiv = input.parentNode.querySelector('.invalid-feedback') || 
-                                    document.createElement('div');
-                        errorDiv.className = 'invalid-feedback d-block';
-                        errorDiv.textContent = Array.isArray(data.errors[field]) ? 
-                                            data.errors[field][0] : 
-                                            data.errors[field];
-                        
-                        if (!input.parentNode.querySelector('.invalid-feedback')) {
-                            input.parentNode.appendChild(errorDiv);
-                        }
-                    }
-                });
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal'));
+            if (modal) {
+                modal.hide();
             }
-            showToast('error', data.message || 'Failed to update');
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+
+            // Reload page after 1.5 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(data.message || 'Update failed');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'Error updating: ' + error.message);
+        console.error('Error during update:', error);
+        
+        let errorMsg = 'Error saving changes';
+        
+        if (error.data && error.data.errors && typeof error.data.errors === 'object') {
+            // Handle validation errors
+            const firstError = Object.values(error.data.errors)[0];
+            errorMsg = Array.isArray(firstError) ? firstError[0] : firstError;
+        } else if (error.data && error.data.message) {
+            errorMsg = error.data.message;
+        } else if (error.message) {
+            errorMsg = error.message;
+        } else if (error.statusText) {
+            errorMsg = `${error.status} ${error.statusText}`;
+        }
+        
+        console.error('Final error message:', errorMsg);
+        showToast('error', errorMsg);
+        
+        // Reset button on error
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     });
 }
+
+
 
 /**
  * Preview edit BoatR supporting document
@@ -7901,27 +7923,91 @@ function updateEditBoatrInspectionCounter() {
             }
         }
 
-        // Handle submit
-        function handleEditBoatrSubmit(registrationId) {
-            const form = document.getElementById('editBoatrForm_' + registrationId);
+    /**
+ * Handle Edit BoatR Form Submission
+ * Called when Save Changes button is clicked
+ */
+function handleEditBoatrSubmit() {
+    console.log('=== handleEditBoatrSubmit called ===');
+    
+    // Get the form with the CORRECT ID
+    const form = document.getElementById('editBoatrForm');
+    
+    if (!form) {
+        console.error('Form not found: editBoatrForm');
+        showToast('error', 'Form not found in the page. Please close and reopen the modal.');
+        return;
+    }
 
-            if (!form) {
-                showToast('error', 'Form not found');
-                return;
-            }
+    // Get registration ID from form dataset
+    const registrationId = form.dataset.registrationId;
+    
+    if (!registrationId) {
+        console.error('Registration ID not found in form dataset');
+        showToast('error', 'Registration ID not found. Please close and reopen the modal.');
+        return;
+    }
 
-            if (!form.checkValidity()) {
-                showToast('error', 'Please fix all validation errors');
-                form.classList.add('was-validated');
-                return;
-            }
+    console.log('Form found and registration ID:', registrationId);
+    
+    // Check if form has changes
+    const hasChanges = form.dataset.hasChanges === 'true';
+    
+    if (!hasChanges) {
+        showToast('info', 'No changes to save');
+        return;
+    }
 
-            showConfirmationToast(
-                'Confirm Update',
-                'Are you sure you want to save the changes to this BoatR application?',
-                () => proceedWithEditBoatr(form, registrationId)
-            );
+    // Validate required fields
+    const requiredFields = [
+        { id: 'edit_boatr_first_name', label: 'First Name' },
+        { id: 'edit_boatr_last_name', label: 'Last Name' },
+        { id: 'edit_boatr_contact_number', label: 'Contact Number' },
+        { id: 'edit_boatr_barangay', label: 'Barangay' },
+        { id: 'edit_boatr_vessel_name', label: 'Vessel Name' },
+        { id: 'edit_boatr_boat_type', label: 'Boat Type' },
+        { id: 'edit_boatr_boat_length', label: 'Length' },
+        { id: 'edit_boatr_boat_width', label: 'Width' },
+        { id: 'edit_boatr_boat_depth', label: 'Depth' },
+        { id: 'edit_boatr_engine_type', label: 'Engine Type' },
+        { id: 'edit_boatr_engine_horsepower', label: 'Horsepower' },
+        { id: 'edit_boatr_primary_fishing_gear', label: 'Fishing Gear' }
+    ];
+
+    let isValid = true;
+    const errors = [];
+
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input) {
+            console.warn(`Field not found: ${field.id}`);
+            return;
         }
+
+        const value = input.value.trim();
+        
+        if (!value) {
+            input.classList.add('is-invalid');
+            errors.push(`${field.label} is required`);
+            isValid = false;
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+
+    if (!isValid) {
+        showToast('error', errors[0] || 'Please fill all required fields');
+        return;
+    }
+
+    // Show confirmation
+    showConfirmationToast(
+        'Confirm Changes',
+        'Are you sure you want to save the changes?',
+        () => proceedWithEditBoatrSubmit(form, registrationId)
+    );
+}
+
 
         // Proceed with update
         function proceedWithEditBoatr(form, registrationId) {

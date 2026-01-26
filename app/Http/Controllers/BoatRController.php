@@ -282,114 +282,124 @@ class BoatRController extends Controller
 
         return $number;
     }
-
-  /**
+/**
  * Update BoatR registration with file uploads - FIXED
  */
 public function update(Request $request, $id)
 {
     try {
-        Log::info('BoatR update called', [
-            'registration_id' => $id,
-            'has_inspection_doc' => $request->hasFile('inspection_document'),
-            'has_supporting_doc' => $request->hasFile('supporting_document')
-        ]);
-
-        $registration = BoatrApplication::findOrFail($id);
-
-        // Validate the incoming data
+        // Validate input
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
             'last_name' => 'required|string|max:100',
-            'name_extension' => 'nullable|string|in:Jr.,Sr.,II,III,IV,V',
-            'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
+            'name_extension' => 'nullable|string|max:20',
+            'contact_number' => 'required|string|max:20',
             'barangay' => 'required|string|max:100',
             'vessel_name' => 'required|string|max:100',
-            'boat_type' => 'required|in:Spoon,Plumb,Banca,Rake Stem - Rake Stern,Rake Stem - Transom/Spoon/Plumb Stern,Skiff (Typical Design)',
-            'boat_length' => 'required|numeric|min:0.1|max:999.99',
-            'boat_width' => 'required|numeric|min:0.1|max:999.99',
-            'boat_depth' => 'required|numeric|min:0.1|max:999.99',
+            'boat_type' => 'required|string|max:100',
+            'boat_length' => 'required|numeric|min:0.1',
+            'boat_width' => 'required|numeric|min:0.1',
+            'boat_depth' => 'required|numeric|min:0.1',
             'engine_type' => 'required|string|max:100',
-            'engine_horsepower' => 'required|integer|min:1|max:9999',
-            'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral',
+            'engine_horsepower' => 'required|integer|min:1',
+            'primary_fishing_gear' => 'required|string|max:100',
             'inspection_notes' => 'nullable|string|max:2000',
             'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-            'inspection_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+            'inspection_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'replace_inspection_document' => 'nullable|boolean',
         ]);
 
-        // Build full name
-        $fullName = $validated['first_name'] . ' ' .
-                ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') .
-                $validated['last_name'] .
-                ($validated['name_extension'] ? ' ' . $validated['name_extension'] : '');
+        // ✅ FIXED: Use correct model class name
+        $boatr = BoatrApplication::findOrFail($id);
 
-        $validated['full_name'] = trim($fullName);
+        // Update basic fields
+        $boatr->update([
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'] ?? null,
+            'last_name' => $validated['last_name'],
+            'name_extension' => $validated['name_extension'] ?? null,
+            'contact_number' => $validated['contact_number'],
+            'barangay' => $validated['barangay'],
+            'vessel_name' => $validated['vessel_name'],
+            'boat_type' => $validated['boat_type'],
+            'boat_length' => $validated['boat_length'],
+            'boat_width' => $validated['boat_width'],
+            'boat_depth' => $validated['boat_depth'],
+            'engine_type' => $validated['engine_type'],
+            'engine_horsepower' => $validated['engine_horsepower'],
+            'primary_fishing_gear' => $validated['primary_fishing_gear'],
+            'inspection_notes' => $validated['inspection_notes'] ?? null,
+        ]);
 
-        // Calculate boat dimensions
-        $validated['boat_dimensions'] = $validated['boat_length'] . '×' .
-                                    $validated['boat_width'] . '×' .
-                                    $validated['boat_depth'] . ' ft';
-
-        // Handle supporting document upload
+        // Handle supporting document (replace if new one uploaded)
         if ($request->hasFile('supporting_document')) {
+            // Delete old document if exists
+            if ($boatr->user_document_path && Storage::disk('public')->exists($boatr->user_document_path)) {
+                Storage::disk('public')->delete($boatr->user_document_path);
+            }
+
+            // Store new document
             $file = $request->file('supporting_document');
             $filename = 'boatr_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('boatr_documents', $filename, 'public');
 
-            $validated['user_document_path'] = $path;
-            $validated['user_document_name'] = $file->getClientOriginalName();
-            $validated['user_document_type'] = $file->getMimeType();
-            $validated['user_document_size'] = $file->getSize();
-            $validated['user_document_uploaded_at'] = now();
+            $boatr->update([
+                'user_document_path' => $path,
+                'user_document_name' => $file->getClientOriginalName(),
+                'user_document_type' => $file->getMimeType(),
+                'user_document_size' => $file->getSize(),
+                'user_document_uploaded_at' => now(),
+            ]);
 
-            Log::info('Supporting document uploaded', ['path' => $path]);
+            Log::info("Supporting document updated for BoatR registration {$boatr->id}");
         }
 
-        // Handle inspection document upload
-        if ($request->hasFile('inspection_document')) {
-            $file = $request->file('inspection_document');
-            $filename = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $filePath = $file->storeAs('boatr_documents/inspection', $filename, 'public');
+        // Handle inspection document (replace if replace flag is set and new file uploaded)
+        if ($request->hasFile('inspection_document') && $request->input('replace_inspection_document')) {
+            // Delete existing inspection documents
+            if ($boatr->inspection_documents && is_array($boatr->inspection_documents)) {
+                foreach ($boatr->inspection_documents as $oldDoc) {
+                    if (isset($oldDoc['path']) && Storage::disk('public')->exists($oldDoc['path'])) {
+                        Storage::disk('public')->delete($oldDoc['path']);
+                    }
+                }
+            }
 
-            // Store in inspection_documents JSON array
-            $inspectionDocs = $registration->inspection_documents ?? [];
-            $inspectionDocs[] = [
+            // Store new inspection document
+            $file = $request->file('inspection_document');
+            $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
+
+            $inspectionDocs = [[
                 'path' => $filePath,
                 'original_name' => $file->getClientOriginalName(),
                 'extension' => $file->getClientOriginalExtension(),
                 'size' => $file->getSize(),
-                'notes' => $validated['inspection_notes'] ?? null,
                 'uploaded_by' => auth()->id(),
                 'uploaded_at' => now()->toDateTimeString()
-            ];
+            ]];
 
-            $validated['inspection_documents'] = $inspectionDocs;
+            $boatr->update([
+                'inspection_documents' => $inspectionDocs
+            ]);
 
-            Log::info('Inspection document uploaded', ['path' => $filePath]);
+            Log::info("Inspection document replaced for BoatR registration {$boatr->id}");
         }
 
-        // Update the registration
-        $registration->update($validated);
-
-        Log::info('BoatR application updated', [
-            'registration_id' => $id,
-            'updated_by' => auth()->user()->name
-        ]);
+        Log::info("BoatR registration {$boatr->id} updated by " . auth()->user()->name);
 
         return response()->json([
             'success' => true,
-            'message' => 'BoatR application updated successfully',
-            'data' => [
-                'id' => $registration->id,
-                'application_number' => $registration->application_number,
-                'full_name' => $registration->full_name
-            ]
-        ], 200);
+            'message' => 'BoatR registration updated successfully',
+            'registration' => $boatr->load(['reviewer', 'inspector', 'annexes'])
+        ]);
 
     } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::warning('Validation error updating BoatR', ['errors' => $e->errors()]);
-        
+        Log::warning('Validation error updating BoatR application', [
+            'errors' => $e->errors()
+        ]);
+
         return response()->json([
             'success' => false,
             'message' => 'Validation failed',
@@ -397,19 +407,17 @@ public function update(Request $request, $id)
         ], 422);
 
     } catch (\Exception $e) {
-        Log::error('Error updating BoatR', [
-            'id' => $id,
+        Log::error('Error updating BoatR application', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
 
         return response()->json([
             'success' => false,
-            'message' => 'Error updating: ' . $e->getMessage()
+            'message' => 'An error occurred while updating the application: ' . $e->getMessage()
         ], 500);
     }
 }
-
 /**
  * Helper method to track changed fields
  */
