@@ -16,13 +16,48 @@ class SeedlingCategoryItemController extends Controller
     // CATEGORY CRUD OPERATIONS
     // ==========================================
 
-    public function indexCategories()
+    public function indexCategories(Request $request)
     {
-        $categories = RequestCategory::with(['items' => function($query) {
-            $query->orderBy('name', 'asc');
+        $query = CategoryItem::query();
+
+        // Status filter (active/inactive)
+        if ($request->has('status') && $request->status) {
+            $query->where('is_active', $request->status === 'active');
+        }
+
+        // Stock status filter
+        if ($request->has('stock_status') && $request->stock_status) {
+            switch ($request->stock_status) {
+                case 'in_stock':
+                    $query->whereRaw('current_supply > reorder_point');
+                    break;
+                case 'low_supply':
+                    $query->whereRaw('current_supply <= reorder_point AND current_supply > 0');
+                    break;
+                case 'out_of_stock':
+                    $query->where('current_supply', 0);
+                    break;
+            }
+        }
+
+        // Search filter
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Get filtered items
+        $items = $query->get();
+
+        // Get categories with their items
+        $categories = RequestCategory::with(['items' => function($q) {
+            $q->orderBy('name', 'asc');
         }])->orderBy('display_order', 'asc')->get();
 
-        // Get supply statistics
+        // Get supply statistics (from ALL items, not filtered)
         $totalItems = CategoryItem::count();
         $lowSupplyItems = CategoryItem::lowSupply()->count();
         $outOfSupplyItems = CategoryItem::outOfSupply()->count();

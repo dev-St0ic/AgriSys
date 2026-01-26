@@ -28,18 +28,6 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-clock text-warning"></i>
-                    </div>
-                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
-                    <div class="stat-label text-warning">Under Review</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
                         <i class="fas fa-check-circle text-success"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $approvedCount }}</div>
@@ -52,10 +40,22 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-times-circle text-danger"></i>
+                        <i class="fas fa-clock text-warning"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $rejectedCount }}</div>
-                    <div class="stat-label text-danger">Rejected</div>
+                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                    <div class="stat-label text-warning">Under Review</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-hourglass-start text-info"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $pendingCount }}</div>
+                    <div class="stat-label text-info">Pending</div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -203,7 +203,7 @@
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name, number, contact..." value="{{ request('search') }}"
-                                oninput="autoSearch()" id="searchInput">
+                                oninput="handleSearchInput()" id="searchInput">
                             <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                 id="searchButton">
                                 <i class="fas fa-search"></i>
@@ -218,7 +218,7 @@
                     </div>
                     <div class="col-md-1">
                         <a href="{{ route('admin.fishr.requests') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i> Clear
                         </a>
                     </div>
                 </div>
@@ -236,12 +236,12 @@
                 </h6>
             </div>
             <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary btn-sm" onclick="showAddFishrModal()">
+                    <i class="fas fa-user-plus me-2"></i>Add Registration
+                </button>
                 <a href="{{ route('admin.fishr.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
-                <button type="button" class="btn btn-primary btn-sm" onclick="showAddFishrModal()">
-                    <i class="fas fa-plus me-2"></i>Add Registration
-                </button>
             </div>
         </div>
         <div class="card-body">
@@ -282,7 +282,7 @@
                                                     onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
                                                     title="Registration Document">
                                                     <div class="fishr-mini-doc-icon">
-                                                        <i class="fas fa-file-image text-info"></i>
+                                                        <i class="fas fa-file-alt text-primary"></i>
                                                     </div>
                                                 </button>
                                             </div>
@@ -307,10 +307,10 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
 
                                         <button class="btn btn-sm btn-annexes"
@@ -329,7 +329,7 @@
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="showEditFishrModal({{ $registration->id }})">
-                                                        <i class="fas fa-pencil-alt text-warning me-2"></i>Edit Information
+                                                        <i class="fas fa-edit me-2 text-success"></i>Edit Information
                                                     </a>
                                                 </li>
                                                 <li>
@@ -337,7 +337,7 @@
                                                 </li>
                                                 <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
-                                                        onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->registration_number }}')">
+                                                        onclick="deleteFishrRegistration({{ $registration->id }}, '{{ $registration->registration_number }}')">
                                                         <i class="fas fa-trash me-2"></i>Delete Registration
                                                     </a>
                                                 </li>
@@ -424,85 +424,263 @@
     </div>
 
 
-    <!-- Update Status Modal -->
+   <!-- UPDATED: Change Status Modal with Consistent Design -->
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Registration Status
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Registration Status
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+                
                 <div class="modal-body">
-                    <!-- Registration Info -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                    <!-- Registration Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Registration Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Registration #:</strong> <span id="updateRegNumber"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Name:</strong> <span id="updateRegName"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Registration #</small>
+                                        <strong class="text-primary" id="updateRegNumber"></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Applicant Name</small>
+                                        <strong id="updateRegName"></strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Barangay:</strong> <span id="updateRegBarangay"></span></p>
-                                    <p class="mb-1"><strong>Livelihood:</strong> <span id="updateRegLivelihood"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateRegCurrentStatus"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Barangay</small>
+                                        <strong id="updateRegBarangay"></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Status</small>
+                                        <span id="updateRegCurrentStatus" style="margin-top: 0.25rem;"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
-                    <form id="updateForm">
-                        <input type="hidden" id="updateRegistrationId">
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="under_review">Under Review</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+                    <!-- Status Update Card -->
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-sync me-2"></i>Change Status
+                            </h6>
                         </div>
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..."></textarea>
-                            <div class="form-text">Maximum 1000 characters</div>
+                        <div class="card-body">
+                            <form id="updateForm">
+                                <input type="hidden" id="updateRegistrationId">
+                                
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required onchange="checkForChanges()">
+                                        <option value="">Choose status...</option>
+                                        <option value="under_review">Under Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Remarks Card -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-comment me-2"></i>Admin Remarks
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <label for="remarks" class="form-label fw-semibold">
+                                Remarks (Optional)
+                            </label>
+                            <textarea class="form-control" id="remarks" rows="4"
+                                placeholder="Add any notes or comments about this status change..."
+                                maxlength="1000"
+                                onchange="checkForChanges()"
+                                oninput="updateFishrRemarksCounterUpdate()"></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Provide context for this status change
+                                </small>
+                                <small class="text-muted" id="remarksCounterUpdate">
+                                    <span id="charCountUpdate">0</span>/1000
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info border-left-info mt-3 mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> This will update the registration status and store your remarks in the system.
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">Update
-                        Status</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateRegistrationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Registration Details Modal -->
+    <!-- Registration Details View Modal -->
     <div class="modal fade" id="registrationModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-fish me-2"></i>Registration Details
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Registration Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="registrationDetails">
-                    <!-- Content will be loaded here -->
+                <div class="modal-body">
+                    <div class="row g-4">
+
+                        <!-- Personal Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Registration #:</strong>
+                                            <span class="text-primary" id="viewRegNumber"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Full Name:</strong>
+                                            <span id="viewRegName"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Sex:</strong>
+                                            <span id="viewRegSex"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Contact Number:</strong>
+                                            <span>
+                                                <a href="tel:" id="viewRegContact" class="text-decoration-none"></a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Barangay:</strong>
+                                            <span id="viewRegBarangay"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Livelihood Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Livelihood Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Main Livelihood:</strong>
+                                            <span id="viewRegLivelihood"></span>
+                                        </div>
+                                        <div class="col-12" id="viewOtherLivelihoodContainer" style="display: none;">
+                                            <strong>Other Livelihood:</strong>
+                                            <span id="viewRegOtherLivelihood"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Status & Timeline</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Current Status:</strong>
+                                            <div id="viewRegStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Date Applied:</strong>
+                                            <span id="viewRegCreatedAt"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Last Updated:</strong>
+                                            <span id="viewRegUpdatedAt"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Document Card -->
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div id="viewRegDocumentContainer">
+                                        <!-- Document info will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks Card (if exists) -->
+                        <div class="col-12" id="viewRemarksContainer" style="display: none;">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0" id="viewRegRemarks"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -512,9 +690,9 @@
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="documentModalLabel">
-                        <i class="fas fa-file-alt me-2"></i>Supporting Document
+                <div class="modal-header text-white" style="background: #0d6efd">
+                    <h5 class="modal-title  w-100 text-center" id="documentModalLabel">
+                        <i></i>Supporting Document
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -523,7 +701,7 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Close
+                        <i></i>Close
                     </button>
                 </div>
             </div>
@@ -534,63 +712,87 @@
     <div class="modal fade" id="annexesModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-folder-plus me-2"></i>Manage Annexes
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Manage Annexes
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <!-- Loading State -->
                     <div id="annexesLoading" class="text-center py-4" style="display: none;">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading annexes...</p>
+                        <p class="mt-2 text-muted">Loading annexes...</p>
                     </div>
 
                     <!-- Content -->
                     <div id="annexesContent">
-                        <!-- Registration Info -->
-                        <div class="card bg-light mb-3">
+                        <!-- Registration Info Card -->
+                        <div class="card bg-light border-primary mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Registration Information
+                                </h6>
+                            </div>
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row g-3">
                                     <div class="col-md-6">
-                                        <strong>Registration #:</strong> <span id="annexRegNumber"></span><br>
-                                        <strong>Applicant:</strong> <span id="annexApplicantName"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Registration #</small>
+                                            <strong class="text-primary" id="annexRegNumber"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Applicant</small>
+                                            <strong id="annexApplicantName"></strong>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <strong>Barangay:</strong> <span id="annexBarangay"></span><br>
-                                        <strong>Status:</strong> <span id="annexStatus"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Barangay</small>
+                                            <strong id="annexBarangay"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Status</small>
+                                            <div id="annexStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Upload New Annex -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Upload New Annex Card -->
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-upload me-2"></i>Upload New Annex
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <form id="annexUploadForm" enctype="multipart/form-data">
                                     <input type="hidden" id="annexRegistrationId">
+                                    
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexFile" class="form-label">Select File *</label>
+                                                <label for="annexFile" class="form-label fw-semibold">
+                                                    Select File <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="file" class="form-control" id="annexFile"
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
                                                 <div class="invalid-feedback" id="annexFileError"></div>
-                                                <small class="text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG, GIF
-                                                    (Max: 10MB)</small>
+                                                <small class="text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>Supported: PDF, DOC, DOCX, JPG, PNG, GIF (Max: 10MB)
+                                                </small>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexTitle" class="form-label">Document Title *</label>
+                                                <label for="annexTitle" class="form-label fw-semibold">
+                                                    Document Title <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="text" class="form-control" id="annexTitle"
                                                     placeholder="e.g., Additional Certificate, Supporting Document"
                                                     required>
@@ -598,24 +800,36 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="annexDescription" class="form-label">Description</label>
+                                        <label for="annexDescription" class="form-label fw-semibold">
+                                            Description
+                                        </label>
                                         <textarea class="form-control" id="annexDescription" rows="3"
-                                            placeholder="Brief description of the document (optional)"></textarea>
-                                        <small class="text-muted"><span id="annexDescCount">0</span>/500
-                                            characters</small>
+                                            placeholder="Brief description of the document (optional)"
+                                            oninput="updateAnnexDescriptionCounter()"></textarea>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>Optional context for this document
+                                            </small>
+                                            <small class="text-muted">
+                                                <span id="annexDescCount">0</span>/500
+                                            </small>
+                                        </div>
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
-                                        <i class="fas fa-upload me-1"></i>Upload Annex
-                                    </button>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
+                                            <i class="fas fa-upload me-2"></i>Upload Annex
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
 
-                        <!-- Existing Annexes -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Existing Annexes Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-folder me-2"></i>Existing Annexes
                                 </h6>
                             </div>
@@ -627,104 +841,130 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+   <!-- Edit FishR Registration Modal - RSBSA Design -->
+<div class="modal fade" id="editFishrModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title w-100 text-center">
+                    <i></i>Edit Registration - <span id="editFishrNumber"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
 
-    <!-- Edit FishR Registration Modal -->
-    <div class="modal fade" id="editFishrModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-pencil-alt me-2"></i>Edit Registration
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" id="editFishrForm" class="needs-validation">
-                        @csrf
-                        @method('PUT')
-
-                        <!-- Personal Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_first_name"
-                                            name="first_name" required maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="edit_middle_name"
-                                            name="middle_name" maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_last_name" name="last_name"
-                                            required maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_name_extension" class="form-label">Extension</label>
-                                        <select class="form-select" id="edit_name_extension" name="name_extension">
-                                            <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                        </select>
-                                    </div>
+            <div class="modal-body">
+                <form id="editFishrForm" enctype="multipart/form-data">
+                    <!-- Personal Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_first_name" class="form-label fw-semibold">
+                                        First Name 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_first_name"
+                                        name="first_name" required maxlength="100" placeholder="First name">
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_sex" class="form-label">Sex <span
-                                                class="text-danger">*</span></label>
-                                        <select class="form-select" id="edit_sex" name="sex" required>
-                                            <option value="">Select</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Preferred not to say">Preferred not to say</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="edit_contact_number"
-                                            name="contact_number" required placeholder="09XXXXXXXXX"
-                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_email" name="email"
-                                            maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_middle_name" class="form-label fw-semibold">
+                                        Middle Name
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_middle_name"
+                                        name="middle_name" maxlength="100" placeholder="Middle name (optional)">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_last_name" class="form-label fw-semibold">
+                                        Last Name 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_last_name"
+                                        name="last_name" required maxlength="100" placeholder="Last name">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_fishr_extension" class="form-label fw-semibold">
+                                        Extension
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_extension" name="name_extension">
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_sex" class="form-label fw-semibold">
+                                        Sex 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_sex" name="sex" required>
+                                        <option value="">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Preferred not to say">Preferred not to say</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_contact_number" class="form-label fw-semibold">
+                                        Contact Number 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" class="form-control" id="edit_fishr_contact_number"
+                                        name="contact_number" required placeholder="09XXXXXXXXX"
+                                        pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_reg_number" class="form-label fw-semibold">
+                                        Registration Number
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_reg_number" disabled placeholder="-">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Auto-generated (cannot be changed)
+                                    </small>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Location Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="edit_barangay" class="form-label">Barangay <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-select" id="edit_barangay" name="barangay" required>
+                    <!-- Location Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_fishr_barangay" class="form-label fw-semibold">
+                                        Barangay 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_barangay" name="barangay" required>
                                         <option value="">Select Barangay</option>
                                         <option value="Bagong Silang">Bagong Silang</option>
                                         <option value="Calendola">Calendola</option>
@@ -757,45 +997,155 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Status Information (Read-only) -->
-                        <div class="card mb-3 bg-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Registration Status (Read-only)
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Current Status:</small>
-                                        <div>
-                                            <span id="edit_status_display" class="badge bg-secondary"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Date Applied:</small>
-                                        <div id="edit_date_applied"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Last Updated:</small>
-                                        <div id="edit_last_updated"></div>
-                                    </div>
+                    <!-- Livelihood Information Card - NOW FULLY EDITABLE -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-fish me-2"></i>Livelihood Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_fishr_livelihood" class="form-label fw-semibold">
+                                        Main Livelihood 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_fishr_livelihood" name="main_livelihood"
+                                        required onchange="toggleEditOtherFishrLivelihood()">
+                                        <option value="">Select Livelihood</option>
+                                        <option value="capture">Capture Fishing</option>
+                                        <option value="aquaculture">Aquaculture</option>
+                                        <option value="vending">Fish Vending</option>
+                                        <option value="processing">Fish Processing</option>
+                                        <option value="others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3" id="edit_other_fishr_livelihood_container" style="display: none;">
+                                    <label for="edit_fishr_other_livelihood" class="form-label fw-semibold">
+                                        Specify Other Livelihood <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_fishr_other_livelihood" 
+                                        name="other_livelihood" maxlength="255" placeholder="Please specify...">
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Info Alert -->
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> You can only edit personal and location information here.
-                            To update the registration status, use the "Update Status" button from the main table.
+                    <!-- Documents Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-file-upload me-2"></i>Supporting Document
+                            </h6>
                         </div>
-                    </form>
+                        <div class="card-body">
+                            <p class="text-muted small mb-4">
+                                <i class="fas fa-info-circle me-1"></i>
+                                View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                            </p>
+
+                            <!-- Current Document Display -->
+                            <div id="edit_fishr_current_document" style="display: none; margin-bottom: 1.5rem;">
+                                <label class="form-label fw-semibold text-muted mb-2">Current Document</label>
+                                <div id="edit_fishr_current_doc_preview"></div>
+                            </div>
+
+                            <!-- Upload New Document Section -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="edit_fishr_supporting_document" class="form-label fw-semibold">
+                                        Supporting Document
+                                    </label>
+                                    <input type="file" class="form-control" id="edit_fishr_supporting_document" 
+                                        name="supporting_document" accept="image/*,.pdf" 
+                                        onchange="previewEditFishrDocument('edit_fishr_supporting_document', 'edit_fishr_supporting_document_preview')">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Upload a new file to replace it.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- New Document Preview -->
+                            <div id="edit_fishr_supporting_document_preview" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Status (Read-only) Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-info-circle me-2"></i>Registration Status (Read-only)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Current Status</small>
+                                    <div>
+                                        <span id="edit_fishr_status_badge" class="badge bg-secondary fs-6"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Date Applied</small>
+                                    <div id="edit_fishr_created_at" class="fw-semibold">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info border-left-info mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> You can edit all registration information here.
+                        To change registration status or add remarks, use the "Change Status" button from the main table.
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="editFishrSubmitBtn"
+                    onclick="handleEditFishrSubmit()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- DELETE  MODAL -->
+    <div class="modal fade" id="deleteFishrModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">Permanently Delete FishR Registration</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_fishr_name"></strong> will:</p>
+                    </div>
+                    <ul class="mb-0">
+                        <li>Remove the FishR registration from the database</li>
+                        <li>Delete all associated documents and files</li>
+                        <li>Delete all annexes and attachments</li>
+                        <li>Delete all registration history and logs</li>
+                        <li>Cannot be recovered</li>
+                    </ul>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="editSubmitBtn" onclick="handleEditFishrSubmit()">
-                        <i class="fas fa-save me-2"></i>Save Changes
+                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteFishr()"
+                        id="confirm_delete_fishr_btn">
+                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -830,9 +1180,9 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -902,7 +1252,7 @@
                     <!-- Current Filter Status -->
                     <div class="row mt-3">
                         <div class="col-12">
-                            <div class="alert alert-info mb-0">
+                            <div class="alert alert-info mb-0" style="border-left: 4px solid #17a2b8; border-radius: 8px;">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <span id="dateFilterStatus">
                                     @if (request('date_from') || request('date_to'))
@@ -924,44 +1274,51 @@
             </div>
         </div>
     </div>
-    <!-- Add FishR Registration Modal -->
+    <!-- Add FishR Registration Modal updated -->
     <div class="modal fade" id="addFishrModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-fish me-2"></i>Add New FishR Registration
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Add New FishR Registration
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addFishrForm" enctype="multipart/form-data">
-                        <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        @csrf
+                        
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_first_name" required
-                                            maxlength="100">
+                                        <label for="fishr_first_name" class="form-label fw-semibold">
+                                            First Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_first_name" required maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="fishr_middle_name"
-                                            maxlength="100">
+                                        <label for="fishr_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_middle_name" maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_last_name" required
-                                            maxlength="100">
+                                        <label for="fishr_last_name" class="form-label fw-semibold">
+                                            Last Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_last_name" required maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_name_extension" class="form-label">Extension</label>
+                                        <label for="fishr_name_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="fishr_name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -975,8 +1332,9 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="fishr_sex" class="form-label">Sex <span
-                                                class="text-danger">*</span></label>
+                                        <label for="fishr_sex" class="form-label fw-semibold">
+                                            Sex <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="fishr_sex" required>
                                             <option value="">Select</option>
                                             <option value="Male">Male</option>
@@ -985,38 +1343,31 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="fishr_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="fishr_contact_number" required
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="fishr_email" class="form-label">Email (Optional)</label>
-                                        <input type="email" class="form-control" id="fishr_email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="fishr_user_id" class="form-label">Link to User Account
-                                            (Optional)</label>
-                                        <input type="number" class="form-control" id="fishr_user_id"
-                                            placeholder="Enter User ID if exists">
-                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                        <label for="fishr_contact_number" class="form-label fw-semibold">
+                                            Contact Number <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="tel" class="form-control" id="fishr_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Location Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <!-- Location Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Location Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="fishr_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                        <label for="fishr_barangay" class="form-label fw-semibold">
+                                            Barangay <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="fishr_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -1052,18 +1403,20 @@
                             </div>
                         </div>
 
-                        <!-- Livelihood Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Livelihood Information</h6>
+                        <!-- Livelihood Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-fish me-2"></i>Livelihood Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_main_livelihood" class="form-label">Main Livelihood <span
-                                                class="text-danger">*</span></label>
-                                        <select class="form-select" id="fishr_main_livelihood" required
-                                            onchange="toggleOtherLivelihood()">
+                                        <label for="fishr_main_livelihood" class="form-label fw-semibold">
+                                            Main Livelihood <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="fishr_main_livelihood" required onchange="toggleOtherLivelihood()">
                                             <option value="">Select Livelihood</option>
                                             <option value="capture">Capture Fishing</option>
                                             <option value="aquaculture">Aquaculture</option>
@@ -1073,29 +1426,36 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3" id="other_livelihood_container" style="display: none;">
-                                        <label for="fishr_other_livelihood" class="form-label">Specify Other Livelihood
-                                            <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_other_livelihood"
-                                            maxlength="255" placeholder="Please specify...">
+                                        <label for="fishr_other_livelihood" class="form-label fw-semibold">
+                                            Specify Other Livelihood <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="fishr_other_livelihood" maxlength="255" placeholder="Please specify...">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Supporting Document -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                        <!-- Supporting Document Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
                                 </h6>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                                </p>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_supporting_document" class="form-label">Upload Document</label>
-                                        <input type="file" class="form-control" id="fishr_supporting_document" name="supporting_document"
-                                            accept="image/*,.pdf"
-                                            onchange="previewFishrDocument('fishr_supporting_document', 'fishr_doc_preview')">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
+                                        <label for="fishr_supporting_document" class="form-label fw-semibold">
+                                            Upload Document
+                                        </label>
+                                        <input type="file" class="form-control" id="fishr_supporting_document" name="supporting_document" accept=".pdf,.jpg,.jpeg,.png" onchange="previewFishrDocument('fishr_supporting_document', 'fishr_doc_preview')">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Accepted: JPG, PNG, PDF (Max 10MB)
+                                        </small>
                                     </div>
                                     <div class="col-md-6">
                                         <div id="fishr_doc_preview" style="margin-top: 10px;"></div>
@@ -1104,34 +1464,61 @@
                             </div>
                         </div>
 
-                        <!-- Registration Status -->
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Registration Status</h6>
+                        <!-- Registration Status Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-cog me-2"></i>Registration Status
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_status" class="form-label">Initial Status <span
-                                                class="text-danger">*</span></label>
+                                        <label for="fishr_status" class="form-label fw-semibold">
+                                            Initial Status <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="fishr_status" required>
                                             <option value="under_review" selected>Under Review</option>
                                             <option value="approved">Approved</option>
                                             <option value="rejected">Rejected</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="fishr_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="fishr_remarks" rows="3" maxlength="1000"
-                                            placeholder="Any notes or comments..."></textarea>
-                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks Card -->
+                        <div class="card border-0 bg-light mt-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="fishr_remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="fishr_remarks" rows="4"
+                                    placeholder="Add any comments about this registration..."
+                                    maxlength="1000"
+                                    oninput="updateFishrRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this registration
+                                    </small>
+                                    <small class="text-muted" id="remarksCounterFishr">
+                                        <span id="charCountFishr">0</span>/1000
+                                    </small>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddFishr()">
                         <i class="fas fa-save me-1"></i>Create Registration
                     </button>
@@ -1442,32 +1829,272 @@
         }
 
         /* Annex Document Items */
-        .annex-item {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
+      .annex-item {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .annex-item:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: #6f42c1;
+    }
+
+    .annex-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .annex-title {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 8px;
+        word-break: break-word;
+        font-size: 0.95rem;
+    }
+
+    .annex-description {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 8px;
+        font-style: italic;
+        line-height: 1.4;
+    }
+
+    .annex-meta {
+        font-size: 0.8rem;
+        color: #6c757d;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .annex-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .annex-meta-item i {
+        color: #6f42c1;
+    }
+
+    .annex-item-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: 1rem;
+        flex-shrink: 0;
+    }
+
+    .annex-item-actions .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Empty State */
+    .annex-empty-state {
+        text-center py-4;
+        padding: 2rem;
+    }
+
+    .annex-empty-state i {
+        font-size: 3rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+    .annex-empty-state p {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    /* Modal specific styles */
+    #annexesModal .modal-content {
+        border: none;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+    }
+
+    #annexesModal .modal-header {
+        border-radius: 12px 12px 0 0;
+        border: none;
+        padding: 1.5rem;
+    }
+
+    #annexesModal .modal-header .modal-title {
+        font-weight: 600;
+        font-size: 1.25rem;
+        letter-spacing: 0.5px;
+    }
+
+    #annexesModal .modal-footer {
+        border-radius: 0 0 12px 12px;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        padding: 1.25rem;
+    }
+
+    #annexesModal .modal-body {
+        padding: 2rem;
+    }
+
+    #annexesModal .card {
+        border-width: 1px !important;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    #annexesModal .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
+    }
+
+    #annexesModal .card-header {
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #annexesModal .card-header h6 {
+        color: #0d6efd;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    #annexesModal .card-body {
+        padding: 1.5rem;
+    }
+
+    #annexesModal .form-label {
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    #annexesModal .form-control,
+    #annexesModal .form-select {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    #annexesModal .form-control:focus,
+    #annexesModal .form-select:focus {
+        border-color: #6f42c1;
+        box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+        outline: none;
+    }
+
+    #annexesModal .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    #annexesModal .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    #annexesModal .btn-outline-primary,
+    #annexesModal .btn-outline-success,
+    #annexesModal .btn-outline-danger {
+        border-radius: 6px;
+        padding: 0.375rem 0.75rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    #annexesModal .btn-outline-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+    }
+
+    #annexesModal .btn-outline-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(25, 135, 84, 0.3);
+    }
+
+    #annexesModal .btn-outline-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Spinner */
+    #annexesModal .spinner-border {
+        color: #0d6efd;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        #annexesModal .modal-dialog {
+            margin: 0.5rem;
         }
 
-        .annex-item:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        #annexesModal .modal-body {
+            padding: 1.5rem 1rem;
+        }
+
+        #annexesModal .modal-header,
+        #annexesModal .modal-footer {
+            padding: 1rem;
+        }
+
+        .annex-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .annex-item-actions {
+            margin-left: 0;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .annex-item-actions .btn {
+            flex: 1;
+        }
+
+        #annexesModal .card-body {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #annexesModal .modal-header .modal-title {
+            font-size: 1.05rem;
         }
 
         .annex-title {
-            color: #6f42c1;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 0.9rem;
         }
 
         .annex-meta {
-            font-size: 0.875rem;
-            color: #6c757d;
+            font-size: 0.75rem;
         }
-
+    }
         /* Modal z-index fixes for stacking */
         .modal {
             z-index: 1050;
@@ -1886,6 +2513,36 @@
                 max-height: 40vh;
             }
         }
+        /*  Modal z-index fixes for stacking */ 
+        #documentModal {
+            z-index: 1060 !important;
+        }
+
+        #documentModal .modal-backdrop {
+            z-index: 1059 !important;
+        }
+
+        #annexesModal {
+            z-index: 1050 !important;
+        }
+
+        #annexesModal .modal-backdrop {
+            z-index: 1049 !important;
+        }
+
+        /* Ensure document viewer doesn't have dark background */
+        #documentViewer {
+            background: white !important;
+            min-height: 400px;
+        }
+
+        #documentModal {
+            z-index: 9999 !important;
+        }
+
+        #documentModal .modal-backdrop {
+            z-index: 9998 !important;
+        }
     </style>
 @endsection
 
@@ -2061,13 +2718,13 @@
             }
         }
 
-        // Enhanced show update modal function to store original values
+       // Enhanced show update modal function to store original values
         function showUpdateModal(id, currentStatus) {
             // Show loading state in modal
-            document.getElementById('updateRegId').innerHTML = `
-            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>`;
+            document.getElementById('updateRegNumber').innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>`;
 
             // First fetch the registration details
             fetch(`/admin/fishr-registrations/${id}`, {
@@ -2097,40 +2754,37 @@
                     document.getElementById('updateRegistrationId').value = id;
 
                     // Populate registration info display
-                    document.getElementById('updateRegId').textContent = data.registration_number;
                     document.getElementById('updateRegNumber').textContent = data.registration_number;
                     document.getElementById('updateRegName').textContent = data.full_name;
                     document.getElementById('updateRegBarangay').textContent = data.barangay;
-                    document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
 
                     // Show current status with badge styling
                     const currentStatusElement = document.getElementById('updateRegCurrentStatus');
                     currentStatusElement.innerHTML = `
-                    <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                        <span class="badge bg-${data.status_color}" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">${data.formatted_status}</span>`;
 
                     // Set form values and store original values for comparison
                     const statusSelect = document.getElementById('newStatus');
                     const remarksTextarea = document.getElementById('remarks');
 
                     statusSelect.value = data.status;
-                    statusSelect.dataset.originalStatus = data.status; // Store original status
+                    statusSelect.dataset.originalStatus = data.status;
 
                     remarksTextarea.value = data.remarks || '';
-                    remarksTextarea.dataset.originalRemarks = data.remarks || ''; // Store original remarks
+                    remarksTextarea.dataset.originalRemarks = data.remarks || '';
+
+                    // Update remarks counter
+                    updateFishrRemarksCounterUpdate();
 
                     // Remove any previous change indicators
                     statusSelect.classList.remove('form-changed');
                     remarksTextarea.classList.remove('form-changed');
-                    statusSelect.parentElement.classList.remove('change-indicator', 'changed');
-                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
-
-                    // Add change indicator classes
-                    statusSelect.parentElement.classList.add('change-indicator');
-                    remarksTextarea.parentElement.classList.add('change-indicator');
 
                     // Reset update button state
-                    const updateButton = document.querySelector('#updateModal .btn-primary');
-                    updateButton.classList.remove('no-changes');
+                    const updateButton = document.getElementById('updateStatusBtn');
+                    updateButton.classList.add('no-changes');
+                    updateButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                    updateButton.disabled = false;
 
                     // Show the modal
                     const modal = new bootstrap.Modal(document.getElementById('updateModal'));
@@ -2143,8 +2797,7 @@
         }
 
 
-
-        // View registration details
+        // Updated View Registration Details Function
         function viewRegistration(id) {
             if (!id) {
                 showToast('error', 'Invalid registration ID');
@@ -2152,14 +2805,6 @@
             }
 
             // Show loading state
-            document.getElementById('registrationDetails').innerHTML = `
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>`;
-
-            // Show modal while loading
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
             modal.show();
 
@@ -2181,105 +2826,81 @@
                     return response.json();
                 })
                 .then(response => {
-                    console.log('Response:', response);
-
                     if (!response.success) {
                         throw new Error('Failed to load registration details');
                     }
 
                     const data = response.data;
 
-                    if (!data) {
-                        throw new Error('No registration data received');
-                    }
+                    // Populate Personal Information
+                    document.getElementById('viewRegNumber').textContent = data.registration_number || 'N/A';
+                    document.getElementById('viewRegName').textContent = data.full_name || 'N/A';
+                    document.getElementById('viewRegSex').textContent = data.sex || 'N/A';
+                    
+                    const contactLink = document.getElementById('viewRegContact');
+                    contactLink.href = `tel:${data.contact_number}`;
+                    contactLink.textContent = data.contact_number || 'N/A';
+                    
 
-                    // Build remarks HTML if exists
-                    const remarksHtml = data.remarks ? `
-                    <div class="col-12 mt-3">
-                        <h6 class="border-bottom pb-2">Remarks</h6>
-                        <div class="alert alert-info">
-                            <p class="mb-1">${data.remarks}</p>
-                            <small class="text-muted">
-                                ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
-                                ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
-                            </small>
-                        </div>
-                    </div>` : '';
+                    // Populate Location Information
+                    document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
 
-                    // Build document section HTML - ADD THIS SECTION
-                    let documentHtml = '';
-                    if (data.document_path) {
-                        documentHtml = `
-                        <div class="col-12">
-                            <div class="card border-secondary">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center p-3 border border-secondary rounded bg-light">
-                                        <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
-                                        <h6>Supporting Document</h6>
-                                        <span class="badge bg-secondary mb-2">Uploaded</span>
-                                        <br>
-                                        <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.document_path}', 'FishR Registration #${data.registration_number} - Supporting Document')">
-                                            <i class="fas fa-eye"></i> View Document
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
+                    // Populate Livelihood Information
+                    document.getElementById('viewRegLivelihood').textContent = data.livelihood_description || 'N/A';
+                    
+                    // Show other livelihood if exists
+                    if (data.other_livelihood) {
+                        document.getElementById('viewOtherLivelihoodContainer').style.display = 'block';
+                        document.getElementById('viewRegOtherLivelihood').textContent = data.other_livelihood;
                     } else {
-                        documentHtml = `
-                        <div class="col-12">
-                            <div class="card border-secondary">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center p-3 border border-secondary rounded">
-                                        <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
-                                        <h6>No Document Uploaded</h6>
-                                        <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
+                        document.getElementById('viewOtherLivelihoodContainer').style.display = 'none';
                     }
 
-                    // Update modal content
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Personal Information</h6>
-                            <p><strong>Registration #:</strong> ${data.registration_number || 'N/A'}</p>
-                            <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
-                            <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
-                            <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                            <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Livelihood Information</h6>
-                            <p><strong>Main Livelihood:</strong> ${data.livelihood_description || 'N/A'}</p>
-                            ${data.other_livelihood ? `<p><strong>Other Livelihood:</strong> ${data.other_livelihood}</p>` : ''}
-                            <p><strong>Current Status:</strong>
-                                <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
-                            </p>
-                            <p><strong>Date Applied:</strong> ${data.created_at || 'N/A'}</p>
-                            <p><strong>Last Updated:</strong> ${data.updated_at || 'N/A'}</p>
-                        </div>
-                        ${documentHtml}
-                        ${remarksHtml}
-                    </div>`;
+                    // Populate Status Information
+                    const statusElement = document.getElementById('viewRegStatus');
+                    statusElement.innerHTML = `<span class="badge bg-${data.status_color}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${data.formatted_status}</span>`;
+                    
+                    document.getElementById('viewRegCreatedAt').textContent = data.created_at || 'N/A';
+                    document.getElementById('viewRegUpdatedAt').textContent = data.updated_at || 'N/A';
+
+                    // Populate Supporting Document
+                    const docContainer = document.getElementById('viewRegDocumentContainer');
+                    if (data.document_path) {
+                        docContainer.innerHTML = `
+                            <div class="p-4 border border-primary rounded bg-light">
+                                <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                <h6>Supporting Document</h6>
+                                <span class="badge bg-primary mb-3">Uploaded</span>
+                                <br>
+                                <button class="btn btn-sm btn-outline-primary"
+                                    onclick="viewDocument('${data.document_path}', 'FishR Registration #${data.registration_number} - Supporting Document')">
+                                    <i class="fas fa-eye me-1"></i>View Document
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        docContainer.innerHTML = `
+                            <div class="p-4 border border-secondary rounded">
+                                <i class="fas fa-file-slash fa-3x mb-3" style="color: #6c757d;"></i>
+                                <h6>No Document Uploaded</h6>
+                                <span class="badge bg-secondary">Not Uploaded</span>
+                            </div>
+                        `;
+                    }
+
+                    // Populate Remarks if exists
+                    const remarksContainer = document.getElementById('viewRemarksContainer');
+                    if (data.remarks) {
+                        remarksContainer.style.display = 'block';
+                        document.getElementById('viewRegRemarks').textContent = data.remarks;
+                    } else {
+                        remarksContainer.style.display = 'none';
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showToast('error', error.message || 'Error loading registration details. Please try again.');
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        ${error.message || 'Error loading registration details. Please try again.'}
-                    </div>`;
+                    modal.hide();
                 });
         }
 
@@ -2292,7 +2913,8 @@
             }
 
             const documentViewer = document.getElementById('documentViewer');
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            const documentModal = document.getElementById('documentModal');
+            const modal = new bootstrap.Modal(documentModal);
 
             // Show loading state first
             documentViewer.innerHTML = `
@@ -2303,13 +2925,29 @@
                     <p class="text-muted">Loading document...</p>
                 </div>`;
 
-            // Show modal immediately with loading state
+            // Show modal
             modal.show();
+
+            // Manage z-index after modal is shown
+            setTimeout(() => {
+                const backdrop = documentModal.previousElementSibling;
+                const annexesModal = document.getElementById('annexesModal');
+                
+                if (annexesModal && annexesModal.classList.contains('show')) {
+                    // If annexes modal is open, put document modal above it
+                    documentModal.style.zIndex = '1070';
+                    if (backdrop) backdrop.style.zIndex = '1069';
+                } else {
+                    // Otherwise, use normal z-index
+                    documentModal.style.zIndex = '1060';
+                    if (backdrop) backdrop.style.zIndex = '1059';
+                }
+            }, 100);
 
             // Update modal title if filename is provided
             const modalTitle = document.querySelector('#documentModal .modal-title');
             if (filename) {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${escapeHtml(filename)}`;
             } else {
                 modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
             }
@@ -2499,6 +3137,7 @@
             }, 500);
         }
 
+
         // Helper function to toggle image zoom
         function toggleImageZoom(img) {
             if (img.style.transform === 'scale(2)') {
@@ -2524,37 +3163,58 @@
             document.body.removeChild(link);
         }
 
-        // Function to check for changes and provide visual feedback
+        // Check for changes and provide visual feedback
         function checkForChanges() {
             const statusSelect = document.getElementById('newStatus');
             const remarksTextarea = document.getElementById('remarks');
+            const updateButton = document.getElementById('updateStatusBtn');
 
-            if (!statusSelect.dataset.originalStatus) return; // Don't check if original values aren't set yet
+            if (!statusSelect.dataset.originalStatus) return;
 
             const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
             const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
 
             // Visual feedback for status field
             statusSelect.classList.toggle('form-changed', statusChanged);
-            statusSelect.parentElement.classList.toggle('changed', statusChanged);
 
             // Visual feedback for remarks field
             remarksTextarea.classList.toggle('form-changed', remarksChanged);
-            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
 
             // Update button state
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
+            const hasChanges = statusChanged || remarksChanged;
 
-            // Update button text based on changes
-            if (!statusChanged && !remarksChanged) {
-                updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
+            if (hasChanges) {
+                updateButton.classList.remove('no-changes');
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Status';
+                updateButton.disabled = false;
             } else {
-                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+                updateButton.classList.add('no-changes');
+                updateButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                updateButton.disabled = false;
             }
         }
 
-        // Add event listeners when document is ready
+        // Update remarks character counter
+        function updateFishrRemarksCounterUpdate() {
+            const textarea = document.getElementById('remarks');
+            const charCount = document.getElementById('charCountUpdate');
+            const counter = document.getElementById('remarksCounterUpdate');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    counter.classList.add('text-warning');
+                    counter.classList.remove('text-muted');
+                } else {
+                    counter.classList.remove('text-warning');
+                    counter.classList.add('text-muted');
+                }
+            }
+        }
+
+        /// Add event listeners when document is ready
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.getElementById('newStatus');
             const remarksTextarea = document.getElementById('remarks');
@@ -2722,99 +3382,320 @@
                     // Hide loading, show error
                     document.getElementById('annexesLoading').style.display = 'none';
                     document.getElementById('annexesContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading data: ${error.message}
-                    </div>
-                `;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading data: ${error.message}
+                        </div>
+                    `;
                     document.getElementById('annexesContent').style.display = 'block';
                 });
         }
+// FIXED: Load existing annexes with proper file path handling
+function loadExistingAnnexes(id) {
+    fetch(`/admin/fishr-registrations/${id}/annexes`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            const annexesList = document.getElementById('annexesList');
 
-        // Load existing annexes
-        function loadExistingAnnexes(id) {
-            fetch(`/admin/fishr-registrations/${id}/annexes`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    const annexesList = document.getElementById('annexesList');
+            if (data.success && data.annexes && data.annexes.length > 0) {
+                let annexesHtml = '';
+                data.annexes.forEach((annex, index) => {
+                    const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
 
-                    if (data.success && data.annexes && data.annexes.length > 0) {
-                        let annexesHtml = '';
-                        data.annexes.forEach((annex, index) => {
-                            const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
+                    // IMPORTANT: Ensure file_path is properly set
+                    const filePath = annex.file_path ? String(annex.file_path).trim() : '';
+                    
+                    // Store the annex data in a dataset on the row element
+                    // This will be retrieved when preview/download is clicked
+                    const annexDataJson = JSON.stringify({
+                        id: annex.id,
+                        registrationId: id,
+                        filePath: filePath,
+                        fileName: annex.file_name || annex.title || 'Document',
+                        title: annex.title,
+                        fileExtension: annex.file_extension
+                    });
 
-                            annexesHtml += `
-                            <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h6 class="mb-1 text-primary">${annex.title}</h6>
-                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
-                                            <span class="mx-2">|</span>
-                                            <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
-                                        </small>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <div class="btn-group" role="group">
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                    onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-success"
-                                                    onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                    onclick="deleteAnnex(${id}, ${annex.id})" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+                    annexesHtml += `
+                        <div class="document-item border rounded p-3 mb-3" 
+                             id="annex-${annex.id}" 
+                             data-annex-json='${annexDataJson}'>
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1 text-primary">${escapeHtml(annex.title)}</h6>
+                                    <p class="mb-1 text-muted small">${escapeHtml(annex.description || 'No description')}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="previewAnnexFixed(${annex.id})" 
+                                                title="Preview"
+                                                type="button">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="downloadAnnexFixed(${annex.id})" 
+                                                title="Download"
+                                                type="button">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                onclick="deleteAnnex(${id}, ${annex.id})" 
+                                                title="Delete"
+                                                type="button">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        `;
-                        });
-                        annexesList.innerHTML = annexesHtml;
-                    } else {
-                        annexesList.innerHTML = `
-                        <div class="text-center py-4">
-                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No annexes uploaded yet</p>
                         </div>
                     `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading annexes:', error);
-                    document.getElementById('annexesList').innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading annexes: ${error.message}
+                });
+                annexesList.innerHTML = annexesHtml;
+            } else {
+                annexesList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No annexes uploaded yet</p>
                     </div>
                 `;
-                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading annexes:', error);
+            showToast('error', 'Error loading annexes: ' + error.message);
+            document.getElementById('annexesList').innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading annexes: ${error.message}
+                </div>
+            `;
+        });
+}
+
+// FIXED: Preview Annex - Retrieve data from data attribute
+function previewAnnexFixed(annexId) {
+    try {
+        // Get the annex element
+        const annexElement = document.getElementById(`annex-${annexId}`);
+        
+        if (!annexElement) {
+            showToast('error', 'Annex not found');
+            return;
+        }
+        
+        // Parse the stored JSON data
+        const annexDataJson = annexElement.getAttribute('data-annex-json');
+        if (!annexDataJson) {
+            showToast('error', 'Annex data not found');
+            return;
         }
 
-        // Upload annex with toast notifications
+        let annexData;
+        try {
+            annexData = JSON.parse(annexDataJson);
+        } catch (e) {
+            console.error('Error parsing annex data JSON:', e);
+            showToast('error', 'Error reading annex data');
+            return;
+        }
+
+        const filePath = annexData.filePath;
+        const fileName = annexData.fileName || annexData.title || 'Document';
+        
+        if (!filePath || filePath === 'undefined' || filePath === '') {
+            console.error('File path is missing or invalid:', {
+                filePath,
+                annexData
+            });
+            showToast('error', 'File path not available for this annex');
+            return;
+        }
+        
+        console.log('Preview annex:', {
+            annexId,
+            filePath,
+            fileName
+        });
+
+        // Use the existing viewDocument function
+        viewDocument(filePath, fileName, annexData.registrationId);
+
+    } catch (error) {
+        console.error('Error in previewAnnexFixed:', error);
+        showToast('error', 'Error previewing annex: ' + error.message);
+    }
+}
+
+// FIXED: Download Annex - Retrieve data from data attribute
+function downloadAnnexFixed(annexId) {
+    try {
+        // Get the annex element
+        const annexElement = document.getElementById(`annex-${annexId}`);
+        
+        if (!annexElement) {
+            showToast('error', 'Annex not found');
+            return;
+        }
+        
+        // Parse the stored JSON data
+        const annexDataJson = annexElement.getAttribute('data-annex-json');
+        if (!annexDataJson) {
+            showToast('error', 'Annex data not found');
+            return;
+        }
+
+        let annexData;
+        try {
+            annexData = JSON.parse(annexDataJson);
+        } catch (e) {
+            console.error('Error parsing annex data JSON:', e);
+            showToast('error', 'Error reading annex data');
+            return;
+        }
+
+        const filePath = annexData.filePath;
+        const fileName = annexData.fileName || annexData.title || 'Document';
+        
+        if (!filePath || filePath === 'undefined' || filePath === '') {
+            console.error('File path is missing or invalid:', {
+                filePath,
+                annexData
+            });
+            showToast('error', 'File path not available for this annex');
+            return;
+        }
+
+        console.log('Download annex:', {
+            annexId,
+            filePath,
+            fileName
+        });
+
+        // Show confirmation before downloading
+        showConfirmationToast(
+            'Download File',
+            `Download: ${fileName}?`,
+            () => proceedWithDownload(filePath, fileName)
+        );
+
+    } catch (error) {
+        console.error('Error in downloadAnnexFixed:', error);
+        showToast('error', 'Error downloading annex: ' + error.message);
+    }
+}
+
+// Utility: Format file size (if not already defined)
+function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return 'Unknown size';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Utility: Escape HTML (if not already defined)
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// FIXED: Preview Annex - Get file path from annexes list
+function previewAnnex(registrationId, annexId) {
+    // Get the annex element to retrieve file path from data attribute
+    const annexElement = document.getElementById(`annex-${annexId}`);
+    
+    if (!annexElement) {
+        showToast('error', 'Annex not found');
+        return;
+    }
+    
+    const filePath = annexElement.getAttribute('data-file-path');
+    const fileName = annexElement.getAttribute('data-file-name');
+    
+    if (!filePath || filePath === 'undefined' || filePath === '') {
+        showToast('error', 'File path not available');
+        return;
+    }
+    
+    // Use the existing viewDocument function
+    viewDocument(filePath, fileName, registrationId);
+}
+
+// FIXED: Download Annex - Get file path from annexes list
+function downloadAnnex(registrationId, annexId) {
+    // Get the annex element to retrieve file path from data attribute
+    const annexElement = document.getElementById(`annex-${annexId}`);
+    
+    if (!annexElement) {
+        showToast('error', 'Annex not found');
+        return;
+    }
+    
+    const filePath = annexElement.getAttribute('data-file-path');
+    const fileName = annexElement.getAttribute('data-file-name');
+    
+    if (!filePath || filePath === 'undefined' || filePath === '') {
+        showToast('error', 'File path not available');
+        return;
+    }
+    
+    // Show confirmation before downloading
+    showConfirmationToast(
+        'Download File',
+        `Download: ${fileName}?`,
+        () => proceedWithDownload(filePath, fileName)
+    );
+}
+
+        // Proceed with download
+        function proceedWithDownload(filePath, fileName) {
+            const fileUrl = `/storage/${filePath}`;
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName || 'document';
+            link.target = '_blank';
+            document.body.appendChild(link);
+
+            try {
+                link.click();
+                showToast('success', 'File download started');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('error', 'Failed to download file');
+            } finally {
+                document.body.removeChild(link);
+            }
+        }
+
+        // Upload annex with validation
         function uploadAnnex() {
             const id = document.getElementById('annexRegistrationId').value;
             const fileInput = document.getElementById('annexFile');
@@ -2833,18 +3714,27 @@
             }
 
             // File size validation (10MB)
-            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+            const maxFileSize = 10 * 1024 * 1024; // 10MB
+            if (fileInput.files[0].size > maxFileSize) {
                 showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+                return;
+            }
+
+            // Validate file type
+            const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif'];
+            const fileExtension = fileInput.files[0].name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                showValidationError('annexFile', 'annexFileError', 'File type not allowed. Supported: PDF, DOC, DOCX, JPG, PNG, GIF');
                 return;
             }
 
             // Clear validation errors
             clearValidationErrors();
 
-            // Show confirmation toast instead of browser confirm
+            // Show confirmation toast
             showConfirmationToast(
                 'Upload Annex',
-                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
+                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}\nSize: ${formatFileSize(fileInput.files[0].size)}`,
                 () => proceedWithAnnexUpload(id, fileInput, title, description)
             );
         }
@@ -2893,11 +3783,14 @@
                 });
         }
 
-        // Delete annex with confirmation toast
+        // Delete annex with confirmation
         function deleteAnnex(registrationId, annexId) {
+            const button = document.querySelector(`button[onclick="deleteAnnex(${registrationId}, ${annexId})"]`);
+            const fileName = button?.dataset.fileName || 'this annex';
+
             showConfirmationToast(
                 'Delete Annex',
-                'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
+                `Are you sure you want to delete "${fileName}"?\n\nThis action cannot be undone.`,
                 () => proceedWithAnnexDelete(registrationId, annexId)
             );
         }
@@ -2919,16 +3812,19 @@
                     if (data.success) {
                         showToast('success', 'Annex deleted successfully');
 
-                        // Remove from UI
+                        // Remove from UI with animation
                         const annexElement = document.getElementById(`annex-${annexId}`);
                         if (annexElement) {
-                            annexElement.remove();
-                        }
-
-                        // Reload if no annexes left
-                        const annexesList = document.getElementById('annexesList');
-                        if (!annexesList.querySelector('.document-item')) {
-                            loadExistingAnnexes(registrationId);
+                            annexElement.style.transition = 'opacity 0.3s ease';
+                            annexElement.style.opacity = '0';
+                            setTimeout(() => {
+                                annexElement.remove();
+                                // Reload if no annexes left
+                                const annexesList = document.getElementById('annexesList');
+                                if (!annexesList.querySelector('.document-item')) {
+                                    loadExistingAnnexes(document.getElementById('annexRegistrationId').value);
+                                }
+                            }, 300);
                         }
                     } else {
                         throw new Error(data.message || 'Failed to delete annex');
@@ -2939,133 +3835,6 @@
                     showToast('error', 'Failed to delete annex: ' + error.message);
                 });
         }
-
-        // Updated updateRegistrationStatus with toast notifications
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-
-            if (!newStatus) {
-                showToast('error', 'Please select a status');
-                return;
-            }
-
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
-
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-                return;
-            }
-
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
-            }
-
-            // Only show confirmation - callback handles the actual update
-            showConfirmationToast(
-                'Confirm Update',
-                `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
-                () => proceedWithStatusUpdate(id, newStatus, remarks)
-            );
-        }
-
-        // And the separate proceedWithStatusUpdate function handles the fetch
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-            updateButton.disabled = true;
-
-            fetch(`/admin/fishr-registrations/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(async response => {
-                    const contentType = response.headers.get('content-type');
-                    let data;
-
-                    // Try to parse JSON response
-                    if (contentType && contentType.includes('application/json')) {
-                        data = await response.json();
-                    } else {
-                        // If not JSON, get text for debugging
-                        const text = await response.text();
-                        console.error('Non-JSON response:', text);
-                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                    }
-
-                    // Check if response was successful
-                    if (!response.ok) {
-                        throw new Error(data.message ||
-                        `Server error (${response.status}): ${response.statusText}`);
-                    }
-
-                    return data;
-                })
-                .then(response => {
-                    if (response.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        showToast('success', response.message);
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        throw new Error(response.message || 'Error updating status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error details:', {
-                        message: error.message,
-                        stack: error.stack,
-                        id: id,
-                        newStatus: newStatus
-                    });
-
-                    let errorMessage = 'Error updating registration status: ';
-
-                    // Provide more specific error messages
-                    if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-                        errorMessage += 'Network connection failed. Please check your internet connection.';
-                    } else if (error.message.includes('500')) {
-                        errorMessage += 'Server error occurred. Please check the server logs for details.';
-                    } else if (error.message.includes('404')) {
-                        errorMessage += 'Registration not found. It may have been deleted.';
-                    } else if (error.message.includes('401') || error.message.includes('403')) {
-                        errorMessage += 'You do not have permission to perform this action.';
-                    } else {
-                        errorMessage += error.message;
-                    }
-
-                    showToast('error', errorMessage);
-                })
-                .finally(() => {
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                });
-        }
-
 
         // Reset annex form
         function resetAnnexForm() {
@@ -3101,7 +3870,33 @@
             });
         }
 
-        // Utility function to format file sizes
+        // UPDATE ANNEX DESCRIPTION COUNTER - NEW IMPLEMENTATION
+        function updateAnnexDescriptionCounter() {
+            const textarea = document.getElementById('annexDescription');
+            const counter = document.getElementById('annexDescCount');
+
+            if (textarea && counter) {
+                const charCount = textarea.value.length;
+                counter.textContent = charCount;
+
+                // Enforce max length (500)
+                if (charCount > 500) {
+                    textarea.value = textarea.value.substring(0, 500);
+                    counter.textContent = '500';
+                }
+
+                // Change color when approaching limit
+                if (charCount > 450) {
+                    counter.parentElement.classList.add('text-warning');
+                    counter.parentElement.classList.remove('text-muted');
+                } else {
+                    counter.parentElement.classList.remove('text-warning');
+                    counter.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        // Utility: Format file size
         function formatFileSize(bytes) {
             if (!bytes || bytes === 0) return 'Unknown size';
 
@@ -3110,23 +3905,26 @@
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // Character count for annex description
+        // Utility: Escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize character counter on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', function() {
             const annexDesc = document.getElementById('annexDescription');
-            const annexDescCount = document.getElementById('annexDescCount');
-
-            if (annexDesc && annexDescCount) {
-                annexDesc.addEventListener('input', function() {
-                    const count = this.value.length;
-                    annexDescCount.textContent = count;
-
-                    if (count > 500) {
-                        this.value = this.value.substring(0, 500);
-                        annexDescCount.textContent = '500';
-                    }
-                });
+            
+            if (annexDesc) {
+                annexDesc.addEventListener('input', updateAnnexDescriptionCounter);
             }
         });
+
 
         // ========== END ANNEXES FUNCTIONALITY ==========
 
@@ -3196,7 +3994,7 @@
                 });
         }
 
-        // Show add FishR modal
+        // Show add FishR modal - Enhanced
         function showAddFishrModal() {
             const modal = new bootstrap.Modal(document.getElementById('addFishrModal'));
 
@@ -3259,37 +4057,6 @@
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
                 errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
-        // Real-time validation for email
-        document.getElementById('fishr_email')?.addEventListener('input', function() {
-            validateFishrEmail(this.value);
-        });
-
-        function validateFishrEmail(email) {
-            const input = document.getElementById('fishr_email');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!email || email.trim() === '') {
-                return true; // Email is optional
-            }
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -3378,39 +4145,19 @@
             reader.readAsDataURL(file);
         }
 
-        // Validate FishR form
+        // Validate FishR form - Enhanced
         function validateFishrForm() {
             let isValid = true;
 
             // Required fields
-            const requiredFields = [{
-                    id: 'fishr_first_name',
-                    label: 'First Name'
-                },
-                {
-                    id: 'fishr_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    id: 'fishr_sex',
-                    label: 'Sex'
-                },
-                {
-                    id: 'fishr_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    id: 'fishr_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    id: 'fishr_main_livelihood',
-                    label: 'Main Livelihood'
-                },
-                {
-                    id: 'fishr_status',
-                    label: 'Status'
-                }
+            const requiredFields = [
+                { id: 'fishr_first_name', label: 'First Name' },
+                { id: 'fishr_last_name', label: 'Last Name' },
+                { id: 'fishr_sex', label: 'Sex' },
+                { id: 'fishr_contact_number', label: 'Contact Number' },
+                { id: 'fishr_barangay', label: 'Barangay' },
+                { id: 'fishr_main_livelihood', label: 'Main Livelihood' },
+                { id: 'fishr_status', label: 'Status' }
             ];
 
             requiredFields.forEach(field => {
@@ -3447,18 +4194,184 @@
 
             // Validate contact number
             const contactNumber = document.getElementById('fishr_contact_number').value.trim();
-            if (!validateFishrContactNumber(contactNumber)) {
-                isValid = false;
-            }
-
-            // Validate email if provided
-            const email = document.getElementById('fishr_email').value.trim();
-            if (email && !validateFishrEmail(email)) {
+            if (contactNumber && !validateFishrContactNumber(contactNumber)) {
                 isValid = false;
             }
 
             return isValid;
         }
+
+        // Validate FishR contact number - Enhanced
+        function validateFishrContactNumber(contactNumber) {
+            const input = document.getElementById('fishr_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Submit add FishR form - Enhanced
+        function submitAddFishr() {
+            // Validate form
+            if (!validateFishrForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+
+            formData.append('first_name', document.getElementById('fishr_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('fishr_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('fishr_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('fishr_name_extension').value);
+            formData.append('sex', document.getElementById('fishr_sex').value);
+            formData.append('contact_number', document.getElementById('fishr_contact_number').value.trim());
+            formData.append('barangay', document.getElementById('fishr_barangay').value);
+            formData.append('main_livelihood', document.getElementById('fishr_main_livelihood').value);
+
+            // Add other livelihood if 'others' is selected
+            if (document.getElementById('fishr_main_livelihood').value === 'others') {
+                formData.append('other_livelihood', document.getElementById('fishr_other_livelihood').value.trim());
+            }
+
+            formData.append('status', document.getElementById('fishr_status').value);
+            formData.append('remarks', document.getElementById('fishr_remarks').value.trim());
+
+            // Add document if uploaded
+            const docInput = document.getElementById('fishr_supporting_document');
+            if (docInput.files && docInput.files[0]) {
+                formData.append('supporting_document', docInput.files[0]);
+            }
+
+            // Find submit button
+            const submitBtn = document.querySelector('#addFishrModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Creating...';
+            submitBtn.disabled = true;
+
+            // Submit to backend
+            fetch('/admin/fishr-registrations/create', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addFishrModal'));
+                        modal.hide();
+
+                        // Show success message
+                        showToast('success', data.message || 'FishR registration created successfully');
+
+                        // Reload page after short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // Show validation errors
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('fishr_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.remove();
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create FishR registration');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the registration');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+        }
+
+        // Auto-capitalize name fields
+        function capitalizeFishrName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        // Add event listeners for auto-capitalization on blur
+        document.addEventListener('DOMContentLoaded', function() {
+            const addFishrModal = document.getElementById('addFishrModal');
+            
+            if (addFishrModal) {
+                addFishrModal.addEventListener('shown.bs.modal', function() {
+                    const firstNameInput = document.getElementById('fishr_first_name');
+                    const middleNameInput = document.getElementById('fishr_middle_name');
+                    const lastNameInput = document.getElementById('fishr_last_name');
+
+                    if (firstNameInput) {
+                        firstNameInput.addEventListener('blur', function() {
+                            capitalizeFishrName(this);
+                        });
+                    }
+
+                    if (middleNameInput) {
+                        middleNameInput.addEventListener('blur', function() {
+                            capitalizeFishrName(this);
+                        });
+                    }
+
+                    if (lastNameInput) {
+                        lastNameInput.addEventListener('blur', function() {
+                            capitalizeFishrName(this);
+                        });
+                    }
+
+                    // Real-time validation for contact number
+                    const contactInput = document.getElementById('fishr_contact_number');
+                    if (contactInput) {
+                        contactInput.addEventListener('input', function() {
+                            validateFishrContactNumber(this.value);
+                        });
+                    }
+
+                });
+            }
+        });
 
         // Submit add FishR form
         function submitAddFishr() {
@@ -3477,7 +4390,6 @@
             formData.append('name_extension', document.getElementById('fishr_name_extension').value);
             formData.append('sex', document.getElementById('fishr_sex').value);
             formData.append('contact_number', document.getElementById('fishr_contact_number').value.trim());
-            formData.append('email', document.getElementById('fishr_email').value.trim());
             formData.append('barangay', document.getElementById('fishr_barangay').value);
             formData.append('main_livelihood', document.getElementById('fishr_main_livelihood').value);
 
@@ -3489,10 +4401,6 @@
             formData.append('status', document.getElementById('fishr_status').value);
             formData.append('remarks', document.getElementById('fishr_remarks').value.trim());
 
-            const userId = document.getElementById('fishr_user_id').value.trim();
-            if (userId) {
-                formData.append('user_id', userId);
-            }
             // Add document if uploaded
             const docInput = document.getElementById('fishr_supporting_document');
             if (docInput.files && docInput.files[0]) {
@@ -3558,340 +4466,696 @@
                 });
         }
 
-        // Show edit modal
-        function showEditFishrModal(id) {
-            const modal = new bootstrap.Modal(document.getElementById('editFishrModal'));
+       /**
+ * Show Edit FishR Modal - Opens modal and loads registration data
+ */
+function showEditFishrModal(registrationId) {
+    const modal = new bootstrap.Modal(document.getElementById('editFishrModal'));
+    
+    // Show loading state
+    document.getElementById('editFishrNumber').textContent = 'Loading...';
+    
+    // Show modal
+    modal.show();
+    
+    // Fetch registration details
+    fetch(`/admin/fishr-registrations/${registrationId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) throw new Error(response.message || 'Failed to load registration');
+            
+            const data = response.data;
+            
+            // Update modal title
+            document.getElementById('editFishrNumber').textContent = data.registration_number;
+            
+            // Initialize form with data
+            initializeEditFishrForm(registrationId, data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Error loading registration: ' + error.message);
+            modal.hide();
+        });
+}
 
-            // Initialize the modal with existing values
-            initializeEditFishrModal(id);
+/**
+ * Initialize Edit Form with registration data
+ */
+function initializeEditFishrForm(registrationId, data) {
+    const form = document.getElementById('editFishrForm');
+    
+    // Populate personal information
+    document.getElementById('edit_fishr_first_name').value = data.first_name || '';
+    document.getElementById('edit_fishr_middle_name').value = data.middle_name || '';
+    document.getElementById('edit_fishr_last_name').value = data.last_name || '';
+    document.getElementById('edit_fishr_extension').value = data.name_extension || '';
+    document.getElementById('edit_fishr_sex').value = data.sex || '';
+    document.getElementById('edit_fishr_contact_number').value = data.contact_number || '';
+    
+    // Populate location
+    document.getElementById('edit_fishr_barangay').value = data.barangay || '';
+    
+    // Populate livelihood
+    document.getElementById('edit_fishr_livelihood').value = data.main_livelihood || '';
+    document.getElementById('edit_fishr_other_livelihood').value = data.other_livelihood || '';
+    
+    // Toggle other livelihood field
+    toggleEditOtherFishrLivelihood();
+    
+    // Populate registration number (read-only)
+    document.getElementById('edit_fishr_reg_number').value = data.registration_number || '';
+    
+    // Populate status badge
+    const statusBadge = document.getElementById('edit_fishr_status_badge');
+    statusBadge.className = `badge bg-${data.status_color} fs-6`;
+    statusBadge.textContent = data.formatted_status;
+    
+    // Populate date applied
+    document.getElementById('edit_fishr_created_at').textContent = data.created_at || '-';
+    
+   // Handle document preview
+    const previewContainer = document.getElementById('edit_fishr_supporting_document_preview');
+    if (data.document_path) {
+        displayEditFishrExistingDocument(data.document_path, 'edit_fishr_supporting_document_preview');
+    } else {
+        previewContainer.innerHTML = '<small class="text-muted d-block">No document currently uploaded</small>';
+    }
+    
+    // Store original data for change detection
+    const originalData = {
+        first_name: data.first_name || '',
+        middle_name: data.middle_name || '',
+        last_name: data.last_name || '',
+        name_extension: data.name_extension || '',
+        sex: data.sex || '',
+        contact_number: data.contact_number || '',
+        barangay: data.barangay || '',
+        main_livelihood: data.main_livelihood || '',
+        other_livelihood: data.other_livelihood || ''
+    };
+    
+    form.dataset.originalData = JSON.stringify(originalData);
+    form.dataset.registrationId = registrationId;
+    form.dataset.hasChanges = 'false';
+    
+    // Clear validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    
+    // Reset button state
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    
+    // Add change listeners
+    addEditFishrFormChangeListeners(registrationId);
+}
 
-            modal.show();
-        }
+/**
+ * Toggle Edit Other Livelihood Field
+ */
+function toggleEditOtherFishrLivelihood() {
+    const mainLivelihood = document.getElementById('edit_fishr_livelihood').value;
+    const container = document.getElementById('edit_other_fishr_livelihood_container');
+    const input = document.getElementById('edit_fishr_other_livelihood');
+    
+    if (mainLivelihood === 'others') {
+        container.style.display = 'block';
+        input.required = true;
+    } else {
+        container.style.display = 'none';
+        input.required = false;
+    }
+    
+    // Trigger change detection
+    const form = document.getElementById('editFishrForm');
+    if (form.dataset.registrationId) {
+        checkEditFishrFormChanges(form.dataset.registrationId);
+    }
+}
 
-        // Initialize edit modal with existing data
-        function initializeEditFishrModal(id) {
-            // Wait for modal to be fully loaded
-            setTimeout(() => {
-                // Fetch registration details
-                fetch(`/admin/fishr-registrations/${id}`, {
-                        method: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                'content')
-                        },
-                        credentials: 'same-origin'
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        return response.json();
-                    })
-                    .then(response => {
-                        if (!response.success) throw new Error(response.message || 'Failed to load data');
+/**
+ * Add Change Listeners to Edit Form
+ */
+function addEditFishrFormChangeListeners(registrationId) {
+    const form = document.getElementById('editFishrForm');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', () => handleEditFishrFormChange());
+        input.addEventListener('input', () => handleEditFishrFormChange());
+    });
+    
+    // Special handler for livelihood change
+    document.getElementById('edit_fishr_livelihood').addEventListener('change', toggleEditOtherFishrLivelihood);
+}
 
-                        const data = response.data;
+/**
+ * Handle Edit Form Change
+ */
+function handleEditFishrFormChange() {
+    const form = document.getElementById('editFishrForm');
+    if (form.dataset.registrationId) {
+        checkEditFishrFormChanges(form.dataset.registrationId);
+    }
+}
+/**
+ * Check for Form Changes and Update UI - UPDATED
+ */
+function checkEditFishrFormChanges(registrationId) {
+    const form = document.getElementById('editFishrForm');
+    if (!form.dataset.originalData) return;
 
-                        // Populate form fields - CHECK IF ELEMENT EXISTS FIRST
-                        const firstNameEl = document.getElementById('edit_first_name');
-                        if (!firstNameEl) {
-                            throw new Error(
-                                'Form elements not found. Make sure the modal is properly rendered.');
-                        }
+    const originalData = JSON.parse(form.dataset.originalData);
+    let hasChanges = false;
 
-                        firstNameEl.value = data.first_name || '';
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'sex', 'contact_number', 'barangay', 'main_livelihood', 'other_livelihood'
+    ];
 
-                        const middleNameEl = document.getElementById('edit_middle_name');
-                        if (middleNameEl) middleNameEl.value = data.middle_name || '';
+    fields.forEach(field => {
+        const fieldElement = form.querySelector(`[name="${field}"]`);
+        if (fieldElement) {
+            const currentValue = fieldElement.value;
+            const originalValue = originalData[field] || '';
 
-                        const lastNameEl = document.getElementById('edit_last_name');
-                        if (lastNameEl) lastNameEl.value = data.last_name || '';
-
-                        const extensionEl = document.getElementById('edit_name_extension');
-                        if (extensionEl) extensionEl.value = data.name_extension || '';
-
-                        const sexEl = document.getElementById('edit_sex');
-                        if (sexEl) sexEl.value = data.sex || '';
-
-                        const contactEl = document.getElementById('edit_contact_number');
-                        if (contactEl) contactEl.value = data.contact_number || '';
-
-                        const emailEl = document.getElementById('edit_email');
-                        if (emailEl) emailEl.value = data.email || '';
-
-                        const barangayEl = document.getElementById('edit_barangay');
-                        if (barangayEl) barangayEl.value = data.barangay || '';
-
-                        // Populate read-only fields
-                        const statusEl = document.getElementById('edit_status_display');
-                        if (statusEl) {
-                            statusEl.innerHTML =
-                                `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
-                        }
-
-                        const dateEl = document.getElementById('edit_date_applied');
-                        if (dateEl) dateEl.textContent = data.created_at || 'N/A';
-
-                        const updatedEl = document.getElementById('edit_last_updated');
-                        if (updatedEl) updatedEl.textContent = data.updated_at || 'N/A';
-
-                        // Store original data for change detection
-                        const originalData = {
-                            first_name: data.first_name || '',
-                            middle_name: data.middle_name || '',
-                            last_name: data.last_name || '',
-                            name_extension: data.name_extension || '',
-                            sex: data.sex || '',
-                            contact_number: data.contact_number || '',
-                            email: data.email || '',
-                            barangay: data.barangay || ''
-                        };
-
-                        const form = document.getElementById('editFishrForm');
-                        if (form) {
-                            form.dataset.originalData = JSON.stringify(originalData);
-                            form.dataset.registrationId = id;
-                        }
-
-                        // Clear validation states
-                        document.querySelectorAll('#editFishrForm .is-invalid').forEach(el => el.classList
-                            .remove('is-invalid'));
-                        document.querySelectorAll('#editFishrForm .invalid-feedback').forEach(el => el
-                    .remove());
-
-                        // Reset button state
-                        const submitBtn = document.getElementById('editSubmitBtn');
-                        if (submitBtn) {
-                            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                            submitBtn.disabled = false;
-                            submitBtn.dataset.hasChanges = 'false';
-                        }
-
-                        // Add change detection
-                        addEditFishrChangeDetection();
-
-                    })
-                    .catch(error => {
-                        console.error('Error loading registration:', error);
-                        showToast('error', 'Failed to load registration: ' + error.message);
-                    });
-            }, 300); // Wait for modal animation
-        }
-
-        // Add change detection to edit form
-        function addEditFishrChangeDetection() {
-            const form = document.getElementById('editFishrForm');
-            const inputs = form.querySelectorAll('input, select, textarea');
-
-            inputs.forEach(input => {
-                input.addEventListener('change', () => checkForEditFishrChanges());
-                input.addEventListener('input', () => checkForEditFishrChanges());
-            });
-        }
-
-        // Check for changes in edit form
-        function checkForEditFishrChanges() {
-            const form = document.getElementById('editFishrForm');
-            const submitBtn = document.getElementById('editSubmitBtn');
-
-            if (!form.dataset.originalData) return;
-
-            const originalData = JSON.parse(form.dataset.originalData);
-            let hasChanges = false;
-
-            const fields = [
-                'first_name', 'middle_name', 'last_name', 'name_extension',
-                'sex', 'contact_number', 'email', 'barangay'
-            ];
-
-            fields.forEach(field => {
-                const input = form.querySelector(`[name="${field}"]`);
-                if (input && input.value !== originalData[field]) {
-                    hasChanges = true;
-                    input.classList.add('form-changed');
-                } else if (input) {
-                    input.classList.remove('form-changed');
-                }
-            });
-
-            // Update button state
-            if (hasChanges) {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'true';
+            if (currentValue !== originalValue) {
+                hasChanges = true;
+                fieldElement.classList.add('form-changed');
             } else {
-                submitBtn.classList.add('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'false';
+                fieldElement.classList.remove('form-changed');
             }
         }
+    });
 
-        // Handle edit form submission
-        function handleEditFishrSubmit() {
-            const form = document.getElementById('editFishrForm');
-            const submitBtn = document.getElementById('editSubmitBtn');
-            const registrationId = form.dataset.registrationId;
+    // Also check for file input changes
+    const fileInput = document.getElementById('edit_fishr_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        hasChanges = true;
+    }
 
-            // Check if there are no changes
-            if (submitBtn.dataset.hasChanges === 'false') {
-                showToast('warning', 'No changes detected. Please modify the fields before saving.');
-                return;
-            }
+    // Update button state
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+    } else {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
 
-            // Validate form
-            if (!validateEditFishrForm()) {
-                showToast('error', 'Please fix all validation errors');
-                return;
-            }
+    form.dataset.hasChanges = hasChanges;
+}
 
-            // Show confirmation
-            showConfirmationToast(
-                'Confirm Update',
-                'Are you sure you want to save the changes to this registration?',
-                () => proceedWithEditFishr(form, registrationId)
-            );
+/**
+ * Validate Edit FishR Form
+ */
+function validateEditFishrForm() {
+    const form = document.getElementById('editFishrForm');
+    let isValid = true;
+    
+    // Required fields
+    const requiredFields = [
+        { name: 'first_name', label: 'First Name', element: 'edit_fishr_first_name' },
+        { name: 'last_name', label: 'Last Name', element: 'edit_fishr_last_name' },
+        { name: 'sex', label: 'Sex', element: 'edit_fishr_sex' },
+        { name: 'contact_number', label: 'Contact Number', element: 'edit_fishr_contact_number' },
+        { name: 'barangay', label: 'Barangay', element: 'edit_fishr_barangay' },
+        { name: 'main_livelihood', label: 'Main Livelihood', element: 'edit_fishr_livelihood' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.element);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            input.parentNode.appendChild(errorDiv);
+            isValid = false;
         }
+    });
+    
+    // Validate other livelihood if main is 'others'
+    const mainLivelihood = document.getElementById('edit_fishr_livelihood').value;
+    if (mainLivelihood === 'others') {
+        const otherLivelihood = document.getElementById('edit_fishr_other_livelihood');
+        if (!otherLivelihood.value || otherLivelihood.value.trim() === '') {
+            otherLivelihood.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please specify the other livelihood';
+            
+            const existingError = otherLivelihood.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            otherLivelihood.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+    
+    // Validate contact number
+    const contactInput = document.getElementById('edit_fishr_contact_number');
+    if (contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            
+            const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
+/**
+ * Handle Edit FishR Form Submission - with changes summary
+ */
+function handleEditFishrSubmit() {
+    const form = document.getElementById('editFishrForm');
+    const registrationId = form.dataset.registrationId;
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
 
-        // Validate edit form
-        function validateEditFishrForm() {
-            const form = document.getElementById('editFishrForm');
-            let isValid = true;
+    // Validate form first
+    if (!validateEditFishrForm()) {
+        showToast('error', 'Please fix all validation errors');
+        return;
+    }
 
-            const requiredFields = [{
-                    name: 'first_name',
-                    label: 'First Name'
-                },
-                {
-                    name: 'last_name',
-                    label: 'Last Name'
-                },
-                {
-                    name: 'sex',
-                    label: 'Sex'
-                },
-                {
-                    name: 'contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    name: 'barangay',
-                    label: 'Barangay'
-                }
-            ];
+    const hasChanges = submitBtn?.dataset.hasChanges === 'true';
 
-            requiredFields.forEach(field => {
-                const input = form.querySelector(`[name="${field.name}"]`);
-                if (input && (!input.value || input.value.trim() === '')) {
+    // If no changes, show warning and return
+    if (!hasChanges) {
+        showToast('warning', 'No changes detected. Please modify the fields before updating.');
+        return;
+    }
+
+    // Build changes summary ONLY from actually changed fields
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let changedFields = [];
+
+    const fieldLabels = {
+        'first_name': 'First Name',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'name_extension': 'Extension',
+        'sex': 'Sex',
+        'contact_number': 'Contact Number',
+        'barangay': 'Barangay',
+        'main_livelihood': 'Main Livelihood',
+        'other_livelihood': 'Other Livelihood',
+        'supporting_document': 'Supporting Document'
+    };
+
+    // Check which fields have changed
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'sex', 'contact_number', 'barangay', 'main_livelihood', 'other_livelihood'
+    ];
+
+    fields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && input.value !== originalData[field]) {
+            changedFields.push(fieldLabels[field] || field);
+        }
+    });
+
+    // Check file input - ONLY if a NEW file was selected
+    const fileInput = document.getElementById('edit_fishr_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        changedFields.push('Supporting Document');
+    }
+
+    // Build confirmation message
+    const changesText = changedFields.length > 0 
+        ? `Update this registration with the following changes?\n\n• ${changedFields.join('\n• ')}`
+        : 'Update this registration?';
+
+    // Show confirmation with only changed fields
+    showConfirmationToast(
+        'Confirm Update',
+        changesText,
+        () => proceedWithEditFishr(form, registrationId)
+    );
+}
+/**
+ * Proceed with Edit FishR Submission - FIXED
+ */
+function proceedWithEditFishr(form, registrationId) {
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+    
+    // Build FormData - CRITICAL FIX: Use POST with _method for multipart
+    const formData = new FormData();
+    
+    // Add _method for Laravel to recognize this as PUT request
+    formData.append('_method', 'PUT');
+    
+    // Append all form fields
+    formData.append('first_name', document.getElementById('edit_fishr_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('edit_fishr_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('edit_fishr_last_name').value.trim());
+    formData.append('name_extension', document.getElementById('edit_fishr_extension').value.trim());
+    formData.append('sex', document.getElementById('edit_fishr_sex').value.trim());
+    formData.append('contact_number', document.getElementById('edit_fishr_contact_number').value.trim());
+    formData.append('barangay', document.getElementById('edit_fishr_barangay').value.trim());
+    formData.append('main_livelihood', document.getElementById('edit_fishr_livelihood').value.trim());
+    formData.append('other_livelihood', document.getElementById('edit_fishr_other_livelihood').value.trim());
+    
+    // Add CSRF token explicitly
+    formData.append('_token', getCSRFToken());
+    
+    // Add document file if selected
+    const fileInput = document.getElementById('edit_fishr_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        console.log('File selected:', fileInput.files[0].name);
+        formData.append('supporting_document', fileInput.files[0]);
+    }
+    
+    console.log('Sending update request for registration:', registrationId);
+    
+    // CRITICAL FIX: Use POST method (not PUT) with _method field for multipart/form-data
+    fetch(`/admin/fishr-registrations/${registrationId}`, {
+        method: 'POST',  // Changed from PUT to POST
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+            // DO NOT set Content-Type - let browser set it automatically for multipart/form-data
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        
+        if (!response.ok && response.status !== 422) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        
+        if (data.success) {
+            showToast('success', data.message || 'Registration updated successfully');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editFishrModal'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Wait a moment then reload to show all changes
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else if (data.errors) {
+            // Handle validation errors
+            console.log('Validation errors:', data.errors);
+            
+            let errorCount = 0;
+            Object.keys(data.errors).forEach(field => {
+                // Map backend field names to form input IDs
+                const fieldMap = {
+                    'first_name': 'edit_fishr_first_name',
+                    'middle_name': 'edit_fishr_middle_name',
+                    'last_name': 'edit_fishr_last_name',
+                    'name_extension': 'edit_fishr_extension',
+                    'sex': 'edit_fishr_sex',
+                    'contact_number': 'edit_fishr_contact_number',
+                    'barangay': 'edit_fishr_barangay',
+                    'main_livelihood': 'edit_fishr_livelihood',
+                    'other_livelihood': 'edit_fishr_other_livelihood',
+                    'supporting_document': 'edit_fishr_supporting_document'
+                };
+                
+                const inputId = fieldMap[field] || 'edit_fishr_' + field;
+                const input = document.getElementById(inputId);
+                
+                if (input) {
                     input.classList.add('is-invalid');
-                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
-
+                    
+                    // Remove old error message if exists
+                    const oldError = input.parentNode.querySelector('.invalid-feedback');
+                    if (oldError) oldError.remove();
+                    
+                    // Add new error message
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = field.label + ' is required';
+                    errorDiv.textContent = data.errors[field][0] || 'Invalid value';
                     input.parentNode.appendChild(errorDiv);
-                    isValid = false;
+                    errorCount++;
                 }
             });
+            
+            showToast('error', `Please fix ${errorCount} validation error(s)`);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        } else {
+            throw new Error(data.message || 'Update failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Error updating registration: ' + error.message);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+/**
+ * Update table row with latest data
+ */
+function updateTableRow(registrationId) {
+    try {
+        fetch(`/admin/fishr-registrations/${registrationId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch updated data');
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) return;
 
-            // Validate contact number
-            const contactInput = form.querySelector('[name="contact_number"]');
-            if (contactInput && contactInput.value.trim()) {
-                const phoneRegex = /^(\+639|09)\d{9}$/;
-                if (!phoneRegex.test(contactInput.value.trim())) {
-                    contactInput.classList.add('is-invalid');
-                    const feedback = contactInput.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
+            const data = response.data;
+            const row = document.querySelector(`tr[data-registration-id="${registrationId}"]`);
+            
+            if (!row) return;
 
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                    contactInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
+            const cells = row.querySelectorAll('td');
+            
+            // Update Name (Column 2)
+            if (cells[2]) {
+                cells[2].textContent = data.full_name;
             }
 
-            // Validate email if provided
-            const emailInput = form.querySelector('[name="email"]');
-            if (emailInput && emailInput.value.trim()) {
-                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailPattern.test(emailInput.value.trim())) {
-                    emailInput.classList.add('is-invalid');
-                    const feedback = emailInput.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
-
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Invalid email format';
-                    emailInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
+            // Update Livelihood (Column 3)
+            if (cells[3]) {
+                cells[3].innerHTML = `<span class="badge bg-info fs-6">${data.livelihood_description}</span>`;
             }
 
-            return isValid;
-        }
+            // Highlight row
+            row.style.backgroundColor = '#fff3cd';
+            setTimeout(() => {
+                row.style.transition = 'background-color 0.3s ease';
+                row.style.backgroundColor = '';
+            }, 100);
+        })
+        .catch(error => console.error('Error updating row:', error));
+    } catch (error) {
+        console.error('Error in updateTableRow:', error);
+    }
+}
 
-        // Proceed with edit submission
-        function proceedWithEditFishr(form, registrationId) {
-            const submitBtn = document.getElementById('editSubmitBtn');
+/**
+ * Preview Edit FishR Document
+ */
+function previewEditFishrDocument(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    
+    if (!input.files || !input.files[0]) {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    const file = input.files[0];
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('error', 'File size must not exceed 10MB');
+        input.value = '';
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const allowedTypes = ['jpg', 'jpeg', 'png', 'pdf'];
+    
+    if (!allowedTypes.includes(fileExtension)) {
+        showToast('error', 'File type not supported. Allowed: JPG, PNG, PDF');
+        input.value = '';
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+    
+    if (fileExtension === 'pdf') {
+        preview.innerHTML = `
+            <div class="alert alert-success mb-2">
+                <i class="fas fa-file-pdf text-danger me-2"></i>
+                <strong>${file.name}</strong> (${(file.size / 1024).toFixed(2)} KB)
+            </div>
+        `;
+        preview.style.display = 'block';
+    } else {
+        // For images, show preview
+        const reader = new FileReader();
 
-            // Show loading state
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
-            submitBtn.disabled = true;
-
-            const formData = new FormData(form);
-
-            fetch(`/admin/fishr-registrations/${registrationId}`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Close modal
-                        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('editFishrModal'));
-                        if (modalInstance) modalInstance.hide();
-
-                        showToast('success', data.message || 'Registration updated successfully');
-
-                        // Reload page
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        throw new Error(data.message || 'Failed to update registration');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error: ' + error.message);
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
-        }
-
-
-        // Auto-capitalize names in edit form
-        function capitalizeEditFishrName(input) {
-            const value = input.value;
-            if (value.length > 0) {
-                input.value = value
-                    .toLowerCase()
-                    .split(' ')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <div class="document-preview-item">
+                    <img src="${e.target.result}" alt="Preview" 
+                        style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                        <i class="fas fa-check text-success me-2"></i>${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                    </p>
+                </div>
+            `;
+            preview.style.display = 'block';
+            
+            console.log('Image preview loaded successfully');
+            
+            // Trigger change detection
+            const form = document.getElementById('editFishrForm');
+            if (form && form.dataset.registrationId) {
+                checkEditFishrFormChanges(form.dataset.registrationId);
             }
+        };
+
+        reader.onerror = function(error) {
+            console.error('File read error:', error);
+            preview.innerHTML = `
+                <div class="alert alert-danger mb-2">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Failed to load file preview
+                </div>
+            `;
+            preview.style.display = 'block';
+            input.value = '';
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
+/**
+ * Auto-capitalize names in edit form
+ */
+function capitalizeEditFishrName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
+        // Trigger change detection after capitalization
+        const form = document.getElementById('editFishrForm');
+        if (form && form.dataset.registrationId) {
+            checkEditFishrFormChanges(form.dataset.registrationId);
         }
+    }
+}
+
+/**
+ * Initialize name field auto-capitalize when modal is shown
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up event delegation for dynamically added elements
+    document.addEventListener('focusout', function(e) {
+        if (e.target.id === 'edit_fishr_first_name' ||
+            e.target.id === 'edit_fishr_middle_name' ||
+            e.target.id === 'edit_fishr_last_name') {
+            capitalizeEditFishrName(e.target);
+        }
+    });
+
+    // Add contact number validation
+    const contactInput = document.getElementById('edit_fishr_contact_number');
+    if (contactInput) {
+        contactInput.addEventListener('input', function() {
+            validateEditFishrContactNumber(this.value);
+        });
+    }
+});
+
+/**
+ * Validate contact number in edit form
+ */
+function validateEditFishrContactNumber(contactNumber) {
+    const input = document.getElementById('edit_fishr_contact_number');
+    const feedback = input.parentNode.querySelector('.invalid-feedback');
+    if (feedback) feedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    if (!contactNumber.trim()) return true;
+
+    const phoneRegex = /^(\+639|09)\d{9}$/;
+
+    if (!phoneRegex.test(contactNumber.trim())) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    input.classList.add('is-valid');
+    return true;
+}
+
 
         // Add event listeners for blur on name fields
         document.addEventListener('DOMContentLoaded', function() {
@@ -3924,6 +5188,362 @@
                 });
             }
         });
-        console.log('FishR Add Registration functionality loaded successfully');
+
+        // Handle search input - auto-reset when empty
+        function handleSearchInput() {
+            const searchInput = document.getElementById('searchInput');
+            const filterForm = document.getElementById('filterForm');
+            
+            if (searchInput.value.trim() === '') {
+                // If search is empty, reset and submit
+                filterForm.submit();
+            } else {
+                // If search has value, use auto-search
+                autoSearch();
+            }
+        }
+        // Update remarks character counter 
+        function updateFishrRemarksCounter() {
+            const textarea = document.getElementById('fishr_remarks');
+            const charCount = document.getElementById('charCountFishr');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    charCount.parentElement.classList.add('text-warning');
+                    charCount.parentElement.classList.remove('text-muted');
+                } else {
+                    charCount.parentElement.classList.remove('text-warning');
+                    charCount.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        // Add this at the end of your scripts section, after all other code
+        document.addEventListener('shown.bs.modal', function(e) {
+            const modal = e.target;
+            const backdrop = modal.previousElementSibling;
+            
+            // Get all open modals
+            const openModals = document.querySelectorAll('.modal.show');
+            const modalCount = openModals.length;
+            
+            // Set z-index based on modal count
+            const baseZIndex = 1050;
+            modal.style.zIndex = baseZIndex + (modalCount * 20);
+            
+            if (backdrop && backdrop.classList.contains('modal-backdrop')) {
+                backdrop.style.zIndex = baseZIndex + (modalCount * 20) - 1;
+            }
+        });
+
+        /**
+         * Auto-capitalize names in edit form
+         */
+        function capitalizeEditFishrName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                // Trigger change detection after capitalization
+                const form = document.getElementById('editFishrForm');
+                if (form && form.dataset.registrationId) {
+                    checkEditFishrFormChanges(form.dataset.registrationId);
+                }
+            }
+        }
+
+        /**
+         * Initialize name field auto-capitalize when modal is shown
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event delegation for dynamically added elements
+            document.addEventListener('focusout', function(e) {
+                if (e.target.id === 'edit_fishr_first_name' ||
+                    e.target.id === 'edit_fishr_middle_name' ||
+                    e.target.id === 'edit_fishr_last_name') {
+                    capitalizeEditFishrName(e.target);
+                }
+            });
+
+            // Add contact number validation
+            const contactInput = document.getElementById('edit_fishr_contact_number');
+            if (contactInput) {
+                contactInput.addEventListener('input', function() {
+                    validateEditFishrContactNumber(this.value);
+                });
+            }
+        });
+
+        /**
+         * Validate contact number in edit form
+         */
+        function validateEditFishrContactNumber(contactNumber) {
+            const input = document.getElementById('edit_fishr_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!contactNumber.trim()) return true;
+
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+    //Display existing FishR documents in edit modal
+    function displayEditFishrExistingDocument(documentPath, previewElementId) {
+        const preview = document.getElementById(previewElementId);
+        if (!preview) {
+            console.error('Preview element not found:', previewElementId);
+            return;
+        }
+        
+        const fileExtension = documentPath.split('.').pop().toLowerCase();
+        const fileName = documentPath.split('/').pop();
+        const fileUrl = `/storage/${documentPath}`;
+        
+        // Image types 
+        if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
+            preview.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                            <img src="${fileUrl}" alt="Current document" 
+                                style="max-width: 100%; max-height: 100%; object-fit: cover; cursor: pointer;"
+                                onclick="viewDocument('${documentPath}', '${fileName}')"
+                                title="Click to view full document">
+                        </div>
+                    </div>
+                </div>
+            `;
+        } 
+        // PDF type 
+        else if (fileExtension === 'pdf') {
+            preview.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #fff3cd; border: 2px solid #ffc107;">
+                            <div class="text-center">
+                                <i class="fas fa-file-pdf fa-3x mb-2" style="color: #dc3545;"></i>
+                                <small style="display: block; color: #666; font-size: 10px;">PDF</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex flex-column h-100 justify-content-start">
+                            <div class="mb-2">
+                                <small class="d-block text-success fw-semibold">
+                                    <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                                </small>
+                                <small class="d-block text-muted mt-1">${fileName}</small>
+                            </div>
+                            <div class="mt-auto">
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="viewDocument('${documentPath}', '${fileName}')"
+                                    title="View PDF">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    onclick="downloadFishrDocument('${fileUrl}', '${fileName}')"
+                                    title="Download PDF">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        // Other document types
+        else {
+            preview.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #e2e3e5; border: 2px solid #6c757d;">
+                            <div class="text-center">
+                                <i class="fas fa-file fa-3x mb-2" style="color: #6c757d;"></i>
+                                <small style="display: block; color: #666; font-size: 10px;">${fileExtension.toUpperCase()}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex flex-column h-100 justify-content-start">
+                            <div class="mb-2">
+                                <small class="d-block text-success fw-semibold">
+                                    <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                                </small>
+                                <small class="d-block text-muted mt-1">${fileName}</small>
+                            </div>
+                            <div class="mt-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    onclick="downloadFishrDocument('${fileUrl}', '${fileName}')"
+                                    title="Download document">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Download helper for FishR documents
+    function downloadFishrDocument(fileUrl, fileName) {
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+        // delete registration 
+        // Global variable to track current delete ID
+        let currentDeleteFishrId = null;
+
+        /**
+         * Updated deleteFishrRegistration function to use modal
+         */
+        function deleteFishrRegistration(id, registrationNumber) {
+            try {
+                // Set the global variable
+                currentDeleteFishrId = id;
+
+                // Update modal with registration number
+                document.getElementById('delete_fishr_name').textContent = registrationNumber;
+
+                // Show the delete modal
+                new bootstrap.Modal(document.getElementById('deleteFishrModal')).show();
+            } catch (error) {
+                console.error('Error preparing delete dialog:', error);
+                showToast('error', 'Failed to prepare delete dialog');
+            }
+        }
+
+        /**
+         * Confirm permanent delete for FishR registration
+         */
+        async function confirmPermanentDeleteFishr() {
+            if (!currentDeleteFishrId) {
+                showToast('error', 'Registration ID not found');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const deleteBtn = document.getElementById('confirm_delete_fishr_btn');
+                deleteBtn.querySelector('.btn-text').style.display = 'none';
+                deleteBtn.querySelector('.btn-loader').style.display = 'inline';
+                deleteBtn.disabled = true;
+
+                const response = await fetch(`/admin/fishr-registrations/${currentDeleteFishrId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to delete registration');
+                }
+
+                // Close modal
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteFishrModal'));
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show success message
+                showToast('success', data.message || 'FishR registration deleted successfully');
+
+                // Remove the row with animation
+                const row = document.querySelector(`tr[data-registration-id="${currentDeleteFishrId}"]`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+
+                // Reload page to refresh statistics
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+                // Reset for next use
+                currentDeleteFishrId = null;
+
+            } catch (error) {
+                console.error('Error deleting registration:', error);
+                
+                // Close modal first
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteFishrModal'));
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show error
+                showToast('error', 'Error deleting registration: ' + error.message);
+
+            } finally {
+                // Reset button state
+                const deleteBtn = document.getElementById('confirm_delete_fishr_btn');
+                deleteBtn.querySelector('.btn-text').style.display = 'inline';
+                deleteBtn.querySelector('.btn-loader').style.display = 'none';
+                deleteBtn.disabled = false;
+            }
+        }
+
+        /**
+         * Clean up modal on close
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteFishrModal = document.getElementById('deleteFishrModal');
+            if (deleteFishrModal) {
+                deleteFishrModal.addEventListener('hidden.bs.modal', function() {
+                    // Reset button state
+                    const deleteBtn = document.getElementById('confirm_delete_fishr_btn');
+                    deleteBtn.querySelector('.btn-text').style.display = 'inline';
+                    deleteBtn.querySelector('.btn-loader').style.display = 'none';
+                    deleteBtn.disabled = false;
+
+                    // Remove any lingering backdrops
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+
+                    // Remove modal-open class from body
+                    document.body.classList.remove('modal-open');
+
+                    // Reset body overflow
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+
+                    // Reset global variable
+                    currentDeleteFishrId = null;
+
+                    console.log('Delete FishR modal cleaned up');
+                });
+            }
+        });
     </script>
 @endsection

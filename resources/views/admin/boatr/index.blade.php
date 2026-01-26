@@ -28,10 +28,10 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-search text-warning"></i>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $inspectionRequiredCount }}</div>
-                    <div class="stat-label text-warning">Inspection Required</div>
+                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
@@ -40,10 +40,10 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-check-circle text-success"></i>
+                        <i class="fas fa-search text-warning"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
-                    <div class="stat-label text-success">Approved</div>
+                    <div class="stat-number mb-2">{{ $inspectionRequiredCount }}</div>
+                    <div class="stat-label text-warning">Inspection Required</div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -160,7 +160,7 @@
                     </div>
                     <div class="col-md-1">
                         <a href="{{ route('admin.boatr.requests') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i>Clear
                         </a>
                     </div>
                 </div>
@@ -178,12 +178,12 @@
                 </h6>
             </div>
             <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary btn-sm" onclick="showAddBoatrModal()">
+                    <i class="fas fa-user-plus me-2"></i>Add Registration
+                </button>
                 <a href="{{ route('admin.boatr.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
-                <button type="button" class="btn btn-primary btn-sm" onclick="showAddBoatrModal()">
-                    <i class="fas fa-plus me-2"></i>Add Registration
-                </button>
             </div>
         </div>
         <div class="card-body">
@@ -241,7 +241,7 @@
                                                         onclick="viewDocuments({{ $registration->id }})"
                                                         title="User Documents">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-file-image text-info"></i>
+                                                            <i class="fas fa-file-alt text-primary"></i>
                                                         </div>
                                                     </div>
                                                 @endif
@@ -250,7 +250,7 @@
                                                         onclick="viewDocuments({{ $registration->id }})"
                                                         title="Inspection Documents">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-clipboard-check text-success"></i>
+                                                            <i class="fas fa-file-alt text-primary"></i>
                                                         </div>
                                                     </div>
                                                 @endif
@@ -258,7 +258,7 @@
                                                     <div class="boatr-mini-doc"
                                                         onclick="viewDocuments({{ $registration->id }})" title="Annexes">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-folder text-warning"></i>
+                                                            <i class="fas fa-file-alt text-primary"></i>
                                                         </div>
                                                     </div>
                                                 @endif
@@ -291,24 +291,16 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
 
                                         <button class="btn btn-sm btn-annexes"
                                             onclick="showAnnexesModal({{ $registration->id }})" title="Manage Annexes">
                                             <i class="fas fa-folder-plus me-1"></i>Annexes
                                         </button>
-
-                                        @if (!$registration->inspection_completed)
-                                            <button class="btn btn-sm btn-outline-success"
-                                                onclick="showInspectionModal({{ $registration->id }})"
-                                                title="Complete Inspection">
-                                                <i class="fas fa-clipboard-check me-1"></i>Inspection
-                                            </button>
-                                        @endif
 
                                         <!-- Dropdown for More Actions -->
                                         <div class="btn-group" role="group">
@@ -320,12 +312,18 @@
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0)"
-                                                        onclick="showEditBoatrModal({{ $registration->id }})">
-                                                        <i class="fas fa-pencil-alt text-warning me-2"></i>Edit Information
+                                                        onclick="showInspectionModal({{ $registration->id }})">
+                                                        <i class="fas fa-clipboard-check text-info me-2"></i>Complete Inspection
                                                     </a>
                                                 </li>
                                                 <li>
                                                     <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)"
+                                                        onclick="showEditBoatrModal({{ $registration->id }})">
+                                                        <i class="fas fa-edit me-2 text-success"></i>Edit Information
+                                                    </a>
                                                 </li>
                                                 <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
@@ -415,45 +413,50 @@
         </div>
     </div>
 
-    <!-- Add BoatR Registration Modal -->
+    <!-- IMPROVED: Add BoatR Registration Modal -->
     <div class="modal fade" id="addBoatrModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-ship me-2"></i>Add New BoatR Application
+                <div class="modal-header bg-primary text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Add New BoatR Registration
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+                
                 <div class="modal-body">
                     <form id="addBoatrForm" enctype="multipart/form-data">
-                        <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="boatr_first_name" class="form-label">First Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_first_name" required
-                                            maxlength="100">
-                                        <div class="invalid-feedback"></div>
+                                        <label for="boatr_first_name" class="form-label fw-semibold">
+                                            First Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="boatr_first_name" required maxlength="100" placeholder="First name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="boatr_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="boatr_middle_name"
-                                            maxlength="100">
+                                        <label for="boatr_middle_name" class="form-label fw-semibold">
+                                            Middle Name
+                                        </label>
+                                        <input type="text" class="form-control" id="boatr_middle_name" maxlength="100" placeholder="Middle name (optional)">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="boatr_last_name" class="form-label">Last Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_last_name" required
-                                            maxlength="100">
+                                        <label for="boatr_last_name" class="form-label fw-semibold">
+                                            Last Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="boatr_last_name" required maxlength="100" placeholder="Last name">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="boatr_name_extension" class="form-label">Extension</label>
+                                        <label for="boatr_name_extension" class="form-label fw-semibold">
+                                            Extension
+                                        </label>
                                         <select class="form-select" id="boatr_name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -466,172 +469,200 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="boatr_contact_number" class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="boatr_contact_number" required
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                        <div class="invalid-feedback"></div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_contact_number" class="form-label fw-semibold">
+                                            Contact Number <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="tel" class="form-control" id="boatr_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        </small>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="boatr_email" class="form-label">Email (Optional)</label>
-                                        <input type="email" class="form-control" id="boatr_email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="boatr_barangay" class="form-label">Barangay <span
-                                                class="text-danger">*</span></label>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_barangay" class="form-label fw-semibold">
+                                            Barangay <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="boatr_barangay" required>
                                             <option value="">Select Barangay</option>
-                                            @foreach ($barangays as $barangay)
-                                                <option value="{{ $barangay }}">{{ $barangay }}</option>
-                                            @endforeach
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
                                         </select>
-                                        <div class="invalid-feedback"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- FishR and Vessel Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-link me-2"></i>FishR & Vessel Information</h6>
+                        <!-- FishR & Vessel Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-link me-2"></i>FishR & Vessel Information
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_fishr_number" class="form-label">FishR Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_fishr_number" required
-                                            maxlength="50">
-                                        <div class="form-text">FishR registration number (e.g., FISHR-XXXXXXXX)</div>
-                                        <div class="invalid-feedback"></div>
+                                        <label for="boatr_fishr_number" class="form-label fw-semibold">
+                                            FishR Number <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="boatr_fishr_number" required maxlength="50" placeholder="FISHR-XXXXXXXX">
+                                        <input type="hidden" id="boatr_fishr_app_id" value="">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>FishR registration number
+                                        </small>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_vessel_name" class="form-label">Vessel Name <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_vessel_name" required
-                                            maxlength="100">
-                                        <div class="invalid-feedback"></div>
+                                        <label for="boatr_vessel_name" class="form-label fw-semibold">
+                                            Vessel Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="boatr_vessel_name" required maxlength="100" placeholder="Enter vessel name">
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_type" class="form-label">Boat Type <span
-                                                class="text-danger">*</span></label>
+                                        <label for="boatr_boat_type" class="form-label fw-semibold">
+                                            Boat Type <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="boatr_boat_type" required>
-                                            <option value="">Select Boat Type</option>
+                                            <option value="">Select Type</option>
                                             <option value="Spoon">Spoon</option>
                                             <option value="Plumb">Plumb</option>
                                             <option value="Banca">Banca</option>
                                             <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
-                                            <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem -
-                                                Transom/Spoon/Plumb Stern</option>
+                                            <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom</option>
                                             <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
                                         </select>
-                                        <div class="invalid-feedback"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Boat Dimensions -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Dimensions (in feet)</h6>
+                        <!-- Boat Dimensions Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-ruler me-2"></i>Boat Dimensions (in feet)
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_length" class="form-label">Length <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_boat_length" step="0.01"
-                                            min="0.1" max="999.99" required placeholder="0.00">
-                                        <div class="invalid-feedback"></div>
+                                        <label for="boatr_boat_length" class="form-label fw-semibold">
+                                            Length <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="boatr_boat_length" step="0.01" min="0.1" required placeholder="0.00">
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_width" class="form-label">Width <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_boat_width" step="0.01"
-                                            min="0.1" max="999.99" required placeholder="0.00">
-                                        <div class="invalid-feedback"></div>
+                                        <label for="boatr_boat_width" class="form-label fw-semibold">
+                                            Width <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="boatr_boat_width" step="0.01" min="0.1" required placeholder="0.00">
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_depth" class="form-label">Depth <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_boat_depth" step="0.01"
-                                            min="0.1" max="999.99" required placeholder="0.00">
-                                        <div class="invalid-feedback"></div>
+                                        <label for="boatr_boat_depth" class="form-label fw-semibold">
+                                            Depth <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="boatr_boat_depth" step="0.01" min="0.1" required placeholder="0.00">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Engine Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Engine Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="boatr_engine_type" class="form-label">Engine Type <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_engine_type" required
-                                            maxlength="100" placeholder="e.g., Diesel, Gasoline, Outboard">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="boatr_engine_horsepower" class="form-label">Engine Horsepower <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_engine_horsepower"
-                                            min="1" max="9999" required placeholder="0" value="0">
-                                        <div class="form-text">HP</div>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Fishing Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fishing Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-12 mb-3">
-                                        <label for="boatr_primary_fishing_gear" class="form-label">Primary Fishing Gear
-                                            <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="boatr_primary_fishing_gear" required>
-                                            <option value="">Select Primary Fishing Gear</option>
-                                            <option value="Hook and Line">Hook and Line</option>
-                                            <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
-                                            <option value="Fish Trap">Fish Trap</option>
-                                            <option value="Fish Coral">Fish Coral</option>
-                                        </select>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Supporting Document -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                        <!-- Engine Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-cog me-2"></i>Engine Information
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="boatr_user_document" class="form-label">Upload Document</label>
-                                        <input type="file" class="form-control" id="boatr_user_document"
-                                            accept="image/*,.pdf"
-                                            onchange="previewBoatrDocument('boatr_user_document', 'boatr_doc_preview')">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
-                                        <div class="invalid-feedback"></div>
+                                        <label for="boatr_engine_type" class="form-label fw-semibold">
+                                            Engine Type <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="boatr_engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline, Outboard">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_engine_horsepower" class="form-label fw-semibold">
+                                            Engine Horsepower <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="boatr_engine_horsepower" min="1" max="9999" required placeholder="0">
+                                        <small class="text-muted d-block mt-2">HP</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fishing Information Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-fish me-2"></i>Fishing Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="boatr_primary_fishing_gear" class="form-label fw-semibold">
+                                            Primary Fishing Gear <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="boatr_primary_fishing_gear" required>
+                                            <option value="">Select Fishing Gear</option>
+                                            <option value="Hook and Line">Hook and Line</option>
+                                            <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
+                                            <option value="Fish Trap">Fish Trap</option>
+                                            <option value="Fish Coral">Fish Coral</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Document Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary text-white">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-4">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload supporting document (Optional). Supported formats: JPG, PNG, PDF (Max 10MB)
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_user_document" class="form-label fw-semibold">
+                                            Upload Document
+                                        </label>
+                                        <input type="file" class="form-control" id="boatr_user_document" accept="image/*,.pdf" onchange="previewBoatrDocument('boatr_user_document', 'boatr_doc_preview')">
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>JPG, PNG, PDF (Max 10MB)
+                                        </small>
                                     </div>
                                     <div class="col-md-6">
                                         <div id="boatr_doc_preview" style="margin-top: 10px;"></div>
@@ -640,16 +671,19 @@
                             </div>
                         </div>
 
-                        <!-- Application Status -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Application Status</h6>
+                        <!-- Application Status Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-cog me-2"></i>Application Status
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="boatr_status" class="form-label">Initial Status <span
-                                                class="text-danger">*</span></label>
+                                        <label for="boatr_status" class="form-label fw-semibold">
+                                            Initial Status <span class="text-danger">*</span>
+                                        </label>
                                         <select class="form-select" id="boatr_status" required>
                                             <option value="pending" selected>Pending</option>
                                             <option value="under_review">Under Review</option>
@@ -658,44 +692,54 @@
                                             <option value="rejected">Rejected</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="boatr_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="boatr_remarks" rows="3" maxlength="2000"
-                                            placeholder="Any notes or comments..."></textarea>
-                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Optional Links -->
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-link me-2"></i>Optional Links</h6>
+                        <!-- UPDATED: Remarks Card with Character Counter -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="boatr_user_id" class="form-label">Link to User Account</label>
-                                        <input type="number" class="form-control" id="boatr_user_id"
-                                            placeholder="Enter User ID if exists">
-                                        <div class="form-text">Leave blank if not associated with any user account</div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="boatr_fishr_app_id" class="form-label">Link to FishR
-                                            Application</label>
-                                        <input type="number" class="form-control" id="boatr_fishr_app_id"
-                                            placeholder="Enter FishR Application ID if exists">
-                                        <div class="form-text">Leave blank if not linked to a FishR application</div>
-                                    </div>
+                                <label for="boatr_remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea 
+                                    class="form-control" 
+                                    id="boatr_remarks" 
+                                    rows="3" 
+                                    maxlength="2000" 
+                                    placeholder="Add any comments about this registration..."
+                                    oninput="updateBoatrRemarksCounter()"></textarea>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>Provide context for this registration
+                                    </small>
+                                    <small class="text-muted" id="boatrRemarksCounter">
+                                        <span id="boatrCharCount">0</span>/2000
+                                    </small>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info border-left-info mt-3 mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> Required fields are marked with <span class="text-danger">*</span>. All information should be accurate and complete.
+                        </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddBoatr()">
-                        <i class="fas fa-save me-1"></i>Create Application
+                        <i class="fas fa-save me-2"></i>Create Registration
                     </button>
                 </div>
             </div>
@@ -706,128 +750,230 @@
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Application Status
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Application Status
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <!-- Loading State -->
-                    <div id="updateModalLoading" class="text-center py-4" style="display: none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">Loading application details...</p>
-                    </div>
 
-                    <!-- Application Info -->
-                    <div class="card bg-light mb-3" id="updateModalContent" style="display: none;">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                <div class="modal-body">
+                    <!-- Application Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Application Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Application #:</strong> <span id="updateRegNumber"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Name:</strong> <span id="updateRegName"></span></p>
-                                    <p class="mb-1"><strong>Barangay:</strong> <span id="updateRegBarangay"></span></p>
-                                    <p class="mb-1"><strong>Vessel:</strong> <span id="updateRegVessel"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Application #</small>
+                                        <strong id="updateAppNumber">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Applicant Name</small>
+                                        <strong id="updateAppName">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Vessel Name</small>
+                                        <strong id="updateAppVessel">-</strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>FishR #:</strong> <span id="updateRegFishR"></span></p>
-                                    <p class="mb-1"><strong>Boat Type:</strong> <span id="updateRegBoatType"></span></p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateRegCurrentStatus"></span></p>
-                                    <p class="mb-1"><strong>Inspection:</strong> <span id="updateRegInspection"></span>
-                                    </p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Barangay</small>
+                                        <strong id="updateAppBarangay">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Boat Type</small>
+                                        <strong id="updateAppBoatType">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Status</small>
+                                        <strong id="updateAppCurrentStatus">-</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
-                    <form id="updateForm" style="display: none;">
-                        <input type="hidden" id="updateRegistrationId">
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="pending">Pending</option>
-                                <option value="under_review">Under Review</option>
-                                <option value="inspection_required">Inspection Required</option>
-                                <option value="inspection_scheduled">Inspection Scheduled</option>
-                                <option value="documents_pending">Documents Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+                    <!-- Update Form Card -->
+                    <form id="updateForm">
+                        <input type="hidden" id="updateApplicationId">
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-toggle-on me-2"></i>Update Status
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required>
+                                        <option value="">Choose status...</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="under_review">Under Review</option>
+                                        <option value="inspection_required">Inspection Required</option>
+                                        <option value="inspection_scheduled">Inspection Scheduled</option>
+                                        <option value="documents_pending">Documents Pending</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Choose the new status for this application
+                                    </small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..." maxlength="2000"></textarea>
-                            <div class="form-text">Maximum 2000 characters (<span id="remarksCount">0</span>)</div>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="remarks" rows="4" 
+                                    placeholder="Add any notes or comments about this status change..."
+                                    maxlength="2000"
+                                    oninput="updateBoatrStatusRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this status update
+                                    </small>
+                                    <small class="text-muted" id="boatrStatusRemarksCounter">
+                                        <span id="boatrStatusCharCount">0</span>/2000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Change Alert -->
+                        <div class="alert alert-info border-left-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> Your changes will be logged and the applicant will be notified of the status update.
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="updateStatusBtn"
-                        onclick="updateRegistrationStatus()" style="display: none;">
-                        <i class="fas fa-save me-1"></i>Update Status
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateRegistrationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Inspection Modal -->
+    <!-- Inspection Modal - UPDATED with consistent design -->
     <div class="modal fade" id="inspectionModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-search me-2"></i>Complete Boat Inspection
+                <div class="modal-header bg-primary text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Complete Boat Inspection
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Upload the supporting document after completing the on-site boat inspection.
+                    <!-- Alert Info Card -->
+                    <div class="alert alert-info border-left-info mb-4">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> Upload the supporting document after completing the on-site boat inspection. Please provide detailed inspection notes.
                     </div>
 
                     <form id="inspectionForm" enctype="multipart/form-data">
                         <input type="hidden" id="inspectionRegistrationId">
-                        <div class="mb-3">
-                            <label for="supporting_document" class="form-label">Supporting Document <span
-                                    class="text-danger">*</span></label>
-                            <input type="file" class="form-control" id="supporting_document"
-                                accept=".pdf,.jpg,.jpeg,.png" required>
-                            <div class="form-text">Upload inspection report, boat photos, or other supporting documents.
-                                (PDF, JPG, JPEG, PNG - Max 10MB)</div>
-                            <div class="invalid-feedback" id="documentError"></div>
+
+                        <!-- Supporting Document Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="supporting_document" class="form-label fw-semibold">
+                                        Upload Document <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="file" class="form-control" id="supporting_document"
+                                        accept=".pdf,.jpg,.jpeg,.png" required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>Upload inspection report, boat photos, or other supporting documents. (PDF, JPG, JPEG, PNG - Max 10MB)
+                                    </div>
+                                    <div class="invalid-feedback" id="documentError"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="inspection_notes" class="form-label">Inspection Notes (Optional):</label>
-                            <textarea class="form-control" id="inspection_notes" rows="3"
-                                placeholder="Add any notes about the inspection..." maxlength="1000"></textarea>
-                            <div class="form-text">Maximum 1000 characters (<span id="notesCount">0</span>)</div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="approve_application">
-                                <label class="form-check-label" for="approve_application">
-                                    Auto-approve application after inspection
+
+                        <!-- Inspection Notes Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Inspection Notes
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="inspection_notes" class="form-label fw-semibold">
+                                    Notes (Optional)
                                 </label>
+                                <textarea class="form-control" id="inspection_notes" rows="4"
+                                    placeholder="Add detailed inspection findings, measurements, condition assessments, or any observations..."
+                                    maxlength="1000"
+                                    oninput="updateInspectionNotesCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>Detailed inspection observations
+                                    </small>
+                                    <small class="text-muted" id="inspectionNotesCounter">
+                                        <span id="inspectionCharCount">0</span>/1000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auto-Approve Option Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-check-square me-2"></i>Action Options
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="approve_application">
+                                    <label class="form-check-label" for="approve_application">
+                                        <strong>Auto-approve application after inspection</strong>
+                                        <small class="text-muted d-block mt-1">
+                                            <i class="fas fa-info-circle me-1"></i>Check this to automatically approve the application upon successful inspection completion
+                                        </small>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-success" id="completeInspectionBtn"
                         onclick="completeInspection()">
                         <i class="fas fa-check me-1"></i>Complete Inspection
@@ -837,29 +983,210 @@
         </div>
     </div>
 
-    <!-- Application Details Modal -->
+    <!-- Application Details Modal Enhanced -->
     <div class="modal fade" id="registrationModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-ship me-2"></i>Application Details
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Application Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="registrationDetailsLoading" class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                    <div class="row g-4">
+
+                        <!-- Personal Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Application #:</strong>
+                                            <span class="text-primary" id="viewRegNumber"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Full Name:</strong>
+                                            <span id="viewRegName"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Contact Number:</strong>
+                                            <span>
+                                                <a href="tel:" id="viewRegContact" class="text-decoration-none"></a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p class="mt-2">Loading application details...</p>
-                    </div>
-                    <div id="registrationDetails" style="display: none;">
-                        <!-- Content will be loaded here -->
+
+                        <!-- Vessel Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Vessel Name:</strong>
+                                            <span id="viewRegVessel"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Boat Type:</strong>
+                                            <span id="viewRegBoatType"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>FishR Number:</strong>
+                                            <span id="viewRegFishR"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Barangay:</strong>
+                                            <span id="viewRegBarangay"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boat Specifications Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Specifications</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Dimensions:</strong>
+                                            <span id="viewRegDimensions"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Engine Type:</strong>
+                                            <span id="viewRegEngineType"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Engine HP:</strong>
+                                            <span id="viewRegEngineHP"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fishing Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fishing Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Primary Fishing Gear:</strong>
+                                            <span id="viewRegGear"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status & Timeline</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Current Status:</strong>
+                                            <div id="viewRegStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Inspection:</strong>
+                                            <div id="viewRegInspection" style="margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Date Applied:</strong>
+                                            <span id="viewRegCreatedAt"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Last Updated:</strong>
+                                            <span id="viewRegUpdatedAt"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents Card -->
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Documents</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="viewRegDocumentContainer">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>User Documents:</strong> <span class="badge bg-info" id="userDocCount">0</span></p>
+                                                <p><strong>Inspection Documents:</strong> <span class="badge bg-success" id="inspectionDocCount">0</span></p>
+                                                <p><strong>Annexes:</strong> <span class="badge bg-warning" id="annexCount">0</span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <button class="btn btn-sm btn-info" onclick="viewDocuments({id})">
+                                                    <i class="fas fa-eye me-1"></i>View All Documents
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- TOTAL DOCUMENTS MOVED HERE - BELOW ANNEXES -->
+                                        <hr class="my-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Total Documents:</strong> <span class="badge bg-primary" id="totalDocCount">0</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks Card (if exists) -->
+                        <div class="col-12" id="viewRemarksContainer" style="display: none;">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0" id="viewRegRemarks"></p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -921,65 +1248,87 @@
     <div class="modal fade" id="annexesModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-folder-plus me-2"></i>Manage Annexes
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <!-- Loading State -->
                     <div id="annexesLoading" class="text-center py-4" style="display: none;">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading annexes...</p>
+                        <p class="mt-2 text-muted">Loading annexes...</p>
                     </div>
 
                     <!-- Content -->
                     <div id="annexesContent">
-                        <!-- Application Info -->
-                        <div class="card bg-light mb-3">
+                        <!-- Registration Info Card -->
+                        <div class="card bg-light border-primary mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Registration Information
+                                </h6>
+                            </div>
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row g-3">
                                     <div class="col-md-6">
-                                        <strong>Application #:</strong> <span id="annexAppNumber"></span><br>
-                                        <strong>Applicant:</strong> <span id="annexApplicantName"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Application #</small>
+                                            <strong class="text-primary" id="annexAppNumber"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Applicant</small>
+                                            <strong id="annexApplicantName"></strong>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <strong>Vessel Name:</strong> <span id="annexVesselName"></span><br>
-                                        <strong>Status:</strong> <span id="annexStatus"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Barangay</small>
+                                            <strong id="annexBarangay"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Status</small>
+                                            <div id="annexStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Upload New Annex -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Upload New Annex Card -->
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-upload me-2"></i>Upload New Annex
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <form id="annexUploadForm" enctype="multipart/form-data">
                                     <input type="hidden" id="annexRegistrationId">
+                                    
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexFile" class="form-label">Select File <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="annexFile" class="form-label fw-semibold">
+                                                    Select File <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="file" class="form-control" id="annexFile"
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
                                                 <div class="invalid-feedback" id="annexFileError"></div>
-                                                <small class="text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG, GIF
-                                                    (Max: 10MB)</small>
+                                                <small class="text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>Supported: PDF, DOC, DOCX, JPG, PNG, GIF (Max: 10MB)
+                                                </small>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexTitle" class="form-label">Document Title <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="annexTitle" class="form-label fw-semibold">
+                                                    Document Title <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="text" class="form-control" id="annexTitle"
                                                     placeholder="e.g., Additional Certificate, Supporting Document"
                                                     required>
@@ -987,24 +1336,36 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="annexDescription" class="form-label">Description</label>
+                                        <label for="annexDescription" class="form-label fw-semibold">
+                                            Description
+                                        </label>
                                         <textarea class="form-control" id="annexDescription" rows="3"
-                                            placeholder="Brief description of the document (optional)"></textarea>
-                                        <small class="text-muted"><span id="annexDescCount">0</span>/500
-                                            characters</small>
+                                            placeholder="Brief description of the document (optional)"
+                                            oninput="updateAnnexDescriptionCounter()"></textarea>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>Optional context for this document
+                                            </small>
+                                            <small class="text-muted">
+                                                <span id="annexDescCount">0</span>/500
+                                            </small>
+                                        </div>
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
-                                        <i class="fas fa-upload me-1"></i>Upload Annex
-                                    </button>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
+                                            <i class="fas fa-upload me-2"></i>Upload Annex
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
 
-                        <!-- Existing Annexes -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Existing Annexes Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-folder me-2"></i>Existing Annexes
                                 </h6>
                             </div>
@@ -1016,8 +1377,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -1029,9 +1393,9 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                <div class="modal-header text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -1124,234 +1488,399 @@
         </div>
     </div>
 
-    <!-- Edit BoatR Modal -->
-    <div class="modal fade" id="editBoatrModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-pencil-alt me-2"></i>Edit BoatR Application
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Loading State -->
-                    <div id="editBoatrLoading" class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+     <!-- Edit BoatR Modal - FIXED FORM ID -->
+<div class="modal fade" id="editBoatrModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title w-100 text-center">
+                    <i></i>Edit BoatR Application - <span id="editBoatrNumber"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- THIS IS THE KEY FIX: id="editBoatrForm" -->
+                <form id="editBoatrForm" enctype="multipart/form-data">
+                    <!-- Personal Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h6>
                         </div>
-                        <p class="mt-2">Loading application details...</p>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_first_name" class="form-label fw-semibold">
+                                        First Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_first_name" 
+                                        name="first_name" required maxlength="100" placeholder="First name">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_middle_name" class="form-label fw-semibold">
+                                        Middle Name
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_middle_name"
+                                        name="middle_name" maxlength="100" placeholder="Middle name (optional)">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_last_name" class="form-label fw-semibold">
+                                        Last Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_last_name"
+                                        name="last_name" required maxlength="100" placeholder="Last name">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_boatr_extension" class="form-label fw-semibold">
+                                        Extension
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_extension" name="name_extension">
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_contact_number" class="form-label fw-semibold">
+                                        Contact Number <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" class="form-control" id="edit_boatr_contact_number"
+                                        name="contact_number" required placeholder="09XXXXXXXXX"
+                                        pattern="^09\d{9}$" maxlength="11">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX (11 digits)
+                                    </small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_barangay" class="form-label fw-semibold">
+                                        Barangay <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_barangay" name="barangay" required>
+                                        <option value="">Select Barangay</option>
+                                        <option value="Bagong Silang">Bagong Silang</option>
+                                        <option value="Calendola">Calendola</option>
+                                        <option value="Chrysanthemum">Chrysanthemum</option>
+                                        <option value="Cuyab">Cuyab</option>
+                                        <option value="Estrella">Estrella</option>
+                                        <option value="Fatima">Fatima</option>
+                                        <option value="G.S.I.S.">G.S.I.S.</option>
+                                        <option value="Landayan">Landayan</option>
+                                        <option value="Langgam">Langgam</option>
+                                        <option value="Laram">Laram</option>
+                                        <option value="Magsaysay">Magsaysay</option>
+                                        <option value="Maharlika">Maharlika</option>
+                                        <option value="Narra">Narra</option>
+                                        <option value="Nueva">Nueva</option>
+                                        <option value="Pacita 1">Pacita 1</option>
+                                        <option value="Pacita 2">Pacita 2</option>
+                                        <option value="Poblacion">Poblacion</option>
+                                        <option value="Riverside">Riverside</option>
+                                        <option value="Rosario">Rosario</option>
+                                        <option value="Sampaguita Village">Sampaguita Village</option>
+                                        <option value="San Antonio">San Antonio</option>
+                                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                        <option value="San Roque">San Roque</option>
+                                        <option value="San Vicente">San Vicente</option>
+                                        <option value="Santo Niño">Santo Niño</option>
+                                        <option value="United Bayanihan">United Bayanihan</option>
+                                        <option value="United Better Living">United Better Living</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Form Content -->
-                    <form id="editBoatrForm" style="display: none;">
-                        <input type="hidden" id="edit_boatr_id">
-
-                        <!-- Personal Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_boatr_first_name" required
-                                            maxlength="100">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="edit_boatr_middle_name"
-                                            maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_boatr_last_name" required
-                                            maxlength="100">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">Extension</label>
-                                        <select class="form-select" id="edit_boatr_extension">
-                                            <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                        </select>
-                                    </div>
+                    <!-- Vessel Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-ship me-2"></i>Vessel Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_vessel_name" class="form-label fw-semibold">
+                                        Vessel Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_vessel_name"
+                                        name="vessel_name" required maxlength="100" placeholder="Vessel name">
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Contact Number <span
-                                                class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="edit_boatr_contact" required
-                                            placeholder="09XXXXXXXXX" pattern="^09\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX</div>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_boatr_email"
-                                            maxlength="254">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Barangay <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="edit_boatr_barangay" required>
-                                            <option value="">Select Barangay</option>
-                                            @foreach ($barangays as $barangay)
-                                                <option value="{{ $barangay }}">{{ $barangay }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_type" class="form-label fw-semibold">
+                                        Boat Type <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_boat_type" name="boat_type" required>
+                                        <option value="">Select Boat Type</option>
+                                        <option value="Spoon">Spoon</option>
+                                        <option value="Plumb">Plumb</option>
+                                        <option value="Banca">Banca</option>
+                                        <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
+                                        <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom</option>
+                                        <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_fishr_number" class="form-label fw-semibold">
+                                        FishR Number
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_fishr_number"
+                                        name="fishr_number" disabled placeholder="Auto-filled">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Read-only (cannot be changed)
+                                    </small>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Vessel Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Vessel Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_boatr_vessel" required
-                                            maxlength="100">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Boat Type <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="edit_boatr_boat_type" required>
-                                            <option value="">Select Boat Type</option>
-                                            <option value="Spoon">Spoon</option>
-                                            <option value="Plumb">Plumb</option>
-                                            <option value="Banca">Banca</option>
-                                            <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
-                                            <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom
-                                            </option>
-                                            <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
-                                        </select>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+                    <!-- Boat Dimensions Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-ruler me-2"></i>Boat Dimensions (in feet)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_length" class="form-label fw-semibold">
+                                        Length <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_boat_length"
+                                        name="boat_length" step="0.01" min="0.1" required placeholder="0.00">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_width" class="form-label fw-semibold">
+                                        Width <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_boat_width"
+                                        name="boat_width" step="0.01" min="0.1" required placeholder="0.00">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_boatr_boat_depth" class="form-label fw-semibold">
+                                        Depth <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_boat_depth"
+                                        name="boat_depth" step="0.01" min="0.1" required placeholder="0.00">
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Boat Dimensions -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Dimensions (feet)</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Length <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="edit_boatr_length"
-                                            step="0.01" min="0.1" required placeholder="0.00">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Width <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="edit_boatr_width"
-                                            step="0.01" min="0.1" required placeholder="0.00">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Depth <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="edit_boatr_depth"
-                                            step="0.01" min="0.1" required placeholder="0.00">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+                    <!-- Engine Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-cog me-2"></i>Engine Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_engine_type" class="form-label fw-semibold">
+                                        Engine Type <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="edit_boatr_engine_type"
+                                        name="engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_engine_horsepower" class="form-label fw-semibold">
+                                        Engine Horsepower <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control" id="edit_boatr_engine_horsepower"
+                                        name="engine_horsepower" min="1" max="9999" required placeholder="0">
+                                    <small class="text-muted d-block mt-2">HP</small>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Engine Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Engine Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Engine Type <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_boatr_engine_type"
-                                            required maxlength="100" placeholder="e.g., Diesel, Gasoline">
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Engine Horsepower <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="edit_boatr_engine_hp"
-                                            min="1" required placeholder="0">
-                                        <div class="form-text">HP</div>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
+                    <!-- Fishing Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-fish me-2"></i>Fishing Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_boatr_primary_fishing_gear" class="form-label fw-semibold">
+                                        Primary Fishing Gear <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_primary_fishing_gear"
+                                        name="primary_fishing_gear" required>
+                                        <option value="">Select Fishing Gear</option>
+                                        <option value="Hook and Line">Hook and Line</option>
+                                        <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
+                                        <option value="Fish Trap">Fish Trap</option>
+                                        <option value="Fish Coral">Fish Coral</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Fishing Information -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fishing Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <label class="form-label">Primary Fishing Gear <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-select" id="edit_boatr_gear" required>
-                                    <option value="">Select Primary Fishing Gear</option>
-                                    <option value="Hook and Line">Hook and Line</option>
-                                    <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
-                                    <option value="Fish Trap">Fish Trap</option>
-                                    <option value="Fish Coral">Fish Coral</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
+                    <!-- Supporting Document Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-file-upload me-2"></i>Supporting Document
+                            </h6>
                         </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-4">
+                                <i class="fas fa-info-circle me-1"></i>
+                                View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
+                            </p>
 
-                        <!-- Read-only Info -->
-                        <div class="card bg-light">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Info (Read-only)
-                                </h6>
+                            <!-- Current Document Display -->
+                            <div id="edit_boatr_current_document" style="display: none; margin-bottom: 1.5rem;">
+                                <label class="form-label fw-semibold text-muted mb-2">Current Document</label>
+                                <div id="edit_boatr_supporting_document_preview"></div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <small class="text-muted">Application #:</small>
-                                        <div class="fw-bold" id="edit_boatr_app_number"></div>
+
+                            <!-- Upload New Document Section -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="edit_boatr_supporting_document" class="form-label fw-semibold">
+                                        Supporting Document
+                                    </label>
+                                    <input type="file" class="form-control" id="edit_boatr_supporting_document"
+                                        name="supporting_document" accept="image/*,.pdf"
+                                        onchange="previewEditBoatrDocument('edit_boatr_supporting_document', 'edit_boatr_new_doc_preview')">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Upload a new file to replace it.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- New Document Preview -->
+                            <div id="edit_boatr_new_doc_preview" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Inspection Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-clipboard-check me-2"></i>Inspection Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Inspection Status</small>
+                                    <div>
+                                        <span id="edit_boatr_inspection_status_badge" class="badge bg-secondary fs-6"></span>
                                     </div>
-                                    <div class="col-md-4">
-                                        <small class="text-muted">Status:</small>
-                                        <div id="edit_boatr_status_display"></div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <small class="text-muted">Date Applied:</small>
-                                        <div class="small" id="edit_boatr_date_applied"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Inspection Date</small>
+                                    <div id="edit_boatr_inspection_date" class="fw-semibold">-</div>
+                                </div>
+                            </div>
+
+                            <!-- Current Inspection Document Display -->
+                            <div id="edit_boatr_inspection_doc_container" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #0d6efd;">
+                                <label class="form-label fw-semibold text-primary mb-2">Current Inspection Document</label>
+                                <div id="edit_boatr_inspection_doc_preview"></div>
+                            </div>
+
+                            <!-- Inspection Notes -->
+                            <div class="row mb-3">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_boatr_inspection_notes" class="form-label fw-semibold">
+                                        Inspection Notes
+                                    </label>
+                                    <textarea class="form-control" id="edit_boatr_inspection_notes"
+                                        name="inspection_notes" rows="3" maxlength="2000"
+                                        placeholder="Add or edit inspection notes..."
+                                        oninput="updateEditBoatrInspectionCounter()"></textarea>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Inspection observations
+                                        </small>
+                                        <small class="text-muted" id="edit_boatr_inspection_counter">
+                                            <span id="edit_boatr_inspection_char_count">0</span>/2000
+                                        </small>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Replace New Inspection Document -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="edit_boatr_inspection_document" class="form-label fw-semibold">
+                                        Replace Inspection Document
+                                    </label>
+                                    <input type="file" class="form-control" id="edit_boatr_inspection_document"
+                                        name="inspection_document" accept=".pdf,.jpg,.jpeg,.png"
+                                        onchange="previewEditBoatrInspectionDocument('edit_boatr_inspection_document', 'edit_boatr_inspection_doc_upload_preview')">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Replace inspection report, boat photos, or supporting documents (PDF, JPG, PNG - Max 10MB)
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- New Inspection Document Preview -->
+                            <div id="edit_boatr_inspection_doc_upload_preview" class="mt-3"></div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="editBoatrSubmitBtn"
-                        onclick="submitEditBoatr()" style="display: none;">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                </div>
+                    </div>
+
+                    <!-- Application Status (Read-only) Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-info-circle me-2"></i>Application Status (Read-only)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Current Status</small>
+                                    <div>
+                                        <span id="edit_boatr_status_badge" class="badge bg-secondary fs-6"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <small class="text-muted d-block mb-2">Date Applied</small>
+                                    <div id="edit_boatr_created_at" class="fw-semibold">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info border-left-info mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> You can edit vessel, boat, and engine information here.
+                        To change application status or add admin remarks, use the "Change Status" button from the main table.
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="editBoatrSubmitBtn"
+                    onclick="handleEditBoatrSubmit()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <style>
         /* Document count badge on mini docs */
@@ -1743,15 +2272,15 @@
             }
         }
 
-        /* Enhanced modal styling */
+        /* Enhanced modal styling
         .modal-header {
             background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
             color: white;
-        }
+        } */
 
-        .modal-header .btn-close {
+        /* .modal-header .btn-close {
             filter: invert(1);
-        }
+        } */
 
         /* Document list styling */
         .document-item {
@@ -1997,7 +2526,6 @@
         }
 
         .change-indicator::after {
-            content: "●";
             color: #ffc107;
             font-size: 12px;
             position: absolute;
@@ -2169,7 +2697,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #1cc88a;
+            border: 2px solid #0d6efd;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2282,7 +2810,7 @@
             z-index: 1059 !important;
         }
 
-        /* close modal */
+        /* close modal
         .modal-header .btn-close {
             background-color: rgba(255, 255, 255, 0.7);
             opacity: 1;
@@ -2295,7 +2823,7 @@
         .modal-header .btn-close:focus {
             background-color: rgba(255, 255, 255, 1);
             box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
-        }
+        } */
 
         /* Document modal on top when opened from registration modal */
         #documentModal {
@@ -2531,6 +3059,626 @@
                 padding: 10px;
             }
         }
+/* BoatR Application Details Modal - Enhanced Card-Based Styling */
+#registrationModal .modal-content {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+}
+
+#registrationModal .modal-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border-bottom: 2px solid #0b5ed7;
+    padding: 1.5rem;
+}
+
+#registrationModal .modal-header .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: white;
+}
+
+#registrationModal .modal-header .btn-close {
+    opacity: 0.8;
+}
+
+#registrationModal .modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+#registrationModal .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 1.25rem;
+}
+
+#registrationModal .modal-body {
+    padding: 2rem;
+    background-color: #fff;
+}
+
+/* Card Styling within Application Details */
+#registrationModal .card {
+    border-width: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    height: 100%;
+}
+
+#registrationModal .card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+#registrationModal .card-header {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: white;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+}
+
+#registrationModal .card-header.bg-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+}
+
+#registrationModal .card-header.bg-info {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
+}
+
+#registrationModal .card-header.bg-success {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
+}
+
+#registrationModal .card-header.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+    color: #000;
+}
+
+#registrationModal .card-header.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%) !important;
+}
+
+#registrationModal .card-header.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5c636a 100%) !important;
+}
+
+#registrationModal .card-body {
+    padding: 1.5rem;
+    background-color: #fff;
+}
+
+#registrationModal .row.g-2 > div {
+    padding-bottom: 0.5rem;
+}
+
+#registrationModal .row.g-2 > div > div {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#registrationModal .row.g-2 > div > div:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#registrationModal strong {
+    color: #495057;
+    font-weight: 600;
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.25rem;
+}
+
+#registrationModal .card-body span {
+    color: #333;
+    font-size: 0.95rem;
+    display: block;
+}
+
+#registrationModal a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+#registrationModal a:hover {
+    text-decoration: underline;
+}
+
+#registrationModal .text-muted {
+    color: #6c757d !important;
+    font-style: italic;
+}
+
+/* Badge Styling */
+#registrationModal .badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-top: 0.25rem;
+}
+
+/* Document Container Styling */
+#registrationModal .text-center.p-4 {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem 1.5rem !important;
+}
+
+#registrationModal .text-center i {
+    opacity: 0.7;
+    margin-bottom: 1rem;
+}
+
+#registrationModal .text-center h6 {
+    font-weight: 600;
+    color: #333;
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+#registrationModal .btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem;
+}
+
+#registrationModal .btn-outline-info:hover {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #registrationModal .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    #registrationModal .modal-body {
+        padding: 1.5rem 1rem;
+    }
+
+    #registrationModal .row.g-4 > div {
+        margin-bottom: 1rem;
+    }
+
+    #registrationModal .card-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #registrationModal .card-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    #registrationModal .modal-header .modal-title {
+        font-size: 1.05rem;
+    }
+
+    #registrationModal .modal-body {
+        padding: 1rem;
+    }
+
+    #registrationModal .text-center.p-4 {
+        padding: 1.5rem 1rem !important;
+    }
+
+    #registrationModal .card-body span {
+        font-size: 0.9rem;
+    }
+
+    #registrationModal .card-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Annex Document Items */
+.annex-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.annex-item:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #4e73df;
+}
+
+.annex-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.annex-title {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 8px;
+    word-break: break-word;
+    font-size: 0.95rem;
+}
+
+.annex-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.annex-meta {
+    font-size: 0.8rem;
+    color: #6c757d;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.annex-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.annex-meta-item i {
+    color: #4e73df;
+}
+
+.annex-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    flex-shrink: 0;
+}
+
+.annex-item-actions .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .annex-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .annex-item-actions {
+        margin-left: 0;
+        margin-top: 1rem;
+        width: 100%;
+    }
+
+    .annex-item-actions .btn {
+        flex: 1;
+    }
+}
+/* Modal z-index fixes for stacking */
+.modal {
+    z-index: 1050;
+}
+
+.modal-backdrop {
+    z-index: 1049;
+}
+
+/* Annexes Modal */
+#annexesModal {
+    z-index: 1060 !important;
+}
+
+/* Document Preview Modal - Higher than annexes */
+#documentPreviewModal {
+    z-index: 1080 !important;
+}
+
+#documentModal {
+    z-index: 1080 !important;
+}
+
+/* Ensure backdrops don't overlap */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Hide duplicate backdrops */
+.modal-backdrop:nth-of-type(2),
+.modal-backdrop:nth-of-type(3) {
+    display: none !important;
+}
+
+    /* Inspection Modal Styling - Consistent with other modals */
+    #inspectionModal .modal-content {
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+    }
+
+    #inspectionModal .modal-header {
+        border-bottom: 2px solid #0b5ed7;
+        padding: 1.5rem;
+    }
+
+    #inspectionModal .modal-header .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: white;
+    }
+
+    #inspectionModal .modal-header .btn-close {
+        opacity: 0.8;
+    }
+
+    #inspectionModal .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+
+    #inspectionModal .modal-body {
+        padding: 2rem;
+        background-color: #fff;
+    }
+
+    /* Card Styling within Inspection Modal */
+    #inspectionModal .card {
+        border-width: 1px;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    #inspectionModal .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    #inspectionModal .card-header {
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: white;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    #inspectionModal .card-header h6 {
+        color: #0d6efd;
+    }
+
+    #inspectionModal .card-body {
+        padding: 1.5rem;
+        background-color: #fff;
+    }
+
+    #inspectionModal .form-label {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    #inspectionModal .form-control,
+    #inspectionModal .form-select {
+        border-radius: 6px;
+        border: 1px solid #e3e6f0;
+        transition: all 0.3s ease;
+    }
+
+    #inspectionModal .form-control:focus,
+    #inspectionModal .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    #inspectionModal .form-text {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    /* Invalid Feedback */
+    #inspectionModal .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    #inspectionModal .is-invalid.form-control,
+    #inspectionModal .is-invalid.form-select {
+        border-color: #dc3545;
+    }
+
+    #inspectionModal .is-invalid.form-control:focus,
+    #inspectionModal .is-invalid.form-select:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    /* Textarea Styling */
+    #inspectionModal textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Character Counter */
+    #inspectionNotesCounter {
+        font-weight: 500;
+    }
+
+    #inspectionCharCount {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+    /* Form Check Styling */
+    #inspectionModal .form-check {
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        /* border-left: 3px solid #0d6efd; */
+    }
+
+    #inspectionModal .form-check-input {
+        width: 1.25em;
+        height: 1.25em;
+        margin-top: 0.3em;
+        cursor: pointer;
+    }
+
+    #inspectionModal .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    #inspectionModal .form-check-label {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        color: #495057;
+    }
+
+    #inspectionModal .form-check-label strong {
+        color: #212529;
+    }
+
+    #inspectionModal .form-check-label small {
+        color: #6c757d;
+        margin-left: 1.75rem;
+    }
+
+    /* Alert Styling
+    #inspectionModal .alert {
+        border-radius: 8px;
+        border-left: 4px solid #17a2b8;
+        background-color: #d1ecf1;
+        color: #0c5460;
+    } */
+
+    #inspectionModal .alert i {
+        color: #17a2b8;
+    }
+
+    /* Modal Footer */
+    #inspectionModal .modal-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        padding: 1.25rem;
+    }
+
+    #inspectionModal .btn {
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    #inspectionModal .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    #inspectionModal .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        transform: translateY(-1px);
+    }
+
+    #inspectionModal .btn-success {
+        background-color: #198754;
+        border-color: #198754;
+        color: white;
+    }
+
+    #inspectionModal .btn-success:hover {
+        background-color: #157347;
+        border-color: #146c43;
+        transform: translateY(-1px);
+    }
+
+    #inspectionModal .btn-success:disabled,
+    #inspectionModal .btn-success.no-changes {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+    /* Loading State */
+    #inspectionModal .btn.btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        #inspectionModal .modal-body {
+            padding: 1.5rem 1rem;
+        }
+
+        #inspectionModal .card-header {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        #inspectionModal .card-body {
+            padding: 1rem;
+        }
+
+        #inspectionModal .form-check-label small {
+            margin-left: 0;
+        }
+
+        #inspectionModal .modal-footer {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        #inspectionModal .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #inspectionModal .modal-header .modal-title {
+            font-size: 1.05rem;
+        }
+
+        #inspectionModal .modal-body {
+            padding: 1rem;
+        }
+
+        #inspectionModal .card {
+            margin-bottom: 0.75rem;
+        }
+    }
     </style>
 @endsection
 
@@ -2732,119 +3880,412 @@
         // ========== STATUS UPDATE ==========
         // Enhanced show update modal with change tracking
         function showUpdateModal(id, currentStatus) {
-            const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-            modal.show();
+            // Validate parameters
+            if (!id) {
+                showToast('error', 'Invalid application ID');
+                return;
+            }
 
-            document.getElementById('updateModalLoading').style.display = 'block';
-            document.getElementById('updateModalContent').style.display = 'none';
-            document.getElementById('updateForm').style.display = 'none';
-            document.getElementById('updateStatusBtn').style.display = 'none';
+            // Show loading state in modal
+            document.getElementById('updateAppNumber').innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>`;
 
+            // First fetch the application details
             fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load application details');
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to load application details');
+                }
 
-                    currentData[id] = data;
+                const data = response;
 
-                    document.getElementById('updateModalLoading').style.display = 'none';
-                    document.getElementById('updateModalContent').style.display = 'block';
-                    document.getElementById('updateForm').style.display = 'block';
-                    document.getElementById('updateStatusBtn').style.display = 'inline-block';
+                // Validate data object
+                if (!data) {
+                    throw new Error('No application data received');
+                }
 
-                    document.getElementById('updateRegistrationId').value = id;
-                    document.getElementById('updateRegId').textContent = data.id;
-                    document.getElementById('updateRegNumber').textContent = data.application_number;
-                    document.getElementById('updateRegName').textContent = data.full_name;
-                    document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
-                    document.getElementById('updateRegVessel').textContent = data.vessel_name;
-                    document.getElementById('updateRegFishR').textContent = data.fishr_number;
-                    document.getElementById('updateRegBoatType').textContent = data.boat_type;
+                // Populate the hidden field
+                document.getElementById('updateApplicationId').value = id;
 
-                    document.getElementById('updateRegCurrentStatus').innerHTML =
-                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                // Populate application info display with null checks
+                document.getElementById('updateAppNumber').textContent = data.application_number || 'N/A';
+                document.getElementById('updateAppName').textContent = data.full_name || 'N/A';
+                document.getElementById('updateAppVessel').textContent = data.vessel_name || 'N/A';
+                document.getElementById('updateAppBarangay').textContent = data.barangay || 'N/A';
+                document.getElementById('updateAppBoatType').textContent = data.boat_type || 'N/A';
 
-                    document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
-                        '<span class="badge bg-success">Completed</span>' :
-                        '<span class="badge bg-warning">Pending</span>';
+                // Show current status with badge styling and null safety
+                const currentStatusElement = document.getElementById('updateAppCurrentStatus');
+                const statusColor = data.status_color || 'secondary';
+                const formattedStatus = data.formatted_status || getBoatrStatusText(data.status);
 
-                    // Set form values and store original values for comparison
-                    const statusSelect = document.getElementById('newStatus');
-                    const remarksTextarea = document.getElementById('remarks');
+                currentStatusElement.innerHTML = `
+                    <span class="badge bg-${statusColor}">${formattedStatus}</span>`;
 
-                    statusSelect.value = currentStatus;
-                    statusSelect.dataset.originalStatus = currentStatus;
-                    statusSelect.dataset.originalValue = currentStatus;
+                // Set form values and store original values for comparison
+                const statusSelect = document.getElementById('newStatus');
+                const remarksTextarea = document.getElementById('remarks');
 
-                    remarksTextarea.value = data.remarks || '';
-                    remarksTextarea.dataset.originalRemarks = data.remarks || '';
+                // Handle null status values
+                const currentStatusValue = data.status || 'pending';
+                statusSelect.value = currentStatusValue;
+                statusSelect.dataset.originalStatus = currentStatusValue;
 
-                    // Add change indicator classes
-                    statusSelect.parentElement.classList.add('change-indicator');
-                    remarksTextarea.parentElement.classList.add('change-indicator');
+                const currentRemarks = data.remarks || '';
+                remarksTextarea.value = currentRemarks;
+                remarksTextarea.dataset.originalRemarks = currentRemarks;
 
-                    // Remove any previous highlighting
-                    statusSelect.classList.remove('form-changed');
-                    remarksTextarea.classList.remove('form-changed');
-                    statusSelect.parentElement.classList.remove('changed');
-                    remarksTextarea.parentElement.classList.remove('changed');
+                // Reset remarks counter
+                updateBoatrStatusRemarksCounter();
 
-                    // Reset update button state
-                    const updateButton = document.getElementById('updateStatusBtn');
-                    updateButton.classList.remove('no-changes');
-                    updateButton.innerHTML = 'Update Status';
+                // Remove any previous change indicators
+                statusSelect.classList.remove('form-changed');
+                remarksTextarea.classList.remove('form-changed');
+                statusSelect.parentElement.classList.remove('change-indicator', 'changed');
+                remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
 
-                    // Remove old listeners to prevent duplicates
-                    statusSelect.removeEventListener('change', checkUpdateModalChanges);
-                    remarksTextarea.removeEventListener('input', checkUpdateModalChanges);
+                // Add change indicator classes
+                statusSelect.parentElement.classList.add('change-indicator');
+                remarksTextarea.parentElement.classList.add('change-indicator');
 
-                    // Add change detection event listeners
-                    statusSelect.addEventListener('change', checkUpdateModalChanges);
-                    remarksTextarea.addEventListener('input', checkUpdateModalChanges);
-                })
-                .catch(error => {
-                    console.error('Error loading application details:', error);
-                    showToast('error', 'Failed to load application details: ' + error.message);
-                    modal.hide();
-                });
+                // Reset update button state - IMPORTANT: Ensure it's enabled and visible
+                const updateButton = document.getElementById('updateStatusBtn');
+                updateButton.classList.remove('no-changes');
+                updateButton.classList.remove('disabled');
+                updateButton.disabled = false;
+                updateButton.style.opacity = '1';
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Status';
+                updateButton.style.pointerEvents = 'auto';
+                updateButton.style.cursor = 'pointer';
+
+                // Remove old listeners to prevent duplicates
+                statusSelect.removeEventListener('change', checkBoatrUpdateModalChanges);
+                remarksTextarea.removeEventListener('input', checkBoatrUpdateModalChanges);
+
+                // Add change detection event listeners
+                statusSelect.addEventListener('change', checkBoatrUpdateModalChanges);
+                remarksTextarea.addEventListener('input', checkBoatrUpdateModalChanges);
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error loading application details: ' + error.message);
+            });
         }
 
-        // Check for changes in Update Status Modal
-        function checkUpdateModalChanges() {
-            const statusSelect = document.getElementById('newStatus');
-            const remarksTextarea = document.getElementById('remarks');
-            const updateButton = document.getElementById('updateStatusBtn');
-
-            if (!statusSelect.dataset.originalStatus) return;
-
-            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
-            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
-
-            // Visual feedback
-            statusSelect.classList.toggle('form-changed', statusChanged);
-            statusSelect.parentElement.classList.toggle('changed', statusChanged);
-
-            remarksTextarea.classList.toggle('form-changed', remarksChanged);
-            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
-
-            // Button state
-            const hasChanges = statusChanged || remarksChanged;
-            updateButton.classList.toggle('no-changes', !hasChanges);
-
-            if (!hasChanges) {
-                updateButton.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-            } else {
-                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+        // Update remarks character counter in Update Status Modal
+        function updateBoatrStatusRemarksCounter() {
+            const textarea = document.getElementById('remarks');
+            const charCount = document.getElementById('boatrStatusCharCount');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color when approaching limit
+                if (textarea.value.length > 1800) {
+                    document.getElementById('boatrStatusRemarksCounter').classList.add('text-danger');
+                    document.getElementById('boatrStatusRemarksCounter').classList.remove('text-warning', 'text-muted');
+                } else if (textarea.value.length > 1500) {
+                    document.getElementById('boatrStatusRemarksCounter').classList.add('text-warning');
+                    document.getElementById('boatrStatusRemarksCounter').classList.remove('text-danger', 'text-muted');
+                } else {
+                    document.getElementById('boatrStatusRemarksCounter').classList.remove('text-warning', 'text-danger');
+                    document.getElementById('boatrStatusRemarksCounter').classList.add('text-muted');
+                }
             }
         }
+
+            // Check for changes in Update Status Modal
+            function checkBoatrUpdateModalChanges() {
+                const statusSelect = document.getElementById('newStatus');
+                const remarksTextarea = document.getElementById('remarks');
+                const updateButton = document.getElementById('updateStatusBtn');
+
+                if (!statusSelect.dataset.originalStatus) return;
+
+                const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+                const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+                // Visual feedback
+                statusSelect.classList.toggle('form-changed', statusChanged);
+                statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+                remarksTextarea.classList.toggle('form-changed', remarksChanged);
+                remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+                // Button state
+                const hasChanges = statusChanged || remarksChanged;
+                updateButton.classList.toggle('no-changes', !hasChanges);
+
+                if (!hasChanges) {
+                    updateButton.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+                } else {
+                    updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+                }
+            }
+
+            // Helper function to get BoatR status display text
+            function getBoatrStatusText(status) {
+                if (!status || status === null || status === undefined) {
+                    return 'Unknown';
+                }
+
+                const statusStr = String(status).toLowerCase();
+
+                switch (statusStr) {
+                    case 'pending':
+                        return 'Pending';
+                    case 'under_review':
+                        return 'Under Review';
+                    case 'inspection_required':
+                        return 'Inspection Required';
+                    case 'inspection_scheduled':
+                        return 'Inspection Scheduled';
+                    case 'documents_pending':
+                        return 'Documents Pending';
+                    case 'approved':
+                        return 'Approved';
+                    case 'rejected':
+                        return 'Rejected';
+                    default:
+                        return statusStr.charAt(0).toUpperCase() + statusStr.slice(1);
+                }
+            }
+
+  // Fixed: Enhanced update registration status function with proper element checking
+function updateRegistrationStatus() {
+    // Get elements with proper null checking
+    const applicationIdElement = document.getElementById('updateApplicationId');
+    const newStatusElement = document.getElementById('newStatus');
+    const remarksElement = document.getElementById('remarks');
+
+    // Validate all required elements exist
+    if (!applicationIdElement) {
+        showToast('error', 'UI Error: Application ID field not found');
+        console.error('Element not found: updateApplicationId');
+        return;
+    }
+    if (!newStatusElement) {
+        showToast('error', 'UI Error: Status dropdown not found');
+        console.error('Element not found: newStatus');
+        return;
+    }
+    if (!remarksElement) {
+        showToast('error', 'UI Error: Remarks field not found');
+        console.error('Element not found: remarks');
+        return;
+    }
+
+    const id = applicationIdElement.value;
+    const newStatus = newStatusElement.value;
+    const remarks = remarksElement.value;
+
+    // Log for debugging
+    console.log('updateRegistrationStatus called with:', {
+        id: id,
+        newStatus: newStatus,
+        remarks: remarks
+    });
+
+    // Quick validation
+    if (!id || id === '' || id === 'undefined') {
+        showToast('error', 'Invalid application ID');
+        console.error('Invalid ID:', id);
+        return;
+    }
+
+    if (!newStatus) {
+        showToast('warning', 'Please select a status before updating');
+        return;
+    }
+
+    // Get original values for change detection
+    const originalStatus = newStatusElement.dataset.originalStatus || '';
+    const originalRemarks = remarksElement.dataset.originalRemarks || '';
+
+    console.log('Change detection:', {
+        originalStatus: originalStatus,
+        newStatus: newStatus,
+        originalRemarks: originalRemarks,
+        remarks: remarks
+    });
+
+    // Check for changes
+    const statusChanged = (newStatus !== originalStatus);
+    const remarksChanged = (remarks.trim() !== originalRemarks.trim());
+
+    if (!statusChanged && !remarksChanged) {
+        showToast('info', 'No changes detected');
+        return;
+    }
+
+    // Build changes summary
+    let changesSummary = [];
+    if (statusChanged) {
+        const originalStatusText = getBoatrStatusText(originalStatus);
+        const newStatusText = getBoatrStatusText(newStatus);
+        changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+    }
+    if (remarksChanged) {
+        if (originalRemarks.trim() === '') {
+            changesSummary.push('Remarks: Added new remarks');
+        } else if (remarks.trim() === '') {
+            changesSummary.push('Remarks: Removed existing remarks');
+        } else {
+            changesSummary.push('Remarks: Modified');
+        }
+    }
+
+    console.log('Changes summary:', changesSummary);
+
+    // Show confirmation toast
+    showConfirmationToast(
+        'Confirm Update',
+        `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
+        () => proceedWithBoatrStatusUpdate(id, newStatus, remarks)
+    );
+}
+
+// Proceed with BoatR status update (improved with error handling)
+function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
+    console.log('proceedWithBoatrStatusUpdate called:', { id, newStatus, remarks });
+
+    if (!id || id === '' || id === 'undefined') {
+        showToast('error', 'Invalid application ID');
+        return;
+    }
+
+    if (!newStatus) {
+        showToast('error', 'Status is required');
+        return;
+    }
+
+    const updateBtn = document.getElementById('updateStatusBtn');
+    if (!updateBtn) {
+        showToast('error', 'UI error: Button not found');
+        return;
+    }
+
+    const originalContent = updateBtn.innerHTML;
+    updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+    updateBtn.disabled = true;
+
+    const url = `/admin/boatr/requests/${id}/status`;
+    console.log('Sending request to:', url);
+
+    fetch(url, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            status: newStatus,
+            remarks: remarks
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+
+        if (response.status === 500) {
+            return response.json().then(data => {
+                throw new Error(data.message || 'Server error occurred');
+            }).catch(() => {
+                throw new Error('Internal server error. Please check logs.');
+            });
+        }
+
+        if (response.status === 422) {
+            return response.json().then(data => {
+                throw new Error(data.message || 'Validation failed');
+            });
+        }
+
+        if (response.status === 404) {
+            throw new Error('Application not found');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+
+        if (!data.success) {
+            throw new Error(data.message || 'Update failed');
+        }
+
+        showToast('success', 'Status updated successfully');
+
+        if (data.registration) {
+            updateTableRow(id, data.registration);
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+        if (modal) {
+            modal.hide();
+        }
+
+        setTimeout(() => window.location.reload(), 1500);
+    })
+    .catch(error => {
+        console.error('Error updating status:', error);
+
+        let errorMessage = 'Update failed: ';
+
+        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+            errorMessage += 'Cannot connect to server. Please check your internet connection or contact administrator.';
+        } else {
+            errorMessage += error.message;
+        }
+
+        showToast('error', errorMessage);
+    })
+    .finally(() => {
+        updateBtn.innerHTML = originalContent;
+        updateBtn.disabled = false;
+    });
+}
+
+        // Initialize remarks counter when modal is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateModal = document.getElementById('updateModal');
+            
+            if (updateModal) {
+                updateModal.addEventListener('shown.bs.modal', function() {
+                    const textarea = document.getElementById('remarks');
+                    
+                    if (textarea) {
+                        // Reset counter when modal opens
+                        updateBoatrStatusRemarksCounter();
+                        
+                        // Add input listener for real-time counter
+                        textarea.removeEventListener('input', updateBoatrStatusRemarksCounter);
+                        textarea.addEventListener('input', updateBoatrStatusRemarksCounter);
+                    }
+                });
+            }
+        });
 
         // Helper function to get status display text
         function getStatusText(status) {
@@ -2892,47 +4333,7 @@
             }
         }
 
-        // Enhanced update registration status function with change detection
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-
-            if (!newStatus) {
-                showToast('warning', 'Please select a status before updating');
-                return;
-            }
-
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
-
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-                return;
-            }
-
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
-            }
-
-            showConfirmationToast(
-                'Confirm Update',
-                `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
-                () => proceedWithStatusUpdate(id, newStatus, remarks)
-            );
-        }
+      
 
         // Helper function to get BoatR status display text
         function getBoatrStatusText(status) {
@@ -2948,131 +4349,47 @@
             return statusMap[status] || status;
         }
 
-        // Updated proceedWithStatusUpdate function
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
-            // Validate parameters
-            if (!id || id === '' || id === 'undefined') {
-                showToast('error', 'Invalid application ID');
-                console.error('Invalid ID provided:', id);
-                return;
-            }
-
-            if (!newStatus) {
-                showToast('error', 'Status is required');
-                return;
-            }
-
-            const updateBtn = document.getElementById('updateStatusBtn');
-            if (!updateBtn) {
-                showToast('error', 'UI error: Button not found');
-                return;
-            }
-
-            const originalContent = updateBtn.innerHTML;
-            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
-            updateBtn.disabled = true;
-
-            const url = `/admin/boatr/requests/${id}/status`;
-            console.log('Sending status update to:', url);
-            console.log('Payload:', {
-                status: newStatus,
-                remarks: remarks
-            });
-
-            fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-
-                    // Handle different HTTP status codes
-                    if (response.status === 500) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Server error occurred');
-                        }).catch(() => {
-                            throw new Error('Internal server error. Please check logs.');
-                        });
-                    }
-
-                    if (response.status === 422) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Validation failed');
-                        });
-                    }
-
-                    if (response.status === 404) {
-                        throw new Error('Application not found');
-                    }
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-
-                    if (!data.success) {
-                        throw new Error(data.message || 'Update failed');
-                    }
-
-                    showToast('success', data.message || 'Status updated successfully');
-
-                    if (data.registration) {
-                        updateTableRow(id, data.registration);
-                    }
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                    if (modal) modal.hide();
-
-                    setTimeout(() => window.location.reload(), 1500);
-                })
-                .catch(error => {
-                    console.error('Error updating status:', error);
-
-                    let errorMessage = 'Update failed: ';
-
-                    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-                        errorMessage +=
-                            'Cannot connect to server. Please check your internet connection or contact administrator.';
-                    } else {
-                        errorMessage += error.message;
-                    }
-
-                    showToast('error', errorMessage);
-                })
-                .finally(() => {
-                    updateBtn.innerHTML = originalContent;
-                    updateBtn.disabled = false;
-                });
-        }
-
 
         // ========== INSPECTION MODAL ==========
+        function updateInspectionNotesCounter() {
+            const textarea = document.getElementById('inspection_notes');
+            const charCount = document.getElementById('inspectionCharCount');
+            const counter = document.getElementById('inspectionNotesCounter');
+            
+            if (textarea && charCount) {
+                const currentLength = textarea.value.length;
+                charCount.textContent = currentLength;
+                
+                // Change color when approaching limit
+                if (currentLength > 800) {
+                    counter.classList.add('text-danger');
+                    counter.classList.remove('text-warning', 'text-muted');
+                } else if (currentLength > 600) {
+                    counter.classList.add('text-warning');
+                    counter.classList.remove('text-danger', 'text-muted');
+                } else {
+                    counter.classList.remove('text-warning', 'text-danger');
+                    counter.classList.add('text-muted');
+                }
+            }
+        }
         function showInspectionModal(id) {
+            console.log('Opening inspection modal for registration:', id);
+            
             document.getElementById('inspectionRegistrationId').value = id;
             document.getElementById('supporting_document').value = '';
             document.getElementById('inspection_notes').value = '';
             document.getElementById('approve_application').checked = false;
-            document.getElementById('notesCount').textContent = '0';
+            document.getElementById('inspectionCharCount').textContent = '0';
 
+            // Clear validation errors
             document.getElementById('supporting_document').classList.remove('is-invalid');
             document.getElementById('documentError').textContent = '';
 
             // Store original values for change detection
             document.getElementById('supporting_document').dataset.originalFile = '';
             document.getElementById('inspection_notes').dataset.originalNotes = '';
-            document.getElementById('approve_application').dataset.originalChecked = false;
+            document.getElementById('approve_application').dataset.originalChecked = 'false';
 
             // Add change indicator classes
             const fileInput = document.getElementById('supporting_document').parentElement;
@@ -3095,6 +4412,7 @@
             const completeBtn = document.getElementById('completeInspectionBtn');
             completeBtn.classList.remove('no-changes');
             completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>Complete Inspection';
+            completeBtn.disabled = false;
 
             // Remove old listeners
             document.getElementById('supporting_document').removeEventListener('change', checkInspectionModalChanges);
@@ -3106,12 +4424,19 @@
             document.getElementById('inspection_notes').addEventListener('input', checkInspectionModalChanges);
             document.getElementById('approve_application').addEventListener('change', checkInspectionModalChanges);
 
+            // Reset counter
+            updateInspectionNotesCounter();
+
+            // Add event listener for real-time counter
+            document.getElementById('inspection_notes').removeEventListener('input', updateInspectionNotesCounter);
+            document.getElementById('inspection_notes').addEventListener('input', updateInspectionNotesCounter);
+
             const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
             modal.show();
         }
 
-        // Check for changes in Inspection Modal
-        function checkInspectionModalChanges() {
+            // Check for changes in Inspection Modal
+         function checkInspectionModalChanges() {
             const fileInput = document.getElementById('supporting_document');
             const notesInput = document.getElementById('inspection_notes');
             const approveCheckbox = document.getElementById('approve_application');
@@ -3137,8 +4462,10 @@
 
             if (!hasChanges) {
                 completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+                completeBtn.disabled = true;
             } else {
                 completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>Complete Inspection';
+                completeBtn.disabled = false;
             }
         }
 
@@ -3305,222 +4632,121 @@
                 });
         }
 
-        // View registration details - UPDATED WITH DOCUMENTS SECTION
+        // Updated View Registration Details Function for BoatR
         function viewRegistration(id) {
+            if (!id) {
+                showToast('error', 'Invalid application ID');
+                return;
+            }
+
+            // Show modal
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
             modal.show();
 
-            document.getElementById('registrationDetailsLoading').style.display = 'block';
-            document.getElementById('registrationDetails').style.display = 'none';
-
+            // Fetch registration details
             fetch(`/admin/boatr/requests/${id}`, {
+                    method: 'GET',
                     headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
                 })
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
                 .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load application details');
+                    if (!data.success) throw new Error('Failed to load application details');
 
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').style.display = 'block';
+                    // Populate Personal Information
+                    document.getElementById('viewRegNumber').textContent = data.application_number || 'N/A';
+                    document.getElementById('viewRegName').textContent = data.full_name || 'N/A';
+                    
+                    const contactLink = document.getElementById('viewRegContact');
+                    contactLink.href = `tel:${data.contact_number}`;
+                    contactLink.textContent = data.contact_number || 'N/A';
 
-                    // Build remarks section
-                    let remarksHtml = '';
-                    if (data.remarks) {
-                        remarksHtml = `
-                        <div class="col-12 mt-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-comment me-2"></i>Remarks</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="alert alert-info mb-0">
-                                        <p class="mb-1">${data.remarks}</p>
-                                        ${data.reviewed_at ? `<small class="text-muted">Updated on ${data.reviewed_at}${data.reviewed_by_name ? ` by ${data.reviewed_by_name}` : ''}</small>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    // Populate Vessel Information
+                    document.getElementById('viewRegVessel').textContent = data.vessel_name || 'N/A';
+                    document.getElementById('viewRegBoatType').textContent = data.boat_type || 'N/A';
+                    document.getElementById('viewRegFishR').textContent = data.fishr_number || 'N/A';
+
+                    // Populate Location
+                    document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
+
+                    // Populate Boat Specifications
+                    const dimensions = `${data.boat_length || '0'} x ${data.boat_width || '0'} x ${data.boat_depth || '0'} ft`;
+                    document.getElementById('viewRegDimensions').textContent = dimensions;
+                    document.getElementById('viewRegEngineType').textContent = data.engine_type || 'N/A';
+                    document.getElementById('viewRegEngineHP').textContent = (data.engine_horsepower || 'N/A') + ' HP';
+
+                    // Populate Fishing Information
+                    document.getElementById('viewRegGear').textContent = data.primary_fishing_gear || 'N/A';
+
+                    // Populate Status Information
+                    const statusElement = document.getElementById('viewRegStatus');
+                    statusElement.innerHTML = `<span class="badge bg-${data.status_color}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${data.formatted_status}</span>`;
+
+                    const inspectionElement = document.getElementById('viewRegInspection');
+                    if (data.inspection_completed) {
+                        inspectionElement.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>';
+                    } else {
+                        inspectionElement.innerHTML = '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>';
                     }
 
-                    // Build documents section - SIMILAR TO FISHR
-                    let documentsHtml = '';
+                    document.getElementById('viewRegCreatedAt').textContent = data.created_at || 'N/A';
+                    document.getElementById('viewRegUpdatedAt').textContent = data.updated_at || 'N/A';
+
+                    // Populate Documents
+                    const docContainer = document.getElementById('viewRegDocumentContainer');
                     const userDocsCount = data.user_documents ? data.user_documents.length : 0;
                     const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
                     const annexesCount = data.annexes ? data.annexes.length : 0;
                     const totalDocs = userDocsCount + inspectionDocsCount + annexesCount;
 
                     if (totalDocs > 0) {
-                        documentsHtml = `
-                        <div class="col-12 mt-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
+                        docContainer.innerHTML = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
+                                    <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
+                                    <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                     <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
                                         <i class="fas fa-eye me-1"></i>View All Documents
                                     </button>
                                 </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
-                                            <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
-                                            <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
-                                        </div>
-                                    </div>
-
-                                   <!-- Document preview thumbnails section -->
-                                    <div class="mt-4">
-                                        <h6 class="border-bottom pb-2">Document Preview</h6>
-                                        <div class="boatr-table-documents mt-3">
-                                            <div class="boatr-document-previews">
-                                                ${userDocsCount > 0 ? `
-                                                            <div class="boatr-mini-doc"
-                                                                onclick="viewDocumentsByType(${id}, 'user')"
-                                                                title="User Documents (${userDocsCount})">
-                                                                <div class="boatr-mini-doc-icon">
-                                                                    <i class="fas fa-file-image text-info"></i>
-                                                                </div>
-                                                                ${userDocsCount > 1 ? `<span class="boatr-doc-count">${userDocsCount}</span>` : ''}
-                                                            </div>
-                                                        ` : ''}
-                                                ${inspectionDocsCount > 0 ? `
-                                                            <div class="boatr-mini-doc"
-                                                                onclick="viewDocumentsByType(${id}, 'inspection')"
-                                                                title="Inspection Documents (${inspectionDocsCount})">
-                                                                <div class="boatr-mini-doc-icon">
-                                                                    <i class="fas fa-clipboard-check text-success"></i>
-                                                                </div>
-                                                                ${inspectionDocsCount > 1 ? `<span class="boatr-doc-count">${inspectionDocsCount}</span>` : ''}
-                                                            </div>
-                                                        ` : ''}
-                                                ${annexesCount > 0 ? `
-                                                            <div class="boatr-mini-doc"
-                                                                onclick="viewDocumentsByType(${id}, 'annexes')"
-                                                                title="Annexes (${annexesCount})">
-                                                                <div class="boatr-mini-doc-icon">
-                                                                    <i class="fas fa-folder text-warning"></i>
-                                                                </div>
-                                                                ${annexesCount > 1 ? `<span class="boatr-doc-count">${annexesCount}</span>` : ''}
-                                                            </div>
-                                                        ` : ''}
-                                            </div>
-                                            <div class="boatr-document-summary mt-2"
-                                                onclick="viewDocuments(${id})">
-                                                <small class="text-muted" style="cursor: pointer;">
-                                                    <i class="fas fa-eye me-1"></i>View all ${totalDocs} document${totalDocs > 1 ? 's' : ''}
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
                     } else {
-                        documentsHtml = `
-                        <div class="col-12 mt-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center py-4">
-                                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No documents available</p>
-                                    </div>
-                                </div>
+                        docContainer.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No documents available</p>
                             </div>
-                        </div>
-                    `;
+                        `;
                     }
 
-                    // Build the complete details HTML
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
-                                    <p><strong>Name:</strong> ${data.full_name}</p>
-                                    <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                                    <p><strong>Contact Number:</strong> ${data.contact_number || 'N/A'}</p>
-                                    <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                                    <p><strong>FishR Number:</strong> ${data.fishr_number}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Vessel Name:</strong> ${data.vessel_name}</p>
-                                    <p><strong>Boat Type:</strong> ${data.boat_type}</p>
-                                    <p><strong>Dimensions:</strong> ${data.boat_dimensions}</p>
-                                    <p><strong>Engine Type:</strong> ${data.engine_type}</p>
-                                    <p><strong>Engine HP:</strong> ${data.engine_horsepower} HP</p>
-                                    <p><strong>Primary Fishing Gear:</strong> ${data.primary_fishing_gear}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mt-4">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
-                                    <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>' : '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>'}</p>
-                                    ${data.inspection_date ? `<p><strong>Inspection Date:</strong> ${data.inspection_date}</p>` : ''}
-                                    ${data.inspection_notes ? `<p><strong>Inspection Notes:</strong> ${data.inspection_notes}</p>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mt-4">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                                    <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                                    ${data.reviewed_at ? `<p><strong>Last Reviewed:</strong> ${data.reviewed_at}</p>` : ''}
-                                    ${data.reviewed_by_name ? `<p><strong>Reviewed By:</strong> ${data.reviewed_by_name}</p>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                        ${documentsHtml}
-                        ${remarksHtml}
-                    </div>
-                `;
+                    // Populate Remarks if exists
+                    const remarksContainer = document.getElementById('viewRemarksContainer');
+                    if (data.remarks) {
+                        remarksContainer.style.display = 'block';
+                        document.getElementById('viewRegRemarks').textContent = data.remarks;
+                    } else {
+                        remarksContainer.style.display = 'none';
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading application details: ${error.message}
-                    </div>
-                `;
-                    document.getElementById('registrationDetails').style.display = 'block';
+                    showToast('error', 'Error loading application details: ' + error.message);
+                    modal.hide();
                 });
         }
-
         // view documents
         function viewDocuments(id) {
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
@@ -3662,7 +4888,9 @@
 
         // FIXED: previewDocument function
         function previewDocument(id, type, index) {
-            const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+            const previewModalEl = document.getElementById('documentPreviewModal');
+            previewModalEl.classList.add('modal-preview-from-annexes');
+            const modal = new bootstrap.Modal(previewModalEl);
             modal.show();
 
             document.getElementById('documentPreview').innerHTML = `
@@ -3914,23 +5142,31 @@
 
 
         // ========== ANNEXES MANAGEMENT ==========
+        /**
+         * Show Annexes Modal
+         */
         function showAnnexesModal(id) {
             const modal = new bootstrap.Modal(document.getElementById('annexesModal'));
             modal.show();
 
+            // Show loading
             document.getElementById('annexesLoading').style.display = 'block';
             document.getElementById('annexesContent').style.display = 'none';
 
-            loadAnnexesData(id);
+            // Load registration details and annexes
+            loadBoatrAnnexesData(id);
         }
 
-
-        // Load annexes data
-        function loadAnnexesData(id) {
+        /**
+         * Load BoatR Annexes Data
+         */
+        function loadBoatrAnnexesData(id) {
             fetch(`/admin/boatr/requests/${id}`, {
+                    method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken()
                     }
                 })
                 .then(response => {
@@ -3940,18 +5176,23 @@
                 .then(data => {
                     if (!data.success) throw new Error(data.message || 'Failed to load data');
 
+                    // Hide loading, show content
                     document.getElementById('annexesLoading').style.display = 'none';
                     document.getElementById('annexesContent').style.display = 'block';
 
+                    // Populate registration info
                     document.getElementById('annexRegistrationId').value = id;
                     document.getElementById('annexAppNumber').textContent = data.application_number;
                     document.getElementById('annexApplicantName').textContent = data.full_name;
-                    document.getElementById('annexVesselName').textContent = data.vessel_name || 'N/A';
+                    document.getElementById('annexBarangay').textContent = data.barangay || 'N/A';
                     document.getElementById('annexStatus').innerHTML =
                         `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                    loadExistingAnnexes(id);
-                    resetAnnexForm();
+                    // Load existing annexes
+                    loadBoatrExistingAnnexes(id);
+
+                    // Reset form
+                    resetBoatrAnnexForm();
                 })
                 .catch(error => {
                     console.error('Error loading annexes data:', error);
@@ -3959,21 +5200,25 @@
 
                     document.getElementById('annexesLoading').style.display = 'none';
                     document.getElementById('annexesContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading data: ${error.message}
-                    </div>
-                `;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading data: ${error.message}
+                        </div>
+                    `;
                     document.getElementById('annexesContent').style.display = 'block';
                 });
         }
 
-        // Load existing annexes
-        function loadExistingAnnexes(id) {
+        /**
+         * Load Existing BoatR Annexes
+         */
+        function loadBoatrExistingAnnexes(id) {
             fetch(`/admin/boatr/requests/${id}/annexes`, {
+                    method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken()
                     }
                 })
                 .then(response => response.json())
@@ -3991,99 +5236,297 @@
                                 minute: '2-digit'
                             });
 
+                            // Store annex data in data attribute
+                            const filePath = annex.file_path ? String(annex.file_path).trim() : '';
+                            const annexDataJson = JSON.stringify({
+                                id: annex.id,
+                                registrationId: id,
+                                filePath: filePath,
+                                fileName: annex.file_name || annex.title || 'Document',
+                                title: annex.title,
+                                fileExtension: annex.file_extension
+                            });
+
                             annexesHtml += `
-                            <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h6 class="mb-1 text-primary">${annex.title}</h6>
-                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
-                                            <span class="mx-2">|</span>
-                                            <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
-                                        </small>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <div class="btn-group" role="group">
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                    onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-success"
-                                                    onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                    onclick="deleteAnnex(${id}, ${annex.id})" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                <div class="annex-item border rounded p-3 mb-3" 
+                                    id="annex-${annex.id}" 
+                                    data-annex-json='${annexDataJson}'>
+                                    <div class="annex-item-content">
+                                        <h6 class="annex-title">${escapeHtml(annex.title)}</h6>
+                                        <p class="annex-description">${escapeHtml(annex.description || 'No description')}</p>
+                                        <div class="annex-meta">
+                                            <div class="annex-meta-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span>${uploadDate}</span>
+                                            </div>
+                                            <div class="annex-meta-item">
+                                                <i class="fas fa-file"></i>
+                                                <span>${formatFileSize(annex.file_size)}</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="annex-item-actions">
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="previewBoatrAnnexFixed(${annex.id})" 
+                                                title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="downloadBoatrAnnexFixed(${annex.id})" 
+                                                title="Download">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                onclick="deleteBoatrAnnex(${id}, ${annex.id})" 
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
                         });
                         annexesList.innerHTML = annexesHtml;
                     } else {
                         annexesList.innerHTML = `
-                        <div class="text-center py-4">
-                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No annexes uploaded yet</p>
-                        </div>
-                    `;
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No annexes uploaded yet</p>
+                            </div>
+                        `;
                     }
                 })
                 .catch(error => {
                     console.error('Error loading annexes:', error);
+                    showToast('error', 'Error loading annexes: ' + error.message);
                     document.getElementById('annexesList').innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading annexes: ${error.message}
-                    </div>
-                `;
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading annexes: ${error.message}
+                        </div>
+                    `;
                 });
         }
+        // preview BoatR Annex
+        function previewBoatrAnnexFixed(annexId) {
+            try {
+                const annexElement = document.getElementById(`annex-${annexId}`);
+                
+                if (!annexElement) {
+                    showToast('error', 'Annex not found');
+                    return;
+                }
+                
+                const annexDataJson = annexElement.getAttribute('data-annex-json');
+                if (!annexDataJson) {
+                    showToast('error', 'Annex data not found');
+                    return;
+                }
 
-        // Check for changes in Annexes Upload Form
-        function checkAnnexesModalChanges() {
-            const fileInput = document.getElementById('annexFile');
-            const titleInput = document.getElementById('annexTitle');
-            const descInput = document.getElementById('annexDescription');
-            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+                let annexData;
+                try {
+                    annexData = JSON.parse(annexDataJson);
+                } catch (e) {
+                    console.error('Error parsing annex data JSON:', e);
+                    showToast('error', 'Error reading annex data');
+                    return;
+                }
 
-            const fileChanged = fileInput.files.length > 0;
-            const titleChanged = titleInput.value.trim() !== (titleInput.dataset.originalTitle || '').trim();
-            const descChanged = descInput.value.trim() !== (descInput.dataset.originalDesc || '').trim();
+                const filePath = annexData.filePath;
+                const fileName = annexData.fileName || annexData.title || 'Document';
+                
+                if (!filePath || filePath === 'undefined' || filePath === '') {
+                    console.error('File path is missing:', annexData);
+                    showToast('error', 'File path not available for this annex');
+                    return;
+                }
+                
+                console.log('Preview BoatR annex:', { annexId, filePath, fileName });
+                
+                // Open modal and display directly
+                const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+                modal.show();
+                
+                const fileUrl = `/storage/${filePath}`;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                
+                // Preview the file
+                previewFileContent(fileUrl, fileName, fileExtension);
 
-            // Visual feedback
-            fileInput.classList.toggle('form-changed', fileChanged);
-            fileInput.parentElement.classList.toggle('changed', fileChanged);
-
-            titleInput.classList.toggle('form-changed', titleChanged);
-            titleInput.parentElement.classList.toggle('changed', titleChanged);
-
-            descInput.classList.toggle('form-changed', descChanged);
-            descInput.parentElement.classList.toggle('changed', descChanged);
-
-            // Button state
-            const hasChanges = fileChanged || titleChanged || descChanged;
-            uploadBtn.classList.toggle('no-changes', !hasChanges);
-
-            if (!hasChanges) {
-                uploadBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-            } else {
-                uploadBtn.innerHTML = '<i class="fas fa-upload me-1"></i>Upload Annex';
+            } catch (error) {
+                console.error('Error in previewBoatrAnnexFixed:', error);
+                showToast('error', 'Error previewing annex: ' + error.message);
             }
         }
 
+        // Helper function to preview file content
+        function previewFileContent(fileUrl, fileName, fileExtension) {
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            const pdfTypes = ['pdf'];
+            
+            if (imageTypes.includes(fileExtension)) {
+                document.getElementById('documentPreview').innerHTML = `
+                    <div class="text-center">
+                        <img src="${fileUrl}" alt="Preview" style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+                        <div style="margin-top: 20px;">
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else if (pdfTypes.includes(fileExtension)) {
+                document.getElementById('documentPreview').innerHTML = `
+                    <embed src="${fileUrl}" type="application/pdf" width="100%" height="600px;" style="border-radius: 8px;">
+                `;
+            } else {
+                document.getElementById('documentPreview').innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-file fa-4x text-muted mb-3"></i>
+                        <p>Preview not available for this file type.</p>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-primary">
+                            <i class="fas fa-download me-2"></i>Download ${fileExtension.toUpperCase()}
+                        </a>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('documentPreviewTitle').innerHTML = `<i class="fas fa-eye me-2"></i>${fileName}`;
+        }
 
-        // Upload annex with change detection
+        /**
+        * Download BoatR Annex
+        */
+        function downloadBoatrAnnexFixed(annexId) {
+            try {
+                const annexElement = document.getElementById(`annex-${annexId}`);
+                
+                if (!annexElement) {
+                    showToast('error', 'Annex not found');
+                    return;
+                }
+                
+                const annexDataJson = annexElement.getAttribute('data-annex-json');
+                if (!annexDataJson) {
+                    showToast('error', 'Annex data not found');
+                    return;
+                }
+
+                let annexData;
+                try {
+                    annexData = JSON.parse(annexDataJson);
+                } catch (e) {
+                    console.error('Error parsing annex data JSON:', e);
+                    showToast('error', 'Error reading annex data');
+                    return;
+                }
+
+                const filePath = annexData.filePath;
+                const fileName = annexData.fileName || annexData.title || 'Document';
+                
+                if (!filePath || filePath === 'undefined' || filePath === '') {
+                    console.error('File path is missing:', annexData);
+                    showToast('error', 'File path not available for this annex');
+                    return;
+                }
+
+                console.log('Download BoatR annex:', { annexId, filePath, fileName });
+
+                showConfirmationToast(
+                    'Download File',
+                    `Download: ${fileName}?`,
+                    () => proceedWithBoatrAnnexDownload(filePath, fileName)
+                );
+
+            } catch (error) {
+                console.error('Error in downloadBoatrAnnexFixed:', error);
+                showToast('error', 'Error downloading annex: ' + error.message);
+            }
+        }
+
+        /**
+        * Proceed with BoatR Annex Download
+        */
+        function proceedWithBoatrAnnexDownload(filePath, fileName) {
+            const fileUrl = `/storage/${filePath}`;
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName;
+            link.target = '_blank';
+            document.body.appendChild(link);
+
+            try {
+                link.click();
+                showToast('success', 'File download started');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('error', 'Failed to download file');
+            } finally {
+                document.body.removeChild(link);
+            }
+        }
+
+        /**
+        * Delete BoatR Annex
+        */
+        function deleteBoatrAnnex(registrationId, annexId) {
+            showConfirmationToast(
+                'Delete Annex',
+                `Are you sure you want to delete this annex?\n\nThis action cannot be undone.`,
+                () => proceedWithBoatrAnnexDelete(registrationId, annexId)
+            );
+        }
+
+        /**
+        * Proceed with BoatR Annex Deletion
+        */
+        function proceedWithBoatrAnnexDelete(registrationId, annexId) {
+            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to delete annex');
+
+                    showToast('success', 'Annex deleted successfully');
+
+                    const annexElement = document.getElementById(`annex-${annexId}`);
+                    if (annexElement) {
+                        annexElement.style.transition = 'opacity 0.3s ease';
+                        annexElement.style.opacity = '0';
+                        setTimeout(() => {
+                            annexElement.remove();
+                            const annexesList = document.getElementById('annexesList');
+                            if (!annexesList.querySelector('.annex-item')) {
+                                loadBoatrExistingAnnexes(document.getElementById('annexRegistrationId').value);
+                            }
+                        }, 300);
+                    }
+
+                    setTimeout(() => window.location.reload(), 1500);
+                })
+                .catch(error => {
+                    console.error('Error deleting annex:', error);
+                    showToast('error', 'Failed to delete annex: ' + error.message);
+                });
+        }
+
+        /**
+        * Upload BoatR Annex
+        */
         function uploadAnnex() {
             const id = document.getElementById('annexRegistrationId').value;
             const fileInput = document.getElementById('annexFile');
             const title = document.getElementById('annexTitle').value.trim();
             const description = document.getElementById('annexDescription').value.trim();
 
+            // Validation
             if (!fileInput.files[0]) {
                 showValidationError('annexFile', 'annexFileError', 'Please select a file');
                 return;
@@ -4094,8 +5537,16 @@
                 return;
             }
 
-            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+            const maxFileSize = 10 * 1024 * 1024;
+            if (fileInput.files[0].size > maxFileSize) {
                 showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+                return;
+            }
+
+            const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif'];
+            const fileExtension = fileInput.files[0].name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                showValidationError('annexFile', 'annexFileError', 'File type not allowed');
                 return;
             }
 
@@ -4103,13 +5554,15 @@
 
             showConfirmationToast(
                 'Upload Annex',
-                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}\nTitle: ${title}${description ? '\nDescription: ' + description : ''}`,
-                () => proceedWithAnnexUpload(id, fileInput, title, description)
+                `Upload: ${fileInput.files[0].name}?\nSize: ${formatFileSize(fileInput.files[0].size)}`,
+                () => proceedWithBoatrAnnexUpload(id, fileInput, title, description)
             );
         }
 
-        // Proceed with annex upload
-        function proceedWithAnnexUpload(id, fileInput, title, description) {
+        /**
+        * Proceed with BoatR Annex Upload
+        */
+        function proceedWithBoatrAnnexUpload(id, fileInput, title, description) {
             const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
             const originalContent = uploadBtn.innerHTML;
             uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
@@ -4133,17 +5586,18 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to upload annex');
-
-                    showToast('success', 'Annex uploaded successfully');
-                    resetAnnexForm();
-                    loadExistingAnnexes(id);
-
-                    setTimeout(() => window.location.reload(), 1500);
+                    if (data.success) {
+                        showToast('success', 'Annex uploaded successfully');
+                        resetBoatrAnnexForm();
+                        loadBoatrExistingAnnexes(id);
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(data.message || 'Failed to upload annex');
+                    }
                 })
                 .catch(error => {
                     console.error('Error uploading annex:', error);
-                    showToast('error', 'Upload failed: ' + error.message);
+                    showToast('error', 'Failed to upload annex: ' + error.message);
                 })
                 .finally(() => {
                     uploadBtn.innerHTML = originalContent;
@@ -4151,202 +5605,46 @@
                 });
         }
 
-        // Preview annex
-        function previewAnnex(registrationId, annexId) {
-            const previewModal = document.getElementById('documentPreviewModal');
-            const annexesModal = document.getElementById('annexesModal');
-            const modal = new bootstrap.Modal(previewModal);
-
-            previewModal.style.zIndex = '1060';
-
-            const annexesBackdrop = document.querySelector('.modal-backdrop');
-            if (annexesBackdrop) {
-                annexesBackdrop.style.zIndex = '1058';
-            }
-
-            previewModal.addEventListener('hidden.bs.modal', function() {
-                previewModal.style.zIndex = '';
-                if (annexesBackdrop) {
-                    annexesBackdrop.style.zIndex = '';
-                }
-            }, {
-                once: true
-            });
-
-            modal.show();
-
-            document.getElementById('documentPreview').innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Loading annex preview...</p>
-                </div>
-            `;
-
-            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/preview`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load preview');
-
-                    document.getElementById('documentPreviewTitle').innerHTML =
-                        `<i class="fas fa-folder me-2"></i>${data.title}`;
-
-                    const fileExtension = data.file_extension?.toLowerCase();
-                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-                    const isPdf = fileExtension === 'pdf';
-
-                    if (isPdf) {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="text-center">
-                            <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
-                                style="border: none; border-radius: 8px;" />
-                            <div class="mt-2">
-                                <a href="${data.file_url}" target="_blank" class="btn btn-primary">
-                                    <i class="fas fa-external-link-alt me-1"></i>Open in new tab
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                    } else if (isImage) {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="text-center">
-                            <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
-                                style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-                        </div>
-                    `;
-                    } else {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <h5>Preview not available for this file type</h5>
-                            <p>File type: ${fileExtension?.toUpperCase() || 'Unknown'}</p>
-                            <a href="${data.file_url}" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-download me-1"></i>Download to view
-                            </a>
-                        </div>
-                    `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading annex preview:', error);
-                    document.getElementById('documentPreview').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <h5>Error loading annex preview</h5>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-                });
-        }
-
-        function downloadAnnex(registrationId, annexId) {
-            window.open(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/download`, '_blank');
-        }
-
-        // Delete annex with confirmation
-        function deleteAnnex(registrationId, annexId) {
-            showConfirmationToast(
-                'Delete Annex',
-                'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
-                () => proceedWithAnnexDelete(registrationId, annexId)
-            );
-        }
-
-        // Proceed with annex deletion
-        function proceedWithAnnexDelete(registrationId, annexId) {
-            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to delete annex');
-
-                    showToast('success', 'Annex deleted successfully');
-
-                    const annexElement = document.getElementById(`annex-${annexId}`);
-                    if (annexElement) {
-                        annexElement.remove();
-                    }
-
-                    const annexesList = document.getElementById('annexesList');
-                    if (annexesList && !annexesList.querySelector('.document-item')) {
-                        loadExistingAnnexes(registrationId);
-                    }
-
-                    setTimeout(() => window.location.reload(), 1500);
-                })
-                .catch(error => {
-                    console.error('Error deleting annex:', error);
-                    showToast('error', 'Delete failed: ' + error.message);
-                });
-        }
-
-        // Reset annex form
-        function resetAnnexForm() {
+        /**
+        * Reset BoatR Annex Form
+        */
+        function resetBoatrAnnexForm() {
             document.getElementById('annexFile').value = '';
             document.getElementById('annexTitle').value = '';
             document.getElementById('annexDescription').value = '';
             document.getElementById('annexDescCount').textContent = '0';
-
-            // Store original values
-            document.getElementById('annexFile').dataset.originalFile = '';
-            document.getElementById('annexTitle').dataset.originalTitle = '';
-            document.getElementById('annexDescription').dataset.originalDesc = '';
-
-            // Add change indicator classes
-            const fileInput = document.getElementById('annexFile').parentElement;
-            const titleInput = document.getElementById('annexTitle').parentElement;
-            const descInput = document.getElementById('annexDescription').parentElement;
-
-            fileInput.classList.add('change-indicator');
-            titleInput.classList.add('change-indicator');
-            descInput.classList.add('change-indicator');
-
-            // Remove highlighting
-            document.getElementById('annexFile').classList.remove('form-changed');
-            document.getElementById('annexTitle').classList.remove('form-changed');
-            document.getElementById('annexDescription').classList.remove('form-changed');
-            fileInput.classList.remove('changed');
-            titleInput.classList.remove('changed');
-            descInput.classList.remove('changed');
-
-            // Reset button
-            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
-            if (uploadBtn) {
-                uploadBtn.classList.add('no-changes');
-                uploadBtn.innerHTML = '<i class="fas fa-upload me-1"></i>Upload Annex';
-            }
-
-            // Remove listeners and add fresh ones
-            document.getElementById('annexFile').removeEventListener('change', checkAnnexesModalChanges);
-            document.getElementById('annexTitle').removeEventListener('input', checkAnnexesModalChanges);
-            document.getElementById('annexDescription').removeEventListener('input', checkAnnexesModalChanges);
-
-            document.getElementById('annexFile').addEventListener('change', checkAnnexesModalChanges);
-            document.getElementById('annexTitle').addEventListener('input', checkAnnexesModalChanges);
-            document.getElementById('annexDescription').addEventListener('input', checkAnnexesModalChanges);
-
             clearValidationErrors();
         }
 
+        /**
+        * Update Annex Description Counter
+        */
+        function updateAnnexDescriptionCounter() {
+            const textarea = document.getElementById('annexDescription');
+            const counter = document.getElementById('annexDescCount');
 
-        // Validation helpers
+            if (textarea && counter) {
+                const charCount = textarea.value.length;
+                counter.textContent = charCount;
+
+                if (charCount > 500) {
+                    textarea.value = textarea.value.substring(0, 500);
+                    counter.textContent = '500';
+                }
+
+                if (charCount > 450) {
+                    counter.parentElement.classList.add('text-warning');
+                    counter.parentElement.classList.remove('text-muted');
+                } else {
+                    counter.parentElement.classList.remove('text-warning');
+                    counter.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        /**
+        * Show Validation Error
+        */
         function showValidationError(inputId, errorId, message) {
             const input = document.getElementById(inputId);
             const error = document.getElementById(errorId);
@@ -4355,6 +5653,9 @@
             error.textContent = message;
         }
 
+        /**
+        * Clear Validation Errors
+        */
         function clearValidationErrors() {
             const inputs = ['annexFile', 'annexTitle'];
             const errors = ['annexFileError', 'annexTitleError'];
@@ -4368,6 +5669,29 @@
                 const error = document.getElementById(errorId);
                 if (error) error.textContent = '';
             });
+        }
+
+        /**
+        * Format File Size
+        */
+        function formatFileSize(bytes) {
+            if (!bytes || bytes === 0) return 'Unknown size';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        /**
+        * Escape HTML
+        */
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
         // ========== DATE FILTER FUNCTIONS ==========
         function setDateRangeModal(period) {
@@ -4594,36 +5918,6 @@
             return true;
         }
 
-        // Real-time validation for email
-        document.getElementById('boatr_email')?.addEventListener('input', function() {
-            validateBoatrEmail(this.value);
-        });
-
-        function validateBoatrEmail(email) {
-            const input = document.getElementById('boatr_email');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            if (feedback) feedback.textContent = '';
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!email || email.trim() === '') {
-                return true; // Email is optional
-            }
-
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email.trim())) {
-                input.classList.add('is-invalid');
-                if (feedback) {
-                    feedback.textContent = 'Invalid email format';
-                }
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
         // Auto-capitalize name fields
         function capitalizeBoatrName(input) {
             const value = input.value;
@@ -4703,122 +5997,209 @@
 
             reader.readAsDataURL(file);
         }
+        // submit add boatr form
+  async function submitAddBoatr() {
+    console.log('=== submitAddBoatr START ===');
+    
+    // Remove any old validation errors first
+    document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => el.textContent = '');
 
-        // Submit add BoatR form
-        async function submitAddBoatr() {
-            // Remove any old validation errors first
-            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => el.textContent = '');
+    // Validate form
+    const isValid = await validateBoatrForm();
+    console.log('Form validation result:', isValid);
+    
+    if (!isValid) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        return;
+    }
 
-            // Validate form
-            const isValid = await validateBoatrForm();
-            if (!isValid) {
-                showToast('error', 'Please fix all validation errors before submitting');
-                return;
-            }
+    // Prepare form data
+    const formData = new FormData();
 
-            // Prepare form data
-            const formData = new FormData();
+    const firstNameVal = document.getElementById('boatr_first_name').value.trim();
+    const lastNameVal = document.getElementById('boatr_last_name').value.trim();
+    const contactVal = document.getElementById('boatr_contact_number').value.trim();
+    const barangayVal = document.getElementById('boatr_barangay').value.trim();
+    const fishrVal = document.getElementById('boatr_fishr_number').value.trim();
+    const vesselVal = document.getElementById('boatr_vessel_name').value.trim();
+    const boatTypeVal = document.getElementById('boatr_boat_type').value.trim();
+    const lengthVal = document.getElementById('boatr_boat_length').value.trim();
+    const widthVal = document.getElementById('boatr_boat_width').value.trim();
+    const depthVal = document.getElementById('boatr_boat_depth').value.trim();
+    const engineTypeVal = document.getElementById('boatr_engine_type').value.trim();
+    const engineHpVal = document.getElementById('boatr_engine_horsepower').value.trim();
+    const gearVal = document.getElementById('boatr_primary_fishing_gear').value.trim();
+    const statusVal = document.getElementById('boatr_status').value.trim();
+    const remarksVal = document.getElementById('boatr_remarks').value.trim();
+    const fishrAppIdVal = document.getElementById('boatr_fishr_app_id').value.trim();
 
-            formData.append('first_name', document.getElementById('boatr_first_name').value.trim());
-            formData.append('middle_name', document.getElementById('boatr_middle_name').value.trim());
-            formData.append('last_name', document.getElementById('boatr_last_name').value.trim());
-            formData.append('name_extension', document.getElementById('boatr_name_extension').value);
-            formData.append('contact_number', document.getElementById('boatr_contact_number').value.trim());
-            formData.append('email', document.getElementById('boatr_email').value.trim());
-            formData.append('barangay', document.getElementById('boatr_barangay').value);
-            formData.append('fishr_number', document.getElementById('boatr_fishr_number').value.trim());
-            formData.append('vessel_name', document.getElementById('boatr_vessel_name').value.trim());
-            formData.append('boat_type', document.getElementById('boatr_boat_type').value);
-            formData.append('boat_length', parseFloat(document.getElementById('boatr_boat_length').value));
-            formData.append('boat_width', parseFloat(document.getElementById('boatr_boat_width').value));
-            formData.append('boat_depth', parseFloat(document.getElementById('boatr_boat_depth').value));
-            formData.append('engine_type', document.getElementById('boatr_engine_type').value.trim());
-            formData.append('engine_horsepower', parseInt(document.getElementById('boatr_engine_horsepower').value));
-            formData.append('primary_fishing_gear', document.getElementById('boatr_primary_fishing_gear').value);
-            formData.append('status', document.getElementById('boatr_status').value);
-            formData.append('remarks', document.getElementById('boatr_remarks').value.trim());
+    console.log('Form values:', {
+        firstName: firstNameVal,
+        lastName: lastNameVal,
+        contact: contactVal,
+        barangay: barangayVal,
+        fishr: fishrVal,
+        vessel: vesselVal,
+        boatType: boatTypeVal,
+        length: lengthVal,
+        width: widthVal,
+        depth: depthVal,
+        engineType: engineTypeVal,
+        engineHp: engineHpVal,
+        gear: gearVal,
+        status: statusVal,
+        fishrAppId: fishrAppIdVal
+    });
 
-            const userId = document.getElementById('boatr_user_id').value.trim();
-            if (userId) {
-                formData.append('user_id', userId);
-            }
+    formData.append('first_name', firstNameVal);
+    formData.append('middle_name', document.getElementById('boatr_middle_name').value.trim());
+    formData.append('last_name', lastNameVal);
+    formData.append('name_extension', document.getElementById('boatr_name_extension').value || '');
+    formData.append('contact_number', contactVal);
+    formData.append('barangay', barangayVal);
+    formData.append('fishr_number', fishrVal);
+    formData.append('vessel_name', vesselVal);
+    formData.append('boat_type', boatTypeVal);
+    formData.append('boat_length', parseFloat(lengthVal) || 0);
+    formData.append('boat_width', parseFloat(widthVal) || 0);
+    formData.append('boat_depth', parseFloat(depthVal) || 0);
+    formData.append('engine_type', engineTypeVal);
+    formData.append('engine_horsepower', parseInt(engineHpVal) || 0);
+    formData.append('primary_fishing_gear', gearVal);
+    formData.append('status', statusVal || 'pending');
+    formData.append('remarks', remarksVal);
+    
+    // IMPORTANT: Add fishr_application_id if it was validated
+    if (fishrAppIdVal) {
+        formData.append('fishr_application_id', fishrAppIdVal);
+    }
 
-            const fishrAppId = document.getElementById('boatr_fishr_app_id').value.trim();
-            if (fishrAppId) {
-                formData.append('fishr_application_id', fishrAppId);
-            }
+    // Add document if uploaded
+    const docInput = document.getElementById('boatr_user_document');
+    if (docInput && docInput.files && docInput.files[0]) {
+        console.log('File to upload:', docInput.files[0].name);
+        formData.append('user_document', docInput.files[0]);
+    }
 
-            // Add document if uploaded
-            const docInput = document.getElementById('boatr_user_document');
-            if (docInput.files && docInput.files[0]) {
-                formData.append('user_document', docInput.files[0]);
-            }
+    // Find submit button
+    const submitBtn = document.querySelector('#addBoatrModal .modal-footer .btn-primary');
+    if (!submitBtn) {
+        showToast('error', 'Submit button not found');
+        return;
+    }
 
-            // Find submit button
-            const submitBtn = document.querySelector('#addBoatrModal .modal-footer .btn-primary');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
-            submitBtn.disabled = true;
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+    submitBtn.disabled = true;
 
-            // Submit to backend
-            fetch('/admin/boatr/requests/create', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Close modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('addBoatrModal'));
-                        modal.hide();
+    console.log('Sending request to:', '/admin/boatr/requests/create');
 
-                        // Show success message
-                        showToast('success', data.message || 'BoatR application created successfully');
+    // Submit to backend
+    fetch('/admin/boatr/requests/create', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || getCSRFToken(),
+                'Accept': 'application/json'
+                // NOTE: Do NOT set Content-Type with FormData, browser will set it automatically
+            },
+            body: formData
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
+            return response.json().then(data => ({
+                status: response.status,
+                ok: response.ok,
+                data: data
+            }));
+        })
+        .then(({status, ok, data}) => {
+            console.log('Response data:', data);
 
-                        // Reload page after short delay
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        // Show validation errors
-                        if (data.errors) {
-                            Object.keys(data.errors).forEach(field => {
-                                const input = document.getElementById('boatr_' + field);
-                                if (input) {
-                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                                    if (feedback) feedback.textContent = '';
+            if (ok && data.success) {
+                // IMPORTANT: Close modal BEFORE showing success message
+                const modalElement = document.getElementById('addBoatrModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
 
-                                    input.classList.add('is-invalid');
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.className = 'invalid-feedback d-block';
-                                    errorDiv.textContent = data.errors[field][0];
-                                    input.parentNode.appendChild(errorDiv);
-                                }
-                            });
+                // Clear form
+                document.getElementById('addBoatrForm').reset();
+                document.getElementById('boatr_fishr_app_id').value = '';
+
+                // Show success message
+                showToast('success', data.message || 'BoatR application created successfully');
+
+                console.log('Success! Reloading page in 2 seconds...');
+
+                // CRITICAL: Wait longer to ensure modal is fully closed and database is committed
+                setTimeout(() => {
+                    console.log('Performing full page reload...');
+                    window.location.href = window.location.href;
+                }, 2000);
+
+            } else {
+                // Show validation errors
+                console.log('Validation errors:', data.errors);
+                
+                if (data.errors && typeof data.errors === 'object') {
+                    Object.keys(data.errors).forEach(field => {
+                        const fieldName = field.replace(/_/g, '-');
+                        const input = document.getElementById('boatr_' + fieldName) || 
+                                    document.getElementById('boatr-' + fieldName);
+                        
+                        if (input) {
+                            input.classList.add('is-invalid');
+                            const errorDiv = input.parentNode.querySelector('.invalid-feedback') || 
+                                        document.createElement('div');
+                            errorDiv.className = 'invalid-feedback d-block';
+                            errorDiv.textContent = Array.isArray(data.errors[field]) ? 
+                                                data.errors[field][0] : 
+                                                data.errors[field];
+                            
+                            if (!input.parentNode.querySelector('.invalid-feedback')) {
+                                input.parentNode.appendChild(errorDiv);
+                            }
                         }
-                        showToast('error', data.message || 'Failed to create BoatR application');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'An error occurred while creating the application');
-                })
-                .finally(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
-        }
+                    });
+                }
+                showToast('error', data.message || 'Failed to create BoatR application');
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showToast('error', 'An error occurred while creating the application: ' + error.message);
+            
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+}
         // ========== MODAL BACKDROP CLEANUP ==========
         document.addEventListener('DOMContentLoaded', function() {
             const allModals = document.querySelectorAll('.modal');
 
             allModals.forEach(modal => {
                 modal.addEventListener('hidden.bs.modal', function() {
+
+                // Remove old tooltip/popover instances
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                        const instance = bootstrap.Tooltip.getInstance(el);
+                        if (instance) instance.dispose();
+                    });
+                    
+                    // Clean up dropdowns
+                    document.querySelectorAll('.dropdown-toggle').forEach(el => {
+                        const instance = bootstrap.Dropdown.getInstance(el);
+                        if (instance) instance.dispose();
+                    });
                     // Remove all modal backdrops
                     document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop
                         .remove());
@@ -5023,9 +6404,7 @@
                         .name_extension;
                     if (data.contact_number) document.getElementById('boatr_contact_number').value = data
                         .contact_number;
-                    if (data.email) document.getElementById('boatr_email').value = data.email;
                     if (data.barangay) document.getElementById('boatr_barangay').value = data.barangay;
-                    if (data.user_id) document.getElementById('boatr_user_id').value = data.user_id;
                     if (data.fishr_app_id) document.getElementById('boatr_fishr_app_id').value = data.fishr_app_id;
 
                     showToast('success', `✓ Fisher information auto-filled for: ${data.fisher_name}`);
@@ -5058,8 +6437,6 @@
             document.getElementById('boatr_last_name').value = '';
             document.getElementById('boatr_name_extension').value = '';
             document.getElementById('boatr_contact_number').value = '';
-            document.getElementById('boatr_email').value = '';
-            document.getElementById('boatr_user_id').value = '';
             document.getElementById('boatr_fishr_app_id').value = '';
             // Don't clear barangay as it might be manually set
         }
@@ -5259,9 +6636,7 @@
                     'boatr_last_name': 'last_name',
                     'boatr_name_extension': 'name_extension',
                     'boatr_contact_number': 'contact_number',
-                    'boatr_email': 'email',
                     'boatr_barangay': 'barangay',
-                    'boatr_user_id': 'user_id',
                     'boatr_fishr_app_id': 'fishr_app_id'
                 };
 
@@ -5293,7 +6668,6 @@
                 padding: 8px 12px;
                 border-radius: 4px;
                 font-size: 13px;
-                border-left: 3px solid;
             `;
 
             // Set colors
@@ -5358,8 +6732,6 @@
                 'boatr_last_name',
                 'boatr_name_extension',
                 'boatr_contact_number',
-                'boatr_email',
-                'boatr_user_id',
                 'boatr_fishr_app_id'
             ];
 
@@ -5377,6 +6749,7 @@
 
             // Reset form
             document.getElementById('addBoatrForm').reset();
+            document.getElementById('boatr_fishr_app_id').value = ''; // IMPORTANT
 
             // Remove validation errors
             document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
@@ -5412,197 +6785,719 @@
          */
         async function validateBoatrForm() {
             let isValid = true;
+            const errors = [];
 
-            const requiredFields = [{
-                    id: 'boatr_first_name',
-                    label: 'First Name'
-                },
-                {
-                    id: 'boatr_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    id: 'boatr_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    id: 'boatr_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    id: 'boatr_fishr_number',
-                    label: 'FishR Number'
-                },
-                {
-                    id: 'boatr_vessel_name',
-                    label: 'Vessel Name'
-                },
-                {
-                    id: 'boatr_boat_type',
-                    label: 'Boat Type'
-                },
-                {
-                    id: 'boatr_boat_length',
-                    label: 'Boat Length'
-                },
-                {
-                    id: 'boatr_boat_width',
-                    label: 'Boat Width'
-                },
-                {
-                    id: 'boatr_boat_depth',
-                    label: 'Boat Depth'
-                },
-                {
-                    id: 'boatr_engine_type',
-                    label: 'Engine Type'
-                },
-                {
-                    id: 'boatr_engine_horsepower',
-                    label: 'Engine Horsepower'
-                },
-                {
-                    id: 'boatr_primary_fishing_gear',
-                    label: 'Primary Fishing Gear'
-                },
-                {
-                    id: 'boatr_status',
-                    label: 'Status'
-                }
+            // Check all required fields
+            const requiredFields = [
+                { id: 'boatr_first_name', label: 'First Name' },
+                { id: 'boatr_last_name', label: 'Last Name' },
+                { id: 'boatr_contact_number', label: 'Contact Number' },
+                { id: 'boatr_barangay', label: 'Barangay' },
+                { id: 'boatr_fishr_number', label: 'FishR Number' },
+                { id: 'boatr_vessel_name', label: 'Vessel Name' },
+                { id: 'boatr_boat_type', label: 'Boat Type' },
+                { id: 'boatr_boat_length', label: 'Boat Length' },
+                { id: 'boatr_boat_width', label: 'Boat Width' },
+                { id: 'boatr_boat_depth', label: 'Boat Depth' },
+                { id: 'boatr_engine_type', label: 'Engine Type' },
+                { id: 'boatr_engine_horsepower', label: 'Engine Horsepower' },
+                { id: 'boatr_primary_fishing_gear', label: 'Primary Fishing Gear' }
             ];
 
             requiredFields.forEach(field => {
                 const input = document.getElementById(field.id);
-                if (input && (!input.value || input.value.trim() === '')) {
-                    input.classList.add('is-invalid');
+                if (!input || !input.value || input.value.trim() === '') {
+                    input?.classList.add('is-invalid');
+                    errors.push(`${field.label} is required`);
                     isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
                 }
             });
 
             // Validate contact number format
-            const contactNumber = document.getElementById('boatr_contact_number').value.trim();
-            if (contactNumber) {
+            const contactInput = document.getElementById('boatr_contact_number');
+            if (contactInput && contactInput.value) {
                 const phoneRegex = /^(\+639|09)\d{9}$/;
-                if (!phoneRegex.test(contactNumber)) {
-                    document.getElementById('boatr_contact_number').classList.add('is-invalid');
+                if (!phoneRegex.test(contactInput.value.trim())) {
+                    contactInput.classList.add('is-invalid');
+                    errors.push('Contact number must be in format 09XXXXXXXXX or +639XXXXXXXXX');
                     isValid = false;
                 }
             }
 
-            // Validate email format if provided
-            const email = document.getElementById('boatr_email').value.trim();
-            if (email) {
-                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailPattern.test(email)) {
-                    document.getElementById('boatr_email').classList.add('is-invalid');
-                    isValid = false;
-                }
-            }
-
-            // Check if FishR was validated
+            // Validate FishR number was validated
             const fishrInput = document.getElementById('boatr_fishr_number');
             if (!fishrInput.classList.contains('is-valid')) {
                 fishrInput.classList.add('is-invalid');
-                showToast('warning', 'Please validate FishR number first by clicking away from the field');
+                errors.push('Please validate FishR number by tabbing out of the field');
                 isValid = false;
+            }
+
+            if (!isValid && errors.length > 0) {
+                console.log('Validation errors:', errors);
             }
 
             return isValid;
         }
 
-        // Show edit modal - Load data dynamically
-        function showEditBoatrModal(registrationId) {
-            console.log('Opening edit modal for registration:', registrationId);
+  /**
+ * FIXED: Show Edit BoatR Modal - Works with correct form ID
+ */
+function showEditBoatrModal(registrationId) {
+    console.log('=== Opening Edit BoatR Modal ===', { registrationId });
+    
+    const modal = new bootstrap.Modal(document.getElementById('editBoatrModal'));
+    
+    // Show loading state
+    document.getElementById('editBoatrNumber').textContent = 'Loading...';
+    
+    // Show modal
+    modal.show();
+    
+    // Fetch registration details
+    fetch(`/admin/boatr/requests/${registrationId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) throw new Error(response.message || 'Failed to load registration');
+            
+            const data = response;
+            
+            // Update modal title
+            document.getElementById('editBoatrNumber').textContent = data.application_number;
+            
+            // Initialize form with data
+            initializeEditBoatrFormFixed(registrationId, data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Error loading registration: ' + error.message);
+            modal.hide();
+        });
+}
 
-            const modal = new bootstrap.Modal(document.getElementById('editBoatrModal'));
-            modal.show();
+/**
+ * FIXED: Initialize Edit Form with registration data
+ */
+function initializeEditBoatrFormFixed(registrationId, data) {
+    console.log('=== Initializing Edit Form ===', { registrationId, data });
+    
+    const form = document.getElementById('editBoatrForm');
+    
+    if (!form) {
+        showToast('error', 'Form element not found in DOM');
+        console.error('editBoatrForm not found');
+        return;
+    }
 
-            // Show loading
-            document.getElementById('editBoatrLoading').style.display = 'block';
-            document.getElementById('editBoatrForm').style.display = 'none';
-            document.getElementById('editBoatrSubmitBtn').style.display = 'none';
-
-            // Load registration data
-            fetch(`/admin/boatr/requests/${registrationId}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error('Failed to load data');
-
-                    // Hide loading, show form
-                    document.getElementById('editBoatrLoading').style.display = 'none';
-                    document.getElementById('editBoatrForm').style.display = 'block';
-                    document.getElementById('editBoatrSubmitBtn').style.display = 'inline-block';
-
-                    // Populate form
-                    document.getElementById('edit_boatr_id').value = registrationId;
-                    document.getElementById('edit_boatr_first_name').value = data.first_name || '';
-                    document.getElementById('edit_boatr_middle_name').value = data.middle_name || '';
-                    document.getElementById('edit_boatr_last_name').value = data.last_name || '';
-                    document.getElementById('edit_boatr_extension').value = data.name_extension || '';
-                    document.getElementById('edit_boatr_contact').value = data.contact_number || '';
-                    document.getElementById('edit_boatr_email').value = data.email || '';
-                    document.getElementById('edit_boatr_barangay').value = data.barangay || '';
-                    document.getElementById('edit_boatr_vessel').value = data.vessel_name || '';
-                    document.getElementById('edit_boatr_boat_type').value = data.boat_type || '';
-                    document.getElementById('edit_boatr_length').value = data.boat_length || '';
-                    document.getElementById('edit_boatr_width').value = data.boat_width || '';
-                    document.getElementById('edit_boatr_depth').value = data.boat_depth || '';
-                    document.getElementById('edit_boatr_engine_type').value = data.engine_type || '';
-                    document.getElementById('edit_boatr_engine_hp').value = data.engine_horsepower || '';
-                    document.getElementById('edit_boatr_gear').value = data.primary_fishing_gear || '';
-
-                    console.log('Form populated with data:', {
-                        first_name: data.first_name,
-                        last_name: data.last_name,
-                        contact_number: data.contact_number,
-                        barangay: data.barangay,
-                        vessel_name: data.vessel_name,
-                        boat_type: data.boat_type,
-                        boat_length: data.boat_length,
-                        boat_width: data.boat_width,
-                        boat_depth: data.boat_depth,
-                        engine_type: data.engine_type,
-                        engine_horsepower: data.engine_horsepower,
-                        primary_fishing_gear: data.primary_fishing_gear
-                    });
-
-                    // Display read-only info
-                    document.getElementById('edit_boatr_app_number').textContent = data.application_number;
-                    document.getElementById('edit_boatr_status_display').innerHTML =
-                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
-                    document.getElementById('edit_boatr_date_applied').textContent = data.created_at;
-
-                    // Store original data for change detection
-                    storeOriginalEditBoatrData(data);
-
-                    // Clear validation
-                    document.querySelectorAll('#editBoatrForm .is-invalid').forEach(el => el.classList.remove(
-                        'is-invalid'));
-                    document.querySelectorAll('#editBoatrForm .form-changed').forEach(el => el.classList.remove(
-                        'form-changed'));
-
-                    // Add change listeners
-                    addEditBoatrChangeListeners();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('editBoatrLoading').innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Failed to load application data: ${error.message}
+    // === Personal Information ===
+    document.getElementById('edit_boatr_first_name').value = data.first_name || '';
+    document.getElementById('edit_boatr_middle_name').value = data.middle_name || '';
+    document.getElementById('edit_boatr_last_name').value = data.last_name || '';
+    document.getElementById('edit_boatr_extension').value = data.name_extension || '';
+    document.getElementById('edit_boatr_contact_number').value = data.contact_number || '';
+    document.getElementById('edit_boatr_barangay').value = data.barangay || '';
+    
+    // === Vessel Information ===
+    document.getElementById('edit_boatr_vessel_name').value = data.vessel_name || '';
+    document.getElementById('edit_boatr_boat_type').value = data.boat_type || '';
+    document.getElementById('edit_boatr_fishr_number').value = data.fishr_number || '';
+    
+    // === Boat Dimensions ===
+    document.getElementById('edit_boatr_boat_length').value = data.boat_length || '';
+    document.getElementById('edit_boatr_boat_width').value = data.boat_width || '';
+    document.getElementById('edit_boatr_boat_depth').value = data.boat_depth || '';
+    
+    // === Engine Information ===
+    document.getElementById('edit_boatr_engine_type').value = data.engine_type || '';
+    document.getElementById('edit_boatr_engine_horsepower').value = data.engine_horsepower || '';
+    
+    // === Fishing Information ===
+    document.getElementById('edit_boatr_primary_fishing_gear').value = data.primary_fishing_gear || '';
+    
+    // === Store Original Data for Change Detection ===
+    //  IMPORTANT: Store AFTER populating fields
+    const originalData = {
+        first_name: data.first_name || '',
+        middle_name: data.middle_name || '',
+        last_name: data.last_name || '',
+        name_extension: data.name_extension || '',
+        contact_number: data.contact_number || '',
+        barangay: data.barangay || '',
+        vessel_name: data.vessel_name || '',
+        boat_type: data.boat_type || '',
+        boat_length: data.boat_length || '',
+        boat_width: data.boat_width || '',
+        boat_depth: data.boat_depth || '',
+        engine_type: data.engine_type || '',
+        engine_horsepower: data.engine_horsepower || '',
+        primary_fishing_gear: data.primary_fishing_gear || '',
+        inspection_notes: data.inspection_notes || ''
+    };
+    
+    form.dataset.originalData = JSON.stringify(originalData);
+    form.dataset.registrationId = registrationId;
+    form.dataset.hasChanges = 'false';  // Set to false initially
+    
+    // === Handle Supporting Document Preview ===
+    const previewContainer = document.getElementById('edit_boatr_supporting_document_preview');
+    const currentDocContainer = document.getElementById('edit_boatr_current_document');
+    
+    if (data.user_documents && data.user_documents.length > 0 && data.user_documents[0].path) {
+        currentDocContainer.style.display = 'block';
+        displayEditBoatrExistingDocument(data.user_documents[0].path, 'edit_boatr_supporting_document_preview');
+    } else {
+        currentDocContainer.style.display = 'none';
+        previewContainer.innerHTML = '<small class="text-muted d-block">No document currently uploaded</small>';
+    }
+    
+    // === Inspection Information ===
+    const inspectionStatusBadge = document.getElementById('edit_boatr_inspection_status_badge');
+    if (data.inspection_completed) {
+        inspectionStatusBadge.className = 'badge bg-success fs-6';
+        inspectionStatusBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Completed';
+    } else {
+        inspectionStatusBadge.className = 'badge bg-warning fs-6';
+        inspectionStatusBadge.innerHTML = '<i class="fas fa-clock me-1"></i>Pending';
+    }
+    
+    document.getElementById('edit_boatr_inspection_date').textContent = data.inspection_date || '-';
+    document.getElementById('edit_boatr_inspection_notes').value = data.inspection_notes || '';
+    
+    // === Handle Inspection Document Upload ===
+    const inspectionDocContainer = document.getElementById('edit_boatr_inspection_doc_container');
+    const inspectionDocPreview = document.getElementById('edit_boatr_inspection_doc_preview');
+    
+    if (data.inspection_completed && data.inspection_documents && data.inspection_documents.length > 0) {
+        inspectionDocContainer.style.display = 'block';
+        const inspectionDoc = data.inspection_documents[0];
+        
+        const inspectionDocInfo = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <small class="d-block text-success fw-semibold mb-2">
+                        <i class="fas fa-check-circle me-1"></i>Inspection Document Uploaded
+                    </small>
+                    <small class="d-block text-muted">${inspectionDoc.original_name || 'Inspection Report'}</small>
+                    <small class="d-block text-muted mt-1">
+                        <i class="fas fa-calendar me-1"></i>${inspectionDoc.uploaded_at || 'N/A'}
+                    </small>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-end gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                        onclick="viewInspectionDocument('${inspectionDoc.path}', '${inspectionDoc.original_name}')"
+                        title="View inspection document">
+                        <i class="fas fa-eye me-1"></i>View
+                    </button>
+                </div>
             </div>
         `;
-                    showToast('error', 'Failed to load application data');
-                });
+        inspectionDocPreview.innerHTML = inspectionDocInfo;
+    } else if (!data.inspection_completed) {
+        inspectionDocContainer.style.display = 'block';
+        inspectionDocPreview.innerHTML = '<small class="text-muted d-block">Inspection not yet completed. You can upload a document below.</small>';
+    } else {
+        inspectionDocContainer.style.display = 'none';
+    }
+    
+    // === Status Information (Read-only) ===
+    const statusBadge = document.getElementById('edit_boatr_status_badge');
+    statusBadge.className = `badge bg-${data.status_color} fs-6`;
+    statusBadge.textContent = data.formatted_status;
+    
+    document.getElementById('edit_boatr_created_at').textContent = data.created_at || '-';
+    
+    // Clear validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+    
+    // Reset file inputs
+    const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
+    if (supportingDocInput) supportingDocInput.value = '';
+    
+    const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
+    if (inspectionDocInput) inspectionDocInput.value = '';
+    
+    // Reset button state
+    const submitBtn = document.getElementById('editBoatrSubmitBtn');
+    submitBtn.disabled = false;
+    submitBtn.classList.add('no-changes');  // Add no-changes class
+    submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+    
+    //  CRITICAL: Add listeners AFTER storing original data
+    addEditBoatrFormChangeListeners(registrationId);
+    
+    // Reset counter
+    updateEditBoatrInspectionCounter();
+    
+    console.log('Edit form initialized successfully');
+}
+
+/**
+ * Display existing document in edit form
+ */
+function displayEditBoatrExistingDocument(documentPath, previewElementId) {
+    const preview = document.getElementById(previewElementId);
+    if (!preview) return;
+    
+    const fileExtension = documentPath.split('.').pop().toLowerCase();
+    const fileName = documentPath.split('/').pop();
+    const fileUrl = `/storage/${documentPath}`;
+    
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
+        preview.innerHTML = `
+            <div class="row g-3">
+                <div class="col-auto">
+                    <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                        <img src="${fileUrl}" alt="Current document" 
+                            style="max-width: 100%; max-height: 100%; object-fit: cover; cursor: pointer;"
+                            onclick="viewInspectionDocument('${documentPath}', '${fileName}')"
+                            title="Click to view full document">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="d-flex flex-column h-100 justify-content-start">
+                        <div class="mb-2">
+                            <small class="d-block text-success fw-semibold">
+                                <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                            </small>
+                            <small class="d-block text-muted mt-1">${fileName}</small>
+                        </div>
+                        <div class="mt-auto">
+                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                onclick="viewInspectionDocument('${documentPath}', '${fileName}')"
+                                title="View">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (fileExtension === 'pdf') {
+        preview.innerHTML = `
+            <div class="row g-3">
+                <div class="col-auto">
+                    <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #fff3cd; border: 2px solid #ffc107;">
+                        <div class="text-center">
+                            <i class="fas fa-file-pdf fa-3x mb-2" style="color: #dc3545;"></i>
+                            <small style="display: block; color: #666; font-size: 10px;">PDF</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="d-flex flex-column h-100 justify-content-start">
+                        <div class="mb-2">
+                            <small class="d-block text-success fw-semibold">
+                                <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                            </small>
+                            <small class="d-block text-muted mt-1">${fileName}</small>
+                        </div>
+                        <div class="mt-auto">
+                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                onclick="viewInspectionDocument('${documentPath}', '${fileName}')"
+                                title="View">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+/**
+ * FIXED: Add change listeners to edit form
+ */
+function addEditBoatrFormChangeListeners(registrationId) {
+    const form = document.getElementById('editBoatrForm');
+    
+    if (!form) {
+        console.error('Form not found for adding listeners');
+        return;
+    }
+
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    // Remove old listeners to prevent duplicates
+    inputs.forEach(input => {
+        input.removeEventListener('change', handleEditBoatrFormChange);
+        input.removeEventListener('input', handleEditBoatrFormChange);
+    });
+    
+    // Add new listeners
+    inputs.forEach(input => {
+        input.addEventListener('change', () => handleEditBoatrFormChange(registrationId));
+        input.addEventListener('input', () => handleEditBoatrFormChange(registrationId));
+    });
+}
+/**
+ * FIXED: Handle edit form change
+ */
+function handleEditBoatrFormChange(registrationId) {
+    checkEditBoatrFormChanges(registrationId);
+}
+
+/**
+ * FIXED: Check for form changes - Proper comparison
+ */
+function checkEditBoatrFormChanges(registrationId) {
+    const form = document.getElementById('editBoatrForm');
+    
+    if (!form || !form.dataset.originalData) {
+        console.warn('Form or original data not found');
+        return;
+    }
+
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let hasChanges = false;
+
+    const fields = [
+        { id: 'edit_boatr_first_name', key: 'first_name' },
+        { id: 'edit_boatr_middle_name', key: 'middle_name' },
+        { id: 'edit_boatr_last_name', key: 'last_name' },
+        { id: 'edit_boatr_extension', key: 'name_extension' },
+        { id: 'edit_boatr_contact_number', key: 'contact_number' },
+        { id: 'edit_boatr_barangay', key: 'barangay' },
+        { id: 'edit_boatr_vessel_name', key: 'vessel_name' },
+        { id: 'edit_boatr_boat_type', key: 'boat_type' },
+        { id: 'edit_boatr_boat_length', key: 'boat_length' },
+        { id: 'edit_boatr_boat_width', key: 'boat_width' },
+        { id: 'edit_boatr_boat_depth', key: 'boat_depth' },
+        { id: 'edit_boatr_engine_type', key: 'engine_type' },
+        { id: 'edit_boatr_engine_horsepower', key: 'engine_horsepower' },
+        { id: 'edit_boatr_primary_fishing_gear', key: 'primary_fishing_gear' },
+        { id: 'edit_boatr_inspection_notes', key: 'inspection_notes' }
+    ];
+
+    fields.forEach(field => {
+        const fieldElement = document.getElementById(field.id);
+        if (fieldElement) {
+            //  Important: Convert to string and trim for proper comparison
+            const currentValue = String(fieldElement.value || '').trim();
+            const originalValue = String(originalData[field.key] || '').trim();
+
+            console.log(`${field.id}: "${currentValue}" vs "${originalValue}" = ${currentValue === originalValue ? 'SAME' : 'CHANGED'}`);
+
+            if (currentValue !== originalValue) {
+                hasChanges = true;
+                fieldElement.classList.add('form-changed');
+            } else {
+                fieldElement.classList.remove('form-changed');
+            }
         }
+    });
+
+    // Check file inputs
+    const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
+    if (supportingDocInput && supportingDocInput.files && supportingDocInput.files.length > 0) {
+        hasChanges = true;
+        console.log('Supporting document file detected');
+    }
+
+    const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
+    if (inspectionDocInput && inspectionDocInput.files && inspectionDocInput.files.length > 0) {
+        hasChanges = true;
+        console.log('Inspection document file detected');
+    }
+
+    // Update button state
+    const submitBtn = document.getElementById('editBoatrSubmitBtn');
+    if (submitBtn) {
+        if (hasChanges) {
+            submitBtn.classList.remove('no-changes');
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.classList.add('no-changes');
+            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+            submitBtn.disabled = false;
+        }
+    }
+
+    form.dataset.hasChanges = hasChanges ? 'true' : 'false';
+    console.log('Form has changes:', hasChanges);
+}
+
+
+/**
+ * FIXED: Proceed with Edit BoatR Submission
+ */
+function proceedWithEditBoatrSubmit(form, registrationId) {
+    console.log('=== proceedWithEditBoatrSubmit ===', { registrationId });
+    
+    const submitBtn = document.getElementById('editBoatrSubmitBtn');
+    
+    if (!submitBtn) {
+        console.error('Submit button not found');
+        showToast('error', 'Submit button not found');
+        return;
+    }
+
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    submitBtn.disabled = true;
+
+    // Build FormData with proper field mapping
+    const formData = new FormData();
+    
+    const fieldMap = {
+        'edit_boatr_first_name': 'first_name',
+        'edit_boatr_middle_name': 'middle_name',
+        'edit_boatr_last_name': 'last_name',
+        'edit_boatr_extension': 'name_extension',
+        'edit_boatr_contact_number': 'contact_number',
+        'edit_boatr_barangay': 'barangay',
+        'edit_boatr_vessel_name': 'vessel_name',
+        'edit_boatr_boat_type': 'boat_type',
+        'edit_boatr_boat_length': 'boat_length',
+        'edit_boatr_boat_width': 'boat_width',
+        'edit_boatr_boat_depth': 'boat_depth',
+        'edit_boatr_engine_type': 'engine_type',
+        'edit_boatr_engine_horsepower': 'engine_horsepower',
+        'edit_boatr_primary_fishing_gear': 'primary_fishing_gear',
+        'edit_boatr_inspection_notes': 'inspection_notes'
+    };
+
+    // Add form fields
+    Object.keys(fieldMap).forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            formData.append(fieldMap[fieldId], input.value.trim());
+        }
+    });
+
+    // Add file uploads if present
+    const supportingDoc = document.getElementById('edit_boatr_supporting_document');
+    if (supportingDoc && supportingDoc.files[0]) {
+        formData.append('supporting_document', supportingDoc.files[0]);
+        console.log('Added supporting document:', supportingDoc.files[0].name);
+    }
+
+    const inspectionDoc = document.getElementById('edit_boatr_inspection_document');
+    if (inspectionDoc && inspectionDoc.files[0]) {
+        formData.append('inspection_document', inspectionDoc.files[0]);
+        // Signal backend to REPLACE the inspection document, not add
+        formData.append('replace_inspection_document', '1');
+        console.log('Added inspection document (REPLACE mode):', inspectionDoc.files[0].name);
+    }
+
+    // CRITICAL: Add _method = PUT for Laravel method spoofing
+    // This tells Laravel to treat the POST request as a PUT request
+    formData.append('_method', 'PUT');
+
+    console.log('Sending request with:');
+    console.log('- Method: POST (with _method=PUT in FormData)');
+    console.log('- URL: /admin/boatr/requests/' + registrationId);
+    console.log('- Content-Type: multipart/form-data (auto-set by browser)');
+
+    // Send request
+    // NOTE: Use POST method with _method=PUT in FormData
+    // Laravel will intercept the _method parameter and treat this as a PUT request
+    fetch(`/admin/boatr/requests/${registrationId}`, {
+        method: 'POST',  // Use POST with _method=PUT (required for multipart with Laravel)
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+            // IMPORTANT: Do NOT set Content-Type header
+            // Let the browser automatically set it to multipart/form-data
+        },
+        body: formData  // FormData handles the multipart encoding
+    })
+    .then(response => {
+        console.log('Response received');
+        console.log('Status:', response.status);
+        console.log('Status Text:', response.statusText);
+        
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                };
+            }).catch(parseError => {
+                // If response is not JSON, throw a generic error
+                throw {
+                    status: response.status,
+                    statusText: response.statusText,
+                    message: `HTTP ${response.status}: ${response.statusText}`
+                };
+            });
+        }
+        
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success response:', data);
+        
+        if (data.success) {
+            showToast('success', data.message || 'Changes saved successfully');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal'));
+            if (modal) {
+                modal.hide();
+            }
+
+            // Reload page after 1.5 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(data.message || 'Update failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error during update:', error);
+        
+        let errorMsg = 'Error saving changes';
+        
+        if (error.data && error.data.errors && typeof error.data.errors === 'object') {
+            // Handle validation errors
+            const firstError = Object.values(error.data.errors)[0];
+            errorMsg = Array.isArray(firstError) ? firstError[0] : firstError;
+        } else if (error.data && error.data.message) {
+            errorMsg = error.data.message;
+        } else if (error.message) {
+            errorMsg = error.message;
+        } else if (error.statusText) {
+            errorMsg = `${error.status} ${error.statusText}`;
+        }
+        
+        console.error('Final error message:', errorMsg);
+        showToast('error', errorMsg);
+        
+        // Reset button on error
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+
+
+/**
+ * Preview edit BoatR supporting document
+ */
+function previewEditBoatrDocument(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+
+    if (!input.files || !input.files[0]) {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+
+    const file = input.files[0];
+
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('error', 'File size must not exceed 10MB');
+        input.value = '';
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        if (preview) {
+            if (file.type.startsWith('image/')) {
+                preview.innerHTML = `
+                    <div class="document-preview-item">
+                        <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                            <i class="fas fa-file-image me-1"></i>${file.name}
+                        </p>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = `
+                    <div class="document-preview-item">
+                        <div class="text-center p-3 border rounded">
+                            <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                            <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            preview.style.display = 'block';
+        }
+    };
+
+    reader.readAsDataURL(file);
+}
+/**
+ * Preview inspection document file
+ */
+function previewEditBoatrInspectionDocument(inputId, previewId) {
+    previewEditBoatrDocument(inputId, previewId);
+}
+
+/**
+ * View existing inspection document
+ */
+function viewInspectionDocument(filePath, fileName) {
+    const fileUrl = `/storage/${filePath}`;
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+    
+    const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+    modal.show();
+    
+    const previewContainer = document.getElementById('documentPreview');
+    previewContainer.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted">Loading document...</p>
+        </div>
+    `;
+    
+    // Use existing preview function
+    previewFileContent(fileUrl, fileName, fileExtension);
+    
+    document.getElementById('documentPreviewTitle').innerHTML = `<i class="fas fa-eye me-2"></i>${escapeHtml(fileName)}`;
+}
+/**
+ * Update inspection notes counter
+ */
+function updateEditBoatrInspectionCounter() {
+    const textarea = document.getElementById('edit_boatr_inspection_notes');
+    const charCount = document.getElementById('edit_boatr_inspection_char_count');
+    
+    if (textarea && charCount) {
+        charCount.textContent = textarea.value.length;
+        
+        // Change color based on length
+        if (textarea.value.length > 1800) {
+            document.getElementById('edit_boatr_inspection_counter').classList.add('text-danger');
+            document.getElementById('edit_boatr_inspection_counter').classList.remove('text-warning', 'text-muted');
+        } else if (textarea.value.length > 1500) {
+            document.getElementById('edit_boatr_inspection_counter').classList.add('text-warning');
+            document.getElementById('edit_boatr_inspection_counter').classList.remove('text-danger', 'text-muted');
+        } else {
+            document.getElementById('edit_boatr_inspection_counter').classList.remove('text-warning', 'text-danger');
+            document.getElementById('edit_boatr_inspection_counter').classList.add('text-muted');
+        }
+    }
+}
+
+
 
         // Store original data for change detection
         function storeOriginalEditBoatrData(data) {
@@ -5613,7 +7508,6 @@
                 last_name: data.last_name || '',
                 name_extension: data.name_extension || '',
                 contact_number: data.contact_number || '',
-                email: data.email || '',
                 barangay: data.barangay || '',
                 vessel_name: data.vessel_name || '',
                 boat_type: data.boat_type || '',
@@ -5651,7 +7545,6 @@
                 'edit_boatr_last_name': 'last_name',
                 'edit_boatr_extension': 'name_extension',
                 'edit_boatr_contact': 'contact_number',
-                'edit_boatr_email': 'email',
                 'edit_boatr_barangay': 'barangay',
                 'edit_boatr_vessel': 'vessel_name',
                 'edit_boatr_boat_type': 'boat_type',
@@ -5815,7 +7708,6 @@
             formData.append('last_name', lastName);
             formData.append('name_extension', document.getElementById('edit_boatr_extension').value || '');
             formData.append('contact_number', contact);
-            formData.append('email', document.getElementById('edit_boatr_email').value.trim() || '');
             formData.append('barangay', barangay);
             formData.append('vessel_name', vessel);
             formData.append('boat_type', boatType);
@@ -5839,7 +7731,6 @@
                 last_name: lastName,
                 name_extension: document.getElementById('edit_boatr_extension').value || '',
                 contact_number: contact,
-                email: document.getElementById('edit_boatr_email').value.trim() || '',
                 barangay: barangay,
                 vessel_name: vessel,
                 boat_type: boatType,
@@ -5943,7 +7834,6 @@
                     form.querySelector('.edit_boatr_last_name').value = data.last_name || '';
                     form.querySelector('.edit_boatr_extension').value = data.name_extension || '';
                     form.querySelector('.edit_boatr_contact').value = data.contact_number || '';
-                    form.querySelector('.edit_boatr_email').value = data.email || '';
                     form.querySelector('.edit_boatr_barangay').value = data.barangay || '';
                     form.querySelector('.edit_boatr_vessel').value = data.vessel_name || '';
                     form.querySelector('.edit_boatr_boat_type').value = data.boat_type || '';
@@ -5972,7 +7862,6 @@
                 last_name: form.querySelector('.edit_boatr_last_name').value,
                 name_extension: form.querySelector('.edit_boatr_extension').value,
                 contact_number: form.querySelector('.edit_boatr_contact').value,
-                email: form.querySelector('.edit_boatr_email').value,
                 barangay: form.querySelector('.edit_boatr_barangay').value,
                 vessel_name: form.querySelector('.edit_boatr_vessel').value,
                 boat_type: form.querySelector('.edit_boatr_boat_type').value,
@@ -6008,7 +7897,6 @@
                 'edit_boatr_last_name': 'last_name',
                 'edit_boatr_extension': 'name_extension',
                 'edit_boatr_contact': 'contact_number',
-                'edit_boatr_email': 'email',
                 'edit_boatr_barangay': 'barangay',
                 'edit_boatr_vessel': 'vessel_name',
                 'edit_boatr_boat_type': 'boat_type',
@@ -6035,27 +7923,91 @@
             }
         }
 
-        // Handle submit
-        function handleEditBoatrSubmit(registrationId) {
-            const form = document.getElementById('editBoatrForm_' + registrationId);
+    /**
+ * Handle Edit BoatR Form Submission
+ * Called when Save Changes button is clicked
+ */
+function handleEditBoatrSubmit() {
+    console.log('=== handleEditBoatrSubmit called ===');
+    
+    // Get the form with the CORRECT ID
+    const form = document.getElementById('editBoatrForm');
+    
+    if (!form) {
+        console.error('Form not found: editBoatrForm');
+        showToast('error', 'Form not found in the page. Please close and reopen the modal.');
+        return;
+    }
 
-            if (!form) {
-                showToast('error', 'Form not found');
-                return;
-            }
+    // Get registration ID from form dataset
+    const registrationId = form.dataset.registrationId;
+    
+    if (!registrationId) {
+        console.error('Registration ID not found in form dataset');
+        showToast('error', 'Registration ID not found. Please close and reopen the modal.');
+        return;
+    }
 
-            if (!form.checkValidity()) {
-                showToast('error', 'Please fix all validation errors');
-                form.classList.add('was-validated');
-                return;
-            }
+    console.log('Form found and registration ID:', registrationId);
+    
+    // Check if form has changes
+    const hasChanges = form.dataset.hasChanges === 'true';
+    
+    if (!hasChanges) {
+        showToast('info', 'No changes to save');
+        return;
+    }
 
-            showConfirmationToast(
-                'Confirm Update',
-                'Are you sure you want to save the changes to this BoatR application?',
-                () => proceedWithEditBoatr(form, registrationId)
-            );
+    // Validate required fields
+    const requiredFields = [
+        { id: 'edit_boatr_first_name', label: 'First Name' },
+        { id: 'edit_boatr_last_name', label: 'Last Name' },
+        { id: 'edit_boatr_contact_number', label: 'Contact Number' },
+        { id: 'edit_boatr_barangay', label: 'Barangay' },
+        { id: 'edit_boatr_vessel_name', label: 'Vessel Name' },
+        { id: 'edit_boatr_boat_type', label: 'Boat Type' },
+        { id: 'edit_boatr_boat_length', label: 'Length' },
+        { id: 'edit_boatr_boat_width', label: 'Width' },
+        { id: 'edit_boatr_boat_depth', label: 'Depth' },
+        { id: 'edit_boatr_engine_type', label: 'Engine Type' },
+        { id: 'edit_boatr_engine_horsepower', label: 'Horsepower' },
+        { id: 'edit_boatr_primary_fishing_gear', label: 'Fishing Gear' }
+    ];
+
+    let isValid = true;
+    const errors = [];
+
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input) {
+            console.warn(`Field not found: ${field.id}`);
+            return;
         }
+
+        const value = input.value.trim();
+        
+        if (!value) {
+            input.classList.add('is-invalid');
+            errors.push(`${field.label} is required`);
+            isValid = false;
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+
+    if (!isValid) {
+        showToast('error', errors[0] || 'Please fill all required fields');
+        return;
+    }
+
+    // Show confirmation
+    showConfirmationToast(
+        'Confirm Changes',
+        'Are you sure you want to save the changes?',
+        () => proceedWithEditBoatrSubmit(form, registrationId)
+    );
+}
+
 
         // Proceed with update
         function proceedWithEditBoatr(form, registrationId) {
@@ -6072,7 +8024,6 @@
                 'edit_boatr_last_name': 'last_name',
                 'edit_boatr_extension': 'name_extension',
                 'edit_boatr_contact': 'contact_number',
-                'edit_boatr_email': 'email',
                 'edit_boatr_barangay': 'barangay',
                 'edit_boatr_vessel': 'vessel_name',
                 'edit_boatr_boat_type': 'boat_type',
@@ -6121,6 +8072,332 @@
                 });
         }
 
-        console.log('✅ Admin FishR validation initialized');
+        /**
+         * Update BoatR remarks character counter
+         */
+        function updateBoatrRemarksCounter() {
+            const textarea = document.getElementById('boatr_remarks');
+            const charCount = document.getElementById('boatrCharCount');
+            const counter = document.getElementById('boatrRemarksCounter');
+            
+            if (textarea && charCount) {
+                const currentLength = textarea.value.length;
+                charCount.textContent = currentLength;
+                
+                // Change color when approaching limit
+                if (currentLength > 1800) {
+                    counter.classList.add('text-danger');
+                    counter.classList.remove('text-warning', 'text-muted');
+                } else if (currentLength > 1500) {
+                    counter.classList.add('text-warning');
+                    counter.classList.remove('text-danger', 'text-muted');
+                } else {
+                    counter.classList.remove('text-warning', 'text-danger');
+                    counter.classList.add('text-muted');
+                }
+            }
+        }
+
+        /**
+         * Initialize remarks counter when add modal is shown
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const addBoatrModal = document.getElementById('addBoatrModal');
+            
+            if (addBoatrModal) {
+                addBoatrModal.addEventListener('shown.bs.modal', function() {
+                    const textarea = document.getElementById('boatr_remarks');
+                    
+                    if (textarea) {
+                        // Reset counter when modal opens
+                        updateBoatrRemarksCounter();
+                        
+                        // Add input listener for real-time counter
+                        textarea.removeEventListener('input', updateBoatrRemarksCounter);
+                        textarea.addEventListener('input', updateBoatrRemarksCounter);
+                    }
+                });
+                
+                // Clean up when modal closes
+                addBoatrModal.addEventListener('hidden.bs.modal', function() {
+                    const textarea = document.getElementById('boatr_remarks');
+                    if (textarea) {
+                        textarea.removeEventListener('input', updateBoatrRemarksCounter);
+                    }
+                });
+            }
+        });
+        /**
+         * FIXED: Preview Annex from Registration Details Modal
+         * Gets annex data from the registration object instead of separate endpoint
+         */
+        function previewAnnex(registrationId, annexId) {
+            try {
+                console.log('=== Preview Annex ===');
+                console.log('Registration ID:', registrationId);
+                console.log('Annex ID:', annexId);
+
+                // First, fetch the full registration to get annex details
+                fetch(`/admin/boatr/requests/${registrationId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Registration fetch status:', response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Registration data received, success:', data.success);
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Failed to load registration');
+                    }
+
+                    // Find the annex in the registration data
+                    const annexes = data.annexes || [];
+                    console.log('Total annexes found:', annexes.length);
+                    
+                    const annex = annexes.find(a => a.id == annexId);
+                    
+                    if (!annex) {
+                        throw new Error(`Annex with ID ${annexId} not found in registration`);
+                    }
+
+                    console.log('Annex found:', annex);
+
+                    // Get file details
+                    const filePath = annex.file_path;
+                    const fileName = annex.file_name || annex.title || 'Document';
+
+                    if (!filePath || filePath === 'undefined' || filePath.trim() === '') {
+                        throw new Error('File path is empty or invalid');
+                    }
+
+                    const fileUrl = `/storage/${filePath}`;
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
+
+                    console.log('Preview details:', {
+                        filePath: filePath,
+                        fileName: fileName,
+                        fileUrl: fileUrl,
+                        extension: fileExtension
+                    });
+
+                    // Open preview modal
+                    const previewModalEl = document.getElementById('documentPreviewModal');
+                    if (!previewModalEl) {
+                        throw new Error('Preview modal not found in DOM');
+                    }
+
+                    previewModalEl.classList.add('modal-preview-from-documents');
+                    
+                    // Reset and show modal
+                    const previewContainer = document.getElementById('documentPreview');
+                    if (previewContainer) {
+                        previewContainer.innerHTML = `
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="text-muted">Loading document preview...</p>
+                            </div>
+                        `;
+                    }
+
+                    // Update title
+                    const titleEl = document.getElementById('documentPreviewTitle');
+                    if (titleEl) {
+                        titleEl.innerHTML = `<i class="fas fa-eye me-2"></i>${escapeHtml(fileName)}`;
+                    }
+
+                    const modal = new bootstrap.Modal(previewModalEl);
+                    modal.show();
+
+                    // Load preview content
+                    previewFileContent(fileUrl, fileName, fileExtension);
+                })
+                .catch(error => {
+                    console.error('Error in previewAnnex:', error);
+                    showToast('error', 'Error loading annex: ' + error.message);
+
+                    // Try to show error in preview if modal exists
+                    const previewContainer = document.getElementById('documentPreview');
+                    if (previewContainer) {
+                        previewContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <h5>Error Loading Annex</h5>
+                                <p>${escapeHtml(error.message)}</p>
+                                <small class="text-muted">Please try viewing it later or contact administrator</small>
+                            </div>
+                        `;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Fatal error in previewAnnex:', error);
+                showToast('error', 'Fatal error: ' + error.message);
+            }
+        }
+
+        /**
+         * Helper function to preview file content (already exists in your code)
+         * Make sure this function is defined in your existing JavaScript
+         */
+        function previewFileContent(fileUrl, fileName, fileExtension) {
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const pdfTypes = ['pdf'];
+            const documentTypes = ['doc', 'docx', 'txt', 'rtf'];
+            
+            const previewContainer = document.getElementById('documentPreview');
+            
+            if (imageTypes.includes(fileExtension)) {
+                const img = new Image();
+                img.onload = function() {
+                    previewContainer.innerHTML = `
+                        <div class="text-center">
+                            <img src="${fileUrl}" 
+                                alt="Preview" 
+                                class="document-image"
+                                style="max-width: 100%; max-height: 70vh; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: zoom-in;"
+                                onclick="toggleImageZoom(this)">
+                            <div style="margin-top: 20px;">
+                                <button class="btn btn-primary me-2" onclick="downloadFileAnnex('${fileUrl}', '${fileName}')">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </button>
+                                <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                };
+                img.onerror = function() {
+                    previewContainer.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+                            <h6>Unable to load image</h6>
+                            <p class="mb-3">The image could not be displayed.</p>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download Image
+                            </a>
+                        </div>
+                    `;
+                };
+                img.src = fileUrl;
+
+            } else if (pdfTypes.includes(fileExtension)) {
+                previewContainer.innerHTML = `
+                    <div class="text-center">
+                        <embed src="${fileUrl}"
+                            type="application/pdf"
+                            width="100%"
+                            height="600px"
+                            style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary me-2" onclick="downloadFileAnnex('${fileUrl}', '${fileName}')">
+                                <i class="fas fa-download me-2"></i>Download PDF
+                            </button>
+                            <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Fallback if PDF embed doesn't work
+                setTimeout(() => {
+                    const embed = previewContainer.querySelector('embed');
+                    if (!embed || embed.offsetHeight === 0) {
+                        previewContainer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
+                                <h5>PDF Preview Unavailable</h5>
+                                <p class="mb-3">Your browser doesn't support PDF preview.</p>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-primary me-2">
+                                    <i class="fas fa-download me-2"></i>Download PDF
+                                </a>
+                                <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                </button>
+                            </div>
+                        `;
+                    }
+                }, 2000);
+
+            } else if (documentTypes.includes(fileExtension)) {
+                previewContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-${fileExtension === 'doc' || fileExtension === 'docx' ? 'word' : 'alt'} fa-4x text-primary mb-3"></i>
+                        <h5>${fileExtension.toUpperCase()} Document</h5>
+                        <p class="mb-3">This document type cannot be previewed in the browser.</p>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-primary me-2">
+                            <i class="fas fa-download me-2"></i>Download
+                        </a>
+                        <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                            <i class="fas fa-external-link-alt me-2"></i>Open Document
+                        </button>
+                    </div>
+                `;
+            } else {
+                previewContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-file fa-4x text-muted mb-3"></i>
+                        <h5>File Preview Unavailable</h5>
+                        <p class="mb-3">File type ".${fileExtension}" cannot be previewed.</p>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-primary me-2">
+                            <i class="fas fa-download me-2"></i>Download
+                        </a>
+                        <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                            <i class="fas fa-external-link-alt me-2"></i>Open File
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+        * Toggle image zoom helper
+        */
+        function toggleImageZoom(img) {
+            if (img.style.maxWidth === '100%') {
+                img.style.maxWidth = '200%';
+                img.style.cursor = 'zoom-out';
+            } else {
+                img.style.maxWidth = '100%';
+                img.style.cursor = 'zoom-in';
+            }
+        }
+
+        /**
+        * Download file helper
+        */
+        function downloadFileAnnex(fileUrl, fileName) {
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            
+            try {
+                link.click();
+                showToast('success', 'Download started');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('error', 'Failed to download file');
+                window.open(fileUrl, '_blank');
+            } finally {
+                document.body.removeChild(link);
+            }
+        }
+
     </script>
 @endsection

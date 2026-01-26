@@ -515,7 +515,8 @@ class UserRegistrationController extends Controller
                 'barangay' => $registration->barangay,
                 'user_type' => $registration->user_type,
                 'status' => $registration->status,
-                'date_of_birth' => $registration->date_of_birth ? $registration->date_of_birth->format('M d, Y') : null,
+                // FIXED: Return date in YYYY-MM-DD format
+                'date_of_birth' => $registration->date_of_birth ? $registration->date_of_birth->format('Y-m-d') : null,
                 'age' => $registration->age,
                 'sex' => $registration->sex,
                 'emergency_contact_name' => $registration->emergency_contact_name,
@@ -911,170 +912,236 @@ class UserRegistrationController extends Controller
             ], 500);
         }
     }
-
-/**
- * FIXED: Admin update registration (with session sync for logged-in users)
- */
-public function update(Request $request, $id)
-{
-    // Check admin authentication
-    if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Access denied. Admin privileges required.'
-        ], 403);
-    }
-
-    // Find registration
-    $registration = UserRegistration::find($id);
-
-    if (!$registration) {
-        return response()->json([
-            'success' => false,
-            'message' => 'This account could not be found'
-        ], 404);
-    }
-
-    // Validation rules
-    $validator = Validator::make($request->all(), [
-        'first_name' => 'sometimes|required|string|max:100',
-        'middle_name' => 'nullable|string|max:100',
-        'last_name' => 'sometimes|required|string|max:100',
-        'name_extension' => 'nullable|string|max:20',
-        'sex' => 'sometimes|nullable|in:Male,Female,Preferred not to say',
-        'contact_number' => [
-            'sometimes',
-            'required',
-            'string',
-            'max:11',
-            'regex:/^09\d{9}$/',
-            Rule::unique('user_registration', 'contact_number')->ignore($id)
-        ],
-        'barangay' => 'sometimes|required|string|max:100',
-        'complete_address' => 'sometimes|string|max:500',
-        'user_type' => 'sometimes|required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
-        'emergency_contact_name' => 'nullable|string|max:100',
-        'emergency_contact_phone' => [
-            'nullable',
-            'string',
-            'max:11',
-            'regex:/^09\d{9}$/'
-        ],
-    ]);
-
-    if ($validator->fails()) {
-        \Log::warning('Admin edit validation failed for registration ' . $id, [
-            'errors' => $validator->errors()->toArray(),
-        ]);
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    try {
-        // Prepare update data
-        $updateData = [];
-
-        if ($request->has('first_name')) {
-            $updateData['first_name'] = trim($request->first_name);
-        }
-        if ($request->has('middle_name')) {
-            $updateData['middle_name'] = trim($request->middle_name) ?: null;
-        }
-        if ($request->has('last_name')) {
-            $updateData['last_name'] = trim($request->last_name);
-        }
-        if ($request->has('name_extension')) {
-            $updateData['name_extension'] = $request->name_extension ?: null;
-        }
-        if ($request->has('sex')) {
-            $updateData['sex'] = $request->sex ?: null;
-        }
-        if ($request->has('contact_number')) {
-            $updateData['contact_number'] = trim($request->contact_number);
-        }
-        if ($request->has('barangay')) {
-            $updateData['barangay'] = $request->barangay;
-        }
-        if ($request->has('complete_address')) {
-            $updateData['complete_address'] = trim($request->complete_address);
-        }
-        if ($request->has('user_type')) {
-            $updateData['user_type'] = $request->user_type;
-        }
-        if ($request->has('emergency_contact_name')) {
-            $updateData['emergency_contact_name'] = $request->emergency_contact_name ?
-                trim($request->emergency_contact_name) : null;
-        }
-        if ($request->has('emergency_contact_phone')) {
-            $updateData['emergency_contact_phone'] = $request->emergency_contact_phone ?
-                trim($request->emergency_contact_phone) : null;
-        }
-
-        if (empty($updateData)) {
+    /**
+     * FIXED: Admin update registration (with all fields and file uploads)
+     */
+    public function update(Request $request, $id)
+    {
+        // Check admin authentication
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
-                'message' => 'No changes provided. Please modify at least one field.'
+                'message' => 'Access denied. Admin privileges required.'
+            ], 403);
+        }
+
+        // Find registration
+        $registration = UserRegistration::find($id);
+
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This account could not be found'
+            ], 404);
+        }
+
+        // Validation rules - COMPLETE with all fields
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'sometimes|required|string|max:100',
+            'middle_name' => 'nullable|string|max:100',
+            'last_name' => 'sometimes|required|string|max:100',
+            'name_extension' => 'nullable|string|max:20',
+            'sex' => 'sometimes|nullable|in:Male,Female,Preferred not to say',
+            'date_of_birth' => 'sometimes|nullable|date|before:today|after:' . now()->subYears(100)->toDateString(),
+            'age' => 'sometimes|nullable|integer|min:18|max:150',
+            'contact_number' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:11',
+                'regex:/^09\d{9}$/',
+                Rule::unique('user_registration', 'contact_number')->ignore($id)
+            ],
+            'barangay' => 'sometimes|required|string|max:100',
+            'complete_address' => 'sometimes|string|max:500',
+            'user_type' => 'sometimes|required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
+            'emergency_contact_name' => 'nullable|string|max:100',
+            'emergency_contact_phone' => [
+                'nullable',
+                'string',
+                'max:11',
+                'regex:/^09\d{9}$/'
+            ],
+            // FILE UPLOADS - NOW PROPERLY HANDLED
+            'id_front' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+            'id_back' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+            'location_proof' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            \Log::warning('Admin edit validation failed for registration ' . $id, [
+                'errors' => $validator->errors()->toArray(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], 422);
         }
 
-        // Update the registration
-        $registration->update($updateData);
+        try {
+            // Prepare update data
+            $updateData = [];
 
-        // FIXED: Refresh registration data from database
-        $registration = UserRegistration::find($id);
+            // Handle all text fields
+            if ($request->has('first_name')) {
+                $updateData['first_name'] = trim($request->first_name);
+            }
+            if ($request->has('middle_name')) {
+                $updateData['middle_name'] = trim($request->middle_name) ?: null;
+            }
+            if ($request->has('last_name')) {
+                $updateData['last_name'] = trim($request->last_name);
+            }
+            if ($request->has('name_extension')) {
+                $updateData['name_extension'] = $request->name_extension ?: null;
+            }
+            if ($request->has('sex')) {
+                $updateData['sex'] = $request->sex ?: null;
+            }
+            if ($request->has('date_of_birth')) {
+                $updateData['date_of_birth'] = $request->date_of_birth;
+                
+                // Auto-calculate age if date_of_birth is provided
+                if ($request->date_of_birth) {
+                    $dateOfBirth = new \DateTime($request->date_of_birth);
+                    $age = $dateOfBirth->diff(new \DateTime())->y;
+                    
+                    if ($age < 18) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'User must be at least 18 years old',
+                            'errors' => [
+                                'date_of_birth' => ['User must be at least 18 years old']
+                            ]
+                        ], 422);
+                    }
+                    
+                    $updateData['age'] = $age;
+                }
+            }
+            if ($request->has('contact_number')) {
+                $updateData['contact_number'] = trim($request->contact_number);
+            }
+            if ($request->has('barangay')) {
+                $updateData['barangay'] = $request->barangay;
+            }
+            if ($request->has('complete_address')) {
+                $updateData['complete_address'] = trim($request->complete_address);
+            }
+            if ($request->has('user_type')) {
+                $updateData['user_type'] = $request->user_type;
+            }
+            if ($request->has('emergency_contact_name')) {
+                $updateData['emergency_contact_name'] = $request->emergency_contact_name ?
+                    trim($request->emergency_contact_name) : null;
+            }
+            if ($request->has('emergency_contact_phone')) {
+                $updateData['emergency_contact_phone'] = $request->emergency_contact_phone ?
+                    trim($request->emergency_contact_phone) : null;
+            }
 
-        // FIXED: If this user is currently logged in, update their session
-        if (session('user.id') == $id) {
-            session()->put('user', [
-                'id' => $registration->id,
+            // Handle document uploads - THIS WAS MISSING!
+            try {
+                if ($request->hasFile('id_front') && $request->file('id_front')->isValid()) {
+                    $idFrontPath = $request->file('id_front')->store('verification/id_front', 'public');
+                    $updateData['id_front_path'] = $idFrontPath;
+                    \Log::info('ID Front uploaded:', ['path' => $idFrontPath]);
+                }
+
+                if ($request->hasFile('id_back') && $request->file('id_back')->isValid()) {
+                    $idBackPath = $request->file('id_back')->store('verification/id_back', 'public');
+                    $updateData['id_back_path'] = $idBackPath;
+                    \Log::info('ID Back uploaded:', ['path' => $idBackPath]);
+                }
+
+                if ($request->hasFile('location_proof') && $request->file('location_proof')->isValid()) {
+                    $locationProofPath = $request->file('location_proof')->store('verification/location_proof', 'public');
+                    $updateData['location_document_path'] = $locationProofPath;
+                    \Log::info('Location proof uploaded:', ['path' => $locationProofPath]);
+                }
+            } catch (\Exception $fileException) {
+                \Log::error('File upload failed during admin edit', [
+                    'registration_id' => $id,
+                    'error' => $fileException->getMessage(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File upload failed. Please try again with smaller images.'
+                ], 500);
+            }
+
+            if (empty($updateData)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No changes provided. Please modify at least one field.'
+                ], 422);
+            }
+
+            // Update the registration
+            $registration->update($updateData);
+
+            // Refresh registration data from database
+            $registration = UserRegistration::find($id);
+
+            // If this user is currently logged in, update their session
+            if (session('user.id') == $id) {
+                session()->put('user', [
+                    'id' => $registration->id,
+                    'username' => $registration->username,
+                    'name' => $registration->full_name ?? $registration->username,
+                    'user_type' => $registration->user_type,
+                    'status' => $registration->status
+                ]);
+                session()->put('user_status', $registration->status);
+            }
+
+            \Log::info('Admin updated user registration', [
+                'registration_id' => $id,
                 'username' => $registration->username,
-                'name' => $registration->full_name ?? $registration->username,
-                'user_type' => $registration->user_type,
-                'status' => $registration->status
+                'updated_fields' => array_keys($updateData),
+                'admin_id' => auth()->id(),
+                'files_uploaded' => [
+                    'id_front' => isset($updateData['id_front_path']),
+                    'id_back' => isset($updateData['id_back_path']),
+                    'location_proof' => isset($updateData['location_document_path'])
+                ]
             ]);
-            session()->put('user_status', $registration->status);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registration updated successfully',
+                'data' => [
+                    'id' => $registration->id,
+                    'username' => $registration->username,
+                    'first_name' => $registration->first_name,
+                    'last_name' => $registration->last_name,
+                    'contact_number' => $registration->contact_number,
+                    'user_type' => $registration->user_type,
+                    'barangay' => $registration->barangay,
+                    'complete_address' => $registration->complete_address,
+                    'date_of_birth' => $registration->date_of_birth,
+                    'age' => $registration->age,
+                    'sex' => $registration->sex,
+                    'status' => $registration->status
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Admin edit registration failed: ' . $e->getMessage(), [
+                'registration_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update registration. Please try again.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        \Log::info('Admin updated user registration', [
-            'registration_id' => $id,
-            'username' => $registration->username,
-            'updated_fields' => array_keys($updateData),
-            'admin_id' => auth()->id()
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration updated successfully',
-            'data' => [
-                'id' => $registration->id,
-                'username' => $registration->username,
-                'first_name' => $registration->first_name,
-                'last_name' => $registration->last_name,
-                'contact_number' => $registration->contact_number,
-                'user_type' => $registration->user_type,
-                'barangay' => $registration->barangay,
-                'complete_address' => $registration->complete_address,
-                'status' => $registration->status
-            ]
-        ], 200);
-
-    } catch (\Exception $e) {
-        \Log::error('Admin edit registration failed: ' . $e->getMessage(), [
-            'registration_id' => $id,
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to update registration. Please try again.',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
     /**
      * FIXED: Update registration status with session sync
      */

@@ -154,6 +154,7 @@ class RsbsaController extends Controller
                     'number_assigned_at' => $application->number_assigned_at ?
                         $application->number_assigned_at->format('M d, Y h:i A') : null,
                     'supporting_document_path' => $application->supporting_document_path,
+                    'supporting_document_url' => $application->document_url,
                     'assigned_by_name' => optional($application->assignedBy)->name
                 ]
             ]);
@@ -177,20 +178,33 @@ class RsbsaController extends Controller
    public function update(Request $request, $id)
 {
     try {
-        // Validate incoming data - NOW INCLUDING LIVELIHOOD FIELDS
+        // DEBUG: Log incoming request data
+        Log::info('RSBSA Update Request Received', [
+            'application_id' => $id,
+            'request_data' => $request->except(['supporting_document']),
+            'has_file' => $request->hasFile('supporting_document'),
+            'file_size' => $request->hasFile('supporting_document') ? $request->file('supporting_document')->getSize() : null,
+        ]);
+
+        // Validate incoming data - NOW INCLUDING LIVELIHOOD FIELDS AND FILE UPLOAD
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
             'last_name' => 'required|string|max:100',
             'name_extension' => 'nullable|string|max:10',
             'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-            'email' => 'nullable|email|max:254',
             'barangay' => 'required|string|max:100',
             'farm_location' => 'nullable|string|max:500',
             // NOW EDITABLE: Livelihood information
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
             'land_area' => 'nullable|numeric|min:0|max:99999.99',
             'commodity' => 'nullable|string|max:1000',
+            'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        Log::info('RSBSA Validation Passed', [
+            'application_id' => $id,
+            'validated_data' => array_diff_key($validated, ['supporting_document' => '']),
         ]);
 
         // Find the application
@@ -199,9 +213,23 @@ class RsbsaController extends Controller
         // Store original values for audit
         $originalData = $application->only([
             'first_name', 'middle_name', 'last_name', 'name_extension',
-            'contact_number', 'email', 'barangay', 'farm_location',
-            'main_livelihood', 'land_area', 'commodity'
+            'contact_number', 'barangay', 'farm_location',
+            'main_livelihood', 'land_area', 'commodity', 'supporting_document_path'
         ]);
+
+        // Handle file upload if provided
+        if ($request->hasFile('supporting_document')) {
+            $file = $request->file('supporting_document');
+            
+            // Delete old document if exists
+            if ($application->supporting_document_path && Storage::disk('public')->exists($application->supporting_document_path)) {
+                Storage::disk('public')->delete($application->supporting_document_path);
+            }
+            
+            // Store new document
+            $path = $file->store('rsbsa-applications', 'public');
+            $validated['supporting_document_path'] = $path;
+        }
 
         // Update the application
         $application->update($validated);
@@ -244,6 +272,12 @@ class RsbsaController extends Controller
         return redirect()->back()->with('success', 'Application updated successfully');
 
     } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('RSBSA Validation Failed', [
+            'application_id' => $id,
+            'validation_errors' => $e->errors(),
+            'request_data' => $request->except(['supporting_document']),
+        ]);
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
@@ -422,8 +456,7 @@ public function updateStatus(Request $request, $id)
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
-                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'email' => 'nullable|email|max:254',
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'barangay' => 'required|string|max:100',
 
                 // Livelihood info
@@ -434,20 +467,12 @@ public function updateStatus(Request $request, $id)
 
                 // Status
                 'status' => 'nullable|in:pending,under_review,approved,rejected',
-                'remarks' => 'nullable|string|max:1000',
 
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
 
-                // User ID (optional - if creating for existing user)
-                'user_id' => 'nullable|exists:user_registration,id'
             ]);
 
-            // FIXED: Ensure user_id is explicitly set to null if not provided
-            // This is necessary because the key might not exist in the validated array
-            if (!isset($validated['user_id'])) {
-                $validated['user_id'] = null;
-            }
 
             // Generate unique application number
             $validated['application_number'] = $this->generateApplicationNumber();
@@ -490,7 +515,7 @@ public function updateStatus(Request $request, $id)
                 'application_id' => $application->id,
                 'application_number' => $application->application_number,
                 'created_by' => auth()->user()->name,
-                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
+                'linked_to_user' => isset($validated['user_id']) && $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
 
             return response()->json([
@@ -500,7 +525,6 @@ public function updateStatus(Request $request, $id)
                     'id' => $application->id,
                     'application_number' => $application->application_number,
                     'status' => $application->status,
-                    'linked_to_user' => $validated['user_id'] ? true : false
                 ]
             ], 201);
 
@@ -676,7 +700,7 @@ public function updateStatus(Request $request, $id)
                         $application->application_number,
                         $application->full_name,
                         $application->sex,
-                        $application->mobile_number,
+                        $application->contact_number,
                         $application->barangay,
                         $application->main_livelihood,
                         $application->land_area,

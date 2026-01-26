@@ -30,17 +30,6 @@
                 </div>
             </div>
 
-            <!-- Low Supply -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2.5rem;"></i>
-                        <h2 class="metric-value mb-2">{{ number_format($lowSupplyItems) }}</h2>
-                        <p class="metric-label text-warning mb-0">LOW SUPPLY</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Total Supply -->
             <div class="col-lg-3 col-md-6">
                 <div class="card metric-card border-0 shadow-sm h-100">
@@ -48,6 +37,17 @@
                         <i class="fas fa-warehouse text-success mb-3" style="font-size: 2.5rem;"></i>
                         <h2 class="metric-value mb-2">{{ number_format($totalSupply) }}</h2>
                         <p class="metric-label text-success mb-0">TOTAL SUPPLY</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Supply -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card metric-card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2.5rem;"></i>
+                        <h2 class="metric-value mb-2">{{ number_format($lowSupplyItems) }}</h2>
+                        <p class="metric-label text-warning mb-0">LOW SUPPLY</p>
                     </div>
                 </div>
             </div>
@@ -64,10 +64,11 @@
             </div>
         </div>
 
-        <!-- Category Navigation Tabs -->
+        <!-- Category Navigation Tabs - SEPARATED -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- First row: Category tabs -->
                     <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center" id="categoryTabsNav">
                         <button class="category-tab-btn active" data-category="all" onclick="switchCategory('all', event)">
                             <i class="fas fa-th-large"></i> All Categories
@@ -88,19 +89,60 @@
                             </button>
                         @endif
                     </div>
-                    <div class="d-flex gap-2 align-items-center flex-wrap"  style="margin-left: auto;">
-                        <div class="search-box">
-                            <div class="input-group">
-                                <span class="input-group-text bg-white">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control" id="itemSearch" placeholder="Search items..."
-                                    onkeyup="searchItems()">
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
-                            style="white-space: nowrap;">
+
+                    <!-- Second row: Add Category button (right aligned) -->
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal" style="white-space: nowrap;">
                             <i class="fas fa-plus me-2"></i>Add Category
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Search Card - UPDATED -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-filter me-2"></i>Filters & Search
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <!-- Status Filter -->
+                    <div class="col-md-2">
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Stock Status Filter -->
+                    <div class="col-md-2">
+                        <select name="stock_status" class="form-select form-select-sm">
+                            <option value="">All Stock Status</option>
+                            <option value="in_stock">In Stock</option>
+                            <option value="low_supply">Low Supply</option>
+                            <option value="out_of_stock">Out of Stock</option>
+                        </select>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="col-md-5">
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="searchInput" class="form-control"
+                                placeholder="Search item name, description..." value="">
+                            <button class="btn btn-outline-secondary" type="button" title="Search">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Clear Button -->
+                    <div class="col-md-3">
+                        <button onclick="clearFilters()" class="btn btn-secondary btn-sm w-100">
+                            <i></i>Clear
                         </button>
                     </div>
                 </div>
@@ -118,7 +160,9 @@
                                 <div>
                                     <h5 class="mb-0">
                                         <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                        {{ $category->display_name }}
+                                        <span class="category-name" title="{{ $category->display_name }}">
+                                            {{ $category->display_name }}
+                                        </span>
                                         @if (!$category->is_active)
                                             <span class="badge bg-warning">Inactive</span>
                                         @endif
@@ -206,13 +250,14 @@
                                                                 </div>
                                                             @endif
                                                         </td>
-                                                        <td>
-                                                            <strong>{{ $item->name }}</strong>
+                                                        <td style="max-width: 200px; width: 200px;">
+                                                            <strong class="item-name" title="{{ $item->name }}">{{ $item->name }}</strong>
                                                             @if ($item->needsReorder())
-                                                                <br><small class="text-warning"><i
-                                                                        class="fas fa-exclamation-triangle"></i> Needs
-                                                                    Reorder</small>
+                                                                <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Needs Reorder</small>
                                                             @endif
+                                                            <small class="text-muted description-truncate" title="{{ $item->description }}">
+                                                                {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
+                                                            </small>
                                                         </td>
                                                         <td><span class="badge bg-secondary">{{ $item->unit }}</span>
                                                         </td>
@@ -307,7 +352,9 @@
                         <div>
                             <h4 class="mb-1">
                                 <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                {{ $category->display_name }}
+                                <span class="category-name" title="{{ $category->display_name }}">
+                                    {{ $category->display_name }}
+                                </span>
                                 @if (!$category->is_active)
                                     <span class="badge bg-warning">Inactive</span>
                                 @endif
@@ -397,16 +444,17 @@
                                                         </div>
                                                     @endif
                                                 </td>
-                                                <td>
-                                                    <strong class="d-block">{{ $item->name }}</strong>
-                                                    @if ($item->needsReorder())
-                                                        <small class="text-warning">
-                                                            <i class="fas fa-exclamation-triangle"></i> Needs Reorder
-                                                        </small>
+                                                <td style="max-width: 200px; width: 200px;">
+                                                    <strong class="item-name" title="{{ $item->name }}">{{ $item->name }}</strong>
+                                                   @if ($item->needsReorder())
+                                                        <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Needs Reorder</small>
                                                     @endif
+                                                    <small class="text-muted description-truncate" title="{{ $item->description }}">
+                                                        {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
+                                                    </small>
                                                 </td>
-                                                <td>
-                                                    <small class="text-muted">
+                                                <td style="max-width: 150px; width: 150px;">
+                                                    <small class="text-muted description-truncate" title="{{ $item->description }}">
                                                         {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
                                                     </small>
                                                 </td>
@@ -518,7 +566,7 @@
         <div id="toastContainer" class="toast-container"></div>
     </div>
 
-    <!-- Create Category Modal -->
+     <!-- Create Category Modal - IMPROVED with Word Count -->
     <div class="modal fade" id="createCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -535,7 +583,7 @@
                             <input type="hidden" name="display_name" id="display_name_hidden">
                             <div class="invalid-feedback">Please provide a category name.</div>
                         </div>
-                       <div class="mb-3">
+                        <div class="mb-3">
                             <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
                             <select name="icon" id="create_icon" class="form-select" required
                                 onchange="updateIconPreview('create')">
@@ -571,8 +619,18 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
-                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <textarea name="description" class="form-control" rows="2" required maxlength="500"
+                                onchange="updateCategoryDescriptionCounter()"
+                                oninput="updateCategoryDescriptionCounter()"></textarea>
                             <div class="invalid-feedback">Please provide a description.</div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>Describe what this category contains
+                                </small>
+                                <small class="text-muted" id="categoryDescriptionCounter">
+                                    <span id="categoryCharCount">0</span>/500
+                                </small>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -583,6 +641,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Edit Category Modal -->
     <div class="modal fade" id="editCategoryModal" tabindex="-1">
@@ -641,6 +700,14 @@
                             <textarea id="edit_category_description" name="description" class="form-control" rows="2" required></textarea>
                             <div class="invalid-feedback">Please provide a description.</div>
                         </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Describe what this category contains
+                            </small>
+                            <small class="text-muted" id="editCategoryDescriptionCounter">
+                                <span id="editCategoryCharCount">0</span>/500
+                            </small>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -651,7 +718,7 @@
         </div>
     </div>
 
-    <!-- Create Item Modal -->
+    <!-- Add Item Modal with Helper Text -->
     <div class="modal fade" id="createItemModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -667,6 +734,9 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                                 <input type="text" name="name" class="form-control" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Enter a clear, descriptive name for the item
+                                </small>
                                 <div class="invalid-feedback">Please provide an item name.</div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -679,59 +749,89 @@
                                     <option value="pack">Pack</option>
                                     <option value="bag">Bag</option>
                                 </select>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Select the measurement unit for this item
+                                </small>
                                 <div class="invalid-feedback">Please select a unit.</div>
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
-                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <textarea name="description" class="form-control" rows="3" required maxlength="500"
+                                onchange="updateItemDescriptionCounter()"
+                                oninput="updateItemDescriptionCounter()"></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or specifications
+                                </small>
+                                <small class="text-muted" id="itemDescriptionCounter">
+                                    <span id="itemCharCount">0</span>/500
+                                </small>
+                            </div>
                             <div class="invalid-feedback">Please provide a description.</div>
                         </div>
 
                         <hr>
-                        <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Management</h6>
+                        <h6 class="text-primary mb-3"><i class="fas fa-warehouse me-2"></i>Supply Management</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Initial Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="current_supply" class="form-control" value="0"
+                                <input type="number" name="current_supply" class="form-control" placeholder="0" value="0"
                                     min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-boxes me-1"></i>Current quantity of this item in stock
+                                </small>
                                 <div class="invalid-feedback">Please provide initial supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="minimum_supply" class="form-control" value="0"
+                                <input type="number" name="minimum_supply" class="form-control" placeholder="0" value="0"
                                     min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-down me-1"></i>Lowest acceptable stock level before restocking
+                                </small>
                                 <div class="invalid-feedback">Please provide minimum supply.</div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="maximum_supply" class="form-control" min="0" required>
+                                <input type="number" name="maximum_supply" class="form-control" placeholder="e.g., 100" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-up me-1"></i>Maximum storage capacity or recommended stock level
+                                </small>
                                 <div class="invalid-feedback">Please provide maximum supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="reorder_point" class="form-control" min="0" required>
-                                <small class="text-muted">Alert when supply reaches this level</small>
+                                <input type="number" name="reorder_point" class="form-control" placeholder="e.g., 20" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-bell me-1"></i>Stock level that triggers a reorder alert/notification
+                                </small>
                                 <div class="invalid-feedback">Please provide reorder point.</div>
                             </div>
                         </div>
 
                         <hr>
-                        <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
+                        <h6 class="text-primary mb-3"><i class="fas fa-image me-2"></i>Item Image</h6>
 
                         <div class="mb-3">
                             <label class="form-label">Image <span style="color: #dc3545;">*</span></label>
                             <input type="file" name="image" class="form-control" accept="image/*" required>
-                            <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Recommended size: 300x300px | Max file size: 10MB
+                            </small>
                             <div class="invalid-feedback">Please select an image file.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Item</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add Item
+                        </button>
                     </div>
                 </form>
             </div>
@@ -739,92 +839,128 @@
     </div>
 
 
-        <!-- Edit Item Modal -->
-        <div class="modal fade" id="editItemModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
-                        <h5 class="modal-title">Edit Item</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
-                    </div>
-                    <form id="editItemForm" enctype="multipart/form-data" novalidate>
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" id="edit_item_id" name="item_id">
-                        <input type="hidden" id="edit_item_category_id" name="category_id" required>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
-                                    <input type="text" id="edit_item_name" name="name" class="form-control" required>
-                                    <div class="invalid-feedback">Please provide an item name.</div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
-                                    <select id="edit_item_unit" name="unit" class="form-select" required>
-                                        <option value="">Select unit...</option>
-                                        <option value="pcs">Pieces (pcs)</option>
-                                        <option value="kg">Kilogram (kg)</option>
-                                        <option value="L">Liter (L)</option>
-                                        <option value="pack">Pack</option>
-                                        <option value="bag">Bag</option>
-                                    </select>
-                                    <div class="invalid-feedback">Please select a unit.</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
-                                <textarea id="edit_item_description" name="description" class="form-control" rows="2" required></textarea>
-                                <div class="invalid-feedback">Please provide a description.</div>
-                            </div>
-
-                            <hr>
-                            <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Settings</h6>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
-                                    <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0" required>
-                                    <div class="invalid-feedback">Please provide minimum supply.</div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
-                                    <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0" required>
-                                    <div class="invalid-feedback">Please provide maximum supply.</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
-                                <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0" required>
-                                <small class="text-muted">Alert when supply reaches this level</small>
-                                <div class="invalid-feedback">Please provide reorder point.</div>
-                            </div>
-
-                            <hr>
-                            <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
-
-                            <div class="mb-3">
-                                <div id="current_image_preview" class="mb-2"></div>
-                                <label class="form-label">Change Image (Optional)</label>
-                                <input type="file" name="image" class="form-control" accept="image/*">
-                                <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" id="editItemSubmitBtn">Update Item</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-    <!-- Supply Management Modal -->
-    <div class="modal fade" id="supplyModal" tabindex="-1">
+    <!-- Edit Item Modal -->
+    <div class="modal fade" id="editItemModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="fas fa-warehouse me-2"></i>Supply Management</h5>
+                <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
+                    <h5 class="modal-title">Edit Item</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                </div>
+                <form id="editItemForm" enctype="multipart/form-data" novalidate>
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" id="edit_item_id" name="item_id">
+                    <input type="hidden" id="edit_item_category_id" name="category_id" required>
+                    <div class="modal-body">
+                        <!-- Basic Information Section -->
+                        <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Basic Information</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
+                                <input type="text" id="edit_item_name" name="name" class="form-control" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Enter a clear, descriptive name for the item
+                                </small>
+                                <div class="invalid-feedback">Please provide an item name.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
+                                <select id="edit_item_unit" name="unit" class="form-select" required>
+                                    <option value="">Select unit...</option>
+                                    <option value="pcs">Pieces (pcs)</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="L">Liter (L)</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="bag">Bag</option>
+                                </select>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>Select the measurement unit for this item
+                                </small>
+                                <div class="invalid-feedback">Please select a unit.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea id="edit_item_description" name="description" class="form-control" rows="3" required maxlength="500"
+                                onchange="updateEditItemDescriptionCounter()"
+                                oninput="updateEditItemDescriptionCounter()"></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or specifications
+                                </small>
+                                <small class="text-muted" id="editItemDescriptionCounter">
+                                    <span id="editItemCharCount">0</span>/500
+                                </small>
+                            </div>
+                            <div class="invalid-feedback">Please provide a description.</div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Supply Management Section -->
+                        <h6 class="text-primary mb-3"><i class="fas fa-warehouse me-2"></i>Supply Management</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
+                                <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-down me-1"></i>Lowest acceptable stock level before restocking
+                                </small>
+                                <div class="invalid-feedback">Please provide minimum supply.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
+                                <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-arrow-up me-1"></i>Maximum storage capacity or recommended stock level
+                                </small>
+                                <div class="invalid-feedback">Please provide maximum supply.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
+                            <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0" required>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-bell me-1"></i>Stock level that triggers a reorder alert/notification
+                            </small>
+                            <div class="invalid-feedback">Please provide reorder point.</div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Item Image Section -->
+                        <h6 class="text-primary mb-3"><i class="fas fa-image me-2"></i>Item Image</h6>
+
+                        <div class="mb-3">
+                            <div id="current_image_preview" class="mb-3"></div>
+                            <label class="form-label">Change Image (Optional)</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Recommended size: 300x300px | Max file size: 10MB
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="editItemSubmitBtn">
+                            <i class="fas fa-save me-2"></i>Update Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Supply Management Modal - ENLARGED -->
+    <div class="modal fade" id="supplyModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white w-100 text-center">
+                    <h5 class="modal-title"><i></i>Supply Management</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -855,7 +991,7 @@
 
                     <!-- Supply Actions -->
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-lg-4 mb-3">
                             <div class="card h-100">
                                 <div class="card-header bg-success text-white">
                                     <i class="fas fa-arrow-up me-2"></i>Add Supply
@@ -863,22 +999,26 @@
                                 <div class="card-body">
                                     <form id="addSupplyForm" novalidate>
                                         <input type="hidden" id="add_supply_item_id" name="item_id">
-                                        <div class="mb-2">
-                                            <label class="form-label small">Quantity *</label>
-                                            <input type="number" name="quantity" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">Quantity <span style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="quantity" class="form-control"
                                                 required min="1">
                                             <div class="invalid-feedback">Please enter a quantity.</div>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Source</label>
-                                            <input type="text" name="source" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">Source</label>
+                                            <input type="text" name="source" class="form-control"
                                                 placeholder="e.g., Supplier name">
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Notes</label>
-                                            <textarea name="notes" class="form-control form-control-sm" rows="2"></textarea>
+                                        <div class="mb-3">
+                                            <label class="form-label">Notes</label>
+                                            <textarea name="notes" class="form-control" rows="5"
+                                                placeholder="Add detailed notes about this supply addition..."></textarea>
+                                            <small class="text-muted d-block mt-2">
+                                                <span id="addSupplyNoteCount">0</span>/500 characters
+                                            </small>
                                         </div>
-                                        <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <button type="submit" class="btn btn-success w-100">
                                             <i class="fas fa-plus-circle me-1"></i>Add Supply
                                         </button>
                                     </form>
@@ -886,7 +1026,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-lg-4 mb-3">
                             <div class="card h-100">
                                 <div class="card-header bg-warning text-dark">
                                     <i class="fas fa-edit me-2"></i>Adjust Supply
@@ -894,19 +1034,22 @@
                                 <div class="card-body">
                                     <form id="adjustSupplyForm" novalidate>
                                         <input type="hidden" id="adjust_supply_item_id" name="item_id">
-                                        <div class="mb-2">
-                                            <label class="form-label small">New Supply *</label>
-                                            <input type="number" name="new_supply" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">New Supply <span style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="new_supply" class="form-control"
                                                 required min="0">
                                             <div class="invalid-feedback">Please enter new supply amount.</div>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Reason *</label>
-                                            <textarea name="reason" class="form-control form-control-sm" rows="3" required
-                                                placeholder="Explain the adjustment..."></textarea>
-                                            <div class="invalid-feedback">Please provide a reason for adjustment.</div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Reason <span style="color: #dc3545;">*</span></label>
+                                            <textarea name="reason" class="form-control" rows="5" required
+                                                placeholder="Explain the adjustment in detail..."></textarea>
+                                            <small class="text-muted d-block mt-2">
+                                                <span id="adjustSupplyReasonCount">0</span>/500 characters
+                                            </small>
+                                            <div class="invalid-feedback">Please provide a reason.</div>
                                         </div>
-                                        <button type="submit" class="btn btn-warning btn-sm w-100">
+                                        <button type="submit" class="btn btn-warning w-100">
                                             <i class="fas fa-sync-alt me-1"></i>Adjust Supply
                                         </button>
                                     </form>
@@ -914,7 +1057,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-lg-4 mb-3">
                             <div class="card h-100">
                                 <div class="card-header bg-danger text-white">
                                     <i class="fas fa-exclamation-triangle me-2"></i>Record Loss
@@ -922,26 +1065,32 @@
                                 <div class="card-body">
                                     <form id="recordLossForm" novalidate>
                                         <input type="hidden" id="loss_supply_item_id" name="item_id">
-                                        <div class="mb-2">
-                                            <label class="form-label small">Quantity Lost *</label>
-                                            <input type="number" name="quantity" class="form-control form-control-sm"
+                                        <div class="mb-3">
+                                            <label class="form-label">Quantity Lost <span style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="quantity" class="form-control"
                                                 required min="1">
                                             <div class="invalid-feedback">Please enter quantity lost.</div>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label small">Reason *</label>
-                                            <select name="reason_type" class="form-select form-select-sm mb-2" required>
+                                        <div class="mb-3">
+                                            <label class="form-label">Reason Type <span style="color: #dc3545;">*</span></label>
+                                            <select name="reason_type" class="form-select mb-2" required>
                                                 <option value="">Select reason type...</option>
                                                 <option value="Expired">Expired</option>
                                                 <option value="Damaged">Damaged</option>
                                                 <option value="Lost">Lost</option>
                                                 <option value="Other">Other</option>
                                             </select>
-                                            <textarea name="reason" class="form-control form-control-sm" rows="2" required
-                                                placeholder="Additional details..."></textarea>
-                                            <div class="invalid-feedback">Please provide a reason.</div>
                                         </div>
-                                        <button type="submit" class="btn btn-danger btn-sm w-100">
+                                        <div class="mb-3">
+                                            <label class="form-label">Additional Details <span style="color: #dc3545;">*</span></label>
+                                            <textarea name="reason" class="form-control" rows="5" required
+                                                placeholder="Provide detailed information about the loss..."></textarea>
+                                            <small class="text-muted d-block mt-2">
+                                                <span id="lossReasonCount">0</span>/500 characters
+                                            </small>
+                                            <div class="invalid-feedback">Please provide details.</div>
+                                        </div>
+                                        <button type="submit" class="btn btn-danger w-100">
                                             <i class="fas fa-minus-circle me-1"></i>Record Loss
                                         </button>
                                     </form>
@@ -951,12 +1100,12 @@
                     </div>
 
                     <!-- Supply Logs -->
-                    <div class="card">
+                    <div class="card mt-3">
                         <div class="card-header">
                             <i class="fas fa-history me-2"></i>Recent Supply Movements
                         </div>
                         <div class="card-body p-0">
-                            <div id="supply_logs" style="max-height: 300px; overflow-y: auto;">
+                            <div id="supply_logs" style="max-height: 400px; overflow-y: auto;">
                                 <div class="text-center py-3">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
@@ -969,7 +1118,6 @@
             </div>
         </div>
     </div>
-
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -1035,144 +1183,23 @@
             document.getElementById('showLessBtn').style.display = 'none';
         }
 
-        // Category Tab Switching
-        function switchCategory(categoryId, event) {
-            // Update active tab button
-            document.querySelectorAll('.category-tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.closest('.category-tab-btn').classList.add('active');
-
-            // Hide all category content
-            document.querySelectorAll('.category-content').forEach(content => {
-                content.classList.remove('active');
-            });
-
-            // Show selected category content
-            const targetContent = document.getElementById(`category-${categoryId}`);
-            if (targetContent) {
-                targetContent.classList.add('active');
-            }
-
-            // Clear search
-            document.getElementById('itemSearch').value = '';
-            searchItems();
-        }
-
-        // Search Items
-        function searchItems() {
-            const searchTerm = document.getElementById('itemSearch').value.toLowerCase();
-            const activeContent = document.querySelector('.category-content.active');
-
-            if (!activeContent) return;
-
-            const rows = activeContent.querySelectorAll('.item-row');
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                // Get item name from <strong> tag or direct text
-                const nameElement = row.querySelector('strong') || row.querySelector('td:nth-child(2)');
-                const name = nameElement ? nameElement.textContent.toLowerCase() : '';
-
-                // Get description - may be in small.text-muted (individual view) or not present (all view)
-                const descriptionElements = row.querySelectorAll('small.text-muted');
-                let description = '';
-                descriptionElements.forEach(el => {
-                    // Skip reorder warnings and min/max text
-                    if (!el.textContent.includes('Needs Reorder') &&
-                        !el.textContent.includes('Min:') &&
-                        !el.textContent.includes('Max:') &&
-                        !el.textContent.includes('Reorder:')) {
-                        description += el.textContent.toLowerCase() + ' ';
-                    }
-                });
-
-                // Also check unit and supply values
-                const unit = row.querySelector('.badge.bg-secondary')?.textContent.toLowerCase() || '';
-
-                if (name.includes(searchTerm) || description.includes(searchTerm) || unit.includes(searchTerm)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // If in "All Categories" view, hide category cards with no visible items
-            if (activeContent.id === 'category-all') {
-                const categoryCards = activeContent.querySelectorAll('.col-md-6');
-                categoryCards.forEach(card => {
-                    const visibleRows = card.querySelectorAll(
-                        '.item-row[style=""], .item-row:not([style*="display: none"])');
-                    const actualVisibleRows = Array.from(card.querySelectorAll('.item-row')).filter(row => row.style
-                        .display !== 'none');
-
-                    if (actualVisibleRows.length === 0 && searchTerm) {
-                        card.style.display = 'none';
-                    } else {
-                        card.style.display = '';
-                    }
-                });
-            }
-
-            // Handle empty state for search
-            const tables = activeContent.querySelectorAll('table');
-            const hasVisibleItems = visibleCount > 0;
-
-            if (!hasVisibleItems && searchTerm && tables.length > 0) {
-                // Show no results message
-                if (!activeContent.querySelector('.no-results-message')) {
-                    const noResults = document.createElement('div');
-                    noResults.className = 'no-results-message text-center py-5';
-                    noResults.innerHTML = `
-                <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No items found</h5>
-                <p class="text-muted">Try adjusting your search terms.</p>
-            `;
-
-                    // Add after the row container in All view, or after table in single view
-                    if (activeContent.id === 'category-all') {
-                        const rowContainer = activeContent.querySelector('.row');
-                        if (rowContainer) {
-                            rowContainer.after(noResults);
-                            rowContainer.style.display = 'none';
-                        }
-                    } else {
-                        const table = activeContent.querySelector('table');
-                        if (table) {
-                            table.parentElement.after(noResults);
-                            table.parentElement.style.display = 'none';
-                        }
-                    }
-                }
-            } else {
-                const noResults = activeContent.querySelector('.no-results-message');
-                if (noResults) {
-                    noResults.remove();
-
-                    // Restore visibility
-                    if (activeContent.id === 'category-all') {
-                        const rowContainer = activeContent.querySelector('.row');
-                        if (rowContainer) rowContainer.style.display = '';
-                    } else {
-                        const table = activeContent.querySelector('table');
-                        if (table) table.parentElement.style.display = '';
-                    }
-                }
-            }
-        }
-
         // Show error modal (closes any open modal first)
        function showError(message) {
             showToast('error', message);
         }
 
-        // Show success modal (closes any open modal first)
+        // FIXED Show success modal (closes any open modal first)
         function showSuccess(message, shouldReload = true) {
             showToast('success', message);
             
             if (shouldReload) {
+                // Get the currently active category BEFORE reload
+                const activeCategory = document.querySelector('.category-content.active');
+                const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
+                
                 setTimeout(() => {
+                    // Store the category ID in sessionStorage temporarily
+                    sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
                     location.reload();
                 }, 1500);
             }
@@ -1496,20 +1523,31 @@ async function proceedUpdateCategory() {
             );
         }
 
+        // Handle category deletion after confirmation
         async function proceedDeleteCategory(categoryId) {
-            try {
-                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
+        try {
+            const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // Check if the deleted category is the currently active one
+            const activeCategory = document.querySelector('.category-content.active');
+            const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : null;
+            
+            // If deleted category is active, redirect to "All Categories"
+            if (activeCategoryId === categoryId.toString()) {
+                sessionStorage.setItem('pendingCategorySwitch', 'all');
             }
+            
+            showSuccess(data.message);
+        } catch (error) {
+            showError(error.message);
         }
+    }
 
         // Supply Management Functions
         async function manageSupply(itemId) {
@@ -1639,9 +1677,12 @@ async function proceedUpdateCategory() {
             const formData = new FormData(this);
             const submitBtn = document.querySelector('#createCategoryModal .btn-primary');
             const originalText = submitBtn.innerHTML;
+            const originalBgColor = submitBtn.style.backgroundColor;
 
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Creating...';
+            // Set loading state with visible spinner - WHITE TEXT
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Creating...</span>';
             submitBtn.disabled = true;
+            submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
 
             try {
                 const data = await makeRequest('/admin/seedlings/supply-management', {
@@ -1658,11 +1699,14 @@ async function proceedUpdateCategory() {
             } catch (error) {
                 showError(error.message);
             } finally {
+                // Restore original state
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
+                submitBtn.style.backgroundColor = originalBgColor;
             }
         });
 
+       // UPDATED: Add Item Form Submission - Better Loading State
         document.getElementById('createItemForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1673,9 +1717,12 @@ async function proceedUpdateCategory() {
             const formData = new FormData(this);
             const submitBtn = document.querySelector('#createItemModal .btn-primary');
             const originalText = submitBtn.innerHTML;
+            const originalBgColor = submitBtn.style.backgroundColor;
 
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Adding...';
+            // Set loading state with visible spinner
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Adding...</span>';
             submitBtn.disabled = true;
+            submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
 
             try {
                 const data = await makeRequest('/admin/seedlings/items', {
@@ -1698,12 +1745,15 @@ async function proceedUpdateCategory() {
                     showError(error.message);
                 }
             } finally {
+                // Restore original state
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
+                submitBtn.style.backgroundColor = originalBgColor;
             }
         });
-
         // Supply Management Forms with Validation
+
+        // add supply form submission
         document.getElementById('addSupplyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1713,7 +1763,18 @@ async function proceedUpdateCategory() {
 
             const itemId = document.getElementById('add_supply_item_id').value;
             const formData = new FormData(this);
+            const quantity = formData.get('quantity');
+            const source = formData.get('source');
+            const notes = formData.get('notes');
 
+            showConfirmationToast(
+                'Add Supply',
+                `Confirm adding supply?\n\nQuantity: ${quantity}\nSource: ${source || 'Not specified'}\nNotes: ${notes || 'None'}`,
+                () => proceedAddSupply(itemId, formData)
+            );
+        });
+
+        async function proceedAddSupply(itemId, formData) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/supply/add`, {
                     method: 'POST',
@@ -1725,19 +1786,17 @@ async function proceedUpdateCategory() {
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                // Show success message using toast
                 showToast('success', data.message);
-
-                // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
                 loadSupplyLogs(itemId);
-                this.reset();
-                this.classList.remove('was-validated');
+                document.getElementById('addSupplyForm').reset();
+                document.getElementById('addSupplyForm').classList.remove('was-validated');
             } catch (error) {
                 showError(error.message);
             }
-        });
-
+        }
+        
+        // adjust supply form submission
         document.getElementById('adjustSupplyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1747,9 +1806,17 @@ async function proceedUpdateCategory() {
 
             const itemId = document.getElementById('adjust_supply_item_id').value;
             const formData = new FormData(this);
+            const newSupply = formData.get('new_supply');
+            const reason = formData.get('reason');
 
-            if (!confirm('Are you sure you want to adjust the supply manually?')) return;
-
+            showConfirmationToast(
+                'Adjust Supply',
+                `Confirm manual supply adjustment?\n\nNew Supply: ${newSupply}\nReason: ${reason}`,
+                () => proceedAdjustSupply(itemId, formData)
+            );
+        });
+    
+        async function proceedAdjustSupply(itemId, formData) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/supply/adjust`, {
                     method: 'POST',
@@ -1761,19 +1828,16 @@ async function proceedUpdateCategory() {
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                // Show success message using toast
                 showToast('success', data.message);
-
-                // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
                 loadSupplyLogs(itemId);
-                this.reset();
-                this.classList.remove('was-validated');
+                document.getElementById('adjustSupplyForm').reset();
+                document.getElementById('adjustSupplyForm').classList.remove('was-validated');
             } catch (error) {
                 showError(error.message);
             }
-        });
-
+        }
+        // record loss form submission
         document.getElementById('recordLossForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1785,9 +1849,17 @@ async function proceedUpdateCategory() {
             const formData = new FormData(this);
             const reasonType = formData.get('reason_type');
             const reason = formData.get('reason');
-            const fullReason = `${reasonType}: ${reason}`;
+            const quantity = formData.get('quantity');
 
-            if (!confirm('Are you sure you want to record this supply loss?')) return;
+            showConfirmationToast(
+                'Record Supply Loss',
+                `Confirm recording supply loss?\n\nQuantity Lost: ${quantity}\nReason: ${reasonType}\nDetails: ${reason}`,
+                () => proceedRecordLoss(itemId, formData, reasonType, reason, quantity)
+            );
+        });
+
+        async function proceedRecordLoss(itemId, formData, reasonType, reason, quantity) {
+            const fullReason = `${reasonType}: ${reason}`;
 
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/supply/loss`, {
@@ -1798,25 +1870,31 @@ async function proceedUpdateCategory() {
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        quantity: formData.get('quantity'),
+                        quantity: quantity,
                         reason: fullReason
                     })
                 });
 
-                // Show success message using toast
                 showToast('success', data.message);
-
-                // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
                 loadSupplyLogs(itemId);
-                this.reset();
-                this.classList.remove('was-validated');
+                document.getElementById('recordLossForm').reset();
+                document.getElementById('recordLossForm').classList.remove('was-validated');
             } catch (error) {
                 showError(error.message);
             }
-        });
-        // RELOAD PAGE WHEN SUPPLY MODAL CLOSES - This ensures the main page shows updated supply counts
+        }
+
+      // Supply Management Modal - Store active category before reload
         document.getElementById('supplyModal').addEventListener('hidden.bs.modal', function() {
+            // Get the currently active category BEFORE reload
+            const activeCategory = document.querySelector('.category-content.active');
+            const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
+            
+            // Store the category ID in sessionStorage temporarily
+            sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
+            
+            // Reload the page
             location.reload();
         });
 
@@ -2227,6 +2305,696 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+        // ==========================================
+        // FIXED CATEGORY SWITCHING + FILTERING + PAGINATION
+        // ==========================================
+
+        const ITEMS_PER_PAGE = 10;
+        let currentPage = {};
+        let isFilteringApplied = false;
+
+        // Store filtered results to prevent re-filtering on pagination
+        let filteredRowsCache = {};
+
+        // Switch between categories
+        function switchCategory(categoryId, event) {
+            if (event) {
+                event.preventDefault();
+            }
+            
+            // Update active tab button
+            document.querySelectorAll('.category-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeBtn = event ? event.target.closest('.category-tab-btn') : null;
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+
+            // Hide all category content
+            document.querySelectorAll('.category-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected category content
+            const targetContent = document.getElementById(`category-${categoryId}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // Apply filters and pagination
+            applyFiltersToActiveCategory();
+        }
+
+        // Apply filters to the currently active category
+        function applyFiltersToActiveCategory() {
+            const activeCategory = document.querySelector('.category-content.active');
+            if (!activeCategory) return;
+
+            const categoryId = activeCategory.id.replace('category-', '');
+            const statusFilter = document.querySelector('select[name="status"]').value;
+            const stockStatusFilter = document.querySelector('select[name="stock_status"]').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // FIXED: Handle 'All Categories' view differently
+            if (categoryId === 'all') {
+                handleAllCategoriesFilter(statusFilter, stockStatusFilter, searchTerm);
+                return;
+            }
+
+            // Original logic for individual categories
+            const rows = activeCategory.querySelectorAll('.item-row');
+            const filteredRows = [];
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                let isVisible = true;
+
+                // Get item name
+                const nameElement = row.querySelector('strong');
+                const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+
+                // Get item description
+                const descriptionElements = row.querySelectorAll('small.text-muted');
+                let description = '';
+                descriptionElements.forEach(el => {
+                    if (!el.textContent.includes('Needs Reorder') &&
+                        !el.textContent.includes('Min:') &&
+                        !el.textContent.includes('Max:') &&
+                        !el.textContent.includes('Reorder:')) {
+                        description += el.textContent.toLowerCase() + ' ';
+                    }
+                });
+
+                // Get status
+                const statusBadges = row.querySelectorAll('span.badge');
+                let isActive = false;
+                statusBadges.forEach(badge => {
+                    const text = badge.textContent.trim().toLowerCase();
+                    if (text === 'active') {
+                        isActive = true;
+                    }
+                });
+
+                // Get supply status
+                const supplyBadge = row.querySelector('span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
+                const currentSupply = supplyBadge ? parseInt(supplyBadge.textContent) : 0;
+
+                let stockStatus = 'in_stock';
+                if (currentSupply === 0) {
+                    stockStatus = 'out_of_stock';
+                } else if (row.textContent.includes('Needs Reorder')) {
+                    stockStatus = 'low_supply';
+                }
+
+                // Apply status filter
+                if (statusFilter) {
+                    const filterActive = statusFilter === 'active';
+                    if (isActive !== filterActive) {
+                        isVisible = false;
+                    }
+                }
+
+                // Apply stock status filter
+                if (stockStatusFilter && isVisible) {
+                    if (stockStatusFilter !== stockStatus) {
+                        isVisible = false;
+                    }
+                }
+
+                // Apply search filter
+                if (searchTerm && isVisible) {
+                    if (!name.includes(searchTerm) && !description.includes(searchTerm)) {
+                        isVisible = false;
+                    }
+                }
+
+                if (isVisible) {
+                    filteredRows.push(row);
+                    visibleCount++;
+                }
+            });
+
+            // Cache the filtered rows for this category
+            filteredRowsCache[categoryId] = filteredRows;
+
+            // Show all rows first (for proper display)
+            rows.forEach(row => {
+                row.style.display = 'none';
+            });
+
+            // Show filtered rows
+            filteredRows.forEach(row => {
+                row.style.display = '';
+            });
+
+            // Handle empty state
+            handleEmptyState(activeCategory, visibleCount);
+
+            // Reset pagination and show first page
+            currentPage[categoryId] = 1;
+            displayPageItems(categoryId, 1, filteredRows);
+        }
+
+        // NEW: Handle filtering for "All Categories" view
+        function handleAllCategoriesFilter(statusFilter, stockStatusFilter, searchTerm) {
+            const container = document.getElementById('category-all');
+            if (!container) return;
+
+            const categoryCards = container.querySelectorAll('.col-md-6');
+            let totalVisibleItems = 0;
+
+            categoryCards.forEach(card => {
+                const rows = card.querySelectorAll('.item-row');
+                let categoryVisibleCount = 0;
+
+                rows.forEach(row => {
+                    let isVisible = true;
+
+                    // Get item name
+                    const nameElement = row.querySelector('strong');
+                    const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+
+                    // Get item description
+                    const descriptionElements = row.querySelectorAll('small.text-muted');
+                    let description = '';
+                    descriptionElements.forEach(el => {
+                        if (!el.textContent.includes('Needs Reorder') &&
+                            !el.textContent.includes('Min:') &&
+                            !el.textContent.includes('Max:') &&
+                            !el.textContent.includes('Reorder:')) {
+                            description += el.textContent.toLowerCase() + ' ';
+                        }
+                    });
+
+                    // Get status
+                    const statusBadges = row.querySelectorAll('span.badge');
+                    let isActive = false;
+                    statusBadges.forEach(badge => {
+                        const text = badge.textContent.trim().toLowerCase();
+                        if (text === 'active') {
+                            isActive = true;
+                        }
+                    });
+
+                    // Get supply status
+                    const supplyBadge = row.querySelector('span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
+                    const currentSupply = supplyBadge ? parseInt(supplyBadge.textContent) : 0;
+
+                    let stockStatus = 'in_stock';
+                    if (currentSupply === 0) {
+                        stockStatus = 'out_of_stock';
+                    } else if (row.textContent.includes('Needs Reorder')) {
+                        stockStatus = 'low_supply';
+                    }
+
+                    // Apply status filter
+                    if (statusFilter) {
+                        const filterActive = statusFilter === 'active';
+                        if (isActive !== filterActive) {
+                            isVisible = false;
+                        }
+                    }
+
+                    // Apply stock status filter
+                    if (stockStatusFilter && isVisible) {
+                        if (stockStatusFilter !== stockStatus) {
+                            isVisible = false;
+                        }
+                    }
+
+                    // Apply search filter
+                    if (searchTerm && isVisible) {
+                        if (!name.includes(searchTerm) && !description.includes(searchTerm)) {
+                            isVisible = false;
+                        }
+                    }
+
+                    row.style.display = isVisible ? '' : 'none';
+                    if (isVisible) {
+                        categoryVisibleCount++;
+                    }
+                });
+
+                // Hide empty category cards
+                const table = card.querySelector('table');
+                if (table) {
+                    const emptyMessage = card.querySelector('.no-results-message');
+                    if (categoryVisibleCount === 0) {
+                        table.style.display = 'none';
+                        if (!emptyMessage) {
+                            const noResults = document.createElement('div');
+                            noResults.className = 'no-results-message text-muted text-center py-3';
+                            noResults.innerHTML = '<p>No items match your filters.</p>';
+                            table.parentElement.appendChild(noResults);
+                        }
+                    } else {
+                        table.style.display = '';
+                        if (emptyMessage) emptyMessage.remove();
+                    }
+                }
+
+                totalVisibleItems += categoryVisibleCount;
+            });
+
+            // Show/hide the "No results" message for entire All Categories view
+            let noResultsMessage = container.querySelector('.no-results-message');
+            if (totalVisibleItems === 0) {
+                if (!noResultsMessage) {
+                    noResultsMessage = document.createElement('div');
+                    noResultsMessage.className = 'no-results-message text-center py-5';
+                    noResultsMessage.innerHTML = `
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No items found</h5>
+                        <p class="text-muted">Try adjusting your filters or search terms.</p>
+                    `;
+                    container.appendChild(noResultsMessage);
+                }
+            } else {
+                if (noResultsMessage) noResultsMessage.remove();
+            }
+        }
+
+        // Handle empty state message
+        function handleEmptyState(container, visibleCount) {
+            const existingMessage = container.querySelector('.no-results-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            if (visibleCount === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results-message text-center py-5';
+                noResults.innerHTML = `
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No items found</h5>
+                    <p class="text-muted">Try adjusting your filters or search terms.</p>
+                `;
+
+                if (container.id === 'category-all') {
+                    const rowContainer = container.querySelector('.row');
+                    if (rowContainer) {
+                        rowContainer.parentElement.insertBefore(noResults, rowContainer.nextSibling);
+                    }
+                } else {
+                    const table = container.querySelector('table');
+                    if (table) {
+                        table.parentElement.parentElement.insertBefore(noResults, table.parentElement.nextSibling);
+                    }
+                }
+            }
+        }
+
+        // Display paginated items - FIXED: Uses cached filtered rows
+        function displayPageItems(categoryId, page = 1, filteredRows = null) {
+            // Use cached filtered rows or retrieve them
+            if (!filteredRows) {
+                filteredRows = filteredRowsCache[categoryId] || [];
+            }
+
+            const totalPages = Math.ceil(filteredRows.length / ITEMS_PER_PAGE) || 1;
+
+            // Validate page number
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            currentPage[categoryId] = page;
+
+            const startIndex = (page - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+
+            // Hide all rows in this category
+            const container = document.getElementById(`category-${categoryId}`);
+            if (!container) return;
+
+            const allRows = Array.from(container.querySelectorAll('.item-row'));
+            allRows.forEach(row => {
+                row.style.display = 'none';
+            });
+
+            // Show only current page rows
+            filteredRows.slice(startIndex, endIndex).forEach(row => {
+                row.style.display = '';
+            });
+
+            // Update pagination controls
+            updatePaginationControls(categoryId, page, totalPages);
+        }
+
+        // Update pagination controls
+        function updatePaginationControls(categoryId, currentPageNum, totalPages) {
+            const container = document.getElementById(`category-${categoryId}`);
+            if (!container) return;
+
+            // Remove old pagination
+            const oldPagination = container.querySelector('.pagination-wrapper');
+            if (oldPagination) {
+                oldPagination.remove();
+            }
+
+            if (totalPages <= 1) return;
+
+            const startPage = Math.max(1, currentPageNum - 2);
+            const endPage = Math.min(totalPages, currentPageNum + 2);
+
+            let paginationItems = '';
+
+            // Previous Button
+            if (currentPageNum === 1) {
+                paginationItems += `<li class="page-item disabled"><span class="page-link">Back</span></li>`;
+            } else {
+                paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum - 1}" rel="prev">Back</a></li>`;
+            }
+
+            // Page Numbers
+            for (let page = startPage; page <= endPage; page++) {
+                if (page === currentPageNum) {
+                    paginationItems += `<li class="page-item active"><span class="page-link bg-primary border-primary">${page}</span></li>`;
+                } else {
+                    paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${page}">${page}</a></li>`;
+                }
+            }
+
+            // Next Button
+            if (currentPageNum === totalPages) {
+                paginationItems += `<li class="page-item disabled"><span class="page-link">Next</span></li>`;
+            } else {
+                paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum + 1}" rel="next">Next</a></li>`;
+            }
+
+            const paginationHTML = `
+                <div class="pagination-wrapper d-flex justify-content-center mt-4 mb-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm">
+                            ${paginationItems}
+                        </ul>
+                    </nav>
+                </div>
+            `;
+
+            // Find the table-responsive div and insert pagination AFTER it
+            const tableResponsive = container.querySelector('.table-responsive');
+            if (tableResponsive) {
+                tableResponsive.insertAdjacentHTML('afterend', paginationHTML);
+            } else {
+                // Fallback: insert at end of card-body
+                const cardBody = container.querySelector('.card-body');
+                if (cardBody) {
+                    cardBody.insertAdjacentHTML('beforeend', paginationHTML);
+                }
+            }
+        }
+
+        // Auto search with debounce
+        let searchTimeout;
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                applyFiltersToActiveCategory();
+            }, 300);
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.querySelector('select[name="status"]').value = '';
+            document.querySelector('select[name="stock_status"]').value = '';
+            document.getElementById('searchInput').value = '';
+            applyFiltersToActiveCategory();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Check if we need to switch back to a category after reload
+            const pendingCategory = sessionStorage.getItem('pendingCategorySwitch');
+            if (pendingCategory) {
+                setTimeout(() => {
+                    switchCategory(pendingCategory);
+                    // Set active button
+                    document.querySelectorAll('.category-tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.category === pendingCategory) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    sessionStorage.removeItem('pendingCategorySwitch');
+                }, 100);
+            }
+
+            const statusSelect = document.querySelector('select[name="status"]');
+            const stockStatusSelect = document.querySelector('select[name="stock_status"]');
+            const searchInput = document.getElementById('searchInput');
+
+            if (statusSelect) {
+                statusSelect.addEventListener('change', applyFiltersToActiveCategory);
+            }
+
+            if (stockStatusSelect) {
+                stockStatusSelect.addEventListener('change', applyFiltersToActiveCategory);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', autoSearch);
+            }
+
+            // Apply initial filters
+            applyFiltersToActiveCategory();
+
+            // Initialize pagination for all individual categories
+            document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
+                const categoryId = container.id.replace('category-', '');
+                if (categoryId !== 'all') {
+                    const filteredRows = filteredRowsCache[categoryId] || [];
+                    displayPageItems(categoryId, 1, filteredRows);
+                }
+            });
+        });
+
+        // CRITICAL: Add event delegation for pagination links
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('pagination-link')) {
+                e.preventDefault();
+                const catId = e.target.dataset.category;
+                const pageNum = parseInt(e.target.dataset.page);
+                if (catId && !isNaN(pageNum)) {
+                    // Use cached filtered rows for this category
+                    const filteredRows = filteredRowsCache[catId] || [];
+                    displayPageItems(catId, pageNum, filteredRows);
+                    // Scroll to category
+                    const container = document.getElementById(`category-${catId}`);
+                    if (container) {
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
+        });
+          // Update category description character counter
+    function updateCategoryDescriptionCounter() {
+        const textarea = document.querySelector('#createCategoryModal textarea[name="description"]');
+        const charCount = document.getElementById('categoryCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            
+            // Update character count only
+            charCount.textContent = currentLength;
+        }
+    }
+
+    // Update icon preview
+    function updateIconPreview(type) {
+        const select = document.getElementById(`${type}_icon`);
+        const preview = document.getElementById(`${type}_icon_preview`);
+        const iconClass = select.value;
+        preview.className = iconClass ? `fas ${iconClass} fa-2x` : 'fas fa-leaf fa-2x';
+    }
+
+    // Initialize description counter when modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const createCategoryModal = document.getElementById('createCategoryModal');
+        if (createCategoryModal) {
+            createCategoryModal.addEventListener('show.bs.modal', function() {
+                updateCategoryDescriptionCounter();
+            });
+        }
+
+        const descriptionTextarea = document.querySelector('#createCategoryModal textarea[name="description"]');
+        if (descriptionTextarea) {
+            descriptionTextarea.addEventListener('input', updateCategoryDescriptionCounter);
+            descriptionTextarea.addEventListener('change', updateCategoryDescriptionCounter);
+        }
+    });
+    // Update edit category description character counter
+    function updateEditCategoryDescriptionCounter() {
+        const textarea = document.querySelector('#editCategoryModal textarea[name="description"]');
+        const charCount = document.getElementById('editCategoryCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            
+            // Update character count only
+            charCount.textContent = currentLength;
+        }
+    }
+
+    // Initialize edit category description counter when modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const editCategoryModal = document.getElementById('editCategoryModal');
+        if (editCategoryModal) {
+            editCategoryModal.addEventListener('show.bs.modal', function() {
+                updateEditCategoryDescriptionCounter();
+            });
+        }
+
+        const editDescriptionTextarea = document.querySelector('#editCategoryModal textarea[name="description"]');
+        if (editDescriptionTextarea) {
+            editDescriptionTextarea.addEventListener('input', updateEditCategoryDescriptionCounter);
+            editDescriptionTextarea.addEventListener('change', updateEditCategoryDescriptionCounter);
+        }
+    });
+
+    // Update item description character counter
+    function updateItemDescriptionCounter() {
+        const textarea = document.querySelector('#createItemModal textarea[name="description"]');
+        const charCount = document.getElementById('itemCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            
+            // Update character count
+            charCount.textContent = currentLength;
+            
+        }
+    }
+
+    // Initialize description counter when Add Item modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const createItemModal = document.getElementById('createItemModal');
+        if (createItemModal) {
+            createItemModal.addEventListener('show.bs.modal', function() {
+                updateItemDescriptionCounter();
+            });
+        }
+
+        const itemDescriptionTextarea = document.querySelector('#createItemModal textarea[name="description"]');
+        if (itemDescriptionTextarea) {
+            itemDescriptionTextarea.addEventListener('input', updateItemDescriptionCounter);
+            itemDescriptionTextarea.addEventListener('change', updateItemDescriptionCounter);
+        }
+    });
+    // Update edit item description character counter
+    function updateEditItemDescriptionCounter() {
+        const textarea = document.querySelector('#editItemModal textarea[name="description"]');
+        const charCount = document.getElementById('editItemCharCount');
+        
+        if (textarea && charCount) {
+            const currentLength = textarea.value.length;
+            charCount.textContent = currentLength;
+        }
+    }
+
+    // Initialize edit item description counter when modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const editItemModal = document.getElementById('editItemModal');
+        if (editItemModal) {
+            editItemModal.addEventListener('show.bs.modal', function() {
+                updateEditItemDescriptionCounter();
+            });
+        }
+
+        const editDescriptionTextarea = document.querySelector('#editItemModal textarea[name="description"]');
+        if (editDescriptionTextarea) {
+            editDescriptionTextarea.addEventListener('input', updateEditItemDescriptionCounter);
+            editDescriptionTextarea.addEventListener('change', updateEditItemDescriptionCounter);
+        }
+    });
+    // Character counters for supply modal
+    document.getElementById('addSupplyForm').addEventListener('input', function(e) {
+        if (e.target.name === 'notes') {
+            document.getElementById('addSupplyNoteCount').textContent = e.target.value.length;
+        }
+    });
+
+    document.getElementById('adjustSupplyForm').addEventListener('input', function(e) {
+        if (e.target.name === 'reason') {
+            document.getElementById('adjustSupplyReasonCount').textContent = e.target.value.length;
+        }
+    });
+
+    document.getElementById('recordLossForm').addEventListener('input', function(e) {
+        if (e.target.name === 'reason') {
+            document.getElementById('lossReasonCount').textContent = e.target.value.length;
+        }
+    });
+    // Auto-capitalize category name (capitalize first letter of each word)
+    function capitalizeWords(str) {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+            .replace(/\s+/g, ' ') // Remove extra spaces
+            .trim();
+    }
+
+    // Initialize auto-capitalization for Create Category Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryNameInput = document.querySelector('#createCategoryModal input[name="name"]');
+        
+        if (categoryNameInput) {
+            categoryNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                    // Update display name as well
+                    document.getElementById('display_name_hidden').value = this.value;
+                }
+            });
+        }
+    });
+
+    // Initialize auto-capitalization for Edit Category Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const editCategoryNameInput = document.getElementById('edit_category_name');
+        
+        if (editCategoryNameInput) {
+            editCategoryNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                    // Update display name as well
+                    document.getElementById('edit_display_name_hidden').value = this.value;
+                    checkForCategoryChanges();
+                }
+            });
+        }
+    });
+
+    // Initialize auto-capitalization for Create Item Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const itemNameInput = document.querySelector('#createItemModal input[name="name"]');
+        
+        if (itemNameInput) {
+            itemNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                }
+            });
+        }
+    });
+
+    // Initialize auto-capitalization for Edit Item Modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const editItemNameInput = document.getElementById('edit_item_name');
+        
+        if (editItemNameInput) {
+            editItemNameInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.value = capitalizeWords(this.value);
+                    checkForItemChanges();
+                }
+            });
+        }
+    });
     </script>
 
     <style>
@@ -2552,18 +3320,6 @@ document.addEventListener('DOMContentLoaded', function() {
             display: block;
         }
 
-        /* Table Improvements */
-        .table thead th {
-            background: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #dee2e6;
-            padding: 1rem 0.75rem;
-        }
-
         .item-row:hover {
             background-color: #f8f9fa;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -2773,5 +3529,697 @@ document.addEventListener('DOMContentLoaded', function() {
             background-color: #6c757d;
             border-color: #6c757d;
         }
+        /* Filters & Search Card */
+        .card[id*="filterForm"].shadow {
+            border: none;
+            border-radius: 8px;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .card-header h6 {
+            color: #0d6efd;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-select-sm, 
+        .form-control-sm {
+            height: calc(1.5em + 0.5rem + 2px);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        .form-select-sm:focus,
+        .form-control-sm:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .input-group-sm .input-group-text {
+            border: 1px solid #dee2e6;
+            background-color: #ffffff;
+        }
+
+        .input-group-sm .form-control {
+            border: 1px solid #dee2e6;
+        }
+        /* Pagination Controls */
+        .pagination-controls {
+            margin: 2rem 0 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .pagination-info {
+            font-size: 0.95rem;
+            color: #495057;
+            padding: 0.5rem 1rem;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .pagination-controls .btn-outline-secondary {
+            border-color: #dee2e6;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-controls .btn-outline-secondary:hover:not(:disabled) {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+
+        .pagination-controls .btn-outline-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-controls .btn-outline-secondary i {
+            margin: 0 0.25rem;
+        }
+
+        /* Responsive pagination */
+        @media (max-width: 768px) {
+            .pagination-controls {
+                flex-wrap: wrap;
+                gap: 0.5rem !important;
+            }
+
+            .pagination-controls .btn-sm {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+
+            .pagination-controls .btn-sm i {
+                margin: 0;
+            }
+
+            .pagination-controls .btn-sm span {
+                display: none;
+            }
+
+            .pagination-info {
+                min-width: auto;
+                flex: 1 1 100%;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .pagination-controls {
+                padding: 0.75rem;
+                margin: 1.5rem 0 0.75rem 0;
+            }
+
+            .pagination-controls .btn-sm {
+                padding: 0.35rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .pagination-info {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.6rem;
+            }
+        }
+        /* Create Category Modal Styles */
+            #createCategoryModal .form-control,
+            #createCategoryModal .form-select {
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
+                transition: all 0.3s ease;
+            }
+
+            #createCategoryModal .form-control:focus,
+            #createCategoryModal .form-select:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            }
+
+            #createCategoryModal .form-label {
+                color: #495057;
+                font-weight: 500;
+                font-size: 0.95rem;
+            }
+
+            /* Item Description Counter Styling */
+            #itemDescriptionCounter {
+                font-weight: 500;
+                transition: color 0.3s ease;
+            }
+
+            #createItemModal textarea[name="description"] {
+                resize: vertical;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+
+            #createItemModal textarea[name="description"]:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            }
+
+            /* Character count indicator */
+            .text-muted #itemCharCount {
+                font-weight: 600;
+            }
+        /* Text Truncation for Tables */
+        .truncate-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: block;
+        }
+
+        .truncate-text-long {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+            display: block;
+        }
+
+        .truncate-text-medium {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            display: block;
+        }
+
+        .truncate-text-short {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+            display: block;
+        }
+/* ================================
+   COMPREHENSIVE TEXT OVERFLOW FIXES
+   ================================ */
+
+/* Category Name - Primary Fix - AGGRESSIVE */
+.category-name {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+    width: 150px !important;
+    vertical-align: middle;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+    line-height: 1.4;
+}
+
+/* Span wrapper for category */
+h5 .category-name,
+h4 .category-name {
+    max-width: 150px !important;
+    width: 150px !important;
+}
+
+/* Item Name in Tables */
+.item-name {
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    min-width: 0;
+}
+
+/* Description Truncation - Works in any context */
+.description-truncate {
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    word-break: break-all;
+}
+
+/* Table Headers - Fix Truncation */
+.table thead th {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100%;
+    padding: 1rem 0.75rem;
+    background: #0a58ca;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #0a58ca;
+    word-break: break-word;
+}
+
+/* Category Header Container - Fix Wrapping */
+.card-header h5,
+.card-header h4 {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+    word-break: normal;
+    margin: 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 1;
+}
+
+/* Card Header with Category Title */
+.card-header .d-flex {
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+}
+
+/* Category description in header */
+.card-header small.text-muted {
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+}
+
+/* Badge spacing fix */
+.card-header .badge {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Icon in header */
+.card-header i {
+    flex-shrink: 0;
+}
+
+/* Modal Dialog Text */
+.modal-body label,
+.modal-body .form-label {
+    white-space: normal !important;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Form Control Labels */
+.form-label {
+    display: block;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Button Text Fix */
+.btn {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%;
+}
+
+.btn span {
+    display: inline;
+    word-break: break-word;
+}
+
+/* Search Input Fix */
+.input-group .form-control {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Select dropdown Fix */
+.form-select {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Table Cell Content */
+.table td {
+    overflow: visible !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.table td strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.table td small {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.table td small.description-truncate {
+    display: block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Tooltip Text */
+.tooltip-inner {
+    max-width: 250px;
+    word-break: break-word;
+    white-space: normal !important;
+    text-align: left;
+    overflow-wrap: break-word;
+}
+
+/* Alert Messages */
+.alert {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+/* Toast Notifications */
+.toast-notification .toast-content span {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.confirmation-toast .toast-body p {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    max-width: 100%;
+}
+
+/* Card Title Fix */
+.card-title,
+.modal-title {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Paragraph Text */
+p, small, span {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ================================
+   RESPONSIVE ADJUSTMENTS
+   ================================ */
+
+/* Large Screens (lg) */
+@media (min-width: 1200px) {
+    .category-name {
+        max-width: 300px !important;
+    }
+    
+    .item-name {
+        max-width: 200px !important;
+    }
+    
+    .description-truncate {
+        max-width: 150px !important;
+    }
+}
+
+/* Medium Screens (md) */
+@media (max-width: 1199px) {
+    .category-name {
+        max-width: 180px !important;
+        width: 180px !important;
+    }
+    
+    .item-name {
+        max-width: 160px !important;
+    }
+    
+    .description-truncate {
+        max-width: 120px !important;
+    }
+
+    .card-header h5,
+    .card-header h4 {
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+}
+
+/* Small Screens (sm) */
+@media (max-width: 768px) {
+    .category-name {
+        max-width: 120px !important;
+        width: 120px !important;
+    }
+    
+    .item-name {
+        max-width: 120px !important;
+    }
+    
+    .description-truncate {
+        max-width: 80px !important;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .card-header h5,
+    .card-header h4 {
+        flex-direction: row !important;
+        width: 100%;
+    }
+
+    .card-header .d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100%;
+    }
+
+    .btn {
+        white-space: normal !important;
+        word-break: break-word;
+    }
+
+    .modal-body {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table td {
+        padding: 0.75rem 0.5rem !important;
+    }
+}
+
+/* Extra Small Screens (xs) */
+@media (max-width: 576px) {
+    .category-name {
+        max-width: 100px !important;
+    }
+    
+    .item-name {
+        max-width: 90px !important;
+    }
+    
+    .description-truncate {
+        max-width: 60px !important;
+    }
+
+    .table {
+        font-size: 0.75rem;
+    }
+
+    .table td, 
+    .table th {
+        padding: 0.5rem 0.25rem !important;
+        font-size: 0.7rem;
+    }
+
+    .table thead th {
+        font-size: 0.65rem !important;
+    }
+
+    .btn-sm {
+        font-size: 0.65rem !important;
+        padding: 0.25rem 0.5rem !important;
+        white-space: normal;
+    }
+
+    .card-header {
+        padding: 0.75rem !important;
+    }
+
+    .card-header h5,
+    .card-header h4 {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
+        flex-wrap: nowrap;
+    }
+
+    .badge {
+        font-size: 0.6rem !important;
+        padding: 0.25rem 0.4rem !important;
+        white-space: nowrap;
+    }
+
+    .toast-notification,
+    .confirmation-toast {
+        min-width: 95vw !important;
+        max-width: 95vw !important;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem !important;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+    }
+
+    /* Ensure buttons don't overflow */
+    .btn-group,
+    .dropdown-menu {
+        max-width: 100%;
+        overflow: hidden;
+    }
+}
+
+/* Ultra Small Screens (xs and smaller) */
+@media (max-width: 360px) {
+    .category-name {
+        max-width: 80px !important;
+    }
+    
+    .item-name {
+        max-width: 70px !important;
+    }
+    
+    .description-truncate {
+        max-width: 50px !important;
+    }
+
+    .badge {
+        font-size: 0.55rem !important;
+        padding: 0.2rem 0.3rem !important;
+    }
+
+    .table {
+        font-size: 0.65rem;
+    }
+
+    .btn-sm {
+        font-size: 0.6rem !important;
+        padding: 0.2rem 0.4rem !important;
+    }
+}
+    /* Supply Management Modal Header - Centered */
+    #supplyModal .modal-header {
+        justify-content: center !important;
+        text-align: center !important;
+        position: relative;
+    }
+
+    #supplyModal .modal-title {
+        flex: 1;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.3rem;
+        color: #ffffff;
+    }
+
+    #supplyModal .modal-header .btn-close {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+    }
+
+    /* Ensure the header has proper styling */
+    #supplyModal .modal-header {
+        background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+        border: none;
+        padding: 1.25rem;
+    }
+    /* Fix loading spinner color in buttons */
+    .btn-primary:disabled {
+        opacity: 0.8;
+    }
+
+    /* Ensure spinner is always visible in loading state */
+    .btn-primary .spinner-border-sm {
+        color: #ffffff !important;
+        border-color: currentColor;
+        border-right-color: transparent;
+    }
+
+    /* Make loading text visible */
+    .btn-primary:disabled span {
+        color: #ffffff !important;
+    }
+
+    /* Alternative: Add specific styling for loading state */
+    .btn.loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .btn.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 10px;
+        margin-top: -8px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spinner 0.6s linear infinite;
+    }
+
+    @keyframes spinner {
+        to { transform: rotate(360deg); }
+    }
     </style>
 @endsection

@@ -19,7 +19,6 @@ class FishRController extends Controller
         try {
             Log::info('FishR index method called', [
                 'request_data' => $request->all(),
-                'user_id' => auth()->id(),
             ]);
 
             $query = FishrApplication::query();
@@ -65,7 +64,7 @@ class FishRController extends Controller
             $totalRegistrations = FishrApplication::count();
             $underReviewCount = FishrApplication::where('status', 'under_review')->count();
             $approvedCount = FishrApplication::where('status', 'approved')->count();
-            $rejectedCount = FishrApplication::where('status', 'rejected')->count();
+            $pendingCount = FishrApplication::where('status', 'pending')->count();
 
             Log::info('FishR data loaded successfully', [
                 'total_registrations' => $totalRegistrations,
@@ -87,7 +86,7 @@ class FishRController extends Controller
                 'totalRegistrations',
                 'underReviewCount',
                 'approvedCount',
-                'rejectedCount'
+                'pendingCount'
             ));
 
         } catch (\Exception $e) {
@@ -130,7 +129,6 @@ class FishRController extends Controller
                     'sex' => $registration->sex,
                     'barangay' => $registration->barangay,
                     'contact_number' => $registration->contact_number,
-                    'email' => $registration->email,
                     'main_livelihood' => $registration->main_livelihood,
                     'livelihood_description' => $registration->livelihood_description,
                     'other_livelihood' => $registration->other_livelihood,
@@ -159,7 +157,7 @@ class FishRController extends Controller
         }
     }
 
-   /**
+ /**
  * Update the specified FishR registration (Personal info editing)
  */
 public function update(Request $request, $id)
@@ -173,14 +171,34 @@ public function update(Request $request, $id)
             'name_extension' => 'nullable|string|max:10',
             'sex' => 'required|in:Male,Female,Preferred not to say',
             'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-            'email' => 'nullable|email|max:254',
             'barangay' => 'required|string|max:100',
+
+            // NOW EDITABLE: Livelihood info
+            'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
+            'other_livelihood' => 'nullable|string|max:255',
+            
+            // Document - FIXED: accept image files and pdf
+            'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
 
         // Find the registration
         $registration = FishrApplication::findOrFail($id);
 
-        // Update the registration with only personal info
+        // Handle document upload - FIXED
+        if ($request->hasFile('supporting_document')) {
+            // Delete old document if exists
+            if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
+                Storage::disk('public')->delete($registration->document_path);
+            }
+
+            // Upload new document
+            $file = $request->file('supporting_document');
+            $filename = 'fishr_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('fishr_documents', $filename, 'public');
+            $validated['document_path'] = $path;
+        }
+
+        // Update the registration with all fields
         $registration->update($validated);
 
         $this->logActivity('updated', 'FishrApplication', $registration->id, [
@@ -192,7 +210,8 @@ public function update(Request $request, $id)
             'registration_id' => $registration->id,
             'registration_number' => $registration->registration_number,
             'updated_by' => auth()->user()->name,
-            'fields_updated' => array_keys($validated)
+            'fields_updated' => array_keys($validated),
+            'document_updated' => $request->hasFile('supporting_document') ? 'yes' : 'no'
         ]);
 
         return response()->json([
@@ -201,7 +220,8 @@ public function update(Request $request, $id)
             'data' => [
                 'id' => $registration->id,
                 'full_name' => $registration->full_name,
-                'updated_at' => $registration->updated_at->format('M d, Y h:i A')
+                'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
+                'document_path' => $registration->document_path
             ]
         ]);
 
@@ -321,7 +341,6 @@ public function update(Request $request, $id)
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
 
                 // Livelihood info
@@ -335,14 +354,7 @@ public function update(Request $request, $id)
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
 
-                // IMPORTANT: Make user_id optional like RSBSA
-                'user_id' => 'nullable|exists:user_registration,id'
             ]);
-
-            // CHANGE: Set user_id to null if not provided (this is how RSBSA does it)
-            if (!isset($validated['user_id'])) {
-                $validated['user_id'] = null;
-            }
 
             // Generate unique registration number
             $validated['registration_number'] = $this->generateRegistrationNumber();
@@ -391,7 +403,6 @@ public function update(Request $request, $id)
                 'registration_id' => $registration->id,
                 'registration_number' => $registration->registration_number,
                 'created_by' => auth()->user()->name,
-                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
 
             return response()->json([
@@ -400,8 +411,7 @@ public function update(Request $request, $id)
                 'data' => [
                     'id' => $registration->id,
                     'registration_number' => $registration->registration_number,
-                    'status' => $registration->status,
-                    'linked_to_user' => $validated['user_id'] ? true : false
+                    'status' => $registration->status
                 ]
             ], 201);
 
@@ -738,6 +748,7 @@ public function update(Request $request, $id)
                         'title' => $annex->title,
                         'description' => $annex->description,
                         'file_name' => $annex->file_name,
+                        'file_path' => $annex->file_path, 
                         'file_extension' => $annex->file_extension,
                         'file_size' => $annex->file_size,
                         'formatted_file_size' => $annex->formatted_file_size,
@@ -849,7 +860,6 @@ public function update(Request $request, $id)
             Log::info('Preview FishR annex request', [
                 'registration_id' => $id,
                 'annex_id' => $annexId,
-                'user_id' => auth()->id()
             ]);
 
             $registration = FishrApplication::findOrFail($id);
