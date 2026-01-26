@@ -198,15 +198,24 @@
                                 <td class="text-center">
                                     <div class="training-table-documents">
                                         @if ($training->document_path)
-                                            <button type="button" class="btn btn-sm btn-outline-info"
+                                            <div class="training-document-previews">
+                                                <button type="button" class="training-mini-doc"
+                                                    onclick="viewDocument('{{ $training->document_path }}', 'Training Request - {{ $training->full_name }}')"
+                                                    title="Supporting Document">
+                                                    <div class="training-mini-doc-icon">
+                                                        <i class="fas fa-file-alt text-primary"></i>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                            <button type="button" class="training-document-summary"
                                                 onclick="viewDocument('{{ $training->document_path }}', 'Training Request - {{ $training->full_name }}')"
-                                                title="View Document">
-                                                <i class="fas fa-file-alt"></i>
+                                                style="background: none; border: none; padding: 0; cursor: pointer;">
+                                                <small class="text-muted">1 document</small>
                                             </button>
                                         @else
-                                            <div class="text-center">
+                                            <div class="training-no-documents">
                                                 <i class="fas fa-folder-open text-muted"></i>
-                                                <small class="text-muted d-block">No document</small>
+                                                <small class="text-muted">No documents</small>
                                             </div>
                                         @endif
                                     </div>
@@ -219,10 +228,10 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $training->id }}, '{{ $training->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
 
                                         <!-- Dropdown for More Actions -->
@@ -333,72 +342,123 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Application Status
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Application Status
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+                
                 <div class="modal-body">
-                    <!-- Application Info -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                    <!-- Application Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Application Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Application #:</strong> <span id="updateAppNumber"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Name:</strong> <span id="updateAppName"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Application #</small>
+                                        <strong class="text-primary" id="updateAppNumber"></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Applicant Name</small>
+                                        <strong id="updateAppName"></strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Contact:</strong> <span id="updateAppMobile"></span></p>
-                                    <p class="mb-1"><strong>Training Type:</strong> <span id="updateAppTraining"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateAppCurrentStatus"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Contact Number</small>
+                                        <strong id="updateAppMobile"></strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Training Type</small>
+                                        <strong id="updateAppTraining"></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <small class="text-muted d-block mb-2">Current Status</small>
+                                    <span id="updateAppCurrentStatus"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
-                    <form id="updateForm">
-                        <input type="hidden" id="updateApplicationId">
-                        
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label fw-bold">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="under_review">Under Review</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+                    <!-- Status Update Card -->
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-exchange-alt me-2"></i>Change Status
+                            </h6>
                         </div>
+                        <div class="card-body">
+                            <form id="updateForm">
+                                <input type="hidden" id="updateApplicationId">
+                                
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required onchange="checkForChanges()">
+                                        <option value="">Choose status...</option>
+                                        <option value="under_review">Under Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-                        <!-- CRITICAL FIX: Ensure remarks textarea has proper id and attributes -->
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label fw-bold">Remarks (Optional):</label>
+                    <!-- Remarks Card -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-comment me-2"></i>Admin Remarks
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <label for="remarks" class="form-label fw-semibold">
+                                Remarks (Optional)
+                            </label>
                             <textarea class="form-control" 
                                     id="remarks" 
                                     name="remarks"
-                                    rows="3"
-                                    placeholder="Add any notes or comments about this status change..." 
+                                    rows="4"
+                                    placeholder="Add any notes or comments about this status change..."
                                     maxlength="1000"
+                                    onchange="checkForChanges()"
                                     oninput="updateRemarksCounter()"></textarea>
                             <div class="d-flex justify-content-between align-items-center mt-2">
-                                <div class="form-text">Maximum 1000 characters</div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Provide context for this status change
+                                </small>
                                 <small class="text-muted" id="remarksCounterDisplay">
                                     <span id="charCountRemarks">0</span>/1000
                                 </small>
                             </div>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info border-left-info mt-3 mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> This will update the application status and store your remarks in the system.
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">Update
-                        Status</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateApplicationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
+                    </button>
                 </div>
             </div>
         </div>
