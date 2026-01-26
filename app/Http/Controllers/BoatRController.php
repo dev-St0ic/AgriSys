@@ -19,7 +19,6 @@ class BoatRController extends Controller
         try {
             Log::info('BoatR index method called', [
                 'request_data' => $request->all(),
-                'user_id' => auth()->id()
             ]);
 
             $query = BoatrApplication::with(['reviewer', 'inspector', 'annexes']);
@@ -142,7 +141,6 @@ class BoatRController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|in:Jr.,Sr.,II,III,IV,V',
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
                 'fishr_number' => 'required|string|max:50',
 
@@ -169,15 +167,9 @@ class BoatRController extends Controller
                 // Document
                 'user_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
 
-                // IMPORTANT: Make user_id optional (like FishR)
-                'user_id' => 'nullable|exists:user_registration,id',
+                // IMPORTANT:
                 'fishr_application_id' => 'nullable|exists:fishr_applications,id'
             ]);
-
-            // Set user_id to null if not provided
-            if (!isset($validated['user_id'])) {
-                $validated['user_id'] = null;
-            }
 
             if (!isset($validated['fishr_application_id'])) {
                 $validated['fishr_application_id'] = null;
@@ -229,7 +221,6 @@ class BoatRController extends Controller
                 'application_number' => $registration->application_number,
                 'vessel_name' => $registration->vessel_name,
                 'created_by' => auth()->user()->name,
-                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)',
                 'linked_to_fishr' => $validated['fishr_application_id'] ? 'Yes (ID: ' . $validated['fishr_application_id'] . ')' : 'No'
             ]);
 
@@ -238,7 +229,6 @@ class BoatRController extends Controller
                 'application_number' => $registration->application_number,
                 'vessel_name' => $registration->vessel_name,
                 'boat_type' => $registration->boat_type,
-                'linked_to_user' => $validated['user_id'] ? 'Yes' : 'No',
                 'linked_to_fishr' => $validated['fishr_application_id'] ? 'Yes' : 'No'
             ]);
 
@@ -253,7 +243,6 @@ class BoatRController extends Controller
                     'application_number' => $registration->application_number,
                     'vessel_name' => $registration->vessel_name,
                     'status' => $registration->status,
-                    'linked_to_user' => $validated['user_id'] ? true : false,
                     'linked_to_fishr' => $validated['fishr_application_id'] ? true : false
                 ]
             ], 201);
@@ -304,7 +293,6 @@ public function update(Request $request, $id)
         Log::info('BoatR update called', [
             'registration_id' => $id,
             'request_method' => $request->method(),
-            'user_id' => auth()->id(),
             'request_data' => $request->all()
         ]);
 
@@ -316,7 +304,6 @@ public function update(Request $request, $id)
             'last_name' => $registration->last_name,
             'name_extension' => $registration->name_extension,
             'contact_number' => $registration->contact_number,
-            'email' => $registration->email,
             'barangay' => $registration->barangay,
             'vessel_name' => $registration->vessel_name,
             'boat_type' => $registration->boat_type,
@@ -336,7 +323,6 @@ public function update(Request $request, $id)
             'last_name' => 'required|string|max:100',
             'name_extension' => 'nullable|string|in:Jr.,Sr.,II,III,IV,V',
             'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-            'email' => 'nullable|email|max:254',
             'barangay' => 'required|string|max:100',
 
             // Vessel Information
@@ -397,7 +383,7 @@ public function update(Request $request, $id)
 
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed: ' . implode(', ', $e->errors()['contact_number'] ?? $e->errors()['name_extension'] ?? $e->errors()['email'] ?? array_values(array_values($e->errors())[0] ?? [])),
+                'message' => 'Validation failed: ' . implode(', ', $e->errors()['contact_number'] ?? $e->errors()['name_extension']  ?? array_values(array_values($e->errors())[0] ?? [])),
                 'errors' => $e->errors()
             ], 422);    } catch (\Exception $e) {
         Log::error('Error updating BoatR application', [
@@ -441,7 +427,6 @@ private function getChangedFields($original, $updated)
                 'request_method' => $request->method(),
                 'registration_id' => $id,
                 'request_data' => $request->all(),
-                'user_id' => auth()->id(),
             ]);
 
             // Validate input
@@ -604,7 +589,6 @@ private function getChangedFields($original, $updated)
         try {
             Log::info('completeInspection called', [
                 'registration_id' => $id,
-                'user_id' => auth()->id(),
                 'request_data' => $request->all()
             ]);
 
@@ -810,7 +794,6 @@ private function getChangedFields($original, $updated)
                 'name_extension' => $registration->name_extension,
                 'barangay' => $registration->barangay,
                 'contact_number' => $registration->contact_number,
-                'email' => $registration->email,
                 'fishr_number' => $registration->fishr_number,
                 'vessel_name' => $registration->vessel_name,
                 'boat_type' => $registration->boat_type,
@@ -1232,7 +1215,6 @@ private function getChangedFields($original, $updated)
                     'Full Name',
                     'Barangay',
                     'Contact Number',
-                    'Email',
                     'FishR Number',
                     'Vessel Name',
                     'Boat Type',
@@ -1258,7 +1240,6 @@ private function getChangedFields($original, $updated)
                         $registration->full_name,
                         $registration->barangay ?? 'N/A',
                         $registration->contact_number ?? 'N/A',
-                        $registration->email ?? 'N/A',
                         $registration->fishr_number,
                         $registration->vessel_name,
                         $registration->boat_type,
@@ -1422,7 +1403,6 @@ private function getChangedFields($original, $updated)
             Log::info('Preview annex request', [
                 'registration_id' => $id,
                 'annex_id' => $annexId,
-                'user_id' => auth()->id()
             ]);
 
             $registration = BoatrApplication::findOrFail($id);
@@ -1558,8 +1538,7 @@ private function getChangedFields($original, $updated)
             $fishrNumber = urldecode(trim($fishrNumber));
 
             \Log::info('Validating FishR registration number', [
-                'registration_number' => $fishrNumber,
-                'user_id' => auth()->id()
+                'registration_number' => $fishrNumber
             ]);
 
             if (empty($fishrNumber)) {
@@ -1618,11 +1597,9 @@ private function getChangedFields($original, $updated)
                     'last_name' => $fishrApp->last_name ?? '',
                     'name_extension' => $fishrApp->name_extension ?? '',
                     'contact_number' => $fishrApp->contact_number ?? '',
-                    'email' => $fishrApp->email ?? '',
                     'barangay' => $fishrApp->barangay ?? '',
                     'sex' => $fishrApp->sex ?? '',
                     'main_livelihood' => $fishrApp->main_livelihood ?? '',
-                    'user_id' => $fishrApp->user_id ?? null,
                     'fishr_app_id' => $fishrApp->id,
                     'registration_number' => $fishrApp->registration_number
                 ], 200);
