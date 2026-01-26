@@ -1100,6 +1100,39 @@
         </div>
     </div>
 </div>
+    <!-- DELETE MODAL FOR TRAINING -->
+    <div class="modal fade" id="deleteTrainingModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">Permanently Delete Training Application</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_training_name"></strong> will:</p>
+                    </div>
+                    <ul class="mb-0">
+                        <li>Remove the training application from the database</li>
+                        <li>Delete all associated documents and files</li>
+                        <li>Delete all application history and logs</li>
+                        <li>Cannot be recovered</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteTraining()"
+                        id="confirm_delete_training_btn">
+                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <style>
         /* Modern Statistics Cards */
@@ -2643,14 +2676,136 @@
             }, 300);
         }
 
-        // Delete application with confirmation toast
+        // Global variable to track current delete ID
+        let currentDeleteTrainingId = null;
+
+        /**
+         * Updated deleteApplication function to use modal
+         */
         function deleteApplication(id, applicationNumber) {
-            showConfirmationToast(
-                'Delete Application',
-                `Are you sure you want to delete application ${applicationNumber}?\n\nThis action cannot be undone and will also delete all associated documents.`,
-                () => proceedWithApplicationDelete(id, applicationNumber)
-            );
+            try {
+                // Set the global variable
+                currentDeleteTrainingId = id;
+
+                // Update modal with application number
+                document.getElementById('delete_training_name').textContent = applicationNumber;
+
+                // Show the delete modal
+                new bootstrap.Modal(document.getElementById('deleteTrainingModal')).show();
+            } catch (error) {
+                console.error('Error preparing delete dialog:', error);
+                showToast('error', 'Failed to prepare delete dialog');
+            }
         }
+
+        /**
+         * Confirm permanent delete for Training application
+         */
+        async function confirmPermanentDeleteTraining() {
+            if (!currentDeleteTrainingId) {
+                showToast('error', 'Application ID not found');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const deleteBtn = document.getElementById('confirm_delete_training_btn');
+                deleteBtn.querySelector('.btn-text').style.display = 'none';
+                deleteBtn.querySelector('.btn-loader').style.display = 'inline';
+                deleteBtn.disabled = true;
+
+                const response = await fetch(`/admin/training/requests/${currentDeleteTrainingId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to delete application');
+                }
+
+                // Close modal
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteTrainingModal'));
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show success message
+                showToast('success', data.message || 'Training application deleted successfully');
+
+                // Remove the row with animation
+                const row = document.querySelector(`tr[data-application-id="${currentDeleteTrainingId}"]`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+
+                // Reload page to refresh statistics
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+                // Reset for next use
+                currentDeleteTrainingId = null;
+
+            } catch (error) {
+                console.error('Error deleting application:', error);
+                
+                // Close modal first
+                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteTrainingModal'));
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show error
+                showToast('error', 'Error deleting application: ' + error.message);
+
+            } finally {
+                // Reset button state
+                const deleteBtn = document.getElementById('confirm_delete_training_btn');
+                deleteBtn.querySelector('.btn-text').style.display = 'inline';
+                deleteBtn.querySelector('.btn-loader').style.display = 'none';
+                deleteBtn.disabled = false;
+            }
+        }
+
+        /**
+         * Clean up modal on close
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteTrainingModal = document.getElementById('deleteTrainingModal');
+            if (deleteTrainingModal) {
+                deleteTrainingModal.addEventListener('hidden.bs.modal', function() {
+                    // Reset button state
+                    const deleteBtn = document.getElementById('confirm_delete_training_btn');
+                    deleteBtn.querySelector('.btn-text').style.display = 'inline';
+                    deleteBtn.querySelector('.btn-loader').style.display = 'none';
+                    deleteBtn.disabled = false;
+
+                    // Remove any lingering backdrops
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+
+                    // Remove modal-open class from body
+                    document.body.classList.remove('modal-open');
+
+                    // Reset body overflow
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+
+                    // Reset global variable
+                    currentDeleteTrainingId = null;
+
+                    console.log('Delete Training modal cleaned up');
+                });
+            }
+        });
 
         // Proceed with application deletion
         function proceedWithApplicationDelete(id, applicationNumber) {
