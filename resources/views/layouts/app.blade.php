@@ -1200,7 +1200,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- AgriSys Modal Notification System -->
-    <script src="{{ asset('js/agrisys-modal.js') }}"></script>
+    <script src="{{ asset('js/submission-service.js') }}"></script>
     @yield('scripts')
 
     <script>
