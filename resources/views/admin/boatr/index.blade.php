@@ -1881,7 +1881,39 @@
         </div>
     </div>
 </div>
-
+<!-- DELETE MODAL FOR BOATR -->
+<div class="modal fade" id="deleteBoatrModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title w-100 text-center">Permanently Delete BoatR Registration</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_boatr_name"></strong> will:</p>
+                </div>
+                <ul class="mb-0">
+                    <li>Remove the BoatR application from the database</li>
+                    <li>Delete all associated documents and files</li>
+                    <li>Delete all annexes and attachments</li>
+                    <li>Delete all application history and logs</li>
+                    <li>Cannot be recovered</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteBoatr()"
+                    id="confirm_delete_boatr_btn">
+                    <span class="btn-text">Yes, Delete Permanently</span>
+                    <span class="btn-loader" style="display: none;"><span
+                            class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
     <style>
         /* Document count badge on mini docs */
         .boatr-doc-count {
@@ -4559,14 +4591,186 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 });
         }
 
-        // Delete registration with confirmation toast
         function deleteRegistration(id, applicationNumber) {
-            showConfirmationToast(
-                'Delete Application',
-                `Are you sure you want to delete application ${applicationNumber}?\n\nThis action cannot be undone and will also delete:\n• All associated documents\n• All inspection records\n• All annexes`,
-                () => proceedWithRegistrationDelete(id, applicationNumber)
-            );
+            console.log('=== deleteRegistration called ===', { id, applicationNumber });
+            
+            try {
+                // Validate inputs
+                if (!id || !applicationNumber) {
+                    showToast('error', 'Invalid application data');
+                    return;
+                }
+
+                // Set the application number in the modal
+                const nameElement = document.getElementById('delete_boatr_name');
+                if (!nameElement) {
+                    console.error('Modal name element not found');
+                    showToast('error', 'Delete modal not found in page');
+                    return;
+                }
+
+                nameElement.textContent = applicationNumber;
+
+                // Store the ID globally for use in confirmation function
+                window.currentDeleteBoatrId = id;
+                
+                console.log('Showing delete modal for ID:', id);
+
+                // Show the delete modal
+                const deleteModal = document.getElementById('deleteBoatrModal');
+                if (!deleteModal) {
+                    console.error('Delete modal element not found');
+                    showToast('error', 'Delete modal not found');
+                    return;
+                }
+
+                const modal = new bootstrap.Modal(deleteModal);
+                modal.show();
+                
+            } catch (error) {
+                console.error('Error preparing delete dialog:', error);
+                showToast('error', 'Failed to open delete dialog: ' + error.message);
+            }
         }
+
+        /**
+ * Confirm permanent delete for BoatR registration
+ */
+function confirmPermanentDeleteBoatr() {
+    console.log('=== confirmPermanentDeleteBoatr called ===');
+    
+    const id = window.currentDeleteBoatrId;
+    
+    if (!id) {
+        showToast('error', 'Application ID not found');
+        console.error('currentDeleteBoatrId is not set');
+        return;
+    }
+
+    console.log('Deleting application ID:', id);
+
+    try {
+        // Show loading state
+        const deleteBtn = document.getElementById('confirm_delete_boatr_btn');
+        if (!deleteBtn) {
+            console.error('Delete button not found');
+            showToast('error', 'Delete button not found');
+            return;
+        }
+
+        const btnText = deleteBtn.querySelector('.btn-text');
+        const btnLoader = deleteBtn.querySelector('.btn-loader');
+        
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoader) btnLoader.style.display = 'inline';
+        deleteBtn.disabled = true;
+
+        const url = `/admin/boatr/requests/${id}`;
+        console.log('Sending DELETE request to:', url);
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw {
+                        status: response.status,
+                        message: data.message || 'Delete failed'
+                    };
+                }).catch(err => {
+                    throw {
+                        status: response.status,
+                        message: err.message || `HTTP ${response.status}`
+                    };
+                });
+            }
+            
+            return response.json();
+        })
+        .then(data => {
+            console.log('Delete response:', data);
+            
+            if (data.success) {
+                // Close modal
+                const deleteModalEl = document.getElementById('deleteBoatrModal');
+                const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+                if (deleteModal) {
+                    deleteModal.hide();
+                }
+
+                // Show success message
+                showToast('success', data.message || 'Application deleted successfully');
+
+                // Remove the row with animation
+                const row = document.getElementById(`registration-${id}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        // Check if table is empty
+                        const tbody = document.querySelector('#registrationsTable tbody');
+                        if (tbody && tbody.children.length === 0) {
+                            // Reload page to show empty state
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                    }, 300);
+                } else {
+                    // Fallback: reload page
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+
+                // Reset for next use
+                window.currentDeleteBoatrId = null;
+            } else {
+                throw new Error(data.message || 'Delete operation failed');
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            
+            // Close modal
+            const deleteModalEl = document.getElementById('deleteBoatrModal');
+            const deleteModal = bootstrap.Modal.getInstance(deleteModalEl);
+            if (deleteModal) {
+                deleteModal.hide();
+            }
+
+            // Show error
+            const errorMsg = error.message || 'Unknown error occurred';
+            showToast('error', 'Error: ' + errorMsg);
+
+        })
+        .finally(() => {
+            // Reset button state
+            const deleteBtn = document.getElementById('confirm_delete_boatr_btn');
+            const btnText = deleteBtn.querySelector('.btn-text');
+            const btnLoader = deleteBtn.querySelector('.btn-loader');
+            
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoader) btnLoader.style.display = 'none';
+            deleteBtn.disabled = false;
+        });
+
+    } catch (error) {
+        console.error('Fatal error in confirmPermanentDeleteBoatr:', error);
+        showToast('error', 'Fatal error: ' + error.message);
+    }
+}
 
         // Proceed with registration deletion
         function proceedWithRegistrationDelete(id, applicationNumber) {
@@ -8398,6 +8602,41 @@ function handleEditBoatrSubmit() {
                 document.body.removeChild(link);
             }
         }
+        // Cleanup modal on close
+    // Cleanup modal on close
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteBoatrModal = document.getElementById('deleteBoatrModal');
+    if (deleteBoatrModal) {
+        deleteBoatrModal.addEventListener('hidden.bs.modal', function() {
+            console.log('Delete modal hidden - cleaning up');
+            
+            // Reset button state
+            const deleteBtn = document.getElementById('confirm_delete_boatr_btn');
+            if (deleteBtn) {
+                const btnText = deleteBtn.querySelector('.btn-text');
+                const btnLoader = deleteBtn.querySelector('.btn-loader');
+                
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoader) btnLoader.style.display = 'none';
+                deleteBtn.disabled = false;
+            }
 
+            // Remove any lingering backdrops
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+
+            // Remove modal-open class from body
+            document.body.classList.remove('modal-open');
+
+            // Reset body overflow
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+
+            // Reset global variable
+            window.currentDeleteBoatrId = null;
+
+            console.log('Delete modal cleanup complete');
+        });
+    }
+});
     </script>
 @endsection
