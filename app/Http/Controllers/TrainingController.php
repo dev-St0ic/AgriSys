@@ -303,78 +303,112 @@ class TrainingController extends Controller
             ], 500);
         }
     }
-    /**
-     * Update the status of a training application
-     */
-    public function updateStatus(Request $request, $id)
-    {
-        try {
-            $request->validate([
-                'status' => 'required|in:under_review,approved,rejected',
-                'remarks' => 'nullable|string|max:1000'
-            ]);
+   /**
+ * Update the status of a training application
+ */
+public function updateStatus(Request $request, $id)
+{
+    try {
+        // Validate incoming request
+        $validated = $request->validate([
+            'status' => 'required|in:under_review,approved,rejected',
+            'remarks' => 'nullable|string|max:1000'
+        ]);
 
-            $training = TrainingApplication::findOrFail($id);
-            $previousStatus = $training->status;
-
-            // FIXED: Directly update status and remarks together
-            $training->update([
-                'status' => $request->status,
-                'remarks' => $request->remarks ?? null, // Explicitly handle remarks
-                'status_updated_at' => now(),
-                'updated_by' => Auth::id()
-            ]);
-
-            // Call the notification method if it exists and doesn't handle updates
-            if (method_exists($training, 'updateStatusWithNotification')) {
-                // If the method exists but only handles notifications, call it
-                // Make sure it doesn't overwrite our manual update
-                $training->notifyStatusChange($request->status);
-            }
-
-            $this->logActivity('updated_status', 'TrainingApplication', $training->id, [
-                'new_status' => $request->status,
-                'remarks' => $request->remarks,
-                'application_number' => $training->application_number
-            ]);
-
-            // Send admin notification about status change
-            NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
-
-            Log::info('Training application status updated', [
-                'application_id' => $id,
-                'application_number' => $training->application_number,
-                'new_status' => $request->status,
-                'remarks_added' => !empty($request->remarks),
-                'updated_by' => auth()->user()->name ?? 'System'
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Training application status updated successfully',
-                'data' => $training->fresh(['updatedBy'])
-            ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        // Fetch the training application
+        $training = TrainingApplication::findOrFail($id);
+        
+        if (!$training) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            Log::error('Error updating training status', [
-                'application_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while updating the status: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Training application not found'
+            ], 404);
         }
-    }
 
+        $previousStatus = $training->status;
+
+        // Prepare update data
+        $updateData = [
+            'status' => $validated['status'],
+            'status_updated_at' => now(),
+            'updated_by' => Auth::id()
+        ];
+
+        // Only update remarks if it's provided, otherwise set to null
+        if (isset($validated['remarks']) && !empty($validated['remarks'])) {
+            $updateData['remarks'] = $validated['remarks'];
+        } else {
+            // If remarks is empty string, set to null
+            $updateData['remarks'] = null;
+        }
+
+        // Update the training application
+        $training->update($updateData);
+
+        // Verify the update was successful
+        $training = $training->fresh(['updatedBy']);
+
+        // Log the activity
+        $this->logActivity('updated_status', 'TrainingApplication', $training->id, [
+            'new_status' => $validated['status'],
+            'remarks' => $updateData['remarks'],
+            'application_number' => $training->application_number
+        ]);
+
+        // Send notification about status change
+        if (method_exists('NotificationService', 'trainingApplicationStatusChanged')) {
+            NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
+        }
+
+        // Log the status change
+        Log::info('Training application status updated', [
+            'application_id' => $id,
+            'application_number' => $training->application_number,
+            'previous_status' => $previousStatus,
+            'new_status' => $validated['status'],
+            'remarks_provided' => !empty($updateData['remarks']),
+            'updated_by' => auth()->user()->name ?? 'System'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Training application status updated successfully',
+            'data' => [
+                'id' => $training->id,
+                'status' => $training->status,
+                'formatted_status' => $training->formatted_status,
+                'status_color' => $training->status_color,
+                'remarks' => $training->remarks,
+                'updated_by_name' => $training->updatedBy?->name
+            ]
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::warning('Validation error in updateStatus', [
+            'application_id' => $id,
+            'errors' => $e->errors()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        Log::error('Error updating training status', [
+            'application_id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'request_data' => $request->all()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while updating the status: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
     /**
      * Delete a training application

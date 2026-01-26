@@ -328,7 +328,7 @@
         </div>
     </div>
 
-    <!-- Update Status Modal -->
+    <!-- UPDATE STATUS MODAL - FIXED REMARKS HANDLING -->
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -365,8 +365,9 @@
                     <!-- Update Form -->
                     <form id="updateForm">
                         <input type="hidden" id="updateApplicationId">
+                        
                         <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
+                            <label for="newStatus" class="form-label fw-bold">Select New Status:</label>
                             <select class="form-select" id="newStatus" required>
                                 <option value="">Choose status...</option>
                                 <option value="under_review">Under Review</option>
@@ -374,11 +375,23 @@
                                 <option value="rejected">Rejected</option>
                             </select>
                         </div>
+
+                        <!-- CRITICAL FIX: Ensure remarks textarea has proper id and attributes -->
                         <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..." maxlength="1000"></textarea>
-                            <div class="form-text">Maximum 1000 characters</div>
+                            <label for="remarks" class="form-label fw-bold">Remarks (Optional):</label>
+                            <textarea class="form-control" 
+                                    id="remarks" 
+                                    name="remarks"
+                                    rows="3"
+                                    placeholder="Add any notes or comments about this status change..." 
+                                    maxlength="1000"
+                                    oninput="updateRemarksCounter()"></textarea>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div class="form-text">Maximum 1000 characters</div>
+                                <small class="text-muted" id="remarksCounterDisplay">
+                                    <span id="charCountRemarks">0</span>/1000
+                                </small>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -1575,150 +1588,191 @@
 
         // Enhanced show update modal function
         function showUpdateModal(id, currentStatus) {
-            // Show loading state in modal
-            document.getElementById('updateAppNumber').innerHTML = `
-            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>`;
+                document.getElementById('updateAppNumber').innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>`;
 
-            // First fetch the application details
-            fetch(`/admin/training/requests/${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    if (!response.success) {
-                        throw new Error('Failed to load application details');
-                    }
+                fetch(`/admin/training/requests/${id}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(response => {
+                        if (!response.success) throw new Error('Failed to load application details');
 
-                    const data = response.data;
-                    document.getElementById('updateApplicationId').value = id;
+                        const data = response.data;
+                        document.getElementById('updateApplicationId').value = id;
+                        document.getElementById('updateAppNumber').textContent = data.application_number;
+                        document.getElementById('updateAppName').textContent = data.full_name;
+                        document.getElementById('updateAppMobile').textContent = data.contact_number || 'N/A';
+                        document.getElementById('updateAppTraining').textContent = data.training_type_display;
+                        document.getElementById('updateAppCurrentStatus').innerHTML = `
+                        <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                    // Populate application info
-                    document.getElementById('updateAppNumber').textContent = data.application_number;
-                    document.getElementById('updateAppName').textContent = data.full_name;
-                    document.getElementById('updateAppMobile').textContent = data.contact_number || 'N/A';
-                    document.getElementById('updateAppTraining').textContent = data.training_type_display;
-                    document.getElementById('updateAppCurrentStatus').innerHTML = `
-                    <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                        const statusSelect = document.getElementById('newStatus');
+                        const remarksTextarea = document.getElementById('remarks');
 
-                    // Set form values and store originals for comparison
-                    const statusSelect = document.getElementById('newStatus');
-                    const remarksTextarea = document.getElementById('remarks');
+                        statusSelect.value = data.status;
+                        statusSelect.dataset.originalStatus = data.status;
+                        
+                        // CRITICAL FIX: Store remarks exactly as it comes from DB
+                        const remarksValue = data.remarks || '';
+                        remarksTextarea.value = remarksValue;
+                        remarksTextarea.dataset.originalRemarks = remarksValue;
 
-                    statusSelect.value = data.status;
-                    statusSelect.dataset.originalStatus = data.status;
-                    remarksTextarea.value = data.remarks || '';
-                    remarksTextarea.dataset.originalRemarks = data.remarks || '';
+                        statusSelect.classList.remove('form-changed');
+                        remarksTextarea.classList.remove('form-changed');
+                        statusSelect.parentElement.classList.remove('change-indicator', 'changed');
+                        remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
 
-                    // Reset visual indicators
-                    statusSelect.classList.remove('form-changed');
-                    remarksTextarea.classList.remove('form-changed');
-                    statusSelect.parentElement.classList.remove('change-indicator', 'changed');
-                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
+                        statusSelect.parentElement.classList.add('change-indicator');
+                        remarksTextarea.parentElement.classList.add('change-indicator');
 
-                    // Add change indicator classes
-                    statusSelect.parentElement.classList.add('change-indicator');
-                    remarksTextarea.parentElement.classList.add('change-indicator');
+                        updateRemarksCounter();
 
-                    // Show modal
-                    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error loading application details: ' + error.message);
-                });
-        }
-
-        // Enhanced update application status function
-        function updateApplicationStatus() {
-            const id = document.getElementById('updateApplicationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-
-            if (!newStatus) {
-                showToast('error', 'Please select a status');
-                return;
+                        const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                        modal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('error', 'Error loading application details: ' + error.message);
+                    });
             }
 
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+                
+                function updateApplicationStatus() {
+                const id = document.getElementById('updateApplicationId').value;
+                const newStatus = document.getElementById('newStatus').value;
+                const remarks = document.getElementById('remarks').value;
 
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-                return;
-            }
-
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
+                if (!newStatus) {
+                    showToast('error', 'Please select a status');
+                    return;
                 }
+
+                const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+                const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+                console.log('Current Status:', newStatus, 'Original:', originalStatus);
+                console.log('Current Remarks:', remarks, 'Original:', originalRemarks);
+
+                if (newStatus === originalStatus && remarks === originalRemarks) {
+                    showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
+                    return;
+                }
+
+                let changesSummary = [];
+                if (newStatus !== originalStatus) {
+                    const originalStatusText = getStatusText(originalStatus);
+                    const newStatusText = getStatusText(newStatus);
+                    changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+                }
+                if (remarks !== originalRemarks) {
+                    if (originalRemarks === '') {
+                        changesSummary.push('Remarks: Added new remarks');
+                    } else if (remarks === '') {
+                        changesSummary.push('Remarks: Removed existing remarks');
+                    } else {
+                        changesSummary.push('Remarks: Modified');
+                    }
+                }
+
+                showConfirmationToast(
+                    'Confirm Update',
+                    `Update this training application with the following changes?\n\n${changesSummary.join('\n')}`,
+                    () => proceedWithStatusUpdate(id, newStatus, remarks)
+                );
             }
 
-            showConfirmationToast(
-                'Confirm Update',
-                `Update this training application with the following changes?\n\n${changesSummary.join('\n')}`,
-                () => proceedWithStatusUpdate(id, newStatus, remarks)
-            );
-        }
+            function proceedWithStatusUpdate(id, newStatus, remarks) {
+                const updateButton = document.querySelector('#updateModal .btn-primary');
+                const originalText = updateButton.innerHTML;
+                updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+                updateButton.disabled = true;
 
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-            updateButton.disabled = true;
+                // Build payload - ENSURE remarks is included
+                const payload = {
+                    status: newStatus,
+                    remarks: remarks || null
+                };
 
-            fetch(`/admin/training/requests/${id}/status`, {
+                console.log('Sending Payload:', payload);
+
+                fetch(`/admin/training/requests/${id}/status`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
+                    body: JSON.stringify(payload)
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        return response.json();
                     })
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(response => {
-                    if (response.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        showToast('success', response.message);
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        throw new Error(response.message || 'Error updating status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error updating application status: ' + error.message);
-                })
-                .finally(() => {
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                });
-        }
+                    .then(response => {
+                        console.log('Server Response:', response);
+                        if (response.success) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                            modal.hide();
+                            showToast('success', response.message);
+                            setTimeout(() => window.location.reload(), 1500);
+                        } else {
+                            throw new Error(response.message || 'Error updating status');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('error', 'Error updating application status: ' + error.message);
+                    })
+                    .finally(() => {
+                        updateButton.innerHTML = originalText;
+                        updateButton.disabled = false;
+                    });
+            }
 
+            // Update remarks character counter
+            function updateRemarksCounter() {
+                const textarea = document.getElementById('remarks');
+                const charCount = document.getElementById('charCountRemarks');
+                
+                if (textarea && charCount) {
+                    charCount.textContent = textarea.value.length;
+                    
+                    if (textarea.value.length > 900) {
+                        charCount.parentElement.classList.add('text-warning');
+                        charCount.parentElement.classList.remove('text-muted');
+                    } else {
+                        charCount.parentElement.classList.remove('text-warning');
+                        charCount.parentElement.classList.add('text-muted');
+                    }
+                }
+            }
+
+            //  Helper - get status text
+            function getStatusText(status) {
+                switch (status) {
+                    case 'under_review':
+                        return 'Under Review';
+                    case 'approved':
+                        return 'Approved';
+                    case 'rejected':
+                        return 'Rejected';
+                    default:
+                        return status;
+                }
+            }
+
+            // Initialize on document ready
+            document.addEventListener('DOMContentLoaded', function() {
+                const remarksTextarea = document.getElementById('remarks');
+                if (remarksTextarea) {
+                    remarksTextarea.addEventListener('input', updateRemarksCounter);
+                }
+            });
+       
         // UPDATED: View application details - FIXED remarks display
         function viewApplication(id) {
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
