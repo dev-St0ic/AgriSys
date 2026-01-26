@@ -879,51 +879,101 @@
         </div>
     </div>
 
-    <!-- Inspection Modal -->
+    <!-- Inspection Modal - UPDATED with consistent design -->
     <div class="modal fade" id="inspectionModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-search me-2"></i>Complete Boat Inspection
+                <div class="modal-header bg-primary text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Complete Boat Inspection
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Upload the supporting document after completing the on-site boat inspection.
+                    <!-- Alert Info Card -->
+                    <div class="alert alert-info border-left-info mb-4">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> Upload the supporting document after completing the on-site boat inspection. Please provide detailed inspection notes.
                     </div>
 
                     <form id="inspectionForm" enctype="multipart/form-data">
                         <input type="hidden" id="inspectionRegistrationId">
-                        <div class="mb-3">
-                            <label for="supporting_document" class="form-label">Supporting Document <span
-                                    class="text-danger">*</span></label>
-                            <input type="file" class="form-control" id="supporting_document"
-                                accept=".pdf,.jpg,.jpeg,.png" required>
-                            <div class="form-text">Upload inspection report, boat photos, or other supporting documents.
-                                (PDF, JPG, JPEG, PNG - Max 10MB)</div>
-                            <div class="invalid-feedback" id="documentError"></div>
+
+                        <!-- Supporting Document Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-file-upload me-2"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="supporting_document" class="form-label fw-semibold">
+                                        Upload Document <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="file" class="form-control" id="supporting_document"
+                                        accept=".pdf,.jpg,.jpeg,.png" required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>Upload inspection report, boat photos, or other supporting documents. (PDF, JPG, JPEG, PNG - Max 10MB)
+                                    </div>
+                                    <div class="invalid-feedback" id="documentError"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="inspection_notes" class="form-label">Inspection Notes (Optional):</label>
-                            <textarea class="form-control" id="inspection_notes" rows="3"
-                                placeholder="Add any notes about the inspection..." maxlength="1000"></textarea>
-                            <div class="form-text">Maximum 1000 characters (<span id="notesCount">0</span>)</div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="approve_application">
-                                <label class="form-check-label" for="approve_application">
-                                    Auto-approve application after inspection
+
+                        <!-- Inspection Notes Card -->
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Inspection Notes
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="inspection_notes" class="form-label fw-semibold">
+                                    Notes (Optional)
                                 </label>
+                                <textarea class="form-control" id="inspection_notes" rows="4"
+                                    placeholder="Add detailed inspection findings, measurements, condition assessments, or any observations..."
+                                    maxlength="1000"
+                                    oninput="updateInspectionNotesCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>Detailed inspection observations
+                                    </small>
+                                    <small class="text-muted" id="inspectionNotesCounter">
+                                        <span id="inspectionCharCount">0</span>/1000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auto-Approve Option Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-check-square me-2"></i>Action Options
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="approve_application">
+                                    <label class="form-check-label" for="approve_application">
+                                        <strong>Auto-approve application after inspection</strong>
+                                        <small class="text-muted d-block mt-1">
+                                            <i class="fas fa-info-circle me-1"></i>Check this to automatically approve the application upon successful inspection completion
+                                        </small>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
                     <button type="button" class="btn btn-success" id="completeInspectionBtn"
                         onclick="completeInspection()">
                         <i class="fas fa-check me-1"></i>Complete Inspection
@@ -3189,6 +3239,275 @@
 .modal-backdrop:nth-of-type(3) {
     display: none !important;
 }
+
+    /* Inspection Modal Styling - Consistent with other modals */
+    #inspectionModal .modal-content {
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+    }
+
+    #inspectionModal .modal-header {
+        border-bottom: 2px solid #0b5ed7;
+        padding: 1.5rem;
+    }
+
+    #inspectionModal .modal-header .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: white;
+    }
+
+    #inspectionModal .modal-header .btn-close {
+        opacity: 0.8;
+    }
+
+    #inspectionModal .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+
+    #inspectionModal .modal-body {
+        padding: 2rem;
+        background-color: #fff;
+    }
+
+    /* Card Styling within Inspection Modal */
+    #inspectionModal .card {
+        border-width: 1px;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    #inspectionModal .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    #inspectionModal .card-header {
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: white;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    #inspectionModal .card-header h6 {
+        color: #0d6efd;
+    }
+
+    #inspectionModal .card-body {
+        padding: 1.5rem;
+        background-color: #fff;
+    }
+
+    #inspectionModal .form-label {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    #inspectionModal .form-control,
+    #inspectionModal .form-select {
+        border-radius: 6px;
+        border: 1px solid #e3e6f0;
+        transition: all 0.3s ease;
+    }
+
+    #inspectionModal .form-control:focus,
+    #inspectionModal .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    #inspectionModal .form-text {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    /* Invalid Feedback */
+    #inspectionModal .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    #inspectionModal .is-invalid.form-control,
+    #inspectionModal .is-invalid.form-select {
+        border-color: #dc3545;
+    }
+
+    #inspectionModal .is-invalid.form-control:focus,
+    #inspectionModal .is-invalid.form-select:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    /* Textarea Styling */
+    #inspectionModal textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Character Counter */
+    #inspectionNotesCounter {
+        font-weight: 500;
+    }
+
+    #inspectionCharCount {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+    /* Form Check Styling */
+    #inspectionModal .form-check {
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        /* border-left: 3px solid #0d6efd; */
+    }
+
+    #inspectionModal .form-check-input {
+        width: 1.25em;
+        height: 1.25em;
+        margin-top: 0.3em;
+        cursor: pointer;
+    }
+
+    #inspectionModal .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    #inspectionModal .form-check-label {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        color: #495057;
+    }
+
+    #inspectionModal .form-check-label strong {
+        color: #212529;
+    }
+
+    #inspectionModal .form-check-label small {
+        color: #6c757d;
+        margin-left: 1.75rem;
+    }
+
+    /* Alert Styling
+    #inspectionModal .alert {
+        border-radius: 8px;
+        border-left: 4px solid #17a2b8;
+        background-color: #d1ecf1;
+        color: #0c5460;
+    } */
+
+    #inspectionModal .alert i {
+        color: #17a2b8;
+    }
+
+    /* Modal Footer */
+    #inspectionModal .modal-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        padding: 1.25rem;
+    }
+
+    #inspectionModal .btn {
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    #inspectionModal .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    #inspectionModal .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        transform: translateY(-1px);
+    }
+
+    #inspectionModal .btn-success {
+        background-color: #198754;
+        border-color: #198754;
+        color: white;
+    }
+
+    #inspectionModal .btn-success:hover {
+        background-color: #157347;
+        border-color: #146c43;
+        transform: translateY(-1px);
+    }
+
+    #inspectionModal .btn-success:disabled,
+    #inspectionModal .btn-success.no-changes {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+    /* Loading State */
+    #inspectionModal .btn.btn-loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        #inspectionModal .modal-body {
+            padding: 1.5rem 1rem;
+        }
+
+        #inspectionModal .card-header {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        #inspectionModal .card-body {
+            padding: 1rem;
+        }
+
+        #inspectionModal .form-check-label small {
+            margin-left: 0;
+        }
+
+        #inspectionModal .modal-footer {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        #inspectionModal .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #inspectionModal .modal-header .modal-title {
+            font-size: 1.05rem;
+        }
+
+        #inspectionModal .modal-body {
+            padding: 1rem;
+        }
+
+        #inspectionModal .card {
+            margin-bottom: 0.75rem;
+        }
+    }
     </style>
 @endsection
 
@@ -3861,20 +4180,45 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
 
 
         // ========== INSPECTION MODAL ==========
+        function updateInspectionNotesCounter() {
+            const textarea = document.getElementById('inspection_notes');
+            const charCount = document.getElementById('inspectionCharCount');
+            const counter = document.getElementById('inspectionNotesCounter');
+            
+            if (textarea && charCount) {
+                const currentLength = textarea.value.length;
+                charCount.textContent = currentLength;
+                
+                // Change color when approaching limit
+                if (currentLength > 800) {
+                    counter.classList.add('text-danger');
+                    counter.classList.remove('text-warning', 'text-muted');
+                } else if (currentLength > 600) {
+                    counter.classList.add('text-warning');
+                    counter.classList.remove('text-danger', 'text-muted');
+                } else {
+                    counter.classList.remove('text-warning', 'text-danger');
+                    counter.classList.add('text-muted');
+                }
+            }
+        }
         function showInspectionModal(id) {
+            console.log('Opening inspection modal for registration:', id);
+            
             document.getElementById('inspectionRegistrationId').value = id;
             document.getElementById('supporting_document').value = '';
             document.getElementById('inspection_notes').value = '';
             document.getElementById('approve_application').checked = false;
-            document.getElementById('notesCount').textContent = '0';
+            document.getElementById('inspectionCharCount').textContent = '0';
 
+            // Clear validation errors
             document.getElementById('supporting_document').classList.remove('is-invalid');
             document.getElementById('documentError').textContent = '';
 
             // Store original values for change detection
             document.getElementById('supporting_document').dataset.originalFile = '';
             document.getElementById('inspection_notes').dataset.originalNotes = '';
-            document.getElementById('approve_application').dataset.originalChecked = false;
+            document.getElementById('approve_application').dataset.originalChecked = 'false';
 
             // Add change indicator classes
             const fileInput = document.getElementById('supporting_document').parentElement;
@@ -3897,6 +4241,7 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
             const completeBtn = document.getElementById('completeInspectionBtn');
             completeBtn.classList.remove('no-changes');
             completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>Complete Inspection';
+            completeBtn.disabled = false;
 
             // Remove old listeners
             document.getElementById('supporting_document').removeEventListener('change', checkInspectionModalChanges);
@@ -3908,12 +4253,19 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
             document.getElementById('inspection_notes').addEventListener('input', checkInspectionModalChanges);
             document.getElementById('approve_application').addEventListener('change', checkInspectionModalChanges);
 
+            // Reset counter
+            updateInspectionNotesCounter();
+
+            // Add event listener for real-time counter
+            document.getElementById('inspection_notes').removeEventListener('input', updateInspectionNotesCounter);
+            document.getElementById('inspection_notes').addEventListener('input', updateInspectionNotesCounter);
+
             const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
             modal.show();
         }
 
-        // Check for changes in Inspection Modal
-        function checkInspectionModalChanges() {
+            // Check for changes in Inspection Modal
+         function checkInspectionModalChanges() {
             const fileInput = document.getElementById('supporting_document');
             const notesInput = document.getElementById('inspection_notes');
             const approveCheckbox = document.getElementById('approve_application');
@@ -3939,8 +4291,10 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
 
             if (!hasChanges) {
                 completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+                completeBtn.disabled = true;
             } else {
                 completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>Complete Inspection';
+                completeBtn.disabled = false;
             }
         }
 
@@ -6131,7 +6485,6 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 padding: 8px 12px;
                 border-radius: 4px;
                 font-size: 13px;
-                border-left: 3px solid;
             `;
 
             // Set colors
