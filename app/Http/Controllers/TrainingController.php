@@ -242,67 +242,92 @@ class TrainingController extends Controller
         ]);
     }
 
+  
     /**
-     * Update training application (personal info only)
+     * Update training application (personal info + optional document)
+     * 
+     * CRITICAL FIX: Now properly handles file uploads for document replacement
      */
-   public function update(Request $request, $id)
-    {
-        try {
-            $training = TrainingApplication::findOrFail($id);
+    public function update(Request $request, $id)
+        {
+            try {
+                $training = TrainingApplication::findOrFail($id);
 
-            // Validate the incoming data
-            $validated = $request->validate([
-                'first_name' => 'required|string|max:100',
-                'middle_name' => 'nullable|string|max:100',
-                'last_name' => 'required|string|max:100',
-                'name_extension' => 'nullable|string|max:10',
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-                'barangay' => 'required|string|max:255',
-                'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
-            ], [
-                'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)',
-                'training_type.in' => 'Invalid training type selected',
-            ]);
+                // Validate the incoming data - NOW INCLUDES FILE UPLOAD
+                $validated = $request->validate([
+                    'first_name' => 'required|string|max:100',
+                    'middle_name' => 'nullable|string|max:100',
+                    'last_name' => 'required|string|max:100',
+                    'name_extension' => 'nullable|string|max:10',
+                    'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                    'barangay' => 'required|string|max:255',
+                    'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
+                    // NEW: File upload validation
+                    'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240'
+                ], [
+                    'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)',
+                    'training_type.in' => 'Invalid training type selected',
+                    // NEW: File validation messages
+                    'supporting_document.max' => 'Document must not exceed 10MB',
+                    'supporting_document.mimes' => 'Only JPG, PNG, and PDF files are allowed'
+                ]);
 
-            // Update the training application
-            $training->update($validated);
+                // NEW: Handle file upload if provided
+                if ($request->hasFile('supporting_document')) {
+                    // Delete old document if it exists
+                    if ($training->hasDocument() && Storage::disk('public')->exists($training->document_path)) {
+                        Storage::disk('public')->delete($training->document_path);
+                    }
 
-            $this->logActivity('updated', 'TrainingApplication', $training->id, [
-                'fields_updated' => array_keys($validated),
-                'application_number' => $training->application_number
-            ]);
+                    // Store new document
+                    $file = $request->file('supporting_document');
+                    $filename = 'training_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $documentPath = $file->storeAs('training_documents', $filename, 'public');
+                    $validated['document_path'] = $documentPath;
+                }
 
-            Log::info('Training application updated', [
-                'application_id' => $id,
-                'application_number' => $training->application_number,
-                'updated_by' => auth()->user()->name ?? 'System',
-                'fields_updated' => 'Personal info, location, and training type'
-            ]);
+                // Update the training application
+                $training->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Training application updated successfully',
-                'data' => $training
-            ]);
+                $this->logActivity('updated', 'TrainingApplication', $training->id, [
+                    'fields_updated' => array_keys($validated),
+                    'application_number' => $training->application_number,
+                    'document_updated' => $request->hasFile('supporting_document')
+                ]);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            Log::error('Error updating training application', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+                Log::info('Training application updated', [
+                    'application_id' => $id,
+                    'application_number' => $training->application_number,
+                    'updated_by' => auth()->user()->name ?? 'System',
+                    'fields_updated' => 'Personal info, location, training type, and/or document',
+                    'document_updated' => $request->hasFile('supporting_document')
+                ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while updating the application: ' . $e->getMessage()
-            ], 500);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Training application updated successfully',
+                    'data' => $training
+                ]);
+
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            } catch (\Exception $e) {
+                Log::error('Error updating training application', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while updating the application: ' . $e->getMessage()
+                ], 500);
+            }
         }
-    }
+
    /**
  * Update the status of a training application
  */
