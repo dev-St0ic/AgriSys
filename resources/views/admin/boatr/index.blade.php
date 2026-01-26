@@ -1196,9 +1196,9 @@
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="documentModalLabel">
-                        <i class="fas fa-file-alt me-2"></i>Application Documents
+                <div class="modal-header text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center" id="documentModalLabel">
+                        <i></i>Application Documents
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -1215,7 +1215,7 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Close
+                        <i></i>Close
                     </button>
                 </div>
             </div>
@@ -1226,9 +1226,9 @@
     <div class="modal fade" id="documentPreviewModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="documentPreviewTitle">
-                        <i class="fas fa-eye me-2"></i>Document Preview
+                <div class="modal-header text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center" id="documentPreviewTitle">
+                        <i></i>Document Preview
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -1250,7 +1250,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-folder-plus me-2"></i>Manage Annexes
+                        <i></i>Manage Annexes
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>

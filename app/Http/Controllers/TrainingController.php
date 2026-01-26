@@ -108,7 +108,6 @@ class TrainingController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:255',
 
                 // Training info
@@ -119,21 +118,14 @@ class TrainingController extends Controller
                 'remarks' => 'nullable|string|max:1000',
 
                 // CHANGED: Single document instead of array
-                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-
-                // Optional user link
-                'user_id' => 'nullable|exists:user_registration,id'
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240'
+                
             ], [
                 'barangay.required' => 'Barangay is required',
                 'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
                 'supporting_document.max' => 'Document must not exceed 10MB',
                 'supporting_document.mimes' => 'Only JPG, PNG, and PDF files are allowed'
             ]);
-
-            // Set user_id to null if not provided
-            if (!isset($validated['user_id'])) {
-                $validated['user_id'] = null;
-            }
 
             // Generate unique application number
             $validated['application_number'] = $this->generateApplicationNumber();
@@ -172,7 +164,6 @@ class TrainingController extends Controller
                 'application_id' => $training->id,
                 'application_number' => $training->application_number,
                 'created_by' => auth()->user()->name,
-                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
 
             return response()->json([
@@ -182,7 +173,6 @@ class TrainingController extends Controller
                     'id' => $training->id,
                     'application_number' => $training->application_number,
                     'status' => $training->status,
-                    'linked_to_user' => $validated['user_id'] ? true : false
                 ]
             ], 201);
 
@@ -235,7 +225,6 @@ class TrainingController extends Controller
                 'name_extension' => $training->name_extension,
                 'full_name' => $training->full_name,
                 'contact_number' => $training->contact_number,
-                'email' => $training->email,
                 'barangay' => $training->barangay,
                 'training_type' => $training->training_type,
                 'training_type_display' => $training->training_type_display,
@@ -268,7 +257,6 @@ class TrainingController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-                'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:255',
                 'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
             ], [
@@ -315,43 +303,112 @@ class TrainingController extends Controller
             ], 500);
         }
     }
-    /**
-     * Update the status of a training application
-     */
-    public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
+   /**
+ * Update the status of a training application
+ */
+public function updateStatus(Request $request, $id)
+{
+    try {
+        // Validate incoming request
+        $validated = $request->validate([
             'status' => 'required|in:under_review,approved,rejected',
             'remarks' => 'nullable|string|max:1000'
         ]);
 
+        // Fetch the training application
         $training = TrainingApplication::findOrFail($id);
+        
+        if (!$training) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Training application not found'
+            ], 404);
+        }
+
         $previousStatus = $training->status;
 
-        // Update using trait method to trigger SMS notification
-        $training->updateStatusWithNotification($request->status, $request->remarks);
-
-        // Update additional fields manually
-        $training->update([
+        // Prepare update data
+        $updateData = [
+            'status' => $validated['status'],
             'status_updated_at' => now(),
             'updated_by' => Auth::id()
-        ]);
+        ];
 
+        // Only update remarks if it's provided, otherwise set to null
+        if (isset($validated['remarks']) && !empty($validated['remarks'])) {
+            $updateData['remarks'] = $validated['remarks'];
+        } else {
+            // If remarks is empty string, set to null
+            $updateData['remarks'] = null;
+        }
+
+        // Update the training application
+        $training->update($updateData);
+
+        // Verify the update was successful
+        $training = $training->fresh(['updatedBy']);
+
+        // Log the activity
         $this->logActivity('updated_status', 'TrainingApplication', $training->id, [
-            'new_status' => $request->status,
-            'remarks' => $request->remarks,
+            'new_status' => $validated['status'],
+            'remarks' => $updateData['remarks'],
             'application_number' => $training->application_number
         ]);
 
-        // Send admin notification about status change
-        NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
+        // Send notification about status change
+        if (method_exists('NotificationService', 'trainingApplicationStatusChanged')) {
+            NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
+        }
+
+        // Log the status change
+        Log::info('Training application status updated', [
+            'application_id' => $id,
+            'application_number' => $training->application_number,
+            'previous_status' => $previousStatus,
+            'new_status' => $validated['status'],
+            'remarks_provided' => !empty($updateData['remarks']),
+            'updated_by' => auth()->user()->name ?? 'System'
+        ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Training application status updated successfully',
-            'data' => $training->fresh(['updatedBy'])
+            'data' => [
+                'id' => $training->id,
+                'status' => $training->status,
+                'formatted_status' => $training->formatted_status,
+                'status_color' => $training->status_color,
+                'remarks' => $training->remarks,
+                'updated_by_name' => $training->updatedBy?->name
+            ]
         ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::warning('Validation error in updateStatus', [
+            'application_id' => $id,
+            'errors' => $e->errors()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        Log::error('Error updating training status', [
+            'application_id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'request_data' => $request->all()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while updating the status: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Delete a training application
@@ -458,7 +515,6 @@ class TrainingController extends Controller
                     'Application Number',
                     'Full Name',
                     'Contact Number',
-                    'Email',
                     'Training Type',
                     'Status',
                     'Has Document',
@@ -474,7 +530,6 @@ class TrainingController extends Controller
                         $application->application_number,
                         $application->full_name,
                         $application->contact_number ?? 'N/A',
-                        $application->email ?? 'N/A',
                         $application->training_type_display,
                         $application->formatted_status,
                         $application->hasDocument() ? 'Yes' : 'No',
