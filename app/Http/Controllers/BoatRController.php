@@ -775,6 +775,7 @@ private function getChangedFields($original, $updated)
                     'file_extension' => $annex->file_extension,
                     'file_size' => $annex->file_size,
                     'formatted_file_size' => $annex->formatted_file_size,
+                    'file_path' => $annex->file_path,
                     'is_image' => $annex->is_image,
                     'is_pdf' => $annex->is_pdf,
                     'uploaded_by' => $annex->uploader->name,

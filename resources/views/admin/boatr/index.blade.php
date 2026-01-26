@@ -7315,6 +7315,277 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 });
             }
         });
+        /**
+         * FIXED: Preview Annex from Registration Details Modal
+         * Gets annex data from the registration object instead of separate endpoint
+         */
+        function previewAnnex(registrationId, annexId) {
+            try {
+                console.log('=== Preview Annex ===');
+                console.log('Registration ID:', registrationId);
+                console.log('Annex ID:', annexId);
+
+                // First, fetch the full registration to get annex details
+                fetch(`/admin/boatr/requests/${registrationId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Registration fetch status:', response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Registration data received, success:', data.success);
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Failed to load registration');
+                    }
+
+                    // Find the annex in the registration data
+                    const annexes = data.annexes || [];
+                    console.log('Total annexes found:', annexes.length);
+                    
+                    const annex = annexes.find(a => a.id == annexId);
+                    
+                    if (!annex) {
+                        throw new Error(`Annex with ID ${annexId} not found in registration`);
+                    }
+
+                    console.log('Annex found:', annex);
+
+                    // Get file details
+                    const filePath = annex.file_path;
+                    const fileName = annex.file_name || annex.title || 'Document';
+
+                    if (!filePath || filePath === 'undefined' || filePath.trim() === '') {
+                        throw new Error('File path is empty or invalid');
+                    }
+
+                    const fileUrl = `/storage/${filePath}`;
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
+
+                    console.log('Preview details:', {
+                        filePath: filePath,
+                        fileName: fileName,
+                        fileUrl: fileUrl,
+                        extension: fileExtension
+                    });
+
+                    // Open preview modal
+                    const previewModalEl = document.getElementById('documentPreviewModal');
+                    if (!previewModalEl) {
+                        throw new Error('Preview modal not found in DOM');
+                    }
+
+                    previewModalEl.classList.add('modal-preview-from-documents');
+                    
+                    // Reset and show modal
+                    const previewContainer = document.getElementById('documentPreview');
+                    if (previewContainer) {
+                        previewContainer.innerHTML = `
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="text-muted">Loading document preview...</p>
+                            </div>
+                        `;
+                    }
+
+                    // Update title
+                    const titleEl = document.getElementById('documentPreviewTitle');
+                    if (titleEl) {
+                        titleEl.innerHTML = `<i class="fas fa-eye me-2"></i>${escapeHtml(fileName)}`;
+                    }
+
+                    const modal = new bootstrap.Modal(previewModalEl);
+                    modal.show();
+
+                    // Load preview content
+                    previewFileContent(fileUrl, fileName, fileExtension);
+                })
+                .catch(error => {
+                    console.error('Error in previewAnnex:', error);
+                    showToast('error', 'Error loading annex: ' + error.message);
+
+                    // Try to show error in preview if modal exists
+                    const previewContainer = document.getElementById('documentPreview');
+                    if (previewContainer) {
+                        previewContainer.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <h5>Error Loading Annex</h5>
+                                <p>${escapeHtml(error.message)}</p>
+                                <small class="text-muted">Please try viewing it later or contact administrator</small>
+                            </div>
+                        `;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Fatal error in previewAnnex:', error);
+                showToast('error', 'Fatal error: ' + error.message);
+            }
+        }
+
+        /**
+         * Helper function to preview file content (already exists in your code)
+         * Make sure this function is defined in your existing JavaScript
+         */
+        function previewFileContent(fileUrl, fileName, fileExtension) {
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const pdfTypes = ['pdf'];
+            const documentTypes = ['doc', 'docx', 'txt', 'rtf'];
+            
+            const previewContainer = document.getElementById('documentPreview');
+            
+            if (imageTypes.includes(fileExtension)) {
+                const img = new Image();
+                img.onload = function() {
+                    previewContainer.innerHTML = `
+                        <div class="text-center">
+                            <img src="${fileUrl}" 
+                                alt="Preview" 
+                                class="document-image"
+                                style="max-width: 100%; max-height: 70vh; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: zoom-in;"
+                                onclick="toggleImageZoom(this)">
+                            <div style="margin-top: 20px;">
+                                <button class="btn btn-primary me-2" onclick="downloadFileAnnex('${fileUrl}', '${fileName}')">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </button>
+                                <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                };
+                img.onerror = function() {
+                    previewContainer.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+                            <h6>Unable to load image</h6>
+                            <p class="mb-3">The image could not be displayed.</p>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download Image
+                            </a>
+                        </div>
+                    `;
+                };
+                img.src = fileUrl;
+
+            } else if (pdfTypes.includes(fileExtension)) {
+                previewContainer.innerHTML = `
+                    <div class="text-center">
+                        <embed src="${fileUrl}"
+                            type="application/pdf"
+                            width="100%"
+                            height="600px"
+                            style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary me-2" onclick="downloadFileAnnex('${fileUrl}', '${fileName}')">
+                                <i class="fas fa-download me-2"></i>Download PDF
+                            </button>
+                            <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Fallback if PDF embed doesn't work
+                setTimeout(() => {
+                    const embed = previewContainer.querySelector('embed');
+                    if (!embed || embed.offsetHeight === 0) {
+                        previewContainer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
+                                <h5>PDF Preview Unavailable</h5>
+                                <p class="mb-3">Your browser doesn't support PDF preview.</p>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-primary me-2">
+                                    <i class="fas fa-download me-2"></i>Download PDF
+                                </a>
+                                <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                </button>
+                            </div>
+                        `;
+                    }
+                }, 2000);
+
+            } else if (documentTypes.includes(fileExtension)) {
+                previewContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-${fileExtension === 'doc' || fileExtension === 'docx' ? 'word' : 'alt'} fa-4x text-primary mb-3"></i>
+                        <h5>${fileExtension.toUpperCase()} Document</h5>
+                        <p class="mb-3">This document type cannot be previewed in the browser.</p>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-primary me-2">
+                            <i class="fas fa-download me-2"></i>Download
+                        </a>
+                        <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                            <i class="fas fa-external-link-alt me-2"></i>Open Document
+                        </button>
+                    </div>
+                `;
+            } else {
+                previewContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-file fa-4x text-muted mb-3"></i>
+                        <h5>File Preview Unavailable</h5>
+                        <p class="mb-3">File type ".${fileExtension}" cannot be previewed.</p>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-primary me-2">
+                            <i class="fas fa-download me-2"></i>Download
+                        </a>
+                        <button class="btn btn-secondary" onclick="window.open('${fileUrl}', '_blank')">
+                            <i class="fas fa-external-link-alt me-2"></i>Open File
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+        * Toggle image zoom helper
+        */
+        function toggleImageZoom(img) {
+            if (img.style.maxWidth === '100%') {
+                img.style.maxWidth = '200%';
+                img.style.cursor = 'zoom-out';
+            } else {
+                img.style.maxWidth = '100%';
+                img.style.cursor = 'zoom-in';
+            }
+        }
+
+        /**
+        * Download file helper
+        */
+        function downloadFileAnnex(fileUrl, fileName) {
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            
+            try {
+                link.click();
+                showToast('success', 'Download started');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('error', 'Failed to download file');
+                window.open(fileUrl, '_blank');
+            } finally {
+                document.body.removeChild(link);
+            }
+        }
 
     </script>
 @endsection
