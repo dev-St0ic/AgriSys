@@ -28,10 +28,10 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-search text-warning"></i>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $inspectionRequiredCount }}</div>
-                    <div class="stat-label text-warning">Inspection Required</div>
+                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
@@ -40,10 +40,10 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-check-circle text-success"></i>
+                        <i class="fas fa-search text-warning"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
-                    <div class="stat-label text-success">Approved</div>
+                    <div class="stat-number mb-2">{{ $inspectionRequiredCount }}</div>
+                    <div class="stat-label text-warning">Inspection Required</div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -160,7 +160,7 @@
                     </div>
                     <div class="col-md-1">
                         <a href="{{ route('admin.boatr.requests') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i>Clear
                         </a>
                     </div>
                 </div>
@@ -1029,9 +1029,9 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                <div class="modal-header text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -1743,15 +1743,15 @@
             }
         }
 
-        /* Enhanced modal styling */
+        /* Enhanced modal styling
         .modal-header {
             background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
             color: white;
-        }
+        } */
 
-        .modal-header .btn-close {
+        /* .modal-header .btn-close {
             filter: invert(1);
-        }
+        } */
 
         /* Document list styling */
         .document-item {
@@ -2282,7 +2282,7 @@
             z-index: 1059 !important;
         }
 
-        /* close modal */
+        /* close modal
         .modal-header .btn-close {
             background-color: rgba(255, 255, 255, 0.7);
             opacity: 1;
@@ -2295,7 +2295,7 @@
         .modal-header .btn-close:focus {
             background-color: rgba(255, 255, 255, 1);
             box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
-        }
+        } */
 
         /* Document modal on top when opened from registration modal */
         #documentModal {
@@ -2531,6 +2531,7 @@
                 padding: 10px;
             }
         }
+
     </style>
 @endsection
 
