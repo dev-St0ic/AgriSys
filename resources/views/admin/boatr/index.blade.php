@@ -8127,91 +8127,158 @@ function updateEditBoatrInspectionCounter() {
             }
         }
 
-    /**
- * Handle Edit BoatR Form Submission
- * Called when Save Changes button is clicked
+  /**
+ * Handle Edit BoatR Form Submission - with changes summary
  */
 function handleEditBoatrSubmit() {
-    console.log('=== handleEditBoatrSubmit called ===');
-    
-    // Get the form with the CORRECT ID
     const form = document.getElementById('editBoatrForm');
-    
-    if (!form) {
-        console.error('Form not found: editBoatrForm');
-        showToast('error', 'Form not found in the page. Please close and reopen the modal.');
-        return;
-    }
-
-    // Get registration ID from form dataset
     const registrationId = form.dataset.registrationId;
-    
-    if (!registrationId) {
-        console.error('Registration ID not found in form dataset');
-        showToast('error', 'Registration ID not found. Please close and reopen the modal.');
+    const submitBtn = document.getElementById('editBoatrSubmitBtn');
+
+    // Validate form first
+    if (!validateEditBoatrForm()) {
+        showToast('error', 'Please fix all validation errors');
         return;
     }
 
-    console.log('Form found and registration ID:', registrationId);
-    
-    // Check if form has changes
     const hasChanges = form.dataset.hasChanges === 'true';
-    
+
+    // If no changes, show warning and return
     if (!hasChanges) {
-        showToast('info', 'No changes to save');
+        showToast('warning', 'No changes detected. Please modify the fields before updating.');
         return;
     }
 
-    // Validate required fields
-    const requiredFields = [
-        { id: 'edit_boatr_first_name', label: 'First Name' },
-        { id: 'edit_boatr_last_name', label: 'Last Name' },
-        { id: 'edit_boatr_contact_number', label: 'Contact Number' },
-        { id: 'edit_boatr_barangay', label: 'Barangay' },
-        { id: 'edit_boatr_vessel_name', label: 'Vessel Name' },
-        { id: 'edit_boatr_boat_type', label: 'Boat Type' },
-        { id: 'edit_boatr_boat_length', label: 'Length' },
-        { id: 'edit_boatr_boat_width', label: 'Width' },
-        { id: 'edit_boatr_boat_depth', label: 'Depth' },
-        { id: 'edit_boatr_engine_type', label: 'Engine Type' },
-        { id: 'edit_boatr_engine_horsepower', label: 'Horsepower' },
-        { id: 'edit_boatr_primary_fishing_gear', label: 'Fishing Gear' }
+    // Build changes summary ONLY from actually changed fields
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let changedFields = [];
+
+    const fieldLabels = {
+        'first_name': 'First Name',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'name_extension': 'Extension',
+        'contact_number': 'Contact Number',
+        'barangay': 'Barangay',
+        'vessel_name': 'Vessel Name',
+        'boat_type': 'Boat Type',
+        'boat_length': 'Boat Length',
+        'boat_width': 'Boat Width',
+        'boat_depth': 'Boat Depth',
+        'engine_type': 'Engine Type',
+        'engine_horsepower': 'Engine Horsepower',
+        'primary_fishing_gear': 'Primary Fishing Gear',
+        'inspection_notes': 'Inspection Notes',
+        'supporting_document': 'Supporting Document',
+        'inspection_document': 'Inspection Document'
+    };
+
+    // Check which fields have changed
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'contact_number', 'barangay', 'vessel_name', 'boat_type',
+        'boat_length', 'boat_width', 'boat_depth', 'engine_type',
+        'engine_horsepower', 'primary_fishing_gear', 'inspection_notes'
     ];
 
-    let isValid = true;
-    const errors = [];
+    fields.forEach(field => {
+        const fieldElement = form.querySelector(`[name="${field}"]`);
+        if (fieldElement) {
+            // Convert to string and trim for proper comparison
+            const currentValue = String(fieldElement.value || '').trim();
+            const originalValue = String(originalData[field] || '').trim();
 
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        if (!input) {
-            console.warn(`Field not found: ${field.id}`);
-            return;
+            if (currentValue !== originalValue) {
+                changedFields.push(fieldLabels[field] || field);
+            }
         }
+    });
 
-        const value = input.value.trim();
-        
-        if (!value) {
+    // Check file inputs - ONLY if a NEW file was selected
+    const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
+    if (supportingDocInput && supportingDocInput.files && supportingDocInput.files.length > 0) {
+        changedFields.push('Supporting Document');
+    }
+
+    const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
+    if (inspectionDocInput && inspectionDocInput.files && inspectionDocInput.files.length > 0) {
+        changedFields.push('Inspection Document');
+    }
+
+    // Build confirmation message
+    const changesText = changedFields.length > 0 
+        ? `Update this BoatR application with the following changes?\n\n• ${changedFields.join('\n• ')}`
+        : 'Update this BoatR application?';
+
+    // Show confirmation with only changed fields
+    showConfirmationToast(
+        'Confirm Update',
+        changesText,
+        () => proceedWithEditBoatrSubmit(form, registrationId)
+    );
+}
+
+/**
+ * Validate Edit BoatR Form
+ */
+function validateEditBoatrForm() {
+    const form = document.getElementById('editBoatrForm');
+    let isValid = true;
+    
+    // Required fields
+    const requiredFields = [
+        { name: 'first_name', label: 'First Name', element: 'edit_boatr_first_name' },
+        { name: 'last_name', label: 'Last Name', element: 'edit_boatr_last_name' },
+        { name: 'contact_number', label: 'Contact Number', element: 'edit_boatr_contact_number' },
+        { name: 'barangay', label: 'Barangay', element: 'edit_boatr_barangay' },
+        { name: 'vessel_name', label: 'Vessel Name', element: 'edit_boatr_vessel_name' },
+        { name: 'boat_type', label: 'Boat Type', element: 'edit_boatr_boat_type' },
+        { name: 'boat_length', label: 'Boat Length', element: 'edit_boatr_boat_length' },
+        { name: 'boat_width', label: 'Boat Width', element: 'edit_boatr_boat_width' },
+        { name: 'boat_depth', label: 'Boat Depth', element: 'edit_boatr_boat_depth' },
+        { name: 'engine_type', label: 'Engine Type', element: 'edit_boatr_engine_type' },
+        { name: 'engine_horsepower', label: 'Engine Horsepower', element: 'edit_boatr_engine_horsepower' },
+        { name: 'primary_fishing_gear', label: 'Primary Fishing Gear', element: 'edit_boatr_primary_fishing_gear' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.element);
+        if (input && (!input.value || input.value.trim() === '')) {
             input.classList.add('is-invalid');
-            errors.push(`${field.label} is required`);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            input.parentNode.appendChild(errorDiv);
             isValid = false;
         } else {
             input.classList.remove('is-invalid');
         }
     });
-
-    if (!isValid) {
-        showToast('error', errors[0] || 'Please fill all required fields');
-        return;
+    
+    // Validate contact number
+    const contactInput = document.getElementById('edit_boatr_contact_number');
+    if (contactInput && contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            
+            const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
     }
-
-    // Show confirmation
-    showConfirmationToast(
-        'Confirm Changes',
-        'Are you sure you want to save the changes?',
-        () => proceedWithEditBoatrSubmit(form, registrationId)
-    );
+    
+    return isValid;
 }
-
 
         // Proceed with update
         function proceedWithEditBoatr(form, registrationId) {
