@@ -645,7 +645,7 @@
                         <!-- Supporting Document Card -->
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
-                                <h6 class="mb-0 fw-semibold text-primary">
+                                <h6 class="mb-0 fw-semibold text-primary text-white">
                                     <i class="fas fa-file-upload me-2"></i>Supporting Document
                                 </h6>
                             </div>
@@ -881,29 +881,210 @@
         </div>
     </div>
 
-    <!-- Application Details Modal -->
+    <!-- Application Details Modal Enhanced -->
     <div class="modal fade" id="registrationModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-ship me-2"></i>Application Details
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Application Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="registrationDetailsLoading" class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                    <div class="row g-4">
+
+                        <!-- Personal Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Application #:</strong>
+                                            <span class="text-primary" id="viewRegNumber"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Full Name:</strong>
+                                            <span id="viewRegName"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Contact Number:</strong>
+                                            <span>
+                                                <a href="tel:" id="viewRegContact" class="text-decoration-none"></a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p class="mt-2">Loading application details...</p>
-                    </div>
-                    <div id="registrationDetails" style="display: none;">
-                        <!-- Content will be loaded here -->
+
+                        <!-- Vessel Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Vessel Name:</strong>
+                                            <span id="viewRegVessel"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Boat Type:</strong>
+                                            <span id="viewRegBoatType"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>FishR Number:</strong>
+                                            <span id="viewRegFishR"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Barangay:</strong>
+                                            <span id="viewRegBarangay"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boat Specifications Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Specifications</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Dimensions:</strong>
+                                            <span id="viewRegDimensions"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Engine Type:</strong>
+                                            <span id="viewRegEngineType"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Engine HP:</strong>
+                                            <span id="viewRegEngineHP"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fishing Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fishing Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Primary Fishing Gear:</strong>
+                                            <span id="viewRegGear"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Information Card -->
+                        <div class="col-md-6">
+                            <div class="card h-100 border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status & Timeline</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Current Status:</strong>
+                                            <div id="viewRegStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Inspection:</strong>
+                                            <div id="viewRegInspection" style="margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Date Applied:</strong>
+                                            <span id="viewRegCreatedAt"></span>
+                                        </div>
+                                        <div class="col-12">
+                                            <strong>Last Updated:</strong>
+                                            <span id="viewRegUpdatedAt"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Documents Card -->
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Documents</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="viewRegDocumentContainer">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>User Documents:</strong> <span class="badge bg-info" id="userDocCount">0</span></p>
+                                                <p><strong>Inspection Documents:</strong> <span class="badge bg-success" id="inspectionDocCount">0</span></p>
+                                                <p><strong>Annexes:</strong> <span class="badge bg-warning" id="annexCount">0</span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <button class="btn btn-sm btn-info" onclick="viewDocuments({id})">
+                                                    <i class="fas fa-eye me-1"></i>View All Documents
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- TOTAL DOCUMENTS MOVED HERE - BELOW ANNEXES -->
+                                        <hr class="my-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Total Documents:</strong> <span class="badge bg-primary" id="totalDocCount">0</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remarks Card (if exists) -->
+                        <div class="col-12" id="viewRemarksContainer" style="display: none;">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0" id="viewRegRemarks"></p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -2569,7 +2750,230 @@
                 padding: 10px;
             }
         }
+/* BoatR Application Details Modal - Enhanced Card-Based Styling */
+#registrationModal .modal-content {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+}
 
+#registrationModal .modal-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border-bottom: 2px solid #0b5ed7;
+    padding: 1.5rem;
+}
+
+#registrationModal .modal-header .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: white;
+}
+
+#registrationModal .modal-header .btn-close {
+    opacity: 0.8;
+}
+
+#registrationModal .modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+#registrationModal .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 1.25rem;
+}
+
+#registrationModal .modal-body {
+    padding: 2rem;
+    background-color: #fff;
+}
+
+/* Card Styling within Application Details */
+#registrationModal .card {
+    border-width: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    height: 100%;
+}
+
+#registrationModal .card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+#registrationModal .card-header {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: white;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+}
+
+#registrationModal .card-header.bg-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+}
+
+#registrationModal .card-header.bg-info {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
+}
+
+#registrationModal .card-header.bg-success {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%) !important;
+}
+
+#registrationModal .card-header.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+    color: #000;
+}
+
+#registrationModal .card-header.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%) !important;
+}
+
+#registrationModal .card-header.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5c636a 100%) !important;
+}
+
+#registrationModal .card-body {
+    padding: 1.5rem;
+    background-color: #fff;
+}
+
+#registrationModal .row.g-2 > div {
+    padding-bottom: 0.5rem;
+}
+
+#registrationModal .row.g-2 > div > div {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#registrationModal .row.g-2 > div > div:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#registrationModal strong {
+    color: #495057;
+    font-weight: 600;
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.25rem;
+}
+
+#registrationModal .card-body span {
+    color: #333;
+    font-size: 0.95rem;
+    display: block;
+}
+
+#registrationModal a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+#registrationModal a:hover {
+    text-decoration: underline;
+}
+
+#registrationModal .text-muted {
+    color: #6c757d !important;
+    font-style: italic;
+}
+
+/* Badge Styling */
+#registrationModal .badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-top: 0.25rem;
+}
+
+/* Document Container Styling */
+#registrationModal .text-center.p-4 {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem 1.5rem !important;
+}
+
+#registrationModal .text-center i {
+    opacity: 0.7;
+    margin-bottom: 1rem;
+}
+
+#registrationModal .text-center h6 {
+    font-weight: 600;
+    color: #333;
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+#registrationModal .btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem;
+}
+
+#registrationModal .btn-outline-info:hover {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #registrationModal .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    #registrationModal .modal-body {
+        padding: 1.5rem 1rem;
+    }
+
+    #registrationModal .row.g-4 > div {
+        margin-bottom: 1rem;
+    }
+
+    #registrationModal .card-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #registrationModal .card-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    #registrationModal .modal-header .modal-title {
+        font-size: 1.05rem;
+    }
+
+    #registrationModal .modal-body {
+        padding: 1rem;
+    }
+
+    #registrationModal .text-center.p-4 {
+        padding: 1.5rem 1rem !important;
+    }
+
+    #registrationModal .card-body span {
+        font-size: 0.9rem;
+    }
+
+    #registrationModal .card-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+    }
+}
     </style>
 @endsection
 
@@ -3344,221 +3748,121 @@
                 });
         }
 
-        // View registration details - UPDATED WITH DOCUMENTS SECTION
+        // Updated View Registration Details Function for BoatR
         function viewRegistration(id) {
+            if (!id) {
+                showToast('error', 'Invalid application ID');
+                return;
+            }
+
+            // Show modal
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
             modal.show();
 
-            document.getElementById('registrationDetailsLoading').style.display = 'block';
-            document.getElementById('registrationDetails').style.display = 'none';
-
+            // Fetch registration details
             fetch(`/admin/boatr/requests/${id}`, {
+                    method: 'GET',
                     headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
                 })
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
                 .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load application details');
+                    if (!data.success) throw new Error('Failed to load application details');
 
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').style.display = 'block';
+                    // Populate Personal Information
+                    document.getElementById('viewRegNumber').textContent = data.application_number || 'N/A';
+                    document.getElementById('viewRegName').textContent = data.full_name || 'N/A';
+                    
+                    const contactLink = document.getElementById('viewRegContact');
+                    contactLink.href = `tel:${data.contact_number}`;
+                    contactLink.textContent = data.contact_number || 'N/A';
 
-                    // Build remarks section
-                    let remarksHtml = '';
-                    if (data.remarks) {
-                        remarksHtml = `
-                        <div class="col-12 mt-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-comment me-2"></i>Remarks</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="alert alert-info mb-0">
-                                        <p class="mb-1">${data.remarks}</p>
-                                        ${data.reviewed_at ? `<small class="text-muted">Updated on ${data.reviewed_at}${data.reviewed_by_name ? ` by ${data.reviewed_by_name}` : ''}</small>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    // Populate Vessel Information
+                    document.getElementById('viewRegVessel').textContent = data.vessel_name || 'N/A';
+                    document.getElementById('viewRegBoatType').textContent = data.boat_type || 'N/A';
+                    document.getElementById('viewRegFishR').textContent = data.fishr_number || 'N/A';
+
+                    // Populate Location
+                    document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
+
+                    // Populate Boat Specifications
+                    const dimensions = `${data.boat_length || '0'} x ${data.boat_width || '0'} x ${data.boat_depth || '0'} ft`;
+                    document.getElementById('viewRegDimensions').textContent = dimensions;
+                    document.getElementById('viewRegEngineType').textContent = data.engine_type || 'N/A';
+                    document.getElementById('viewRegEngineHP').textContent = (data.engine_horsepower || 'N/A') + ' HP';
+
+                    // Populate Fishing Information
+                    document.getElementById('viewRegGear').textContent = data.primary_fishing_gear || 'N/A';
+
+                    // Populate Status Information
+                    const statusElement = document.getElementById('viewRegStatus');
+                    statusElement.innerHTML = `<span class="badge bg-${data.status_color}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${data.formatted_status}</span>`;
+
+                    const inspectionElement = document.getElementById('viewRegInspection');
+                    if (data.inspection_completed) {
+                        inspectionElement.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>';
+                    } else {
+                        inspectionElement.innerHTML = '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>';
                     }
 
-                    // Build documents section - SIMILAR TO FISHR
-                    let documentsHtml = '';
+                    document.getElementById('viewRegCreatedAt').textContent = data.created_at || 'N/A';
+                    document.getElementById('viewRegUpdatedAt').textContent = data.updated_at || 'N/A';
+
+                    // Populate Documents
+                    const docContainer = document.getElementById('viewRegDocumentContainer');
                     const userDocsCount = data.user_documents ? data.user_documents.length : 0;
                     const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
                     const annexesCount = data.annexes ? data.annexes.length : 0;
                     const totalDocs = userDocsCount + inspectionDocsCount + annexesCount;
 
                     if (totalDocs > 0) {
-                        documentsHtml = `
-                        <div class="col-12 mt-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
+                        docContainer.innerHTML = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
+                                    <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
+                                    <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                     <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
                                         <i class="fas fa-eye me-1"></i>View All Documents
                                     </button>
                                 </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
-                                            <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
-                                            <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
-                                        </div>
-                                    </div>
-
-                                   <!-- Document preview thumbnails section -->
-                                    <div class="mt-4">
-                                        <h6 class="border-bottom pb-2">Document Preview</h6>
-                                        <div class="boatr-table-documents mt-3">
-                                            <div class="boatr-document-previews">
-                                                ${userDocsCount > 0 ? `
-                                                            <div class="boatr-mini-doc"
-                                                                onclick="viewDocumentsByType(${id}, 'user')"
-                                                                title="User Documents (${userDocsCount})">
-                                                                <div class="boatr-mini-doc-icon">
-                                                                    <i class="fas fa-file-image text-info"></i>
-                                                                </div>
-                                                                ${userDocsCount > 1 ? `<span class="boatr-doc-count">${userDocsCount}</span>` : ''}
-                                                            </div>
-                                                        ` : ''}
-                                                ${inspectionDocsCount > 0 ? `
-                                                            <div class="boatr-mini-doc"
-                                                                onclick="viewDocumentsByType(${id}, 'inspection')"
-                                                                title="Inspection Documents (${inspectionDocsCount})">
-                                                                <div class="boatr-mini-doc-icon">
-                                                                    <i class="fas fa-clipboard-check text-success"></i>
-                                                                </div>
-                                                                ${inspectionDocsCount > 1 ? `<span class="boatr-doc-count">${inspectionDocsCount}</span>` : ''}
-                                                            </div>
-                                                        ` : ''}
-                                                ${annexesCount > 0 ? `
-                                                            <div class="boatr-mini-doc"
-                                                                onclick="viewDocumentsByType(${id}, 'annexes')"
-                                                                title="Annexes (${annexesCount})">
-                                                                <div class="boatr-mini-doc-icon">
-                                                                    <i class="fas fa-folder text-warning"></i>
-                                                                </div>
-                                                                ${annexesCount > 1 ? `<span class="boatr-doc-count">${annexesCount}</span>` : ''}
-                                                            </div>
-                                                        ` : ''}
-                                            </div>
-                                            <div class="boatr-document-summary mt-2"
-                                                onclick="viewDocuments(${id})">
-                                                <small class="text-muted" style="cursor: pointer;">
-                                                    <i class="fas fa-eye me-1"></i>View all ${totalDocs} document${totalDocs > 1 ? 's' : ''}
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
                     } else {
-                        documentsHtml = `
-                        <div class="col-12 mt-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center py-4">
-                                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No documents available</p>
-                                    </div>
-                                </div>
+                        docContainer.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No documents available</p>
                             </div>
-                        </div>
-                    `;
+                        `;
                     }
 
-                    // Build the complete details HTML
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
-                                    <p><strong>Name:</strong> ${data.full_name}</p>
-                                    <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                                    <p><strong>Contact Number:</strong> ${data.contact_number || 'N/A'}</p>
-                                    <p><strong>FishR Number:</strong> ${data.fishr_number}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Vessel Name:</strong> ${data.vessel_name}</p>
-                                    <p><strong>Boat Type:</strong> ${data.boat_type}</p>
-                                    <p><strong>Dimensions:</strong> ${data.boat_dimensions}</p>
-                                    <p><strong>Engine Type:</strong> ${data.engine_type}</p>
-                                    <p><strong>Engine HP:</strong> ${data.engine_horsepower} HP</p>
-                                    <p><strong>Primary Fishing Gear:</strong> ${data.primary_fishing_gear}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mt-4">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
-                                    <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>' : '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>'}</p>
-                                    ${data.inspection_date ? `<p><strong>Inspection Date:</strong> ${data.inspection_date}</p>` : ''}
-                                    ${data.inspection_notes ? `<p><strong>Inspection Notes:</strong> ${data.inspection_notes}</p>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mt-4">
-                            <div class="card h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                                    <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                                    ${data.reviewed_at ? `<p><strong>Last Reviewed:</strong> ${data.reviewed_at}</p>` : ''}
-                                    ${data.reviewed_by_name ? `<p><strong>Reviewed By:</strong> ${data.reviewed_by_name}</p>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                        ${documentsHtml}
-                        ${remarksHtml}
-                    </div>
-                `;
+                    // Populate Remarks if exists
+                    const remarksContainer = document.getElementById('viewRemarksContainer');
+                    if (data.remarks) {
+                        remarksContainer.style.display = 'block';
+                        document.getElementById('viewRegRemarks').textContent = data.remarks;
+                    } else {
+                        remarksContainer.style.display = 'none';
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading application details: ${error.message}
-                    </div>
-                `;
-                    document.getElementById('registrationDetails').style.display = 'block';
+                    showToast('error', 'Error loading application details: ' + error.message);
+                    modal.hide();
                 });
         }
-
         // view documents
         function viewDocuments(id) {
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
