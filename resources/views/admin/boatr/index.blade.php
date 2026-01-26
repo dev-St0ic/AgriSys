@@ -1198,65 +1198,87 @@
     <div class="modal fade" id="annexesModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-folder-plus me-2"></i>Manage Annexes
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <!-- Loading State -->
                     <div id="annexesLoading" class="text-center py-4" style="display: none;">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading annexes...</p>
+                        <p class="mt-2 text-muted">Loading annexes...</p>
                     </div>
 
                     <!-- Content -->
                     <div id="annexesContent">
-                        <!-- Application Info -->
-                        <div class="card bg-light mb-3">
+                        <!-- Registration Info Card -->
+                        <div class="card bg-light border-primary mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Registration Information
+                                </h6>
+                            </div>
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row g-3">
                                     <div class="col-md-6">
-                                        <strong>Application #:</strong> <span id="annexAppNumber"></span><br>
-                                        <strong>Applicant:</strong> <span id="annexApplicantName"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Application #</small>
+                                            <strong class="text-primary" id="annexAppNumber"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Applicant</small>
+                                            <strong id="annexApplicantName"></strong>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <strong>Vessel Name:</strong> <span id="annexVesselName"></span><br>
-                                        <strong>Status:</strong> <span id="annexStatus"></span>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Barangay</small>
+                                            <strong id="annexBarangay"></strong>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted d-block">Status</small>
+                                            <div id="annexStatus" style="margin-top: 0.25rem;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Upload New Annex -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Upload New Annex Card -->
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-upload me-2"></i>Upload New Annex
                                 </h6>
                             </div>
                             <div class="card-body">
                                 <form id="annexUploadForm" enctype="multipart/form-data">
                                     <input type="hidden" id="annexRegistrationId">
+                                    
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexFile" class="form-label">Select File <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="annexFile" class="form-label fw-semibold">
+                                                    Select File <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="file" class="form-control" id="annexFile"
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
                                                 <div class="invalid-feedback" id="annexFileError"></div>
-                                                <small class="text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG, GIF
-                                                    (Max: 10MB)</small>
+                                                <small class="text-muted d-block mt-2">
+                                                    <i class="fas fa-info-circle me-1"></i>Supported: PDF, DOC, DOCX, JPG, PNG, GIF (Max: 10MB)
+                                                </small>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexTitle" class="form-label">Document Title <span
-                                                        class="text-danger">*</span></label>
+                                                <label for="annexTitle" class="form-label fw-semibold">
+                                                    Document Title <span class="text-danger">*</span>
+                                                </label>
                                                 <input type="text" class="form-control" id="annexTitle"
                                                     placeholder="e.g., Additional Certificate, Supporting Document"
                                                     required>
@@ -1264,24 +1286,36 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="annexDescription" class="form-label">Description</label>
+                                        <label for="annexDescription" class="form-label fw-semibold">
+                                            Description
+                                        </label>
                                         <textarea class="form-control" id="annexDescription" rows="3"
-                                            placeholder="Brief description of the document (optional)"></textarea>
-                                        <small class="text-muted"><span id="annexDescCount">0</span>/500
-                                            characters</small>
+                                            placeholder="Brief description of the document (optional)"
+                                            oninput="updateAnnexDescriptionCounter()"></textarea>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>Optional context for this document
+                                            </small>
+                                            <small class="text-muted">
+                                                <span id="annexDescCount">0</span>/500
+                                            </small>
+                                        </div>
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
-                                        <i class="fas fa-upload me-1"></i>Upload Annex
-                                    </button>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
+                                            <i class="fas fa-upload me-2"></i>Upload Annex
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
 
-                        <!-- Existing Annexes -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
+                        <!-- Existing Annexes Card -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-folder me-2"></i>Existing Annexes
                                 </h6>
                             </div>
@@ -1293,8 +1327,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -2268,7 +2305,6 @@
         }
 
         .change-indicator::after {
-            content: "●";
             color: #ffc107;
             font-size: 12px;
             position: absolute;
@@ -3025,6 +3061,133 @@
         padding: 0.75rem 1rem;
         font-size: 0.85rem;
     }
+}
+
+/* Annex Document Items */
+.annex-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.annex-item:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #4e73df;
+}
+
+.annex-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.annex-title {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 8px;
+    word-break: break-word;
+    font-size: 0.95rem;
+}
+
+.annex-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.annex-meta {
+    font-size: 0.8rem;
+    color: #6c757d;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.annex-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.annex-meta-item i {
+    color: #4e73df;
+}
+
+.annex-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    flex-shrink: 0;
+}
+
+.annex-item-actions .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .annex-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .annex-item-actions {
+        margin-left: 0;
+        margin-top: 1rem;
+        width: 100%;
+    }
+
+    .annex-item-actions .btn {
+        flex: 1;
+    }
+}
+/* Modal z-index fixes for stacking */
+.modal {
+    z-index: 1050;
+}
+
+.modal-backdrop {
+    z-index: 1049;
+}
+
+/* Annexes Modal */
+#annexesModal {
+    z-index: 1060 !important;
+}
+
+/* Document Preview Modal - Higher than annexes */
+#documentPreviewModal {
+    z-index: 1080 !important;
+}
+
+#documentModal {
+    z-index: 1080 !important;
+}
+
+/* Ensure backdrops don't overlap */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Hide duplicate backdrops */
+.modal-backdrop:nth-of-type(2),
+.modal-backdrop:nth-of-type(3) {
+    display: none !important;
 }
     </style>
 @endsection
@@ -4200,7 +4363,9 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
 
         // FIXED: previewDocument function
         function previewDocument(id, type, index) {
-            const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+            const previewModalEl = document.getElementById('documentPreviewModal');
+            previewModalEl.classList.add('modal-preview-from-annexes');
+            const modal = new bootstrap.Modal(previewModalEl);
             modal.show();
 
             document.getElementById('documentPreview').innerHTML = `
@@ -4452,23 +4617,31 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
 
 
         // ========== ANNEXES MANAGEMENT ==========
+        /**
+         * Show Annexes Modal
+         */
         function showAnnexesModal(id) {
             const modal = new bootstrap.Modal(document.getElementById('annexesModal'));
             modal.show();
 
+            // Show loading
             document.getElementById('annexesLoading').style.display = 'block';
             document.getElementById('annexesContent').style.display = 'none';
 
-            loadAnnexesData(id);
+            // Load registration details and annexes
+            loadBoatrAnnexesData(id);
         }
 
-
-        // Load annexes data
-        function loadAnnexesData(id) {
+        /**
+         * Load BoatR Annexes Data
+         */
+        function loadBoatrAnnexesData(id) {
             fetch(`/admin/boatr/requests/${id}`, {
+                    method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken()
                     }
                 })
                 .then(response => {
@@ -4478,18 +4651,23 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 .then(data => {
                     if (!data.success) throw new Error(data.message || 'Failed to load data');
 
+                    // Hide loading, show content
                     document.getElementById('annexesLoading').style.display = 'none';
                     document.getElementById('annexesContent').style.display = 'block';
 
+                    // Populate registration info
                     document.getElementById('annexRegistrationId').value = id;
                     document.getElementById('annexAppNumber').textContent = data.application_number;
                     document.getElementById('annexApplicantName').textContent = data.full_name;
-                    document.getElementById('annexVesselName').textContent = data.vessel_name || 'N/A';
+                    document.getElementById('annexBarangay').textContent = data.barangay || 'N/A';
                     document.getElementById('annexStatus').innerHTML =
                         `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                    loadExistingAnnexes(id);
-                    resetAnnexForm();
+                    // Load existing annexes
+                    loadBoatrExistingAnnexes(id);
+
+                    // Reset form
+                    resetBoatrAnnexForm();
                 })
                 .catch(error => {
                     console.error('Error loading annexes data:', error);
@@ -4497,21 +4675,25 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
 
                     document.getElementById('annexesLoading').style.display = 'none';
                     document.getElementById('annexesContent').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading data: ${error.message}
-                    </div>
-                `;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading data: ${error.message}
+                        </div>
+                    `;
                     document.getElementById('annexesContent').style.display = 'block';
                 });
         }
 
-        // Load existing annexes
-        function loadExistingAnnexes(id) {
+        /**
+         * Load Existing BoatR Annexes
+         */
+        function loadBoatrExistingAnnexes(id) {
             fetch(`/admin/boatr/requests/${id}/annexes`, {
+                    method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken()
                     }
                 })
                 .then(response => response.json())
@@ -4529,99 +4711,297 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                                 minute: '2-digit'
                             });
 
+                            // Store annex data in data attribute
+                            const filePath = annex.file_path ? String(annex.file_path).trim() : '';
+                            const annexDataJson = JSON.stringify({
+                                id: annex.id,
+                                registrationId: id,
+                                filePath: filePath,
+                                fileName: annex.file_name || annex.title || 'Document',
+                                title: annex.title,
+                                fileExtension: annex.file_extension
+                            });
+
                             annexesHtml += `
-                            <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h6 class="mb-1 text-primary">${annex.title}</h6>
-                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
-                                            <span class="mx-2">|</span>
-                                            <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
-                                        </small>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <div class="btn-group" role="group">
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                    onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-success"
-                                                    onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                    onclick="deleteAnnex(${id}, ${annex.id})" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                <div class="annex-item border rounded p-3 mb-3" 
+                                    id="annex-${annex.id}" 
+                                    data-annex-json='${annexDataJson}'>
+                                    <div class="annex-item-content">
+                                        <h6 class="annex-title">${escapeHtml(annex.title)}</h6>
+                                        <p class="annex-description">${escapeHtml(annex.description || 'No description')}</p>
+                                        <div class="annex-meta">
+                                            <div class="annex-meta-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span>${uploadDate}</span>
+                                            </div>
+                                            <div class="annex-meta-item">
+                                                <i class="fas fa-file"></i>
+                                                <span>${formatFileSize(annex.file_size)}</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="annex-item-actions">
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="previewBoatrAnnexFixed(${annex.id})" 
+                                                title="Preview">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="downloadBoatrAnnexFixed(${annex.id})" 
+                                                title="Download">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                onclick="deleteBoatrAnnex(${id}, ${annex.id})" 
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
                         });
                         annexesList.innerHTML = annexesHtml;
                     } else {
                         annexesList.innerHTML = `
-                        <div class="text-center py-4">
-                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No annexes uploaded yet</p>
-                        </div>
-                    `;
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No annexes uploaded yet</p>
+                            </div>
+                        `;
                     }
                 })
                 .catch(error => {
                     console.error('Error loading annexes:', error);
+                    showToast('error', 'Error loading annexes: ' + error.message);
                     document.getElementById('annexesList').innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Error loading annexes: ${error.message}
-                    </div>
-                `;
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading annexes: ${error.message}
+                        </div>
+                    `;
                 });
         }
+        // preview BoatR Annex
+        function previewBoatrAnnexFixed(annexId) {
+            try {
+                const annexElement = document.getElementById(`annex-${annexId}`);
+                
+                if (!annexElement) {
+                    showToast('error', 'Annex not found');
+                    return;
+                }
+                
+                const annexDataJson = annexElement.getAttribute('data-annex-json');
+                if (!annexDataJson) {
+                    showToast('error', 'Annex data not found');
+                    return;
+                }
 
-        // Check for changes in Annexes Upload Form
-        function checkAnnexesModalChanges() {
-            const fileInput = document.getElementById('annexFile');
-            const titleInput = document.getElementById('annexTitle');
-            const descInput = document.getElementById('annexDescription');
-            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+                let annexData;
+                try {
+                    annexData = JSON.parse(annexDataJson);
+                } catch (e) {
+                    console.error('Error parsing annex data JSON:', e);
+                    showToast('error', 'Error reading annex data');
+                    return;
+                }
 
-            const fileChanged = fileInput.files.length > 0;
-            const titleChanged = titleInput.value.trim() !== (titleInput.dataset.originalTitle || '').trim();
-            const descChanged = descInput.value.trim() !== (descInput.dataset.originalDesc || '').trim();
+                const filePath = annexData.filePath;
+                const fileName = annexData.fileName || annexData.title || 'Document';
+                
+                if (!filePath || filePath === 'undefined' || filePath === '') {
+                    console.error('File path is missing:', annexData);
+                    showToast('error', 'File path not available for this annex');
+                    return;
+                }
+                
+                console.log('Preview BoatR annex:', { annexId, filePath, fileName });
+                
+                // Open modal and display directly
+                const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+                modal.show();
+                
+                const fileUrl = `/storage/${filePath}`;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                
+                // Preview the file
+                previewFileContent(fileUrl, fileName, fileExtension);
 
-            // Visual feedback
-            fileInput.classList.toggle('form-changed', fileChanged);
-            fileInput.parentElement.classList.toggle('changed', fileChanged);
-
-            titleInput.classList.toggle('form-changed', titleChanged);
-            titleInput.parentElement.classList.toggle('changed', titleChanged);
-
-            descInput.classList.toggle('form-changed', descChanged);
-            descInput.parentElement.classList.toggle('changed', descChanged);
-
-            // Button state
-            const hasChanges = fileChanged || titleChanged || descChanged;
-            uploadBtn.classList.toggle('no-changes', !hasChanges);
-
-            if (!hasChanges) {
-                uploadBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-            } else {
-                uploadBtn.innerHTML = '<i class="fas fa-upload me-1"></i>Upload Annex';
+            } catch (error) {
+                console.error('Error in previewBoatrAnnexFixed:', error);
+                showToast('error', 'Error previewing annex: ' + error.message);
             }
         }
 
+        // Helper function to preview file content
+        function previewFileContent(fileUrl, fileName, fileExtension) {
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            const pdfTypes = ['pdf'];
+            
+            if (imageTypes.includes(fileExtension)) {
+                document.getElementById('documentPreview').innerHTML = `
+                    <div class="text-center">
+                        <img src="${fileUrl}" alt="Preview" style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+                        <div style="margin-top: 20px;">
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else if (pdfTypes.includes(fileExtension)) {
+                document.getElementById('documentPreview').innerHTML = `
+                    <embed src="${fileUrl}" type="application/pdf" width="100%" height="600px;" style="border-radius: 8px;">
+                `;
+            } else {
+                document.getElementById('documentPreview').innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-file fa-4x text-muted mb-3"></i>
+                        <p>Preview not available for this file type.</p>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-primary">
+                            <i class="fas fa-download me-2"></i>Download ${fileExtension.toUpperCase()}
+                        </a>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('documentPreviewTitle').innerHTML = `<i class="fas fa-eye me-2"></i>${fileName}`;
+        }
 
-        // Upload annex with change detection
+        /**
+        * Download BoatR Annex
+        */
+        function downloadBoatrAnnexFixed(annexId) {
+            try {
+                const annexElement = document.getElementById(`annex-${annexId}`);
+                
+                if (!annexElement) {
+                    showToast('error', 'Annex not found');
+                    return;
+                }
+                
+                const annexDataJson = annexElement.getAttribute('data-annex-json');
+                if (!annexDataJson) {
+                    showToast('error', 'Annex data not found');
+                    return;
+                }
+
+                let annexData;
+                try {
+                    annexData = JSON.parse(annexDataJson);
+                } catch (e) {
+                    console.error('Error parsing annex data JSON:', e);
+                    showToast('error', 'Error reading annex data');
+                    return;
+                }
+
+                const filePath = annexData.filePath;
+                const fileName = annexData.fileName || annexData.title || 'Document';
+                
+                if (!filePath || filePath === 'undefined' || filePath === '') {
+                    console.error('File path is missing:', annexData);
+                    showToast('error', 'File path not available for this annex');
+                    return;
+                }
+
+                console.log('Download BoatR annex:', { annexId, filePath, fileName });
+
+                showConfirmationToast(
+                    'Download File',
+                    `Download: ${fileName}?`,
+                    () => proceedWithBoatrAnnexDownload(filePath, fileName)
+                );
+
+            } catch (error) {
+                console.error('Error in downloadBoatrAnnexFixed:', error);
+                showToast('error', 'Error downloading annex: ' + error.message);
+            }
+        }
+
+        /**
+        * Proceed with BoatR Annex Download
+        */
+        function proceedWithBoatrAnnexDownload(filePath, fileName) {
+            const fileUrl = `/storage/${filePath}`;
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = fileName;
+            link.target = '_blank';
+            document.body.appendChild(link);
+
+            try {
+                link.click();
+                showToast('success', 'File download started');
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('error', 'Failed to download file');
+            } finally {
+                document.body.removeChild(link);
+            }
+        }
+
+        /**
+        * Delete BoatR Annex
+        */
+        function deleteBoatrAnnex(registrationId, annexId) {
+            showConfirmationToast(
+                'Delete Annex',
+                `Are you sure you want to delete this annex?\n\nThis action cannot be undone.`,
+                () => proceedWithBoatrAnnexDelete(registrationId, annexId)
+            );
+        }
+
+        /**
+        * Proceed with BoatR Annex Deletion
+        */
+        function proceedWithBoatrAnnexDelete(registrationId, annexId) {
+            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to delete annex');
+
+                    showToast('success', 'Annex deleted successfully');
+
+                    const annexElement = document.getElementById(`annex-${annexId}`);
+                    if (annexElement) {
+                        annexElement.style.transition = 'opacity 0.3s ease';
+                        annexElement.style.opacity = '0';
+                        setTimeout(() => {
+                            annexElement.remove();
+                            const annexesList = document.getElementById('annexesList');
+                            if (!annexesList.querySelector('.annex-item')) {
+                                loadBoatrExistingAnnexes(document.getElementById('annexRegistrationId').value);
+                            }
+                        }, 300);
+                    }
+
+                    setTimeout(() => window.location.reload(), 1500);
+                })
+                .catch(error => {
+                    console.error('Error deleting annex:', error);
+                    showToast('error', 'Failed to delete annex: ' + error.message);
+                });
+        }
+
+        /**
+        * Upload BoatR Annex
+        */
         function uploadAnnex() {
             const id = document.getElementById('annexRegistrationId').value;
             const fileInput = document.getElementById('annexFile');
             const title = document.getElementById('annexTitle').value.trim();
             const description = document.getElementById('annexDescription').value.trim();
 
+            // Validation
             if (!fileInput.files[0]) {
                 showValidationError('annexFile', 'annexFileError', 'Please select a file');
                 return;
@@ -4632,8 +5012,16 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 return;
             }
 
-            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+            const maxFileSize = 10 * 1024 * 1024;
+            if (fileInput.files[0].size > maxFileSize) {
                 showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+                return;
+            }
+
+            const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif'];
+            const fileExtension = fileInput.files[0].name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                showValidationError('annexFile', 'annexFileError', 'File type not allowed');
                 return;
             }
 
@@ -4641,13 +5029,15 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
 
             showConfirmationToast(
                 'Upload Annex',
-                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}\nTitle: ${title}${description ? '\nDescription: ' + description : ''}`,
-                () => proceedWithAnnexUpload(id, fileInput, title, description)
+                `Upload: ${fileInput.files[0].name}?\nSize: ${formatFileSize(fileInput.files[0].size)}`,
+                () => proceedWithBoatrAnnexUpload(id, fileInput, title, description)
             );
         }
 
-        // Proceed with annex upload
-        function proceedWithAnnexUpload(id, fileInput, title, description) {
+        /**
+        * Proceed with BoatR Annex Upload
+        */
+        function proceedWithBoatrAnnexUpload(id, fileInput, title, description) {
             const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
             const originalContent = uploadBtn.innerHTML;
             uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
@@ -4671,17 +5061,18 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                     return response.json();
                 })
                 .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to upload annex');
-
-                    showToast('success', 'Annex uploaded successfully');
-                    resetAnnexForm();
-                    loadExistingAnnexes(id);
-
-                    setTimeout(() => window.location.reload(), 1500);
+                    if (data.success) {
+                        showToast('success', 'Annex uploaded successfully');
+                        resetBoatrAnnexForm();
+                        loadBoatrExistingAnnexes(id);
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(data.message || 'Failed to upload annex');
+                    }
                 })
                 .catch(error => {
                     console.error('Error uploading annex:', error);
-                    showToast('error', 'Upload failed: ' + error.message);
+                    showToast('error', 'Failed to upload annex: ' + error.message);
                 })
                 .finally(() => {
                     uploadBtn.innerHTML = originalContent;
@@ -4689,202 +5080,46 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 });
         }
 
-        // Preview annex
-        function previewAnnex(registrationId, annexId) {
-            const previewModal = document.getElementById('documentPreviewModal');
-            const annexesModal = document.getElementById('annexesModal');
-            const modal = new bootstrap.Modal(previewModal);
-
-            previewModal.style.zIndex = '1060';
-
-            const annexesBackdrop = document.querySelector('.modal-backdrop');
-            if (annexesBackdrop) {
-                annexesBackdrop.style.zIndex = '1058';
-            }
-
-            previewModal.addEventListener('hidden.bs.modal', function() {
-                previewModal.style.zIndex = '';
-                if (annexesBackdrop) {
-                    annexesBackdrop.style.zIndex = '';
-                }
-            }, {
-                once: true
-            });
-
-            modal.show();
-
-            document.getElementById('documentPreview').innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Loading annex preview...</p>
-                </div>
-            `;
-
-            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/preview`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load preview');
-
-                    document.getElementById('documentPreviewTitle').innerHTML =
-                        `<i class="fas fa-folder me-2"></i>${data.title}`;
-
-                    const fileExtension = data.file_extension?.toLowerCase();
-                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-                    const isPdf = fileExtension === 'pdf';
-
-                    if (isPdf) {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="text-center">
-                            <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
-                                style="border: none; border-radius: 8px;" />
-                            <div class="mt-2">
-                                <a href="${data.file_url}" target="_blank" class="btn btn-primary">
-                                    <i class="fas fa-external-link-alt me-1"></i>Open in new tab
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                    } else if (isImage) {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="text-center">
-                            <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
-                                style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-                        </div>
-                    `;
-                    } else {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <h5>Preview not available for this file type</h5>
-                            <p>File type: ${fileExtension?.toUpperCase() || 'Unknown'}</p>
-                            <a href="${data.file_url}" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-download me-1"></i>Download to view
-                            </a>
-                        </div>
-                    `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading annex preview:', error);
-                    document.getElementById('documentPreview').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <h5>Error loading annex preview</h5>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-                });
-        }
-
-        function downloadAnnex(registrationId, annexId) {
-            window.open(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/download`, '_blank');
-        }
-
-        // Delete annex with confirmation
-        function deleteAnnex(registrationId, annexId) {
-            showConfirmationToast(
-                'Delete Annex',
-                'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
-                () => proceedWithAnnexDelete(registrationId, annexId)
-            );
-        }
-
-        // Proceed with annex deletion
-        function proceedWithAnnexDelete(registrationId, annexId) {
-            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to delete annex');
-
-                    showToast('success', 'Annex deleted successfully');
-
-                    const annexElement = document.getElementById(`annex-${annexId}`);
-                    if (annexElement) {
-                        annexElement.remove();
-                    }
-
-                    const annexesList = document.getElementById('annexesList');
-                    if (annexesList && !annexesList.querySelector('.document-item')) {
-                        loadExistingAnnexes(registrationId);
-                    }
-
-                    setTimeout(() => window.location.reload(), 1500);
-                })
-                .catch(error => {
-                    console.error('Error deleting annex:', error);
-                    showToast('error', 'Delete failed: ' + error.message);
-                });
-        }
-
-        // Reset annex form
-        function resetAnnexForm() {
+        /**
+        * Reset BoatR Annex Form
+        */
+        function resetBoatrAnnexForm() {
             document.getElementById('annexFile').value = '';
             document.getElementById('annexTitle').value = '';
             document.getElementById('annexDescription').value = '';
             document.getElementById('annexDescCount').textContent = '0';
-
-            // Store original values
-            document.getElementById('annexFile').dataset.originalFile = '';
-            document.getElementById('annexTitle').dataset.originalTitle = '';
-            document.getElementById('annexDescription').dataset.originalDesc = '';
-
-            // Add change indicator classes
-            const fileInput = document.getElementById('annexFile').parentElement;
-            const titleInput = document.getElementById('annexTitle').parentElement;
-            const descInput = document.getElementById('annexDescription').parentElement;
-
-            fileInput.classList.add('change-indicator');
-            titleInput.classList.add('change-indicator');
-            descInput.classList.add('change-indicator');
-
-            // Remove highlighting
-            document.getElementById('annexFile').classList.remove('form-changed');
-            document.getElementById('annexTitle').classList.remove('form-changed');
-            document.getElementById('annexDescription').classList.remove('form-changed');
-            fileInput.classList.remove('changed');
-            titleInput.classList.remove('changed');
-            descInput.classList.remove('changed');
-
-            // Reset button
-            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
-            if (uploadBtn) {
-                uploadBtn.classList.add('no-changes');
-                uploadBtn.innerHTML = '<i class="fas fa-upload me-1"></i>Upload Annex';
-            }
-
-            // Remove listeners and add fresh ones
-            document.getElementById('annexFile').removeEventListener('change', checkAnnexesModalChanges);
-            document.getElementById('annexTitle').removeEventListener('input', checkAnnexesModalChanges);
-            document.getElementById('annexDescription').removeEventListener('input', checkAnnexesModalChanges);
-
-            document.getElementById('annexFile').addEventListener('change', checkAnnexesModalChanges);
-            document.getElementById('annexTitle').addEventListener('input', checkAnnexesModalChanges);
-            document.getElementById('annexDescription').addEventListener('input', checkAnnexesModalChanges);
-
             clearValidationErrors();
         }
 
+        /**
+        * Update Annex Description Counter
+        */
+        function updateAnnexDescriptionCounter() {
+            const textarea = document.getElementById('annexDescription');
+            const counter = document.getElementById('annexDescCount');
 
-        // Validation helpers
+            if (textarea && counter) {
+                const charCount = textarea.value.length;
+                counter.textContent = charCount;
+
+                if (charCount > 500) {
+                    textarea.value = textarea.value.substring(0, 500);
+                    counter.textContent = '500';
+                }
+
+                if (charCount > 450) {
+                    counter.parentElement.classList.add('text-warning');
+                    counter.parentElement.classList.remove('text-muted');
+                } else {
+                    counter.parentElement.classList.remove('text-warning');
+                    counter.parentElement.classList.add('text-muted');
+                }
+            }
+        }
+
+        /**
+        * Show Validation Error
+        */
         function showValidationError(inputId, errorId, message) {
             const input = document.getElementById(inputId);
             const error = document.getElementById(errorId);
@@ -4893,6 +5128,9 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
             error.textContent = message;
         }
 
+        /**
+        * Clear Validation Errors
+        */
         function clearValidationErrors() {
             const inputs = ['annexFile', 'annexTitle'];
             const errors = ['annexFileError', 'annexTitleError'];
@@ -4906,6 +5144,29 @@ function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
                 const error = document.getElementById(errorId);
                 if (error) error.textContent = '';
             });
+        }
+
+        /**
+        * Format File Size
+        */
+        function formatFileSize(bytes) {
+            if (!bytes || bytes === 0) return 'Unknown size';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        /**
+        * Escape HTML
+        */
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
         // ========== DATE FILTER FUNCTIONS ==========
         function setDateRangeModal(period) {
