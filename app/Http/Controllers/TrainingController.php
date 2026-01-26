@@ -50,7 +50,7 @@ class TrainingController extends Controller
         $totalApplications = TrainingApplication::count();
         $underReviewCount = TrainingApplication::where('status', 'under_review')->count();
         $approvedCount = TrainingApplication::where('status', 'approved')->count();
-        $rejectedCount = TrainingApplication::where('status', 'rejected')->count();
+        $pendingCount = TrainingApplication::where('status', 'under_review')->count();
 
       
         $barangays = [
@@ -88,7 +88,7 @@ class TrainingController extends Controller
             'totalApplications',
             'underReviewCount',
             'approvedCount',
-            'rejectedCount',
+            'pendingCount',
             'barangays' 
         ));
     }

@@ -24,18 +24,7 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
-                        <i class="fas fa-clock text-warning"></i>
-                    </div>
-                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
-                    <div class="stat-label text-warning">Under Review</div>
-                </div>
-            </div>
-        </div>
-
+        
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
@@ -52,10 +41,22 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-times-circle text-danger"></i>
+                        <i class="fas fa-clock text-warning"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $rejectedCount }}</div>
-                    <div class="stat-label text-danger">Rejected</div>
+                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                    <div class="stat-label text-warning">Under Review</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-hourglass-start text-info"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $pendingCount }}</div>
+                    <div class="stat-label text-info">Pending</div>
                 </div>
             </div>
         </div>
@@ -74,7 +75,7 @@
                 <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                 <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
@@ -138,7 +139,7 @@
                     </div>
                     <div class="col-md-2">
                         <a href="{{ route('admin.training.requests') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
+                            <i></i> Clear
                         </a>
                     </div>
                 </div>
@@ -156,12 +157,12 @@
                 </h6>
             </div>
             <div class="d-flex gap-2">
+                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddTrainingModal()">
+                    <i class="fas fa-plus me-2"></i>Add Registration
+                </button>
                 <a href="{{ route('admin.training.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
-                <button type="button" class="btn btn-primary btn-sm" onclick="showAddTrainingModal()">
-                    <i class="fas fa-plus me-2"></i>Add Registration
-                </button>
             </div>
         </div>
         <div class="card-body">
@@ -437,9 +438,9 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
