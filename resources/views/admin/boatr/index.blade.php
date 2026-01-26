@@ -291,10 +291,10 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-outline-dark"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-sync"></i> Change Status
                                         </button>
 
                                         <button class="btn btn-sm btn-annexes"
@@ -750,77 +750,129 @@
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-edit me-2"></i>Update Application Status
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i></i>Update Application Status
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <!-- Loading State -->
-                    <div id="updateModalLoading" class="text-center py-4" style="display: none;">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">Loading application details...</p>
-                    </div>
 
-                    <!-- Application Info -->
-                    <div class="card bg-light mb-3" id="updateModalContent" style="display: none;">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2">
+                <div class="modal-body">
+                    <!-- Application Info Card -->
+                    <div class="card bg-light border-primary mb-4">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
                                 <i class="fas fa-info-circle me-2"></i>Application Information
                             </h6>
-                            <div class="row">
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Application #:</strong> <span id="updateRegNumber"></span>
-                                    </p>
-                                    <p class="mb-1"><strong>Name:</strong> <span id="updateRegName"></span></p>
-                                    <p class="mb-1"><strong>Barangay:</strong> <span id="updateRegBarangay"></span></p>
-                                    <p class="mb-1"><strong>Vessel:</strong> <span id="updateRegVessel"></span></p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Application #</small>
+                                        <strong id="updateAppNumber">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Applicant Name</small>
+                                        <strong id="updateAppName">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Vessel Name</small>
+                                        <strong id="updateAppVessel">-</strong>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>FishR #:</strong> <span id="updateRegFishR"></span></p>
-                                    <p class="mb-1"><strong>Boat Type:</strong> <span id="updateRegBoatType"></span></p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span
-                                            id="updateRegCurrentStatus"></span></p>
-                                    <p class="mb-1"><strong>Inspection:</strong> <span id="updateRegInspection"></span>
-                                    </p>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Barangay</small>
+                                        <strong id="updateAppBarangay">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Boat Type</small>
+                                        <strong id="updateAppBoatType">-</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Current Status</small>
+                                        <strong id="updateAppCurrentStatus">-</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Update Form -->
-                    <form id="updateForm" style="display: none;">
-                        <input type="hidden" id="updateRegistrationId">
-                        <div class="mb-3">
-                            <label for="newStatus" class="form-label">Select New Status:</label>
-                            <select class="form-select" id="newStatus" required>
-                                <option value="">Choose status...</option>
-                                <option value="pending">Pending</option>
-                                <option value="under_review">Under Review</option>
-                                <option value="inspection_required">Inspection Required</option>
-                                <option value="inspection_scheduled">Inspection Scheduled</option>
-                                <option value="documents_pending">Documents Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
+                    <!-- Update Form Card -->
+                    <form id="updateForm">
+                        <input type="hidden" id="updateApplicationId">
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-toggle-on me-2"></i>Update Status
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="newStatus" class="form-label fw-semibold">
+                                        Select New Status 
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="newStatus" required>
+                                        <option value="">Choose status...</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="under_review">Under Review</option>
+                                        <option value="inspection_required">Inspection Required</option>
+                                        <option value="inspection_scheduled">Inspection Scheduled</option>
+                                        <option value="documents_pending">Documents Pending</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Choose the new status for this application
+                                    </small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..." maxlength="2000"></textarea>
-                            <div class="form-text">Maximum 2000 characters (<span id="remarksCount">0</span>)</div>
+
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-comment me-2"></i>Admin Remarks
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <label for="remarks" class="form-label fw-semibold">
+                                    Remarks (Optional)
+                                </label>
+                                <textarea class="form-control" id="remarks" rows="4" 
+                                    placeholder="Add any notes or comments about this status change..."
+                                    maxlength="2000"
+                                    oninput="updateBoatrStatusRemarksCounter()"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Provide context for this status update
+                                    </small>
+                                    <small class="text-muted" id="boatrStatusRemarksCounter">
+                                        <span id="boatrStatusCharCount">0</span>/2000
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Change Alert -->
+                        <div class="alert alert-info border-left-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> Your changes will be logged and the applicant will be notified of the status update.
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="updateStatusBtn"
-                        onclick="updateRegistrationStatus()" style="display: none;">
-                        <i class="fas fa-save me-1"></i>Update Status
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateRegistrationStatus()">
+                        <i class="fas fa-save me-2"></i>Update Status
                     </button>
                 </div>
             </div>
@@ -3175,119 +3227,412 @@
         // ========== STATUS UPDATE ==========
         // Enhanced show update modal with change tracking
         function showUpdateModal(id, currentStatus) {
-            const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-            modal.show();
+            // Validate parameters
+            if (!id) {
+                showToast('error', 'Invalid application ID');
+                return;
+            }
 
-            document.getElementById('updateModalLoading').style.display = 'block';
-            document.getElementById('updateModalContent').style.display = 'none';
-            document.getElementById('updateForm').style.display = 'none';
-            document.getElementById('updateStatusBtn').style.display = 'none';
+            // Show loading state in modal
+            document.getElementById('updateAppNumber').innerHTML = `
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>`;
 
+            // First fetch the application details
             fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load application details');
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to load application details');
+                }
 
-                    currentData[id] = data;
+                const data = response;
 
-                    document.getElementById('updateModalLoading').style.display = 'none';
-                    document.getElementById('updateModalContent').style.display = 'block';
-                    document.getElementById('updateForm').style.display = 'block';
-                    document.getElementById('updateStatusBtn').style.display = 'inline-block';
+                // Validate data object
+                if (!data) {
+                    throw new Error('No application data received');
+                }
 
-                    document.getElementById('updateRegistrationId').value = id;
-                    document.getElementById('updateRegId').textContent = data.id;
-                    document.getElementById('updateRegNumber').textContent = data.application_number;
-                    document.getElementById('updateRegName').textContent = data.full_name;
-                    document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
-                    document.getElementById('updateRegVessel').textContent = data.vessel_name;
-                    document.getElementById('updateRegFishR').textContent = data.fishr_number;
-                    document.getElementById('updateRegBoatType').textContent = data.boat_type;
+                // Populate the hidden field
+                document.getElementById('updateApplicationId').value = id;
 
-                    document.getElementById('updateRegCurrentStatus').innerHTML =
-                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                // Populate application info display with null checks
+                document.getElementById('updateAppNumber').textContent = data.application_number || 'N/A';
+                document.getElementById('updateAppName').textContent = data.full_name || 'N/A';
+                document.getElementById('updateAppVessel').textContent = data.vessel_name || 'N/A';
+                document.getElementById('updateAppBarangay').textContent = data.barangay || 'N/A';
+                document.getElementById('updateAppBoatType').textContent = data.boat_type || 'N/A';
 
-                    document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
-                        '<span class="badge bg-success">Completed</span>' :
-                        '<span class="badge bg-warning">Pending</span>';
+                // Show current status with badge styling and null safety
+                const currentStatusElement = document.getElementById('updateAppCurrentStatus');
+                const statusColor = data.status_color || 'secondary';
+                const formattedStatus = data.formatted_status || getBoatrStatusText(data.status);
 
-                    // Set form values and store original values for comparison
-                    const statusSelect = document.getElementById('newStatus');
-                    const remarksTextarea = document.getElementById('remarks');
+                currentStatusElement.innerHTML = `
+                    <span class="badge bg-${statusColor}">${formattedStatus}</span>`;
 
-                    statusSelect.value = currentStatus;
-                    statusSelect.dataset.originalStatus = currentStatus;
-                    statusSelect.dataset.originalValue = currentStatus;
+                // Set form values and store original values for comparison
+                const statusSelect = document.getElementById('newStatus');
+                const remarksTextarea = document.getElementById('remarks');
 
-                    remarksTextarea.value = data.remarks || '';
-                    remarksTextarea.dataset.originalRemarks = data.remarks || '';
+                // Handle null status values
+                const currentStatusValue = data.status || 'pending';
+                statusSelect.value = currentStatusValue;
+                statusSelect.dataset.originalStatus = currentStatusValue;
 
-                    // Add change indicator classes
-                    statusSelect.parentElement.classList.add('change-indicator');
-                    remarksTextarea.parentElement.classList.add('change-indicator');
+                const currentRemarks = data.remarks || '';
+                remarksTextarea.value = currentRemarks;
+                remarksTextarea.dataset.originalRemarks = currentRemarks;
 
-                    // Remove any previous highlighting
-                    statusSelect.classList.remove('form-changed');
-                    remarksTextarea.classList.remove('form-changed');
-                    statusSelect.parentElement.classList.remove('changed');
-                    remarksTextarea.parentElement.classList.remove('changed');
+                // Reset remarks counter
+                updateBoatrStatusRemarksCounter();
 
-                    // Reset update button state
-                    const updateButton = document.getElementById('updateStatusBtn');
-                    updateButton.classList.remove('no-changes');
-                    updateButton.innerHTML = 'Update Status';
+                // Remove any previous change indicators
+                statusSelect.classList.remove('form-changed');
+                remarksTextarea.classList.remove('form-changed');
+                statusSelect.parentElement.classList.remove('change-indicator', 'changed');
+                remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
 
-                    // Remove old listeners to prevent duplicates
-                    statusSelect.removeEventListener('change', checkUpdateModalChanges);
-                    remarksTextarea.removeEventListener('input', checkUpdateModalChanges);
+                // Add change indicator classes
+                statusSelect.parentElement.classList.add('change-indicator');
+                remarksTextarea.parentElement.classList.add('change-indicator');
 
-                    // Add change detection event listeners
-                    statusSelect.addEventListener('change', checkUpdateModalChanges);
-                    remarksTextarea.addEventListener('input', checkUpdateModalChanges);
-                })
-                .catch(error => {
-                    console.error('Error loading application details:', error);
-                    showToast('error', 'Failed to load application details: ' + error.message);
-                    modal.hide();
-                });
+                // Reset update button state - IMPORTANT: Ensure it's enabled and visible
+                const updateButton = document.getElementById('updateStatusBtn');
+                updateButton.classList.remove('no-changes');
+                updateButton.classList.remove('disabled');
+                updateButton.disabled = false;
+                updateButton.style.opacity = '1';
+                updateButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Status';
+                updateButton.style.pointerEvents = 'auto';
+                updateButton.style.cursor = 'pointer';
+
+                // Remove old listeners to prevent duplicates
+                statusSelect.removeEventListener('change', checkBoatrUpdateModalChanges);
+                remarksTextarea.removeEventListener('input', checkBoatrUpdateModalChanges);
+
+                // Add change detection event listeners
+                statusSelect.addEventListener('change', checkBoatrUpdateModalChanges);
+                remarksTextarea.addEventListener('input', checkBoatrUpdateModalChanges);
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error loading application details: ' + error.message);
+            });
         }
 
-        // Check for changes in Update Status Modal
-        function checkUpdateModalChanges() {
-            const statusSelect = document.getElementById('newStatus');
-            const remarksTextarea = document.getElementById('remarks');
-            const updateButton = document.getElementById('updateStatusBtn');
-
-            if (!statusSelect.dataset.originalStatus) return;
-
-            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
-            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
-
-            // Visual feedback
-            statusSelect.classList.toggle('form-changed', statusChanged);
-            statusSelect.parentElement.classList.toggle('changed', statusChanged);
-
-            remarksTextarea.classList.toggle('form-changed', remarksChanged);
-            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
-
-            // Button state
-            const hasChanges = statusChanged || remarksChanged;
-            updateButton.classList.toggle('no-changes', !hasChanges);
-
-            if (!hasChanges) {
-                updateButton.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-            } else {
-                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+        // Update remarks character counter in Update Status Modal
+        function updateBoatrStatusRemarksCounter() {
+            const textarea = document.getElementById('remarks');
+            const charCount = document.getElementById('boatrStatusCharCount');
+            
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
+                
+                // Change color when approaching limit
+                if (textarea.value.length > 1800) {
+                    document.getElementById('boatrStatusRemarksCounter').classList.add('text-danger');
+                    document.getElementById('boatrStatusRemarksCounter').classList.remove('text-warning', 'text-muted');
+                } else if (textarea.value.length > 1500) {
+                    document.getElementById('boatrStatusRemarksCounter').classList.add('text-warning');
+                    document.getElementById('boatrStatusRemarksCounter').classList.remove('text-danger', 'text-muted');
+                } else {
+                    document.getElementById('boatrStatusRemarksCounter').classList.remove('text-warning', 'text-danger');
+                    document.getElementById('boatrStatusRemarksCounter').classList.add('text-muted');
+                }
             }
         }
+
+            // Check for changes in Update Status Modal
+            function checkBoatrUpdateModalChanges() {
+                const statusSelect = document.getElementById('newStatus');
+                const remarksTextarea = document.getElementById('remarks');
+                const updateButton = document.getElementById('updateStatusBtn');
+
+                if (!statusSelect.dataset.originalStatus) return;
+
+                const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+                const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+                // Visual feedback
+                statusSelect.classList.toggle('form-changed', statusChanged);
+                statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+                remarksTextarea.classList.toggle('form-changed', remarksChanged);
+                remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+                // Button state
+                const hasChanges = statusChanged || remarksChanged;
+                updateButton.classList.toggle('no-changes', !hasChanges);
+
+                if (!hasChanges) {
+                    updateButton.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+                } else {
+                    updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+                }
+            }
+
+            // Helper function to get BoatR status display text
+            function getBoatrStatusText(status) {
+                if (!status || status === null || status === undefined) {
+                    return 'Unknown';
+                }
+
+                const statusStr = String(status).toLowerCase();
+
+                switch (statusStr) {
+                    case 'pending':
+                        return 'Pending';
+                    case 'under_review':
+                        return 'Under Review';
+                    case 'inspection_required':
+                        return 'Inspection Required';
+                    case 'inspection_scheduled':
+                        return 'Inspection Scheduled';
+                    case 'documents_pending':
+                        return 'Documents Pending';
+                    case 'approved':
+                        return 'Approved';
+                    case 'rejected':
+                        return 'Rejected';
+                    default:
+                        return statusStr.charAt(0).toUpperCase() + statusStr.slice(1);
+                }
+            }
+
+  // Fixed: Enhanced update registration status function with proper element checking
+function updateRegistrationStatus() {
+    // Get elements with proper null checking
+    const applicationIdElement = document.getElementById('updateApplicationId');
+    const newStatusElement = document.getElementById('newStatus');
+    const remarksElement = document.getElementById('remarks');
+
+    // Validate all required elements exist
+    if (!applicationIdElement) {
+        showToast('error', 'UI Error: Application ID field not found');
+        console.error('Element not found: updateApplicationId');
+        return;
+    }
+    if (!newStatusElement) {
+        showToast('error', 'UI Error: Status dropdown not found');
+        console.error('Element not found: newStatus');
+        return;
+    }
+    if (!remarksElement) {
+        showToast('error', 'UI Error: Remarks field not found');
+        console.error('Element not found: remarks');
+        return;
+    }
+
+    const id = applicationIdElement.value;
+    const newStatus = newStatusElement.value;
+    const remarks = remarksElement.value;
+
+    // Log for debugging
+    console.log('updateRegistrationStatus called with:', {
+        id: id,
+        newStatus: newStatus,
+        remarks: remarks
+    });
+
+    // Quick validation
+    if (!id || id === '' || id === 'undefined') {
+        showToast('error', 'Invalid application ID');
+        console.error('Invalid ID:', id);
+        return;
+    }
+
+    if (!newStatus) {
+        showToast('warning', 'Please select a status before updating');
+        return;
+    }
+
+    // Get original values for change detection
+    const originalStatus = newStatusElement.dataset.originalStatus || '';
+    const originalRemarks = remarksElement.dataset.originalRemarks || '';
+
+    console.log('Change detection:', {
+        originalStatus: originalStatus,
+        newStatus: newStatus,
+        originalRemarks: originalRemarks,
+        remarks: remarks
+    });
+
+    // Check for changes
+    const statusChanged = (newStatus !== originalStatus);
+    const remarksChanged = (remarks.trim() !== originalRemarks.trim());
+
+    if (!statusChanged && !remarksChanged) {
+        showToast('info', 'No changes detected');
+        return;
+    }
+
+    // Build changes summary
+    let changesSummary = [];
+    if (statusChanged) {
+        const originalStatusText = getBoatrStatusText(originalStatus);
+        const newStatusText = getBoatrStatusText(newStatus);
+        changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+    }
+    if (remarksChanged) {
+        if (originalRemarks.trim() === '') {
+            changesSummary.push('Remarks: Added new remarks');
+        } else if (remarks.trim() === '') {
+            changesSummary.push('Remarks: Removed existing remarks');
+        } else {
+            changesSummary.push('Remarks: Modified');
+        }
+    }
+
+    console.log('Changes summary:', changesSummary);
+
+    // Show confirmation toast
+    showConfirmationToast(
+        'Confirm Update',
+        `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
+        () => proceedWithBoatrStatusUpdate(id, newStatus, remarks)
+    );
+}
+
+// Proceed with BoatR status update (improved with error handling)
+function proceedWithBoatrStatusUpdate(id, newStatus, remarks) {
+    console.log('proceedWithBoatrStatusUpdate called:', { id, newStatus, remarks });
+
+    if (!id || id === '' || id === 'undefined') {
+        showToast('error', 'Invalid application ID');
+        return;
+    }
+
+    if (!newStatus) {
+        showToast('error', 'Status is required');
+        return;
+    }
+
+    const updateBtn = document.getElementById('updateStatusBtn');
+    if (!updateBtn) {
+        showToast('error', 'UI error: Button not found');
+        return;
+    }
+
+    const originalContent = updateBtn.innerHTML;
+    updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+    updateBtn.disabled = true;
+
+    const url = `/admin/boatr/requests/${id}/status`;
+    console.log('Sending request to:', url);
+
+    fetch(url, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            status: newStatus,
+            remarks: remarks
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+
+        if (response.status === 500) {
+            return response.json().then(data => {
+                throw new Error(data.message || 'Server error occurred');
+            }).catch(() => {
+                throw new Error('Internal server error. Please check logs.');
+            });
+        }
+
+        if (response.status === 422) {
+            return response.json().then(data => {
+                throw new Error(data.message || 'Validation failed');
+            });
+        }
+
+        if (response.status === 404) {
+            throw new Error('Application not found');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+
+        if (!data.success) {
+            throw new Error(data.message || 'Update failed');
+        }
+
+        showToast('success', 'Status updated successfully');
+
+        if (data.registration) {
+            updateTableRow(id, data.registration);
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+        if (modal) {
+            modal.hide();
+        }
+
+        setTimeout(() => window.location.reload(), 1500);
+    })
+    .catch(error => {
+        console.error('Error updating status:', error);
+
+        let errorMessage = 'Update failed: ';
+
+        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+            errorMessage += 'Cannot connect to server. Please check your internet connection or contact administrator.';
+        } else {
+            errorMessage += error.message;
+        }
+
+        showToast('error', errorMessage);
+    })
+    .finally(() => {
+        updateBtn.innerHTML = originalContent;
+        updateBtn.disabled = false;
+    });
+}
+
+        // Initialize remarks counter when modal is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateModal = document.getElementById('updateModal');
+            
+            if (updateModal) {
+                updateModal.addEventListener('shown.bs.modal', function() {
+                    const textarea = document.getElementById('remarks');
+                    
+                    if (textarea) {
+                        // Reset counter when modal opens
+                        updateBoatrStatusRemarksCounter();
+                        
+                        // Add input listener for real-time counter
+                        textarea.removeEventListener('input', updateBoatrStatusRemarksCounter);
+                        textarea.addEventListener('input', updateBoatrStatusRemarksCounter);
+                    }
+                });
+            }
+        });
 
         // Helper function to get status display text
         function getStatusText(status) {
@@ -3335,47 +3680,7 @@
             }
         }
 
-        // Enhanced update registration status function with change detection
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-
-            if (!newStatus) {
-                showToast('warning', 'Please select a status before updating');
-                return;
-            }
-
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
-
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-                return;
-            }
-
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
-            }
-
-            showConfirmationToast(
-                'Confirm Update',
-                `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
-                () => proceedWithStatusUpdate(id, newStatus, remarks)
-            );
-        }
+      
 
         // Helper function to get BoatR status display text
         function getBoatrStatusText(status) {
@@ -3389,115 +3694,6 @@
                 'rejected': 'Rejected'
             };
             return statusMap[status] || status;
-        }
-
-        // Updated proceedWithStatusUpdate function
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
-            // Validate parameters
-            if (!id || id === '' || id === 'undefined') {
-                showToast('error', 'Invalid application ID');
-                console.error('Invalid ID provided:', id);
-                return;
-            }
-
-            if (!newStatus) {
-                showToast('error', 'Status is required');
-                return;
-            }
-
-            const updateBtn = document.getElementById('updateStatusBtn');
-            if (!updateBtn) {
-                showToast('error', 'UI error: Button not found');
-                return;
-            }
-
-            const originalContent = updateBtn.innerHTML;
-            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
-            updateBtn.disabled = true;
-
-            const url = `/admin/boatr/requests/${id}/status`;
-            console.log('Sending status update to:', url);
-            console.log('Payload:', {
-                status: newStatus,
-                remarks: remarks
-            });
-
-            fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-
-                    // Handle different HTTP status codes
-                    if (response.status === 500) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Server error occurred');
-                        }).catch(() => {
-                            throw new Error('Internal server error. Please check logs.');
-                        });
-                    }
-
-                    if (response.status === 422) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Validation failed');
-                        });
-                    }
-
-                    if (response.status === 404) {
-                        throw new Error('Application not found');
-                    }
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-
-                    if (!data.success) {
-                        throw new Error(data.message || 'Update failed');
-                    }
-
-                    showToast('success', data.message || 'Status updated successfully');
-
-                    if (data.registration) {
-                        updateTableRow(id, data.registration);
-                    }
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                    if (modal) modal.hide();
-
-                    setTimeout(() => window.location.reload(), 1500);
-                })
-                .catch(error => {
-                    console.error('Error updating status:', error);
-
-                    let errorMessage = 'Update failed: ';
-
-                    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-                        errorMessage +=
-                            'Cannot connect to server. Please check your internet connection or contact administrator.';
-                    } else {
-                        errorMessage += error.message;
-                    }
-
-                    showToast('error', errorMessage);
-                })
-                .finally(() => {
-                    updateBtn.innerHTML = originalContent;
-                    updateBtn.disabled = false;
-                });
         }
 
 
