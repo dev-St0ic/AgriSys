@@ -4561,6 +4561,7 @@ function initializeEditFishrForm(registrationId, data) {
     
     form.dataset.originalData = JSON.stringify(originalData);
     form.dataset.registrationId = registrationId;
+    form.dataset.hasChanges = 'false';
     
     // Clear validation states
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
@@ -4623,28 +4624,27 @@ function handleEditFishrFormChange() {
         checkEditFishrFormChanges(form.dataset.registrationId);
     }
 }
-
 /**
- * Check for Form Changes and Update UI
+ * Check for Form Changes and Update UI - UPDATED
  */
 function checkEditFishrFormChanges(registrationId) {
     const form = document.getElementById('editFishrForm');
     if (!form.dataset.originalData) return;
-    
+
     const originalData = JSON.parse(form.dataset.originalData);
     let hasChanges = false;
-    
+
     const fields = [
         'first_name', 'middle_name', 'last_name', 'name_extension',
         'sex', 'contact_number', 'barangay', 'main_livelihood', 'other_livelihood'
     ];
-    
+
     fields.forEach(field => {
         const fieldElement = form.querySelector(`[name="${field}"]`);
         if (fieldElement) {
             const currentValue = fieldElement.value;
             const originalValue = originalData[field] || '';
-            
+
             if (currentValue !== originalValue) {
                 hasChanges = true;
                 fieldElement.classList.add('form-changed');
@@ -4653,23 +4653,27 @@ function checkEditFishrFormChanges(registrationId) {
             }
         }
     });
-    
+
     // Also check for file input changes
     const fileInput = document.getElementById('edit_fishr_supporting_document');
     if (fileInput && fileInput.files && fileInput.files.length > 0) {
         hasChanges = true;
     }
-    
+
     // Update button state
     const submitBtn = document.getElementById('editFishrSubmitBtn');
     if (hasChanges) {
-        submitBtn.disabled = false;
+        submitBtn.classList.remove('no-changes');
         submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
     } else {
-        submitBtn.disabled = false;
+        submitBtn.classList.remove('no-changes');
         submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
     }
-    
+
     form.dataset.hasChanges = hasChanges;
 }
 
@@ -4744,48 +4748,73 @@ function validateEditFishrForm() {
     
     return isValid;
 }
-
 /**
- * Handle Edit FishR Form Submission
+ * Handle Edit FishR Form Submission - with changes summary
  */
 function handleEditFishrSubmit() {
     const form = document.getElementById('editFishrForm');
     const registrationId = form.dataset.registrationId;
-    
-    // Validate form
+    const submitBtn = document.getElementById('editFishrSubmitBtn');
+
+    // Validate form first
     if (!validateEditFishrForm()) {
         showToast('error', 'Please fix all validation errors');
         return;
     }
-    
-    // Build summary of changes
-    const changedFields = [];
-    if (form.dataset.originalData) {
-        const originalData = JSON.parse(form.dataset.originalData);
-        const fieldLabels = {
-            'first_name': 'First Name',
-            'last_name': 'Last Name',
-            'contact_number': 'Contact Number',
-            'barangay': 'Barangay',
-            'main_livelihood': 'Main Livelihood'
-        };
-        
-        Object.keys(fieldLabels).forEach(field => {
-            const element = form.querySelector(`[name="${field}"]`);
-            if (element && element.value !== originalData[field]) {
-                changedFields.push(fieldLabels[field]);
-            }
-        });
+
+    const hasChanges = submitBtn?.dataset.hasChanges === 'true';
+
+    // If no changes, show warning and return
+    if (!hasChanges) {
+        showToast('warning', 'No changes detected. Please modify the fields before updating.');
+        return;
     }
-    
-    // Show confirmation
-    const message = changedFields.length > 0 
-        ? `Changed fields: ${changedFields.join(', ')}\n\nSave changes?`
-        : 'Save changes?';
-    
+
+    // Build changes summary ONLY from actually changed fields
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let changedFields = [];
+
+    const fieldLabels = {
+        'first_name': 'First Name',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'name_extension': 'Extension',
+        'sex': 'Sex',
+        'contact_number': 'Contact Number',
+        'barangay': 'Barangay',
+        'main_livelihood': 'Main Livelihood',
+        'other_livelihood': 'Other Livelihood',
+        'supporting_document': 'Supporting Document'
+    };
+
+    // Check which fields have changed
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'sex', 'contact_number', 'barangay', 'main_livelihood', 'other_livelihood'
+    ];
+
+    fields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && input.value !== originalData[field]) {
+            changedFields.push(fieldLabels[field] || field);
+        }
+    });
+
+    // Check file input - ONLY if a NEW file was selected
+    const fileInput = document.getElementById('edit_fishr_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        changedFields.push('Supporting Document');
+    }
+
+    // Build confirmation message
+    const changesText = changedFields.length > 0 
+        ? `Update this registration with the following changes?\n\n• ${changedFields.join('\n• ')}`
+        : 'Update this registration?';
+
+    // Show confirmation with only changed fields
     showConfirmationToast(
         'Confirm Update',
-        message,
+        changesText,
         () => proceedWithEditFishr(form, registrationId)
     );
 }
