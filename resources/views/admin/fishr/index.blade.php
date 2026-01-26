@@ -282,7 +282,7 @@
                                                     onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
                                                     title="Registration Document">
                                                     <div class="fishr-mini-doc-icon">
-                                                        <i class="fas fa-file-image text-info"></i>
+                                                        <i class="fas fa-file-alt text-primary"></i>
                                                     </div>
                                                 </button>
                                             </div>
@@ -329,7 +329,7 @@
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="showEditFishrModal({{ $registration->id }})">
-                                                        <i class="fas fa-pencil-alt text-warning me-2"></i>Edit Information
+                                                        <i class="fas fa-edit me-2 text-success"></i>Edit Information
                                                     </a>
                                                 </li>
                                                 <li>
@@ -1046,20 +1046,30 @@
                                 <i class="fas fa-info-circle me-1"></i>
                                 View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
                             </p>
+
+                            <!-- Current Document Display -->
+                            <div id="edit_fishr_current_document" style="display: none; margin-bottom: 1.5rem;">
+                                <label class="form-label fw-semibold text-muted mb-2">Current Document</label>
+                                <div id="edit_fishr_current_doc_preview"></div>
+                            </div>
+
+                            <!-- Upload New Document Section -->
                             <div class="row">
-                                <div class="col-12 mb-4">
+                                <div class="col-12">
                                     <label for="edit_fishr_supporting_document" class="form-label fw-semibold">
                                         Supporting Document
                                     </label>
-                                    <div id="edit_fishr_supporting_document_preview" class="mb-3"></div>
                                     <input type="file" class="form-control" id="edit_fishr_supporting_document" 
                                         name="supporting_document" accept="image/*,.pdf" 
                                         onchange="previewEditFishrDocument('edit_fishr_supporting_document', 'edit_fishr_supporting_document_preview')">
                                     <small class="text-muted d-block mt-2">
-                                        <i class="fas fa-info-circle me-1"></i>Click to view or upload a new document
+                                        <i class="fas fa-info-circle me-1"></i>Upload a new file to replace it.
                                     </small>
                                 </div>
                             </div>
+
+                            <!-- New Document Preview -->
+                            <div id="edit_fishr_supporting_document_preview" class="mt-3"></div>
                         </div>
                     </div>
 
@@ -4494,19 +4504,10 @@ function initializeEditFishrForm(registrationId, data) {
     // Populate date applied
     document.getElementById('edit_fishr_created_at').textContent = data.created_at || '-';
     
-    // Handle document preview
+   // Handle document preview
     const previewContainer = document.getElementById('edit_fishr_supporting_document_preview');
     if (data.document_path) {
-        previewContainer.innerHTML = `
-            <div class="alert alert-info mb-3">
-                <i class="fas fa-file me-2"></i>
-                <strong>Current Document:</strong>
-                <button class="btn btn-sm btn-outline-primary ms-2" 
-                        onclick="viewDocument('${data.document_path}', 'Current Supporting Document')">
-                    <i class="fas fa-eye me-1"></i>View
-                </button>
-            </div>
-        `;
+        displayEditFishrExistingDocument(data.document_path, 'edit_fishr_supporting_document_preview');
     } else {
         previewContainer.innerHTML = '<small class="text-muted d-block">No document currently uploaded</small>';
     }
@@ -5234,6 +5235,113 @@ function validateEditFishrContactNumber(contactNumber) {
             input.classList.add('is-valid');
             return true;
         }
-        console.log('FishR Add Registration functionality loaded successfully');
+
+    //Display existing FishR documents in edit modal
+    function displayEditFishrExistingDocument(documentPath, previewElementId) {
+        const preview = document.getElementById(previewElementId);
+        if (!preview) {
+            console.error('Preview element not found:', previewElementId);
+            return;
+        }
+        
+        const fileExtension = documentPath.split('.').pop().toLowerCase();
+        const fileName = documentPath.split('/').pop();
+        const fileUrl = `/storage/${documentPath}`;
+        
+        // Image types 
+        if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExtension)) {
+            preview.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                            <img src="${fileUrl}" alt="Current document" 
+                                style="max-width: 100%; max-height: 100%; object-fit: cover; cursor: pointer;"
+                                onclick="viewDocument('${documentPath}', '${fileName}')"
+                                title="Click to view full document">
+                        </div>
+                    </div>
+                </div>
+            `;
+        } 
+        // PDF type 
+        else if (fileExtension === 'pdf') {
+            preview.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #fff3cd; border: 2px solid #ffc107;">
+                            <div class="text-center">
+                                <i class="fas fa-file-pdf fa-3x mb-2" style="color: #dc3545;"></i>
+                                <small style="display: block; color: #666; font-size: 10px;">PDF</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex flex-column h-100 justify-content-start">
+                            <div class="mb-2">
+                                <small class="d-block text-success fw-semibold">
+                                    <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                                </small>
+                                <small class="d-block text-muted mt-1">${fileName}</small>
+                            </div>
+                            <div class="mt-auto">
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onclick="viewDocument('${documentPath}', '${fileName}')"
+                                    title="View PDF">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    onclick="downloadFishrDocument('${fileUrl}', '${fileName}')"
+                                    title="Download PDF">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        // Other document types
+        else {
+            preview.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <div class="document-thumbnail" style="width: 120px; height: 160px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; background: #e2e3e5; border: 2px solid #6c757d;">
+                            <div class="text-center">
+                                <i class="fas fa-file fa-3x mb-2" style="color: #6c757d;"></i>
+                                <small style="display: block; color: #666; font-size: 10px;">${fileExtension.toUpperCase()}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="d-flex flex-column h-100 justify-content-start">
+                            <div class="mb-2">
+                                <small class="d-block text-success fw-semibold">
+                                    <i class="fas fa-check-circle me-1"></i>Document Uploaded
+                                </small>
+                                <small class="d-block text-muted mt-1">${fileName}</small>
+                            </div>
+                            <div class="mt-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                    onclick="downloadFishrDocument('${fileUrl}', '${fileName}')"
+                                    title="Download document">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Download helper for FishR documents
+    function downloadFishrDocument(fileUrl, fileName) {
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
     </script>
 @endsection
