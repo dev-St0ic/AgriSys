@@ -386,18 +386,21 @@
                                     <i class="fas fa-ellipsis-v me-1"></i><span class="d-none d-md-inline">More</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="#"
-                                            onclick="event.preventDefault(); editCategory({{ $category->id }})">
-                                            <i class="fas fa-edit text-primary me-2"></i>Edit Category
-                                        </a>
-                                    </li>
-                                    <li>
+                                     <li>
                                         <a class="dropdown-item" href="#"
                                             onclick="event.preventDefault(); toggleCategory({{ $category->id }})">
                                             <i
                                                 class="fas fa-{{ $category->is_active ? 'eye-slash' : 'eye' }} text-{{ $category->is_active ? 'warning' : 'success' }} me-2"></i>
                                             {{ $category->is_active ? 'Deactivate' : 'Activate' }} Category
+                                        </a>
+                                    </li>
+                                     <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#"
+                                            onclick="event.preventDefault(); editCategory({{ $category->id }})">
+                                            <i class="fas fa-edit text-primary me-2"></i>Edit Category
                                         </a>
                                     </li>
                                     <li>

@@ -326,6 +326,9 @@
                                                     </a>
                                                 </li>
                                                 <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                         onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->application_number }}')">
                                                         <i class="fas fa-trash me-2"></i>Delete Application
