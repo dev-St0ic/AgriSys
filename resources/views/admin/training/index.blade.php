@@ -493,9 +493,9 @@
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="documentModalLabel">
-                        <i class="fas fa-file-alt me-2"></i>Supporting Documents
+                <div class="modal-header text-white" style="background: #0d6efd">
+                    <h5 class="modal-title w-100 text-center" id="documentModalLabel">
+                        <i class="fas fa-file-alt me-2"></i>Supporting Document
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -504,7 +504,7 @@
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Close
+                        <i></i>Close
                     </button>
                 </div>
             </div>
