@@ -14,36 +14,58 @@ return new class extends Migration
         Schema::create('rsbsa_applications', function (Blueprint $table) {
             $table->id();
 
-            // CHANGED: Made user_id nullable
+            // User relationship
             $table->unsignedBigInteger('user_id')->nullable();
 
             // Application identification
             $table->string('application_number')->unique()->nullable();
 
-            // Personal Information (simplified)
+            // ==================== BASIC INFORMATION ====================
             $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('name_extension')->nullable();
             $table->enum('sex', ['Male', 'Female', 'Preferred not to say'])->nullable();
 
-            // Contact Information
+            // ==================== CONTACT & LOCATION ====================
             $table->string('contact_number', 20)->nullable();
             $table->string('barangay')->nullable();
             $table->unsignedBigInteger('barangay_id')->nullable();
+            $table->text('address')->nullable(); // NEW: Complete address field
 
-            // Registration Details
+            // ==================== MAIN LIVELIHOOD ====================
             $table->enum('main_livelihood', ['Farmer', 'Farmworker/Laborer', 'Fisherfolk', 'Agri-youth'])->nullable();
 
-            // Farm/Livelihood Information
-            $table->decimal('land_area', 8, 2)->nullable();
-            $table->string('farm_location')->nullable();
-            $table->text('commodity')->nullable();
+            // ==================== FARMER-SPECIFIC FIELDS ====================
+            $table->string('farmer_crops')->nullable(); // Rice, Corn, HVC, Livestock, Poultry, Agri-fishery, Other Crops
+            $table->string('farmer_other_crops')->nullable(); // If "Other Crops" selected
+            $table->text('farmer_livestock')->nullable(); // Type and number (e.g., "Chickens (50), Pigs (5)")
+            $table->decimal('farmer_land_area', 8, 2)->nullable(); // In hectares
+            $table->string('farmer_type_of_farm')->nullable(); // Irrigated, Rainfed Upland, Rainfed Lowland
+            $table->string('farmer_land_ownership')->nullable(); // Owner, Tenant, Lessee
+            $table->string('farmer_special_status')->nullable(); // Ancestral Domain, Agrarian Reform Beneficiary, None
+            $table->string('farm_location')->nullable(); // REQUIRED FOR FARMERS ONLY
 
-            // Document Upload
+            // ==================== FARMWORKER/LABORER-SPECIFIC FIELDS ====================
+            $table->string('farmworker_type')->nullable(); // Land prep, Planting, Cultivation, Harvesting, Others
+            $table->string('farmworker_other_type')->nullable(); // If "Others" selected
+
+            // ==================== FISHERFOLK-SPECIFIC FIELDS ====================
+            $table->string('fisherfolk_activity')->nullable(); // Fish capture, Aquaculture, Gleaning, Processing, Vending, Others
+            $table->string('fisherfolk_other_activity')->nullable(); // If "Others" selected
+
+            // ==================== AGRI-YOUTH-SPECIFIC FIELDS ====================
+            $table->string('agriyouth_farming_household')->nullable(); // Yes, No
+            $table->string('agriyouth_training')->nullable(); // Formal agri-fishery course, Non-formal, None
+            $table->string('agriyouth_participation')->nullable(); // Participated, Not Participated
+
+            // ==================== GENERAL LIVELIHOOD INFO ====================
+            $table->text('commodity')->nullable(); // General commodity field (used by all livelihoods)
+
+            // ==================== DOCUMENT UPLOAD ====================
             $table->string('supporting_document_path')->nullable();
 
-            // Application Status Management
+            // ==================== APPLICATION STATUS MANAGEMENT ====================
             $table->enum('status', ['pending', 'under_review', 'approved', 'rejected'])->default('pending');
             $table->text('remarks')->nullable();
             $table->timestamp('reviewed_at')->nullable();
@@ -51,28 +73,29 @@ return new class extends Migration
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
 
-            // Application Number Assignment
+            // ==================== APPLICATION NUMBER ASSIGNMENT ====================
             $table->timestamp('number_assigned_at')->nullable();
             $table->unsignedBigInteger('assigned_by')->nullable();
 
+            // Timestamps
             $table->timestamps();
             $table->softDeletes();
 
-            // Foreign key constraints
-            // CHANGED: Made onDelete('set null') since user_id is now nullable
+            // ==================== FOREIGN KEYS ====================
             $table->foreign('user_id')
                 ->references('id')
                 ->on('user_registration')
                 ->onDelete('set null');
 
-            // Indexes for better performance
+            // ==================== INDEXES ====================
             $table->index('user_id');
             $table->index(['status', 'created_at']);
             $table->index(['barangay', 'main_livelihood']);
-            $table->index('barangay_id');
             $table->index('application_number');
             $table->index('contact_number');
             $table->index(['first_name', 'last_name']);
+            $table->index('main_livelihood');
+            $table->index('status');
         });
     }
 

@@ -562,79 +562,102 @@ public function submitSeedlings(Request $request)
         return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
     }
 }
-
-/**
- * Submit RSBSA request - FIXED SESSION ACCESS
- */
 public function submitRsbsa(Request $request)
 {
-
     try {
-    // ✅ ADD THIS AUTHENTICATION CHECK
-    $userId = session('user.id');
+        // ✅ Authentication check
+        $userId = session('user.id');
 
-    if (!$userId) {
-        Log::warning('FishR submission attempted without authentication');
+        if (!$userId) {
+            Log::warning('RSBSA submission attempted without authentication');
 
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You must be logged in to submit a FishR registration.',
-                'require_auth' => true
-            ], 401);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to submit an RSBSA application.',
+                    'require_auth' => true
+                ], 401);
+            }
+
+            return redirect()->route('landing.page')
+                ->with('error', 'You must be logged in to submit an RSBSA application.');
         }
 
-        return redirect()->route('landing.page')
-            ->with('error', 'You must be logged in to submit a FishR registration.');
-    }
+        // Verify user exists
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
 
-    // Verify user exists
-    $userExists = \App\Models\UserRegistration::find($userId);
-    if (!$userExists) {
-        Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user session. Please log in again.',
+                    'require_auth' => true
+                ], 401);
+            }
 
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid user session. Please log in again.',
-                'require_auth' => true
-            ], 401);
+            return redirect()->route('landing.page')
+                ->with('error', 'Invalid user session. Please log in again.');
         }
 
-        return redirect()->route('landing.page')
-            ->with('error', 'Invalid user session. Please log in again.');
-    }
+        Log::info('RSBSA submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username,
+        ]);
 
-    Log::info('FishR submission started', [
-        'user_id' => $userId,
-        'username' => $userExists->username,
-        'request_method' => $request->method(),
-        'has_csrf' => $request->has('_token'),
-        'content_type' => $request->header('Content-Type')
-    ]);
-
-        // ... rest of your validation and submission code stays the same ...
-
+        // ✅ COMPLETE VALIDATION WITH ALL FIELDS
         $validated = $request->validate([
+            // Basic info
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
-            'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]*$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
-            'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
+            'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]*$/'],
             'sex' => 'required|in:Male,Female,Preferred not to say',
+            
+            // Contact & location
+            'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:255',
-            'mobile' => ['required', 'string', 'regex:/^09\d{9}$/'],
+            'address' => 'required|string|max:500',  // ✅ NOW VALIDATED
+            
+            // Main livelihood
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
-            'land_area' => 'nullable|numeric|min:0|max:1000',
-            'farm_location' => 'nullable|string|max:500',
+            
+            // Farmer-specific
+            'farmer_crops' => 'nullable|required_if:main_livelihood,Farmer|string|max:100',
+            'farmer_other_crops' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+            'farmer_livestock' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s,()\'"-]*$/',
+            'farmer_land_area' => 'nullable|numeric|min:0|max:1000',
+            'farmer_type_of_farm' => 'nullable|required_if:main_livelihood,Farmer|in:Irrigated,Rainfed Upland,Rainfed Lowland',
+            'farmer_land_ownership' => 'nullable|required_if:main_livelihood,Farmer|in:Owner,Tenant,Lessee',
+            'farmer_special_status' => 'nullable|in:Ancestral Domain,Agrarian Reform Beneficiary,None',
+            'farm_location' => 'nullable|required_if:main_livelihood,Farmer|string|max:500|regex:/^[a-zA-Z0-9\s,\'-]*$/',
+            
+            // Farmworker-specific
+            'farmworker_type' => 'nullable|required_if:main_livelihood,Farmworker/Laborer|string|max:100',
+            'farmworker_other_type' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+            
+            // Fisherfolk-specific
+            'fisherfolk_activity' => 'nullable|required_if:main_livelihood,Fisherfolk|string|max:100',
+            'fisherfolk_other_activity' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+            
+            // Agri-youth-specific
+            'agriyouth_farming_household' => 'nullable|required_if:main_livelihood,Agri-youth|in:Yes,No',
+            'agriyouth_training' => 'nullable|required_if:main_livelihood,Agri-youth|string|max:100',
+            'agriyouth_participation' => 'nullable|required_if:main_livelihood,Agri-youth|in:Participated,Not Participated',
+            
+            // General
             'commodity' => 'nullable|string|max:1000',
+            
+            // Document
             'supporting_docs' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ], [
             'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
             'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
             'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
             'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
-            'mobile.required' => 'Mobile number is required',
-            'mobile.regex' => 'Mobile number must be in the format 09XXXXXXXXX',
+            'contact_number.required' => 'Mobile number is required',
+            'contact_number.regex' => 'Mobile number must be in the format 09XXXXXXXXX',
+            'address.required' => 'Complete address is required',
         ]);
 
         // Handle file upload
@@ -651,33 +674,67 @@ public function submitRsbsa(Request $request)
         // Generate application number
         $applicationNumber = $this->generateUniqueRsbsaApplicationNumber();
 
-        // Validate mobile number format
-        $normalizedMobile = $this->normalizeMobileNumber($validated['mobile']);
+        // Normalize mobile number
+        $normalizedMobile = $this->normalizeMobileNumber($validated['contact_number']);
 
-        // Create application
+        // ✅ CREATE APPLICATION WITH ALL CORRECT FIELD NAMES
         $applicationData = [
             'user_id' => $userId,
             'application_number' => $applicationNumber,
+            
+            // Basic info
             'first_name' => $validated['first_name'],
-            'middle_name' => $validated['middle_name'] ?: null,
+            'middle_name' => $validated['middle_name'] ?? null,
             'last_name' => $validated['last_name'],
             'name_extension' => $validated['name_extension'] ?? null,
             'sex' => $validated['sex'],
+            
+            // Contact & location
             'contact_number' => $normalizedMobile,
             'barangay' => $validated['barangay'],
+            'address' => $validated['address'],  // ✅ NOW SAVED
+            
+            // Main livelihood
             'main_livelihood' => $validated['main_livelihood'],
-            'land_area' => $validated['land_area'],
-            'farm_location' => $validated['farm_location'],
-            'commodity' => $validated['commodity'],
+            
+            // Farmer-specific
+            'farmer_crops' => $validated['farmer_crops'] ?? null,
+            'farmer_other_crops' => $validated['farmer_other_crops'] ?? null,
+            'farmer_livestock' => $validated['farmer_livestock'] ?? null,
+            'farmer_land_area' => $validated['farmer_land_area'] ?? null,  // ✅ CORRECT FIELD NAME
+            'farmer_type_of_farm' => $validated['farmer_type_of_farm'] ?? null,
+            'farmer_land_ownership' => $validated['farmer_land_ownership'] ?? null,
+            'farmer_special_status' => $validated['farmer_special_status'] ?? null,
+            'farm_location' => $validated['farm_location'] ?? null,
+            
+            // Farmworker-specific
+            'farmworker_type' => $validated['farmworker_type'] ?? null,
+            'farmworker_other_type' => $validated['farmworker_other_type'] ?? null,
+            
+            // Fisherfolk-specific
+            'fisherfolk_activity' => $validated['fisherfolk_activity'] ?? null,
+            'fisherfolk_other_activity' => $validated['fisherfolk_other_activity'] ?? null,
+            
+            // Agri-youth-specific
+            'agriyouth_farming_household' => $validated['agriyouth_farming_household'] ?? null,
+            'agriyouth_training' => $validated['agriyouth_training'] ?? null,
+            'agriyouth_participation' => $validated['agriyouth_participation'] ?? null,
+            
+            // General
+            'commodity' => $validated['commodity'] ?? null,
             'supporting_document_path' => $documentPath,
+            
+            // Status
             'status' => 'pending'
         ];
 
-        $rsbsaApplication = \App\Models\RsbsaApplication::create($applicationData);
+        $rsbsaApplication = RsbsaApplication::create($applicationData);
 
-        Log::info('RSBSA application created', [
+        Log::info('RSBSA application created successfully', [
             'id' => $rsbsaApplication->id,
             'application_number' => $rsbsaApplication->application_number,
+            'name' => $rsbsaApplication->full_name,
+            'livelihood' => $rsbsaApplication->main_livelihood
         ]);
 
         // Log activity
@@ -685,7 +742,7 @@ public function submitRsbsa(Request $request)
             \Spatie\Activitylog\Facades\Activity::withProperties([
                 'application_number' => $rsbsaApplication->application_number,
                 'full_name' => $rsbsaApplication->full_name,
-                'commodity' => $rsbsaApplication->commodity,
+                'main_livelihood' => $rsbsaApplication->main_livelihood,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ])->log('submitted - RsbsaApplication (ID: ' . $rsbsaApplication->id . ')');
@@ -712,7 +769,10 @@ public function submitRsbsa(Request $request)
         return redirect()->route('landing.page')->with('success', $successMessage);
 
     } catch (\Illuminate\Validation\ValidationException $e) {
-        // ... validation error handling ...
+        Log::warning('RSBSA validation failed', [
+            'errors' => $e->errors(),
+        ]);
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
@@ -724,19 +784,20 @@ public function submitRsbsa(Request $request)
         return redirect()->back()->withErrors($e->validator)->withInput();
 
     } catch (\Exception $e) {
-        Log::error('RSBSA error: ' . $e->getMessage(), [
+        Log::error('RSBSA submission error: ' . $e->getMessage(), [
             'trace' => $e->getTraceAsString()
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred. Please try again.',
-                'debug_error' => config('app.debug') ? $e->getMessage() : null
+                'message' => 'An error occurred while submitting your application. Please try again.'
             ], 500);
         }
 
-        return redirect()->back()->with('error', 'An error occurred.')->withInput();
+        return redirect()->back()
+            ->with('error', 'An error occurred. Please try again.')
+            ->withInput();
     }
 }
     /**
@@ -745,7 +806,7 @@ public function submitRsbsa(Request $request)
     public function submitBoatR(Request $request)
     {
         try {
-        // ✅ ADD THIS AUTHENTICATION CHECK
+        // ADD THIS AUTHENTICATION CHECK
         $userId = session('user.id');
 
         if (!$userId) {

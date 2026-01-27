@@ -36,6 +36,7 @@ class RsbsaController extends Controller
             if ($request->filled('main_livelihood')) {
                 $query->where('main_livelihood', $request->main_livelihood);
             }
+
             // Search functionality
             if ($request->filled('search')) {
                 $search = $request->search;
@@ -43,7 +44,8 @@ class RsbsaController extends Controller
                     $q->where('application_number', 'like', "%{$search}%")
                     ->orWhere('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%");
+                    ->orWhere('contact_number', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
                 });
             }
 
@@ -123,25 +125,50 @@ class RsbsaController extends Controller
                 'data' => [
                     'id' => $application->id,
                     'application_number' => $application->application_number,
-                    // Build full name with all name parts
-                'full_name' => trim(
-                    $application->first_name . ' ' .
-                    ($application->middle_name ? $application->middle_name . ' ' : '') .
-                    $application->last_name . ' ' .
-                    ($application->name_extension ? $application->name_extension : '')
-                ),
-                'first_name' => $application->first_name,
-                'middle_name' => $application->middle_name,
-                'last_name' => $application->last_name,
-                'name_extension' => $application->name_extension,
+                    
+                    // Basic info
+                    'full_name' => $application->full_name_with_extension,
+                    'first_name' => $application->first_name,
+                    'middle_name' => $application->middle_name,
+                    'last_name' => $application->last_name,
+                    'name_extension' => $application->name_extension,
                     'sex' => $application->sex,
-                    // 'mobile_number' => $application->contact_number,  // Map contact_number to mobile_number
-                    'contact_number' => $application->contact_number,  // Keep for backward compatibility
+                    
+                    // Contact & location
+                    'contact_number' => $application->contact_number,
                     'barangay' => $application->barangay,
+                    'address' => $application->address,
+                    
+                    // Main livelihood
                     'main_livelihood' => $application->main_livelihood,
-                    'land_area' => $application->land_area,
+                    
+                    // Farmer-specific
+                    'farmer_crops' => $application->farmer_crops,
+                    'farmer_other_crops' => $application->farmer_other_crops,
+                    'farmer_livestock' => $application->farmer_livestock,
+                    'farmer_land_area' => $application->farmer_land_area,
+                    'farmer_type_of_farm' => $application->farmer_type_of_farm,
+                    'farmer_land_ownership' => $application->farmer_land_ownership,
+                    'farmer_special_status' => $application->farmer_special_status,
                     'farm_location' => $application->farm_location,
+                    
+                    // Farmworker-specific
+                    'farmworker_type' => $application->farmworker_type,
+                    'farmworker_other_type' => $application->farmworker_other_type,
+                    
+                    // Fisherfolk-specific
+                    'fisherfolk_activity' => $application->fisherfolk_activity,
+                    'fisherfolk_other_activity' => $application->fisherfolk_other_activity,
+                    
+                    // Agri-youth-specific
+                    'agriyouth_farming_household' => $application->agriyouth_farming_household,
+                    'agriyouth_training' => $application->agriyouth_training,
+                    'agriyouth_participation' => $application->agriyouth_participation,
+                    
+                    // General
                     'commodity' => $application->commodity,
+                    
+                    // Status
                     'status' => $application->status,
                     'status_color' => $application->status_color,
                     'formatted_status' => $application->formatted_status,
@@ -172,307 +199,333 @@ class RsbsaController extends Controller
     }
 
     /**
-     * OPTIMIZED: Update the status of the specified RSBSA application
      * Update personal information of an RSBSA application (for edit modal)
      */
-   public function update(Request $request, $id)
-{
-    try {
-        // DEBUG: Log incoming request data
-        Log::info('RSBSA Update Request Received', [
-            'application_id' => $id,
-            'request_data' => $request->except(['supporting_document']),
-            'has_file' => $request->hasFile('supporting_document'),
-            'file_size' => $request->hasFile('supporting_document') ? $request->file('supporting_document')->getSize() : null,
-        ]);
-
-        // Validate incoming data - NOW INCLUDING LIVELIHOOD FIELDS AND FILE UPLOAD
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:100',
-            'middle_name' => 'nullable|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'name_extension' => 'nullable|string|max:10',
-            'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-            'barangay' => 'required|string|max:100',
-            'farm_location' => 'nullable|string|max:500',
-            // NOW EDITABLE: Livelihood information
-            'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
-            'land_area' => 'nullable|numeric|min:0|max:99999.99',
-            'commodity' => 'nullable|string|max:1000',
-            'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        ]);
-
-        Log::info('RSBSA Validation Passed', [
-            'application_id' => $id,
-            'validated_data' => array_diff_key($validated, ['supporting_document' => '']),
-        ]);
-
-        // Find the application
-        $application = RsbsaApplication::findOrFail($id);
-
-        // Store original values for audit
-        $originalData = $application->only([
-            'first_name', 'middle_name', 'last_name', 'name_extension',
-            'contact_number', 'barangay', 'farm_location',
-            'main_livelihood', 'land_area', 'commodity', 'supporting_document_path'
-        ]);
-
-        // Handle file upload if provided
-        if ($request->hasFile('supporting_document')) {
-            $file = $request->file('supporting_document');
-            
-            // Delete old document if exists
-            if ($application->supporting_document_path && Storage::disk('public')->exists($application->supporting_document_path)) {
-                Storage::disk('public')->delete($application->supporting_document_path);
-            }
-            
-            // Store new document
-            $path = $file->store('rsbsa-applications', 'public');
-            $validated['supporting_document_path'] = $path;
-        }
-
-        // Update the application
-        $application->update($validated);
-
-        // Log the changes
-        $changes = [];
-        foreach ($validated as $key => $value) {
-            if (($originalData[$key] ?? null) !== $value) {
-                $changes[$key] = [
-                    'old' => $originalData[$key] ?? null,
-                    'new' => $value
-                ];
-            }
-        }
-
-        $this->logActivity('updated', 'RsbsaApplication', $application->id, [
-            'changes' => $changes,
-            'application_number' => $application->application_number
-        ]);
-
-        Log::info('RSBSA application updated by admin', [
-            'application_id' => $id,
-            'application_number' => $application->application_number,
-            'updated_by' => auth()->user()->name,
-            'changes' => $changes
-        ]);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Application updated successfully',
-                'data' => [
-                    'id' => $application->id,
-                    'full_name' => $application->full_name,
-                    'updated_at' => $application->updated_at->format('M d, Y g:i A')
-                ]
+    public function update(Request $request, $id)
+    {
+        try {
+            Log::info('RSBSA Update Request Received', [
+                'application_id' => $id,
+                'request_data' => $request->except(['supporting_document']),
+                'has_file' => $request->hasFile('supporting_document'),
             ]);
+
+            // Validate incoming data - COMPREHENSIVE VALIDATION FOR ALL FIELDS
+            $validated = $request->validate([
+                // Basic info
+                'first_name' => 'required|string|max:100|regex:/^[a-zA-Z\s\'-]+$/',
+                'middle_name' => 'nullable|string|max:100|regex:/^[a-zA-Z\s\'-]*$/',
+                'last_name' => 'required|string|max:100|regex:/^[a-zA-Z\s\'-]+$/',
+                'name_extension' => 'nullable|string|max:10|regex:/^[a-zA-Z.\s]*$/',
+                'sex' => 'required|in:Male,Female,Preferred not to say',
+                
+                // Contact & location
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'barangay' => 'required|string|max:100',
+                'address' => 'required|string|max:500',
+                
+                // Main livelihood
+                'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
+                
+                // Farmer-specific
+                'farmer_crops' => 'nullable|required_if:main_livelihood,Farmer|string|max:100',
+                'farmer_other_crops' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+                'farmer_livestock' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s,()\'"-]*$/',
+                'farmer_land_area' => 'nullable|numeric|min:0|max:1000',
+                'farmer_type_of_farm' => 'nullable|required_if:main_livelihood,Farmer|in:Irrigated,Rainfed Upland,Rainfed Lowland',
+                'farmer_land_ownership' => 'nullable|required_if:main_livelihood,Farmer|in:Owner,Tenant,Lessee',
+                'farmer_special_status' => 'nullable|in:Ancestral Domain,Agrarian Reform Beneficiary,None',
+                'farm_location' => 'nullable|required_if:main_livelihood,Farmer|string|max:500|regex:/^[a-zA-Z0-9\s,\'-]*$/',
+                
+                // Farmworker-specific
+                'farmworker_type' => 'nullable|required_if:main_livelihood,Farmworker/Laborer|string|max:100',
+                'farmworker_other_type' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+                
+                // Fisherfolk-specific
+                'fisherfolk_activity' => 'nullable|required_if:main_livelihood,Fisherfolk|string|max:100',
+                'fisherfolk_other_activity' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+                
+                // Agri-youth-specific
+                'agriyouth_farming_household' => 'nullable|required_if:main_livelihood,Agri-youth|in:Yes,No',
+                'agriyouth_training' => 'nullable|required_if:main_livelihood,Agri-youth|string|max:100',
+                'agriyouth_participation' => 'nullable|required_if:main_livelihood,Agri-youth|in:Participated,Not Participated',
+                
+                // General
+                'commodity' => 'nullable|string|max:1000',
+                
+                // Document
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
+            ]);
+
+            Log::info('RSBSA Validation Passed', [
+                'application_id' => $id,
+                'validated_data' => array_diff_key($validated, ['supporting_document' => '']),
+            ]);
+
+            // Find the application
+            $application = RsbsaApplication::findOrFail($id);
+
+            // Store original values for audit
+            $originalData = $application->only(array_keys($validated));
+
+            // Handle file upload if provided
+            if ($request->hasFile('supporting_document')) {
+                $file = $request->file('supporting_document');
+                
+                // Delete old document if exists
+                if ($application->supporting_document_path && Storage::disk('public')->exists($application->supporting_document_path)) {
+                    Storage::disk('public')->delete($application->supporting_document_path);
+                }
+                
+                // Store new document
+                $path = $file->store('rsbsa-applications', 'public');
+                $validated['supporting_document_path'] = $path;
+            }
+
+            // Update the application
+            $application->update($validated);
+
+            // Log the changes
+            $changes = [];
+            foreach ($validated as $key => $value) {
+                if (($originalData[$key] ?? null) !== $value) {
+                    $changes[$key] = [
+                        'old' => $originalData[$key] ?? null,
+                        'new' => $value
+                    ];
+                }
+            }
+
+            $this->logActivity('updated', 'RsbsaApplication', $application->id, [
+                'changes' => $changes,
+                'application_number' => $application->application_number
+            ]);
+
+            Log::info('RSBSA application updated by admin', [
+                'application_id' => $id,
+                'application_number' => $application->application_number,
+                'updated_by' => auth()->user()->name,
+                'changes' => $changes
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Application updated successfully',
+                    'data' => [
+                        'id' => $application->id,
+                        'full_name' => $application->full_name_with_extension,
+                        'updated_at' => $application->updated_at->format('M d, Y g:i A')
+                    ]
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Application updated successfully');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('RSBSA Validation Failed', [
+                'application_id' => $id,
+                'validation_errors' => $e->errors(),
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+
+        } catch (\Exception $e) {
+            Log::error('Error updating RSBSA application', [
+                'application_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating application: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Error updating application: ' . $e->getMessage());
         }
-
-        return redirect()->back()->with('success', 'Application updated successfully');
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('RSBSA Validation Failed', [
-            'application_id' => $id,
-            'validation_errors' => $e->errors(),
-            'request_data' => $request->except(['supporting_document']),
-        ]);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        }
-
-        return redirect()->back()
-            ->withErrors($e->errors())
-            ->withInput();
-
-    } catch (\Exception $e) {
-        Log::error('Error updating RSBSA application', [
-            'application_id' => $id,
-            'error' => $e->getMessage(),
-        ]);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating application: ' . $e->getMessage()
-            ], 500);
-        }
-
-        return redirect()->back()->with('error', 'Error updating application: ' . $e->getMessage());
     }
-}
 
     /**
- * Update the status of an RSBSA application (separate from personal info edits)
- */
-public function updateStatus(Request $request, $id)
-{
-    try {
-        $validated = $request->validate([
-            'status' => 'required|in:pending,under_review,approved,rejected',
-            'remarks' => 'nullable|string|max:1000',
-        ]);
+     * Update the status of an RSBSA application (separate from personal info edits)
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'status' => 'required|in:pending,under_review,approved,rejected',
+                'remarks' => 'nullable|string|max:1000',
+            ]);
 
-        $application = RsbsaApplication::findOrFail($id);
+            $application = RsbsaApplication::findOrFail($id);
 
-        // Store original status for comparison
-        $originalStatus = $application->status;
+            // Store original status for comparison
+            $originalStatus = $application->status;
 
-        // Update status and remarks
-        $application->update([
-            'status' => $validated['status'],
-            'remarks' => $validated['remarks'] ?? $application->remarks,
-            'reviewed_at' => now(),
-            'reviewed_by' => auth()->id(),
-        ]);
-
-        // Set approval/rejection timestamps
-        if ($validated['status'] === 'approved') {
+            // Update status and remarks
             $application->update([
-                'approved_at' => now(),
-                'number_assigned_at' => now(),
-                'assigned_by' => auth()->id(),
-            ]);
-        } elseif ($validated['status'] === 'rejected') {
-            $application->update([
-                'rejected_at' => now(),
-            ]);
-        }
-
-        // Fire SMS notification event if status changed to approved or rejected
-        $statusChanged = ($originalStatus !== $validated['status']);
-        if ($statusChanged && in_array($validated['status'], ['approved', 'rejected'])) {
-            \Log::info('RSBSA Status changed - firing SMS notification', [
-                'application_id' => $application->id,
-                'previous_status' => $originalStatus,
-                'new_status' => $validated['status']
+                'status' => $validated['status'],
+                'remarks' => $validated['remarks'] ?? $application->remarks,
+                'reviewed_at' => now(),
+                'reviewed_by' => auth()->id(),
             ]);
 
-            $application->fireApplicationStatusChanged(
-                $application->getApplicationTypeName(),
-                $originalStatus,
-                $validated['status'],
-                $validated['remarks'] ?? null
-            );
-        }
+            // Set approval/rejection timestamps
+            if ($validated['status'] === 'approved') {
+                $application->update([
+                    'approved_at' => now(),
+                    'number_assigned_at' => now(),
+                    'assigned_by' => auth()->id(),
+                ]);
+            } elseif ($validated['status'] === 'rejected') {
+                $application->update([
+                    'rejected_at' => now(),
+                ]);
+            }
 
-        $this->logActivity('updated_status', 'RsbsaApplication', $application->id, [
-            'old_status' => $originalStatus,
-            'new_status' => $validated['status'],
-            'remarks' => $validated['remarks']
-        ]);
+            // Fire SMS notification event if status changed to approved or rejected
+            $statusChanged = ($originalStatus !== $validated['status']);
+            if ($statusChanged && in_array($validated['status'], ['approved', 'rejected'])) {
+                Log::info('RSBSA Status changed - firing SMS notification', [
+                    'application_id' => $application->id,
+                    'previous_status' => $originalStatus,
+                    'new_status' => $validated['status']
+                ]);
 
-        Log::info('RSBSA application status updated', [
-            'application_id' => $id,
-            'application_number' => $application->application_number,
-            'old_status' => $originalStatus,
-            'new_status' => $validated['status'],
-            'updated_by' => auth()->user()->name,
-        ]);
+                $application->fireApplicationStatusChanged(
+                    $application->getApplicationTypeName(),
+                    $originalStatus,
+                    $validated['status'],
+                    $validated['remarks'] ?? null
+                );
+            }
 
-        // Send admin notification about status change
-        if ($statusChanged) {
-            NotificationService::rsbsaApplicationStatusChanged($application, $originalStatus);
-        }
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Status updated successfully',
-                'data' => [
-                    'id' => $application->id,
-                    'status' => $application->status,
-                    'formatted_status' => $application->formatted_status,
-                    'status_color' => $application->status_color,
-                    'updated_at' => $application->updated_at->format('M d, Y g:i A')
-                ]
+            $this->logActivity('updated_status', 'RsbsaApplication', $application->id, [
+                'old_status' => $originalStatus,
+                'new_status' => $validated['status'],
+                'remarks' => $validated['remarks']
             ]);
+
+            Log::info('RSBSA application status updated', [
+                'application_id' => $id,
+                'application_number' => $application->application_number,
+                'old_status' => $originalStatus,
+                'new_status' => $validated['status'],
+                'updated_by' => auth()->user()->name,
+            ]);
+
+            // Send admin notification about status change
+            if ($statusChanged) {
+                NotificationService::rsbsaApplicationStatusChanged($application, $originalStatus);
+            }
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Status updated successfully',
+                    'data' => [
+                        'id' => $application->id,
+                        'status' => $application->status,
+                        'formatted_status' => $application->formatted_status,
+                        'status_color' => $application->status_color,
+                        'updated_at' => $application->updated_at->format('M d, Y g:i A')
+                    ]
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Status updated successfully');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
+
+        } catch (\Exception $e) {
+            Log::error('Error updating RSBSA application status', [
+                'application_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating status: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Error updating status: ' . $e->getMessage());
         }
-
-        return redirect()->back()->with('success', 'Status updated successfully');
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        }
-
-        return redirect()->back()->withErrors($e->errors())->withInput();
-
-    } catch (\Exception $e) {
-        Log::error('Error updating RSBSA application status', [
-            'application_id' => $id,
-            'error' => $e->getMessage(),
-        ]);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating status: ' . $e->getMessage()
-            ], 500);
-        }
-
-        return redirect()->back()->with('error', 'Error updating status: ' . $e->getMessage());
     }
-}
-
-// /**
-//  * Helper method to get changed fields for audit logging
-//  */
-// private function getChangedFields($original, $updated)
-// {
-//     $changes = [];
-//     foreach ($updated as $key => $value) {
-//         if (($original[$key] ?? null) !== $value) {
-//             $changes[$key] = [
-//                 'old' => $original[$key] ?? null,
-//                 'new' => $value
-//             ];
-//         }
-//     }
-//     return $changes;
-// }
-
 
     /**
-     * Store a new RSBSA application ADD REGISTRATION
+     * Store a new RSBSA application
      */
     public function store(Request $request)
     {
         try {
-            // Validate the incoming data
+            // Validate the incoming data - COMPREHENSIVE VALIDATION FOR ALL FIELDS
             $validated = $request->validate([
                 // Basic info
-                'first_name' => 'required|string|max:100',
-                'middle_name' => 'nullable|string|max:100',
-                'last_name' => 'required|string|max:100',
-                'name_extension' => 'nullable|string|max:10',
+                'first_name' => 'required|string|max:100|regex:/^[a-zA-Z\s\'-]+$/',
+                'middle_name' => 'nullable|string|max:100|regex:/^[a-zA-Z\s\'-]*$/',
+                'last_name' => 'required|string|max:100|regex:/^[a-zA-Z\s\'-]+$/',
+                'name_extension' => 'nullable|string|max:10|regex:/^[a-zA-Z.\s]*$/',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
+                
+                // Contact & location
                 'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'barangay' => 'required|string|max:100',
-
-                // Livelihood info
+                'address' => 'required|string|max:500',
+                
+                // Main livelihood
                 'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
-                'land_area' => 'nullable|numeric|min:0|max:99999.99',
-                'farm_location' => 'nullable|string|max:500',
+                
+                // Farmer-specific
+                'farmer_crops' => 'nullable|required_if:main_livelihood,Farmer|string|max:100',
+                'farmer_other_crops' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+                'farmer_livestock' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9\s,()\'"-]*$/',
+                'farmer_land_area' => 'nullable|numeric|min:0|max:1000',
+                'farmer_type_of_farm' => 'nullable|required_if:main_livelihood,Farmer|in:Irrigated,Rainfed Upland,Rainfed Lowland',
+                'farmer_land_ownership' => 'nullable|required_if:main_livelihood,Farmer|in:Owner,Tenant,Lessee',
+                'farmer_special_status' => 'nullable|in:Ancestral Domain,Agrarian Reform Beneficiary,None',
+                'farm_location' => 'nullable|required_if:main_livelihood,Farmer|string|max:500|regex:/^[a-zA-Z0-9\s,\'-]*$/',
+                
+                // Farmworker-specific
+                'farmworker_type' => 'nullable|required_if:main_livelihood,Farmworker/Laborer|string|max:100',
+                'farmworker_other_type' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+                
+                // Fisherfolk-specific
+                'fisherfolk_activity' => 'nullable|required_if:main_livelihood,Fisherfolk|string|max:100',
+                'fisherfolk_other_activity' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
+                
+                // Agri-youth-specific
+                'agriyouth_farming_household' => 'nullable|required_if:main_livelihood,Agri-youth|in:Yes,No',
+                'agriyouth_training' => 'nullable|required_if:main_livelihood,Agri-youth|string|max:100',
+                'agriyouth_participation' => 'nullable|required_if:main_livelihood,Agri-youth|in:Participated,Not Participated',
+                
+                // General
                 'commodity' => 'nullable|string|max:1000',
-
-                // Status
-                'status' => 'nullable|in:pending,under_review,approved,rejected',
-
+                
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
-
             ]);
-
 
             // Generate unique application number
             $validated['application_number'] = $this->generateApplicationNumber();
@@ -485,22 +538,8 @@ public function updateStatus(Request $request, $id)
                 $validated['supporting_document_path'] = $path;
             }
 
-            // Set default status if not provided
-            $validated['status'] = $validated['status'] ?? 'pending';
-
-            // Set reviewed fields if status is not pending
-            if ($validated['status'] !== 'pending') {
-                $validated['reviewed_at'] = now();
-                $validated['reviewed_by'] = auth()->id();
-
-                if ($validated['status'] === 'approved') {
-                    $validated['approved_at'] = now();
-                    $validated['number_assigned_at'] = now();
-                    $validated['assigned_by'] = auth()->id();
-                } elseif ($validated['status'] === 'rejected') {
-                    $validated['rejected_at'] = now();
-                }
-            }
+            // Set default status
+            $validated['status'] = 'pending';
 
             // Create the application
             $application = RsbsaApplication::create($validated);
@@ -511,16 +550,16 @@ public function updateStatus(Request $request, $id)
                 'barangay' => $application->barangay
             ]);
 
-            Log::info('RSBSA application created by admin', [
+            Log::info('RSBSA application created', [
                 'application_id' => $application->id,
                 'application_number' => $application->application_number,
-                'created_by' => auth()->user()->name,
-                'linked_to_user' => isset($validated['user_id']) && $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
+                'main_livelihood' => $application->main_livelihood,
+                'created_by' => auth()->user()->name ?? 'System'
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'RSBSA registration created successfully',
+                'message' => 'RSBSA application submitted successfully!',
                 'data' => [
                     'id' => $application->id,
                     'application_number' => $application->application_number,
@@ -529,20 +568,25 @@ public function updateStatus(Request $request, $id)
             ], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('RSBSA Validation Error on Create', [
+                'errors' => $e->errors(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
             ], 422);
+
         } catch (\Exception $e) {
-            Log::error('Error creating RSBSA registration', [
+            Log::error('Error creating RSBSA application', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while creating the registration: ' . $e->getMessage()
+                'message' => 'An error occurred while submitting your application. Please try again.'
             ], 500);
         }
     }
@@ -553,13 +597,15 @@ public function updateStatus(Request $request, $id)
     private function generateApplicationNumber()
     {
         do {
-            $number = 'RSBSA-' . strtoupper(\Illuminate\Support\Str::random(8));
+            $number = 'RSBSA-' . strtoupper(Str::random(8));
         } while (RsbsaApplication::where('application_number', $number)->exists());
 
         return $number;
     }
 
-    // Delete the specified RSBSA application
+    /**
+     * Delete the specified RSBSA application
+     */
     public function destroy(Request $request, $id)
     {
         try {
@@ -613,6 +659,7 @@ public function updateStatus(Request $request, $id)
             return redirect()->back()->with('error', $errorMessage);
         }
     }
+
     /**
      * Download supporting document
      */
@@ -685,6 +732,7 @@ public function updateStatus(Request $request, $id)
                     'Sex',
                     'Mobile Number',
                     'Barangay',
+                    'Address',
                     'Main Livelihood',
                     'Land Area (ha)',
                     'Farm Location',
@@ -698,12 +746,13 @@ public function updateStatus(Request $request, $id)
                 foreach ($applications as $application) {
                     fputcsv($file, [
                         $application->application_number,
-                        $application->full_name,
+                        $application->full_name_with_extension,
                         $application->sex,
                         $application->contact_number,
                         $application->barangay,
+                        $application->address,
                         $application->main_livelihood,
-                        $application->land_area,
+                        $application->farmer_land_area,
                         $application->farm_location,
                         $application->commodity,
                         $application->formatted_status,
@@ -727,5 +776,16 @@ public function updateStatus(Request $request, $id)
         }
     }
 
-
+    /**
+     * Log activity helper method
+     */
+    private function logActivity($action, $subject, $id, $data = [])
+    {
+        Log::info("RSBSA {$action}", array_merge([
+            'subject' => $subject,
+            'id' => $id,
+            'user_id' => auth()->id(),
+            'user_name' => auth()->user()->name ?? 'System'
+        ], $data));
+    }
 }

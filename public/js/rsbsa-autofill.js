@@ -1,11 +1,10 @@
-// ==============================================
-// RSBSA AUTO-FILL ENHANCEMENT - PROFESSIONAL VERSION
-// Automatically populates form fields from authenticated user's profile data
-// Fixed: Sex/Gender field mapping, proper event dispatching, professional UI
-// ==============================================
+/**
+ * RSBSA AUTO-FILL - UPDATED TO INCLUDE ADDRESS FIELD
+ * Automatically populates form fields from authenticated user's profile data
+ */
 
 /**
- * Auto-fill RSBSA form with user profile data
+ * Auto-fill RSBSA form with user profile data - UPDATED VERSION
  */
 function autoFillRSBSAFromProfile() {
     console.log('Auto-filling RSBSA form from user profile...');
@@ -115,8 +114,16 @@ function autoFillRSBSAFromProfile() {
         }
     }
 
+    // Fill Address - NEW FIELD
+    // Priority: complete_address > address > street_address
+    const addressValue = userData.complete_address || userData.address || userData.street_address;
+    if (addressValue) {
+        setFieldValue('address', addressValue);
+    }
+
     // Fill Mobile Number
-    setFieldValue('mobile', userData.contact_number || userData.mobile_number || userData.mobile || userData.phone);
+    const mobileValue = userData.contact_number || userData.mobile_number || userData.mobile || userData.phone;
+    setFieldValue('mobile', mobileValue);
 
     // Fill Main Livelihood from user_type
     if (userData.user_type) {
@@ -139,8 +146,11 @@ function autoFillRSBSAFromProfile() {
         }
     }
 
-    // Fill Farm Location from complete address
-    setFieldValue('farm_location', userData.complete_address);
+    // // Fill Farm Location from complete address or street address
+    // const farmLocationValue = userData.complete_address || userData.farm_location || userData.street_address;
+    // if (farmLocationValue) {
+    //     setFieldValue('farm_location', farmLocationValue);
+    // }
 
     // Show results
     if (filledCount > 0) {
@@ -360,7 +370,6 @@ function showClearFormConfirmation(onConfirm) {
 
 /**
  * Add auto-fill button to RSBSA form
- * Professional styling matching Training form
  */
 function addAutoFillButtonToRSBSA() {
     const form = document.querySelector('#rsbsa-form');
@@ -494,4 +503,4 @@ window.addEventListener('load', function() {
     setTimeout(initializeRSBSAAutoFill, 500);
 });
 
-console.log('RSBSA Auto-fill module loaded');
+console.log('RSBSA Auto-fill module loaded with address field support');
