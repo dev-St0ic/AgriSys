@@ -166,9 +166,9 @@
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Land Area (in hectares) <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <label>Land Area in hectares (Optoional)</label>
                 <input type="number" name="land_area" step="0.01" min="0" max="1000"
-                    placeholder="Example: 2.5" value="{{ old('land_area') }}" required>
+                    placeholder="Example: 2.5" value="{{ old('land_area') }}">
                 @error('land_area')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror

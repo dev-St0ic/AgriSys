@@ -375,20 +375,20 @@ async function validateFishRNumberSilent(fishRInput) {
             // Valid FishR number
             fishRInput.style.borderColor = '#28a745';
             fishRInput.style.backgroundColor = '#f8fff8';
-            showValidationMessage(fishRInput, '✅ Valid FishR registration number', 'success');
+            showValidationMessage(fishRInput, 'Valid FishR registration number', 'success');
             fishRInput.dataset.validated = 'true';
         } else {
             // Invalid FishR number
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
-            showValidationMessage(fishRInput, '❌ Invalid or non-approved FishR number. Please ensure you have an approved FishR registration.', 'error');
+            showValidationMessage(fishRInput, 'Invalid or non-approved FishR number. Please ensure you have an approved FishR registration.', 'error');
             fishRInput.dataset.validated = 'false';
         }
     } catch (error) {
         console.error('Error validating FishR number:', error);
         fishRInput.style.borderColor = '#ffc107';
         fishRInput.style.backgroundColor = '#fffbf0';
-        showValidationMessage(fishRInput, '⚠️ Unable to verify FishR number. Please check your connection.', 'warning');
+        showValidationMessage(fishRInput, 'Unable to verify FishR number. Please check your connection.', 'warning');
         fishRInput.dataset.validated = 'error';
     }
 }
