@@ -1,4 +1,4 @@
-<!-- RSBSA Registration Form - UPDATED WITH ADDRESS FIELD AND VALIDATION -->
+<!-- RSBSA Registration Form - CORRECTED: Farm Location ONLY for Farmers -->
 <section class="rsbsa-application-section" id="rsbsa-form" style="display: none;">
     <div class="rsbsa-form-header">
         <h2>RSBSA Registration</h2>
@@ -272,6 +272,19 @@
                         <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                     @enderror
                 </div>
+
+                <!-- FARM LOCATION - ONLY FOR FARMERS -->
+                <div class="rsbsa-form-group">
+                    <label>Farm Location <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                    <input type="text" id="rsbsa-farm_location" name="farm_location" placeholder="Example: Barangay Landayan, San Pedro"
+                        pattern="[a-zA-Z0-9\s,'-]+" title="Only alphanumeric, spaces, commas, hyphens, and apostrophes allowed"
+                        value="{{ old('farm_location') }}" required>
+                    <span class="validation-warning" id="rsbsa-farm_location-warning"
+                        style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only alphanumeric, spaces, commas, hyphens, and apostrophes are allowed</span>
+                    @error('farm_location')
+                        <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
 
             <!-- FARMWORKER/LABORER FIELDS -->
@@ -379,19 +392,7 @@
                 </div>
             </div>
 
-            <!-- COMMON FIELDS FOR ALL LIVELIHOODS -->
-            <div class="rsbsa-form-group">
-                <label>Farm Location <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="text" id="rsbsa-farm_location" name="farm_location" placeholder="Example: Barangay Landayan, San Pedro"
-                    pattern="[a-zA-Z0-9\s,'-]+" title="Only alphanumeric, spaces, commas, hyphens, and apostrophes allowed"
-                    value="{{ old('farm_location') }}" required>
-                <span class="validation-warning" id="rsbsa-farm_location-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only alphanumeric, spaces, commas, hyphens, and apostrophes are allowed</span>
-                @error('farm_location')
-                    <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
-                @enderror
-            </div>
-
+            <!-- SUPPORTING DOCUMENTS (Not location-specific, all livelihoods) -->
             <div class="rsbsa-form-group">
                 <label>Supporting Document (Optional)</label>
                 <input type="file" id="rsbsa-supporting_docs" name="supporting_docs" accept=".pdf,.jpg,.jpeg,.png">

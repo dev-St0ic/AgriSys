@@ -280,6 +280,10 @@ function initializeRSBSATabs() {
     console.log('RSBSA tabs initialized');
 }
 
+/**
+ * UPDATED VALIDATION - FARM LOCATION ONLY FOR FARMERS
+ * Matches server validation exactly and validates all fields
+ */
 function validateRSBSAForm(form) {
     const requiredFields = [
         'first_name',
@@ -288,8 +292,8 @@ function validateRSBSAForm(form) {
         'barangay',
         'address',  // NEW: Address field is required
         'mobile',
-        'main_livelihood',
-        'farm_location'
+        'main_livelihood'
+        // NOTE: farm_location is NOT in common required fields - only for farmers
     ];
 
     let isValid = true;
@@ -375,7 +379,7 @@ function validateRSBSAForm(form) {
         barangayField.classList.add('error');
     }
 
-    // 8️⃣ NEW: VALIDATE ADDRESS FIELD
+    // 8️⃣ VALIDATE ADDRESS FIELD
     const addressField = form.querySelector('[name="address"]');
     if (addressField && !addressField.value.trim()) {
         isValid = false;
@@ -478,6 +482,21 @@ function validateRSBSAForm(form) {
             errors.push('Land ownership is required for Farmer');
             if (landOwnershipField) landOwnershipField.classList.add('error');
         }
+
+        // ⭐ FARM LOCATION - REQUIRED ONLY FOR FARMERS
+        const farmLocationField = form.querySelector('[name="farm_location"]');
+        if (!farmLocationField || !farmLocationField.value.trim()) {
+            isValid = false;
+            errors.push('Farm location is required for Farmer');
+            if (farmLocationField) farmLocationField.classList.add('error');
+        } else {
+            const locationPattern = /^[a-zA-Z0-9\s,'\-]+$/;
+            if (!locationPattern.test(farmLocationField.value)) {
+                isValid = false;
+                errors.push('Farm location can only contain letters, numbers, spaces, commas, hyphens, and apostrophes');
+                farmLocationField.classList.add('error');
+            }
+        }
     }
 
     // FARMWORKER-SPECIFIC VALIDATIONS
@@ -555,17 +574,6 @@ function validateRSBSAForm(form) {
             isValid = false;
             errors.push('Agricultural activity/program participation is required');
             if (participationField) participationField.classList.add('error');
-        }
-    }
-
-    // VALIDATE FARM LOCATION
-    const farmLocationField = form.querySelector('[name="farm_location"]');
-    if (farmLocationField && farmLocationField.value) {
-        const locationPattern = /^[a-zA-Z0-9\s,'\-]+$/;
-        if (!locationPattern.test(farmLocationField.value)) {
-            isValid = false;
-            errors.push('Farm location can only contain letters, numbers, spaces, commas, hyphens, and apostrophes');
-            farmLocationField.classList.add('error');
         }
     }
 
