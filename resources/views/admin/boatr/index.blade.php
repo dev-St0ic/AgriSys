@@ -326,6 +326,9 @@
                                                     </a>
                                                 </li>
                                                 <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                         onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->application_number }}')">
                                                         <i class="fas fa-trash me-2"></i>Delete Application
@@ -6754,7 +6757,7 @@ function confirmPermanentDeleteBoatr() {
 
             // Format is valid, check if exists in database
             input.classList.remove('is-invalid', 'is-valid');
-            showAdminValidationMessage(input, '🔄 Checking FishR registration...', 'warning');
+            showAdminValidationMessage(input, 'Checking FishR registration...', 'warning');
 
             // Validate asynchronously - pass the full value with FISHR- prefix
             validateAdminFishRNumber(input, value);
@@ -6803,7 +6806,7 @@ function confirmPermanentDeleteBoatr() {
                     // ✅ Valid FishR found
                     input.classList.remove('is-invalid');
                     input.classList.add('is-valid');
-                    showAdminValidationMessage(input, `✓ Valid: ${data.fisher_name}`, 'success');
+                    showAdminValidationMessage(input, `Valid: ${data.fisher_name}`, 'success');
 
                     // Auto-fill the form
                     autoFillAdminFisherInfo(data);
@@ -6813,7 +6816,7 @@ function confirmPermanentDeleteBoatr() {
                     // ❌ FishR not found
                     input.classList.remove('is-valid');
                     input.classList.add('is-invalid');
-                    showAdminValidationMessage(input, '❌ ' + (data.message || 'FishR not found in system'), 'error');
+                    showAdminValidationMessage(input, (data.message || 'FishR not found in system'), 'error');
 
                     clearAdminFisherFields();
                     showToast('warning', data.message || 'Registration number not found');
@@ -6823,7 +6826,7 @@ function confirmPermanentDeleteBoatr() {
 
                 input.classList.remove('is-valid');
                 input.classList.add('is-invalid');
-                showAdminValidationMessage(input, '⚠️ Connection error. Check your internet.', 'error');
+                showAdminValidationMessage(input, 'Connection error. Check your internet.', 'error');
 
                 showToast('error', 'Connection error: ' + error.message);
             }

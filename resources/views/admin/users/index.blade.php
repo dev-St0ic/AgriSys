@@ -1,11 +1,11 @@
 {{-- resources/views/admin/users/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'User Registration Management - AgriSys Admin')
+@section('title', 'User Registration - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
         <i class="fas fa-user-edit text-primary me-2"></i>
-        <span class="text-primary fw-bold">User Registration Management</span>
+        <span class="text-primary fw-bold">User Registration</span>
     </div>
 @endsection
 
