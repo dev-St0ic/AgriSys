@@ -330,8 +330,7 @@
         </ul>
 
         <h4>Distribution Information:</h4>
-        <p>Seedlings will be distributed at the City Agriculture Office. You will receive an SMS notification with the
-            pickup date and time once your request is approved.</p>
+        <p>Seedlings will be distributed at the City Agriculture Office. You will receive an SMS notification once your request is approved.</p>
     </div>
 
     <div id="seedlings-summary-tab" class="seedlings-tab-content" style="display: none;">
