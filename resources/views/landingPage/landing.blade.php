@@ -342,7 +342,7 @@
                         <img src="{{ asset('images/services/ServicesTrainingTemporary.jpg') }}"
                             alt="Training Service">
                     </div>
-                    <h3>Training Request</h3>
+                    <h3>Training Registration</h3>
                     <p>Apply for agricultural training programs to enhance your farming skills and knowledge.</p>
                     <button class="btn-choice" onclick="openFormTraining(event)">Apply Now</button>
                 </div>
@@ -2315,7 +2315,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>© 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
+            <p>© 2026 City Agriculture Office of San Pedro. All rights reserved.</p>
             <div class="footer-bottom-links">
                 <a href="{{ route('privacy-policy') }}" target="_blank" class="footer-link">Privacy Policy</a>
                 <a href="{{ route('terms-of-service') }}" target="_blank" class="footer-link">Terms of
