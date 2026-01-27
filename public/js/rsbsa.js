@@ -881,6 +881,199 @@ function initializeRSBSAModule() {
     console.log('RSBSA module initialized successfully');
 }
 
+    // Real-time validation for name fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameFields = [{
+                id: 'rsbsa-first_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'rsbsa-middle_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'rsbsa-last_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'rsbsa-name_extension',
+                pattern: /^[a-zA-Z.\s]*$/
+            }
+        ];
+
+        nameFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const warning = document.getElementById(field.id + '-warning');
+
+            if (input && warning) {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+
+                    if (!field.pattern.test(value)) {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    } else {
+                        warning.style.display = 'none';
+                        input.style.borderColor = '';
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    if (!field.pattern.test(e.target.value) && e.target.value !== '') {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    }
+                });
+            }
+        });
+
+        // Setup event listeners for nested field toggles
+        const farmerCropsSelect = document.getElementById('rsbsa-farmer_crops');
+        if (farmerCropsSelect) {
+            farmerCropsSelect.addEventListener('change', toggleRSBSAFarmerOtherCrops);
+        }
+
+        const farmworkerTypeSelect = document.getElementById('rsbsa-farmworker_type');
+        if (farmworkerTypeSelect) {
+            farmworkerTypeSelect.addEventListener('change', toggleRSBSAFarmworkerOtherType);
+        }
+
+        const fisherfolfActivitySelect = document.getElementById('rsbsa-fisherfolk_activity');
+        if (fisherfolfActivitySelect) {
+            fisherfolfActivitySelect.addEventListener('change', toggleRSBSAFisherfolfOtherActivity);
+        }
+    });
+
+    /**
+     * MAIN TOGGLE: Show/Hide livelihood-specific field groups
+     */
+    function toggleRSBSALivelihoodFields(selectElement) {
+        const selectedValue = selectElement.value;
+
+        // Hide ALL livelihood field groups
+        document.getElementById('rsbsa-farmer-fields').style.display = 'none';
+        document.getElementById('rsbsa-farmworker-fields').style.display = 'none';
+        document.getElementById('rsbsa-fisherfolk-fields').style.display = 'none';
+        document.getElementById('rsbsa-agriyouth-fields').style.display = 'none';
+
+        // Show ONLY the selected livelihood group
+        switch(selectedValue) {
+            case 'Farmer':
+                document.getElementById('rsbsa-farmer-fields').style.display = 'block';
+                break;
+            case 'Farmworker/Laborer':
+                document.getElementById('rsbsa-farmworker-fields').style.display = 'block';
+                break;
+            case 'Fisherfolk':
+                document.getElementById('rsbsa-fisherfolk-fields').style.display = 'block';
+                break;
+            case 'Agri-youth':
+                document.getElementById('rsbsa-agriyouth-fields').style.display = 'block';
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * NESTED TOGGLE 1: Show "Specify Other Crops" when farmer selects "Other Crops"
+     */
+    function toggleRSBSAFarmerOtherCrops() {
+        const cropsSelect = document.getElementById('rsbsa-farmer_crops');
+        const otherCropsField = document.getElementById('rsbsa-farmer-other-crops-field');
+        
+        if (cropsSelect && otherCropsField) {
+            if (cropsSelect.value === 'Other Crops') {
+                otherCropsField.style.display = 'block';
+            } else {
+                otherCropsField.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * NESTED TOGGLE 2: Show "Specify Other Farm Work" when farmworker selects "Others"
+     */
+    function toggleRSBSAFarmworkerOtherType() {
+        const typeSelect = document.getElementById('rsbsa-farmworker_type');
+        const otherTypeField = document.getElementById('rsbsa-farmworker-other-type-field');
+        
+        if (typeSelect && otherTypeField) {
+            if (typeSelect.value === 'Others') {
+                otherTypeField.style.display = 'block';
+            } else {
+                otherTypeField.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * NESTED TOGGLE 3: Show "Specify Other Fishing Activity" when fisherfolk selects "Others"
+     */
+    function toggleRSBSAFisherfolfOtherActivity() {
+        const activitySelect = document.getElementById('rsbsa-fisherfolk_activity');
+        const otherActivityField = document.getElementById('rsbsa-fisherfolk-other-activity-field');
+        
+        if (activitySelect && otherActivityField) {
+            if (activitySelect.value === 'Others') {
+                otherActivityField.style.display = 'block';
+            } else {
+                otherActivityField.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Tab switching functionality
+     */
+    function showRSBSATab(tabName, event) {
+        if (!event) return;
+
+        const formSection = event.target.closest('#rsbsa-form') || document.getElementById('rsbsa-form');
+        if (!formSection) return;
+
+        // Hide all tabs
+        const allTabContents = formSection.querySelectorAll('.rsbsa-tab-content');
+        allTabContents.forEach(content => {
+            content.style.display = 'none';
+        });
+
+        // Remove active class from all buttons
+        const allTabButtons = formSection.querySelectorAll('.rsbsa-tab-btn');
+        allTabButtons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        const targetTab = document.getElementById(tabName);
+        if (targetTab) {
+            targetTab.style.display = 'block';
+            event.target.classList.add('active');
+        }
+    }
+
+    /**
+     * Close form
+     */
+    function closeFormRSBSA() {
+        const formElement = document.getElementById('rsbsa-form');
+        if (formElement) {
+            formElement.style.display = 'none';
+        }
+    }
+
+    /**
+     * Format mobile number
+     */
+    function formatMobileNumber(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.startsWith('63') && value.length === 12) {
+            value = '+' + value;
+        } else if (value.startsWith('9') && value.length === 10) {
+            value = '0' + value;
+        }
+        input.value = value;
+    }
 /**
  * Initialize when DOM is ready
  */
