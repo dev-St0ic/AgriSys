@@ -814,8 +814,8 @@ class DSSDataService
                 SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved,
                 SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected,
                 SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending,
-                SUM(land_area) as total_land_area,
-                AVG(land_area) as avg_land_area
+                SUM(farmer_land_area) as total_land_area,
+                AVG(farmer_land_area) as avg_land_area
             ')
             ->first();
 
@@ -837,8 +837,8 @@ class DSSDataService
             ->select('commodity')
             ->selectRaw('
                 COUNT(*) as count,
-                SUM(land_area) as total_land,
-                AVG(land_area) as avg_land
+                SUM(farmer_land_area) as total_land,
+                AVG(farmer_land_area) as avg_land
             ')
             ->groupBy('commodity')
             ->orderByDesc('count')
@@ -888,7 +888,7 @@ class DSSDataService
             ->select('barangay')
             ->selectRaw('
                 COUNT(*) as count,
-                SUM(land_area) as total_land
+                SUM(farmer_land_area) as total_land
             ')
             ->groupBy('barangay')
             ->orderByDesc('count')
@@ -933,21 +933,21 @@ class DSSDataService
     private function getRsbsaLandAnalysis(Carbon $startDate, Carbon $endDate): array
     {
         $landData = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
-            ->whereNotNull('land_area')
-            ->select('land_area')
+            ->whereNotNull('farmer_land_area')
+            ->select('farmer_land_area')
             ->get();
 
-        $small = $landData->where('land_area', '<', 1)->count();
-        $medium = $landData->where('land_area', '>=', 1)->where('land_area', '<', 3)->count();
-        $large = $landData->where('land_area', '>=', 3)->count();
+        $small = $landData->where('farmer_land_area', '<', 1)->count();
+        $medium = $landData->where('farmer_land_area', '>=', 1)->where('farmer_land_area', '<', 3)->count();
+        $large = $landData->where('farmer_land_area', '>=', 3)->count();
 
         return [
             'small_farms' => $small . ' (< 1 ha)',
             'medium_farms' => $medium . ' (1-3 ha)',
             'large_farms' => $large . ' (≥ 3 ha)',
             'total_farms' => $landData->count(),
-            'min_land_area' => $landData->isNotEmpty() ? round($landData->min('land_area'), 2) . ' ha' : '0 ha',
-            'max_land_area' => $landData->isNotEmpty() ? round($landData->max('land_area'), 2) . ' ha' : '0 ha',
+            'min_land_area' => $landData->isNotEmpty() ? round($landData->min('farmer_land_area'), 2) . ' ha' : '0 ha',
+            'max_land_area' => $landData->isNotEmpty() ? round($landData->max('farmer_land_area'), 2) . ' ha' : '0 ha',
         ];
     }
 
