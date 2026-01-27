@@ -162,12 +162,12 @@ class AgrisysModal {
                 padding: 12px 16px;
                 background: #f3f4f6;
                 border-radius: 8px;
-                border-left: 4px solid #40916c;
+                border: 4px solid #40916c;
             }
 
             .agrisys-modal-reference-label {
                 font-size: 12px;
-                color: #6b7280;
+                color: #0550e6;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 margin-bottom: 4px;

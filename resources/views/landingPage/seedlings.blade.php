@@ -260,7 +260,7 @@
         </button>
         <button type="button" class="seedlings-tab-btn"
             onclick="showSeedlingsTab('seedlings-requirements-tab', event)">
-            Requirements
+            Information
         </button>
     </div>
 
@@ -328,6 +328,7 @@
                     <option value="Calendola">Calendola</option>
                     <option value="Chrysanthemum">Chrysanthemum</option>
                     <option value="Cuyab">Cuyab</option>
+                    <option value="Estrella">Estrella</option>
                     <option value="Fatima">Fatima</option>
                     <option value="G.S.I.S.">G.S.I.S.</option>
                     <option value="Landayan">Landayan</option>
@@ -375,23 +376,42 @@
 
     <div id="seedlings-requirements-tab" class="seedlings-tab-content" style="display: none;">
         <h3>Requirements for Supplies & Garden Tools Request</h3>
+
+        <h4>For Walk-in Individual Clients:</h4>
         <ul>
-            <li>Valid ID (any government-issued ID)</li>
-            <li>Barangay Certificate or Residency Certificate</li>
-            <li>Proof of available planting area (optional but recommended)</li>
+            <li>No documentary requirements.</li>
+            <li>Client must fill out:</li>
+                <ul>
+                    <li>Seedling/Seeds/Fertilizer Dispersal Masterlist</li>
+                    <li>Client Feedback Form</li>
+                </ul>
+        </ul>
+
+        <h4>For Institutional Clients (Barangay, Schools, NGOs, Associations):</h4>
+        <ul>
+            <li>Request Letter addressed to the Honorable City Mayor, signed by the requesting party.</li>
+        </ul>
+
+          <h4>For Seeds and Organic Fertilizer Requests:</h4>
+        <ul>
+            <li>One (1) photocopy of a valid government-issued ID.</li>
+        </ul>
+
+        <h4>For Tilapia Fingerlings Requests:</h4>
+        <ul>
+            <li>Request Letter addressed to the Honorable City Mayor.</li>
+            <li>Subject to inspection of the proposed grow-out area by City Agriculture Office personnel.</li>
         </ul>
 
         <h4>Important Notes:</h4>
         <ul>
-            <li>Seedlings are distributed on a first-come, first-served basis</li>
-            <li>Each household is limited to one request per distribution period</li>
-            <li>Recipients are expected to provide updates on seedling growth</li>
-            <li>Distribution schedule will be announced via SMS</li>
+            <li>AgriSys registration is provided to facilitate online requests, tracking, and record-keeping. Walk-in clients without an account may still avail of the service.</li>
+            <li>Distribution is free and subject to availability.</li>
+            <li>All requests are processed through the City Agriculture Office following approval procedures outlined in the Citizen’s Charter.</li>
         </ul>
 
         <h4>Distribution Information:</h4>
-        <p>Seedlings will be distributed at the City Agriculture Office. You will receive an SMS notification with the
-            pickup date and time once your request is approved.</p>
+        <p>Seedlings will be distributed at the City Agriculture Office. You will receive an SMS notification once your request is approved.</p>
     </div>
 
     <div id="seedlings-summary-tab" class="seedlings-tab-content" style="display: none;">

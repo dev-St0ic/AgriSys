@@ -232,11 +232,6 @@
             <h3>Training Duration</h3>
             <p>Most training programs run for 3-5 days, depending on the complexity of the subject matter. Advanced
                 programs may extend to 1-2 weeks.</p>
-
-            <h3>Contact Information</h3>
-            <p>For questions about training programs, contact the City Agriculture Office at:</p>
-            <p>Phone: 8808-2020 Local 109<br>
-                Email: agriculture.sanpedrocity@gmail.com</p>
         </div>
     </div>
 </section>

@@ -290,7 +290,7 @@ function hideAllMainSections() {
 
 function hideAllForms() {
     const formIds = [
-        'rsbsa-choice', 'new-rsbsa',
+        'rsbsa-form',
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form', 'training-form'
     ];
@@ -504,15 +504,10 @@ function handlePopState() {
     const routeMap = {
         '/services/rsbsa': () => {
             hideAllMainSections();
-            const choice = document.getElementById('rsbsa-choice');
-            if (choice) choice.style.display = 'block';
-        },
-        '/services/rsbsa/new': () => {
-            hideAllMainSections();
-            const form = document.getElementById('new-rsbsa');
+            const form = document.getElementById('rsbsa-form');
             if (form) {
                 form.style.display = 'block';
-                activateApplicationTab('new-rsbsa');
+                activateApplicationTab('rsbsa-form');
             }
         },
         '/services/seedlings': () => {
@@ -735,8 +730,11 @@ function handlePageLoad() {
     // Handle initial page load routing
     if (path === '/services/rsbsa') {
         hideAllMainSections();
-        const choice = document.getElementById('rsbsa-choice');
-        if (choice) choice.style.display = 'block';
+        const form = document.getElementById('rsbsa-form');
+        if (form) {
+            form.style.display = 'block';
+            activateApplicationTab('rsbsa-form');
+        }
     } else if (path === '/services/seedlings') {
         hideAllMainSections();
         const choice = document.getElementById('seedlings-choice');

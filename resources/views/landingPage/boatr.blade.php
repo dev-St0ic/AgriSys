@@ -250,26 +250,31 @@
     </div>
 
     <div class="boatr-tab-content" id="boatr-info-tab">
-        <h3>Important Information</h3>
-        <p>Please review the following before submitting:</p>
+        <h4>BoatR Registration</h4>
+        <p>
+            BoatR (Boat Registration) is a service of the City Agriculture Office that facilitates the
+            registration of municipal fishing vessels in compliance with Republic Act No. 8550,
+            Executive Order No. 305, and Section 32 of City Ordinance No. 2023-21.
+        </p>
+
+        <h4>Important Information</h4>
         <ul>
-            <li>Only municipal fishing boats will be registered under BoatR.</li>
-            <li>On-site inspection is required and will be scheduled after your application submission.</li>
-            <li>You may upload one document now, but originals must be presented during inspection.</li>
-            <li>Ensure accuracy of all information submitted.</li>
-            <li>Processing time is typically 5-10 business days after inspection.</li>
-            <li>You will receive SMS notifications for status updates.</li>
-            <li>Contact City Agriculture Office at (123) 456-7890 or email agriculture@sanpedro.gov.ph</li>
+            <li>This service is for fishing vessel owners within the City of San Pedro.</li>
+            <li>BoatR Registration is required for all municipal fishing vessels.</li>
+            <li>An on-site inspection and measurement of the fishing vessel is mandatory.</li>
+            <li>Submission of complete and accurate information is required for approval.</li>
+            <li>Payment of applicable fees shall be made at the City Treasury Office after inspection.</li>
+            <li>The BoatR Registration Certificate of Number (CN) shall be issued upon completion of all requirements.</li>
         </ul>
 
-        <h3>Application Process</h3>
+        <h4>Application Process</h4>
         <ol>
-            <li><strong>Submit Application:</strong> Complete and submit this form with required information</li>
-            <li><strong>Initial Review:</strong> Application reviewed by City Agriculture Office</li>
-            <li><strong>Inspection Scheduled:</strong> On-site boat inspection appointment set</li>
-            <li><strong>Physical Inspection:</strong> Boat and documents verified by inspector</li>
-            <li><strong>Final Review:</strong> Application processed for approval/rejection</li>
-            <li><strong>Certificate Issued:</strong> BoatR certificate issued if approved</li>
+            <li>Client fills out the BoatR Application Form and submits the requirements.</li>
+            <li>City Agriculture Office reviews and validates the submitted documents.</li>
+            <li>Boat inspection and measurement are scheduled and conducted.</li>
+            <li>Client pays the corresponding fees at the City Treasury Office.</li>
+            <li>Client submits a photocopy of the Official Receipt (OR).</li>
+            <li>BoatR Registration Certificate of Number (CN) is prepared and released.</li>
         </ol>
     </div>
 </section>
