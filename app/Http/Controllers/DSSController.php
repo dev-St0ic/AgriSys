@@ -126,7 +126,7 @@ class DSSController extends Controller
                 $data = $this->dataService->collectMonthlyData($month, $year);
                 $report = $this->reportService->generateReport($data);
                 $view = 'admin.dss.pdf-report';
-                $filename = 'DSS_Report_';
+                $filename = 'Supplies_DSS_Report_';
             }
 
             // Generate PDF
@@ -174,7 +174,7 @@ class DSSController extends Controller
             } else {
                 $data = $this->dataService->collectMonthlyData($month, $year);
                 $report = $this->reportService->generateReport($data);
-                $filename = 'DSS_Report_';
+                $filename = 'Supplies_DSS_Report_';
             }
 
             // Create Word document content

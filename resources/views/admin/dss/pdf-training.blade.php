@@ -137,7 +137,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>🎓 TRAINING PROGRAM DSS REPORT</h1>
+        <h1> TRAINING PROGRAM DSS REPORT</h1>
         <h2>{{ $data['period']['month'] }}</h2>
         <p>City Agriculture Office, San Pedro, Laguna</p>
     </div>
