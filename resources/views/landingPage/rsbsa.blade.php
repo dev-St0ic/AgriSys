@@ -42,7 +42,7 @@
             <div class="rsbsa-form-group">
                 <label>First Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Example: Juan"
-                    pattern="[a-zA-Z\s'\-]+" title="First name can only contain letters, spaces, hyphens, and apostrophes"
+                   pattern="[a-zA-Z\s'.\-]*" title="First name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('first_name') }}" required>
                 <span class="validation-warning" id="rsbsa-first_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces, hyphens, and apostrophes are allowed</span>
@@ -145,7 +145,7 @@
             <div class="rsbsa-form-group">
                 <label>Complete Address <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="rsbsa-address" name="address" placeholder="Example: 123 Main Street, Poblacion"
-                    value="{{ old('address') }}" required>
+                    value="{{ old('address') }}" required  pattern="[a-zA-Z0-9\s,'.\-]*" >
                 <small style="color: #666; font-size: 0.875rem; display: block; margin-top: 4px;">Include house number, street, subdivision if applicable. This helps us locate your area for services.</small>
                 @error('address')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
@@ -203,7 +203,7 @@
                     <div class="rsbsa-form-group">
                         <label>Specify Other Crops/Commodity <span style="color: #dc3545; font-weight: bold;">*</span></label>
                         <input type="text" id="rsbsa-farmer_other_crops" name="farmer_other_crops" placeholder="Example: Vegetables, Fruits"
-                            pattern="[a-zA-Z\s,'\-]+" title="Only letters, spaces, commas, hyphens, and apostrophes allowed"
+                            pattern="[a-zA-Z\s,'.\-]*" title="Only letters, spaces, commas, hyphens, and apostrophes allowed"
                             value="{{ old('farmer_other_crops') }}">
                         <span class="validation-warning" id="rsbsa-farmer_other_crops-warning"
                             style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces, commas, hyphens, and apostrophes are allowed</span>
@@ -216,7 +216,7 @@
                 <div class="rsbsa-form-group">
                     <label>Livestock/Poultry (Type & Number)</label>
                     <input type="text" id="rsbsa-farmer_livestock" name="farmer_livestock" placeholder="Example: Chickens (50), Pigs (5)"
-                        pattern="^[a-zA-Z0-9\s,()'-]*$" title="Only alphanumeric, spaces, parentheses, commas, hyphens, and apostrophes allowed"
+                        pattern="[a-zA-Z0-9\s,().\-]*" title="Only alphanumeric, spaces, parentheses, commas, hyphens, and apostrophes allowed"
                         value="{{ old('farmer_livestock') }}">
                     <small class="rsbsa-form-help">Enter type and number of livestock/poultry heads (leave blank if not applicable)</small>
                     @error('farmer_livestock')
@@ -277,7 +277,7 @@
                 <div class="rsbsa-form-group">
                     <label>Farm Location <span style="color: #dc3545; font-weight: bold;">*</span></label>
                     <input type="text" id="rsbsa-farm_location" name="farm_location" placeholder="Example: Barangay Landayan, San Pedro"
-                        pattern="[a-zA-Z0-9\s,'-]+" title="Only alphanumeric, spaces, commas, hyphens, and apostrophes allowed"
+                        pattern="[a-zA-Z0-9\s,'.\-]*" title="Only alphanumeric, spaces, commas, hyphens, and apostrophes allowed"
                         value="{{ old('farm_location') }}" required>
                     <span class="validation-warning" id="rsbsa-farm_location-warning"
                         style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only alphanumeric, spaces, commas, hyphens, and apostrophes are allowed</span>
@@ -308,7 +308,7 @@
                     <div class="rsbsa-form-group">
                         <label>Specify Other Farm Work <span style="color: #dc3545; font-weight: bold;">*</span></label>
                         <input type="text" id="rsbsa-farmworker_other_type" name="farmworker_other_type" placeholder="Specify other farm work"
-                            pattern="[a-zA-Z\s,'\-]+" title="Only letters, spaces, commas, hyphens, and apostrophes allowed"
+                            pattern="[a-zA-Z\s,'.\-]*" title="Only letters, spaces, commas, hyphens, and apostrophes allowed"
                             value="{{ old('farmworker_other_type') }}">
                         <span class="validation-warning" id="rsbsa-farmworker_other_type-warning"
                             style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces, commas, hyphens, and apostrophes are allowed</span>
@@ -341,7 +341,7 @@
                     <div class="rsbsa-form-group">
                         <label>Specify Other Fishing Activity <span style="color: #dc3545; font-weight: bold;">*</span></label>
                         <input type="text" id="rsbsa-fisherfolk_other_activity" name="fisherfolk_other_activity" placeholder="Specify other fishing activity"
-                            pattern="[a-zA-Z\s,'\-]+" title="Only letters, spaces, commas, hyphens, and apostrophes allowed"
+                            pattern="[a-zA-Z\s,'.\-]*" title="Only letters, spaces, commas, hyphens, and apostrophes allowed"
                             value="{{ old('fisherfolk_other_activity') }}">
                         <span class="validation-warning" id="rsbsa-fisherfolk_other_activity-warning"
                             style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces, commas, hyphens, and apostrophes are allowed</span>

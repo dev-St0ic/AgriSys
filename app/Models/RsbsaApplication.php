@@ -15,20 +15,51 @@ class RsbsaApplication extends Model
     use HasFactory, SoftDeletes, LogsActivity, SendsApplicationSms;
 
     protected $fillable = [
-        'user_id', // Foreign key to user_registration table
+        // Basic info
+        'user_id',
         'application_number',
         'first_name',
         'middle_name',
         'last_name',
         'name_extension',
         'sex',
+        
+        // Contact & location
         'contact_number',
         'barangay',
+        'address',
+        
+        // Main livelihood
         'main_livelihood',
-        'land_area',
+        
+        // Farmer-specific
+        'farmer_crops',
+        'farmer_other_crops',
+        'farmer_livestock',
+        'farmer_land_area',
+        'farmer_type_of_farm',
+        'farmer_land_ownership',
+        'farmer_special_status',
         'farm_location',
+        
+        // Farmworker-specific
+        'farmworker_type',
+        'farmworker_other_type',
+        
+        // Fisherfolk-specific
+        'fisherfolk_activity',
+        'fisherfolk_other_activity',
+        
+        // Agri-youth-specific
+        'agriyouth_farming_household',
+        'agriyouth_training',
+        'agriyouth_participation',
+        
+        // General
         'commodity',
         'supporting_document_path',
+        
+        // Status
         'status',
         'remarks',
         'reviewed_at',
@@ -40,7 +71,7 @@ class RsbsaApplication extends Model
     ];
 
     protected $casts = [
-        'land_area' => 'decimal:2',
+        'farmer_land_area' => 'decimal:2',
         'reviewed_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
@@ -48,10 +79,6 @@ class RsbsaApplication extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-
-
-
 
     /**
      * Get the full name attribute
@@ -67,19 +94,15 @@ class RsbsaApplication extends Model
     }
 
     /**
-     * Get the contact number (alias for contact_number for backward compatibility)
+     * Get the full name with extension
      */
-    public function getContactNumberAttribute()
+    public function getFullNameWithExtensionAttribute()
     {
-        return $this->attributes['contact_number'];
-    }
-
-    /**
-     * Get the document path (alias for supporting_document_path for backward compatibility)
-     */
-    public function getDocumentPathAttribute()
-    {
-        return $this->supporting_document_path;
+        $fullName = $this->full_name;
+        if ($this->name_extension) {
+            $fullName .= ' ' . $this->name_extension;
+        }
+        return $fullName;
     }
 
     /**
@@ -111,13 +134,59 @@ class RsbsaApplication extends Model
     }
 
     /**
+     * Get livelihood-specific information as an array
+     */
+    public function getLivelihoodDetailsAttribute()
+    {
+        $details = [];
+
+        switch ($this->main_livelihood) {
+            case 'Farmer':
+                $details = [
+                    'crops' => $this->farmer_crops,
+                    'other_crops' => $this->farmer_other_crops,
+                    'livestock' => $this->farmer_livestock,
+                    'land_area' => $this->farmer_land_area,
+                    'farm_type' => $this->farmer_type_of_farm,
+                    'land_ownership' => $this->farmer_land_ownership,
+                    'special_status' => $this->farmer_special_status,
+                    'farm_location' => $this->farm_location
+                ];
+                break;
+
+            case 'Farmworker/Laborer':
+                $details = [
+                    'work_type' => $this->farmworker_type,
+                    'other_type' => $this->farmworker_other_type
+                ];
+                break;
+
+            case 'Fisherfolk':
+                $details = [
+                    'activity' => $this->fisherfolk_activity,
+                    'other_activity' => $this->fisherfolk_other_activity
+                ];
+                break;
+
+            case 'Agri-youth':
+                $details = [
+                    'farming_household' => $this->agriyouth_farming_household,
+                    'training' => $this->agriyouth_training,
+                    'participation' => $this->agriyouth_participation
+                ];
+                break;
+        }
+
+        return $details;
+    }
+
+    /**
      * Relationship: RSBSA application belongs to a user
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(UserRegistration::class, 'user_id');
     }
-
 
     /**
      * Relationship with admin who reviewed the application
@@ -179,7 +248,8 @@ class RsbsaApplication extends Model
                   ->orWhere('middle_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('application_number', 'like', "%{$search}%")
-                  ->orWhere('contact_number', 'like', "%{$search}%");
+                  ->orWhere('contact_number', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
             });
         }
         return $query;
@@ -229,6 +299,25 @@ class RsbsaApplication extends Model
     public function isDocumentPdf()
     {
         return $this->document_extension === 'pdf';
+    }
+
+    /**
+     * Check if farm location is required for this application
+     */
+    public function isFarmLocationRequired()
+    {
+        return $this->main_livelihood === 'Farmer';
+    }
+
+    /**
+     * Validate farm location requirement
+     */
+    public function hasFarmLocation()
+    {
+        if ($this->isFarmLocationRequired()) {
+            return !empty($this->farm_location);
+        }
+        return true; // Not required for other livelihoods
     }
 
     // Log activity options

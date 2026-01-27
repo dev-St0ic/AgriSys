@@ -882,6 +882,16 @@ function handleRSBSAFormSubmission() {
         } catch (error) {
             console.error('Submission error:', error);
 
+            if (response && response.status === 422) {
+                const errorData = await response.json();
+                console.error('Validation Errors:', errorData.errors);
+                agrisysModal.validationError(
+                    Object.values(errorData.errors).flat(),
+                    { title: 'Please Fix These Errors' }
+                );
+                return false;
+            }
+
             // Handle specific error types - EXACTLY LIKE FISHR
             if (error.message.includes('419') || error.message.includes('CSRF')) {
                 agrisysModal.error('Your session has expired. Please refresh the page and try again.', { title: 'Session Expired' });
