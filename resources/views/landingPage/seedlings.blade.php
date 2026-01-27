@@ -308,7 +308,7 @@
 
         <h4>For Institutional Clients (Barangay, Schools, NGOs, Associations):</h4>
         <ul>
-            <li>equest Letter addressed to the Honorable City Mayor, signed by the requesting party.</li>
+            <li>Request Letter addressed to the Honorable City Mayor, signed by the requesting party.</li>
         </ul>
 
           <h4>For Seeds and Organic Fertilizer Requests:</h4>

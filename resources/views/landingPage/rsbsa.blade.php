@@ -211,47 +211,43 @@
     </div>
 
     <div class="rsbsa-tab-content" id="requirements" style="display: none;">
-        <h2>Required Documents</h2>
-        <h3>1. Accomplished RSBSA Enrollment Form</h2>
-        <ul>
-            <li>1 Original Copy</li>
-            <li>Available at the City Agriculture Office (CAgO) or downloadable online</li>
-        </ul>
-        <h3>2. 2×2 I.D. Picture</h3>
-        <ul>
-            <li>Recent (taken within the last 6 months)</li>
-            <li>From any photo studio</li>
-        </ul>
-        <h2>Who May Register</h2>
-        <ul>
-            <li>Agricultural Worker</li>
-            <li>Farmers</li>
-            <li>Fisherfolk</li>
-            <li>Livestock Raisers</li>
-            <li>Poultry Raisers</li>
-        </ul>
+        <h4>Required Documents</h4>
+        <ol>
+            <li>
+                <strong>Accomplished RSBSA Enrollment Form (Original Copy)</strong><br>
+                Available at the City Agriculture Office (CAgO) or downloadable online: 
+                <a href="https://www.da.gov.ph/wp-content/uploads/2021/05/RSBSA_Enrollment-Form_032021.pdf" target="_blank">Download Form</a>
+            </li>
+            <li>
+                <strong>2×2 ID Picture (Recent, within the last 6 months)</strong><br>
+                Can be taken at any photo studio.
+            </li>
+        </ol>
+        <h4>Who May Register</h4>
+            <ul>
+                <li>Agricultural Workers</li>
+                <li>Farmers</li>
+                <li>Fisherfolk</li>
+                <li>Livestock Raisers</li>
+                <li>Poultry Raisers</li>
+            </ul>
     </div>
 
     <div class="rsbsa-tab-content" id="information" style="display: none;">
-        <h3>Important Information</h3>
-        <p>All applications shall undergo review and approval by the City Agriculture Office. Processing time may vary depending on the completeness of submitted information. The office may contact the applicant should additional information or verification be required.</p>
-        <p>All information provided must be accurate and truthful. Submission of incomplete or incorrect information may result in delays or rejection.</p>
-        <h3>Contact Information</h3>
-        <p>For assistance with your application, please contact:</p>
+        <h4>RSBSA Registration</h4>
+        <p>
+        RSBSA (Registry System for Basic Sectors in Agriculture) is a national registry for farmers, fisherfolk, 
+        livestock raisers, and poultry raisers, implemented in compliance with Republic Act No. 11203 
+        and relevant Department of Agriculture guidelines to document and support the agricultural sector in the City of San Pedro.
+        </p>
+
+        <h4>Important Information</h4>
         <ul>
-            <li><strong>Phone:</strong> 8808-2020 Local 109</li>
-            <li><strong>Email:</strong> agriculture@sanpedro.gov.ph</li>
-            <li><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM</li>
-            <li><strong>Location:</strong> City Agriculture Office, San Pedro City Hall</li>
-        </ul>
-        <h3>What Happens Next?</h3>
-        <ol>
-            <li>Your application will be reviewed by our agriculture office</li>
-            <li>We may contact you for additional verification</li>
-            <li>Once approved, your RSBSA registration will be processed.</li>
-            <li>You may be informed when your RSBSA record or certificate is available.</li>
-            <li>You can pick up your certificate at the City Agriculture Office</li>
-        </ol>
+            <li>All applications shall undergo review and approval by the City Agriculture Office. Processing time may vary depending on the completeness of submitted documents.</li>
+            <li>The office may contact the applicant for additional information or verification.</li>
+            <li>All information provided must be accurate and truthful. Incomplete or incorrect submissions may result in delays or rejection.</li>
+        </ul>`
+        
     </div>
 </section>
 

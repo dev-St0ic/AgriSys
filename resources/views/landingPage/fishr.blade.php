@@ -201,42 +201,60 @@
     </div>
 
     <div class="fishr-tab-content tab-content" id="fishr-requirements-tab">
-        <h4>Required Documents</h4>
+        <h4>Who may avail:</h4>
         <ul>
-            <li>Valid government-issued ID</li>
-            <li>Proof of residency in San Pedro, Laguna</li>
-            <li>Recent 1x1 ID picture</li>
-            <li>Proof of fishing activity (photo evidence)</li>
-            <li>Barangay Certificate of Residency</li>
+            <li>Municipal Fisherfolk residing in the City of San Pedro, Laguna</li>
         </ul>
 
-        <h4>Livelihood-Specific Requirements</h4>
+        <h4>Standard Requirements</h4>
         <ul>
-            <li><strong>Capture Fishing:</strong> No additional documents required</li>
-            <li><strong>Aquaculture:</strong> Proof of fishpond/aquaculture facility</li>
-            <li><strong>Fish Vending:</strong> Business permit or proof of vending activity</li>
-            <li><strong>Fish Processing:</strong> Processing facility photos or permit</li>
-            <li><strong>Others:</strong> Relevant proof of fishing-related livelihood</li>
+            <li>
+                <strong>Accomplished FishR Application Form</strong><br> 
+                <small>Provided by the City Agriculture Office or through the online system.</small>
+            </li>
+            <li>
+                <strong>Barangay Certificate</strong><br>
+                <small>Proof of residency and engagement in fishery-related livelihood.</small>
+                <small>Issued by the client’s Barangay Hall.</small>
+            </li>
+            <li>
+                <strong>One (1) recent 1×1 ID Picture</strong><br>
+                <small>White background</small>
+            </li>
         </ul>
+
+        <h4>Additional Supporting Documents (If Applicable / For Validation Only)</h4>
+        <h5>(Required only depending on the type of livelihood)</h5>
+        <ul>
+            <li><strong>Aquaculture</strong> – Proof of fishpond, aquaculture facility, or certification</li>
+            <li><strong>Fish Vending</strong> – Proof of vending activity or barangay certification</li>
+            <li><strong>Fish Processing</strong> – Proof of processing activity or facility</li>
+            <li><strong>Others</strong> – Any relevant document supporting fishery-related livelihood</li>
+        </ul>
+        <h5><strong>Note:</strong> Capture fishing does not require additional documents beyond the standard requirements.</h5>
     </div>
 
     <div class="fishr-tab-content tab-content" id="fishr-info-tab">
 
-        <h4>Benefits of FishR Registration</h4>
+        <h4>FishR Registration</h4>
+        <p>FishR (Fisherfolk Registration) is a national registry for municipal fisherfolk implemented in compliance with 
+            Republic Act No. 8550, Executive Order No. 305, and Section 32 of City Ordinance No. 2023-21 (Fishing Regulations Code of the City of San Pedro).</p>
+
+        <h4>Purpose of FishR Registration</h4>
         <ul>
-            <li>Access to government fisheries programs</li>
-            <li>Eligibility for livelihood assistance</li>
-            <li>Priority in training and seminars</li>
-            <li>Insurance coverage eligibility</li>
-            <li>Legal recognition as municipal fisherfolk</li>
+            <li>Establish an official database of municipal fisherfolk</li>
+            <li>Ensure fair and transparent access to fisheries programs</li>
+            <li>Support planning, policy formulation, and resource management</li>
         </ul>
 
-        <h4>Status Updates</h4>
-        <p>You will receive SMS notifications for:</p>
+        <h4>Benefits of FishR Registration</h4>
+        <p>Registered fisherfolk may be eligible for:</p>
         <ul>
-            <li>Application receipt confirmation</li>
-            <li>Status updates (under review, approved, rejected)</li>
-            <li>Additional requirements (if needed)</li>
+            <li>Fisheries and livelihood assistance programs</li>
+            <li>Training, seminars, and capacity-building activities</li>
+            <li>Insurance and disaster assistance programs</li>
+            <li>Priority access to government support</li>
+            <li>Legal recognition as municipal fisherfolk</li>
         </ul>
     </div>
 </section>
