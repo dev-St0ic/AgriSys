@@ -15,6 +15,9 @@
     <!-- Mobile Optimizations -->
     <link href="{{ asset('css/mobile-optimizations.css') }}" rel="stylesheet">
 
+    <!-- Page-specific styles -->
+    @yield('styles')
+
     <!-- Apply sidebar state IMMEDIATELY to prevent flash -->
     <script>
         // Inline script to apply state before any rendering

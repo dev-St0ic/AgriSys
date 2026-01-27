@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\SeedlingRequest;
 use App\Models\CategoryItem;
 use App\Models\SeedlingRequestItem;
+use App\Models\TrainingApplication;
+use App\Models\RsbsaApplication;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -594,5 +596,377 @@ class DSSDataService
         if ($percentage >= 50) return 'HIGH';
         if ($percentage >= 25) return 'MEDIUM';
         return 'LOW';
+    }
+
+    /**
+     * ================================================================
+     * TRAINING-SPECIFIC DATA COLLECTION
+     * ================================================================
+     */
+
+    /**
+     * Collect Training data for DSS analysis
+     */
+    public function collectTrainingData(string $month = null, string $year = null): array
+    {
+        set_time_limit(300);
+
+        $month = $month ?? now()->format('m');
+        $year = $year ?? now()->format('Y');
+
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        $cacheKey = "dss_training_data_{$year}_{$month}";
+
+        return Cache::remember($cacheKey, 1800, function () use ($startDate, $endDate) {
+            return [
+                'period' => [
+                    'month' => $startDate->format('F Y'),
+                    'start_date' => $startDate->format('Y-m-d'),
+                    'end_date' => $endDate->format('Y-m-d'),
+                ],
+                'training_stats' => $this->getTrainingStats($startDate, $endDate),
+                'training_by_type' => $this->getTrainingByType($startDate, $endDate),
+                'training_by_barangay' => $this->getTrainingByBarangay($startDate, $endDate),
+                'training_approval_analysis' => $this->getTrainingApprovalAnalysis($startDate, $endDate),
+                'training_trends' => $this->getTrainingTrends($startDate, $endDate),
+            ];
+        });
+    }
+
+    private function getTrainingStats(Carbon $startDate, Carbon $endDate): array
+    {
+        $stats = TrainingApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('
+                COUNT(*) as total_applications,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected,
+                SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending,
+                AVG(CASE WHEN status_updated_at IS NOT NULL THEN TIMESTAMPDIFF(HOUR, created_at, status_updated_at) ELSE NULL END) as avg_processing_hours
+            ')
+            ->first();
+
+        return [
+            'total_applications' => $stats->total_applications ?? 0,
+            'approved' => $stats->approved ?? 0,
+            'rejected' => $stats->rejected ?? 0,
+            'pending' => $stats->pending ?? 0,
+            'approval_rate' => $stats->total_applications > 0 ?
+                round(($stats->approved / $stats->total_applications) * 100, 2) : 0,
+            'rejection_rate' => $stats->total_applications > 0 ?
+                round(($stats->rejected / $stats->total_applications) * 100, 2) : 0,
+            'avg_processing_time' => round($stats->avg_processing_hours ?? 0, 2) . ' hours',
+        ];
+    }
+
+    private function getTrainingByType(Carbon $startDate, Carbon $endDate): array
+    {
+        $byType = TrainingApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('training_type')
+            ->selectRaw('
+                COUNT(*) as count,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved_count
+            ')
+            ->groupBy('training_type')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'type' => $item->training_type,
+                    'display_name' => $this->getTrainingTypeDisplay($item->training_type),
+                    'total' => $item->count,
+                    'approved' => $item->approved_count,
+                    'approval_rate' => $item->count > 0 ? round(($item->approved_count / $item->count) * 100, 2) : 0,
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byType,
+            'most_popular' => collect($byType)->sortByDesc('total')->take(3)->values()->toArray(),
+            'total_types_requested' => count($byType),
+        ];
+    }
+
+    private function getTrainingByBarangay(Carbon $startDate, Carbon $endDate): array
+    {
+        $byBarangay = TrainingApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('barangay')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('barangay')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'barangay' => $item->barangay,
+                    'applications' => $item->count,
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byBarangay,
+            'top_barangays' => array_slice($byBarangay, 0, 5),
+            'total_barangays_covered' => count($byBarangay),
+        ];
+    }
+
+    private function getTrainingApprovalAnalysis(Carbon $startDate, Carbon $endDate): array
+    {
+        $applications = TrainingApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->whereNotNull('status_updated_at')
+            ->get();
+
+        return [
+            'average_decision_time' => $applications->isNotEmpty() ?
+                round($applications->avg(function($app) {
+                    return $app->created_at->diffInHours($app->status_updated_at);
+                }), 2) . ' hours' : '0 hours',
+            'fastest_approval' => $applications->where('status', 'approved')->isNotEmpty() ?
+                round($applications->where('status', 'approved')->min(function($app) {
+                    return $app->created_at->diffInHours($app->status_updated_at);
+                }), 2) . ' hours' : 'N/A',
+            'slowest_approval' => $applications->where('status', 'approved')->isNotEmpty() ?
+                round($applications->where('status', 'approved')->max(function($app) {
+                    return $app->created_at->diffInHours($app->status_updated_at);
+                }), 2) . ' hours' : 'N/A',
+        ];
+    }
+
+    private function getTrainingTrends(Carbon $startDate, Carbon $endDate): array
+    {
+        // Compare with previous month
+        $prevStartDate = $startDate->copy()->subMonth();
+        $prevEndDate = $endDate->copy()->subMonth();
+
+        $currentCount = TrainingApplication::whereBetween('created_at', [$startDate, $endDate])->count();
+        $previousCount = TrainingApplication::whereBetween('created_at', [$prevStartDate, $prevEndDate])->count();
+
+        $change = $previousCount > 0 ? round((($currentCount - $previousCount) / $previousCount) * 100, 2) : 0;
+
+        return [
+            'current_month_total' => $currentCount,
+            'previous_month_total' => $previousCount,
+            'percentage_change' => $change,
+            'trend' => $change > 0 ? 'increasing' : ($change < 0 ? 'decreasing' : 'stable'),
+        ];
+    }
+
+    private function getTrainingTypeDisplay(string $type): string
+    {
+        return match($type) {
+            'tilapia_hito' => 'Tilapia and Hito Training',
+            'hydroponics' => 'Hydroponics Training',
+            'aquaponics' => 'Aquaponics Training',
+            'mushrooms' => 'Mushrooms Production Training',
+            'livestock_poultry' => 'Livestock and Poultry Training',
+            'high_value_crops' => 'High Value Crops Training',
+            'sampaguita_propagation' => 'Sampaguita Propagation Training',
+            default => ucfirst(str_replace('_', ' ', $type))
+        };
+    }
+
+    /**
+     * ================================================================
+     * RSBSA-SPECIFIC DATA COLLECTION
+     * ================================================================
+     */
+
+    /**
+     * Collect RSBSA data for DSS analysis
+     */
+    public function collectRsbsaData(string $month = null, string $year = null): array
+    {
+        set_time_limit(300);
+
+        $month = $month ?? now()->format('m');
+        $year = $year ?? now()->format('Y');
+
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        $cacheKey = "dss_rsbsa_data_{$year}_{$month}";
+
+        return Cache::remember($cacheKey, 1800, function () use ($startDate, $endDate) {
+            return [
+                'period' => [
+                    'month' => $startDate->format('F Y'),
+                    'start_date' => $startDate->format('Y-m-d'),
+                    'end_date' => $endDate->format('Y-m-d'),
+                ],
+                'rsbsa_stats' => $this->getRsbsaStats($startDate, $endDate),
+                'rsbsa_by_commodity' => $this->getRsbsaByCommodity($startDate, $endDate),
+                'rsbsa_by_livelihood' => $this->getRsbsaByLivelihood($startDate, $endDate),
+                'rsbsa_by_barangay' => $this->getRsbsaByBarangay($startDate, $endDate),
+                'rsbsa_demographics' => $this->getRsbsaDemographics($startDate, $endDate),
+                'rsbsa_land_analysis' => $this->getRsbsaLandAnalysis($startDate, $endDate),
+                'rsbsa_approval_analysis' => $this->getRsbsaApprovalAnalysis($startDate, $endDate),
+            ];
+        });
+    }
+
+    private function getRsbsaStats(Carbon $startDate, Carbon $endDate): array
+    {
+        $stats = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('
+                COUNT(*) as total_applications,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected,
+                SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending,
+                SUM(land_area) as total_land_area,
+                AVG(land_area) as avg_land_area
+            ')
+            ->first();
+
+        return [
+            'total_applications' => $stats->total_applications ?? 0,
+            'approved' => $stats->approved ?? 0,
+            'rejected' => $stats->rejected ?? 0,
+            'pending' => $stats->pending ?? 0,
+            'approval_rate' => $stats->total_applications > 0 ?
+                round(($stats->approved / $stats->total_applications) * 100, 2) : 0,
+            'total_land_area' => round($stats->total_land_area ?? 0, 2) . ' hectares',
+            'avg_land_area' => round($stats->avg_land_area ?? 0, 2) . ' hectares',
+        ];
+    }
+
+    private function getRsbsaByCommodity(Carbon $startDate, Carbon $endDate): array
+    {
+        $byCommodity = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('commodity')
+            ->selectRaw('
+                COUNT(*) as count,
+                SUM(land_area) as total_land,
+                AVG(land_area) as avg_land
+            ')
+            ->groupBy('commodity')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'commodity' => $item->commodity,
+                    'total_farmers' => $item->count,
+                    'total_land_area' => round($item->total_land ?? 0, 2),
+                    'avg_land_area' => round($item->avg_land ?? 0, 2),
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byCommodity,
+            'top_commodities' => array_slice($byCommodity, 0, 5),
+            'total_commodity_types' => count($byCommodity),
+        ];
+    }
+
+    private function getRsbsaByLivelihood(Carbon $startDate, Carbon $endDate): array
+    {
+        $byLivelihood = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('main_livelihood')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('main_livelihood')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'livelihood' => $item->main_livelihood,
+                    'count' => $item->count,
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byLivelihood,
+            'primary_livelihood' => $byLivelihood[0] ?? null,
+        ];
+    }
+
+    private function getRsbsaByBarangay(Carbon $startDate, Carbon $endDate): array
+    {
+        $byBarangay = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('barangay')
+            ->selectRaw('
+                COUNT(*) as count,
+                SUM(land_area) as total_land
+            ')
+            ->groupBy('barangay')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'barangay' => $item->barangay,
+                    'farmers' => $item->count,
+                    'total_land_area' => round($item->total_land ?? 0, 2),
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byBarangay,
+            'top_barangays' => array_slice($byBarangay, 0, 5),
+            'total_barangays_covered' => count($byBarangay),
+        ];
+    }
+
+    private function getRsbsaDemographics(Carbon $startDate, Carbon $endDate): array
+    {
+        $demographics = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('
+                SUM(CASE WHEN sex = "male" THEN 1 ELSE 0 END) as male_count,
+                SUM(CASE WHEN sex = "female" THEN 1 ELSE 0 END) as female_count,
+                COUNT(*) as total
+            ')
+            ->first();
+
+        return [
+            'male_count' => $demographics->male_count ?? 0,
+            'female_count' => $demographics->female_count ?? 0,
+            'total' => $demographics->total ?? 0,
+            'male_percentage' => $demographics->total > 0 ?
+                round(($demographics->male_count / $demographics->total) * 100, 2) : 0,
+            'female_percentage' => $demographics->total > 0 ?
+                round(($demographics->female_count / $demographics->total) * 100, 2) : 0,
+        ];
+    }
+
+    private function getRsbsaLandAnalysis(Carbon $startDate, Carbon $endDate): array
+    {
+        $landData = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->whereNotNull('land_area')
+            ->select('land_area')
+            ->get();
+
+        $small = $landData->where('land_area', '<', 1)->count();
+        $medium = $landData->where('land_area', '>=', 1)->where('land_area', '<', 3)->count();
+        $large = $landData->where('land_area', '>=', 3)->count();
+
+        return [
+            'small_farms' => $small . ' (< 1 ha)',
+            'medium_farms' => $medium . ' (1-3 ha)',
+            'large_farms' => $large . ' (≥ 3 ha)',
+            'total_farms' => $landData->count(),
+            'min_land_area' => $landData->isNotEmpty() ? round($landData->min('land_area'), 2) . ' ha' : '0 ha',
+            'max_land_area' => $landData->isNotEmpty() ? round($landData->max('land_area'), 2) . ' ha' : '0 ha',
+        ];
+    }
+
+    private function getRsbsaApprovalAnalysis(Carbon $startDate, Carbon $endDate): array
+    {
+        $applications = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->whereNotNull('reviewed_at')
+            ->get();
+
+        return [
+            'average_review_time' => $applications->isNotEmpty() ?
+                round($applications->avg(function($app) {
+                    return $app->created_at->diffInHours($app->reviewed_at);
+                }), 2) . ' hours' : '0 hours',
+            'total_reviewed' => $applications->count(),
+            'fastest_review' => $applications->isNotEmpty() ?
+                round($applications->min(function($app) {
+                    return $app->created_at->diffInHours($app->reviewed_at);
+                }), 2) . ' hours' : 'N/A',
+        ];
     }
 }

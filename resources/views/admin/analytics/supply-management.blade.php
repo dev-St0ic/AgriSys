@@ -8,39 +8,60 @@
 @endsection
 
 @section('content')
-    <!-- Service Navigation -->
+    <!-- Enhanced Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0 navigation-container">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                <div class="card-body py-4 px-4">
+                    <div class="d-flex justify-content-center flex-wrap gap-3 align-items-center">
                         <a href="{{ route('admin.analytics.seedlings') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                            <i class="fas fa-seedling me-2"></i>Seedlings
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <span class="nav-label">Seedlings</span>
                         </a>
                         <a href="{{ route('admin.analytics.rsbsa') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                            <i class="fas fa-user-check me-2"></i>RSBSA
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <span class="nav-label">RSBSA</span>
                         </a>
                         <a href="{{ route('admin.analytics.fishr') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                            <i class="fas fa-fish me-2"></i>FISHR
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-fish"></i>
+                            </div>
+                            <span class="nav-label">FISHR</span>
                         </a>
                         <a href="{{ route('admin.analytics.boatr') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                            <i class="fas fa-ship me-2"></i>BOATR
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-ship"></i>
+                            </div>
+                            <span class="nav-label">BOATR</span>
                         </a>
                         <a href="{{ route('admin.analytics.training') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                            <i class="fas fa-graduation-cap me-2"></i>Training
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <span class="nav-label">Training</span>
                         </a>
                         <a href="{{ route('admin.analytics.supply-management') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                            <i class="fas fa-boxes me-2"></i>Supply Management
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <span class="nav-label">Supply Management</span>
                         </a>
                         <a href="{{ route('admin.analytics.user-registration') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                            <i class="fas fa-user-plus me-2"></i>User Registration
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <span class="nav-label">User Registration</span>
                         </a>
                     </div>
                 </div>
@@ -628,143 +649,113 @@
 
 @section('styles')
     <style>
-        /* Navigation Card */
-        .navigation-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 1px solid rgba(0, 0, 0, 0.05) !important;
-            overflow-x: auto;
-        }
-
-        /* Enhanced Analytics Navigation */
-        .analytics-nav {
-            gap: 0.5rem;
-            min-height: 50px;
-        }
-
-        .analytics-nav .nav-item {
-            flex-shrink: 0;
-        }
-
-        .analytics-nav .nav-link {
+        /* Compact Navigation Container */
+        .navigation-container {
+            background: #f8f9fa;
             border-radius: 12px;
-            padding: 0.65rem 1.5rem;
-            margin: 0.25rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Compact Horizontal Navigation Buttons */
+        .analytics-nav-btn {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            color: #495057;
             font-weight: 600;
-            font-size: 0.9rem;
-            color: #64748b;
-            background: transparent;
-            border: 2px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 0.875rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
             white-space: nowrap;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
         }
 
-        .analytics-nav .nav-link i {
-            font-size: 1.1rem;
-            transition: transform 0.3s ease;
+        .nav-icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .analytics-nav .nav-link span {
+        .nav-icon-wrapper i {
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            color: #6c757d;
+        }
+
+        .nav-label {
+            font-size: 0.875rem;
             font-weight: 600;
-            letter-spacing: 0.3px;
         }
 
-        .analytics-nav .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
-        }
-
-        .analytics-nav .nav-link:hover {
-            color: #3b82f6;
-            background: rgba(59, 130, 246, 0.08);
-            border-color: rgba(59, 130, 246, 0.2);
+        .analytics-nav-btn:hover {
+            background: #e8f5e9;
+            border-color: #40916c;
+            color: #2d6a4f;
+            text-decoration: none;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
         }
 
-        .analytics-nav .nav-link:hover::before {
-            opacity: 1;
+        .analytics-nav-btn:hover .nav-icon-wrapper i {
+            color: #40916c;
         }
 
-        .analytics-nav .nav-link:hover i {
-            transform: scale(1.15) rotate(5deg);
-        }
-
-        .analytics-nav .nav-link.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        .analytics-nav-btn.active {
+            background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+            border-color: #40916c;
             color: white;
-            border-color: transparent;
+            box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
+        }
+
+        .analytics-nav-btn.active .nav-icon-wrapper i {
+            color: #ffffff;
+        }
+
+        .analytics-nav-btn.active:hover {
+            background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+            border-color: #2d6a4f;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .analytics-nav .nav-link.active i {
-            transform: scale(1.1);
-        }
-
-        .analytics-nav .nav-link.active:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5), 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 4px 14px rgba(64, 145, 108, 0.35);
         }
 
         /* Responsive adjustments */
-        @media (max-width: 1200px) {
-            .analytics-nav .nav-link {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.85rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .analytics-nav {
-                justify-content: flex-start !important;
-            }
-
-            .analytics-nav .nav-link {
+        @media (max-width: 992px) {
+            .analytics-nav-btn {
                 padding: 0.5rem 1rem;
                 font-size: 0.8rem;
             }
 
-            .analytics-nav .nav-link i {
-                font-size: 1rem;
+            .nav-icon-wrapper i {
+                font-size: 0.9rem;
+            }
+
+            .nav-label {
+                font-size: 0.8rem;
             }
         }
 
-        /* Service Navigation */
-        .nav-pills .nav-link {
-            border-radius: 20px;
-            padding: 0.5rem 1.25rem;
-            margin: 0 0.25rem;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: #495057;
-        }
+        @media (max-width: 768px) {
+            .analytics-nav-btn {
+                padding: 0.45rem 0.8rem;
+                font-size: 0.75rem;
+                gap: 6px;
+            }
 
-        .nav-pills .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.8);
-            color: #007bff;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+            .nav-icon-wrapper i {
+                font-size: 0.85rem;
+            }
 
-        .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-            color: white !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.5) !important;
+            .nav-label {
+                font-size: 0.75rem;
+            }
         }
 
         /* Metric Cards */
@@ -779,327 +770,15 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
-        /* Custom Color Variables */
-        :root {
-            --primary-color: #3b82f6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #0ea5e9;
-            --purple-color: #8b5cf6;
-            --dark-color: #1f2937;
-        }
-
-        /* Legend dots */
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        /* Icon circles */
-        .icon-circle {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        /* Service Navigation */
-        .service-nav {
-            background: #f8fafc;
-            padding: 0.5rem;
-            border-radius: 50px;
-            display: inline-flex;
-        }
-
-        .service-nav .nav-link {
-            border-radius: 30px;
-            padding: 0.5rem 1.25rem;
-            margin: 0 0.25rem;
-            font-weight: 500;
-            color: #64748b;
-            transition: all 0.3s ease;
-            border: none;
-        }
-
-        .service-nav .nav-link:hover {
-            color: var(--primary-color);
-            background: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-        }
-
-        .service-nav .nav-link.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        /* Metric Cards */
-        .metric-card {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-        }
-
-        .metric-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        .metric-icon {
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            font-size: 1.5rem;
-        }
-
-        /* Soft Background Colors */
-        .bg-primary-soft {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-
-        .bg-success-soft {
-            background-color: rgba(16, 185, 129, 0.1);
-        }
-
-        .bg-warning-soft {
-            background-color: rgba(245, 158, 11, 0.1);
-        }
-
-        .bg-danger-soft {
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-
-        .bg-info-soft {
-            background-color: rgba(14, 165, 233, 0.1);
-        }
-
-        .bg-purple-soft {
-            background-color: rgba(139, 92, 246, 0.1);
-        }
-
-        .text-purple {
-            color: var(--purple-color);
-        }
-
-        /* Badge Soft Colors */
-        .badge-success-soft {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        .badge-primary-soft {
-            background-color: rgba(59, 130, 246, 0.1);
-            color: var(--primary-color);
-        }
-
-        .badge-warning-soft {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning-color);
-        }
-
-        .badge-danger-soft {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
-
-        .badge-secondary-soft {
-            background-color: rgba(107, 114, 128, 0.1);
-            color: #6b7280;
-        }
-
-        .badge-purple-soft {
-            background-color: rgba(139, 92, 246, 0.1);
-            color: var(--purple-color);
-        }
-
-        .text-secondary {
-            color: #6b7280;
-        }
-
-        /* Card Styles */
-        .card {
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .card-header {
-            border-radius: 12px 12px 0 0 !important;
-            padding: 1.25rem;
-        }
-
-        /* Status Legend */
-        .status-legends .legend-item {
-            transition: all 0.2s ease;
-            background: #f8fafc;
-        }
-
-        .status-legends .legend-item:hover {
-            background: #f1f5f9;
-            transform: translateX(5px);
-        }
-
-        /* Progress Bars */
-        .progress {
-            border-radius: 10px;
-            background-color: #f1f5f9;
-        }
-
-        .progress-bar {
-            border-radius: 10px;
-            transition: width 0.6s ease;
-        }
-
-        /* Transaction Items */
-        .transaction-item {
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .transaction-item:hover {
-            border-left-color: var(--primary-color);
-            transform: translateX(5px);
-            background: #f1f5f9 !important;
-        }
-
-        /* Item Cards */
-        .item-card {
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .item-card:hover {
-            border-left-color: var(--warning-color);
-            transform: translateX(5px);
-            background: #f1f5f9 !important;
-        }
-
-        /* Recently Fulfilled Items */
-        .recently-fulfilled-list .bg-light {
-            transition: all 0.2s ease;
-            border-left: 2px solid transparent;
-        }
-
-        .recently-fulfilled-list .bg-light:hover {
-            background: #f8fafc !important;
-            border-left-color: var(--success-color);
-            transform: translateX(2px);
-        }
-
-        /* Table Styles */
-        .table-hover tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #f8fafc;
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Alert Soft */
-        .alert-info-soft {
-            background-color: rgba(14, 165, 233, 0.1);
-            color: #0e7490;
-        }
-
         /* Chart Containers */
-        .status-chart-container {
+        .chart-container {
             position: relative;
-            height: 220px;
+            height: 300px;
         }
 
-        .transaction-chart-container {
+        .pie-chart-container {
             position: relative;
             height: 180px;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .service-nav {
-                flex-wrap: wrap;
-                border-radius: 12px;
-                padding: 0.25rem;
-            }
-
-            .service-nav .nav-link {
-                font-size: 0.875rem;
-                padding: 0.5rem 0.75rem;
-                margin: 0.25rem;
-            }
-
-            .metric-value {
-                font-size: 1.5rem;
-            }
-
-            .metric-icon {
-                width: 48px;
-                height: 48px;
-                font-size: 1.25rem;
-            }
-        }
-
-        /* Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            animation: fadeInUp 0.5s ease;
-        }
-
-        /* Scrollbar Styling */
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Focus States */
-        .btn:focus,
-        .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
     </style>
 @endsection
@@ -1610,162 +1289,4 @@
             });
         });
     </script>
-@endsection
-
-@section('styles')
-    <style>
-        /* Navigation Container */
-        .navigation-container {
-            background: #f8f9fa;
-            border-radius: 15px;
-            border: 1px solid #dee2e6;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-        }
-
-        /* Modern Analytics Navigation */
-        .analytics-nav-btn {
-            background: #e9ecef;
-            border: 1px solid #ced4da;
-            color: #495057;
-            font-weight: 500;
-            font-size: 0.875rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 2rem;
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-            transform: translateY(0);
-        }
-
-        .analytics-nav-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-            transition: left 0.5s;
-        }
-
-        .analytics-nav-btn:hover {
-            background: #6c757d;
-            border-color: #5a6268;
-            color: white;
-            text-decoration: none;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
-        }
-
-        .analytics-nav-btn:hover::before {
-            left: 100%;
-        }
-
-        .analytics-nav-btn:hover i {
-            transform: scale(1.15) rotate(5deg);
-        }
-
-        .analytics-nav-btn.active {
-            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
-            border-color: #495057;
-            color: white;
-            box-shadow: 0 4px 20px rgba(73, 80, 87, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .analytics-nav-btn.active:hover {
-            background: linear-gradient(135deg, #343a40 0%, #212529 100%);
-            border-color: #343a40;
-            color: white;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(73, 80, 87, 0.6);
-        }
-
-        .analytics-nav-btn i {
-            font-size: 0.875rem;
-            transition: transform 0.3s ease;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .analytics-nav-btn {
-                font-size: 0.75rem;
-                padding: 0.375rem 0.75rem;
-            }
-
-            .analytics-nav-btn i {
-                font-size: 0.75rem;
-            }
-        }
-
-        .metric-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-radius: 10px;
-            cursor: pointer;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .card {
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .table-hover tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(0, 123, 255, 0.05);
-            transform: scale(1.005);
-        }
-
-        .progress {
-            background-color: #e9ecef;
-        }
-
-        .progress-bar {
-            transition: width 1s ease-in-out;
-        }
-
-        .btn {
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            border: none;
-        }
-
-        .form-select,
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            transition: all 0.3s ease;
-        }
-
-        .form-select:focus,
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
-        }
-    </style>
 @endsection

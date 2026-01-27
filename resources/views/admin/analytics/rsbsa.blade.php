@@ -8,39 +8,60 @@
 @endsection
 
 @section('content')
-    <!-- Service Navigation -->
+    <!-- Enhanced Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0 navigation-container">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                <div class="card-body py-4 px-4">
+                    <div class="d-flex justify-content-center flex-wrap gap-3 align-items-center">
                         <a href="{{ route('admin.analytics.seedlings') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                            <i class="fas fa-seedling me-2"></i>Seedlings
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <span class="nav-label">Seedlings</span>
                         </a>
                         <a href="{{ route('admin.analytics.rsbsa') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                            <i class="fas fa-user-check me-2"></i>RSBSA
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <span class="nav-label">RSBSA</span>
                         </a>
                         <a href="{{ route('admin.analytics.fishr') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                            <i class="fas fa-fish me-2"></i>FISHR
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-fish"></i>
+                            </div>
+                            <span class="nav-label">FISHR</span>
                         </a>
                         <a href="{{ route('admin.analytics.boatr') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                            <i class="fas fa-ship me-2"></i>BOATR
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-ship"></i>
+                            </div>
+                            <span class="nav-label">BOATR</span>
                         </a>
                         <a href="{{ route('admin.analytics.training') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                            <i class="fas fa-graduation-cap me-2"></i>Training
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <span class="nav-label">Training</span>
                         </a>
                         <a href="{{ route('admin.analytics.supply-management') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                            <i class="fas fa-boxes me-2"></i>Supply Management
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <span class="nav-label">Supply Management</span>
                         </a>
                         <a href="{{ route('admin.analytics.user-registration') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                            <i class="fas fa-user-plus me-2"></i>User Registration
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <span class="nav-label">User Registration</span>
                         </a>
                     </div>
                 </div>
@@ -342,361 +363,6 @@
     <div class="modal fade" id="rsbsaInsightsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
-            @endsection
-
-            @section('styles')
-                <style>
-                    /* Modern Analytics Navigation */
-                    .analytics-nav-btn {
-                        background: #f8f9fa;
-                        border: 1px solid #e9ecef;
-                        color: #6c757d;
-                        font-weight: 500;
-                        font-size: 0.875rem;
-                        padding: 0.5rem 1rem;
-                        border-radius: 2rem;
-                        text-decoration: none;
-                        transition: all 0.2s ease;
-                        white-space: nowrap;
-                    }
-
-                    .analytics-nav-btn:hover {
-                        background: #e9ecef;
-                        border-color: #dee2e6;
-                        color: #495057;
-                        text-decoration: none;
-                    }
-
-                    .analytics-nav-btn.active {
-                        background: #0d6efd;
-                        border-color: #0d6efd;
-                        color: white;
-                        box-shadow: 0 2px 4px rgba(13, 110, 253, 0.25);
-                    }
-
-                    .analytics-nav-btn.active:hover {
-                        background: #0b5ed7;
-                        border-color: #0a58ca;
-                        color: white;
-                    }
-
-                    .analytics-nav-btn i {
-                        font-size: 0.875rem;
-                    }
-
-                    /* Responsive adjustments */
-                    @media (max-width: 768px) {
-                        .analytics-nav-btn {
-                            font-size: 0.75rem;
-                            padding: 0.375rem 0.75rem;
-                        }
-
-                        .analytics-nav-btn i {
-                            font-size: 0.75rem;
-                        }
-                    }
-
-                    /* Custom Color Variables */
-                    :root {
-                        --primary-color: #3b82f6;
-                        --success-color: #10b981;
-                        --warning-color: #f59e0b;
-                        --danger-color: #ef4444;
-                        --info-color: #0ea5e9;
-                        --purple-color: #8b5cf6;
-                        --dark-color: #1f2937;
-                    }
-
-
-
-                    .service-nav .nav-link:hover {
-                        color: var(--primary-color);
-                        background: white;
-                        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-                    }
-
-                    .service-nav .nav-link.active {
-                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                        color: white;
-                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-                    }
-
-                    /* Metric Cards */
-                    .metric-card {
-                        transition: all 0.3s ease;
-                        border-radius: 12px;
-                        overflow: hidden;
-                    }
-
-                    .metric-card:hover {
-                        transform: translateY(-5px);
-                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-                    }
-
-                    .metric-label {
-                        font-size: 0.875rem;
-                        font-weight: 500;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                    }
-
-                    .metric-value {
-                        font-size: 2rem;
-                        font-weight: 700;
-                        color: var(--dark-color);
-                    }
-
-                    .metric-icon {
-                        width: 56px;
-                        height: 56px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        border-radius: 12px;
-                        font-size: 1.5rem;
-                    }
-
-                    /* Soft Background Colors */
-                    .bg-primary-soft {
-                        background-color: rgba(59, 130, 246, 0.1);
-                    }
-
-                    .bg-success-soft {
-                        background-color: rgba(16, 185, 129, 0.1);
-                    }
-
-                    .bg-warning-soft {
-                        background-color: rgba(245, 158, 11, 0.1);
-                    }
-
-                    .bg-danger-soft {
-                        background-color: rgba(239, 68, 68, 0.1);
-                    }
-
-                    .bg-info-soft {
-                        background-color: rgba(14, 165, 233, 0.1);
-                    }
-
-                    .bg-purple-soft {
-                        background-color: rgba(139, 92, 246, 0.1);
-                    }
-
-                    .text-purple {
-                        color: var(--purple-color);
-                    }
-
-                    /* Badge Soft Colors */
-                    .badge-success-soft {
-                        background-color: rgba(16, 185, 129, 0.1);
-                        color: var(--success-color);
-                    }
-
-                    /* Card Styles */
-                    .card {
-                        border-radius: 12px;
-                        transition: all 0.3s ease;
-                    }
-
-                    .card-header {
-                        border-radius: 12px 12px 0 0 !important;
-                        padding: 1.25rem;
-                    }
-
-                    /* Gradient Backgrounds */
-                    .bg-gradient-primary {
-                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                    }
-
-                    /* Status Legend */
-                    .status-legends .legend-item {
-                        transition: all 0.2s ease;
-                        background: #f8fafc;
-                    }
-
-                    .status-legends .legend-item:hover {
-                        background: #f1f5f9;
-                        transform: translateX(5px);
-                    }
-
-                    .legend-dot {
-                        width: 12px;
-                        height: 12px;
-                        border-radius: 50%;
-                        display: inline-block;
-                    }
-
-                    /* Progress Bars */
-                    .progress {
-                        border-radius: 10px;
-                        background-color: #f1f5f9;
-                    }
-
-                    .progress-bar {
-                        border-radius: 10px;
-                        transition: width 0.6s ease;
-                    }
-
-                    /* Metric Items */
-                    .metric-item {
-                        padding: 1rem;
-                        border-radius: 10px;
-                        background: #f8fafc;
-                        transition: all 0.3s ease;
-                    }
-
-                    .metric-item:hover {
-                        background: #f1f5f9;
-                        transform: scale(1.02);
-                    }
-
-                    /* Table Styles */
-                    .table-hover tbody tr {
-                        transition: all 0.2s ease;
-                    }
-
-                    .table-hover tbody tr:hover {
-                        background-color: #f8fafc;
-                        transform: scale(1.01);
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                    }
-
-                    /* Chart Containers */
-                    .status-chart-container {
-                        position: relative;
-                        height: 220px;
-                    }
-
-                    /* Responsive Adjustments */
-                    @media (max-width: 768px) {
-                        .service-nav {
-                            flex-wrap: wrap;
-                            border-radius: 12px;
-                            padding: 0.25rem;
-                        }
-
-                        .service-nav .nav-link {
-                            font-size: 0.875rem;
-                            padding: 0.5rem 0.75rem;
-                            margin: 0.25rem;
-                        }
-
-                        .metric-value {
-                            font-size: 1.5rem;
-                        }
-
-                        .metric-icon {
-                            width: 48px;
-                            height: 48px;
-                            font-size: 1.25rem;
-                        }
-                    }
-
-                    /* Animation */
-                    @keyframes fadeInUp {
-                        from {
-                            opacity: 0;
-                            transform: translateY(20px);
-                        }
-
-                        to {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                    }
-
-                    .card {
-                        animation: fadeInUp 0.5s ease;
-                    }
-
-                    /* Commodity Items */
-                    .commodity-item {
-                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
-                        border-left: 4px solid #10b981;
-                        transition: all 0.2s ease;
-                    }
-
-                    .commodity-item:hover {
-                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.04) 100%);
-                        transform: translateX(5px);
-                    }
-
-                    /* Livelihood Items */
-                    .livelihood-item {
-                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
-                        border-left: 4px solid #10b981;
-                        transition: all 0.2s ease;
-                    }
-
-                    .livelihood-item:hover {
-                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.04) 100%);
-                        transform: translateX(5px);
-                    }
-
-                    /* Gender Cards */
-                    .gender-card {
-                        transition: all 0.3s ease;
-                        border: 2px solid transparent;
-                    }
-
-                    .gender-card:hover {
-                        border-color: rgba(59, 130, 246, 0.3);
-                        transform: translateY(-5px);
-                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-                    }
-
-                    .text-pink {
-                        color: #ec4899 !important;
-                    }
-
-                    /* Scrollbar Styling */
-                    .table-responsive::-webkit-scrollbar {
-                        height: 8px;
-                    }
-
-                    .table-responsive::-webkit-scrollbar-track {
-                        background: #f1f5f9;
-                        border-radius: 10px;
-                    }
-
-                    .table-responsive::-webkit-scrollbar-thumb {
-                        background: #cbd5e1;
-                        border-radius: 10px;
-                    }
-
-                    .table-responsive::-webkit-scrollbar-thumb:hover {
-                        background: #94a3b8;
-                    }
-
-                    /* Focus States */
-                    .btn:focus,
-                    .form-control:focus {
-                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-                    }
-
-                    /* Loading State */
-                    .card.loading {
-                        opacity: 0.6;
-                        pointer-events: none;
-                    }
-
-                    /* Insight Cards */
-                    .insight-card {
-                        border: 1px solid rgba(0, 0, 0, 0.05);
-                    }
-
-                    .insight-card ul li {
-                        line-height: 1.6;
-                    }
-
-                    /* Modal Styles */
-                    .modal-content {
-                        border-radius: 16px;
-                    }
-
-                    .modal-header {
-                        border-radius: 16px 16px 0 0;
-                    }
-                </style>
             @endsection
 
             @section('scripts')
@@ -1134,88 +800,111 @@
 
             @section('styles')
                 <style>
-                    /* Navigation Container */
+                    /* Compact Navigation Container */
                     .navigation-container {
                         background: #f8f9fa;
-                        border-radius: 15px;
-                        border: 1px solid #dee2e6;
-                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+                        border-radius: 12px;
+                        border: 1px solid #e0e0e0;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
                     }
 
-                    /* Modern Analytics Navigation */
+                    /* Compact Horizontal Navigation Buttons */
                     .analytics-nav-btn {
-                        background: #e9ecef;
-                        border: 1px solid #ced4da;
+                        background: #ffffff;
+                        border: 2px solid #e0e0e0;
                         color: #495057;
-                        font-weight: 500;
+                        font-weight: 600;
                         font-size: 0.875rem;
                         padding: 0.6rem 1.2rem;
-                        border-radius: 2rem;
+                        border-radius: 8px;
                         text-decoration: none;
-                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        transition: all 0.2s ease;
                         white-space: nowrap;
                         position: relative;
                         overflow: hidden;
-                        transform: translateY(0);
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                        display: inline-flex;
+                        flex-direction: row;
+                        align-items: center;
+                        gap: 8px;
                     }
 
-                    .analytics-nav-btn::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        width: 100%;
-                        height: 100%;
-                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-                        transition: left 0.5s;
+                    .nav-icon-wrapper {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .nav-icon-wrapper i {
+                        font-size: 1rem;
+                        transition: all 0.2s ease;
+                        color: #6c757d;
+                    }
+
+                    .nav-label {
+                        font-size: 0.875rem;
+                        font-weight: 600;
                     }
 
                     .analytics-nav-btn:hover {
-                        background: #6c757d;
-                        border-color: #5a6268;
-                        color: white;
+                        background: #e8f5e9;
+                        border-color: #40916c;
+                        color: #2d6a4f;
                         text-decoration: none;
-                        transform: translateY(-3px);
-                        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
                     }
 
-                    .analytics-nav-btn:hover::before {
-                        left: 100%;
-                    }
-
-                    .analytics-nav-btn:hover i {
-                        transform: scale(1.15) rotate(5deg);
+                    .analytics-nav-btn:hover .nav-icon-wrapper i {
+                        color: #40916c;
                     }
 
                     .analytics-nav-btn.active {
-                        background: linear-gradient(135deg, #495057 0%, #343a40 100%);
-                        border-color: #495057;
+                        background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+                        border-color: #40916c;
                         color: white;
-                        box-shadow: 0 4px 20px rgba(73, 80, 87, 0.4);
-                        transform: translateY(-1px);
+                        box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
+                    }
+
+                    .analytics-nav-btn.active .nav-icon-wrapper i {
+                        color: #ffffff;
                     }
 
                     .analytics-nav-btn.active:hover {
-                        background: linear-gradient(135deg, #343a40 0%, #212529 100%);
-                        border-color: #343a40;
-                        color: white;
-                        transform: translateY(-4px);
-                        box-shadow: 0 8px 30px rgba(73, 80, 87, 0.6);
-                    }
-
-                    .analytics-nav-btn i {
-                        font-size: 0.875rem;
-                        transition: transform 0.3s ease;
+                        background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+                        border-color: #2d6a4f;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 14px rgba(64, 145, 108, 0.35);
                     }
 
                     /* Responsive adjustments */
-                    @media (max-width: 768px) {
+                    @media (max-width: 992px) {
                         .analytics-nav-btn {
-                            font-size: 0.75rem;
-                            padding: 0.375rem 0.75rem;
+                            padding: 0.5rem 1rem;
+                            font-size: 0.8rem;
                         }
 
-                        .analytics-nav-btn i {
+                        .nav-icon-wrapper i {
+                            font-size: 0.9rem;
+                        }
+
+                        .nav-label {
+                            font-size: 0.8rem;
+                        }
+                    }
+
+                    @media (max-width: 768px) {
+                        .analytics-nav-btn {
+                            padding: 0.45rem 0.8rem;
+                            font-size: 0.75rem;
+                            gap: 6px;
+                        }
+
+                        .nav-icon-wrapper i {
+                            font-size: 0.85rem;
+                        }
+
+                        .nav-label {
                             font-size: 0.75rem;
                         }
                     }
