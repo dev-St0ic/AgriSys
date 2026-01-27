@@ -557,7 +557,7 @@ function showAllMainSections() {
  */
 function hideAllForms() {
     const formIds = [
-        'rsbsa-choice', 'new-rsbsa', 'old-rsbsa',
+        'rsbsa-form',
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form', 'training-form'
     ];

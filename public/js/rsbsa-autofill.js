@@ -453,7 +453,7 @@ function initializeRSBSAAutoFill() {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                const rsbsaForm = document.getElementById('new-rsbsa');
+                const rsbsaForm = document.getElementById('rsbsa-form');
                 if (rsbsaForm && rsbsaForm.style.display !== 'none') {
                     setTimeout(addAutoFillButtonToRSBSA, 100);
                 }
@@ -461,7 +461,7 @@ function initializeRSBSAAutoFill() {
         });
     });
 
-    const rsbsaSection = document.getElementById('new-rsbsa');
+    const rsbsaSection = document.getElementById('rsbsa-form');
     if (rsbsaSection) {
         observer.observe(rsbsaSection, {
             attributes: true,

@@ -1,5 +1,5 @@
 <!-- RSBSA Registration Form (Updated with proper spacing) -->
-<section class="rsbsa-application-section" id="new-rsbsa" style="display: none;">
+<section class="rsbsa-application-section" id="rsbsa-form" style="display: none;">
     <div class="rsbsa-form-header">
         <h2>RSBSA Registration</h2>
         <p>Enrollment of farmers, fisherfolk, livestock and poultry raisers under the Registry System for Basic Sectors in Agriculture (RSBSA).</p>

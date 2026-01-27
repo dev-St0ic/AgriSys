@@ -97,10 +97,7 @@ async function fetchRSBSAWithCSRFRetry(url, options, retries = 1) {
 function shouldShowRSBSAForm() {
     const currentPath = window.location.pathname;
 
-    // Only show RSBSA form if the URL explicitly matches RSBSA paths
-    return currentPath === '/services/rsbsa' ||
-           currentPath === '/services/rsbsa/new' ||
-           currentPath === '/services/rsbsa/old';
+    return currentPath === '/services/rsbsa';
 }
 
 /**
@@ -111,18 +108,16 @@ function openRSBSAForm(event) {
         event.preventDefault();
     }
 
-    // Check authentication before allowing access
     if (!showAuthRequired('RSBSA Registration')) {
         return false;
     }
 
     console.log('Opening RSBSA form');
 
-    // Hide all main sections and forms first
     if (typeof hideAllMainSections === 'function') hideAllMainSections();
     if (typeof hideAllForms === 'function') hideAllForms();
 
-    const formElement = document.getElementById('new-rsbsa');
+    const formElement = document.getElementById('rsbsa-form');
     if (formElement) {
         formElement.style.display = 'block';
 
@@ -160,7 +155,7 @@ function openRSBSAForm(event) {
 function closeFormRSBSA() {
     console.log('Closing RSBSA form');
 
-    const formElement = document.getElementById('new-rsbsa');
+    const formElement = document.getElementById('rsbsa-form');
     if (formElement) {
         formElement.style.display = 'none';
         console.log('RSBSA form closed');
@@ -179,7 +174,7 @@ function closeFormRSBSA() {
  * Resets the RSBSA form to initial state - MATCHES FISHR EXACTLY
  */
 function resetRSBSAForm() {
-    const form = document.querySelector('#new-rsbsa form') || document.getElementById('rsbsa-form');
+    const form = document.querySelector('#rsbsa-form form') || document.getElementById('rsbsa-form');
     if (form) {
         // Reset form data
         form.reset();
@@ -223,7 +218,7 @@ function showRSBSATab(tabName, event) {
     if (!event) return;
 
     // Get the RSBSA form container - be specific
-    const formSection = event.target.closest('#new-rsbsa') || document.getElementById('new-rsbsa');
+    const formSection = event.target.closest('#rsbsa-form') || document.getElementById('rsbsa-form');
     if (!formSection) {
         console.error('RSBSA form section not found');
         return;
@@ -257,7 +252,7 @@ function showRSBSATab(tabName, event) {
  * Initialize RSBSA tabs - Based on BoatR pattern
  */
 function initializeRSBSATabs() {
-    const rsbsaForm = document.getElementById('new-rsbsa');
+    const rsbsaForm = document.getElementById('rsbsa-form');
     if (!rsbsaForm) return;
 
     // Hide Requirements and Information tabs, keep form visible
@@ -471,7 +466,7 @@ function formatMobileNumber(input) {
  * Main form submission handler - EXACTLY LIKE FISHR WITH PROPER ALERT
  */
 function handleRSBSAFormSubmission() {
-    const rsbsaForm = document.querySelector('#rsbsa-form') || document.querySelector('#new-rsbsa form');
+    const rsbsaForm = document.querySelector('#rsbsa-form form') || document.querySelector('#rsbsa-form');
 
     if (!rsbsaForm) {
         console.error('RSBSA form not found');
@@ -638,7 +633,7 @@ function handleRSBSAFormSubmission() {
  * Auto-fill form with sample data for testing
  */
 function fillSampleRSBSAData() {
-    const form = document.querySelector('#new-rsbsa form') || document.getElementById('rsbsa-form');
+    const form = document.querySelector('#rsbsa-form form') || document.getElementById('rsbsa-form');
     if (!form) return;
 
     // Sample data
@@ -742,7 +737,7 @@ function showAllMainSections() {
  */
 function hideAllForms() {
     const formIds = [
-        'rsbsa-choice', 'new-rsbsa', 'old-rsbsa',
+        'rsbsa-form',
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form'
     ];
@@ -812,7 +807,7 @@ function checkAndShowRSBSAOnLoad() {
 
         // Wait a bit for DOM to be fully ready
         setTimeout(() => {
-            const formElement = document.getElementById('new-rsbsa');
+            const formElement = document.getElementById('rsbsa-form');
             if (formElement) {
                 console.log('RSBSA form element found, opening...');
                 openRSBSAForm({ type: 'load' });
@@ -820,7 +815,7 @@ function checkAndShowRSBSAOnLoad() {
                 console.log('RSBSA form element not found, retrying...');
                 // Retry after a bit more time
                 setTimeout(() => {
-                    const retryFormElement = document.getElementById('new-rsbsa');
+                    const retryFormElement = document.getElementById('rsbsa-form');
                     if (retryFormElement) {
                         openRSBSAForm({ type: 'load' });
                     } else {
@@ -850,7 +845,7 @@ function initializeRSBSAModule() {
     handleRSBSAFormSubmission();
 
     // Initialize mobile number formatting
-    const mobileInput = document.querySelector('#new-rsbsa [name="mobile"]');
+    const mobileInput = document.querySelector('#rsbsa-form [name="mobile"]');
     if (mobileInput) {
         mobileInput.addEventListener('input', function(e) {
             formatMobileNumber(e.target);
@@ -858,7 +853,7 @@ function initializeRSBSAModule() {
     }
 
     // Initialize error removal on focus
-    const allInputs = document.querySelectorAll('#new-rsbsa input, #new-rsbsa select');
+    const allInputs = document.querySelectorAll('#rsbsa-form input, #rsbsa-form select');
     allInputs.forEach(input => {
         input.addEventListener('focus', function() {
             this.classList.remove('error');

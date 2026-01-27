@@ -192,7 +192,7 @@ function handleResubmit(applicationType) {
 
     const typeMap = {
         'RSBSA Registration': {
-            formId: 'new-rsbsa',
+            formId: 'rsbsa-form',
             openFunction: (e) => openRSBSAForm(e),
             path: '/services/rsbsa'
         },
