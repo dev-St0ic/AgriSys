@@ -280,17 +280,16 @@ function initializeRSBSATabs() {
     console.log('RSBSA tabs initialized');
 }
 
-/**
- * FIXED VALIDATION - MATCHES SERVER EXACTLY
- */
 function validateRSBSAForm(form) {
     const requiredFields = [
         'first_name',
         'last_name',
         'sex',
         'barangay',
+        'address',  // NEW: Address field is required
         'mobile',
-        'main_livelihood'
+        'main_livelihood',
+        'farm_location'
     ];
 
     let isValid = true;
@@ -316,7 +315,6 @@ function validateRSBSAForm(form) {
     // 2️⃣ VALIDATE FIRST NAME FORMAT
     const firstNameField = form.querySelector('[name="first_name"]');
     if (firstNameField && firstNameField.value) {
-        // Server uses: regex:/^[a-zA-Z\s\'-]+$/
         const namePattern = /^[a-zA-Z\s\'-]+$/;
         if (!namePattern.test(firstNameField.value)) {
             isValid = false;
@@ -347,7 +345,18 @@ function validateRSBSAForm(form) {
         }
     }
 
-    // 5️⃣ VALIDATE SEX (must be exact match)
+    // 5️⃣ VALIDATE NAME EXTENSION (optional but if provided must match pattern)
+    const nameExtensionField = form.querySelector('[name="name_extension"]');
+    if (nameExtensionField && nameExtensionField.value) {
+        const extensionPattern = /^[a-zA-Z.\s]*$/;
+        if (!extensionPattern.test(nameExtensionField.value)) {
+            isValid = false;
+            errors.push('Name extension can only contain letters, periods, and spaces');
+            nameExtensionField.classList.add('error');
+        }
+    }
+
+    // 6️⃣ VALIDATE SEX (must be exact match)
     const sexField = form.querySelector('[name="sex"]');
     if (sexField && sexField.value) {
         const validSexOptions = ['Male', 'Female', 'Preferred not to say'];
@@ -358,11 +367,33 @@ function validateRSBSAForm(form) {
         }
     }
 
-    // 6️⃣ VALIDATE MOBILE NUMBER
+    // 7️⃣ VALIDATE BARANGAY (must not be empty)
+    const barangayField = form.querySelector('[name="barangay"]');
+    if (barangayField && !barangayField.value) {
+        isValid = false;
+        errors.push('Barangay is required');
+        barangayField.classList.add('error');
+    }
+
+    // 8️⃣ NEW: VALIDATE ADDRESS FIELD
+    const addressField = form.querySelector('[name="address"]');
+    if (addressField && !addressField.value.trim()) {
+        isValid = false;
+        errors.push('Complete address is required');
+        addressField.classList.add('error');
+    } else if (addressField && addressField.value) {
+        // Validate address format - allow alphanumeric, spaces, commas, periods, hyphens, apostrophes
+        const addressPattern = /^[a-zA-Z0-9\s,.\'-]+$/;
+        if (!addressPattern.test(addressField.value)) {
+            isValid = false;
+            errors.push('Address can only contain letters, numbers, spaces, commas, periods, hyphens, and apostrophes');
+            addressField.classList.add('error');
+        }
+    }
+
+    // 9️⃣ VALIDATE MOBILE NUMBER
     const mobileField = form.querySelector('[name="mobile"]');
     if (mobileField && mobileField.value) {
-        // Server uses: regex:/^(\+639|09)\d{9}$/
-        // Must be: +639XXXXXXXXX or 09XXXXXXXXX (exactly 12 digits after +63 or 09)
         const mobilePattern = /^(\+639|09)\d{9}$/;
         if (!mobilePattern.test(mobileField.value.replace(/\s+/g, ''))) {
             isValid = false;
@@ -371,9 +402,7 @@ function validateRSBSAForm(form) {
         }
     }
 
-    // 7️⃣ EMAIL REMOVED - Not required for RSBSA applications
-
-    // 8️⃣ VALIDATE MAIN LIVELIHOOD (must be exact match)
+    // 🔟 VALIDATE MAIN LIVELIHOOD (must be exact match)
     const livelihoodField = form.querySelector('[name="main_livelihood"]');
     if (livelihoodField && livelihoodField.value) {
         const validOptions = ['Farmer', 'Farmworker/Laborer', 'Fisherfolk', 'Agri-youth'];
@@ -384,18 +413,163 @@ function validateRSBSAForm(form) {
         }
     }
 
-    // 9️⃣ VALIDATE LAND AREA (optional but if provided must be 0-1000)
-    const landAreaField = form.querySelector('[name="land_area"]');
-    if (landAreaField && landAreaField.value) {
-        const landArea = parseFloat(landAreaField.value);
-        if (isNaN(landArea) || landArea < 0 || landArea > 1000) {
+    // FARMER-SPECIFIC VALIDATIONS
+    if (livelihoodField && livelihoodField.value === 'Farmer') {
+        // Crops/Commodity required
+        const farmerCropsField = form.querySelector('[name="farmer_crops"]');
+        if (!farmerCropsField || !farmerCropsField.value) {
             isValid = false;
-            errors.push('Land area must be between 0 and 1000 hectares');
-            landAreaField.classList.add('error');
+            errors.push('Crops/Commodity is required for Farmer');
+            if (farmerCropsField) farmerCropsField.classList.add('error');
+        }
+
+        // If "Other Crops" is selected, specify_other_crops is required
+        if (farmerCropsField && farmerCropsField.value === 'Other Crops') {
+            const otherCropsField = form.querySelector('[name="farmer_other_crops"]');
+            if (!otherCropsField || !otherCropsField.value.trim()) {
+                isValid = false;
+                errors.push('Please specify the other crops/commodity');
+                if (otherCropsField) otherCropsField.classList.add('error');
+            } else {
+                // Validate format
+                const cropsPattern = /^[a-zA-Z\s,'\-]+$/;
+                if (!cropsPattern.test(otherCropsField.value)) {
+                    isValid = false;
+                    errors.push('Other crops can only contain letters, spaces, commas, hyphens, and apostrophes');
+                    otherCropsField.classList.add('error');
+                }
+            }
+        }
+
+        // Livestock/Poultry validation (optional but if provided must be valid format)
+        const livestockField = form.querySelector('[name="farmer_livestock"]');
+        if (livestockField && livestockField.value) {
+            const livestockPattern = /^[a-zA-Z0-9\s,()'\-]*$/;
+            if (!livestockPattern.test(livestockField.value)) {
+                isValid = false;
+                errors.push('Livestock/Poultry format is invalid');
+                livestockField.classList.add('error');
+            }
+        }
+
+        // Land area validation (optional but if provided must be 0-1000)
+        const landAreaField = form.querySelector('[name="farmer_land_area"]');
+        if (landAreaField && landAreaField.value) {
+            const landArea = parseFloat(landAreaField.value);
+            if (isNaN(landArea) || landArea < 0 || landArea > 1000) {
+                isValid = false;
+                errors.push('Land area must be between 0 and 1000 hectares');
+                landAreaField.classList.add('error');
+            }
+        }
+
+        // Type of farm required
+        const typeOfFarmField = form.querySelector('[name="farmer_type_of_farm"]');
+        if (!typeOfFarmField || !typeOfFarmField.value) {
+            isValid = false;
+            errors.push('Type of farm is required for Farmer');
+            if (typeOfFarmField) typeOfFarmField.classList.add('error');
+        }
+
+        // Land ownership required
+        const landOwnershipField = form.querySelector('[name="farmer_land_ownership"]');
+        if (!landOwnershipField || !landOwnershipField.value) {
+            isValid = false;
+            errors.push('Land ownership is required for Farmer');
+            if (landOwnershipField) landOwnershipField.classList.add('error');
         }
     }
 
-    // 🔟 VALIDATE FILE UPLOAD
+    // FARMWORKER-SPECIFIC VALIDATIONS
+    if (livelihoodField && livelihoodField.value === 'Farmworker/Laborer') {
+        const farmworkerTypeField = form.querySelector('[name="farmworker_type"]');
+        if (!farmworkerTypeField || !farmworkerTypeField.value) {
+            isValid = false;
+            errors.push('Type of farm work is required');
+            if (farmworkerTypeField) farmworkerTypeField.classList.add('error');
+        }
+
+        // If "Others" is selected, specify_other_type is required
+        if (farmworkerTypeField && farmworkerTypeField.value === 'Others') {
+            const otherTypeField = form.querySelector('[name="farmworker_other_type"]');
+            if (!otherTypeField || !otherTypeField.value.trim()) {
+                isValid = false;
+                errors.push('Please specify the other farm work type');
+                if (otherTypeField) otherTypeField.classList.add('error');
+            } else {
+                const typePattern = /^[a-zA-Z\s,'\-]+$/;
+                if (!typePattern.test(otherTypeField.value)) {
+                    isValid = false;
+                    errors.push('Farm work type can only contain letters, spaces, commas, hyphens, and apostrophes');
+                    otherTypeField.classList.add('error');
+                }
+            }
+        }
+    }
+
+    // FISHERFOLK-SPECIFIC VALIDATIONS
+    if (livelihoodField && livelihoodField.value === 'Fisherfolk') {
+        const fisherfolkActivityField = form.querySelector('[name="fisherfolk_activity"]');
+        if (!fisherfolkActivityField || !fisherfolkActivityField.value) {
+            isValid = false;
+            errors.push('Fishing activity is required');
+            if (fisherfolkActivityField) fisherfolkActivityField.classList.add('error');
+        }
+
+        // If "Others" is selected, specify_other_activity is required
+        if (fisherfolkActivityField && fisherfolkActivityField.value === 'Others') {
+            const otherActivityField = form.querySelector('[name="fisherfolk_other_activity"]');
+            if (!otherActivityField || !otherActivityField.value.trim()) {
+                isValid = false;
+                errors.push('Please specify the other fishing activity');
+                if (otherActivityField) otherActivityField.classList.add('error');
+            } else {
+                const activityPattern = /^[a-zA-Z\s,'\-]+$/;
+                if (!activityPattern.test(otherActivityField.value)) {
+                    isValid = false;
+                    errors.push('Fishing activity can only contain letters, spaces, commas, hyphens, and apostrophes');
+                    otherActivityField.classList.add('error');
+                }
+            }
+        }
+    }
+
+    // AGRI-YOUTH-SPECIFIC VALIDATIONS
+    if (livelihoodField && livelihoodField.value === 'Agri-youth') {
+        const farmingHouseholdField = form.querySelector('[name="agriyouth_farming_household"]');
+        if (!farmingHouseholdField || !farmingHouseholdField.value) {
+            isValid = false;
+            errors.push('Part of farming household is required');
+            if (farmingHouseholdField) farmingHouseholdField.classList.add('error');
+        }
+
+        const trainingField = form.querySelector('[name="agriyouth_training"]');
+        if (!trainingField || !trainingField.value) {
+            isValid = false;
+            errors.push('Training/Education is required');
+            if (trainingField) trainingField.classList.add('error');
+        }
+
+        const participationField = form.querySelector('[name="agriyouth_participation"]');
+        if (!participationField || !participationField.value) {
+            isValid = false;
+            errors.push('Agricultural activity/program participation is required');
+            if (participationField) participationField.classList.add('error');
+        }
+    }
+
+    // VALIDATE FARM LOCATION
+    const farmLocationField = form.querySelector('[name="farm_location"]');
+    if (farmLocationField && farmLocationField.value) {
+        const locationPattern = /^[a-zA-Z0-9\s,'\-]+$/;
+        if (!locationPattern.test(farmLocationField.value)) {
+            isValid = false;
+            errors.push('Farm location can only contain letters, numbers, spaces, commas, hyphens, and apostrophes');
+            farmLocationField.classList.add('error');
+        }
+    }
+
+    // VALIDATE FILE UPLOAD (optional)
     const fileField = form.querySelector('[name="supporting_docs"]');
     if (fileField && fileField.files.length > 0) {
         const file = fileField.files[0];
@@ -416,6 +590,100 @@ function validateRSBSAForm(form) {
     }
 
     return { isValid, errors };
+}
+
+/**
+ * REAL-TIME VALIDATION FOR TEXT FIELDS WITH PATTERNS
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const patternFields = [
+        {
+            id: 'rsbsa-first_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            warningId: 'rsbsa-first_name-warning'
+        },
+        {
+            id: 'rsbsa-middle_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            warningId: 'rsbsa-middle_name-warning'
+        },
+        {
+            id: 'rsbsa-last_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            warningId: 'rsbsa-last_name-warning'
+        },
+        {
+            id: 'rsbsa-farmer_other_crops',
+            pattern: /^[a-zA-Z\s,'\-]*$/,
+            warningId: 'rsbsa-farmer_other_crops-warning'
+        },
+        {
+            id: 'rsbsa-farmworker_other_type',
+            pattern: /^[a-zA-Z\s,'\-]*$/,
+            warningId: 'rsbsa-farmworker_other_type-warning'
+        },
+        {
+            id: 'rsbsa-fisherfolk_other_activity',
+            pattern: /^[a-zA-Z\s,'\-]*$/,
+            warningId: 'rsbsa-fisherfolk_other_activity-warning'
+        },
+        {
+            id: 'rsbsa-farm_location',
+            pattern: /^[a-zA-Z0-9\s,'\-]*$/,
+            warningId: 'rsbsa-farm_location-warning'
+        },
+        {
+            id: 'rsbsa-mobile',
+            pattern: /^(\+639|09)?\d{0,9}$/,
+            warningId: 'rsbsa-mobile-warning'
+        }
+    ];
+
+    patternFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const warning = document.getElementById(field.warningId);
+
+        if (input && warning) {
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+
+                if (value && !field.pattern.test(value)) {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                }
+            });
+
+            input.addEventListener('blur', function(e) {
+                if (e.target.value && !field.pattern.test(e.target.value)) {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                }
+            });
+
+            input.addEventListener('focus', function(e) {
+                this.classList.remove('error');
+            });
+        }
+    });
+});
+
+/**
+ * Helper to clear field errors
+ */
+function clearRSBSAErrors() {
+    const form = document.querySelector('#rsbsa-form form') || document.getElementById('rsbsa-form');
+    if (!form) return;
+
+    form.querySelectorAll('.error').forEach(field => {
+        field.classList.remove('error');
+    });
+
+    form.querySelectorAll('.validation-warning').forEach(warning => {
+        warning.style.display = 'none';
+    });
 }
 
 /**
@@ -1114,5 +1382,7 @@ window.showRSBSATab = showRSBSATab;
 window.removeFile = removeFile;
 window.fillSampleRSBSAData = fillSampleRSBSAData;
 window.clearRSBSAForm = clearRSBSAForm;
+window.validateRSBSAForm = validateRSBSAForm;
+window.clearRSBSAErrors = clearRSBSAErrors;
 
 console.log('Complete RSBSA JavaScript module loaded with full persistence and reload handling');
