@@ -31,12 +31,15 @@ class DSSController extends Controller
                 return $this->loadDataAjax($request);
             }
 
+            // Get service type from request (default: comprehensive)
+            $service = $request->get('service', 'comprehensive');
+
             // Get month and year from request or default to current
             $month = $request->get('month', now()->format('m'));
             $year = $request->get('year', now()->format('Y'));
 
             // For initial page load, show page with loading state
-            return view('admin.dss.preview', compact('month', 'year'));
+            return view('admin.dss.preview', compact('month', 'year', 'service'));
 
         } catch (\Exception $e) {
             Log::error('DSS Preview Generation Failed', [
@@ -56,21 +59,32 @@ class DSSController extends Controller
         try {
             $month = $request->get('month', now()->format('m'));
             $year = $request->get('year', now()->format('Y'));
+            $service = $request->get('service', 'comprehensive');
 
             // Set longer timeout for this operation
             set_time_limit(300); // 5 minutes
 
-            // Collect data with progress tracking
-            $data = $this->dataService->collectMonthlyData($month, $year);
-
-            // Generate report
-            $report = $this->reportService->generateReport($data);
+            // Collect data based on service type
+            if ($service === 'training') {
+                $data = $this->dataService->collectTrainingData($month, $year);
+                $report = $this->reportService->generateTrainingReport($data);
+                $viewPartial = 'admin.dss.partials.training-content';
+            } elseif ($service === 'rsbsa') {
+                $data = $this->dataService->collectRsbsaData($month, $year);
+                $report = $this->reportService->generateRsbsaReport($data);
+                $viewPartial = 'admin.dss.partials.rsbsa-content';
+            } else {
+                // Comprehensive report (default)
+                $data = $this->dataService->collectMonthlyData($month, $year);
+                $report = $this->reportService->generateReport($data);
+                $viewPartial = 'admin.dss.partials.report-content';
+            }
 
             return response()->json([
                 'success' => true,
                 'data' => $data,
                 'report' => $report,
-                'html' => view('admin.dss.partials.report-content', compact('data', 'report'))->render()
+                'html' => view($viewPartial, compact('data', 'report'))->render()
             ]);
 
         } catch (\Exception $e) {
@@ -95,15 +109,28 @@ class DSSController extends Controller
         try {
             $month = $request->get('month', now()->format('m'));
             $year = $request->get('year', now()->format('Y'));
+            $service = $request->get('service', 'comprehensive');
 
-            // Collect data
-            $data = $this->dataService->collectMonthlyData($month, $year);
-
-            // Generate report
-            $report = $this->reportService->generateReport($data);
+            // Collect data based on service type
+            if ($service === 'training') {
+                $data = $this->dataService->collectTrainingData($month, $year);
+                $report = $this->reportService->generateTrainingReport($data);
+                $view = 'admin.dss.pdf-training';
+                $filename = 'Training_DSS_Report_';
+            } elseif ($service === 'rsbsa') {
+                $data = $this->dataService->collectRsbsaData($month, $year);
+                $report = $this->reportService->generateRsbsaReport($data);
+                $view = 'admin.dss.pdf-rsbsa';
+                $filename = 'RSBSA_DSS_Report_';
+            } else {
+                $data = $this->dataService->collectMonthlyData($month, $year);
+                $report = $this->reportService->generateReport($data);
+                $view = 'admin.dss.pdf-report';
+                $filename = 'DSS_Report_';
+            }
 
             // Generate PDF
-            $pdf = Pdf::loadView('admin.dss.pdf-report', compact('data', 'report'))
+            $pdf = Pdf::loadView($view, compact('data', 'report'))
                 ->setPaper('a4', 'portrait')
                 ->setOptions([
                     'defaultFont' => 'Arial',
@@ -111,7 +138,7 @@ class DSSController extends Controller
                     'isHtml5ParserEnabled' => true,
                 ]);
 
-            $filename = 'DSS_Report_' . Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.pdf';
+            $filename .= Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.pdf';
 
             return $pdf->download($filename);
 
@@ -133,17 +160,27 @@ class DSSController extends Controller
         try {
             $month = $request->get('month', now()->format('m'));
             $year = $request->get('year', now()->format('Y'));
+            $service = $request->get('service', 'comprehensive');
 
-            // Collect data
-            $data = $this->dataService->collectMonthlyData($month, $year);
-
-            // Generate report
-            $report = $this->reportService->generateReport($data);
+            // Collect data based on service type
+            if ($service === 'training') {
+                $data = $this->dataService->collectTrainingData($month, $year);
+                $report = $this->reportService->generateTrainingReport($data);
+                $filename = 'Training_DSS_Report_';
+            } elseif ($service === 'rsbsa') {
+                $data = $this->dataService->collectRsbsaData($month, $year);
+                $report = $this->reportService->generateRsbsaReport($data);
+                $filename = 'RSBSA_DSS_Report_';
+            } else {
+                $data = $this->dataService->collectMonthlyData($month, $year);
+                $report = $this->reportService->generateReport($data);
+                $filename = 'DSS_Report_';
+            }
 
             // Create Word document content
             $wordContent = $this->generateWordContent($data, $report);
 
-            $filename = 'DSS_Report_' . Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.doc';
+            $filename .= Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.doc';
 
             return response($wordContent)
                 ->header('Content-Type', 'application/msword')
@@ -167,13 +204,25 @@ class DSSController extends Controller
         try {
             $month = $request->get('month', now()->format('m'));
             $year = $request->get('year', now()->format('Y'));
+            $service = $request->get('service', 'comprehensive');
 
-            // Clear cache and get fresh data
-            $cacheKey = 'dss_report_' . md5(serialize([$month, $year]));
-            cache()->forget($cacheKey);
-
-            $data = $this->dataService->collectMonthlyData($month, $year);
-            $report = $this->reportService->generateReport($data);
+            // Clear cache based on service type
+            if ($service === 'training') {
+                $cacheKey = 'dss_training_data_' . $year . '_' . $month;
+                cache()->forget($cacheKey);
+                $data = $this->dataService->collectTrainingData($month, $year);
+                $report = $this->reportService->generateTrainingReport($data);
+            } elseif ($service === 'rsbsa') {
+                $cacheKey = 'dss_rsbsa_data_' . $year . '_' . $month;
+                cache()->forget($cacheKey);
+                $data = $this->dataService->collectRsbsaData($month, $year);
+                $report = $this->reportService->generateRsbsaReport($data);
+            } else {
+                $cacheKey = 'dss_report_' . md5(serialize([$month, $year]));
+                cache()->forget($cacheKey);
+                $data = $this->dataService->collectMonthlyData($month, $year);
+                $report = $this->reportService->generateReport($data);
+            }
 
             return response()->json([
                 'success' => true,
