@@ -776,6 +776,7 @@ input.is-invalid {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
     position: relative;
     margin-top: 10px;
     min-height: 48px;  /* Set fixed height */
@@ -819,7 +820,7 @@ input.is-invalid {
     opacity: 0.8;
 }
 
-/* .auth-submit-btn.loading .btn-text {
+.auth-submit-btn.loading .btn-text {
     opacity: 0;
 }
 
@@ -829,7 +830,7 @@ input.is-invalid {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-} */
+}
 
 /* Divider */
 .auth-divider {

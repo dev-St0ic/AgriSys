@@ -44,7 +44,7 @@
                         <div class="stat-icon mb-2">
                             <i class="fas fa-clock text-warning"></i>
                         </div>
-                        <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                        <div class="stat-number mb-2">{{ $pendingCount }}</div>
                         <div class="stat-label text-warning">Pending</div>
                     </div>
                 </div>

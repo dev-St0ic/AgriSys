@@ -96,9 +96,8 @@ class SeedlingRequestController extends Controller
         }
 
         $totalRequests = $statsQuery->count();
-        $underReviewCount = (clone $statsQuery)->where(function($q) {
-            $q->where('status', 'under_review')->orWhere('status', 'pending');
-        })->count();
+        $pendingCount = (clone $statsQuery)->where('status', 'pending')->count();
+        $underReviewCount = (clone $statsQuery)->where('status', 'under_review')->count();
         $approvedCount = (clone $statsQuery)->where('status', 'approved')->count();
         $partiallyApprovedCount = (clone $statsQuery)->where('status', 'partially_approved')->count();
         $rejectedCount = (clone $statsQuery)->where('status', 'rejected')->count();
@@ -115,6 +114,7 @@ class SeedlingRequestController extends Controller
             'requests',
             'totalRequests',
             'underReviewCount',
+            'pendingCount',
             'approvedCount',
             'partiallyApprovedCount',
             'rejectedCount',

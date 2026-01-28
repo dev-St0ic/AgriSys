@@ -381,12 +381,12 @@ public function update(Request $request, $id)
             // Set default status if not provided
             $validated['status'] = $validated['status'] ?? 'pending';
 
-            // Set reviewed fields if status is not under_review
-            if (!in_array($validated['status'], ['pending', 'under_review'])) {
-                $validated['status_updated_at'] = now();
-                $validated['reviewed_by'] = auth()->id();
-                $validated['reviewed_at'] = now();
-            }
+            // // Set reviewed fields if status is not under_review
+            // if (!in_array($validated['status'], ['pending', 'under_review'])) {
+            //     $validated['status_updated_at'] = now();
+            //     $validated['reviewed_by'] = auth()->id();
+            //     $validated['reviewed_at'] = now();
+            // }
 
             // Create the registration
             $registration = FishrApplication::create($validated);
