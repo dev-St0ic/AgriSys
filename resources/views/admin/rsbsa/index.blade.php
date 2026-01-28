@@ -3471,223 +3471,316 @@
         }
 
 
-        // FIXED: Corrected document display section in viewApplication function - REDESIGNED with card layout
-        function viewApplication(id) {
-            if (!id) {
-                showToast('error', 'Invalid application ID');
-                return;
+       /**
+ * COMPLETE: View application with all fields - Updated with all livelihood-specific info
+ */
+function viewApplication(id) {
+    if (!id) {
+        showToast('error', 'Invalid application ID');
+        return;
+    }
+
+    // Show modal first
+    const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+    modal.show();
+
+    // Then show loading state after modal is shown
+    setTimeout(() => {
+        document.getElementById('applicationDetails').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>`;
+    }, 100);
+
+    // Fetch application details
+    fetch(`/admin/rsbsa-applications/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(response => {
+            console.log('Response:', response);
+
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to load application details');
             }
 
-            // Show modal first
-            const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
-            modal.show();
+            const data = response.data;
 
-            // Then show loading state after modal is shown
-            setTimeout(() => {
-                document.getElementById('applicationDetails').innerHTML = `
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+            if (!data) {
+                throw new Error('No application data received');
+            }
+
+            // Format timestamps
+            const createdAt = new Date(data.created_at);
+            const updatedAt = new Date(data.updated_at);
+            const createdAtFormatted = createdAt.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const updatedAtFormatted = updatedAt.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            // Status badge with color coding
+            const statusColor = data.status_color || 'secondary';
+            const formattedStatus = data.formatted_status || getStatusText(data.status);
+            const statusBadge = `<span class="badge bg-${statusColor}">${formattedStatus}</span>`;
+
+            // Build remarks HTML if exists
+            const remarksHtml = data.remarks ? `
+            <div class="col-12 mt-4">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
                     </div>
-                </div>`;
-            }, 100);
+                    <div class="card-body">
+                        <p class="mb-0">${data.remarks}</p>
+                    </div>
+                </div>
+            </div>` : '';
 
-            // Fetch application details
-            fetch(`/admin/rsbsa-applications/${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    console.log('Response:', response);
+            // Build document section HTML
+            const documentHtml = data.supporting_document_path ? `
+            <div class="text-center p-4">
+                <i class="fas fa-file fa-4x text-success mb-3"></i>
+                <p class="text-muted mb-3">Document Available</p>
+                <button class="btn btn-primary" onclick="viewDocument('${data.supporting_document_path}', 'Supporting Document')">
+                    <i class="fas fa-eye me-2"></i>View Document
+                </button>
+            </div>` : `
+            <div class="text-center p-4">
+                <i class="fas fa-file-slash fa-4x text-muted mb-3"></i>
+                <p class="text-muted">No Document Uploaded</p>
+            </div>`;
 
-                    if (!response.success) {
-                        throw new Error(response.message || 'Failed to load application details');
-                    }
+            // Build timeline additional info if available
+            let timelineHtml = '';
+            if (data.reviewed_at) {
+                const reviewedAt = new Date(data.reviewed_at);
+                timelineHtml += `<div class="col-12"><strong>Reviewed At:</strong> ${reviewedAt.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })}</div>`;
+            }
 
-                    const data = response.data;
+            if (data.number_assigned_at) {
+                const assignedAt = new Date(data.number_assigned_at);
+                timelineHtml += `<div class="col-12"><strong>Number Assigned:</strong> ${assignedAt.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })}</div>`;
+            }
 
-                    if (!data) {
-                        throw new Error('No application data received');
-                    }
+            // Build Farmer-specific section
+            const farmerHtml = data.main_livelihood === 'Farmer' ? `
+            <div class="col-md-6">
+                <div class="card h-100 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-leaf me-2"></i>Farmer Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>Main Crops:</strong> ${data.farmer_crops || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Other Crops:</strong> ${data.farmer_other_crops || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Livestock:</strong> ${data.farmer_livestock || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Land Area:</strong> ${data.farmer_land_area ? `${data.farmer_land_area} hectares` : '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Type of Farm:</strong> ${data.farmer_type_of_farm || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Land Ownership:</strong> ${data.farmer_land_ownership || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Special Status:</strong> ${data.farmer_special_status || '<span class="text-muted">Not provided</span>'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>` : '';
 
-                    // Format timestamps
-                    const createdAt = new Date(data.created_at);
-                    const updatedAt = new Date(data.updated_at);
-                    const createdAtFormatted = createdAt.toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                    const updatedAtFormatted = updatedAt.toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
+            // Build Farmworker-specific section
+            const farmworkerHtml = data.main_livelihood === 'Farmworker/Laborer' ? `
+            <div class="col-md-6">
+                <div class="card h-100 border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-hammer me-2"></i>Farmworker Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>Type of Work:</strong> ${data.farmworker_type || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Other Work Type:</strong> ${data.farmworker_other_type || '<span class="text-muted">Not provided</span>'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>` : '';
 
-                    // Status badge with color coding
-                    const statusColor = data.status_color || 'secondary';
-                    const formattedStatus = data.formatted_status || getStatusText(data.status);
-                    const statusBadge = `<span class="badge bg-${statusColor}">${formattedStatus}</span>`;
+            // Build Fisherfolk-specific section
+            const fisherfolkHtml = data.main_livelihood === 'Fisherfolk' ? `
+            <div class="col-md-6">
+                <div class="card h-100 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fisherfolk Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>Fishing Activity:</strong> ${data.fisherfolk_activity || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Other Activity:</strong> ${data.fisherfolk_other_activity || '<span class="text-muted">Not provided</span>'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>` : '';
 
-                    // Build remarks HTML if exists
-                    const remarksHtml = data.remarks ? `
-                    <div class="col-12 mt-4">
-                        <div class="card border-warning">
-                            <div class="card-header bg-warning text-dark">
-                                <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
-                            </div>
-                            <div class="card-body">
-                                <p class="mb-0">${data.remarks}</p>
+            // Build Agri-Youth-specific section
+            const agriyouthHtml = data.main_livelihood === 'Agri-youth' ? `
+            <div class="col-md-6">
+                <div class="card h-100 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-user-tie me-2"></i>Agri-Youth Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>From Farming Household:</strong> ${data.agriyouth_farming_household || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Agricultural Training:</strong> ${data.agriyouth_training || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Program Participation:</strong> ${data.agriyouth_participation || '<span class="text-muted">Not provided</span>'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>` : '';
+
+            // Render the complete card-based layout
+            document.getElementById('applicationDetails').innerHTML = `
+            <div class="row g-4">
+                <!-- Personal Information Card -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-12"><strong>Application #:</strong> <span class="text-primary">${data.application_number || 'N/A'}</span></div>
+                                <div class="col-12"><strong>Full Name:</strong> ${data.full_name || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>Sex:</strong> ${data.sex || '<span class="text-muted">Not specified</span>'}</div>
+                                <div class="col-12"><strong>Contact Number:</strong> ${data.contact_number ? `<a href="tel:${data.contact_number}" class="text-decoration-none">${data.contact_number}</a>` : '<span class="text-muted">Not provided</span>'}</div>
                             </div>
                         </div>
-                    </div>` : '';
+                    </div>
+                </div>
 
-                    // Build document section HTML - SIMPLIFIED
-                    const documentHtml = data.supporting_document_path ? `
-                    <div class="text-center p-4">
-                        <i class="fas fa-file fa-4x text-success mb-3"></i>
-                        <p class="text-muted mb-3">Document Available</p>
-                        <button class="btn btn-primary" onclick="viewDocument('${data.supporting_document_path}', 'Supporting Document')">
-                            <i class="fas fa-eye me-2"></i>View Document
-                        </button>
-                    </div>` : `
-                    <div class="text-center p-4">
-                        <i class="fas fa-file-slash fa-4x text-muted mb-3"></i>
-                        <p class="text-muted">No Document Uploaded</p>
-                    </div>`;
+                <!-- Location Information Card -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-success">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-12"><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>Address:</strong> ${data.address || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>Farm/Work Location:</strong> ${data.farm_location || '<span class="text-muted">Not provided</span>'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    // Build timeline additional info if available
-                    let timelineHtml = '';
-                    if (data.reviewed_at) {
-                        const reviewedAt = new Date(data.reviewed_at);
-                        timelineHtml += `<div class="col-12"><strong>Reviewed At:</strong> ${reviewedAt.toLocaleString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        })}</div>`;
-                    }
+                <!-- Main Livelihood Card -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-info">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fas fa-seedling me-2"></i>Main Livelihood</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-12"><strong>Livelihood Type:</strong> ${data.main_livelihood || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>Commodity/Product:</strong> ${data.commodity || '<span class="text-muted">Not provided</span>'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    if (data.number_assigned_at) {
-                        const assignedAt = new Date(data.number_assigned_at);
-                        timelineHtml += `<div class="col-12"><strong>Number Assigned:</strong> ${assignedAt.toLocaleString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        })}</div>`;
-                    }
+                <!-- Application Status Card -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0"><i class="fas fa-toggle-on me-2"></i>Application Status</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-12"><strong>Current Status:</strong> ${statusBadge}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    // Render the card-based layout
-                    document.getElementById('applicationDetails').innerHTML = `
-                    <div class="row g-4">
-                        <!-- Personal Information Card -->
-                        <div class="col-md-6">
-                            <div class="card h-100 border-primary">
-                                <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-2">
-                                        <div class="col-12"><strong>Application #:</strong> <span class="text-primary">${data.application_number || 'N/A'}</span></div>
-                                        <div class="col-12"><strong>Full Name:</strong> ${data.full_name || '<span class="text-muted">Not provided</span>'}</div>
-                                        <div class="col-12"><strong>Sex:</strong> ${data.sex || '<span class="text-muted">Not specified</span>'}</div>
-                                        <div class="col-12"><strong>Contact Number:</strong> ${data.contact_number ? `<a href="tel:${data.contact_number}" class="text-decoration-none">${data.contact_number}</a>` : '<span class="text-muted">Not provided</span>'}</div>
-                                        <div class="col-12"><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</div>
-                                    </div>
+                <!-- Livelihood-Specific Cards (Conditionally displayed) -->
+                ${farmerHtml}
+                ${farmworkerHtml}
+                ${fisherfolkHtml}
+                ${agriyouthHtml}
+
+                <!-- Application Timeline Card -->
+                <div class="col-md-12">
+                    <div class="card h-100 border-secondary">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Application Timeline</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-12"><strong>Date Applied:</strong> ${createdAtFormatted}</div>
+                                <div class="col-12"><strong>Last Updated:</strong> ${updatedAtFormatted}</div>
+                                ${data.reviewed_at ? `<div class="col-12"><strong>Date Reviewed:</strong> ${data.reviewed_at}</div>` : ''}
+                                ${data.reviewer_name ? `<div class="col-12"><strong>Reviewed By:</strong> ${data.reviewer_name}</div>` : ''}
+                                ${timelineHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supporting Document Card -->
+                <div class="col-12">
+                    <div class="card border-secondary">
+                        <div class="card-header bg-primary text-center text-white">
+                            <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    ${documentHtml}
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Livelihood Information Card -->
-                        <div class="col-md-6">
-                            <div class="card h-100 border-info">
-                                <div class="card-header bg-info text-white">
-                                    <h6 class="mb-0"><i class="fas fa-seedling me-2"></i>Livelihood Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-2">
-                                        <div class="col-12"><strong>Main Livelihood:</strong> ${data.main_livelihood || '<span class="text-muted">Not provided</span>'}</div>
-                                        <div class="col-12"><strong>Commodity:</strong> ${data.commodity || '<span class="text-muted">Not provided</span>'}</div>
-                                        <div class="col-12"><strong>Land Area:</strong> ${data.land_area ? `${data.land_area} ha` : '<span class="text-muted">Not provided</span>'}</div>
-                                        <div class="col-12"><strong>Current Status:</strong> ${statusBadge}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                ${remarksHtml}
+            </div>`;
 
-                        <!-- Location Information Card -->
-                        <div class="col-md-6">
-                            <div class="card h-100 border-success">
-                                <div class="card-header bg-success text-white">
-                                    <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-2">
-                                        <div class="col-12"><strong>Farm/Work Location:</strong> ${data.farm_location || '<span class="text-muted">Not provided</span>'}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Application Timeline Card -->
-                        <div class="col-md-6">
-                            <div class="card h-100 border-warning">
-                                <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Application Timeline</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-2">
-                                        <div class="col-12"><strong>Date Applied:</strong> ${createdAtFormatted}</div>
-                                        <div class="col-12"><strong>Last Updated:</strong> ${updatedAtFormatted}</div>
-                                        ${timelineHtml}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Supporting Document Card -->
-                        <div class="col-12">
-                            <div class="card border-secondary">
-                                <div class="card-header bg-primary text-center text-white">
-                                    <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            ${documentHtml}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        ${remarksHtml}
-                    </div>`;
-
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('applicationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        ${error.message || 'Error loading application details. Please try again.'}
-                    </div>`;
-                });
-        }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('applicationDetails').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                ${error.message || 'Error loading application details. Please try again.'}
+            </div>`;
+        });
+}
 
         // Helper function to toggle image zoom (reuse existing if available)
         function toggleImageZoom(img) {
