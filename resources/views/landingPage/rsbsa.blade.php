@@ -154,9 +154,9 @@
 
             <div class="rsbsa-form-group">
                 <label>Contact Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="tel" id="rsbsa-mobile" name="mobile" placeholder="Example: 09123456789" pattern="^09\d{9}$"
-                    title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
-                    value="{{ old('mobile') }}" required>
+                <input type="tel" id="contact_number" name="contact_number" placeholder="Example: 09123456789"
+                    title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
+                    value="{{ old('contact_number') }}" required>
                 <span class="validation-warning" id="rsbsa-mobile-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Mobile number must be: 09XXXXXXXXX (11 digits total)</span>
                 @error('mobile')
@@ -216,7 +216,7 @@
                 <div class="rsbsa-form-group">
                     <label>Livestock/Poultry (Type & Number)</label>
                     <input type="text" id="rsbsa-farmer_livestock" name="farmer_livestock" placeholder="Example: Chickens (50), Pigs (5)"
-                        pattern="[a-zA-Z0-9\s,().\-]*" title="Only alphanumeric, spaces, parentheses, commas, hyphens, and apostrophes allowed"
+                        title="Only alphanumeric, spaces, parentheses, commas, hyphens, and apostrophes allowed"
                         value="{{ old('farmer_livestock') }}">
                     <small class="rsbsa-form-help">Enter type and number of livestock/poultry heads (leave blank if not applicable)</small>
                     @error('farmer_livestock')
