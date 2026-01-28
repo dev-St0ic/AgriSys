@@ -28,6 +28,6 @@ class TrainingApplicationSeeder extends Seeder
         TrainingApplication::factory(2)->trainingType('mushrooms')->approved()->create();
         TrainingApplication::factory(3)->trainingType('livestock_poultry')->underReview()->create();
         TrainingApplication::factory(2)->trainingType('high_value_crops')->approved()->create();
-        TrainingApplication::factory(1)->trainingType('sampaguita_propagation')->rejected()->create();
+        TrainingApplication::factory(1)->trainingType('sampaguita_propagation')->pending()->create();
     }
 }

@@ -144,8 +144,8 @@
             </div>
 
             <div class="training-form-group">
-                <label for="training_document">Supporting Document <span class="required-asterisk">*</span></label>
-                <input type="file" id="training_document" name="supporting_document" required
+                <label for="training_document">Supporting Document (Optional)</label>
+                <input type="file" id="training_document" name="supporting_document" 
                     accept=".pdf,.jpg,.jpeg,.png">
                 <small>Upload Government ID, Driver's License, or Barangay Certificate (PDF, JPG, PNG - Max 10MB)</small>
             </div>
@@ -163,7 +163,6 @@
             <ul>
                 <li>Valid ID (Government issued ID, Driver's License, Passport, etc.)</li>
                 <li>Proof of residency in San Pedro City</li>
-                <li>Certificate of completion (if applying for advanced training)</li>
                 <li>Any relevant agricultural experience certificates (optional)</li>
             </ul>
 
