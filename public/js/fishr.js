@@ -325,14 +325,14 @@ function resetFishRForm() {
         errorTexts.forEach(error => error.remove());
 
         // Reset submit button state
-        const submitBtn = document.getElementById('fishr-submit-btn');
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            const btnText = submitBtn.querySelector('.btn-text');
-            const btnLoading = submitBtn.querySelector('.btn-loading');
-            if (btnText) btnText.style.display = 'inline';
-            if (btnLoading) btnLoading.style.display = 'none';
-        }
+       const submitBtn = document.getElementById('fishr-submit-btn');
+        const btnText = submitBtn.querySelector('.fishr-btn-text');
+        const btnLoading = submitBtn.querySelector('.fishr-btn-loading');
+
+        // Show loading state - properly hide text and show loading
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoading) btnLoading.style.display = 'inline';
+        submitBtn.disabled = true;
 
         // Reset to first tab if showTab function exists
         if (typeof showFishrTab === 'function') {
@@ -539,12 +539,8 @@ function initializeFishRFormSubmission() {
             }
         } finally {
             // Reset button state - handle both styles
-            if (btnText && btnLoading) {
-                btnText.style.display = 'inline';
-                btnLoading.style.display = 'none';
-            } else {
-                submitBtn.textContent = originalText;
-            }
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoading) btnLoading.style.display = 'none';
             submitBtn.disabled = false;
         }
     });
