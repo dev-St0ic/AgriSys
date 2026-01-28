@@ -631,6 +631,18 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
+                                        <label for="edit_rsbsa_sex" class="form-label fw-semibold">
+                                            Sex 
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="edit_rsbsa_sex" name="sex" required>
+                                            <option value="">Select</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Preferred not to say">Preferred not to say</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
                                         <label for="edit_rsbsa_contact_number" class="form-label fw-semibold">
                                             Contact Number 
                                             <span class="text-danger">*</span>
@@ -656,7 +668,7 @@
                         </div>
 
                         <!-- Location Information Card -->
-                        <div class="card mb-3 border-0 bg-light">
+                       <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
                                 <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-map-marker-alt me-2"></i>Location Information
@@ -700,12 +712,15 @@
                                             <option value="United Better Living">United Better Living</option>
                                         </select>
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_rsbsa_farm_location" class="form-label fw-semibold">
-                                            Farm/Work Location
+                                        <label for="edit_rsbsa_address" class="form-label fw-semibold">
+                                            Address 
+                                            <span class="text-danger">*</span>
                                         </label>
-                                        <textarea class="form-control" id="edit_rsbsa_farm_location" name="farm_location" rows="3" maxlength="500"
-                                            placeholder="Specific location of farm or work area"></textarea>
+                                        <textarea class="form-control" id="edit_rsbsa_address" name="address" rows="2" maxlength="500" required
+                                            placeholder="Complete residential address"></textarea>
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>Maximum 500 characters
                                         </small>
@@ -713,8 +728,7 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Livelihood Information Card - NOW FULLY EDITABLE -->
+                        <!-- Livelihood Information Card - NOW FULLY EDITABLE WITH DYNAMIC FIELDS -->
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
                                 <h6 class="mb-0 fw-semibold text-primary">
@@ -723,13 +737,13 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-12 mb-3">
                                         <label for="edit_rsbsa_livelihood" class="form-label fw-semibold">
                                             Main Livelihood 
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="edit_rsbsa_livelihood" name="main_livelihood"
-                                            required>
+                                            required onchange="toggleEditRsbsaLivelihoodFields(this)">
                                             <option value="">Select Livelihood</option>
                                             <option value="Farmer">Farmer</option>
                                             <option value="Farmworker/Laborer">Farmworker/Laborer</option>
@@ -737,26 +751,181 @@
                                             <option value="Agri-youth">Agri-youth</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_rsbsa_land_area" class="form-label fw-semibold">
-                                            Land Area (hectares)
-                                        </label>
-                                        <input type="number" class="form-control" id="edit_rsbsa_land_area"
-                                            name="land_area" step="0.01" min="0" max="99999.99"
-                                            placeholder="0.00">
-                                        <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>Total area in hectares
-                                        </small>
+                                </div>
+
+                                <!-- FARMER FIELDS -->
+                                <div id="edit-farmer-fields" style="display: none;">
+                                    <div class="alert alert-info border-0 mb-3">
+                                        <i class="fas fa-leaf me-2"></i><strong>Farmer Information</strong>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_rsbsa_commodity" class="form-label fw-semibold">
-                                            Commodity/Product
-                                        </label>
-                                        <input type="text" class="form-control" id="edit_rsbsa_commodity"
-                                            name="commodity" maxlength="1000" placeholder="e.g., Rice, Corn, Vegetables">
-                                        <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>Main crops, livestock, or fish
-                                        </small>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farmer_crops" class="form-label fw-semibold">
+                                                Main Crops <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_farmer_crops"
+                                                name="farmer_crops" maxlength="100" 
+                                                placeholder="e.g., Rice, Corn, Vegetables">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farmer_land_area" class="form-label fw-semibold">
+                                                Land Area (hectares) <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="number" class="form-control" id="edit_rsbsa_farmer_land_area"
+                                                name="farmer_land_area" step="0.01" min="0" max="1000" placeholder="0.00">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farmer_type_of_farm" class="form-label fw-semibold">
+                                                Type of Farm <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select" id="edit_rsbsa_farmer_type_of_farm" name="farmer_type_of_farm">
+                                                <option value="">Select Type</option>
+                                                <option value="Irrigated">Irrigated</option>
+                                                <option value="Rainfed Upland">Rainfed Upland</option>
+                                                <option value="Rainfed Lowland">Rainfed Lowland</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farmer_land_ownership" class="form-label fw-semibold">
+                                                Land Ownership <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select" id="edit_rsbsa_farmer_land_ownership" name="farmer_land_ownership">
+                                                <option value="">Select Ownership</option>
+                                                <option value="Owner">Owner</option>
+                                                <option value="Tenant">Tenant</option>
+                                                <option value="Lessee">Lessee</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farm_location" class="form-label fw-semibold">
+                                                Farm Location <span class="text-danger">*</span>
+                                            </label>
+                                            <textarea class="form-control" id="edit_rsbsa_farm_location" 
+                                                name="farm_location" rows="2" maxlength="500"
+                                                placeholder="Specific location of farm"></textarea>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farmer_special_status" class="form-label fw-semibold">
+                                                Special Status
+                                            </label>
+                                            <select class="form-select" id="edit_rsbsa_farmer_special_status" name="farmer_special_status">
+                                                <option value="">Select Status</option>
+                                                <option value="Ancestral Domain">Ancestral Domain</option>
+                                                <option value="Agrarian Reform Beneficiary">Agrarian Reform Beneficiary</option>
+                                                <option value="None">None</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label for="edit_rsbsa_farmer_commodity" class="form-label fw-semibold">
+                                                Commodity/Product
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_farmer_commodity"
+                                                name="commodity" maxlength="1000" 
+                                                placeholder="e.g., Rice, Corn, Vegetables">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FARMWORKER FIELDS -->
+                                <div id="edit-farmworker-fields" style="display: none;">
+                                    <div class="alert alert-info border-0 mb-3">
+                                        <i class="fas fa-hammer me-2"></i><strong>Farmworker/Laborer Information</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farmworker_type" class="form-label fw-semibold">
+                                                Type of Work <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_farmworker_type"
+                                                name="farmworker_type"
+                                                placeholder="e.g., Farm Laborer, Harvester, Planter">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_farmworker_commodity" class="form-label fw-semibold">
+                                                Commodity/Crop You Work With
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_farmworker_commodity"
+                                                name="commodity" maxlength="1000"
+                                                placeholder="e.g., Rice, Corn, Vegetables">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FISHERFOLK FIELDS -->
+                                <div id="edit-fisherfolk-fields" style="display: none;">
+                                    <div class="alert alert-info border-0 mb-3">
+                                        <i class="fas fa-fish me-2"></i><strong>Fisherfolk Information</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_fisherfolk_activity" class="form-label fw-semibold">
+                                                Fishing Activity <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_fisherfolk_activity"
+                                                name="fisherfolk_activity"
+                                                placeholder="e.g., Bangus Aquaculture, Tilapia Pond Farming">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_fisherfolk_commodity" class="form-label fw-semibold">
+                                                Main Fish/Aquatic Product
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_fisherfolk_commodity"
+                                                name="commodity" maxlength="1000"
+                                                placeholder="e.g., Bangus, Tilapia, Mud Crab, Seaweed">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AGRI-YOUTH FIELDS -->
+                                <div id="edit-agriyouth-fields" style="display: none;">
+                                    <div class="alert alert-info border-0 mb-3">
+                                        <i class="fas fa-user-tie me-2"></i><strong>Agri-Youth Information</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_agriyouth_household" class="form-label fw-semibold">
+                                                From Farming Household? <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select" id="edit_rsbsa_agriyouth_household" name="agriyouth_farming_household">
+                                                <option value="">Select</option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_agriyouth_training" class="form-label fw-semibold">
+                                                Agricultural Training <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_agriyouth_training"
+                                                name="agriyouth_training"
+                                                placeholder="e.g., Crop production, Livestock raising">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_agriyouth_participation" class="form-label fw-semibold">
+                                                Program Participation <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select" id="edit_rsbsa_agriyouth_participation" name="agriyouth_participation">
+                                                <option value="">Select Participation</option>
+                                                <option value="Participated">Participated</option>
+                                                <option value="Not Participated">Not Participated</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="edit_rsbsa_agriyouth_commodity" class="form-label fw-semibold">
+                                                Main Agricultural Focus
+                                            </label>
+                                            <input type="text" class="form-control" id="edit_rsbsa_agriyouth_commodity"
+                                                name="commodity" maxlength="1000"
+                                                placeholder="e.g., Organic Farming, Livestock, Aquaculture">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -772,7 +941,7 @@
                             <div class="card-body">
                                 <p class="text-muted small mb-4">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 5MB)
+                                    View or upload supporting document. Supported formats: JPG, PNG, PDF (Max 10MB)
                                 </p>
                                 <div class="row">
                                     <div class="col-12 mb-4">
@@ -5071,13 +5240,13 @@ function submitAddRsbsa() {
                 return;
             }
             
-            // Validate file size (5MB max)
-            const maxSize = 5 * 1024 * 1024;
+            // Validate file size (10MB max)
+            const maxSize = 10 * 1024 * 1024;
             if (file.size > maxSize) {
                 preview.innerHTML = `
                     <div class="alert alert-danger mb-2">
                         <i class="fas fa-exclamation-circle me-2"></i>
-                        File must be less than 5MB
+                        File must be less than 10MB
                     </div>
                 `;
                 preview.style.display = 'block';
@@ -5149,256 +5318,301 @@ function submitAddRsbsa() {
             reader.readAsDataURL(file);
         }
 
-        /**
-         * Display existing document preview in edit modal - FIXED VERSION
-         * This function is called when loading application data
-         */
-        function displayEditRsbsaExistingDocument(documentPath, previewContainerId) {
-            const docPreviewContainer = document.getElementById(previewContainerId);
-            
-            if (!docPreviewContainer) {
-                console.error('Preview container not found:', previewContainerId);
-                return;
+     /**
+ * Display existing document preview in edit modal
+ */
+function displayEditRsbsaExistingDocument(documentPath, previewContainerId) {
+    const docPreviewContainer = document.getElementById(previewContainerId);
+    
+    if (!docPreviewContainer || !documentPath) return;
+
+    const fileName = documentPath.split('/').pop();
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+    const isPdf = fileExtension === 'pdf';
+    const storageUrl = `/storage/${documentPath}`;
+
+    if (isPdf) {
+        const pdfInfo = document.createElement('div');
+        pdfInfo.className = 'alert alert-info mb-2';
+        pdfInfo.innerHTML = `
+            <i class="fas fa-file-pdf me-2"></i>
+            <strong>Current PDF:</strong> ${fileName}
+        `;
+        docPreviewContainer.appendChild(pdfInfo);
+    } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension)) {
+        const previewImg = document.createElement('img');
+        previewImg.src = storageUrl;
+        previewImg.style.maxWidth = '100%';
+        previewImg.style.height = 'auto';
+        previewImg.style.maxHeight = '300px';
+        previewImg.style.borderRadius = '8px';
+        previewImg.style.border = '1px solid #dee2e6';
+        previewImg.style.marginBottom = '10px';
+        previewImg.onerror = function() {
+            this.style.display = 'none';
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'alert alert-warning mb-2';
+            errorMsg.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>Unable to load image preview';
+            docPreviewContainer.appendChild(errorMsg);
+        };
+        docPreviewContainer.appendChild(previewImg);
+    }
+    
+    const existingNote = document.createElement('small');
+    existingNote.className = 'text-muted d-block';
+    existingNote.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Upload a new file to replace it.';
+    docPreviewContainer.appendChild(existingNote);
+}
+
+/**
+ * BUGFIX: Fixed showEditRsbsaModal function
+ * Issue: Was trying to set values on non-existent IDs (edit_rsbsa_land_area, edit_rsbsa_commodity)
+ * Solution: Only populate fields that actually exist in the HTML structure
+ */
+function showEditRsbsaModal(applicationId) {
+    if (!applicationId) {
+        showToast('error', 'Invalid application ID');
+        return;
+    }
+
+    // Fetch application data
+    fetch(`/admin/rsbsa-applications/${applicationId}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to load application');
             }
 
-            // Clear existing content
-            docPreviewContainer.innerHTML = '';
+            const data = response.data;
 
-            if (!documentPath) {
-                console.log('No document path provided');
-                return;
+            // Populate editable fields - ONLY THOSE THAT EXIST
+            const firstNameEl = document.getElementById('edit_rsbsa_first_name');
+            const middleNameEl = document.getElementById('edit_rsbsa_middle_name');
+            const lastNameEl = document.getElementById('edit_rsbsa_last_name');
+            const extensionEl = document.getElementById('edit_rsbsa_extension');
+            const contactEl = document.getElementById('edit_rsbsa_contact_number');
+            const barangayEl = document.getElementById('edit_rsbsa_barangay');
+            const farmLocationEl = document.getElementById('edit_rsbsa_farm_location');
+            const livelihoodEl = document.getElementById('edit_rsbsa_livelihood');
+
+            // FIX: Check if element exists before setting value
+            if (firstNameEl) firstNameEl.value = data.first_name || '';
+            if (middleNameEl) middleNameEl.value = data.middle_name || '';
+            if (lastNameEl) lastNameEl.value = data.last_name || '';
+            if (extensionEl) extensionEl.value = data.name_extension || '';
+            if (contactEl) contactEl.value = data.contact_number || '';
+            if (barangayEl) barangayEl.value = data.barangay || '';
+            if (farmLocationEl) farmLocationEl.value = data.farm_location || '';
+            if (livelihoodEl) livelihoodEl.value = data.main_livelihood || '';
+
+            // Read-only fields
+            const appNumberEl = document.getElementById('edit_rsbsa_app_number');
+            const editAppNumberEl = document.getElementById('editAppNumber');
+            if (appNumberEl) appNumberEl.value = data.application_number || '';
+            if (editAppNumberEl) editAppNumberEl.textContent = data.application_number || '';
+
+            // Status badge
+            const statusBadge = document.getElementById('edit_rsbsa_status_badge');
+            if (statusBadge) {
+                statusBadge.className = `badge bg-${data.status_color}`;
+                statusBadge.textContent = data.formatted_status;
             }
 
-            const fileName = documentPath.split('/').pop();
-            const fileExtension = fileName.split('.').pop().toLowerCase();
-            const isPdf = fileExtension === 'pdf';
-            const storageUrl = `/storage/${documentPath}`;
+            // Date applied
+            const createdAtEl = document.getElementById('edit_rsbsa_created_at');
+            if (createdAtEl) createdAtEl.textContent = data.created_at || 'N/A';
 
-            if (isPdf) {
-                // Display PDF info with link
-                const pdfInfo = document.createElement('div');
-                pdfInfo.className = 'alert alert-info mb-2';
-                pdfInfo.innerHTML = `
-                    <i class="fas fa-file-pdf me-2"></i>
-                    <strong>Current Document:</strong> ${fileName}
-                    <br>
-                    <small class="d-block mt-2">
-                        <a href="${storageUrl}" target="_blank" class="text-info">
-                            <i class="fas fa-external-link-alt me-1"></i>View PDF
-                        </a>
-                        &nbsp;|&nbsp;
-                        <a href="${storageUrl}" download class="text-info">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                    </small>
-                `;
-                docPreviewContainer.appendChild(pdfInfo);
-            } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension)) {
-                // Display image preview
-                const imgContainer = document.createElement('div');
-                imgContainer.style.marginBottom = '10px';
-
-                const previewImg = document.createElement('img');
-                previewImg.src = storageUrl;
-                previewImg.alt = 'Document Preview';
-                previewImg.style.maxWidth = '100%';
-                previewImg.style.height = 'auto';
-                previewImg.style.maxHeight = '300px';
-                previewImg.style.borderRadius = '8px';
-                previewImg.style.border = '1px solid #dee2e6';
-                previewImg.style.display = 'block';
-                previewImg.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-
-                previewImg.onerror = function() {
-                    console.error('Image failed to load:', storageUrl);
-                    imgContainer.innerHTML = `
-                        <div class="alert alert-warning mb-2">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Unable to display image preview
-                            <br>
-                            <small class="d-block mt-2">
-                                <a href="${storageUrl}" target="_blank" class="text-warning">
-                                    <i class="fas fa-external-link-alt me-1"></i>View Image
-                                </a>
-                            </small>
-                        </div>
-                    `;
-                };
-
-                imgContainer.appendChild(previewImg);
-                docPreviewContainer.appendChild(imgContainer);
-
-                // Add file info
-                const fileInfo = document.createElement('small');
-                fileInfo.className = 'text-muted d-block';
-                fileInfo.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Current document. Upload a new file to replace it.';
-                docPreviewContainer.appendChild(fileInfo);
-            } else {
-                // Unknown file type
-                const unknownFile = document.createElement('div');
-                unknownFile.className = 'alert alert-warning mb-2';
-                unknownFile.innerHTML = `
-                    <i class="fas fa-file me-2"></i>
-                    <strong>Current Document:</strong> ${fileName}
-                    <br>
-                    <small class="d-block mt-2">
-                        <a href="${storageUrl}" target="_blank" class="text-warning">
-                            <i class="fas fa-external-link-alt me-1"></i>View
-                        </a>
-                        &nbsp;|&nbsp;
-                        <a href="${storageUrl}" download class="text-warning">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                    </small>
-                `;
-                docPreviewContainer.appendChild(unknownFile);
+            // Display existing supporting document preview if it exists
+            const docPreviewContainer = document.getElementById('edit_rsbsa_supporting_document_preview');
+            if (docPreviewContainer) {
+                docPreviewContainer.innerHTML = '';
+                if (data.supporting_document_url) {
+                    displayEditRsbsaExistingDocument(data.supporting_document_path, 'edit_rsbsa_supporting_document_preview');
+                }
             }
+
+            // Initialize the form for change detection
+            initializeEditRsbsaForm(applicationId, data);
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('editRsbsaModal'));
+            modal.show();
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Error loading application: ' + error.message);
+        });
+}
+/**
+ * BUGFIX: Fixed initializeEditRsbsaForm function
+ * Issue: Was trying to set values on IDs that don't exist or are livelihood-specific
+ * Solution: Populate only the fields that exist, and handle livelihood fields properly
+ */
+function initializeEditRsbsaForm(applicationId, data) {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+
+    // Populate all basic fields (these always exist)
+    const basicFields = {
+        'edit_rsbsa_first_name': data.first_name,
+        'edit_rsbsa_middle_name': data.middle_name,
+        'edit_rsbsa_last_name': data.last_name,
+        'edit_rsbsa_extension': data.name_extension,
+        'edit_rsbsa_sex': data.sex, // ✅ NOW ADDED
+        'edit_rsbsa_contact_number': data.contact_number,
+        'edit_rsbsa_address': data.address, // ✅ NOW ADDED
+        'edit_rsbsa_barangay': data.barangay,
+        'edit_rsbsa_farm_location': data.farm_location,
+        'edit_rsbsa_livelihood': data.main_livelihood
+    };
+
+    // Only set value if element exists
+    Object.keys(basicFields).forEach(elementId => {
+        const input = document.getElementById(elementId);
+        if (input) {
+            input.value = basicFields[elementId] || '';
         }
+    });
 
+    // NOW POPULATE LIVELIHOOD-SPECIFIC FIELDS
+    // Farmer fields
+    const farmerFields = {
+        'edit_rsbsa_farmer_crops': data.farmer_crops,
+        'edit_rsbsa_farmer_land_area': data.farmer_land_area,
+        'edit_rsbsa_farmer_type_of_farm': data.farmer_type_of_farm,
+        'edit_rsbsa_farmer_land_ownership': data.farmer_land_ownership,
+        'edit_rsbsa_farmer_special_status': data.farmer_special_status,
+        'edit_rsbsa_farmer_commodity': data.commodity
+    };
 
-        /**
-         * Show edit RSBSA modal and load application data
-         */
-        function showEditRsbsaModal(applicationId) {
-            if (!applicationId) {
-                showToast('error', 'Invalid application ID');
-                return;
-            }
-
-            // Fetch application data
-            fetch(`/admin/rsbsa-applications/${applicationId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(response => {
-                    if (!response.success) {
-                        throw new Error(response.message || 'Failed to load application');
-                    }
-
-                    const data = response.data;
-
-                    // Populate editable fields
-                    document.getElementById('edit_rsbsa_first_name').value = data.first_name || '';
-                    document.getElementById('edit_rsbsa_middle_name').value = data.middle_name || '';
-                    document.getElementById('edit_rsbsa_last_name').value = data.last_name || '';
-                    document.getElementById('edit_rsbsa_extension').value = data.name_extension || '';
-                    document.getElementById('edit_rsbsa_contact_number').value = data.contact_number || '';
-                    document.getElementById('edit_rsbsa_barangay').value = data.barangay || '';
-                    document.getElementById('edit_rsbsa_farm_location').value = data.farm_location || '';
-
-                    // NOW EDITABLE: Livelihood fields
-                    document.getElementById('edit_rsbsa_livelihood').value = data.main_livelihood || '';
-                    document.getElementById('edit_rsbsa_land_area').value = data.land_area || '';
-                    document.getElementById('edit_rsbsa_commodity').value = data.commodity || '';
-
-                    // Read-only fields
-                    document.getElementById('edit_rsbsa_app_number').value = data.application_number || '';
-                    document.getElementById('editAppNumber').textContent = data.application_number || '';
-
-                    // Status badge
-                    const statusBadge = document.getElementById('edit_rsbsa_status_badge');
-                    statusBadge.className = `badge bg-${data.status_color}`;
-                    statusBadge.textContent = data.formatted_status;
-
-                    // Date applied
-                    document.getElementById('edit_rsbsa_created_at').textContent = data.created_at || 'N/A';
-
-                    // Display existing supporting document preview if it exists
-                    const docPreviewContainer = document.getElementById('edit_rsbsa_supporting_document_preview');
-                    docPreviewContainer.innerHTML = '';
-                    if (data.supporting_document_url) {
-                        const docUrl = data.supporting_document_url;
-                        const docPath = data.supporting_document_path;
-                        const fileName = docPath.toLowerCase();
-                        const isPdf = fileName.endsWith('.pdf');
-
-                        if (isPdf) {
-                            // Display PDF info
-                            const pdfInfo = document.createElement('div');
-                            pdfInfo.className = 'alert alert-info mb-2';
-                            pdfInfo.innerHTML = `
-                                <i class="fas fa-file-pdf me-2"></i>
-                                <strong>Current PDF:</strong> ${fileName.split('/').pop()}
-                            `;
-                            docPreviewContainer.appendChild(pdfInfo);
-                        } else {
-                            // Display image preview
-                            const previewImg = document.createElement('img');
-                            previewImg.src = docUrl;
-                            previewImg.style.maxWidth = '100%';
-                            previewImg.style.height = 'auto';
-                            previewImg.style.maxHeight = '300px';
-                            previewImg.style.borderRadius = '8px';
-                            previewImg.style.border = '1px solid #dee2e6';
-                            previewImg.style.marginBottom = '10px';
-                            previewImg.onerror = function() {
-                                this.style.display = 'none';
-                                const errorMsg = document.createElement('div');
-                                errorMsg.className = 'alert alert-warning mb-2';
-                                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>Unable to load image preview';
-                                docPreviewContainer.appendChild(errorMsg);
-                            };
-                            docPreviewContainer.appendChild(previewImg);
-                        }
-                        
-                        const existingNote = document.createElement('small');
-                        existingNote.className = 'text-muted d-block';
-                        existingNote.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>Upload a new file to replace it.';
-                        docPreviewContainer.appendChild(existingNote);
-                    }
-
-                    // Initialize the form for change detection
-                    initializeEditRsbsaForm(applicationId, data);
-
-                    // Show the modal
-                    const modal = new bootstrap.Modal(document.getElementById('editRsbsaModal'));
-                    modal.show();
-
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error loading application: ' + error.message);
-                });
+    Object.keys(farmerFields).forEach(elementId => {
+        const input = document.getElementById(elementId);
+        if (input) {
+            input.value = farmerFields[elementId] || '';
         }
+    });
 
-        /**
-         * Initialize edit form with original data for change detection
-         */
-        function initializeEditRsbsaForm(applicationId, data) {
-            const form = document.getElementById('editRsbsaForm');
-            const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+    // Farmworker fields
+    const farmworkerFields = {
+        'edit_rsbsa_farmworker_type': data.farmworker_type,
+        'edit_rsbsa_farmworker_commodity': data.commodity
+    };
 
-            // Store original data for comparison - INCLUDING LIVELIHOOD FIELDS
-            const originalData = {
-                first_name: data.first_name || '',
-                middle_name: data.middle_name || '',
-                last_name: data.last_name || '',
-                name_extension: data.name_extension || '',
-                contact_number: data.contact_number || '',
-                barangay: data.barangay || '',
-                farm_location: data.farm_location || '',
-                main_livelihood: data.main_livelihood || '',
-                land_area: data.land_area || '',
-                commodity: data.commodity || ''
-            };
-
-            form.dataset.originalData = JSON.stringify(originalData);
-            form.dataset.applicationId = applicationId;
-
-            // Clear validation states
-            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-            form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
-
-            // Reset button state - KEEP ENABLED like seedling module
-            submitBtn.innerHTML = 'Save Changes';
-            submitBtn.disabled = false;
-            submitBtn.dataset.hasChanges = 'false';
-
-            // Add change listeners
-            addRsbsaFormChangeListeners(applicationId);
+    Object.keys(farmworkerFields).forEach(elementId => {
+        const input = document.getElementById(elementId);
+        if (input) {
+            input.value = farmworkerFields[elementId] || '';
         }
+    });
+
+    // Fisherfolk fields
+    const fisherfolkFields = {
+        'edit_rsbsa_fisherfolk_activity': data.fisherfolk_activity,
+        'edit_rsbsa_fisherfolk_commodity': data.commodity
+    };
+
+    Object.keys(fisherfolkFields).forEach(elementId => {
+        const input = document.getElementById(elementId);
+        if (input) {
+            input.value = fisherfolkFields[elementId] || '';
+        }
+    });
+
+    // Agri-youth fields
+    const agriyouthFields = {
+        'edit_rsbsa_agriyouth_household': data.agriyouth_farming_household,
+        'edit_rsbsa_agriyouth_training': data.agriyouth_training,
+        'edit_rsbsa_agriyouth_participation': data.agriyouth_participation,
+        'edit_rsbsa_agriyouth_commodity': data.commodity
+    };
+
+    Object.keys(agriyouthFields).forEach(elementId => {
+        const input = document.getElementById(elementId);
+        if (input) {
+            input.value = agriyouthFields[elementId] || '';
+        }
+    });
+
+    // Store original data for comparison - INCLUDING SEX AND ADDRESS
+    const originalData = {
+        first_name: data.first_name || '',
+        middle_name: data.middle_name || '',
+        last_name: data.last_name || '',
+        name_extension: data.name_extension || '',
+        sex: data.sex || '', // ✅ NOW ADDED
+        contact_number: data.contact_number || '',
+        address: data.address || '', // ✅ NOW ADDED
+        barangay: data.barangay || '',
+        farm_location: data.farm_location || '',
+        main_livelihood: data.main_livelihood || '',
+        // Farmer fields
+        farmer_crops: data.farmer_crops || '',
+        farmer_land_area: data.farmer_land_area || '',
+        farmer_type_of_farm: data.farmer_type_of_farm || '',
+        farmer_land_ownership: data.farmer_land_ownership || '',
+        farmer_special_status: data.farmer_special_status || '',
+        // Farmworker fields
+        farmworker_type: data.farmworker_type || '',
+        // Fisherfolk fields
+        fisherfolk_activity: data.fisherfolk_activity || '',
+        // Agri-youth fields
+        agriyouth_farming_household: data.agriyouth_farming_household || '',
+        agriyouth_training: data.agriyouth_training || '',
+        agriyouth_participation: data.agriyouth_participation || '',
+        // Commodity
+        commodity: data.commodity || ''
+    };
+
+    form.dataset.originalData = JSON.stringify(originalData);
+    form.dataset.applicationId = applicationId;
+
+    // Clear validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+
+    // Reset button state
+    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    submitBtn.disabled = false;
+    submitBtn.dataset.hasChanges = 'false';
+
+    // Trigger livelihood field toggle to show correct section
+    if (data.main_livelihood) {
+        const livelihoodSelect = document.getElementById('edit_rsbsa_livelihood');
+        if (livelihoodSelect) {
+            toggleEditRsbsaLivelihoodFields(livelihoodSelect);
+        }
+    }
+
+    // Add change listeners
+    addRsbsaFormChangeListeners(applicationId);
+}
+
+
+/**
+ * Helper function to safely get element value
+ */
+function getSafeElementValue(elementId) {
+    const element = document.getElementById(elementId);
+    return element ? (element.value || '') : '';
+}
+
+/**
+ * Helper function to safely set element value
+ */
+function setSafeElementValue(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.value = value || '';
+        return true;
+    }
+    console.warn(`Element not found: ${elementId}`);
+    return false;
+}
 
         /**
          * Add event listeners to detect form changes
@@ -5436,153 +5650,197 @@ function submitAddRsbsa() {
             checkRsbsaFormChanges(applicationId);
         }
 
-        /**
-         * Check for changes in the form and update button state
-         */
-        function checkRsbsaFormChanges(applicationId) {
-            const form = document.getElementById('editRsbsaForm');
-            const submitBtn = document.getElementById('editRsbsaSubmitBtn');
 
-            if (!form || !submitBtn) return;
+    /**
+ * UPDATED: Check for changes in the form - NOW INCLUDES SEX AND ADDRESS
+ */
+function checkRsbsaFormChanges(applicationId) {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
 
-            const originalData = JSON.parse(form.dataset.originalData || '{}');
-            let hasChanges = false;
+    if (!form || !submitBtn) return;
 
-            // Check all editable fields by getting values directly from DOM elements
-            const fieldMap = {
-                'first_name': 'edit_rsbsa_first_name',
-                'middle_name': 'edit_rsbsa_middle_name',
-                'last_name': 'edit_rsbsa_last_name',
-                'name_extension': 'edit_rsbsa_extension',
-                'contact_number': 'edit_rsbsa_contact_number',
-                'barangay': 'edit_rsbsa_barangay',
-                'farm_location': 'edit_rsbsa_farm_location',
-                'main_livelihood': 'edit_rsbsa_livelihood',
-                'land_area': 'edit_rsbsa_land_area',
-                'commodity': 'edit_rsbsa_commodity'
-            };
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let hasChanges = false;
 
-            Object.keys(fieldMap).forEach(fieldName => {
-                const elementId = fieldMap[fieldName];
-                const input = document.getElementById(elementId);
+    // Updated field map - NOW INCLUDES SEX AND ADDRESS
+    const fieldMap = {
+        'first_name': 'edit_rsbsa_first_name',
+        'middle_name': 'edit_rsbsa_middle_name',
+        'last_name': 'edit_rsbsa_last_name',
+        'name_extension': 'edit_rsbsa_extension',
+        'sex': 'edit_rsbsa_sex', // ✅ NOW ADDED
+        'contact_number': 'edit_rsbsa_contact_number',
+        'address': 'edit_rsbsa_address', // ✅ NOW ADDED
+        'barangay': 'edit_rsbsa_barangay',
+        'farm_location': 'edit_rsbsa_farm_location',
+        'main_livelihood': 'edit_rsbsa_livelihood',
+        // Farmer fields
+        'farmer_crops': 'edit_rsbsa_farmer_crops',
+        'farmer_land_area': 'edit_rsbsa_farmer_land_area',
+        'farmer_type_of_farm': 'edit_rsbsa_farmer_type_of_farm',
+        'farmer_land_ownership': 'edit_rsbsa_farmer_land_ownership',
+        'farmer_special_status': 'edit_rsbsa_farmer_special_status',
+        // Farmworker fields
+        'farmworker_type': 'edit_rsbsa_farmworker_type',
+        // Fisherfolk fields
+        'fisherfolk_activity': 'edit_rsbsa_fisherfolk_activity',
+        // Agri-youth fields
+        'agriyouth_farming_household': 'edit_rsbsa_agriyouth_household',
+        'agriyouth_training': 'edit_rsbsa_agriyouth_training',
+        'agriyouth_participation': 'edit_rsbsa_agriyouth_participation',
+        // Commodity
+        'commodity': 'edit_rsbsa_farmer_commodity'
+    };
 
-                if (input) {
-                    const currentValue = (input.value || '').trim();
-                    const originalValue = (originalData[fieldName] || '').trim();
+    Object.keys(fieldMap).forEach(fieldName => {
+        const elementId = fieldMap[fieldName];
+        const input = document.getElementById(elementId);
 
-                    if (currentValue !== originalValue) {
-                        hasChanges = true;
-                        input.classList.add('form-changed');
-                    } else {
-                        input.classList.remove('form-changed');
-                    }
-                }
-            });
+        if (input) {
+            const currentValue = (input.value || '').trim();
+            const originalValue = (originalData[fieldName] || '').trim();
 
-            // Check if file has been selected/changed
-            const fileInput = document.getElementById('edit_rsbsa_supporting_document');
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            if (currentValue !== originalValue) {
                 hasChanges = true;
-            }
-
-            // Update button state based on changes - ALWAYS KEEP ENABLED
-            if (hasChanges) {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'true';
+                input.classList.add('form-changed');
             } else {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'false';
+                input.classList.remove('form-changed');
             }
         }
+    });
 
-        /**
-         * Validate edit RSBSA form - UPDATED WITH LIVELIHOOD VALIDATION
-         */
-        function validateEditRsbsaForm() {
-            const form = document.getElementById('editRsbsaForm');
-            let isValid = true;
+    // Check if file has been selected/changed
+    const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        hasChanges = true;
+    }
 
-            // Clear all previous validation states
-            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    // Update button state based on changes
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+    } else {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
+}
+/**
+ * UPDATED: Validate edit RSBSA form - NOW INCLUDES SEX AND ADDRESS
+ */
+function validateEditRsbsaForm() {
+    const form = document.getElementById('editRsbsaForm');
+    let isValid = true;
 
-            const requiredFields = [{
-                    elementId: 'edit_rsbsa_first_name',
-                    label: 'First Name'
-                },
-                {
-                    elementId: 'edit_rsbsa_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    elementId: 'edit_rsbsa_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    elementId: 'edit_rsbsa_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    elementId: 'edit_rsbsa_livelihood',
-                    label: 'Main Livelihood'
-                }
-            ];
+    // Clear all previous validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
 
-            // Validate required fields
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field.elementId);
-                if (input && (!input.value || input.value.trim() === '')) {
-                    input.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = field.label + ' is required';
-                    input.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            });
+    const requiredFields = [
+        { elementId: 'edit_rsbsa_first_name', label: 'First Name' },
+        { elementId: 'edit_rsbsa_last_name', label: 'Last Name' },
+        { elementId: 'edit_rsbsa_sex', label: 'Sex' }, // ✅ NOW ADDED
+        { elementId: 'edit_rsbsa_contact_number', label: 'Contact Number' },
+        { elementId: 'edit_rsbsa_address', label: 'Address' }, // ✅ NOW ADDED
+        { elementId: 'edit_rsbsa_barangay', label: 'Barangay' },
+        { elementId: 'edit_rsbsa_livelihood', label: 'Main Livelihood' }
+    ];
 
-            // Validate contact number format
-            const contactInput = document.getElementById('edit_rsbsa_contact_number');
-            if (contactInput && contactInput.value.trim()) {
-                const phoneRegex = /^(\+639|09)\d{9}$/;
-                if (!phoneRegex.test(contactInput.value.trim())) {
-                    contactInput.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                    contactInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            }
-
-            // Validate land area if provided
-            const landAreaInput = document.getElementById('edit_rsbsa_land_area');
-            if (landAreaInput && landAreaInput.value) {
-                const landArea = parseFloat(landAreaInput.value);
-                if (isNaN(landArea) || landArea < 0) {
-                    landAreaInput.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Land area must be a positive number';
-                    landAreaInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-                if (landArea > 99999.99) {
-                    landAreaInput.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Land area cannot exceed 99999.99 hectares';
-                    landAreaInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            }
-
-            return isValid;
+    // Validate required fields
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.elementId);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            input.parentNode.appendChild(errorDiv);
+            isValid = false;
         }
+    });
+
+    // Validate contact number format
+    const contactInput = document.getElementById('edit_rsbsa_contact_number');
+    if (contactInput && contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate livelihood-specific required fields
+    const livelihoodSelect = document.getElementById('edit_rsbsa_livelihood');
+    const livelihood = livelihoodSelect?.value;
+
+    switch(livelihood) {
+        case 'Farmer':
+            if (!validateEditLivelihoodRequiredFields([
+                'edit_rsbsa_farmer_crops',
+                'edit_rsbsa_farmer_type_of_farm',
+                'edit_rsbsa_farmer_land_ownership',
+                'edit_rsbsa_farm_location'
+            ])) {
+                isValid = false;
+            }
+            break;
+
+        case 'Farmworker/Laborer':
+            if (!validateEditLivelihoodRequiredFields(['edit_rsbsa_farmworker_type'])) {
+                isValid = false;
+            }
+            break;
+
+        case 'Fisherfolk':
+            if (!validateEditLivelihoodRequiredFields(['edit_rsbsa_fisherfolk_activity'])) {
+                isValid = false;
+            }
+            break;
+
+        case 'Agri-youth':
+            if (!validateEditLivelihoodRequiredFields([
+                'edit_rsbsa_agriyouth_household',
+                'edit_rsbsa_agriyouth_training',
+                'edit_rsbsa_agriyouth_participation'
+            ])) {
+                isValid = false;
+            }
+            break;
+    }
+
+    // Validate land area if provided
+    const landAreaInput = document.getElementById('edit_rsbsa_farmer_land_area');
+    if (landAreaInput && landAreaInput.value) {
+        const landArea = parseFloat(landAreaInput.value);
+        if (isNaN(landArea) || landArea < 0) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area must be a positive number';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+        if (landArea > 1000) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area cannot exceed 1000 hectares';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
         /**
          * Get CSRF token from meta tag
          */
@@ -5623,84 +5881,147 @@ function submitAddRsbsa() {
          * Handle edit form submission with confirmation
          */
         function handleEditRsbsaSubmit() {
-            const form = document.getElementById('editRsbsaForm');
-            const submitBtn = document.getElementById('editRsbsaSubmitBtn');
-            const applicationId = form.dataset.applicationId;
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+    const applicationId = form.dataset.applicationId;
 
-            // Validate form
-            if (!validateEditRsbsaForm()) {
-                showToast('error', 'Please fix all validation errors before saving');
-                return;
+    // Validate form
+    if (!validateEditRsbsaForm()) {
+        showToast('error', 'Please fix all validation errors before saving');
+        return;
+    }
+
+    // Check if there are changes
+    if (submitBtn.dataset.hasChanges === 'false') {
+        showToast('warning', 'No changes detected. Please modify the fields before saving.');
+        return;
+    }
+
+    // Build changes summary - COMPREHENSIVE FIELD MAP
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    const changedFields = [];
+
+    // COMPREHENSIVE field labels including livelihood-specific fields
+    const fieldLabels = {
+        // Basic fields
+        'first_name': 'First Name',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'name_extension': 'Extension',
+        'sex': 'Sex',
+        'contact_number': 'Contact Number',
+        'address': 'Address',
+        'barangay': 'Barangay',
+        'farm_location': 'Farm Location',
+        'main_livelihood': 'Main Livelihood',
+        
+        // Farmer fields
+        'farmer_crops': 'Main Crops',
+        'farmer_land_area': 'Land Area',
+        'farmer_type_of_farm': 'Type of Farm',
+        'farmer_land_ownership': 'Land Ownership',
+        'farmer_special_status': 'Special Status',
+        
+        // Farmworker fields
+        'farmworker_type': 'Type of Work',
+        
+        // Fisherfolk fields
+        'fisherfolk_activity': 'Fishing Activity',
+        
+        // Agri-youth fields
+        'agriyouth_farming_household': 'From Farming Household',
+        'agriyouth_training': 'Agricultural Training',
+        'agriyouth_participation': 'Program Participation',
+        
+        // General
+        'commodity': 'Commodity/Product'
+    };
+
+    // COMPREHENSIVE field mapping including ALL livelihood fields
+    const fieldMap = {
+        // Basic fields
+        'first_name': 'edit_rsbsa_first_name',
+        'middle_name': 'edit_rsbsa_middle_name',
+        'last_name': 'edit_rsbsa_last_name',
+        'name_extension': 'edit_rsbsa_extension',
+        'sex': 'edit_rsbsa_sex',                          // ✅ ADDED
+        'contact_number': 'edit_rsbsa_contact_number',
+        'address': 'edit_rsbsa_address',                   // ✅ ADDED
+        'barangay': 'edit_rsbsa_barangay',
+        'farm_location': 'edit_rsbsa_farm_location',
+        'main_livelihood': 'edit_rsbsa_livelihood',
+        
+        // Farmer fields - ✅ ALL ADDED
+        'farmer_crops': 'edit_rsbsa_farmer_crops',
+        'farmer_land_area': 'edit_rsbsa_farmer_land_area',
+        'farmer_type_of_farm': 'edit_rsbsa_farmer_type_of_farm',
+        'farmer_land_ownership': 'edit_rsbsa_farmer_land_ownership',
+        'farmer_special_status': 'edit_rsbsa_farmer_special_status',
+        
+        // Farmworker fields - ✅ ADDED
+        'farmworker_type': 'edit_rsbsa_farmworker_type',
+        
+        // Fisherfolk fields - ✅ ADDED
+        'fisherfolk_activity': 'edit_rsbsa_fisherfolk_activity',
+        
+        // Agri-youth fields - ✅ ALL ADDED
+        'agriyouth_farming_household': 'edit_rsbsa_agriyouth_household',
+        'agriyouth_training': 'edit_rsbsa_agriyouth_training',
+        'agriyouth_participation': 'edit_rsbsa_agriyouth_participation',
+        
+        // General
+        'commodity': 'edit_rsbsa_farmer_commodity'
+    };
+
+    // Check all mapped fields for changes
+    Object.keys(fieldMap).forEach(fieldName => {
+        const elementId = fieldMap[fieldName];
+        const input = document.getElementById(elementId);
+        
+        if (input) {
+            const currentValue = (input.value || '').trim();
+            const originalValue = (originalData[fieldName] || '').trim();
+
+            // Only add to changedFields if value actually changed
+            if (currentValue !== originalValue && currentValue !== '') {
+                changedFields.push(fieldLabels[fieldName] || fieldName);
+                console.log(`✏️  Changed: ${fieldName} | From: "${originalValue}" | To: "${currentValue}"`);
             }
-
-            // Check if there are changes
-            if (submitBtn.dataset.hasChanges === 'false') {
-                showToast('warning', 'No changes detected. Please modify the fields before saving.');
-                return;
+        } else {
+            // Log missing elements for debugging
+            if (elementId.includes('farmer') || elementId.includes('farmworker') || 
+                elementId.includes('fisherfolk') || elementId.includes('agriyouth')) {
+                console.warn(`⚠️  Field element not found: ${elementId}`);
             }
-
-            // Build changes summary
-            const originalData = JSON.parse(form.dataset.originalData || '{}');
-            const changedFields = [];
-
-            const fieldLabels = {
-                'first_name': 'First Name',
-                'middle_name': 'Middle Name',
-                'last_name': 'Last Name',
-                'name_extension': 'Extension',
-                'contact_number': 'Contact Number',
-                'barangay': 'Barangay',
-                'farm_location': 'Farm Location',
-                'main_livelihood': 'Main Livelihood',
-                'land_area': 'Land Area',
-                'commodity': 'Commodity'
-            };
-
-            const fieldMap = {
-                'first_name': 'edit_rsbsa_first_name',
-                'middle_name': 'edit_rsbsa_middle_name',
-                'last_name': 'edit_rsbsa_last_name',
-                'name_extension': 'edit_rsbsa_extension',
-                'contact_number': 'edit_rsbsa_contact_number',
-                'barangay': 'edit_rsbsa_barangay',
-                'farm_location': 'edit_rsbsa_farm_location',
-                'main_livelihood': 'edit_rsbsa_livelihood',
-                'land_area': 'edit_rsbsa_land_area',
-                'commodity': 'edit_rsbsa_commodity'
-            };
-
-            Object.keys(fieldMap).forEach(fieldName => {
-                const elementId = fieldMap[fieldName];
-                const input = document.getElementById(elementId);
-                const currentValue = (input?.value || '').trim();
-                const originalValue = (originalData[fieldName] || '').trim();
-
-                if (currentValue !== originalValue) {
-                    changedFields.push(fieldLabels[fieldName] || fieldName);
-                }
-            });
-
-            // Check if file has been selected
-            const fileInput = document.getElementById('edit_rsbsa_supporting_document');
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                changedFields.push('Supporting Document');
-            }
-
-            // Show confirmation toast with changed fields
-            const changesText = changedFields.length > 0 
-                ? `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`
-                : 'Save the changes to this RSBSA application?';
-            
-            showConfirmationToast(
-                'Confirm Update',
-                changesText,
-                () => proceedWithEditRsbsa(form, applicationId)
-            );
         }
+    });
 
-  /**
- * FIXED: Proceed with edit submission after confirmation
- * The key fix: Use POST with _method spoofing instead of PUT for file uploads
+    // Check if file has been selected
+    const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        changedFields.push('Supporting Document');
+        console.log(`📎 Changed: Supporting Document (new file selected)`);
+    }
+
+    // Show confirmation toast with ALL changed fields
+    const changesText = changedFields.length > 0 
+        ? `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`
+        : 'Save the changes to this RSBSA application?';
+    
+    console.log('📋 Summary of changed fields:', changedFields);
+    console.log('Total changes:', changedFields.length);
+    
+    showConfirmationToast(
+        'Confirm Update',
+        changesText,
+        () => proceedWithEditRsbsa(form, applicationId)
+    );
+}
+
+
+ /**
+ * ENHANCED DEBUGGING VERSION: proceedWithEditRsbsa
+ * This version logs ALL validation errors clearly so you can see exactly what's failing
  */
 function proceedWithEditRsbsa(form, applicationId) {
     const submitBtn = document.getElementById('editRsbsaSubmitBtn');
@@ -5710,43 +6031,83 @@ function proceedWithEditRsbsa(form, applicationId) {
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
     submitBtn.disabled = true;
 
-    // Create FormData - this part stays the same
-    const formData = new FormData(form);
+    // Create FormData - collect ALL form fields including livelihood-specific ones
+    const formData = new FormData();
     
-    // CRITICAL FIX: Add _method field for Laravel to treat this as PUT
-    formData.append('_method', 'PUT');
+    // Get all form fields (both text and select inputs)
+    const formInputs = form.querySelectorAll('input[name], select[name], textarea[name]');
     
-    // DEBUG: Log FormData contents
-    console.log('📤 FormData entries:');
-    for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-            console.log(`  ${key}: [File] ${value.name} (${value.size} bytes)`);
-        } else {
-            console.log(`  ${key}: "${value}"`);
+    console.log('📤 COLLECTING FORM DATA:');
+    console.log('=' .repeat(60));
+    let fieldCount = 0;
+    
+    // Collect all visible form fields
+    const collectedFields = {};
+    formInputs.forEach(field => {
+        // Skip if field's parent section is hidden (display: none)
+        let parent = field.closest('[id*="-fields"]');
+        if (parent && parent.style.display === 'none') {
+            console.log(`  ⊗ [HIDDEN] ${field.name}`);
+            return;
         }
+        
+        // Store for logging
+        collectedFields[field.name] = field.value;
+        
+        // Add the field to FormData
+        formData.append(field.name, field.value);
+        
+        if (field.value !== '') {
+            console.log(`  ✅ ${field.name.padEnd(35)} = "${field.value}"`);
+        } else {
+            console.log(`  ⚠️  ${field.name.padEnd(35)} = [EMPTY]`);
+        }
+        fieldCount++;
+    });
+    
+    // Add file if present
+    const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        formData.append('supporting_document', fileInput.files[0]);
+        console.log(`  📎 supporting_document.padEnd(35) = ${fileInput.files[0].name}`);
+        fieldCount++;
     }
+    
+    // Add method spoofing for PUT
+    formData.append('_method', 'PUT');
+    console.log(`  🔧 _method.padEnd(35) = PUT`);
+    
+    console.log('=' .repeat(60));
+    console.log(`📊 TOTAL FIELDS: ${fieldCount}`);
+    console.log('=' .repeat(60));
+
+    // Log the livelihood type
+    const livelihood = document.getElementById('edit_rsbsa_livelihood')?.value;
+    console.log(`📌 LIVELIHOOD TYPE: ${livelihood}`);
+    console.log('=' .repeat(60));
 
     // Disable form inputs AFTER collecting data
-    const formInputs = form.querySelectorAll('input, select, textarea');
-    formInputs.forEach(input => input.disabled = true);
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => input.disabled = true);
 
-    // CRITICAL FIX: Use POST instead of PUT for file uploads
+    // Submit with POST (will be treated as PUT due to _method)
+    console.log(`🚀 SENDING REQUEST TO: /admin/rsbsa-applications/${applicationId}`);
+    
     fetch(`/admin/rsbsa-applications/${applicationId}`, {
-            method: 'POST',  // Changed from 'PUT'
+            method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': getCSRFToken(),
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
-                // DO NOT set Content-Type - let browser set it with boundary for multipart/form-data
             },
             body: formData
         })
         .then(response => {
-            console.log('Response status:', response.status);
-
+            console.log(`📡 RESPONSE STATUS: ${response.status}`);
+            
             return response.json().then(data => {
-                console.log('Response data:', data);
-
+                console.log('📥 RESPONSE DATA:', data);
+                
                 if (!response.ok) {
                     throw {
                         status: response.status,
@@ -5758,6 +6119,8 @@ function proceedWithEditRsbsa(form, applicationId) {
             });
         })
         .then(data => {
+            console.log('✅ SUCCESS - Server accepted the data');
+            
             if (data.success) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
                 if (modal) modal.hide();
@@ -5767,7 +6130,7 @@ function proceedWithEditRsbsa(form, applicationId) {
                 // Reload the applications table to reflect changes
                 setTimeout(() => {
                     location.reload();
-                }, 1000);
+                }, 1500);
             } else {
                 throw {
                     status: 422,
@@ -5777,25 +6140,240 @@ function proceedWithEditRsbsa(form, applicationId) {
             }
         })
         .catch(error => {
-            console.error('❌ Error occurred:', error);
+            console.error('❌ ERROR CAUGHT:', error);
+            console.log('=' .repeat(60));
 
             // Handle validation errors from server
             if (error.status === 422 && error.errors && typeof error.errors === 'object') {
-                console.error('🚨 Server validation errors:');
+                console.error('🚨 SERVER VALIDATION ERRORS:');
+                console.log('=' .repeat(60));
+                
+                // Pretty print all errors
+                Object.keys(error.errors).forEach((fieldName, index) => {
+                    const errorMsg = error.errors[fieldName];
+                    const errorText = Array.isArray(errorMsg) ? errorMsg.join(', ') : errorMsg;
+                    console.error(`${index + 1}. [${fieldName}]: ${errorText}`);
+                });
+                
+                console.log('=' .repeat(60));
                 console.table(error.errors);
 
+                // Map backend field names to form element IDs
                 const fieldMap = {
                     'first_name': 'edit_rsbsa_first_name',
+                    'middle_name': 'edit_rsbsa_middle_name',
                     'last_name': 'edit_rsbsa_last_name',
+                    'name_extension': 'edit_rsbsa_extension',
                     'contact_number': 'edit_rsbsa_contact_number',
                     'barangay': 'edit_rsbsa_barangay',
                     'main_livelihood': 'edit_rsbsa_livelihood',
-                    'land_area': 'edit_rsbsa_land_area',
+                    
+                    // Farmer fields
                     'farm_location': 'edit_rsbsa_farm_location',
-                    'middle_name': 'edit_rsbsa_middle_name',
-                    'name_extension': 'edit_rsbsa_extension',
-                    'commodity': 'edit_rsbsa_commodity',
+                    'farmer_crops': 'edit_rsbsa_farmer_crops',
+                    'farmer_land_area': 'edit_rsbsa_farmer_land_area',
+                    'farmer_type_of_farm': 'edit_rsbsa_farmer_type_of_farm',
+                    'farmer_land_ownership': 'edit_rsbsa_farmer_land_ownership',
+                    'farmer_special_status': 'edit_rsbsa_farmer_special_status',
+                    
+                    // Farmworker fields
+                    'farmworker_type': 'edit_rsbsa_farmworker_type',
+                    
+                    // Fisherfolk fields
+                    'fisherfolk_activity': 'edit_rsbsa_fisherfolk_activity',
+                    
+                    // Agri-youth fields
+                    'agriyouth_farming_household': 'edit_rsbsa_agriyouth_household',
+                    'agriyouth_training': 'edit_rsbsa_agriyouth_training',
+                    'agriyouth_participation': 'edit_rsbsa_agriyouth_participation',
+                    
+                    // General
+                    'commodity': 'edit_rsbsa_farmer_commodity',
                     'supporting_document': 'edit_rsbsa_supporting_document'
+                };
+
+                // Display validation errors on fields
+                Object.keys(error.errors).forEach(field => {
+                    const elementId = fieldMap[field] || 'edit_rsbsa_' + field;
+                    const input = document.getElementById(elementId);
+                    
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        
+                        // Remove existing feedback if present
+                        const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                        if (existingFeedback) existingFeedback.remove();
+
+                        // Add error message
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        const errorMessage = Array.isArray(error.errors[field]) 
+                            ? error.errors[field][0] 
+                            : error.errors[field];
+                        errorDiv.textContent = errorMessage;
+                        input.parentNode.appendChild(errorDiv);
+
+                        console.error(`Field "${field}":`, errorMessage);
+                        
+                        // Scroll to first error field
+                        if (input.offsetParent !== null) {
+                            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    } else {
+                        console.warn(`❓ Element not found for field: ${field} (tried ID: ${elementId})`);
+                    }
+                });
+
+                showToast('error', error.message || 'Validation errors - please check the form');
+            } else {
+                console.error('Unexpected error type:', error.message || error);
+                showToast('error', error.message || 'Error updating application');
+            }
+
+            // Restore button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            inputs.forEach(input => input.disabled = false);
+        });
+}
+
+/**
+ * ALTERNATIVE: Manual field collection approach
+ * Use this if the above doesn't work perfectly
+ */
+function proceedWithEditRsbsa_ManualCollection(form, applicationId) {
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+
+    const formData = new FormData();
+    const livelihood = document.getElementById('edit_rsbsa_livelihood').value;
+
+    console.log('📤 Manually collecting form data for livelihood:', livelihood);
+
+    // Basic fields (always present)
+    formData.append('first_name', document.getElementById('edit_rsbsa_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('edit_rsbsa_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('edit_rsbsa_last_name').value.trim());
+    formData.append('name_extension', document.getElementById('edit_rsbsa_extension').value);
+    formData.append('contact_number', document.getElementById('edit_rsbsa_contact_number').value.trim());
+    formData.append('barangay', document.getElementById('edit_rsbsa_barangay').value);
+    formData.append('main_livelihood', livelihood);
+
+    // Livelihood-specific fields based on selected type
+    switch(livelihood) {
+        case 'Farmer':
+            console.log('📋 Collecting Farmer fields...');
+            formData.append('farm_location', document.getElementById('edit_rsbsa_farm_location').value.trim());
+            formData.append('farmer_crops', document.getElementById('edit_rsbsa_farmer_crops').value.trim());
+            formData.append('farmer_land_area', document.getElementById('edit_rsbsa_farmer_land_area').value);
+            formData.append('farmer_type_of_farm', document.getElementById('edit_rsbsa_farmer_type_of_farm').value);
+            formData.append('farmer_land_ownership', document.getElementById('edit_rsbsa_farmer_land_ownership').value);
+            formData.append('farmer_special_status', document.getElementById('edit_rsbsa_farmer_special_status').value);
+            formData.append('commodity', document.getElementById('edit_rsbsa_farmer_commodity').value.trim());
+            break;
+
+        case 'Farmworker/Laborer':
+            console.log('📋 Collecting Farmworker fields...');
+            formData.append('farmworker_type', document.getElementById('edit_rsbsa_farmworker_type').value.trim());
+            formData.append('commodity', document.getElementById('edit_rsbsa_farmworker_commodity').value.trim());
+            break;
+
+        case 'Fisherfolk':
+            console.log('📋 Collecting Fisherfolk fields...');
+            formData.append('fisherfolk_activity', document.getElementById('edit_rsbsa_fisherfolk_activity').value.trim());
+            formData.append('commodity', document.getElementById('edit_rsbsa_fisherfolk_commodity').value.trim());
+            break;
+
+        case 'Agri-youth':
+            console.log('📋 Collecting Agri-youth fields...');
+            formData.append('agriyouth_farming_household', document.getElementById('edit_rsbsa_agriyouth_household').value);
+            formData.append('agriyouth_training', document.getElementById('edit_rsbsa_agriyouth_training').value.trim());
+            formData.append('agriyouth_participation', document.getElementById('edit_rsbsa_agriyouth_participation').value);
+            formData.append('commodity', document.getElementById('edit_rsbsa_agriyouth_commodity').value.trim());
+            break;
+    }
+
+    // Add file if present
+    const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        formData.append('supporting_document', fileInput.files[0]);
+    }
+
+    // Add method spoofing
+    formData.append('_method', 'PUT');
+
+    // Log what we're sending
+    console.log('📊 FormData contents:');
+    for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+            console.log(`  ${key}: [File] ${value.name}`);
+        } else {
+            console.log(`  ${key}: "${value}"`);
+        }
+    }
+
+    // Disable inputs
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => input.disabled = true);
+
+    // Submit
+    fetch(`/admin/rsbsa-applications/${applicationId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        })))
+        .then(({status, ok, data}) => {
+            console.log('Response:', {status, ok, data});
+
+            if (!ok) {
+                throw {
+                    status: status,
+                    message: data.message || 'Update failed',
+                    errors: data.errors || {}
+                };
+            }
+
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
+                if (modal) modal.hide();
+
+                showToast('success', data.message || 'Application updated successfully');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                throw {
+                    status: 422,
+                    message: data.message || 'Failed to update',
+                    errors: data.errors || {}
+                };
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+
+            // Handle validation errors
+            if (error.errors && typeof error.errors === 'object') {
+                const fieldMap = {
+                    'farm_location': 'edit_rsbsa_farm_location',
+                    'farmer_crops': 'edit_rsbsa_farmer_crops',
+                    'farmer_land_area': 'edit_rsbsa_farmer_land_area',
+                    'farmer_type_of_farm': 'edit_rsbsa_farmer_type_of_farm',
+                    'farmer_land_ownership': 'edit_rsbsa_farmer_land_ownership',
+                    'farmworker_type': 'edit_rsbsa_farmworker_type',
+                    'fisherfolk_activity': 'edit_rsbsa_fisherfolk_activity',
+                    'agriyouth_farming_household': 'edit_rsbsa_agriyouth_household',
+                    'agriyouth_training': 'edit_rsbsa_agriyouth_training',
+                    'agriyouth_participation': 'edit_rsbsa_agriyouth_participation'
                 };
 
                 Object.keys(error.errors).forEach(field => {
@@ -5808,164 +6386,183 @@ function proceedWithEditRsbsa(form, applicationId) {
 
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'invalid-feedback d-block';
-                        const errorMessage = Array.isArray(error.errors[field]) ?
-                            error.errors[field][0] :
-                            error.errors[field];
-                        errorDiv.textContent = errorMessage;
+                        errorDiv.textContent = Array.isArray(error.errors[field]) 
+                            ? error.errors[field][0] 
+                            : error.errors[field];
                         input.parentNode.appendChild(errorDiv);
-
-                        console.error(`Field "${field}":`, errorMessage);
                     }
                 });
-
-                showToast('error', error.message);
-            } else {
-                console.error('Unexpected error:', error.message || error);
-                showToast('error', error.message || 'Error updating application');
             }
 
-            // Restore button state
+            showToast('error', error.message || 'Error updating application');
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-            formInputs.forEach(input => input.disabled = false);
+            inputs.forEach(input => input.disabled = false);
         });
 }
+//       /**
+//  * ALTERNATIVE: Manual field collection approach
+//  * Use this if the above doesn't work perfectly
+//  */
+// function proceedWithEditRsbsa_ManualCollection(form, applicationId) {
+//     const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+//     const originalText = submitBtn.innerHTML;
+//     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+//     submitBtn.disabled = true;
 
-        /**
-         * Alternative approach if the above doesn't work:
-         * Manually build the request payload
-         */
-        function proceedWithEditRsbsa_Alternative(form, applicationId) {
-            const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+//     const formData = new FormData();
+//     const livelihood = document.getElementById('edit_rsbsa_livelihood').value;
 
-            // Show loading state
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
-            submitBtn.disabled = true;
+//     console.log('📤 Manually collecting form data for livelihood:', livelihood);
 
-            // Manually collect form data
-            const formData = new FormData();
-            
-            // Add text fields
-            formData.append('first_name', document.getElementById('edit_rsbsa_first_name').value.trim());
-            formData.append('middle_name', document.getElementById('edit_rsbsa_middle_name').value.trim());
-            formData.append('last_name', document.getElementById('edit_rsbsa_last_name').value.trim());
-            formData.append('name_extension', document.getElementById('edit_rsbsa_extension').value);
-            formData.append('contact_number', document.getElementById('edit_rsbsa_contact_number').value.trim());
-            formData.append('barangay', document.getElementById('edit_rsbsa_barangay').value);
-            formData.append('farm_location', document.getElementById('edit_rsbsa_farm_location').value.trim());
-            formData.append('main_livelihood', document.getElementById('edit_rsbsa_livelihood').value);
-            formData.append('land_area', document.getElementById('edit_rsbsa_land_area').value);
-            formData.append('commodity', document.getElementById('edit_rsbsa_commodity').value.trim());
-            
-            // Add file if present
-            const fileInput = document.getElementById('edit_rsbsa_supporting_document');
-            if (fileInput.files && fileInput.files[0]) {
-                formData.append('supporting_document', fileInput.files[0]);
-            }
-            
-            // Add method spoofing for PUT
-            formData.append('_method', 'PUT');
-            
-            // DEBUG: Log what we're sending
-            console.log('📤 Sending FormData:');
-            for (let [key, value] of formData.entries()) {
-                if (value instanceof File) {
-                    console.log(`  ${key}: [File] ${value.name}`);
-                } else {
-                    console.log(`  ${key}: "${value}"`);
-                }
-            }
+//     // Basic fields (always present)
+//     formData.append('first_name', document.getElementById('edit_rsbsa_first_name').value.trim());
+//     formData.append('middle_name', document.getElementById('edit_rsbsa_middle_name').value.trim());
+//     formData.append('last_name', document.getElementById('edit_rsbsa_last_name').value.trim());
+//     formData.append('name_extension', document.getElementById('edit_rsbsa_extension').value);
+//     formData.append('contact_number', document.getElementById('edit_rsbsa_contact_number').value.trim());
+//     formData.append('barangay', document.getElementById('edit_rsbsa_barangay').value);
+//     formData.append('main_livelihood', livelihood);
 
-            // Disable form inputs
-            const formInputs = form.querySelectorAll('input, select, textarea');
-            formInputs.forEach(input => input.disabled = true);
+//     // Livelihood-specific fields based on selected type
+//     switch(livelihood) {
+//         case 'Farmer':
+//             console.log('📋 Collecting Farmer fields...');
+//             formData.append('farm_location', document.getElementById('edit_rsbsa_farm_location').value.trim());
+//             formData.append('farmer_crops', document.getElementById('edit_rsbsa_farmer_crops').value.trim());
+//             formData.append('farmer_land_area', document.getElementById('edit_rsbsa_farmer_land_area').value);
+//             formData.append('farmer_type_of_farm', document.getElementById('edit_rsbsa_farmer_type_of_farm').value);
+//             formData.append('farmer_land_ownership', document.getElementById('edit_rsbsa_farmer_land_ownership').value);
+//             formData.append('farmer_special_status', document.getElementById('edit_rsbsa_farmer_special_status').value);
+//             formData.append('commodity', document.getElementById('edit_rsbsa_farmer_commodity').value.trim());
+//             break;
 
-            // Submit with POST (will be treated as PUT due to _method)
-            fetch(`/admin/rsbsa-applications/${applicationId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                })
-                .then(response => response.json().then(data => ({
-                    status: response.status,
-                    ok: response.ok,
-                    data: data
-                })))
-                .then(({status, ok, data}) => {
-                    console.log('Response:', {status, ok, data});
+//         case 'Farmworker/Laborer':
+//             console.log('📋 Collecting Farmworker fields...');
+//             formData.append('farmworker_type', document.getElementById('edit_rsbsa_farmworker_type').value.trim());
+//             formData.append('commodity', document.getElementById('edit_rsbsa_farmworker_commodity').value.trim());
+//             break;
 
-                    if (!ok) {
-                        throw {
-                            status: status,
-                            message: data.message || 'Update failed',
-                            errors: data.errors || {}
-                        };
-                    }
+//         case 'Fisherfolk':
+//             console.log('📋 Collecting Fisherfolk fields...');
+//             formData.append('fisherfolk_activity', document.getElementById('edit_rsbsa_fisherfolk_activity').value.trim());
+//             formData.append('commodity', document.getElementById('edit_rsbsa_fisherfolk_commodity').value.trim());
+//             break;
 
-                    if (data.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
-                        if (modal) modal.hide();
+//         case 'Agri-youth':
+//             console.log('📋 Collecting Agri-youth fields...');
+//             formData.append('agriyouth_farming_household', document.getElementById('edit_rsbsa_agriyouth_household').value);
+//             formData.append('agriyouth_training', document.getElementById('edit_rsbsa_agriyouth_training').value.trim());
+//             formData.append('agriyouth_participation', document.getElementById('edit_rsbsa_agriyouth_participation').value);
+//             formData.append('commodity', document.getElementById('edit_rsbsa_agriyouth_commodity').value.trim());
+//             break;
+//     }
 
-                        showToast('success', data.message || 'Application updated successfully');
-                        
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        throw {
-                            status: 422,
-                            message: data.message || 'Failed to update',
-                            errors: data.errors || {}
-                        };
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+//     // Add file if present
+//     const fileInput = document.getElementById('edit_rsbsa_supporting_document');
+//     if (fileInput && fileInput.files && fileInput.files[0]) {
+//         formData.append('supporting_document', fileInput.files[0]);
+//     }
 
-                    if (error.errors) {
-                        // Show field-specific errors
-                        const fieldMap = {
-                            'first_name': 'edit_rsbsa_first_name',
-                            'last_name': 'edit_rsbsa_last_name',
-                            'contact_number': 'edit_rsbsa_contact_number',
-                            'barangay': 'edit_rsbsa_barangay',
-                            'main_livelihood': 'edit_rsbsa_livelihood',
-                            'land_area': 'edit_rsbsa_land_area',
-                            'farm_location': 'edit_rsbsa_farm_location',
-                            'middle_name': 'edit_rsbsa_middle_name',
-                            'name_extension': 'edit_rsbsa_extension',
-                            'commodity': 'edit_rsbsa_commodity',
-                            'supporting_document': 'edit_rsbsa_supporting_document'
-                        };
+//     // Add method spoofing
+//     formData.append('_method', 'PUT');
 
-                        Object.keys(error.errors).forEach(field => {
-                            const elementId = fieldMap[field];
-                            const input = document.getElementById(elementId);
-                            if (input) {
-                                input.classList.add('is-invalid');
-                                const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
-                                if (existingFeedback) existingFeedback.remove();
+//     // Log what we're sending
+//     console.log('📊 FormData contents:');
+//     for (let [key, value] of formData.entries()) {
+//         if (value instanceof File) {
+//             console.log(`  ${key}: [File] ${value.name}`);
+//         } else {
+//             console.log(`  ${key}: "${value}"`);
+//         }
+//     }
 
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'invalid-feedback d-block';
-                                errorDiv.textContent = Array.isArray(error.errors[field]) ?
-                                    error.errors[field][0] : error.errors[field];
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        });
-                    }
+//     // Disable inputs
+//     const inputs = form.querySelectorAll('input, select, textarea');
+//     inputs.forEach(input => input.disabled = true);
 
-                    showToast('error', error.message || 'Error updating application');
+//     // Submit
+//     fetch(`/admin/rsbsa-applications/${applicationId}`, {
+//             method: 'POST',
+//             headers: {
+//                 'X-CSRF-TOKEN': getCSRFToken(),
+//                 'Accept': 'application/json',
+//                 'X-Requested-With': 'XMLHttpRequest'
+//             },
+//             body: formData
+//         })
+//         .then(response => response.json().then(data => ({
+//             status: response.status,
+//             ok: response.ok,
+//             data: data
+//         })))
+//         .then(({status, ok, data}) => {
+//             console.log('Response:', {status, ok, data});
 
-                    // Restore form state
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    formInputs.forEach(input => input.disabled = false);
-                });
-        }
+//             if (!ok) {
+//                 throw {
+//                     status: status,
+//                     message: data.message || 'Update failed',
+//                     errors: data.errors || {}
+//                 };
+//             }
+
+//             if (data.success) {
+//                 const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
+//                 if (modal) modal.hide();
+
+//                 showToast('success', data.message || 'Application updated successfully');
+//                 setTimeout(() => location.reload(), 1500);
+//             } else {
+//                 throw {
+//                     status: 422,
+//                     message: data.message || 'Failed to update',
+//                     errors: data.errors || {}
+//                 };
+//             }
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+
+//             // Handle validation errors
+//             if (error.errors && typeof error.errors === 'object') {
+//                 const fieldMap = {
+//                     'farm_location': 'edit_rsbsa_farm_location',
+//                     'farmer_crops': 'edit_rsbsa_farmer_crops',
+//                     'farmer_land_area': 'edit_rsbsa_farmer_land_area',
+//                     'farmer_type_of_farm': 'edit_rsbsa_farmer_type_of_farm',
+//                     'farmer_land_ownership': 'edit_rsbsa_farmer_land_ownership',
+//                     'farmworker_type': 'edit_rsbsa_farmworker_type',
+//                     'fisherfolk_activity': 'edit_rsbsa_fisherfolk_activity',
+//                     'agriyouth_farming_household': 'edit_rsbsa_agriyouth_household',
+//                     'agriyouth_training': 'edit_rsbsa_agriyouth_training',
+//                     'agriyouth_participation': 'edit_rsbsa_agriyouth_participation'
+//                 };
+
+//                 Object.keys(error.errors).forEach(field => {
+//                     const elementId = fieldMap[field];
+//                     const input = document.getElementById(elementId);
+//                     if (input) {
+//                         input.classList.add('is-invalid');
+//                         const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+//                         if (existingFeedback) existingFeedback.remove();
+
+//                         const errorDiv = document.createElement('div');
+//                         errorDiv.className = 'invalid-feedback d-block';
+//                         errorDiv.textContent = Array.isArray(error.errors[field]) 
+//                             ? error.errors[field][0] 
+//                             : error.errors[field];
+//                         input.parentNode.appendChild(errorDiv);
+//                     }
+//                 });
+//             }
+
+//             showToast('error', error.message || 'Error updating application');
+//             submitBtn.innerHTML = originalText;
+//             submitBtn.disabled = false;
+//             inputs.forEach(input => input.disabled = false);
+//         });
+// }
         /**
          * Validate JSON data locally BEFORE sending to server
          */
@@ -6142,6 +6739,9 @@ function clearValidationErrorsForHiddenFields() {
 /**
  * Toggle livelihood-specific fields in Edit modal
  */
+/**
+ * UPDATED: Toggle livelihood-specific fields in Edit modal
+ */
 function toggleEditRsbsaLivelihoodFields(selectElement) {
     const selectedValue = selectElement.value;
     console.log('🔄 [EDIT] Toggling livelihood fields for:', selectedValue);
@@ -6179,6 +6779,140 @@ function toggleEditRsbsaLivelihoodFields(selectElement) {
     if (form && form.dataset.applicationId) {
         checkRsbsaFormChanges(form.dataset.applicationId);
     }
+}
+
+/**
+ * UPDATED: Validate edit RSBSA form - NOW INCLUDES LIVELIHOOD VALIDATION
+ */
+function validateEditRsbsaForm() {
+    const form = document.getElementById('editRsbsaForm');
+    let isValid = true;
+
+    // Clear all previous validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+    const requiredFields = [
+        { elementId: 'edit_rsbsa_first_name', label: 'First Name' },
+        { elementId: 'edit_rsbsa_last_name', label: 'Last Name' },
+        { elementId: 'edit_rsbsa_contact_number', label: 'Contact Number' },
+        { elementId: 'edit_rsbsa_barangay', label: 'Barangay' },
+        { elementId: 'edit_rsbsa_livelihood', label: 'Main Livelihood' }
+    ];
+
+    // Validate required fields
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.elementId);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            input.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    });
+
+    // Validate contact number format
+    const contactInput = document.getElementById('edit_rsbsa_contact_number');
+    if (contactInput && contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate livelihood-specific required fields
+    const livelihoodSelect = document.getElementById('edit_rsbsa_livelihood');
+    const livelihood = livelihoodSelect?.value;
+
+    switch(livelihood) {
+        case 'Farmer':
+            if (!validateEditLivelihoodRequiredFields([
+                'edit_rsbsa_farmer_crops',
+                'edit_rsbsa_farmer_type_of_farm',
+                'edit_rsbsa_farmer_land_ownership',
+                'edit_rsbsa_farm_location'
+            ])) {
+                isValid = false;
+            }
+            break;
+
+        case 'Farmworker/Laborer':
+            if (!validateEditLivelihoodRequiredFields(['edit_rsbsa_farmworker_type'])) {
+                isValid = false;
+            }
+            break;
+
+        case 'Fisherfolk':
+            if (!validateEditLivelihoodRequiredFields(['edit_rsbsa_fisherfolk_activity'])) {
+                isValid = false;
+            }
+            break;
+
+        case 'Agri-youth':
+            if (!validateEditLivelihoodRequiredFields([
+                'edit_rsbsa_agriyouth_household',
+                'edit_rsbsa_agriyouth_training',
+                'edit_rsbsa_agriyouth_participation'
+            ])) {
+                isValid = false;
+            }
+            break;
+    }
+
+    // Validate land area if provided
+    const landAreaInput = document.getElementById('edit_rsbsa_farmer_land_area');
+    if (landAreaInput && landAreaInput.value) {
+        const landArea = parseFloat(landAreaInput.value);
+        if (isNaN(landArea) || landArea < 0) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area must be a positive number';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+        if (landArea > 1000) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area cannot exceed 1000 hectares';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
+/**
+ * Validate livelihood-specific required fields in edit form
+ */
+function validateEditLivelihoodRequiredFields(fieldIds) {
+    let allValid = true;
+
+    fieldIds.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+            if (existingFeedback) existingFeedback.remove();
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = input.previousElementSibling?.textContent?.replace('*', '') + ' is required';
+            input.parentNode.appendChild(errorDiv);
+            allValid = false;
+        }
+    });
+
+    return allValid;
 }
 
 /**
