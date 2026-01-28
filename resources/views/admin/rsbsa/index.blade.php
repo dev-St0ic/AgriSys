@@ -3862,7 +3862,7 @@ function viewApplication(id) {
                             <div class="row g-2">
                                 <div class="col-12"><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</div>
                                 <div class="col-12"><strong>Address:</strong> ${data.address || '<span class="text-muted">Not provided</span>'}</div>
-                                <div class="col-12"><strong>Farm/Work Location:</strong> ${data.farm_location || '<span class="text-muted">Not provided</span>'}</div>
+                                ${data.main_livelihood === 'Farmer' ? `<div class="col-12"><strong>Farm Location:</strong> ${data.farm_location || '<span class="text-muted">Not provided</span>'}</div>` : ''}
                             </div>
                         </div>
                     </div>
@@ -6795,8 +6795,10 @@ function validateEditRsbsaForm() {
     const requiredFields = [
         { elementId: 'edit_rsbsa_first_name', label: 'First Name' },
         { elementId: 'edit_rsbsa_last_name', label: 'Last Name' },
+        { elementId: 'edit_rsbsa_sex', label: 'Sex' }, 
         { elementId: 'edit_rsbsa_contact_number', label: 'Contact Number' },
         { elementId: 'edit_rsbsa_barangay', label: 'Barangay' },
+        { elementId: 'edit_rsbsa_address', label: 'Address' },
         { elementId: 'edit_rsbsa_livelihood', label: 'Main Livelihood' }
     ];
 
