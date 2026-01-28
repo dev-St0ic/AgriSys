@@ -63,7 +63,7 @@
             </div>
             <div class="selection-actions" style="display: flex; align-items: center; gap: 10px;">
                 <button type="button" class="seedlings-clear-btn" onclick="clearAllSelections()">
-                    <i class="fas fa-times"></i> Clear All
+                    <i></i> Clear All
                 </button>
                 <button type="button" class="seedlings-proceed-btn-mini" onclick="proceedToSeedlingsForm()"
                     style="padding: 8px 20px; background: #ffffff; border: 2px solid #ffffff; border-radius: 6px; color: #40916c; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
@@ -281,8 +281,8 @@
             </div>
 
             <div class="seedlings-form-group" id="supporting-docs-field">
-                <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
-                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png" required>
+                <label for="seedlings-docs">Supporting Documents (Optional)</span></label>
+                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png">
                 <small>Upload Government ID, Barangay Certificate, or proof of planting area (PDF, JPG, PNG - Max 10MB). Photos of your farm or planting area are very helpful.</small>
             </div>
 

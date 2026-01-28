@@ -517,19 +517,12 @@ function showSeedlingsTab(tabId, event) {
 function toggleSupportingDocuments(totalQuantity) {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
-    const docsLabel = document.querySelector('label[for="seedlings-docs"]');
-    const docsSmall = docsInput ? docsInput.nextElementSibling : null;
 
     if (totalQuantity >= 100) {
         if (docsField) docsField.style.display = 'block';
-        if (docsInput) docsInput.setAttribute('required', 'required');
-        // if (docsLabel) docsLabel.innerHTML = 'Supporting Documents (Required)';
-        // if (docsSmall) {
-        //     docsSmall.innerHTML = 'Required: Proof of planting area (land title, lease agreement, barangay certification, photos of planting area, etc.). Multiple files allowed.';
-        // }
+      
     } else {
         if (docsField) docsField.style.display = 'none';
-        if (docsInput) docsInput.removeAttribute('required');
     }
 }
 
