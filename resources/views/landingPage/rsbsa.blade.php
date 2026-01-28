@@ -273,12 +273,12 @@
                     @enderror
                 </div>
 
-                <!-- FARM LOCATION - ONLY FOR FARMERS -->
+                <!-- FARM LOCATION - ONLY FOR FARMERS (REQUIRED FIELD) -->
                 <div class="rsbsa-form-group">
                     <label>Farm Location <span style="color: #dc3545; font-weight: bold;">*</span></label>
                     <input type="text" id="rsbsa-farm_location" name="farm_location" placeholder="Example: Barangay Landayan, San Pedro"
                         pattern="[a-zA-Z0-9\s,'.\-]*" title="Only alphanumeric, spaces, commas, hyphens, and apostrophes allowed"
-                        value="{{ old('farm_location') }}" required>
+                        value="{{ old('farm_location') }}">
                     <span class="validation-warning" id="rsbsa-farm_location-warning"
                         style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only alphanumeric, spaces, commas, hyphens, and apostrophes are allowed</span>
                     @error('farm_location')
@@ -452,3 +452,4 @@
         </ul>
     </div>
 </section>
+

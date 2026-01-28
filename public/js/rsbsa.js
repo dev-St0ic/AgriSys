@@ -1392,6 +1392,25 @@ document.addEventListener('visibilitychange', function() {
     }
 });
 
+// Make farm_location required only when Farmer livelihood is selected
+function toggleRSBSALivelihoodFields(select) {
+    const farmLocationInput = document.getElementById('rsbsa-farm_location');
+    
+    if (select.value === 'Farmer') {
+        farmLocationInput.required = true;
+    } else {
+        farmLocationInput.required = false;
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const livelihoodSelect = document.getElementById('rsbsa-main_livelihood');
+    if (livelihoodSelect.value === 'Farmer') {
+        document.getElementById('rsbsa-farm_location').required = true;
+    }
+});
+
 // Export functions for global access
 window.openRSBSAForm = openRSBSAForm;
 window.closeFormRSBSA = closeFormRSBSA;
