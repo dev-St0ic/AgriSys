@@ -78,6 +78,9 @@
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
+                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                                Pending 
+                            </option>
                             <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
                                 Under Review
                             </option>
@@ -486,6 +489,7 @@
                                     </label>
                                     <select class="form-select" id="newStatus" required onchange="checkForChanges()">
                                         <option value="">Choose status...</option>
+                                        <option value="pending">Pending</option>
                                         <option value="under_review">Under Review</option>
                                         <option value="approved">Approved</option>
                                         <option value="rejected">Rejected</option>

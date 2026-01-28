@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('livelihood_description')->nullable();
             $table->string('other_livelihood')->nullable();
             $table->string('document_path')->nullable();
-            $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
+            $table->enum('status', ['pending','under_review', 'approved', 'rejected'])->default('under_review');
 
             // Admin management fields
             $table->text('remarks')->nullable();

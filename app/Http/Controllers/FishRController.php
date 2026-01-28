@@ -62,6 +62,7 @@ class FishRController extends Controller
 
             // Calculate statistics
             $totalRegistrations = FishrApplication::count();
+            $pendingCount = FishrApplication::where('status', 'pending')->count();
             $underReviewCount = FishrApplication::where('status', 'under_review')->count();
             $approvedCount = FishrApplication::where('status', 'approved')->count();
             $pendingCount = FishrApplication::where('status', 'pending')->count();
@@ -254,7 +255,7 @@ public function update(Request $request, $id)
         try {
             // Validate the request
             $validated = $request->validate([
-                'status' => 'required|in:under_review,approved,rejected',
+                'status' => 'required|in:pending,under_review,approved,rejected',
                 'remarks' => 'nullable|string|max:1000',
             ]);
 
@@ -378,10 +379,10 @@ public function update(Request $request, $id)
             }
 
             // Set default status if not provided
-            $validated['status'] = $validated['status'] ?? 'under_review';
+            $validated['status'] = $validated['status'] ?? 'pending';
 
             // Set reviewed fields if status is not under_review
-            if ($validated['status'] !== 'under_review') {
+            if (!in_array($validated['status'], ['pending', 'under_review'])) {
                 $validated['status_updated_at'] = now();
                 $validated['reviewed_by'] = auth()->id();
                 $validated['reviewed_at'] = now();
