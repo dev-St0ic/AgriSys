@@ -379,7 +379,6 @@ function toggleOtherLivelihood(select) {
     console.log('FishR livelihood changed to:', selectedValue);
 }
 
-
 /**
  * Updates supporting documents requirement based on livelihood type
  * Now also updates the asterisk visibility
@@ -392,16 +391,16 @@ function updateDocumentsRequirement(livelihoodType) {
     const asterisk = docsLabel ? docsLabel.querySelector('.required-asterisk') : null;
 
     if (docsInput && docsLabel) {
+        // Supporting document is ALWAYS optional now
+        docsInput.removeAttribute('required');
+        
+        // Hide asterisk
+        if (asterisk) {
+            asterisk.style.display = 'none';
+        }
+        
+        // Update label text and help text based on livelihood type
         if (livelihoodType === 'capture') {
-            // Make optional for capture fishing
-            docsInput.removeAttribute('required');
-            
-            // Hide asterisk
-            if (asterisk) {
-                asterisk.style.display = 'none';
-            }
-            
-            // Update label text
             if (labelText) {
                 labelText.textContent = 'Supporting Document (Optional)';
             }
@@ -410,41 +409,25 @@ function updateDocumentsRequirement(livelihoodType) {
                 docsHelp.textContent = 'Optional for Capture Fishing. Upload Government ID or Barangay Certificate if available (PDF, JPG, PNG - Max 10MB).';
             }
         } else if (livelihoodType && livelihoodType !== '') {
-            // Make required for other livelihood types
-            docsInput.setAttribute('required', 'required');
-            
-            // Show asterisk
-            if (asterisk) {
-                asterisk.style.display = 'inline';
-            }
-            
-            // Update label text
             if (labelText) {
-                labelText.textContent = 'Supporting Document';
+                labelText.textContent = 'Supporting Document (Optional)';
             }
             
             if (docsHelp) {
-                docsHelp.textContent = 'Required for this livelihood type. Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB).';
+                docsHelp.textContent = 'Optional for this livelihood type. Upload Government ID or Barangay Certificate if available (PDF, JPG, PNG - Max 10MB).';
             }
         } else {
-            // Default state
-            docsInput.setAttribute('required', 'required');
-            
-            if (asterisk) {
-                asterisk.style.display = 'inline';
-            }
-            
             if (labelText) {
-                labelText.textContent = 'Supporting Document';
+                labelText.textContent = 'Supporting Document (Optional)';
             }
             
             if (docsHelp) {
-                docsHelp.textContent = 'Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB). Required for aquaculture, fish vending, and fish processing only.';
+                docsHelp.textContent = 'Optional. Upload Government ID or Barangay Certificate if available (PDF, JPG, PNG - Max 10MB).';
             }
         }
     }
     
-    console.log('Documents requirement updated for livelihood:', livelihoodType);
+    console.log('Documents requirement updated for livelihood (always optional):', livelihoodType);
 }
 
 /**
@@ -730,21 +713,15 @@ function validateFishRForm() {
         }
     }
 
-    // Supporting documents validation for non-capture livelihoods
-    const docsInput = form.querySelector('[name="supporting_document"]'); // Changed from supporting_documents
-    if (livelihoodSelect && livelihoodSelect.value && livelihoodSelect.value !== 'capture') {
-        if (!docsInput || !docsInput.files || docsInput.files.length === 0) {
-            errors.push('Supporting documents are required for this livelihood type');
-            if (docsInput) markFieldError(docsInput);
+    // Supporting documents validation (optional - only validate if file is provided)
+    const docsInput = form.querySelector('[name="supporting_document"]');
+    if (docsInput && docsInput.files && docsInput.files.length > 0) {
+        // Validate file size only if file is provided (max 10MB)
+        const maxSize = 10 * 1024 * 1024;
+        if (docsInput.files[0].size > maxSize) {
+            errors.push('Supporting document must not exceed 10MB');
+            markFieldError(docsInput);
             isValid = false;
-        } else {
-            // Validate file size (max 10MB)
-            const maxSize = 10 * 1024 * 1024; // Already correct
-            if (docsInput.files[0].size > maxSize) {
-                errors.push('Supporting document must not exceed 10MB');
-                markFieldError(docsInput);
-                isValid = false;
-            }
         }
     }
 
