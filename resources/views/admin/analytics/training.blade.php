@@ -8,39 +8,60 @@
 @endsection
 
 @section('content')
-    <!-- Service Navigation -->
+    <!-- Enhanced Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0 navigation-container">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                <div class="card-body py-4 px-4">
+                    <div class="d-flex justify-content-center flex-wrap gap-3 align-items-center">
                         <a href="{{ route('admin.analytics.seedlings') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                            <i class="fas fa-seedling me-2"></i>Seedlings
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <span class="nav-label">Seedlings</span>
                         </a>
                         <a href="{{ route('admin.analytics.rsbsa') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                            <i class="fas fa-user-check me-2"></i>RSBSA
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <span class="nav-label">RSBSA</span>
                         </a>
                         <a href="{{ route('admin.analytics.fishr') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                            <i class="fas fa-fish me-2"></i>FISHR
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-fish"></i>
+                            </div>
+                            <span class="nav-label">FISHR</span>
                         </a>
                         <a href="{{ route('admin.analytics.boatr') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                            <i class="fas fa-ship me-2"></i>BOATR
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-ship"></i>
+                            </div>
+                            <span class="nav-label">BOATR</span>
                         </a>
                         <a href="{{ route('admin.analytics.training') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                            <i class="fas fa-graduation-cap me-2"></i>Training
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <span class="nav-label">Training</span>
                         </a>
                         <a href="{{ route('admin.analytics.supply-management') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                            <i class="fas fa-boxes me-2"></i>Supply Management
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <span class="nav-label">Supply Management</span>
                         </a>
                         <a href="{{ route('admin.analytics.user-registration') }}"
-                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                            <i class="fas fa-user-plus me-2"></i>User Registration
+                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                            <div class="nav-icon-wrapper">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <span class="nav-label">User Registration</span>
                         </a>
                     </div>
                 </div>
@@ -414,117 +435,112 @@
 
 @section('styles')
     <style>
-        /* Navigation Card */
-        .navigation-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 1px solid rgba(0, 0, 0, 0.05) !important;
-            overflow-x: auto;
-        }
-
-        /* Enhanced Analytics Navigation */
-        .analytics-nav {
-            gap: 0.5rem;
-            min-height: 50px;
-        }
-
-        .analytics-nav .nav-item {
-            flex-shrink: 0;
-        }
-
-        .analytics-nav .nav-link {
+        /* Compact Navigation Container */
+        .navigation-container {
+            background: #f8f9fa;
             border-radius: 12px;
-            padding: 0.65rem 1.5rem;
-            margin: 0.25rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Compact Horizontal Navigation Buttons */
+        .analytics-nav-btn {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            color: #495057;
             font-weight: 600;
-            font-size: 0.9rem;
-            color: #64748b;
-            background: transparent;
-            border: 2px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 0.875rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
             white-space: nowrap;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
         }
 
-        .analytics-nav .nav-link i {
-            font-size: 1.1rem;
-            transition: transform 0.3s ease;
+        .nav-icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .analytics-nav .nav-link span {
+        .nav-icon-wrapper i {
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            color: #6c757d;
+        }
+
+        .nav-label {
+            font-size: 0.875rem;
             font-weight: 600;
-            letter-spacing: 0.3px;
         }
 
-        .analytics-nav .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
-        }
-
-        .analytics-nav .nav-link:hover {
-            color: #3b82f6;
-            background: rgba(59, 130, 246, 0.08);
-            border-color: rgba(59, 130, 246, 0.2);
+        .analytics-nav-btn:hover {
+            background: #e8f5e9;
+            border-color: #40916c;
+            color: #2d6a4f;
+            text-decoration: none;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
         }
 
-        .analytics-nav .nav-link:hover::before {
-            opacity: 1;
+        .analytics-nav-btn:hover .nav-icon-wrapper i {
+            color: #40916c;
         }
 
-        .analytics-nav .nav-link:hover i {
-            transform: scale(1.15) rotate(5deg);
-        }
-
-        .analytics-nav .nav-link.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        .analytics-nav-btn.active {
+            background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+            border-color: #40916c;
             color: white;
-            border-color: transparent;
+            box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
+        }
+
+        .analytics-nav-btn.active .nav-icon-wrapper i {
+            color: #ffffff;
+        }
+
+        .analytics-nav-btn.active:hover {
+            background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+            border-color: #2d6a4f;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .analytics-nav .nav-link.active i {
-            transform: scale(1.1);
-        }
-
-        .analytics-nav .nav-link.active:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5), 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 4px 14px rgba(64, 145, 108, 0.35);
         }
 
         /* Responsive adjustments */
-        @media (max-width: 1200px) {
-            .analytics-nav .nav-link {
-                padding: 0.6rem 1.2rem;
-                font-size: 0.85rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .analytics-nav {
-                justify-content: flex-start !important;
-            }
-
-            .analytics-nav .nav-link {
+        @media (max-width: 992px) {
+            .analytics-nav-btn {
                 padding: 0.5rem 1rem;
                 font-size: 0.8rem;
             }
 
-            .analytics-nav .nav-link i {
-                font-size: 1rem;
+            .nav-icon-wrapper i {
+                font-size: 0.9rem;
+            }
+
+            .nav-label {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .analytics-nav-btn {
+                padding: 0.45rem 0.8rem;
+                font-size: 0.75rem;
+                gap: 6px;
+            }
+
+            .nav-icon-wrapper i {
+                font-size: 0.85rem;
+            }
+
+            .nav-label {
+                font-size: 0.75rem;
             }
         }
 

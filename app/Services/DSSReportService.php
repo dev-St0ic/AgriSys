@@ -685,4 +685,365 @@ Focus on actionable insights that can help agricultural officers make informed d
 
         return ['factor' => 0.85, 'note' => 'No end date provided for analysis period'];
     }
+
+    /**
+     * ================================================================
+     * TRAINING-SPECIFIC REPORT GENERATION
+     * ================================================================
+     */
+
+    /**
+     * Generate Training-specific DSS report
+     */
+    public function generateTrainingReport(array $data): array
+    {
+        $cacheKey = 'dss_training_report_' . md5(serialize($data));
+        $cacheDuration = config('services.anthropic.cache_duration', 3600);
+
+        return Cache::remember($cacheKey, $cacheDuration, function() use ($data) {
+            try {
+                if (!empty($this->anthropicApiKey)) {
+                    return $this->generateTrainingLLMReport($data);
+                }
+                return $this->generateTrainingFallbackReport($data);
+            } catch (\Exception $e) {
+                Log::error('Training DSS Report Generation Failed', [
+                    'error' => $e->getMessage(),
+                ]);
+                return $this->generateTrainingFallbackReport($data);
+            }
+        });
+    }
+
+    private function generateTrainingLLMReport(array $data): array
+    {
+        $prompt = $this->buildTrainingPrompt($data);
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'x-api-key' => $this->anthropicApiKey,
+            'anthropic-version' => '2023-06-01'
+        ])->timeout(300)->post($this->anthropicApiUrl, [
+            'model' => $this->model,
+            'max_tokens' => $this->maxTokens,
+            'temperature' => $this->temperature,
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $responseData = $response->json();
+            $generatedText = $responseData['content'][0]['text'] ?? '';
+            return $this->parseGeneratedReport($generatedText, $data);
+        }
+
+        throw new \Exception('Training LLM API request failed');
+    }
+
+    private function buildTrainingPrompt(array $data): string
+    {
+        $period = $data['period'];
+        $stats = $data['training_stats'];
+        $byType = $data['training_by_type'];
+        $byBarangay = $data['training_by_barangay'];
+
+        return <<<PROMPT
+You are an agricultural training program analyst for San Pedro, Laguna, Philippines. Analyze this training data and provide strategic insights.
+
+PERIOD: {$period['month']}
+
+TRAINING STATISTICS:
+- Total Applications: {$stats['total_applications']}
+- Approved: {$stats['approved']} ({$stats['approval_rate']}%)
+- Rejected: {$stats['rejected']} ({$stats['rejection_rate']}%)
+- Pending: {$stats['pending']}
+- Average Processing Time: {$stats['avg_processing_time']}
+
+TRAINING TYPES REQUESTED:
+{$this->formatTrainingTypes($byType)}
+
+GEOGRAPHIC DISTRIBUTION:
+- Barangays Covered: {$byBarangay['total_barangays_covered']}
+- Top Requesting Barangays: {$this->formatBarangays($byBarangay['top_barangays'])}
+
+ANALYSIS REQUIREMENTS:
+1. Executive Summary (3-4 sentences on overall training program performance)
+2. Performance Assessment:
+   - Overall Rating (Excellent/Good/Fair/Poor)
+   - Approval Efficiency (Very Efficient/Efficient/Moderate/Needs Improvement)
+   - Training Diversity (High/Medium/Low based on variety of training types)
+   - Geographic Reach (Excellent/Good/Fair/Limited)
+
+3. Key Findings (3-5 bullet points highlighting important patterns)
+4. Critical Issues (2-4 concerns that need immediate attention, or state "No critical issues")
+5. AI Recommendations:
+   - Immediate Actions (2-3 urgent priorities)
+   - Short-term Strategies (2-3 actions for next 1-3 months)
+   - Long-term Vision (2-3 strategic initiatives for capacity building)
+
+6. Training Program Insights (specific observations about training effectiveness and demand)
+
+RESPOND IN THIS EXACT JSON FORMAT:
+{
+    "executive_summary": "string",
+    "performance_assessment": {
+        "overall_rating": "string",
+        "approval_efficiency": "string",
+        "training_diversity": "string",
+        "geographic_reach": "string"
+    },
+    "key_findings": ["string", "string", ...],
+    "critical_issues": ["string", "string", ...],
+    "recommendations": {
+        "immediate_actions": ["string", "string", ...],
+        "short_term_strategies": ["string", "string", ...],
+        "long_term_vision": ["string", "string", ...]
+    },
+    "training_insights": ["string", "string", ...],
+    "confidence_level": "High/Medium/Low",
+    "confidence_score": 85
+}
+PROMPT;
+    }
+
+    private function generateTrainingFallbackReport(array $data): array
+    {
+        $stats = $data['training_stats'];
+        $byType = $data['training_by_type'];
+
+        $rating = $stats['approval_rate'] >= 80 ? 'Excellent' :
+                 ($stats['approval_rate'] >= 60 ? 'Good' :
+                 ($stats['approval_rate'] >= 40 ? 'Fair' : 'Poor'));
+
+        return [
+            'source' => 'fallback',
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'report_data' => [
+                'executive_summary' => "Training program for {$data['period']['month']} processed {$stats['total_applications']} applications with a {$stats['approval_rate']}% approval rate.",
+                'performance_assessment' => [
+                    'overall_rating' => $rating,
+                    'approval_efficiency' => 'Good',
+                    'training_diversity' => count($byType['distribution']) > 5 ? 'High' : 'Medium',
+                    'geographic_reach' => 'Good',
+                ],
+                'key_findings' => [
+                    "Received {$stats['total_applications']} training applications",
+                    "Approval rate: {$stats['approval_rate']}%",
+                    "Most popular: " . ($byType['most_popular'][0]['display_name'] ?? 'N/A'),
+                ],
+                'critical_issues' => $stats['pending'] > 10 ?
+                    ["High number of pending applications ({$stats['pending']}) requires attention"] : [],
+                'recommendations' => [
+                    'immediate_actions' => ['Review pending applications', 'Monitor popular training types'],
+                    'short_term_strategies' => ['Expand high-demand training programs'],
+                    'long_term_vision' => ['Develop comprehensive training curriculum'],
+                ],
+                'training_insights' => [
+                    "Total training types requested: {$byType['total_types_requested']}",
+                ],
+                'confidence_level' => 'Medium',
+                'confidence_score' => 65,
+            ],
+        ];
+    }
+
+    /**
+     * ================================================================
+     * RSBSA-SPECIFIC REPORT GENERATION
+     * ================================================================
+     */
+
+    /**
+     * Generate RSBSA-specific DSS report
+     */
+    public function generateRsbsaReport(array $data): array
+    {
+        $cacheKey = 'dss_rsbsa_report_' . md5(serialize($data));
+        $cacheDuration = config('services.anthropic.cache_duration', 3600);
+
+        return Cache::remember($cacheKey, $cacheDuration, function() use ($data) {
+            try {
+                if (!empty($this->anthropicApiKey)) {
+                    return $this->generateRsbsaLLMReport($data);
+                }
+                return $this->generateRsbsaFallbackReport($data);
+            } catch (\Exception $e) {
+                Log::error('RSBSA DSS Report Generation Failed', [
+                    'error' => $e->getMessage(),
+                ]);
+                return $this->generateRsbsaFallbackReport($data);
+            }
+        });
+    }
+
+    private function generateRsbsaLLMReport(array $data): array
+    {
+        $prompt = $this->buildRsbsaPrompt($data);
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'x-api-key' => $this->anthropicApiKey,
+            'anthropic-version' => '2023-06-01'
+        ])->timeout(300)->post($this->anthropicApiUrl, [
+            'model' => $this->model,
+            'max_tokens' => $this->maxTokens,
+            'temperature' => $this->temperature,
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $responseData = $response->json();
+            $generatedText = $responseData['content'][0]['text'] ?? '';
+            return $this->parseGeneratedReport($generatedText, $data);
+        }
+
+        throw new \Exception('RSBSA LLM API request failed');
+    }
+
+    private function buildRsbsaPrompt(array $data): string
+    {
+        $period = $data['period'];
+        $stats = $data['rsbsa_stats'];
+        $byCommodity = $data['rsbsa_by_commodity'];
+        $demographics = $data['rsbsa_demographics'];
+        $landAnalysis = $data['rsbsa_land_analysis'];
+
+        return <<<PROMPT
+You are an agricultural policy analyst for San Pedro, Laguna, Philippines. Analyze this RSBSA (Registry System for Basic Sectors in Agriculture) data and provide strategic insights.
+
+PERIOD: {$period['month']}
+
+RSBSA STATISTICS:
+- Total Applications: {$stats['total_applications']}
+- Approved: {$stats['approved']} ({$stats['approval_rate']}%)
+- Rejected: {$stats['rejected']}
+- Pending: {$stats['pending']}
+- Total Land Area: {$stats['total_land_area']}
+- Average Farm Size: {$stats['avg_land_area']}
+
+FARMER DEMOGRAPHICS:
+- Male Farmers: {$demographics['male_count']} ({$demographics['male_percentage']}%)
+- Female Farmers: {$demographics['female_count']} ({$demographics['female_percentage']}%)
+
+LAND DISTRIBUTION:
+- Small Farms: {$landAnalysis['small_farms']}
+- Medium Farms: {$landAnalysis['medium_farms']}
+- Large Farms: {$landAnalysis['large_farms']}
+
+TOP COMMODITIES:
+{$this->formatCommodities($byCommodity)}
+
+ANALYSIS REQUIREMENTS:
+1. Executive Summary (3-4 sentences on farmer registration trends and agricultural landscape)
+2. Performance Assessment:
+   - Overall Rating (Excellent/Good/Fair/Poor)
+   - Registration Efficiency (Very Efficient/Efficient/Moderate/Needs Improvement)
+   - Agricultural Diversity (High/Medium/Low based on commodity variety)
+   - Land Utilization (Optimal/Good/Fair/Poor)
+
+3. Key Findings (3-5 bullet points about farmer demographics and farming patterns)
+4. Critical Issues (2-4 concerns for agricultural development, or state "No critical issues")
+5. AI Recommendations:
+   - Immediate Actions (2-3 urgent priorities for farmer support)
+   - Short-term Strategies (2-3 actions for next 1-3 months)
+   - Long-term Vision (2-3 strategic initiatives for agricultural development)
+
+6. Agricultural Insights (specific observations about farming patterns, land use, demographics)
+
+RESPOND IN THIS EXACT JSON FORMAT:
+{
+    "executive_summary": "string",
+    "performance_assessment": {
+        "overall_rating": "string",
+        "registration_efficiency": "string",
+        "agricultural_diversity": "string",
+        "land_utilization": "string"
+    },
+    "key_findings": ["string", "string", ...],
+    "critical_issues": ["string", "string", ...],
+    "recommendations": {
+        "immediate_actions": ["string", "string", ...],
+        "short_term_strategies": ["string", "string", ...],
+        "long_term_vision": ["string", "string", ...]
+    },
+    "agricultural_insights": ["string", "string", ...],
+    "confidence_level": "High/Medium/Low",
+    "confidence_score": 85
+}
+PROMPT;
+    }
+
+    private function generateRsbsaFallbackReport(array $data): array
+    {
+        $stats = $data['rsbsa_stats'];
+        $demographics = $data['rsbsa_demographics'];
+
+        $rating = $stats['approval_rate'] >= 80 ? 'Excellent' :
+                 ($stats['approval_rate'] >= 60 ? 'Good' :
+                 ($stats['approval_rate'] >= 40 ? 'Fair' : 'Poor'));
+
+        return [
+            'source' => 'fallback',
+            'generated_at' => now()->format('Y-m-d H:i:s'),
+            'report_data' => [
+                'executive_summary' => "RSBSA registration for {$data['period']['month']} processed {$stats['total_applications']} farmer applications covering {$stats['total_land_area']}.",
+                'performance_assessment' => [
+                    'overall_rating' => $rating,
+                    'registration_efficiency' => 'Good',
+                    'agricultural_diversity' => 'Medium',
+                    'land_utilization' => 'Fair',
+                ],
+                'key_findings' => [
+                    "Registered {$stats['total_applications']} farmers",
+                    "Gender distribution: {$demographics['male_percentage']}% male, {$demographics['female_percentage']}% female",
+                    "Average farm size: {$stats['avg_land_area']}",
+                ],
+                'critical_issues' => $stats['pending'] > 20 ?
+                    ["High number of pending registrations ({$stats['pending']}) needs processing"] : [],
+                'recommendations' => [
+                    'immediate_actions' => ['Process pending registrations', 'Verify land documentation'],
+                    'short_term_strategies' => ['Conduct farmer orientation programs'],
+                    'long_term_vision' => ['Develop integrated farmer database system'],
+                ],
+                'agricultural_insights' => [
+                    "Total land area registered: {$stats['total_land_area']}",
+                ],
+                'confidence_level' => 'Medium',
+                'confidence_score' => 65,
+            ],
+        ];
+    }
+
+    /**
+     * Helper methods for formatting data in prompts
+     */
+    private function formatTrainingTypes(array $byType): string
+    {
+        $formatted = '';
+        foreach ($byType['distribution'] as $type) {
+            $formatted .= "- {$type['display_name']}: {$type['total']} applications ({$type['approval_rate']}% approved)\n";
+        }
+        return $formatted ?: '- No training types data available';
+    }
+
+    private function formatBarangays(array $barangays): string
+    {
+        $formatted = '';
+        foreach ($barangays as $brgy) {
+            $formatted .= "{$brgy['barangay']} ({$brgy['applications']} applications), ";
+        }
+        return rtrim($formatted, ', ') ?: 'None';
+    }
+
+    private function formatCommodities(array $byCommodity): string
+    {
+        $formatted = '';
+        foreach ($byCommodity['top_commodities'] as $commodity) {
+            $formatted .= "- {$commodity['commodity']}: {$commodity['total_farmers']} farmers, {$commodity['total_land_area']} hectares\n";
+        }
+        return $formatted ?: '- No commodity data available';
+    }
 }

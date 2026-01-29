@@ -64,12 +64,13 @@
             </div>
         </div>
 
-        <!-- Category Navigation Tabs - SEPARATED -->
+        <!-- Category Navigation Tabs -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <!-- First row: Category tabs -->
-                    <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center" id="categoryTabsNav">
+                <div class="d-flex justify-content-between align-items-center gap-3">
+                    <!-- Category tabs with horizontal scroll -->
+                    <div class="category-tabs-nav d-flex gap-2 align-items-center flex-grow-1" id="categoryTabsNav"
+                        style="flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;">
                         <button class="category-tab-btn active" data-category="all" onclick="switchCategory('all', event)">
                             <i class="fas fa-th-large"></i> All Categories
                         </button>
@@ -84,15 +85,17 @@
                             <button class="category-tab-btn" id="showMoreBtn" onclick="toggleShowMore()">
                                 <i class="fas fa-chevron-down"></i> Show More
                             </button>
-                            <button class="category-tab-btn" id="showLessBtn" onclick="toggleShowLess()" style="display: none;">
+                            <button class="category-tab-btn" id="showLessBtn" onclick="toggleShowLess()"
+                                style="display: none;">
                                 <i class="fas fa-chevron-up"></i> Show Less
                             </button>
                         @endif
                     </div>
 
-                    <!-- Second row: Add Category button (right aligned) -->
-                    <div style="display: flex; justify-content: flex-end;">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal" style="white-space: nowrap;">
+                    <!-- Add Category button -->
+                    <div class="flex-shrink-0">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
+                            style="white-space: nowrap;">
                             <i class="fas fa-plus me-2"></i>Add Category
                         </button>
                     </div>
@@ -157,12 +160,14 @@
                     <div class="col-md-6 mb-4">
                         <div class="card shadow-sm">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                <div>
+                                <div class="flex-grow-1">
                                     <h5 class="mb-0">
                                         <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                        <span class="category-name" title="{{ $category->display_name }}">
+                                        <a href="#" class="text-decoration-none text-dark category-name"
+                                            title="Click to view all {{ $category->display_name }}"
+                                            onclick="event.preventDefault(); switchCategory('{{ $category->id }}', event)">
                                             {{ $category->display_name }}
-                                        </span>
+                                        </a>
                                         @if (!$category->is_active)
                                             <span class="badge bg-warning">Inactive</span>
                                         @endif
@@ -221,24 +226,29 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body p-0">
                                 @if ($category->items->count() > 0)
+                                    @php
+                                        $sortedItems = $category->items->sortBy('name');
+                                        $displayItems = $sortedItems->take(5);
+                                        $remainingCount = $sortedItems->count() - 5;
+                                    @endphp
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-hover table-bordered">
-                                            <thead>
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light">
                                                 <tr>
-                                                    <th>Image</th>
+                                                    <th style="width: 70px;">Image</th>
                                                     <th>Name</th>
-                                                    <th>Unit</th>
-                                                    <th>Supply</th>
-                                                    <th>Status</th>
-                                                    <th>Actions</th>
+                                                    <th style="width: 80px;">Unit</th>
+                                                    <th style="width: 100px;">Supply</th>
+                                                    <th style="width: 90px;">Status</th>
+                                                    <th style="width: 150px;">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($category->items->sortBy('name') as $item)
+                                                @foreach ($displayItems as $item)
                                                     <tr class="item-row">
-                                                        <td style="width: 70px;">
+                                                        <td>
                                                             @if ($item->image_path)
                                                                 <img src="{{ Storage::url($item->image_path) }}"
                                                                     alt="{{ $item->name }}" class="rounded"
@@ -250,13 +260,17 @@
                                                                 </div>
                                                             @endif
                                                         </td>
-                                                        <td style="max-width: 200px; width: 200px;">
-                                                            <strong class="item-name" title="{{ $item->name }}">{{ $item->name }}</strong>
+                                                        <td>
+                                                            <strong class="item-name"
+                                                                title="{{ $item->name }}">{{ $item->name }}</strong>
                                                             @if ($item->needsReorder())
-                                                                <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Needs Reorder</small>
+                                                                <br><small class="text-warning"><i
+                                                                        class="fas fa-exclamation-triangle"></i> Needs
+                                                                    Reorder</small>
                                                             @endif
-                                                            <small class="text-muted description-truncate" title="{{ $item->description }}">
-                                                                {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
+                                                            <br><small class="text-muted description-truncate"
+                                                                title="{{ $item->description }}">
+                                                                {{ $item->description ? Str::limit($item->description, 40) : 'N/A' }}
                                                             </small>
                                                         </td>
                                                         <td><span class="badge bg-secondary">{{ $item->unit }}</span>
@@ -334,6 +348,15 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    @if ($remainingCount > 0)
+                                        <div class="card-footer bg-light text-center py-2">
+                                            <button class="btn btn-link btn-sm text-primary text-decoration-none"
+                                                onclick="switchCategory('{{ $category->id }}', event)">
+                                                <i class="fas fa-eye me-1"></i>View More ({{ $remainingCount }} more
+                                                {{ Str::plural('item', $remainingCount) }})
+                                            </button>
+                                        </div>
+                                    @endif
                                 @else
                                     <p class="text-muted text-center py-3">No items in this category yet.</p>
                                 @endif
@@ -448,16 +471,21 @@
                                                     @endif
                                                 </td>
                                                 <td style="max-width: 200px; width: 200px;">
-                                                    <strong class="item-name" title="{{ $item->name }}">{{ $item->name }}</strong>
-                                                   @if ($item->needsReorder())
-                                                        <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Needs Reorder</small>
+                                                    <strong class="item-name"
+                                                        title="{{ $item->name }}">{{ $item->name }}</strong>
+                                                    @if ($item->needsReorder())
+                                                        <br><small class="text-warning"><i
+                                                                class="fas fa-exclamation-triangle"></i> Needs
+                                                            Reorder</small>
                                                     @endif
-                                                    <small class="text-muted description-truncate" title="{{ $item->description }}">
+                                                    <small class="text-muted description-truncate"
+                                                        title="{{ $item->description }}">
                                                         {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
                                                     </small>
                                                 </td>
                                                 <td style="max-width: 150px; width: 150px;">
-                                                    <small class="text-muted description-truncate" title="{{ $item->description }}">
+                                                    <small class="text-muted description-truncate"
+                                                        title="{{ $item->description }}">
                                                         {{ $item->description ? Str::limit($item->description, 50) : 'N/A' }}
                                                     </small>
                                                 </td>
@@ -565,17 +593,18 @@
                 </div>
             </div>
         @endforeach
-         <!-- Toast Container for Notifications -->
+        <!-- Toast Container for Notifications -->
         <div id="toastContainer" class="toast-container"></div>
     </div>
 
-     <!-- Create Category Modal - IMPROVED with Word Count -->
+    <!-- Create Category Modal - IMPROVED with Word Count -->
     <div class="modal fade" id="createCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                     <h5 class="modal-title">Create New Category</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createCategoryForm" novalidate>
                     @csrf
@@ -623,8 +652,7 @@
                         <div class="mb-3">
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
                             <textarea name="description" class="form-control" rows="2" required maxlength="500"
-                                onchange="updateCategoryDescriptionCounter()"
-                                oninput="updateCategoryDescriptionCounter()"></textarea>
+                                onchange="updateCategoryDescriptionCounter()" oninput="updateCategoryDescriptionCounter()"></textarea>
                             <div class="invalid-feedback">Please provide a description.</div>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <small class="text-muted">
@@ -652,7 +680,8 @@
             <div class="modal-content">
                 <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                     <h5 class="modal-title">Edit Category</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="editCategoryForm" novalidate>
                     @csrf
@@ -667,7 +696,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
-                            <select name="icon" id="edit_icon" class="form-select" required onchange="updateIconPreview('edit'); checkForCategoryChanges()">
+                            <select name="icon" id="edit_icon" class="form-select" required
+                                onchange="updateIconPreview('edit'); checkForCategoryChanges()">
                                 <option value="">Select an icon...</option>
                                 <option value="fa-seedling">Seedling</option>
                                 <option value="fa-leaf">Leaf</option>
@@ -714,7 +744,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="editCategorySubmitBtn">Update Category</button>
+                        <button type="submit" class="btn btn-primary" id="editCategorySubmitBtn">Update
+                            Category</button>
                     </div>
                 </form>
             </div>
@@ -727,7 +758,8 @@
             <div class="modal-content">
                 <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                     <h5 class="modal-title">Add New Item</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createItemForm" enctype="multipart/form-data" novalidate>
                     @csrf
@@ -762,11 +794,11 @@
                         <div class="mb-3">
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
                             <textarea name="description" class="form-control" rows="3" required maxlength="500"
-                                onchange="updateItemDescriptionCounter()"
-                                oninput="updateItemDescriptionCounter()"></textarea>
+                                onchange="updateItemDescriptionCounter()" oninput="updateItemDescriptionCounter()"></textarea>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <small class="text-muted d-block">
-                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or specifications
+                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or
+                                    specifications
                                 </small>
                                 <small class="text-muted" id="itemDescriptionCounter">
                                     <span id="itemCharCount">0</span>/500
@@ -781,8 +813,8 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Initial Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="current_supply" class="form-control" placeholder="0" value="0"
-                                    min="0" required>
+                                <input type="number" name="current_supply" class="form-control" placeholder="0"
+                                    value="0" min="0" required>
                                 <small class="text-muted d-block mt-2">
                                     <i class="fas fa-boxes me-1"></i>Current quantity of this item in stock
                                 </small>
@@ -790,8 +822,8 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="minimum_supply" class="form-control" placeholder="0" value="0"
-                                    min="0" required>
+                                <input type="number" name="minimum_supply" class="form-control" placeholder="0"
+                                    value="0" min="0" required>
                                 <small class="text-muted d-block mt-2">
                                     <i class="fas fa-arrow-down me-1"></i>Lowest acceptable stock level before restocking
                                 </small>
@@ -802,7 +834,8 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="maximum_supply" class="form-control" placeholder="e.g., 100" min="0" required>
+                                <input type="number" name="maximum_supply" class="form-control" placeholder="e.g., 100"
+                                    min="0" required>
                                 <small class="text-muted d-block mt-2">
                                     <i class="fas fa-arrow-up me-1"></i>Maximum storage capacity or recommended stock level
                                 </small>
@@ -810,7 +843,8 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
-                                <input type="number" name="reorder_point" class="form-control" placeholder="e.g., 20" min="0" required>
+                                <input type="number" name="reorder_point" class="form-control" placeholder="e.g., 20"
+                                    min="0" required>
                                 <small class="text-muted d-block mt-2">
                                     <i class="fas fa-bell me-1"></i>Stock level that triggers a reorder alert/notification
                                 </small>
@@ -848,7 +882,8 @@
             <div class="modal-content">
                 <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                     <h5 class="modal-title">Edit Item</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="editItemForm" enctype="multipart/form-data" novalidate>
                     @csrf
@@ -858,7 +893,7 @@
                     <div class="modal-body">
                         <!-- Basic Information Section -->
                         <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Basic Information</h6>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
@@ -887,12 +922,12 @@
 
                         <div class="mb-3">
                             <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
-                            <textarea id="edit_item_description" name="description" class="form-control" rows="3" required maxlength="500"
-                                onchange="updateEditItemDescriptionCounter()"
-                                oninput="updateEditItemDescriptionCounter()"></textarea>
+                            <textarea id="edit_item_description" name="description" class="form-control" rows="3" required
+                                maxlength="500" onchange="updateEditItemDescriptionCounter()" oninput="updateEditItemDescriptionCounter()"></textarea>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <small class="text-muted d-block">
-                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or specifications
+                                    <i class="fas fa-info-circle me-1"></i>Provide details about the item, its uses, or
+                                    specifications
                                 </small>
                                 <small class="text-muted" id="editItemDescriptionCounter">
                                     <span id="editItemCharCount">0</span>/500
@@ -909,7 +944,8 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0" required>
+                                <input type="number" id="edit_item_minimum_supply" name="minimum_supply"
+                                    class="form-control" value="0" min="0" required>
                                 <small class="text-muted d-block mt-2">
                                     <i class="fas fa-arrow-down me-1"></i>Lowest acceptable stock level before restocking
                                 </small>
@@ -917,7 +953,8 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
-                                <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0" required>
+                                <input type="number" id="edit_item_maximum_supply" name="maximum_supply"
+                                    class="form-control" min="0" required>
                                 <small class="text-muted d-block mt-2">
                                     <i class="fas fa-arrow-up me-1"></i>Maximum storage capacity or recommended stock level
                                 </small>
@@ -927,7 +964,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
-                            <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0" required>
+                            <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control"
+                                min="0" required>
                             <small class="text-muted d-block mt-2">
                                 <i class="fas fa-bell me-1"></i>Stock level that triggers a reorder alert/notification
                             </small>
@@ -1003,9 +1041,10 @@
                                     <form id="addSupplyForm" novalidate>
                                         <input type="hidden" id="add_supply_item_id" name="item_id">
                                         <div class="mb-3">
-                                            <label class="form-label">Quantity <span style="color: #dc3545;">*</span></label>
-                                            <input type="number" name="quantity" class="form-control"
-                                                required min="1">
+                                            <label class="form-label">Quantity <span
+                                                    style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="quantity" class="form-control" required
+                                                min="1">
                                             <div class="invalid-feedback">Please enter a quantity.</div>
                                         </div>
                                         <div class="mb-3">
@@ -1038,13 +1077,15 @@
                                     <form id="adjustSupplyForm" novalidate>
                                         <input type="hidden" id="adjust_supply_item_id" name="item_id">
                                         <div class="mb-3">
-                                            <label class="form-label">New Supply <span style="color: #dc3545;">*</span></label>
-                                            <input type="number" name="new_supply" class="form-control"
-                                                required min="0">
+                                            <label class="form-label">New Supply <span
+                                                    style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="new_supply" class="form-control" required
+                                                min="0">
                                             <div class="invalid-feedback">Please enter new supply amount.</div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Reason <span style="color: #dc3545;">*</span></label>
+                                            <label class="form-label">Reason <span
+                                                    style="color: #dc3545;">*</span></label>
                                             <textarea name="reason" class="form-control" rows="5" required
                                                 placeholder="Explain the adjustment in detail..."></textarea>
                                             <small class="text-muted d-block mt-2">
@@ -1069,13 +1110,15 @@
                                     <form id="recordLossForm" novalidate>
                                         <input type="hidden" id="loss_supply_item_id" name="item_id">
                                         <div class="mb-3">
-                                            <label class="form-label">Quantity Lost <span style="color: #dc3545;">*</span></label>
-                                            <input type="number" name="quantity" class="form-control"
-                                                required min="1">
+                                            <label class="form-label">Quantity Lost <span
+                                                    style="color: #dc3545;">*</span></label>
+                                            <input type="number" name="quantity" class="form-control" required
+                                                min="1">
                                             <div class="invalid-feedback">Please enter quantity lost.</div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Reason Type <span style="color: #dc3545;">*</span></label>
+                                            <label class="form-label">Reason Type <span
+                                                    style="color: #dc3545;">*</span></label>
                                             <select name="reason_type" class="form-select mb-2" required>
                                                 <option value="">Select reason type...</option>
                                                 <option value="Expired">Expired</option>
@@ -1085,7 +1128,8 @@
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Additional Details <span style="color: #dc3545;">*</span></label>
+                                            <label class="form-label">Additional Details <span
+                                                    style="color: #dc3545;">*</span></label>
                                             <textarea name="reason" class="form-control" rows="5" required
                                                 placeholder="Provide detailed information about the loss..."></textarea>
                                             <small class="text-muted d-block mt-2">
@@ -1129,11 +1173,11 @@
             const createCategoryForm = document.getElementById('createCategoryForm');
             const nameInput = createCategoryForm.querySelector('input[name="name"]');
             const displayNameHidden = document.getElementById('display_name_hidden');
-            
+
             nameInput.addEventListener('change', function() {
                 displayNameHidden.value = this.value;
             });
-            
+
             // Set it on form submission as well
             createCategoryForm.addEventListener('submit', function() {
                 const nameValue = nameInput.value;
@@ -1143,27 +1187,27 @@
 
         // Auto-fill display_name when name changes in Edit Category Modal
         document.addEventListener('DOMContentLoaded', function() {
-        const nameInput = document.getElementById('edit_category_name');
-        const iconSelect = document.getElementById('edit_icon');
-        const descriptionInput = document.getElementById('edit_category_description');
-        
-        if (nameInput) {
-            nameInput.addEventListener('input', function() {
-                document.getElementById('edit_display_name_hidden').value = this.value;
-                checkForCategoryChanges();
-            });
-        }
-        
-        if (iconSelect) {
-            iconSelect.addEventListener('change', checkForCategoryChanges);
-        }
-        
-        if (descriptionInput) {
-            descriptionInput.addEventListener('input', checkForCategoryChanges);
-        }
-    });
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
 
-         // Show More/Less functionality
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    document.getElementById('edit_display_name_hidden').value = this.value;
+                    checkForCategoryChanges();
+                });
+            }
+
+            if (iconSelect) {
+                iconSelect.addEventListener('change', checkForCategoryChanges);
+            }
+
+            if (descriptionInput) {
+                descriptionInput.addEventListener('input', checkForCategoryChanges);
+            }
+        });
+
+        // Show More/Less functionality
         function toggleShowMore() {
             const categoryBtns = document.querySelectorAll('.category-btn');
             categoryBtns.forEach((btn, index) => {
@@ -1187,19 +1231,19 @@
         }
 
         // Show error modal (closes any open modal first)
-       function showError(message) {
+        function showError(message) {
             showToast('error', message);
         }
 
         // FIXED Show success modal (closes any open modal first)
         function showSuccess(message, shouldReload = true) {
             showToast('success', message);
-            
+
             if (shouldReload) {
                 // Get the currently active category BEFORE reload
                 const activeCategory = document.querySelector('.category-content.active');
                 const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
-                
+
                 setTimeout(() => {
                     // Store the category ID in sessionStorage temporarily
                     sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
@@ -1208,7 +1252,7 @@
             }
         }
 
-        // create toast container 
+        // create toast container
         function createToastContainer() {
             let container = document.getElementById('toastContainer');
             if (!container) {
@@ -1377,122 +1421,122 @@
             document.getElementById('item_category_id').value = categoryId;
         }
 
-    // Load category and initialize change detection
- async function editCategory(categoryId) {
-    try {
-        const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
+        // Load category and initialize change detection
+        async function editCategory(categoryId) {
+            try {
+                const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                // Get form fields
+                const nameInput = document.getElementById('edit_category_name');
+                const iconSelect = document.getElementById('edit_icon');
+                const descriptionInput = document.getElementById('edit_category_description');
+                const submitBtn = document.getElementById('editCategorySubmitBtn');
+
+                // Populate form fields
+                document.getElementById('edit_category_id').value = category.id;
+                nameInput.value = category.name;
+                iconSelect.value = category.icon || 'fa-leaf';
+                descriptionInput.value = category.description || '';
+                document.getElementById('edit_display_name_hidden').value = category.display_name;
+
+                // Store original values in data attributes
+                nameInput.dataset.originalValue = category.name;
+                iconSelect.dataset.originalValue = category.icon || 'fa-leaf';
+                descriptionInput.dataset.originalValue = category.description || '';
+
+                // Update icon preview
+                updateIconPreview('edit');
+
+                // Reset validation
+                document.getElementById('editCategoryForm').classList.remove('was-validated');
+
+                // Clear any previous change styling
+                nameInput.classList.remove('form-changed');
+                iconSelect.classList.remove('form-changed');
+                descriptionInput.classList.remove('form-changed');
+
+                // FIXED: Set submit button with FULL TEXT initially
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Category';
+                submitBtn.classList.remove('no-changes');
+                submitBtn.title = 'Update category';
+
+                // Initialize change detection
+                checkForCategoryChanges();
+
+                // Show modal
+                new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+            } catch (error) {
+                showError('Error loading category: ' + error.message);
             }
-        });
+        }
 
-        // Get form fields
-        const nameInput = document.getElementById('edit_category_name');
-        const iconSelect = document.getElementById('edit_icon');
-        const descriptionInput = document.getElementById('edit_category_description');
-        const submitBtn = document.getElementById('editCategorySubmitBtn');
+        // CHANGE: Updated form submission with confirmation toast
+        document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        // Populate form fields
-        document.getElementById('edit_category_id').value = category.id;
-        nameInput.value = category.name;
-        iconSelect.value = category.icon || 'fa-leaf';
-        descriptionInput.value = category.description || '';
-        document.getElementById('edit_display_name_hidden').value = category.display_name;
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
 
-        // Store original values in data attributes
-        nameInput.dataset.originalValue = category.name;
-        iconSelect.dataset.originalValue = category.icon || 'fa-leaf';
-        descriptionInput.dataset.originalValue = category.description || '';
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalIcon = iconSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
 
-        // Update icon preview
-        updateIconPreview('edit');
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const iconChanged = iconSelect.value !== originalIcon;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
 
-        // Reset validation
-        document.getElementById('editCategoryForm').classList.remove('was-validated');
-
-        // Clear any previous change styling
-        nameInput.classList.remove('form-changed');
-        iconSelect.classList.remove('form-changed');
-        descriptionInput.classList.remove('form-changed');
-
-        // FIXED: Set submit button with FULL TEXT initially
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Category';
-        submitBtn.classList.remove('no-changes');
-        submitBtn.title = 'Update category';
-
-        // Initialize change detection
-        checkForCategoryChanges();
-
-        // Show modal
-        new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
-    } catch (error) {
-        showError('Error loading category: ' + error.message);
-    }
-}
-
-// CHANGE: Updated form submission with confirmation toast
-document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const nameInput = document.getElementById('edit_category_name');
-    const iconSelect = document.getElementById('edit_icon');
-    const descriptionInput = document.getElementById('edit_category_description');
-
-    const originalName = nameInput.dataset.originalValue || '';
-    const originalIcon = iconSelect.dataset.originalValue || '';
-    const originalDescription = descriptionInput.dataset.originalValue || '';
-
-    const nameChanged = nameInput.value.trim() !== originalName;
-    const iconChanged = iconSelect.value !== originalIcon;
-    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
-
-    // If no changes, show warning and return
-    if (!nameChanged && !iconChanged && !descriptionChanged) {
-        showToast('warning', 'No changes detected. Please modify the category before updating.');
-        return;
-    }
-
-    if (!validateForm(this)) {
-        return;
-    }
-
-    // Show confirmation toast instead of direct submission
-    showConfirmationToast(
-        'Update Category',
-        `Confirm updating category changes?\n\n${nameChanged ? '• Category name updated\n' : ''}${iconChanged ? '• Icon updated\n' : ''}${descriptionChanged ? '• Description updated' : ''}`,
-        () => proceedUpdateCategory()
-    );
-});
-// handle category update after confirmation
-async function proceedUpdateCategory() {
-    const categoryId = document.getElementById('edit_category_id').value;
-    const formData = new FormData(document.getElementById('editCategoryForm'));
-    const submitBtn = document.querySelector('#editCategoryModal .btn-primary');
-    const originalHTML = submitBtn.innerHTML;
-
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    submitBtn.disabled = true;
-
-    try {
-        const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
+            // If no changes, show warning and return
+            if (!nameChanged && !iconChanged && !descriptionChanged) {
+                showToast('warning', 'No changes detected. Please modify the category before updating.');
+                return;
             }
+
+            if (!validateForm(this)) {
+                return;
+            }
+
+            // Show confirmation toast instead of direct submission
+            showConfirmationToast(
+                'Update Category',
+                `Confirm updating category changes?\n\n${nameChanged ? '• Category name updated\n' : ''}${iconChanged ? '• Icon updated\n' : ''}${descriptionChanged ? '• Description updated' : ''}`,
+                () => proceedUpdateCategory()
+            );
         });
-        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editCategoryModal'));
-        modal.hide();
-        showSuccess(data.message);
-    } catch (error) {
-        showError(error.message);
-        submitBtn.innerHTML = originalHTML;
-        submitBtn.disabled = false;
-    }
-}
+        // handle category update after confirmation
+        async function proceedUpdateCategory() {
+            const categoryId = document.getElementById('edit_category_id').value;
+            const formData = new FormData(document.getElementById('editCategoryForm'));
+            const submitBtn = document.querySelector('#editCategoryModal .btn-primary');
+            const originalHTML = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            submitBtn.disabled = true;
+
+            try {
+                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editCategoryModal'));
+                modal.hide();
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message);
+                submitBtn.innerHTML = originalHTML;
+                submitBtn.disabled = false;
+            }
+        }
 
 
         async function toggleCategory(categoryId) {
@@ -1528,29 +1572,29 @@ async function proceedUpdateCategory() {
 
         // Handle category deletion after confirmation
         async function proceedDeleteCategory(categoryId) {
-        try {
-            const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json'
+            try {
+                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Check if the deleted category is the currently active one
+                const activeCategory = document.querySelector('.category-content.active');
+                const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : null;
+
+                // If deleted category is active, redirect to "All Categories"
+                if (activeCategoryId === categoryId.toString()) {
+                    sessionStorage.setItem('pendingCategorySwitch', 'all');
                 }
-            });
-            
-            // Check if the deleted category is the currently active one
-            const activeCategory = document.querySelector('.category-content.active');
-            const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : null;
-            
-            // If deleted category is active, redirect to "All Categories"
-            if (activeCategoryId === categoryId.toString()) {
-                sessionStorage.setItem('pendingCategorySwitch', 'all');
+
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message);
             }
-            
-            showSuccess(data.message);
-        } catch (error) {
-            showError(error.message);
         }
-    }
 
         // Supply Management Functions
         async function manageSupply(itemId) {
@@ -1683,7 +1727,8 @@ async function proceedUpdateCategory() {
             const originalBgColor = submitBtn.style.backgroundColor;
 
             // Set loading state with visible spinner - WHITE TEXT
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Creating...</span>';
+            submitBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Creating...</span>';
             submitBtn.disabled = true;
             submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
 
@@ -1696,7 +1741,8 @@ async function proceedUpdateCategory() {
                         'Accept': 'application/json'
                     }
                 });
-                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('createCategoryModal'));
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById(
+                    'createCategoryModal'));
                 modal.hide();
                 showSuccess(data.message);
             } catch (error) {
@@ -1709,7 +1755,7 @@ async function proceedUpdateCategory() {
             }
         });
 
-       // UPDATED: Add Item Form Submission - Better Loading State
+        // UPDATED: Add Item Form Submission - Better Loading State
         document.getElementById('createItemForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -1723,7 +1769,8 @@ async function proceedUpdateCategory() {
             const originalBgColor = submitBtn.style.backgroundColor;
 
             // Set loading state with visible spinner
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Adding...</span>';
+            submitBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Adding...</span>';
             submitBtn.disabled = true;
             submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
 
@@ -1798,7 +1845,7 @@ async function proceedUpdateCategory() {
                 showError(error.message);
             }
         }
-        
+
         // adjust supply form submission
         document.getElementById('adjustSupplyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -1818,7 +1865,7 @@ async function proceedUpdateCategory() {
                 () => proceedAdjustSupply(itemId, formData)
             );
         });
-    
+
         async function proceedAdjustSupply(itemId, formData) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/supply/adjust`, {
@@ -1888,20 +1935,20 @@ async function proceedUpdateCategory() {
             }
         }
 
-      // Supply Management Modal - Store active category before reload
+        // Supply Management Modal - Store active category before reload
         document.getElementById('supplyModal').addEventListener('hidden.bs.modal', function() {
             // Get the currently active category BEFORE reload
             const activeCategory = document.querySelector('.category-content.active');
             const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
-            
+
             // Store the category ID in sessionStorage temporarily
             sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
-            
+
             // Reload the page
             location.reload();
         });
 
-     async function toggleItem(itemId) {
+        async function toggleItem(itemId) {
             showConfirmationToast(
                 'Toggle Item Status',
                 'Are you sure you want to toggle this item status?',
@@ -1946,164 +1993,166 @@ async function proceedUpdateCategory() {
                 showError(error.message);
             }
         }
-// Load item and initialize change detection
-async function editItem(itemId) {
-    try {
-        const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
-            method: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            }
-        });
+        // Load item and initialize change detection
+        async function editItem(itemId) {
+            try {
+                const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
 
-        // Get form fields
-        const nameInput = document.getElementById('edit_item_name');
-        const unitSelect = document.getElementById('edit_item_unit');
-        const descriptionInput = document.getElementById('edit_item_description');
-        const minSupplyInput = document.getElementById('edit_item_minimum_supply');
-        const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
-        const reorderPointInput = document.getElementById('edit_item_reorder_point');
-        const submitBtn = document.getElementById('editItemSubmitBtn');
+                // Get form fields
+                const nameInput = document.getElementById('edit_item_name');
+                const unitSelect = document.getElementById('edit_item_unit');
+                const descriptionInput = document.getElementById('edit_item_description');
+                const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+                const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+                const reorderPointInput = document.getElementById('edit_item_reorder_point');
+                const submitBtn = document.getElementById('editItemSubmitBtn');
 
-        // Populate form fields
-        document.getElementById('edit_item_id').value = item.id;
-        document.getElementById('edit_item_category_id').value = item.category_id;
-        nameInput.value = item.name;
-        unitSelect.value = item.unit;
-        descriptionInput.value = item.description || '';
-        minSupplyInput.value = item.minimum_supply || 0;
-        maxSupplyInput.value = item.maximum_supply || '';
-        reorderPointInput.value = item.reorder_point || '';
+                // Populate form fields
+                document.getElementById('edit_item_id').value = item.id;
+                document.getElementById('edit_item_category_id').value = item.category_id;
+                nameInput.value = item.name;
+                unitSelect.value = item.unit;
+                descriptionInput.value = item.description || '';
+                minSupplyInput.value = item.minimum_supply || 0;
+                maxSupplyInput.value = item.maximum_supply || '';
+                reorderPointInput.value = item.reorder_point || '';
 
-        // Store original values in data attributes
-        nameInput.dataset.originalValue = item.name;
-        unitSelect.dataset.originalValue = item.unit;
-        descriptionInput.dataset.originalValue = item.description || '';
-        minSupplyInput.dataset.originalValue = item.minimum_supply || 0;
-        maxSupplyInput.dataset.originalValue = item.maximum_supply || '';
-        reorderPointInput.dataset.originalValue = item.reorder_point || '';
+                // Store original values in data attributes
+                nameInput.dataset.originalValue = item.name;
+                unitSelect.dataset.originalValue = item.unit;
+                descriptionInput.dataset.originalValue = item.description || '';
+                minSupplyInput.dataset.originalValue = item.minimum_supply || 0;
+                maxSupplyInput.dataset.originalValue = item.maximum_supply || '';
+                reorderPointInput.dataset.originalValue = item.reorder_point || '';
 
-        // Show current image if exists
-        const imagePreview = document.getElementById('current_image_preview');
-        if (item.image_path) {
-            imagePreview.innerHTML = `
+                // Show current image if exists
+                const imagePreview = document.getElementById('current_image_preview');
+                if (item.image_path) {
+                    imagePreview.innerHTML = `
                 <label class="form-label">Current Image:</label><br>
                 <img src="/storage/${item.image_path}" alt="${item.name}"
                     class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
             `;
-        } else {
-            imagePreview.innerHTML = '';
+                } else {
+                    imagePreview.innerHTML = '';
+                }
+
+                // Reset validation
+                document.getElementById('editItemForm').classList.remove('was-validated');
+
+                // Clear any previous change styling
+                nameInput.classList.remove('form-changed');
+                unitSelect.classList.remove('form-changed');
+                descriptionInput.classList.remove('form-changed');
+                minSupplyInput.classList.remove('form-changed');
+                maxSupplyInput.classList.remove('form-changed');
+                reorderPointInput.classList.remove('form-changed');
+
+                // FIXED: Set submit button with FULL TEXT initially
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Item';
+                submitBtn.classList.remove('no-changes');
+                submitBtn.title = 'Update item';
+
+                // Initialize change detection
+                checkForItemChanges();
+
+                // Show modal
+                new bootstrap.Modal(document.getElementById('editItemModal')).show();
+            } catch (error) {
+                showError('Error loading item: ' + error.message);
+            }
         }
 
-        // Reset validation
-        document.getElementById('editItemForm').classList.remove('was-validated');
+        // CHANGE: Updated form submission with confirmation toast
+        document.getElementById('editItemForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        // Clear any previous change styling
-        nameInput.classList.remove('form-changed');
-        unitSelect.classList.remove('form-changed');
-        descriptionInput.classList.remove('form-changed');
-        minSupplyInput.classList.remove('form-changed');
-        maxSupplyInput.classList.remove('form-changed');
-        reorderPointInput.classList.remove('form-changed');
+            const nameInput = document.getElementById('edit_item_name');
+            const unitSelect = document.getElementById('edit_item_unit');
+            const descriptionInput = document.getElementById('edit_item_description');
+            const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+            const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+            const reorderPointInput = document.getElementById('edit_item_reorder_point');
+            const imageInput = document.querySelector('#editItemForm input[name="image"]');
 
-        // FIXED: Set submit button with FULL TEXT initially
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Item';
-        submitBtn.classList.remove('no-changes');
-        submitBtn.title = 'Update item';
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalUnit = unitSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
+            const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
+            const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
+            const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
 
-        // Initialize change detection
-        checkForItemChanges();
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const unitChanged = unitSelect.value !== originalUnit;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+            const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
+            const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
+            const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString()
+                .trim();
+            const imageChanged = imageInput.files && imageInput.files.length > 0;
 
-        // Show modal
-        new bootstrap.Modal(document.getElementById('editItemModal')).show();
-    } catch (error) {
-        showError('Error loading item: ' + error.message);
-    }
-}
-
-// CHANGE: Updated form submission with confirmation toast
-document.getElementById('editItemForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const nameInput = document.getElementById('edit_item_name');
-    const unitSelect = document.getElementById('edit_item_unit');
-    const descriptionInput = document.getElementById('edit_item_description');
-    const minSupplyInput = document.getElementById('edit_item_minimum_supply');
-    const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
-    const reorderPointInput = document.getElementById('edit_item_reorder_point');
-    const imageInput = document.querySelector('#editItemForm input[name="image"]');
-
-    const originalName = nameInput.dataset.originalValue || '';
-    const originalUnit = unitSelect.dataset.originalValue || '';
-    const originalDescription = descriptionInput.dataset.originalValue || '';
-    const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
-    const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
-    const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
-
-    const nameChanged = nameInput.value.trim() !== originalName;
-    const unitChanged = unitSelect.value !== originalUnit;
-    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
-    const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
-    const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
-    const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
-    const imageChanged = imageInput.files && imageInput.files.length > 0;
-
-    // If no changes, show warning and return
-    if (!nameChanged && !unitChanged && !descriptionChanged && !minSupplyChanged && !maxSupplyChanged && !reorderPointChanged && !imageChanged) {
-        showToast('warning', 'No changes detected. Please modify the item before updating.');
-        return;
-    }
-
-    if (!validateForm(this)) {
-        return;
-    }
-
-    // Show confirmation toast with list of changes
-    const changesList = [];
-    if (nameChanged) changesList.push('• Item name updated');
-    if (unitChanged) changesList.push('• Unit updated');
-    if (descriptionChanged) changesList.push('• Description updated');
-    if (minSupplyChanged) changesList.push('• Minimum supply updated');
-    if (maxSupplyChanged) changesList.push('• Maximum supply updated');
-    if (reorderPointChanged) changesList.push('• Reorder point updated');
-    if (imageChanged) changesList.push('• Item image updated');
-
-    showConfirmationToast(
-        'Update Item',
-        `Confirm updating item changes?\n\n${changesList.join('\n')}`,
-        () => proceedUpdateItem()
-    );
-});
-
-// Handle item update after confirmation
-async function proceedUpdateItem() {
-    const itemId = document.getElementById('edit_item_id').value;
-    const formData = new FormData(document.getElementById('editItemForm'));
-    const submitBtn = document.querySelector('#editItemModal .btn-primary');
-    const originalHTML = submitBtn.innerHTML;
-
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    submitBtn.disabled = true;
-
-    try {
-        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
+            // If no changes, show warning and return
+            if (!nameChanged && !unitChanged && !descriptionChanged && !minSupplyChanged && !maxSupplyChanged &&
+                !reorderPointChanged && !imageChanged) {
+                showToast('warning', 'No changes detected. Please modify the item before updating.');
+                return;
             }
+
+            if (!validateForm(this)) {
+                return;
+            }
+
+            // Show confirmation toast with list of changes
+            const changesList = [];
+            if (nameChanged) changesList.push('• Item name updated');
+            if (unitChanged) changesList.push('• Unit updated');
+            if (descriptionChanged) changesList.push('• Description updated');
+            if (minSupplyChanged) changesList.push('• Minimum supply updated');
+            if (maxSupplyChanged) changesList.push('• Maximum supply updated');
+            if (reorderPointChanged) changesList.push('• Reorder point updated');
+            if (imageChanged) changesList.push('• Item image updated');
+
+            showConfirmationToast(
+                'Update Item',
+                `Confirm updating item changes?\n\n${changesList.join('\n')}`,
+                () => proceedUpdateItem()
+            );
         });
-        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editItemModal'));
-        modal.hide();
-        showSuccess(data.message);
-    } catch (error) {
-        showError(error.message);
-        submitBtn.innerHTML = originalHTML;
-        submitBtn.disabled = false;
-    }
-}
+
+        // Handle item update after confirmation
+        async function proceedUpdateItem() {
+            const itemId = document.getElementById('edit_item_id').value;
+            const formData = new FormData(document.getElementById('editItemForm'));
+            const submitBtn = document.querySelector('#editItemModal .btn-primary');
+            const originalHTML = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            submitBtn.disabled = true;
+
+            try {
+                const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editItemModal'));
+                modal.hide();
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message);
+                submitBtn.innerHTML = originalHTML;
+                submitBtn.disabled = false;
+            }
+        }
 
 
         // Reset form validation on modal close
@@ -2130,9 +2179,11 @@ async function proceedUpdateItem() {
             if (e.target.name === 'image') {
                 const file = e.target.files[0];
                 const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-                
+
                 if (file && file.size > maxSize) {
-                    showError(`File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+                    showError(
+                        `File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`
+                    );
                     e.target.value = ''; // Clear the input
                 }
             }
@@ -2143,171 +2194,174 @@ async function proceedUpdateItem() {
             if (e.target.name === 'image') {
                 const file = e.target.files[0];
                 const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-                
+
                 if (file && file.size > maxSize) {
-                    showError(`File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+                    showError(
+                        `File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`
+                    );
                     e.target.value = ''; // Clear the input
                 }
             }
         });
 
-// Check for changes in Edit Category Modal
-function checkForCategoryChanges() {
-    const nameInput = document.getElementById('edit_category_name');
-    const iconSelect = document.getElementById('edit_icon');
-    const descriptionInput = document.getElementById('edit_category_description');
-    const submitBtn = document.getElementById('editCategorySubmitBtn');
-    
-    const originalName = nameInput.dataset.originalValue || '';
-    const originalIcon = iconSelect.dataset.originalValue || '';
-    const originalDescription = descriptionInput.dataset.originalValue || '';
-    
-    const nameChanged = nameInput.value.trim() !== originalName;
-    const iconChanged = iconSelect.value !== originalIcon;
-    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
-    
-    // Update visual feedback for each field
-    nameInput.classList.toggle('form-changed', nameChanged);
-    iconSelect.classList.toggle('form-changed', iconChanged);
-    descriptionInput.classList.toggle('form-changed', descriptionChanged);
+        // Check for changes in Edit Category Modal
+        function checkForCategoryChanges() {
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
+            const submitBtn = document.getElementById('editCategorySubmitBtn');
 
-    // TRAINING PATTERN: Icon appears beside text when changes exist
-    if (nameChanged || iconChanged || descriptionChanged) {
-        // Changes detected - show icon beside text
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Category';
-        submitBtn.title = 'Changes detected - Click to update';
-    } else {
-        // No changes - plain text only
-        submitBtn.classList.add('no-changes');
-        submitBtn.innerHTML = 'Update Category';
-        submitBtn.title = 'No changes yet';
-    }
-}
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalIcon = iconSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
+
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const iconChanged = iconSelect.value !== originalIcon;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+
+            // Update visual feedback for each field
+            nameInput.classList.toggle('form-changed', nameChanged);
+            iconSelect.classList.toggle('form-changed', iconChanged);
+            descriptionInput.classList.toggle('form-changed', descriptionChanged);
+
+            // TRAINING PATTERN: Icon appears beside text when changes exist
+            if (nameChanged || iconChanged || descriptionChanged) {
+                // Changes detected - show icon beside text
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Category';
+                submitBtn.title = 'Changes detected - Click to update';
+            } else {
+                // No changes - plain text only
+                submitBtn.classList.add('no-changes');
+                submitBtn.innerHTML = 'Update Category';
+                submitBtn.title = 'No changes yet';
+            }
+        }
 
 
 
-// Add event listeners for real-time change detection
-document.addEventListener('DOMContentLoaded', function() {
-    const nameInput = document.getElementById('edit_category_name');
-    const iconSelect = document.getElementById('edit_icon');
-    const descriptionInput = document.getElementById('edit_category_description');
-    
-    if (nameInput) {
-        nameInput.addEventListener('input', function() {
-            document.getElementById('edit_display_name_hidden').value = this.value;
-            checkForCategoryChanges();
+        // Add event listeners for real-time change detection
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
+
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    document.getElementById('edit_display_name_hidden').value = this.value;
+                    checkForCategoryChanges();
+                });
+            }
+
+            if (iconSelect) {
+                iconSelect.addEventListener('change', checkForCategoryChanges);
+            }
+
+            if (descriptionInput) {
+                descriptionInput.addEventListener('input', checkForCategoryChanges);
+            }
         });
-    }
-    
-    if (iconSelect) {
-        iconSelect.addEventListener('change', checkForCategoryChanges);
-    }
-    
-    if (descriptionInput) {
-        descriptionInput.addEventListener('input', checkForCategoryChanges);
-    }
-});
 
-// CHANGE: Updated function to show/hide button changes
-function checkForItemChanges() {
-    const nameInput = document.getElementById('edit_item_name');
-    const unitSelect = document.getElementById('edit_item_unit');
-    const descriptionInput = document.getElementById('edit_item_description');
-    const minSupplyInput = document.getElementById('edit_item_minimum_supply');
-    const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
-    const reorderPointInput = document.getElementById('edit_item_reorder_point');
-    const imageInput = document.querySelector('#editItemForm input[name="image"]');
-    const submitBtn = document.getElementById('editItemSubmitBtn');
+        // CHANGE: Updated function to show/hide button changes
+        function checkForItemChanges() {
+            const nameInput = document.getElementById('edit_item_name');
+            const unitSelect = document.getElementById('edit_item_unit');
+            const descriptionInput = document.getElementById('edit_item_description');
+            const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+            const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+            const reorderPointInput = document.getElementById('edit_item_reorder_point');
+            const imageInput = document.querySelector('#editItemForm input[name="image"]');
+            const submitBtn = document.getElementById('editItemSubmitBtn');
 
-    const originalName = nameInput.dataset.originalValue || '';
-    const originalUnit = unitSelect.dataset.originalValue || '';
-    const originalDescription = descriptionInput.dataset.originalValue || '';
-    const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
-    const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
-    const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalUnit = unitSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
+            const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
+            const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
+            const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
 
-    const nameChanged = nameInput.value.trim() !== originalName;
-    const unitChanged = unitSelect.value !== originalUnit;
-    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
-    const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
-    const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
-    const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
-    const imageChanged = imageInput.files && imageInput.files.length > 0;
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const unitChanged = unitSelect.value !== originalUnit;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+            const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
+            const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
+            const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
+            const imageChanged = imageInput.files && imageInput.files.length > 0;
 
-    // Update visual feedback for each field
-    nameInput.classList.toggle('form-changed', nameChanged);
-    unitSelect.classList.toggle('form-changed', unitChanged);
-    descriptionInput.classList.toggle('form-changed', descriptionChanged);
-    minSupplyInput.classList.toggle('form-changed', minSupplyChanged);
-    maxSupplyInput.classList.toggle('form-changed', maxSupplyChanged);
-    reorderPointInput.classList.toggle('form-changed', reorderPointChanged);
-    imageInput.classList.toggle('form-changed', imageChanged);
+            // Update visual feedback for each field
+            nameInput.classList.toggle('form-changed', nameChanged);
+            unitSelect.classList.toggle('form-changed', unitChanged);
+            descriptionInput.classList.toggle('form-changed', descriptionChanged);
+            minSupplyInput.classList.toggle('form-changed', minSupplyChanged);
+            maxSupplyInput.classList.toggle('form-changed', maxSupplyChanged);
+            reorderPointInput.classList.toggle('form-changed', reorderPointChanged);
+            imageInput.classList.toggle('form-changed', imageChanged);
 
-    // TRAINING PATTERN: Icon appears beside text when changes exist
-    if (nameChanged || unitChanged || descriptionChanged || minSupplyChanged || 
-        maxSupplyChanged || reorderPointChanged || imageChanged) {
-        // Changes detected - show icon beside text
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Item';
-        submitBtn.title = 'Changes detected - Click to update';
-    } else {
-        // No changes - plain text only
-        submitBtn.classList.add('no-changes');
-        submitBtn.innerHTML = 'Update Item';
-        submitBtn.title = 'No changes yet';
-    }
-}
+            // TRAINING PATTERN: Icon appears beside text when changes exist
+            if (nameChanged || unitChanged || descriptionChanged || minSupplyChanged ||
+                maxSupplyChanged || reorderPointChanged || imageChanged) {
+                // Changes detected - show icon beside text
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Item';
+                submitBtn.title = 'Changes detected - Click to update';
+            } else {
+                // No changes - plain text only
+                submitBtn.classList.add('no-changes');
+                submitBtn.innerHTML = 'Update Item';
+                submitBtn.title = 'No changes yet';
+            }
+        }
 
-    // Add event listeners for real-time change detection in Edit Item Modal
-document.addEventListener('DOMContentLoaded', function() {
-    const editItemForm = document.getElementById('editItemForm');
-    
-    if (editItemForm) {
-        // Get all input fields
-        const nameInput = document.getElementById('edit_item_name');
-        const unitSelect = document.getElementById('edit_item_unit');
-        const descriptionInput = document.getElementById('edit_item_description');
-        const minSupplyInput = document.getElementById('edit_item_minimum_supply');
-        const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
-        const reorderPointInput = document.getElementById('edit_item_reorder_point');
-        const imageInput = editItemForm.querySelector('input[name="image"]');
+        // Add event listeners for real-time change detection in Edit Item Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editItemForm = document.getElementById('editItemForm');
 
-        // Add listeners to all fields
-        if (nameInput) {
-            nameInput.addEventListener('input', checkForItemChanges);
-            nameInput.addEventListener('change', checkForItemChanges);
-        }
-        
-        if (unitSelect) {
-            unitSelect.addEventListener('change', checkForItemChanges);
-        }
-        
-        if (descriptionInput) {
-            descriptionInput.addEventListener('input', checkForItemChanges);
-            descriptionInput.addEventListener('change', checkForItemChanges);
-        }
-        
-        if (minSupplyInput) {
-            minSupplyInput.addEventListener('input', checkForItemChanges);
-            minSupplyInput.addEventListener('change', checkForItemChanges);
-        }
-        
-        if (maxSupplyInput) {
-            maxSupplyInput.addEventListener('input', checkForItemChanges);
-            maxSupplyInput.addEventListener('change', checkForItemChanges);
-        }
-        
-        if (reorderPointInput) {
-            reorderPointInput.addEventListener('input', checkForItemChanges);
-            reorderPointInput.addEventListener('change', checkForItemChanges);
-        }
-        
-        if (imageInput) {
-            imageInput.addEventListener('change', checkForItemChanges);
-        }
-    }
-});
+            if (editItemForm) {
+                // Get all input fields
+                const nameInput = document.getElementById('edit_item_name');
+                const unitSelect = document.getElementById('edit_item_unit');
+                const descriptionInput = document.getElementById('edit_item_description');
+                const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+                const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+                const reorderPointInput = document.getElementById('edit_item_reorder_point');
+                const imageInput = editItemForm.querySelector('input[name="image"]');
+
+                // Add listeners to all fields
+                if (nameInput) {
+                    nameInput.addEventListener('input', checkForItemChanges);
+                    nameInput.addEventListener('change', checkForItemChanges);
+                }
+
+                if (unitSelect) {
+                    unitSelect.addEventListener('change', checkForItemChanges);
+                }
+
+                if (descriptionInput) {
+                    descriptionInput.addEventListener('input', checkForItemChanges);
+                    descriptionInput.addEventListener('change', checkForItemChanges);
+                }
+
+                if (minSupplyInput) {
+                    minSupplyInput.addEventListener('input', checkForItemChanges);
+                    minSupplyInput.addEventListener('change', checkForItemChanges);
+                }
+
+                if (maxSupplyInput) {
+                    maxSupplyInput.addEventListener('input', checkForItemChanges);
+                    maxSupplyInput.addEventListener('change', checkForItemChanges);
+                }
+
+                if (reorderPointInput) {
+                    reorderPointInput.addEventListener('input', checkForItemChanges);
+                    reorderPointInput.addEventListener('change', checkForItemChanges);
+                }
+
+                if (imageInput) {
+                    imageInput.addEventListener('change', checkForItemChanges);
+                }
+            }
+        });
+
         // ==========================================
         // FIXED CATEGORY SWITCHING + FILTERING + PAGINATION
         // ==========================================
@@ -2324,12 +2378,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (event) {
                 event.preventDefault();
             }
-            
+
             // Update active tab button
             document.querySelectorAll('.category-tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             const activeBtn = event ? event.target.closest('.category-tab-btn') : null;
             if (activeBtn) {
                 activeBtn.classList.add('active');
@@ -2401,7 +2455,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 // Get supply status
-                const supplyBadge = row.querySelector('span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
+                const supplyBadge = row.querySelector(
+                    'span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
                 const currentSupply = supplyBadge ? parseInt(supplyBadge.textContent) : 0;
 
                 let stockStatus = 'in_stock';
@@ -2502,7 +2557,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
                     // Get supply status
-                    const supplyBadge = row.querySelector('span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
+                    const supplyBadge = row.querySelector(
+                        'span.badge.bg-success, span.badge.bg-warning, span.badge.bg-danger');
                     const currentSupply = supplyBadge ? parseInt(supplyBadge.textContent) : 0;
 
                     let stockStatus = 'in_stock';
@@ -2667,15 +2723,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentPageNum === 1) {
                 paginationItems += `<li class="page-item disabled"><span class="page-link">Back</span></li>`;
             } else {
-                paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum - 1}" rel="prev">Back</a></li>`;
+                paginationItems +=
+                    `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum - 1}" rel="prev">Back</a></li>`;
             }
 
             // Page Numbers
             for (let page = startPage; page <= endPage; page++) {
                 if (page === currentPageNum) {
-                    paginationItems += `<li class="page-item active"><span class="page-link bg-primary border-primary">${page}</span></li>`;
+                    paginationItems +=
+                        `<li class="page-item active"><span class="page-link bg-primary border-primary">${page}</span></li>`;
                 } else {
-                    paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${page}">${page}</a></li>`;
+                    paginationItems +=
+                        `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${page}">${page}</a></li>`;
                 }
             }
 
@@ -2683,7 +2742,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentPageNum === totalPages) {
                 paginationItems += `<li class="page-item disabled"><span class="page-link">Next</span></li>`;
             } else {
-                paginationItems += `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum + 1}" rel="next">Next</a></li>`;
+                paginationItems +=
+                    `<li class="page-item"><a class="page-link pagination-link" href="#" data-category="${categoryId}" data-page="${currentPageNum + 1}" rel="next">Next</a></li>`;
             }
 
             const paginationHTML = `
@@ -2711,6 +2771,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Auto search with debounce
         let searchTimeout;
+
         function autoSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -2728,7 +2789,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            
+
             // Check if we need to switch back to a category after reload
             const pendingCategory = sessionStorage.getItem('pendingCategorySwitch');
             if (pendingCategory) {
@@ -2787,221 +2848,224 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Scroll to category
                     const container = document.getElementById(`category-${catId}`);
                     if (container) {
-                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        container.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                     }
                 }
             }
         });
-          // Update category description character counter
-    function updateCategoryDescriptionCounter() {
-        const textarea = document.querySelector('#createCategoryModal textarea[name="description"]');
-        const charCount = document.getElementById('categoryCharCount');
-        
-        if (textarea && charCount) {
-            const currentLength = textarea.value.length;
-            
-            // Update character count only
-            charCount.textContent = currentLength;
-        }
-    }
+        // Update category description character counter
+        function updateCategoryDescriptionCounter() {
+            const textarea = document.querySelector('#createCategoryModal textarea[name="description"]');
+            const charCount = document.getElementById('categoryCharCount');
 
-    // Update icon preview
-    function updateIconPreview(type) {
-        const select = document.getElementById(`${type}_icon`);
-        const preview = document.getElementById(`${type}_icon_preview`);
-        const iconClass = select.value;
-        preview.className = iconClass ? `fas ${iconClass} fa-2x` : 'fas fa-leaf fa-2x';
-    }
+            if (textarea && charCount) {
+                const currentLength = textarea.value.length;
 
-    // Initialize description counter when modal opens
-    document.addEventListener('DOMContentLoaded', function() {
-        const createCategoryModal = document.getElementById('createCategoryModal');
-        if (createCategoryModal) {
-            createCategoryModal.addEventListener('show.bs.modal', function() {
-                updateCategoryDescriptionCounter();
-            });
+                // Update character count only
+                charCount.textContent = currentLength;
+            }
         }
 
-        const descriptionTextarea = document.querySelector('#createCategoryModal textarea[name="description"]');
-        if (descriptionTextarea) {
-            descriptionTextarea.addEventListener('input', updateCategoryDescriptionCounter);
-            descriptionTextarea.addEventListener('change', updateCategoryDescriptionCounter);
-        }
-    });
-    // Update edit category description character counter
-    function updateEditCategoryDescriptionCounter() {
-        const textarea = document.querySelector('#editCategoryModal textarea[name="description"]');
-        const charCount = document.getElementById('editCategoryCharCount');
-        
-        if (textarea && charCount) {
-            const currentLength = textarea.value.length;
-            
-            // Update character count only
-            charCount.textContent = currentLength;
-        }
-    }
-
-    // Initialize edit category description counter when modal opens
-    document.addEventListener('DOMContentLoaded', function() {
-        const editCategoryModal = document.getElementById('editCategoryModal');
-        if (editCategoryModal) {
-            editCategoryModal.addEventListener('show.bs.modal', function() {
-                updateEditCategoryDescriptionCounter();
-            });
+        // Update icon preview
+        function updateIconPreview(type) {
+            const select = document.getElementById(`${type}_icon`);
+            const preview = document.getElementById(`${type}_icon_preview`);
+            const iconClass = select.value;
+            preview.className = iconClass ? `fas ${iconClass} fa-2x` : 'fas fa-leaf fa-2x';
         }
 
-        const editDescriptionTextarea = document.querySelector('#editCategoryModal textarea[name="description"]');
-        if (editDescriptionTextarea) {
-            editDescriptionTextarea.addEventListener('input', updateEditCategoryDescriptionCounter);
-            editDescriptionTextarea.addEventListener('change', updateEditCategoryDescriptionCounter);
-        }
-    });
+        // Initialize description counter when modal opens
+        document.addEventListener('DOMContentLoaded', function() {
+            const createCategoryModal = document.getElementById('createCategoryModal');
+            if (createCategoryModal) {
+                createCategoryModal.addEventListener('show.bs.modal', function() {
+                    updateCategoryDescriptionCounter();
+                });
+            }
 
-    // Update item description character counter
-    function updateItemDescriptionCounter() {
-        const textarea = document.querySelector('#createItemModal textarea[name="description"]');
-        const charCount = document.getElementById('itemCharCount');
-        
-        if (textarea && charCount) {
-            const currentLength = textarea.value.length;
-            
-            // Update character count
-            charCount.textContent = currentLength;
-            
-        }
-    }
+            const descriptionTextarea = document.querySelector('#createCategoryModal textarea[name="description"]');
+            if (descriptionTextarea) {
+                descriptionTextarea.addEventListener('input', updateCategoryDescriptionCounter);
+                descriptionTextarea.addEventListener('change', updateCategoryDescriptionCounter);
+            }
+        });
+        // Update edit category description character counter
+        function updateEditCategoryDescriptionCounter() {
+            const textarea = document.querySelector('#editCategoryModal textarea[name="description"]');
+            const charCount = document.getElementById('editCategoryCharCount');
 
-    // Initialize description counter when Add Item modal opens
-    document.addEventListener('DOMContentLoaded', function() {
-        const createItemModal = document.getElementById('createItemModal');
-        if (createItemModal) {
-            createItemModal.addEventListener('show.bs.modal', function() {
-                updateItemDescriptionCounter();
-            });
+            if (textarea && charCount) {
+                const currentLength = textarea.value.length;
+
+                // Update character count only
+                charCount.textContent = currentLength;
+            }
         }
 
-        const itemDescriptionTextarea = document.querySelector('#createItemModal textarea[name="description"]');
-        if (itemDescriptionTextarea) {
-            itemDescriptionTextarea.addEventListener('input', updateItemDescriptionCounter);
-            itemDescriptionTextarea.addEventListener('change', updateItemDescriptionCounter);
-        }
-    });
-    // Update edit item description character counter
-    function updateEditItemDescriptionCounter() {
-        const textarea = document.querySelector('#editItemModal textarea[name="description"]');
-        const charCount = document.getElementById('editItemCharCount');
-        
-        if (textarea && charCount) {
-            const currentLength = textarea.value.length;
-            charCount.textContent = currentLength;
-        }
-    }
+        // Initialize edit category description counter when modal opens
+        document.addEventListener('DOMContentLoaded', function() {
+            const editCategoryModal = document.getElementById('editCategoryModal');
+            if (editCategoryModal) {
+                editCategoryModal.addEventListener('show.bs.modal', function() {
+                    updateEditCategoryDescriptionCounter();
+                });
+            }
 
-    // Initialize edit item description counter when modal opens
-    document.addEventListener('DOMContentLoaded', function() {
-        const editItemModal = document.getElementById('editItemModal');
-        if (editItemModal) {
-            editItemModal.addEventListener('show.bs.modal', function() {
-                updateEditItemDescriptionCounter();
-            });
+            const editDescriptionTextarea = document.querySelector(
+                '#editCategoryModal textarea[name="description"]');
+            if (editDescriptionTextarea) {
+                editDescriptionTextarea.addEventListener('input', updateEditCategoryDescriptionCounter);
+                editDescriptionTextarea.addEventListener('change', updateEditCategoryDescriptionCounter);
+            }
+        });
+
+        // Update item description character counter
+        function updateItemDescriptionCounter() {
+            const textarea = document.querySelector('#createItemModal textarea[name="description"]');
+            const charCount = document.getElementById('itemCharCount');
+
+            if (textarea && charCount) {
+                const currentLength = textarea.value.length;
+
+                // Update character count
+                charCount.textContent = currentLength;
+
+            }
         }
 
-        const editDescriptionTextarea = document.querySelector('#editItemModal textarea[name="description"]');
-        if (editDescriptionTextarea) {
-            editDescriptionTextarea.addEventListener('input', updateEditItemDescriptionCounter);
-            editDescriptionTextarea.addEventListener('change', updateEditItemDescriptionCounter);
-        }
-    });
-    // Character counters for supply modal
-    document.getElementById('addSupplyForm').addEventListener('input', function(e) {
-        if (e.target.name === 'notes') {
-            document.getElementById('addSupplyNoteCount').textContent = e.target.value.length;
-        }
-    });
+        // Initialize description counter when Add Item modal opens
+        document.addEventListener('DOMContentLoaded', function() {
+            const createItemModal = document.getElementById('createItemModal');
+            if (createItemModal) {
+                createItemModal.addEventListener('show.bs.modal', function() {
+                    updateItemDescriptionCounter();
+                });
+            }
 
-    document.getElementById('adjustSupplyForm').addEventListener('input', function(e) {
-        if (e.target.name === 'reason') {
-            document.getElementById('adjustSupplyReasonCount').textContent = e.target.value.length;
-        }
-    });
+            const itemDescriptionTextarea = document.querySelector('#createItemModal textarea[name="description"]');
+            if (itemDescriptionTextarea) {
+                itemDescriptionTextarea.addEventListener('input', updateItemDescriptionCounter);
+                itemDescriptionTextarea.addEventListener('change', updateItemDescriptionCounter);
+            }
+        });
+        // Update edit item description character counter
+        function updateEditItemDescriptionCounter() {
+            const textarea = document.querySelector('#editItemModal textarea[name="description"]');
+            const charCount = document.getElementById('editItemCharCount');
 
-    document.getElementById('recordLossForm').addEventListener('input', function(e) {
-        if (e.target.name === 'reason') {
-            document.getElementById('lossReasonCount').textContent = e.target.value.length;
+            if (textarea && charCount) {
+                const currentLength = textarea.value.length;
+                charCount.textContent = currentLength;
+            }
         }
-    });
-    // Auto-capitalize category name (capitalize first letter of each word)
-    function capitalizeWords(str) {
-        return str
-            .toLowerCase()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ')
-            .replace(/\s+/g, ' ') // Remove extra spaces
-            .trim();
-    }
 
-    // Initialize auto-capitalization for Create Category Modal
-    document.addEventListener('DOMContentLoaded', function() {
-        const categoryNameInput = document.querySelector('#createCategoryModal input[name="name"]');
-        
-        if (categoryNameInput) {
-            categoryNameInput.addEventListener('blur', function() {
-                if (this.value.trim()) {
-                    this.value = capitalizeWords(this.value);
-                    // Update display name as well
-                    document.getElementById('display_name_hidden').value = this.value;
-                }
-            });
-        }
-    });
+        // Initialize edit item description counter when modal opens
+        document.addEventListener('DOMContentLoaded', function() {
+            const editItemModal = document.getElementById('editItemModal');
+            if (editItemModal) {
+                editItemModal.addEventListener('show.bs.modal', function() {
+                    updateEditItemDescriptionCounter();
+                });
+            }
 
-    // Initialize auto-capitalization for Edit Category Modal
-    document.addEventListener('DOMContentLoaded', function() {
-        const editCategoryNameInput = document.getElementById('edit_category_name');
-        
-        if (editCategoryNameInput) {
-            editCategoryNameInput.addEventListener('blur', function() {
-                if (this.value.trim()) {
-                    this.value = capitalizeWords(this.value);
-                    // Update display name as well
-                    document.getElementById('edit_display_name_hidden').value = this.value;
-                    checkForCategoryChanges();
-                }
-            });
-        }
-    });
+            const editDescriptionTextarea = document.querySelector('#editItemModal textarea[name="description"]');
+            if (editDescriptionTextarea) {
+                editDescriptionTextarea.addEventListener('input', updateEditItemDescriptionCounter);
+                editDescriptionTextarea.addEventListener('change', updateEditItemDescriptionCounter);
+            }
+        });
+        // Character counters for supply modal
+        document.getElementById('addSupplyForm').addEventListener('input', function(e) {
+            if (e.target.name === 'notes') {
+                document.getElementById('addSupplyNoteCount').textContent = e.target.value.length;
+            }
+        });
 
-    // Initialize auto-capitalization for Create Item Modal
-    document.addEventListener('DOMContentLoaded', function() {
-        const itemNameInput = document.querySelector('#createItemModal input[name="name"]');
-        
-        if (itemNameInput) {
-            itemNameInput.addEventListener('blur', function() {
-                if (this.value.trim()) {
-                    this.value = capitalizeWords(this.value);
-                }
-            });
-        }
-    });
+        document.getElementById('adjustSupplyForm').addEventListener('input', function(e) {
+            if (e.target.name === 'reason') {
+                document.getElementById('adjustSupplyReasonCount').textContent = e.target.value.length;
+            }
+        });
 
-    // Initialize auto-capitalization for Edit Item Modal
-    document.addEventListener('DOMContentLoaded', function() {
-        const editItemNameInput = document.getElementById('edit_item_name');
-        
-        if (editItemNameInput) {
-            editItemNameInput.addEventListener('blur', function() {
-                if (this.value.trim()) {
-                    this.value = capitalizeWords(this.value);
-                    checkForItemChanges();
-                }
-            });
+        document.getElementById('recordLossForm').addEventListener('input', function(e) {
+            if (e.target.name === 'reason') {
+                document.getElementById('lossReasonCount').textContent = e.target.value.length;
+            }
+        });
+        // Auto-capitalize category name (capitalize first letter of each word)
+        function capitalizeWords(str) {
+            return str
+                .toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+                .replace(/\s+/g, ' ') // Remove extra spaces
+                .trim();
         }
-    });
+
+        // Initialize auto-capitalization for Create Category Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryNameInput = document.querySelector('#createCategoryModal input[name="name"]');
+
+            if (categoryNameInput) {
+                categoryNameInput.addEventListener('blur', function() {
+                    if (this.value.trim()) {
+                        this.value = capitalizeWords(this.value);
+                        // Update display name as well
+                        document.getElementById('display_name_hidden').value = this.value;
+                    }
+                });
+            }
+        });
+
+        // Initialize auto-capitalization for Edit Category Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editCategoryNameInput = document.getElementById('edit_category_name');
+
+            if (editCategoryNameInput) {
+                editCategoryNameInput.addEventListener('blur', function() {
+                    if (this.value.trim()) {
+                        this.value = capitalizeWords(this.value);
+                        // Update display name as well
+                        document.getElementById('edit_display_name_hidden').value = this.value;
+                        checkForCategoryChanges();
+                    }
+                });
+            }
+        });
+
+        // Initialize auto-capitalization for Create Item Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemNameInput = document.querySelector('#createItemModal input[name="name"]');
+
+            if (itemNameInput) {
+                itemNameInput.addEventListener('blur', function() {
+                    if (this.value.trim()) {
+                        this.value = capitalizeWords(this.value);
+                    }
+                });
+            }
+        });
+
+        // Initialize auto-capitalization for Edit Item Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editItemNameInput = document.getElementById('edit_item_name');
+
+            if (editItemNameInput) {
+                editItemNameInput.addEventListener('blur', function() {
+                    if (this.value.trim()) {
+                        this.value = capitalizeWords(this.value);
+                        checkForItemChanges();
+                    }
+                });
+            }
+        });
     </script>
 
     <style>
-
         /* Toast Notification Container */
         .toast-container {
             position: fixed;
@@ -3140,6 +3204,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 max-width: 100%;
             }
         }
+
         /* Metric card styles */
         .metric-card {
             border-radius: 12px;
@@ -3248,8 +3313,32 @@ document.addEventListener('DOMContentLoaded', function() {
         /* Category Tab Navigation */
         .category-tabs-nav {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 0.5rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f7fafc;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0.25rem;
+        }
+
+        .category-tabs-nav::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .category-tabs-nav::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 3px;
+        }
+
+        .category-tabs-nav::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .category-tabs-nav::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
         }
 
         .category-tab-btn {
@@ -3264,6 +3353,8 @@ document.addEventListener('DOMContentLoaded', function() {
             align-items: center;
             gap: 0.5rem;
             font-size: 0.9rem;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .category-tab-btn:hover {
@@ -3505,7 +3596,7 @@ document.addEventListener('DOMContentLoaded', function() {
             border-color: #6c757d;
         }
 
-     /* Edit Item Modal - Change Detection Styles */
+        /* Edit Item Modal - Change Detection Styles */
         #editItemModal .form-control.form-changed,
         #editItemModal .form-select.form-changed {
             border-left: 3px solid #ffc107 !important;
@@ -3532,6 +3623,7 @@ document.addEventListener('DOMContentLoaded', function() {
             background-color: #6c757d;
             border-color: #6c757d;
         }
+
         /* Filters & Search Card */
         .card[id*="filterForm"].shadow {
             border: none;
@@ -3550,7 +3642,7 @@ document.addEventListener('DOMContentLoaded', function() {
             letter-spacing: 0.3px;
         }
 
-        .form-select-sm, 
+        .form-select-sm,
         .form-control-sm {
             height: calc(1.5em + 0.5rem + 2px);
             padding: 0.375rem 0.75rem;
@@ -3573,6 +3665,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .input-group-sm .form-control {
             border: 1px solid #dee2e6;
         }
+
         /* Pagination Controls */
         .pagination-controls {
             margin: 2rem 0 1rem 0;
@@ -3657,48 +3750,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 padding: 0.4rem 0.6rem;
             }
         }
+
         /* Create Category Modal Styles */
-            #createCategoryModal .form-control,
-            #createCategoryModal .form-select {
-                border-radius: 8px;
-                border: 1px solid #e9ecef;
-                transition: all 0.3s ease;
-            }
+        #createCategoryModal .form-control,
+        #createCategoryModal .form-select {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
 
-            #createCategoryModal .form-control:focus,
-            #createCategoryModal .form-select:focus {
-                border-color: #0d6efd;
-                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-            }
+        #createCategoryModal .form-control:focus,
+        #createCategoryModal .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
 
-            #createCategoryModal .form-label {
-                color: #495057;
-                font-weight: 500;
-                font-size: 0.95rem;
-            }
+        #createCategoryModal .form-label {
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
 
-            /* Item Description Counter Styling */
-            #itemDescriptionCounter {
-                font-weight: 500;
-                transition: color 0.3s ease;
-            }
+        /* Item Description Counter Styling */
+        #itemDescriptionCounter {
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
 
-            #createItemModal textarea[name="description"] {
-                resize: vertical;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                font-size: 0.95rem;
-                line-height: 1.5;
-            }
+        #createItemModal textarea[name="description"] {
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
 
-            #createItemModal textarea[name="description"]:focus {
-                border-color: #0d6efd;
-                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-            }
+        #createItemModal textarea[name="description"]:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
 
-            /* Character count indicator */
-            .text-muted #itemCharCount {
-                font-weight: 600;
-            }
+        /* Character count indicator */
+        .text-muted #itemCharCount {
+            font-weight: 600;
+        }
+
         /* Text Truncation for Tables */
         .truncate-text {
             white-space: nowrap;
@@ -3731,498 +3826,517 @@ document.addEventListener('DOMContentLoaded', function() {
             max-width: 100px;
             display: block;
         }
-/* ================================
-   COMPREHENSIVE TEXT OVERFLOW FIXES
-   ================================ */
 
-/* Category Name - Primary Fix - AGGRESSIVE */
-.category-name {
-    display: inline-block !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 150px !important;
-    width: 150px !important;
-    vertical-align: middle;
-    flex-shrink: 1 !important;
-    min-width: 0 !important;
-    line-height: 1.4;
-}
+        /* ================================
+           COMPREHENSIVE TEXT OVERFLOW FIXES
+           ================================ */
 
-/* Span wrapper for category */
-h5 .category-name,
-h4 .category-name {
-    max-width: 150px !important;
-    width: 150px !important;
-}
+        /* Category Name - Primary Fix - AGGRESSIVE */
+        .category-name {
+            display: inline-block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 150px !important;
+            width: 150px !important;
+            vertical-align: middle;
+            flex-shrink: 1 !important;
+            min-width: 0 !important;
+            line-height: 1.4;
+        }
 
-/* Item Name in Tables */
-.item-name {
-    display: block !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 100% !important;
-    min-width: 0;
-}
+        /* Clickable category name hover effect */
+        .card-header a.category-name:hover {
+            color: #0d6efd !important;
+            text-decoration: underline !important;
+        }
 
-/* Description Truncation - Works in any context */
-.description-truncate {
-    display: block !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    word-break: break-all;
-}
+        /* View More button styling */
+        .card-footer .btn-link:hover {
+            text-decoration: underline !important;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
 
-/* Table Headers - Fix Truncation */
-.table thead th {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 100%;
-    padding: 1rem 0.75rem;
-    background: #0a58ca;
-    color: #ffffff;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #0a58ca;
-    word-break: break-word;
-}
+        /* Span wrapper for category */
+        h5 .category-name,
+        h4 .category-name {
+            max-width: 150px !important;
+            width: 150px !important;
+        }
 
-/* Category Header Container - Fix Wrapping */
-.card-header h5,
-.card-header h4 {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.3rem !important;
-    flex-wrap: nowrap !important;
-    overflow: hidden !important;
-    word-break: normal;
-    margin: 0 !important;
-    width: auto !important;
-    min-width: 0 !important;
-    flex: 1;
-}
+        /* Item Name in Tables */
+        .item-name {
+            display: block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 100% !important;
+            min-width: 0;
+        }
 
-/* Card Header with Category Title */
-.card-header .d-flex {
-    flex-wrap: wrap !important;
-    gap: 1rem !important;
-}
+        /* Description Truncation - Works in any context */
+        .description-truncate {
+            display: block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            word-break: break-all;
+        }
 
-/* Category description in header */
-.card-header small.text-muted {
-    display: block !important;
-    width: 100% !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    max-width: 100% !important;
-}
+        /* Table Headers - Fix Truncation */
+        .table thead th {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 100%;
+            padding: 1rem 0.75rem;
+            background: #0a58ca;
+            color: #ffffff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #0a58ca;
+            word-break: break-word;
+        }
 
-/* Badge spacing fix */
-.card-header .badge {
-    flex-shrink: 0;
-    white-space: nowrap;
-}
+        /* Category Header Container - Fix Wrapping */
+        .card-header h5,
+        .card-header h4 {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.3rem !important;
+            flex-wrap: nowrap !important;
+            overflow: hidden !important;
+            word-break: normal;
+            margin: 0 !important;
+            width: auto !important;
+            min-width: 0 !important;
+            flex: 1;
+        }
 
-/* Icon in header */
-.card-header i {
-    flex-shrink: 0;
-}
+        /* Card Header with Category Title */
+        .card-header .d-flex {
+            flex-wrap: wrap !important;
+            gap: 1rem !important;
+        }
 
-/* Modal Dialog Text */
-.modal-body label,
-.modal-body .form-label {
-    white-space: normal !important;
-    word-wrap: break-word;
-    max-width: 100%;
-}
+        /* Category description in header */
+        .card-header small.text-muted {
+            display: block !important;
+            width: 100% !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+        }
 
-/* Form Control Labels */
-.form-label {
-    display: block;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
-}
+        /* Badge spacing fix */
+        .card-header .badge {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
 
-/* Button Text Fix */
-.btn {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    max-width: 100%;
-}
+        /* Icon in header */
+        .card-header i {
+            flex-shrink: 0;
+        }
 
-.btn span {
-    display: inline;
-    word-break: break-word;
-}
+        /* Modal Dialog Text */
+        .modal-body label,
+        .modal-body .form-label {
+            white-space: normal !important;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
 
-/* Search Input Fix */
-.input-group .form-control {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        /* Form Control Labels */
+        .form-label {
+            display: block;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
 
-/* Select dropdown Fix */
-.form-select {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
+        /* Button Text Fix */
+        .btn {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            max-width: 100%;
+        }
 
-/* Table Cell Content */
-.table td {
-    overflow: visible !important;
-    word-break: break-word;
-    overflow-wrap: break-word;
-}
+        .btn span {
+            display: inline;
+            word-break: break-word;
+        }
 
-.table td strong {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100%;
-    min-width: 0;
-}
+        /* Search Input Fix */
+        .input-group .form-control {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-.table td small {
-    display: block;
-    width: 100%;
-    min-width: 0;
-}
+        /* Select dropdown Fix */
+        .form-select {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
 
-.table td small.description-truncate {
-    display: block !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-}
+        /* Table Cell Content */
+        .table td {
+            overflow: visible !important;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
 
-/* Tooltip Text */
-.tooltip-inner {
-    max-width: 250px;
-    word-break: break-word;
-    white-space: normal !important;
-    text-align: left;
-    overflow-wrap: break-word;
-}
+        .table td strong {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            min-width: 0;
+        }
 
-/* Alert Messages */
-.alert {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    overflow: hidden;
-    max-width: 100%;
-}
+        .table td small {
+            display: block;
+            width: 100%;
+            min-width: 0;
+        }
 
-/* Toast Notifications */
-.toast-notification .toast-content span {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    overflow: hidden;
-    max-width: 100%;
-}
+        .table td small.description-truncate {
+            display: block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+        }
 
-.confirmation-toast .toast-body p {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: pre-wrap;
-    max-width: 100%;
-}
+        /* Tooltip Text */
+        .tooltip-inner {
+            max-width: 250px;
+            word-break: break-word;
+            white-space: normal !important;
+            text-align: left;
+            overflow-wrap: break-word;
+        }
 
-/* Card Title Fix */
-.card-title,
-.modal-title {
-    word-break: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
-}
+        /* Alert Messages */
+        .alert {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            overflow: hidden;
+            max-width: 100%;
+        }
 
-/* Paragraph Text */
-p, small, span {
-    word-break: break-word;
-    overflow-wrap: break-word;
-}
+        /* Toast Notifications */
+        .toast-notification .toast-content span {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            overflow: hidden;
+            max-width: 100%;
+        }
 
-/* ================================
-   RESPONSIVE ADJUSTMENTS
-   ================================ */
+        .confirmation-toast .toast-body p {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            max-width: 100%;
+        }
 
-/* Large Screens (lg) */
-@media (min-width: 1200px) {
-    .category-name {
-        max-width: 300px !important;
-    }
-    
-    .item-name {
-        max-width: 200px !important;
-    }
-    
-    .description-truncate {
-        max-width: 150px !important;
-    }
-}
+        /* Card Title Fix */
+        .card-title,
+        .modal-title {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
 
-/* Medium Screens (md) */
-@media (max-width: 1199px) {
-    .category-name {
-        max-width: 180px !important;
-        width: 180px !important;
-    }
-    
-    .item-name {
-        max-width: 160px !important;
-    }
-    
-    .description-truncate {
-        max-width: 120px !important;
-    }
+        /* Paragraph Text */
+        p,
+        small,
+        span {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
 
-    .card-header h5,
-    .card-header h4 {
-        flex-direction: row !important;
-        align-items: center !important;
-    }
-}
+        /* ================================
+           RESPONSIVE ADJUSTMENTS
+           ================================ */
 
-/* Small Screens (sm) */
-@media (max-width: 768px) {
-    .category-name {
-        max-width: 120px !important;
-        width: 120px !important;
-    }
-    
-    .item-name {
-        max-width: 120px !important;
-    }
-    
-    .description-truncate {
-        max-width: 80px !important;
-    }
+        /* Large Screens (lg) */
+        @media (min-width: 1200px) {
+            .category-name {
+                max-width: 300px !important;
+            }
 
-    .card-header {
-        flex-direction: column;
-        align-items: flex-start !important;
-    }
+            .item-name {
+                max-width: 200px !important;
+            }
 
-    .card-header h5,
-    .card-header h4 {
-        flex-direction: row !important;
-        width: 100%;
-    }
+            .description-truncate {
+                max-width: 150px !important;
+            }
+        }
 
-    .card-header .d-flex {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        width: 100%;
-    }
+        /* Medium Screens (md) */
+        @media (max-width: 1199px) {
+            .category-name {
+                max-width: 180px !important;
+                width: 180px !important;
+            }
 
-    .btn {
-        white-space: normal !important;
-        word-break: break-word;
-    }
+            .item-name {
+                max-width: 160px !important;
+            }
 
-    .modal-body {
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
+            .description-truncate {
+                max-width: 120px !important;
+            }
 
-    .table {
-        font-size: 0.85rem;
-    }
+            .card-header h5,
+            .card-header h4 {
+                flex-direction: row !important;
+                align-items: center !important;
+            }
+        }
 
-    .table td {
-        padding: 0.75rem 0.5rem !important;
-    }
-}
+        /* Small Screens (sm) */
+        @media (max-width: 768px) {
+            .category-name {
+                max-width: 120px !important;
+                width: 120px !important;
+            }
 
-/* Extra Small Screens (xs) */
-@media (max-width: 576px) {
-    .category-name {
-        max-width: 100px !important;
-    }
-    
-    .item-name {
-        max-width: 90px !important;
-    }
-    
-    .description-truncate {
-        max-width: 60px !important;
-    }
+            .item-name {
+                max-width: 120px !important;
+            }
 
-    .table {
-        font-size: 0.75rem;
-    }
+            .description-truncate {
+                max-width: 80px !important;
+            }
 
-    .table td, 
-    .table th {
-        padding: 0.5rem 0.25rem !important;
-        font-size: 0.7rem;
-    }
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
 
-    .table thead th {
-        font-size: 0.65rem !important;
-    }
+            .card-header h5,
+            .card-header h4 {
+                flex-direction: row !important;
+                width: 100%;
+            }
 
-    .btn-sm {
-        font-size: 0.65rem !important;
-        padding: 0.25rem 0.5rem !important;
-        white-space: normal;
-    }
+            .card-header .d-flex {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                width: 100%;
+            }
 
-    .card-header {
-        padding: 0.75rem !important;
-    }
+            .btn {
+                white-space: normal !important;
+                word-break: break-word;
+            }
 
-    .card-header h5,
-    .card-header h4 {
-        font-size: 0.95rem !important;
-        margin-bottom: 0.5rem !important;
-        flex-wrap: nowrap;
-    }
+            .modal-body {
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
 
-    .badge {
-        font-size: 0.6rem !important;
-        padding: 0.25rem 0.4rem !important;
-        white-space: nowrap;
-    }
+            .table {
+                font-size: 0.85rem;
+            }
 
-    .toast-notification,
-    .confirmation-toast {
-        min-width: 95vw !important;
-        max-width: 95vw !important;
-    }
+            .table td {
+                padding: 0.75rem 0.5rem !important;
+            }
+        }
 
-    .modal-dialog {
-        margin: 0.5rem !important;
-    }
+        /* Extra Small Screens (xs) */
+        @media (max-width: 576px) {
+            .category-name {
+                max-width: 100px !important;
+            }
 
-    .form-label {
-        font-size: 0.9rem;
-    }
+            .item-name {
+                max-width: 90px !important;
+            }
 
-    .modal-title {
-        font-size: 1.1rem;
-    }
+            .description-truncate {
+                max-width: 60px !important;
+            }
 
-    /* Ensure buttons don't overflow */
-    .btn-group,
-    .dropdown-menu {
-        max-width: 100%;
-        overflow: hidden;
-    }
-}
+            .table {
+                font-size: 0.75rem;
+            }
 
-/* Ultra Small Screens (xs and smaller) */
-@media (max-width: 360px) {
-    .category-name {
-        max-width: 80px !important;
-    }
-    
-    .item-name {
-        max-width: 70px !important;
-    }
-    
-    .description-truncate {
-        max-width: 50px !important;
-    }
+            .table td,
+            .table th {
+                padding: 0.5rem 0.25rem !important;
+                font-size: 0.7rem;
+            }
 
-    .badge {
-        font-size: 0.55rem !important;
-        padding: 0.2rem 0.3rem !important;
-    }
+            .table thead th {
+                font-size: 0.65rem !important;
+            }
 
-    .table {
-        font-size: 0.65rem;
-    }
+            .btn-sm {
+                font-size: 0.65rem !important;
+                padding: 0.25rem 0.5rem !important;
+                white-space: normal;
+            }
 
-    .btn-sm {
-        font-size: 0.6rem !important;
-        padding: 0.2rem 0.4rem !important;
-    }
-}
-    /* Supply Management Modal Header - Centered */
-    #supplyModal .modal-header {
-        justify-content: center !important;
-        text-align: center !important;
-        position: relative;
-    }
+            .card-header {
+                padding: 0.75rem !important;
+            }
 
-    #supplyModal .modal-title {
-        flex: 1;
-        text-align: center;
-        font-weight: 600;
-        font-size: 1.3rem;
-        color: #ffffff;
-    }
+            .card-header h5,
+            .card-header h4 {
+                font-size: 0.95rem !important;
+                margin-bottom: 0.5rem !important;
+                flex-wrap: nowrap;
+            }
 
-    #supplyModal .modal-header .btn-close {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        margin: 0;
-    }
+            .badge {
+                font-size: 0.6rem !important;
+                padding: 0.25rem 0.4rem !important;
+                white-space: nowrap;
+            }
 
-    /* Ensure the header has proper styling */
-    #supplyModal .modal-header {
-        background: linear-gradient(135deg, #198754 0%, #146c43 100%);
-        border: none;
-        padding: 1.25rem;
-    }
-    /* Fix loading spinner color in buttons */
-    .btn-primary:disabled {
-        opacity: 0.8;
-    }
+            .toast-notification,
+            .confirmation-toast {
+                min-width: 95vw !important;
+                max-width: 95vw !important;
+            }
 
-    /* Ensure spinner is always visible in loading state */
-    .btn-primary .spinner-border-sm {
-        color: #ffffff !important;
-        border-color: currentColor;
-        border-right-color: transparent;
-    }
+            .modal-dialog {
+                margin: 0.5rem !important;
+            }
 
-    /* Make loading text visible */
-    .btn-primary:disabled span {
-        color: #ffffff !important;
-    }
+            .form-label {
+                font-size: 0.9rem;
+            }
 
-    /* Alternative: Add specific styling for loading state */
-    .btn.loading {
-        position: relative;
-        pointer-events: none;
-    }
+            .modal-title {
+                font-size: 1.1rem;
+            }
 
-    .btn.loading::after {
-        content: '';
-        position: absolute;
-        width: 16px;
-        height: 16px;
-        top: 50%;
-        left: 10px;
-        margin-top: -8px;
-        border: 2px solid #ffffff;
-        border-radius: 50%;
-        border-top-color: transparent;
-        animation: spinner 0.6s linear infinite;
-    }
+            /* Ensure buttons don't overflow */
+            .btn-group,
+            .dropdown-menu {
+                max-width: 100%;
+                overflow: hidden;
+            }
+        }
 
-    @keyframes spinner {
-        to { transform: rotate(360deg); }
-    }
+        /* Ultra Small Screens (xs and smaller) */
+        @media (max-width: 360px) {
+            .category-name {
+                max-width: 80px !important;
+            }
+
+            .item-name {
+                max-width: 70px !important;
+            }
+
+            .description-truncate {
+                max-width: 50px !important;
+            }
+
+            .badge {
+                font-size: 0.55rem !important;
+                padding: 0.2rem 0.3rem !important;
+            }
+
+            .table {
+                font-size: 0.65rem;
+            }
+
+            .btn-sm {
+                font-size: 0.6rem !important;
+                padding: 0.2rem 0.4rem !important;
+            }
+        }
+
+        /* Supply Management Modal Header - Centered */
+        #supplyModal .modal-header {
+            justify-content: center !important;
+            text-align: center !important;
+            position: relative;
+        }
+
+        #supplyModal .modal-title {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #ffffff;
+        }
+
+        #supplyModal .modal-header .btn-close {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            margin: 0;
+        }
+
+        /* Ensure the header has proper styling */
+        #supplyModal .modal-header {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            border: none;
+            padding: 1.25rem;
+        }
+
+        /* Fix loading spinner color in buttons */
+        .btn-primary:disabled {
+            opacity: 0.8;
+        }
+
+        /* Ensure spinner is always visible in loading state */
+        .btn-primary .spinner-border-sm {
+            color: #ffffff !important;
+            border-color: currentColor;
+            border-right-color: transparent;
+        }
+
+        /* Make loading text visible */
+        .btn-primary:disabled span {
+            color: #ffffff !important;
+        }
+
+        /* Alternative: Add specific styling for loading state */
+        .btn.loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 10px;
+            margin-top: -8px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spinner 0.6s linear infinite;
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 @endsection

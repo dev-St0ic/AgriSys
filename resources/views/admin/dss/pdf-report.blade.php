@@ -221,7 +221,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>Decision Support System Report</h1>
+        <h1>Supplies Request Decision Support System Report</h1>
         <h2>{{ $data['period']['month'] }}</h2>
         <p>AI-Powered Agricultural Intelligence Analysis</p>
         <p>Generated on {{ now()->format('F j, Y \a\t g:i A') }}</p>

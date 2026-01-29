@@ -3,11 +3,59 @@
 @section('title', 'DSS Report Preview - AgriSys Admin')
 @section('page-title', 'Decision Support System - Report Preview')
 
+@section('styles')
+    <style>
+        /* Category Tab Styles - From Supplies & Garden Tools */
+        .btn-outline-secondary {
+            padding: 12px 24px;
+            background: #ffffff !important;
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #555 !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: none !important;
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f8f9fa !important;
+            border-color: #40916c !important;
+            color: #40916c !important;
+            box-shadow: none !important;
+        }
+
+        .btn-outline-secondary:focus,
+        .btn-outline-secondary:active,
+        .btn-outline-secondary:focus-visible {
+            background: #f8f9fa !important;
+            border-color: #40916c !important;
+            color: #40916c !important;
+            box-shadow: none !important;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #40916c 0%, #52b788 100%) !important;
+            color: #ffffff !important;
+            border: 2px solid #40916c !important;
+            box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3) !important;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%) !important;
+            border-color: #2d6a4f !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="container-fluid">
         <!-- Loading Overlay -->
         <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
-                style="background: rgba(255,255,255,0.9); z-index: 9999;">
+            style="background: rgba(255,255,255,0.9); z-index: 9999;">
             <div class="d-flex justify-content-center align-items-center h-100">
                 <div class="text-center">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -19,41 +67,23 @@
             </div>
         </div>
 
-        <!-- Header Section -->
+        <!-- Service Navigation Tabs -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4 class="mb-2 text-primary">
-                                    <i class="fas fa-brain me-2"></i>Decision Support System
-                                </h4>
-                                <p class="text-muted mb-0">AI-Powered Agricultural Intelligence Report</p>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-primary" id="refreshDataBtn">
-                                    <i class="fas fa-sync-alt me-1"></i>Refresh Data
-                                </button>
-                                <div class="dropdown">
-                                    <button
-                                        class="btn btn-success dropdown-toggle"
-                                        type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-download me-1"></i>Export Report
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" id="downloadPdf">
-                                                <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
-                                            </a>
-                                        </li>
-                                        <li><a class="dropdown-item" href="#" id="downloadWord">
-                                                <i class="fas fa-file-word me-2 text-primary"></i>Download Word
-                                            </a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <button
+                        class="btn {{ $service === 'comprehensive' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
+                        id="comprehensive-tab" data-service="comprehensive" type="button">
+                        <i class="fas fa-boxes me-2"></i>Supplies Request Report
+                    </button>
+                    <button class="btn {{ $service === 'training' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
+                        id="training-tab" data-service="training" type="button">
+                        <i class="fas fa-graduation-cap me-2"></i>Training Request Report
+                    </button>
+                    <button class="btn {{ $service === 'rsbsa' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
+                        id="rsbsa-tab" data-service="rsbsa" type="button">
+                        <i class="fas fa-users me-2"></i>RSBSA Request Report
+                    </button>
                 </div>
             </div>
         </div>
@@ -64,7 +94,8 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <form id="periodForm" class="row g-3">
-                            <div class="col-md-4">
+                            <input type="hidden" id="serviceInput" name="service" value="{{ $service }}">
+                            <div class="col-md-3">
                                 <label for="monthSelect" class="form-label">Month</label>
                                 <select class="form-select" id="monthSelect" name="month">
                                     @foreach (range(1, 12) as $m)
@@ -74,7 +105,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="yearSelect" class="form-label">Year</label>
                                 <select class="form-select" id="yearSelect" name="year">
                                     @foreach (range(now()->year - 2, now()->year) as $y)
@@ -83,11 +114,31 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label">&nbsp;</label>
-                                <button type="submit" class="btn btn-primary d-block">
-                                    <i class="fas fa-search me-1"></i>Generate Report
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Generate Report
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" id="refreshDataBtn">
+                                        <i class="fas fa-sync-alt me-1"></i>Refresh Data
+                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-success dropdown-toggle" type="button"
+                                            data-bs-toggle="dropdown">
+                                            <i class="fas fa-download me-1"></i>Export Report
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" id="downloadPdf">
+                                                    <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
+                                                </a>
+                                            </li>
+                                            <li><a class="dropdown-item" href="#" id="downloadWord">
+                                                    <i class="fas fa-file-word me-2 text-primary"></i>Download Word
+                                                </a></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -107,7 +158,8 @@
                             </div>
                             <h5>Generating DSS Report...</h5>
                             <div class="progress mt-3" style="height: 6px;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -164,9 +216,42 @@
             const loadingState = document.getElementById('loadingState');
             const reportData = document.getElementById('reportData');
             const noDataState = document.getElementById('noDataState');
+            const serviceInput = document.getElementById('serviceInput');
 
-            // Load initial data
-            loadDSSData();
+            // Cache for storing reports per service
+            const reportCache = {
+                comprehensive: null,
+                training: null,
+                rsbsa: null
+            };
+
+            // Service tab switching
+            const serviceTabs = document.querySelectorAll('[data-service]');
+            serviceTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active from all tabs
+                    serviceTabs.forEach(t => {
+                        t.classList.remove('btn-success');
+                        t.classList.add('btn-outline-secondary');
+                    });
+                    // Add active to clicked tab
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-success');
+                    // Update hidden input
+                    const selectedService = this.dataset.service;
+                    serviceInput.value = selectedService;
+
+                    // Show cached report if available, otherwise show "no data"
+                    if (reportCache[selectedService]) {
+                        showData(reportCache[selectedService]);
+                    } else {
+                        showNoData();
+                    }
+                });
+            });
+
+            // Show initial "no data" state instead of loading
+            showNoData();
 
             // Progress animation
             function animateProgress() {
@@ -210,17 +295,24 @@
                 noDataState.style.display = 'block';
             }
 
+            function getServiceName() {
+                const service = serviceInput.value;
+                return service === 'training' ? 'Training' :
+                    service === 'rsbsa' ? 'RSBSA' : 'Comprehensive';
+            }
+
             async function loadDSSData(month = null, year = null) {
                 const currentMonth = month || document.getElementById('monthSelect').value;
                 const currentYear = year || document.getElementById('yearSelect').value;
+                const currentService = serviceInput.value;
 
                 const progressInterval = showLoading(
-                    `Generating DSS Report for ${getMonthName(currentMonth)} ${currentYear}...`
+                    `Generating ${getServiceName()} DSS Report for ${getMonthName(currentMonth)} ${currentYear}...`
                 );
 
                 try {
                     const response = await fetch(
-                        `{{ route('admin.dss.preview') }}?month=${currentMonth}&year=${currentYear}`, {
+                        `{{ route('admin.dss.preview') }}?month=${currentMonth}&year=${currentYear}&service=${currentService}`, {
                             method: 'GET',
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
@@ -232,6 +324,8 @@
                     hideLoading(progressInterval);
 
                     if (data.success && data.html) {
+                        // Cache the report for this service
+                        reportCache[currentService] = data.html;
                         showData(data.html);
                         showToast('Report generated successfully!', 'success');
                     } else {
@@ -248,7 +342,8 @@
 
             function getMonthName(monthNum) {
                 const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'];
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
                 return months[parseInt(monthNum) - 1];
             }
 
@@ -283,6 +378,7 @@
             refreshBtn.addEventListener('click', async function() {
                 const month = document.getElementById('monthSelect').value;
                 const year = document.getElementById('yearSelect').value;
+                const service = serviceInput.value;
 
                 refreshBtn.disabled = true;
                 refreshBtn.innerHTML =
@@ -290,7 +386,7 @@
 
                 try {
                     const response = await fetch(
-                        `{{ route('admin.dss.refresh.data') }}?month=${month}&year=${year}`
+                        `{{ route('admin.dss.refresh.data') }}?month=${month}&year=${year}&service=${service}`
                     );
                     const data = await response.json();
 
@@ -314,8 +410,9 @@
                 e.preventDefault();
                 const month = document.getElementById('monthSelect').value;
                 const year = document.getElementById('yearSelect').value;
+                const service = serviceInput.value;
                 window.open(
-                    `{{ route('admin.dss.download.pdf') }}?month=${month}&year=${year}`,
+                    `{{ route('admin.dss.download.pdf') }}?month=${month}&year=${year}&service=${service}`,
                     '_blank');
             });
 
@@ -324,8 +421,9 @@
                 e.preventDefault();
                 const month = document.getElementById('monthSelect').value;
                 const year = document.getElementById('yearSelect').value;
+                const service = serviceInput.value;
                 window.open(
-                    `{{ route('admin.dss.download.word') }}?month=${month}&year=${year}`,
+                    `{{ route('admin.dss.download.word') }}?month=${month}&year=${year}&service=${service}`,
                     '_blank');
             });
         });

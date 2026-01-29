@@ -12,21 +12,17 @@
 <!-- Seedlings Choice Section -->
 <section class="seedlings-application-section" id="seedlings-choice" style="display: none;">
     <div class="seedlings-form-header">
-         <button type="button" class="seedlings-close-btn" onclick="closeSeedlingsModal()">
-        <i class="fas fa-times"></i>
-        </button>
         <h2>Supplies & Garden Tools Request</h2>
         <p>Browse and select the items you want to request, then proceed to checkout.</p>
     </div>
 
     <!-- Category Tabs -->
-    <div class="seedlings-category-tabs">
-        <button class="seedlings-category-tab active" data-category="all" onclick="filterByCategory('all')">
+    <div class="seedlings-category-tabs" id="category-tabs-container">
+        <button type="button" class="seedlings-category-tab active" data-category="all">
             <i class="fas fa-th-large"></i> All Items
         </button>
         @foreach ($categories as $category)
-            <button class="seedlings-category-tab" data-category="{{ $category->name }}"
-                onclick="filterByCategory('{{ $category->name }}')">
+            <button type="button" class="seedlings-category-tab" data-category="{{ $category->name }}">
                 <i class="fas {{ $category->icon ?? 'fa-leaf' }}"></i> {{ $category->display_name }}
             </button>
         @endforeach
@@ -52,15 +48,29 @@
                 <option value="stock-low">Stock (Low to High)</option>
             </select>
         </div>
+        <div class="seedlings-cart-actions">
+            <button type="button" class="filter-view-cart-btn" onclick="openCartModal()">
+                <i class="fas fa-shopping-cart"></i> <span id="filter-count">0</span>
+            </button>
+            <button type="button" class="filter-clear-btn" onclick="clearAllSelections()">
+                <i class="fas fa-times"></i> Clear All
+            </button>
+        </div>
     </div>
 
     <!-- Selected Items Counter -->
     <div style="padding: 0 20px;">
         <div class="seedlings-selection-summary" id="selection-summary" style="display: none;">
-            <div class="selection-count">
-                <i class="fas fa-shopping-cart"></i>
-                <span id="selected-count">0</span> items selected
+            <div class="selection-header" onclick="openCartModal()">
+                <div class="selection-count">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="selected-count">0</span> items selected
+                </div>
+                <button type="button" class="cart-view-btn" onclick="openCartModal(); event.stopPropagation();">
+                    <i class="fas fa-eye"></i> View Cart
+                </button>
             </div>
+
             <div class="selection-actions" style="display: flex; align-items: center; gap: 10px;">
                 <button type="button" class="seedlings-clear-btn" onclick="clearAllSelections()">
                     <i></i> Clear All
@@ -68,6 +78,30 @@
                 <button type="button" class="seedlings-proceed-btn-mini" onclick="proceedToSeedlingsForm()"
                     style="padding: 8px 20px; background: #ffffff; border: 2px solid #ffffff; border-radius: 6px; color: #40916c; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                     <i class="fas fa-arrow-right"></i> Proceed to Application
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal-overlay" id="cartModalOverlay" style="display: none;" onclick="closeCartModal(event)">
+        <div class="cart-modal-content" onclick="event.stopPropagation()">
+            <div class="cart-modal-header">
+                <h3><i class="fas fa-shopping-cart"></i> Your Selected Items</h3>
+                <button class="cart-modal-close" onclick="closeCartModal(event)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="cart-modal-body" id="cart-modal-items">
+                <!-- Selected items will be populated here by JavaScript -->
+            </div>
+            <div class="cart-modal-footer">
+                <button type="button" class="cart-modal-clear-btn"
+                    onclick="clearAllSelections(); closeCartModal(event);">
+                    <i class="fas fa-trash-alt"></i> Clear All
+                </button>
+                <button type="button" class="cart-modal-proceed-btn" onclick="proceedToSeedlingsForm()">
+                    Proceed to Application <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -94,7 +128,8 @@
                         </div>
 
                         <!-- Item Image -->
-                        <div class="seedlings-item-image">
+                        <div class="seedlings-item-image"
+                            onclick="showQuickView('{{ $item->id }}', '{{ addslashes($item->name) }}', '{{ addslashes($category->display_name) }}', '{{ addslashes($item->description ?? '') }}', '{{ $item->current_supply }}', '{{ $item->unit }}', '{{ $item->stock_status }}', '{{ $category->icon ?? 'fa-leaf' }}', '{{ $item->image_path ? Storage::url($item->image_path) : '' }}')">
                             @if ($item->image_path)
                                 <img src="{{ Storage::url($item->image_path) }}" alt="{{ $item->name }}">
                             @else
@@ -102,6 +137,9 @@
                                     <i class="fas {{ $category->icon ?? 'fa-leaf' }} fa-3x"></i>
                                 </div>
                             @endif
+                            <div class="seedlings-quick-view-overlay">
+                                <i class="fas fa-eye"></i> Quick View
+                            </div>
                         </div>
 
                         <!-- Item Info -->
@@ -133,11 +171,12 @@
 
                             <div class="seedlings-quantity-input" id="qty-wrapper-{{ $item->id }}"
                                 style="display: none;">
-                                <button type="button" class="qty-btn" onclick="decrementQty('{{ $item->id }}')">
+                                <button type="button" class="qty-btn"
+                                    onclick="decrementQty('{{ $item->id }}')">
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <input type="number" id="qty-{{ $item->id }}" name="quantity_{{ $item->id }}"
-                                    min="{{ $item->min_quantity ?? 1 }}"
+                                <input type="number" id="qty-{{ $item->id }}"
+                                    name="quantity_{{ $item->id }}" min="{{ $item->min_quantity ?? 1 }}"
                                     max="{{ min($item->max_quantity ?? 999, $item->current_supply) }}"
                                     value="{{ $item->min_quantity ?? 1 }}" class="qty-input"
                                     onchange="updateQuantity('{{ $item->id }}')">
@@ -158,6 +197,19 @@
             <p>No items found matching your search criteria.</p>
         </div>
 
+        <!-- Pagination Controls -->
+        <div class="seedlings-pagination" id="pagination" style="display: none;">
+            <button type="button" class="pagination-btn" id="prev-page" onclick="changePage(-1)">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <div class="pagination-info">
+                <span id="current-page">1</span> / <span id="total-pages">1</span>
+            </div>
+            <button type="button" class="pagination-btn" id="next-page" onclick="changePage(1)">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
         <!-- Proceed Button -->
         <div class="seedlings-proceed-section">
             <button type="button" class="seedlings-proceed-btn" onclick="proceedToSeedlingsForm()" disabled
@@ -166,6 +218,29 @@
             </button>
         </div>
     </form>
+
+    <!-- Quick View Modal -->
+    <div class="seedlings-quick-view-modal" id="quickViewModal" style="display: none;"
+        onclick="closeQuickView(event)">
+        <div class="quick-view-content" onclick="event.stopPropagation()">
+            <button class="quick-view-close" onclick="closeQuickView(event)">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="quick-view-image">
+                <img id="qv-image" src="" alt="">
+            </div>
+            <div class="quick-view-info">
+                <div class="qv-category" id="qv-category"></div>
+                <h3 class="qv-name" id="qv-name"></h3>
+                <div class="qv-stock-badge" id="qv-stock-badge"></div>
+                <p class="qv-description" id="qv-description"></p>
+                <div class="qv-availability">
+                    <span class="qv-label">Available:</span>
+                    <span class="qv-value" id="qv-stock"></span>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <!-- Application Form Section -->
@@ -198,7 +273,8 @@
             <div class="seedlings-form-group">
                 <label for="seedlings-first_name">First Name <span class="required-asterisk">*</span></label>
                 <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z\s'\-]+"
-                    title="First name can only contain letters, spaces, hyphens, and apostrophes" placeholder="Example: Juan" required>
+                    title="First name can only contain letters, spaces, hyphens, and apostrophes"
+                    placeholder="Example: Juan" required>
                 <span class="validation-warning" id="seedlings-first_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                     hyphens, and apostrophes are allowed</span>
@@ -206,7 +282,8 @@
 
             <div class="seedlings-form-group">
                 <label for="seedlings-middle_name">Middle Name (Optional)</label>
-                <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s'\-]+" placeholder="Example: Santos"
+                <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s'\-]+"
+                    placeholder="Example: Santos"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="seedlings-middle_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
@@ -215,7 +292,8 @@
 
             <div class="seedlings-form-group">
                 <label for="seedlings-last_name">Last Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s'\-]+" placeholder="Example: Dela Cruz"
+                <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s'\-]+"
+                    placeholder="Example: Dela Cruz"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="seedlings-last_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
@@ -277,13 +355,16 @@
             <div class="seedlings-form-group">
                 <label for="address">Complete Address <span class="required-asterisk">*</span></label>
                 <input type="text" id="address" name="address" placeholder="Example: 123 Main Street" required>
-                <small>Include house number, street, subdivision if applicable. This helps us locate your area for distribution.</small>
+                <small>Include house number, street, subdivision if applicable. This helps us locate your area for
+                    distribution.</small>
             </div>
 
             <div class="seedlings-form-group" id="supporting-docs-field">
-                <label for="seedlings-docs">Supporting Documents (Optional)</span></label>
-                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png">
-                <small>Upload Government ID, Barangay Certificate, or proof of planting area (PDF, JPG, PNG - Max 10MB). Photos of your farm or planting area are very helpful.</small>
+                <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
+                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png"
+                    required>
+                <small>Upload Government ID, Barangay Certificate, or proof of planting area (PDF, JPG, PNG - Max 10MB).
+                    Photos of your farm or planting area are very helpful.</small>
             </div>
 
             <div class="seedlings-form-buttons">
