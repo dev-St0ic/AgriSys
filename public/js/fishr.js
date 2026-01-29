@@ -618,6 +618,9 @@ function showFishRValidationErrors(errors) {
 /**
  * Validates the form before submission
  */
+/**
+ * Validates the form before submission
+ */
 function validateFishRForm() {
     const form = document.getElementById('fishr-registration-form');
     if (!form) return false;
@@ -627,6 +630,20 @@ function validateFishRForm() {
 
     // Clear previous error states
     clearFormErrors();
+
+    // === CHECK FOR ANY FIELDS WITH RED BORDER (Real-time validation errors) ===
+    const fieldsWithErrors = form.querySelectorAll('input[style*="border-color: rgb(255, 107, 107)"], select[style*="border-color: rgb(255, 107, 107)"]');
+    
+    if (fieldsWithErrors.length > 0) {
+        errors.push('Please fix the validation errors in red before submitting');
+        displayValidationErrors(errors);
+        
+        // Scroll to first field with error
+        fieldsWithErrors[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fieldsWithErrors[0].focus();
+        
+        return false;
+    }
 
     // Required field validation
     const requiredFields = [
@@ -656,7 +673,7 @@ function validateFishRForm() {
             // Additional field-specific validation
             if (field.type === 'tel') {
                 if (!isValidPhoneNumber(value)) {
-                    errors.push(`${field.label} must be in format: 09XXXXXXXXX or +639XXXXXXXXX`);
+                    errors.push(`${field.label} must be in format: 09XXXXXXXXX (11 digits starting with 09)`);
                     markFieldError(input);
                     isValid = false;
                 }
@@ -703,39 +720,6 @@ function validateFishRForm() {
             isValid = false;
         }
     }
-
-    
-    // Real-time validation for contact number
-        const contactInput = document.getElementById('fishr-contact_number');
-        const contactWarning = document.getElementById('fishr-contact_number-warning');
-
-        if (contactInput && contactWarning) {
-            // Validate on input (real-time)
-            contactInput.addEventListener('input', function(e) {
-                const value = e.target.value;
-                const phonePattern = /^09\d{9}$/;
-
-                if (value && !phonePattern.test(value)) {
-                    contactWarning.style.display = 'block';
-                    contactInput.style.borderColor = '#ff6b6b';
-                } else {
-                    contactWarning.style.display = 'none';
-                    contactInput.style.borderColor = '';
-                }
-            });
-
-            // Also validate on blur
-            contactInput.addEventListener('blur', function(e) {
-                const value = e.target.value;
-                const phonePattern = /^09\d{9}$/;
-
-                if (value && !phonePattern.test(value)) {
-                    contactWarning.style.display = 'block';
-                    contactInput.style.borderColor = '#ff6b6b';
-                }
-            });
-        }
-
 
     // Conditional validation for "others" livelihood
     const livelihoodSelect = form.querySelector('[name="main_livelihood"]');
@@ -1106,8 +1090,102 @@ function toggleOtherLivelihood(select) {
     console.log('FishR livelihood changed to:', selectedValue);
 }
 
+// ==============================================
+// VALIDATION HELPERS
+// ==============================================
+
+/**
+ * Validate phone number format (09XXXXXXXXX)
+ */
+function isValidPhoneNumber(phone) {
+    const phonePattern = /^09\d{9}$/;
+    return phonePattern.test(phone);
+}
+
+/**
+ * Validate name format (letters, spaces, hyphens, apostrophes)
+ */
+function isValidNameFormat(name) {
+    const namePattern = /^[a-zA-Z\s\'-]*$/;
+    return namePattern.test(name);
+}
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    const nameFields = [{
+            id: 'fishr-first_name',
+            pattern: /^[a-zA-Z\s\'-]*$/
+        },
+        {
+            id: 'fishr-middle_name',
+            pattern: /^[a-zA-Z\s\'-]*$/
+        },
+        {
+            id: 'fishr-last_name',
+            pattern: /^[a-zA-Z\s\'-]*$/
+        },
+        {
+            id: 'fishr-name_extension',
+            pattern: /^[a-zA-Z.\s]*$/
+        }
+    ];
+
+    // === REAL-TIME VALIDATION FOR NAME FIELDS ===
+    nameFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const warning = document.getElementById(field.id + '-warning');
+
+        if (input && warning) {
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value)) {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                }
+            });
+
+            // Also validate on blur
+            input.addEventListener('blur', function(e) {
+                if (!field.pattern.test(e.target.value) && e.target.value !== '') {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                }
+            });
+        }
+    });
+
+    // === REAL-TIME VALIDATION FOR CONTACT NUMBER ===
+    const contactInput = document.getElementById('fishr-contact_number');
+    const contactWarning = document.getElementById('fishr-contact_number-warning');
+
+    if (contactInput && contactWarning) {
+        const phonePattern = /^09\d{9}$/;
+
+        contactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+
+            if (value && !phonePattern.test(value)) {
+                contactWarning.style.display = 'block';
+                contactInput.style.borderColor = '#ff6b6b';
+            } else {
+                contactWarning.style.display = 'none';
+                contactInput.style.borderColor = '';
+            }
+        });
+
+        // Also validate on blur
+        contactInput.addEventListener('blur', function(e) {
+            const value = e.target.value;
+
+            if (value && !phonePattern.test(value)) {
+                contactWarning.style.display = 'block';
+                contactInput.style.borderColor = '#ff6b6b';
+            }
+        });
+    }
     // Small delay to ensure all elements are ready
     setTimeout(initializeFishRModule, 100);
 });

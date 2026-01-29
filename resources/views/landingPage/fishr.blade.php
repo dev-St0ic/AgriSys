@@ -181,7 +181,7 @@
                 <label for="fishr-secondary_livelihood">Secondary Livelihood (Optional)</label>
                 <select id="fishr-secondary_livelihood" name="secondary_livelihood"
                     onchange="toggleOtherSecondaryLivelihood(this); validateSecondaryLivelihoodMatch()">
-                    <option value="" selected>Select Livelihood (Optional)</option>
+                    <option value="" selected>Select Livelihood</option>
                     <option value="capture">Capture Fishing</option>
                     <option value="aquaculture">Aquaculture</option>
                     <option value="vending">Fish Vending</option>
