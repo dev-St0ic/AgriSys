@@ -168,10 +168,10 @@
 
             <div class="fishr-form-group" id="fishr-other-livelihood-field"
                 style="display: {{ old('main_livelihood') == 'others' ? 'block' : 'none' }};">
-                <label for="fishr-other_livelihood">Please specify (if others) *</label>
+                <label for="fishr-other_livelihood">Please specify (if others) <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-other_livelihood" name="other_livelihood"
                     placeholder="Specify other livelihood" value="{{ old('other_livelihood') }}">
-                <small class="fishr-form-text">Please provide specific details about your livelihood activity</small>
                 @error('other_livelihood')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
@@ -197,10 +197,10 @@
 
             <div class="fishr-form-group" id="fishr-other-secondary-livelihood-field"
                 style="display: none;">
-                <label for="fishr-other_secondary_livelihood">Please specify (if others) *</label>
+                <label for="fishr-other_secondary_livelihood">Please specify (if others) <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-other_secondary_livelihood" name="other_secondary_livelihood"
                     placeholder="Specify other secondary livelihood" value="{{ old('other_secondary_livelihood') }}">
-                <small class="fishr-form-text">Please provide specific details about your secondary livelihood activity</small>
                 @error('other_secondary_livelihood')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
