@@ -29,7 +29,7 @@ class FishrApplicationFactory extends Factory
     {
         $livelihoods = ['capture', 'aquaculture', 'vending', 'processing', 'others'];
         $mainLivelihood = $this->faker->randomElement($livelihoods);
-        $status = $this->faker->randomElement(['under_review', 'approved', 'rejected']);
+        $status = $this->faker->randomElement(['pending','under_review', 'approved', 'rejected']);
 
         // All 27 barangays from San Pedro, Laguna
         $barangays = [
@@ -129,6 +129,11 @@ class FishrApplicationFactory extends Factory
     private function getRandomRemarks($status): string
     {
         $remarksOptions = [
+            'pending' => [
+                'Awaiting initial review.',
+                'New application received.',
+                'Pending admin review.',
+            ],
             'approved' => [
                 'All documents verified and complete.',
                 'Applicant meets all requirements for fisherfolk registration.',
@@ -155,6 +160,19 @@ class FishrApplicationFactory extends Factory
 
         $options = $remarksOptions[$status] ?? ['Status updated.'];
         return $this->faker->randomElement($options);
+    }
+
+    /**
+     * State for pending registrations
+     */
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'pending',
+            'remarks' => null,
+            'status_updated_at' => null,
+            'updated_by' => null,
+        ]);
     }
 
     /**

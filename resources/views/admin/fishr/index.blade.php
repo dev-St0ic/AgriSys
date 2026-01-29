@@ -78,6 +78,9 @@
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
+                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                                Pending 
+                            </option>
                             <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
                                 Under Review
                             </option>
@@ -486,6 +489,7 @@
                                     </label>
                                     <select class="form-select" id="newStatus" required onchange="checkForChanges()">
                                         <option value="">Choose status...</option>
+                                        <option value="pending">Pending</option>
                                         <option value="under_review">Under Review</option>
                                         <option value="approved">Approved</option>
                                         <option value="rejected">Rejected</option>
@@ -5545,5 +5549,70 @@ function validateEditFishrContactNumber(contactNumber) {
                 });
             }
         });
+
+        // Update Registration Status - FIXED
+function updateRegistrationStatus() {
+    const statusSelect = document.getElementById('newStatus');
+    const remarksTextarea = document.getElementById('remarks');
+    const registrationId = document.getElementById('updateRegistrationId').value;
+    const updateButton = document.getElementById('updateStatusBtn');
+
+    if (!registrationId) {
+        showToast('error', 'Registration ID not found');
+        return;
+    }
+
+    if (!statusSelect.value) {
+        showToast('error', 'Please select a status');
+        return;
+    }
+
+    // Get the data
+    const formData = {
+        status: statusSelect.value,
+        remarks: remarksTextarea.value.trim()
+    };
+
+    // Show loading
+    const originalText = updateButton.innerHTML;
+    updateButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+    updateButton.disabled = true;
+
+    // Send request
+    fetch(`/admin/fishr-registrations/${registrationId}/status`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', data.message || 'Status updated successfully');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+            if (modal) modal.hide();
+            
+            // Reload table
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast('error', data.message || 'Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Error updating status: ' + error.message);
+    })
+    .finally(() => {
+        updateButton.innerHTML = originalText;
+        updateButton.disabled = false;
+    });
+}
     </script>
 @endsection

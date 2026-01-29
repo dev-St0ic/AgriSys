@@ -34,7 +34,7 @@ return new class extends Migration
             ])->nullable();
             // CHANGED: Single document path instead of JSON array
             $table->string('document_path')->nullable();
-            $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
+            $table->enum('status', ['pending','under_review', 'approved', 'rejected'])->default('under_review');
 
             // Admin management fields
             $table->text('remarks')->nullable();

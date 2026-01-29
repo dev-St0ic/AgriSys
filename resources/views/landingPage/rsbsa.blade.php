@@ -154,9 +154,9 @@
 
             <div class="rsbsa-form-group">
                 <label>Contact Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="tel" id="rsbsa-mobile" name="mobile" placeholder="Example: 09123456789" pattern="^09\d{9}$"
-                    title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
-                    value="{{ old('mobile') }}" required>
+                <input type="tel" id="contact_number" name="contact_number" placeholder="Example: 09123456789"
+                    title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
+                    value="{{ old('contact_number') }}" required>
                 <span class="validation-warning" id="rsbsa-mobile-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Mobile number must be: 09XXXXXXXXX (11 digits total)</span>
                 @error('mobile')
@@ -216,7 +216,7 @@
                 <div class="rsbsa-form-group">
                     <label>Livestock/Poultry (Type & Number)</label>
                     <input type="text" id="rsbsa-farmer_livestock" name="farmer_livestock" placeholder="Example: Chickens (50), Pigs (5)"
-                        pattern="[a-zA-Z0-9\s,().\-]*" title="Only alphanumeric, spaces, parentheses, commas, hyphens, and apostrophes allowed"
+                        title="Only alphanumeric, spaces, parentheses, commas, hyphens, and apostrophes allowed"
                         value="{{ old('farmer_livestock') }}">
                     <small class="rsbsa-form-help">Enter type and number of livestock/poultry heads (leave blank if not applicable)</small>
                     @error('farmer_livestock')
@@ -225,10 +225,10 @@
                 </div>
 
                 <div class="rsbsa-form-group">
-                    <label>Land Area in hectares</label>
+                    <label>Land Area in hectares (Optional)</label>
                     <input type="number" id="rsbsa-farmer_land_area" name="farmer_land_area" step="0.01" min="0" max="1000"
                         placeholder="Example: 2.5" value="{{ old('farmer_land_area') }}">
-                    <small class="rsbsa-form-help">Optional - land area dedicated to farming</small>
+                    <small class="rsbsa-form-help">Land area dedicated to farming</small>
                     @error('farmer_land_area')
                         <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                     @enderror
@@ -273,12 +273,12 @@
                     @enderror
                 </div>
 
-                <!-- FARM LOCATION - ONLY FOR FARMERS -->
+                <!-- FARM LOCATION - ONLY FOR FARMERS (REQUIRED FIELD) -->
                 <div class="rsbsa-form-group">
                     <label>Farm Location <span style="color: #dc3545; font-weight: bold;">*</span></label>
                     <input type="text" id="rsbsa-farm_location" name="farm_location" placeholder="Example: Barangay Landayan, San Pedro"
                         pattern="[a-zA-Z0-9\s,'.\-]*" title="Only alphanumeric, spaces, commas, hyphens, and apostrophes allowed"
-                        value="{{ old('farm_location') }}" required>
+                        value="{{ old('farm_location') }}">
                     <span class="validation-warning" id="rsbsa-farm_location-warning"
                         style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only alphanumeric, spaces, commas, hyphens, and apostrophes are allowed</span>
                     @error('farm_location')
@@ -452,3 +452,4 @@
         </ul>
     </div>
 </section>
+

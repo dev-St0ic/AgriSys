@@ -36,7 +36,7 @@ const sessionManager = {
 
         console.log('✅ Session Manager initialized for user:', window.userData.username);
         this.startActivityTracking();
-        this.startSessionCheck();
+        // this.startSessionCheck();
     },
 
     /**
@@ -74,62 +74,62 @@ const sessionManager = {
         console.log('✓ Activity tracking started');
     },
 
-    /**
-     * Start periodic session validity check
-     */
-    startSessionCheck() {
-        this.state.checkIntervalId = setInterval(() => {
-            this.checkSessionValidity();
-        }, this.config.CHECK_INTERVAL);
+    // /**
+    //  * Start periodic session validity check
+    //  */
+    // startSessionCheck() {
+    //     this.state.checkIntervalId = setInterval(() => {
+    //         this.checkSessionValidity();
+    //     }, this.config.CHECK_INTERVAL);
 
-        console.log('✓ Session check started - checking every 5 seconds');
-    },
+    //     console.log('✓ Session check started - checking every 5 seconds');
+    // },
 
-    /**
-     * Check if session is still valid with backend
-     */
-    async checkSessionValidity() {
-        // Skip check if already expired
-        if (this.state.isExpired) {
-            return;
-        }
+    // /**
+    //  * Check if session is still valid with backend
+    //  */
+    // async checkSessionValidity() {
+    //     // Skip check if already expired
+    //     if (this.state.isExpired) {
+    //         return;
+    //     }
 
-        try {
-            const response = await fetch('/api/user/session-check', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-                },
-                credentials: 'same-origin'
-            });
+    //     try {
+    //         const response = await fetch('/api/user/session-check', {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+    //             },
+    //             credentials: 'same-origin'
+    //         });
 
-            // Session expired on server
-            if (response.status === 401 || response.status === 403) {
-                console.log('⚠️ Session expired (server returned ' + response.status + ')');
-                this.handleSessionExpired('server');
-                return;
-            }
+    //         // Session expired on server
+    //         if (response.status === 401 || response.status === 403) {
+    //             console.log('⚠️ Session expired (server returned ' + response.status + ')');
+    //             this.handleSessionExpired('server');
+    //             return;
+    //         }
 
-            if (!response.ok) {
-                console.warn('Session check failed:', response.status);
-                return;
-            }
+    //         if (!response.ok) {
+    //             console.warn('Session check failed:', response.status);
+    //             return;
+    //         }
 
-            const data = await response.json();
-            if (!data.success || !data.authenticated) {
-                console.log('⚠️ Session expired (server indicates logout)');
-                this.handleSessionExpired('server');
-                return;
-            }
+    //         const data = await response.json();
+    //         if (!data.success || !data.authenticated) {
+    //             console.log('⚠️ Session expired (server indicates logout)');
+    //             this.handleSessionExpired('server');
+    //             return;
+    //         }
 
-            this.state.isSessionActive = true;
-            console.log('✓ Session is valid');
-        } catch (error) {
-            console.error('Session check error:', error);
-            // Don't logout on network error, just log it
-        }
-    },
+    //         this.state.isSessionActive = true;
+    //         console.log('✓ Session is valid');
+    //     } catch (error) {
+    //         console.error('Session check error:', error);
+    //         // Don't logout on network error, just log it
+    //     }
+    // },
 
 /**
  * Handle session expiration gracefully

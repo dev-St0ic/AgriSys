@@ -123,7 +123,7 @@ function autoFillRSBSAFromProfile() {
 
     // Fill Mobile Number
     const mobileValue = userData.contact_number || userData.mobile_number || userData.mobile || userData.phone;
-    setFieldValue('mobile', mobileValue);
+    setFieldValue('contact_number', mobileValue);
 
     // Fill Main Livelihood from user_type
     if (userData.user_type) {
@@ -131,10 +131,10 @@ function autoFillRSBSAFromProfile() {
             'farmer': 'Farmer',
             'fisherfolk': 'Fisherfolk',
             'agri-youth': 'Agri-youth',
-            'agri-entrepreneur': 'Farmer',
-            'cooperative-member': 'Farmer',
-            'government-employee': 'Farmworker/Laborer',
-            'agricultural worker': 'Farmworker/Laborer',
+            // 'agri-entrepreneur': 'Farmer',
+            // 'cooperative-member': 'Farmer',
+            // 'government-employee': 'Farmworker/Laborer',
+            // 'agricultural worker': 'Farmworker/Laborer',
             'farm worker': 'Farmworker/Laborer',
             'farmworker': 'Farmworker/Laborer'
         };
