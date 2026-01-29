@@ -182,6 +182,17 @@ class TrainingApplicationFactory extends Factory
         ]);
     }
 
+    public function pending(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'status' => 'pending',
+                'status_updated_at' => null,
+                'updated_by' => null,
+            ];
+        });
+    }
+
     public function trainingType($type): static
     {
         return $this->state(fn (array $attributes) => [

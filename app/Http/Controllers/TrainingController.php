@@ -46,11 +46,11 @@ class TrainingController extends Controller
         // Paginate results
         $trainings = $query->paginate(10)->withQueryString();
 
-        // Statistics
+        // Statistics - UPDATED with pending status
         $totalApplications = TrainingApplication::count();
+        $pendingCount = TrainingApplication::where('status', 'pending')->count();
         $underReviewCount = TrainingApplication::where('status', 'under_review')->count();
         $approvedCount = TrainingApplication::where('status', 'approved')->count();
-        $pendingCount = TrainingApplication::where('status', 'under_review')->count();
 
       
         $barangays = [
@@ -86,9 +86,9 @@ class TrainingController extends Controller
         return view('admin.training.index', compact(
             'trainings',
             'totalApplications',
+            'pendingCount',
             'underReviewCount',
             'approvedCount',
-            'pendingCount',
             'barangays' 
         ));
     }
@@ -113,8 +113,8 @@ class TrainingController extends Controller
                 // Training info
                 'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
 
-                // Status
-                'status' => 'nullable|in:under_review,approved,rejected',
+                // Status - UPDATED: Added 'pending' as default option
+                'status' => 'nullable|in:pending,under_review,approved,rejected',
                 'remarks' => 'nullable|string|max:1000',
 
                 // CHANGED: Single document instead of array
@@ -139,11 +139,11 @@ class TrainingController extends Controller
             }
             $validated['document_path'] = $documentPath;
 
-            // Set default status if not provided
-            $validated['status'] = $validated['status'] ?? 'under_review';
+            // Set default status if not provided - UPDATED: Changed from 'under_review' to 'pending'
+            $validated['status'] = $validated['status'] ?? 'pending';
 
-            // Set reviewed fields if status is not under_review
-            if ($validated['status'] !== 'under_review') {
+            // Set reviewed fields if status is not pending
+            if ($validated['status'] !== 'pending') {
                 $validated['status_updated_at'] = now();
                 $validated['updated_by'] = auth()->id();
             }
@@ -330,13 +330,14 @@ class TrainingController extends Controller
 
    /**
  * Update the status of a training application
+ * UPDATED: Added 'pending' status option
  */
 public function updateStatus(Request $request, $id)
 {
     try {
-        // Validate incoming request
+        // Validate incoming request - UPDATED with pending status
         $validated = $request->validate([
-            'status' => 'required|in:under_review,approved,rejected',
+            'status' => 'required|in:pending,under_review,approved,rejected',
             'remarks' => 'nullable|string|max:1000'
         ]);
 
