@@ -181,7 +181,7 @@
                 </label>
                 <input type="file" id="supporting_document" name="supporting_document"
                     accept=".pdf,.jpg,.jpeg,.png">
-                <small class="fishr-form-text">Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB). Required for aquaculture, fish vending, and fish processing only.</small>
+                <small class="fishr-form-text">Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB)</small>
                 @error('supporting_documents')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror

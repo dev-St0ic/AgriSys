@@ -380,8 +380,8 @@ function toggleOtherLivelihood(select) {
 }
 
 /**
- * Updates supporting documents requirement based on livelihood type
- * Now also updates the asterisk visibility
+ * FIXED: Updates supporting documents requirement based on livelihood type
+ * Now keeps consistent text for all livelihood types since it's always optional
  */
 function updateDocumentsRequirement(livelihoodType) {
     const docsInput = document.getElementById('supporting_document');
@@ -399,35 +399,17 @@ function updateDocumentsRequirement(livelihoodType) {
             asterisk.style.display = 'none';
         }
         
-        // Update label text and help text based on livelihood type
-        if (livelihoodType === 'capture') {
-            if (labelText) {
-                labelText.textContent = 'Supporting Document (Optional)';
-            }
-            
-            if (docsHelp) {
-                docsHelp.textContent = 'Optional for Capture Fishing. Upload Government ID or Barangay Certificate if available (PDF, JPG, PNG - Max 10MB).';
-            }
-        } else if (livelihoodType && livelihoodType !== '') {
-            if (labelText) {
-                labelText.textContent = 'Supporting Document (Optional)';
-            }
-            
-            if (docsHelp) {
-                docsHelp.textContent = 'Optional for this livelihood type. Upload Government ID or Barangay Certificate if available (PDF, JPG, PNG - Max 10MB).';
-            }
-        } else {
-            if (labelText) {
-                labelText.textContent = 'Supporting Document (Optional)';
-            }
-            
-            if (docsHelp) {
-                docsHelp.textContent = 'Optional. Upload Government ID or Barangay Certificate if available (PDF, JPG, PNG - Max 10MB).';
-            }
+        // Keep consistent text for ALL livelihood types
+        if (labelText) {
+            labelText.textContent = 'Supporting Document (Optional)';
+        }
+        
+        if (docsHelp) {
+            docsHelp.textContent = 'Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB)';
         }
     }
     
-    console.log('Documents requirement updated for livelihood (always optional):', livelihoodType);
+    console.log('Documents requirement updated - remains optional for all livelihood types:', livelihoodType);
 }
 
 /**
