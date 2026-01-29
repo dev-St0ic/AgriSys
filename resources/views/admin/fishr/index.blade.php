@@ -271,6 +271,10 @@
                                 <td class="text-start">{{ $registration->full_name }}</td>
                                 <td class="text-start">
                                     <span class="badge bg-info fs-6">{{ $registration->livelihood_description }}</span>
+                                    @if($registration->secondary_livelihood)
+                                        <br>
+                                        <span class="badge bg-info fs-6" style="margin-top: 4px;">{{ $registration->secondary_livelihood_description }}</span>
+                                    @endif
                                 </td>
                                 <td class="text-start">
                                     <span class="badge bg-{{ $registration->status_color }} fs-6">
