@@ -159,7 +159,7 @@
                     value="{{ old('contact_number') }}" required>
                 <span class="validation-warning" id="rsbsa-mobile-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Mobile number must be: 09XXXXXXXXX (11 digits total)</span>
-                @error('mobile')
+                @error('contact_number')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror
             </div>
