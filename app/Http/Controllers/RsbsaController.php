@@ -775,17 +775,4 @@ class RsbsaController extends Controller
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
         }
     }
-
-    /**
-     * Log activity helper method
-     */
-    private function logActivity($action, $subject, $id, $data = [])
-    {
-        Log::info("RSBSA {$action}", array_merge([
-            'subject' => $subject,
-            'id' => $id,
-            'user_id' => auth()->id(),
-            'user_name' => auth()->user()->name ?? 'System'
-        ], $data));
-    }
 }
