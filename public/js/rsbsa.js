@@ -345,7 +345,7 @@ function toggleRSBSALivelihoodFields(selectElement) {
 function toggleRSBSAFarmerOtherCrops() {
     const cropsSelect = document.getElementById('rsbsa-farmer_crops');
     const otherCropsField = document.getElementById('rsbsa-farmer-other-crops-field');
-    
+
     if (cropsSelect && otherCropsField) {
         if (cropsSelect.value === 'Other Crops') {
             otherCropsField.style.display = 'block';
@@ -361,7 +361,7 @@ function toggleRSBSAFarmerOtherCrops() {
 function toggleRSBSAFarmworkerOtherType() {
     const typeSelect = document.getElementById('rsbsa-farmworker_type');
     const otherTypeField = document.getElementById('rsbsa-farmworker-other-type-field');
-    
+
     if (typeSelect && otherTypeField) {
         if (typeSelect.value === 'Others') {
             otherTypeField.style.display = 'block';
@@ -377,7 +377,7 @@ function toggleRSBSAFarmworkerOtherType() {
 function toggleRSBSAFisherfolfOtherActivity() {
     const activitySelect = document.getElementById('rsbsa-fisherfolk_activity');
     const otherActivityField = document.getElementById('rsbsa-fisherfolk-other-activity-field');
-    
+
     if (activitySelect && otherActivityField) {
         if (activitySelect.value === 'Others') {
             otherActivityField.style.display = 'block';
@@ -402,6 +402,17 @@ function validateRSBSAForm(form) {
         'main_livelihood'
     ];
 
+    // Field label mappings for better error messages
+    const fieldLabels = {
+        'first_name': 'First Name',
+        'last_name': 'Last Name',
+        'sex': 'Sex',
+        'barangay': 'Barangay',
+        'address': 'Address',
+        'contact_number': 'Contact Number',
+        'main_livelihood': 'Main Livelihood'
+    };
+
     let isValid = true;
     let errors = [];
 
@@ -410,7 +421,7 @@ function validateRSBSAForm(form) {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (!field || !field.value.trim()) {
             isValid = false;
-            const fieldLabel = fieldName.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+            const fieldLabel = fieldLabels[fieldName] || fieldName.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
             errors.push(`${fieldLabel} is required`);
 
             if (field) {
@@ -501,13 +512,13 @@ function validateRSBSAForm(form) {
     }
 
     // 9️⃣ VALIDATE Contact NUMBER
-    const mobileField = form.querySelector('[name="mobile"]');
-    if (mobileField && mobileField.value) {
-        const mobilePattern = /^09\d{9}$/;
-        if (!mobilePattern.test(mobileField.value.replace(/\s+/g, ''))) {
+    const contactField = form.querySelector('[name="contact_number"]');
+    if (contactField && contactField.value) {
+        const contactPattern = /^09\d{9}$/;
+        if (!contactPattern.test(contactField.value.replace(/\s+/g, ''))) {
             isValid = false;
             errors.push('Contact number must be: +639XXXXXXXXX or 09XXXXXXXXX (11 digits total)');
-            mobileField.classList.add('error');
+            contactField.classList.add('error');
         }
     }
 
@@ -896,7 +907,7 @@ function fillSampleRSBSAData() {
         sex: 'Female',
         barangay: 'San Jose',
         address: '123 Main Street, Poblacion',
-        mobile: '09123456789',
+        contact_number: '09123456789',
         main_livelihood: 'Farmer'
     };
 
@@ -1039,9 +1050,9 @@ function initializeRSBSAModule() {
     handleRSBSAFormSubmission();
     initializeRSBSATabs();
 
-    const mobileInput = document.querySelector('#rsbsa-form [name="mobile"]');
-    if (mobileInput) {
-        mobileInput.addEventListener('input', function(e) {
+    const contactInput = document.querySelector('#rsbsa-form [name="contact_number"]');
+    if (contactInput) {
+        contactInput.addEventListener('input', function(e) {
             formatMobileNumber(e.target);
         });
     }
