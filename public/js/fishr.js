@@ -2,6 +2,7 @@
 // COMPLETE UPDATED FISH REGISTRATION JAVASCRIPT
 // Enhanced with CSRF protection and error handling
 // File: public/js/fishr.js
+// FULLY CORRECTED - No duplicates, all validation working
 // ==============================================
 
 /**
@@ -385,11 +386,14 @@ function toggleOtherLivelihood(select) {
     // Update supporting documents requirement based on livelihood
     updateDocumentsRequirement(selectedValue);
 
+    // Validate secondary livelihood when main changes
+    validateSecondaryLivelihoodMatch();
+
     console.log('FishR livelihood changed to:', selectedValue);
 }
 
 /**
- * FIXED: Updates supporting documents requirement based on livelihood type
+ * Updates supporting documents requirement based on livelihood type
  * Now keeps consistent text for all livelihood types since it's always optional
  */
 function updateDocumentsRequirement(livelihoodType) {
@@ -419,138 +423,6 @@ function updateDocumentsRequirement(livelihoodType) {
     }
     
     console.log('Documents requirement updated - remains optional for all livelihood types:', livelihoodType);
-}
-
-/**
- * Initialize FishR form submission handling with enhanced CSRF protection
- */
-// CORRECTED SECTION - Replace the initializeFishRFormSubmission function
-
-/**
- * Initialize FishR form submission handling with enhanced CSRF protection
- */
-function initializeFishRFormSubmission() {
-    const form = document.getElementById('fishr-registration-form');
-    if (!form) {
-        console.log('FishR form not found for AJAX initialization');
-        return;
-    }
-
-    console.log('Initializing FishR AJAX form submission');
-
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        console.log('FishR form submitted');
-
-        // Check authentication before submitting
-        if (!isUserAuthenticatedAndVerified()) {
-            showAuthRequired('FishR Registration');
-            return false;
-        }
-
-        const submitBtn = document.getElementById('fishr-submit-btn');
-
-        // Show loading state - handle both button styles
-        const originalText = submitBtn.textContent;
-        const btnText = submitBtn.querySelector('.fishr-btn-text');
-        const btnLoading = submitBtn.querySelector('.fishr-btn-loading');
-
-        if (btnText && btnLoading) {
-            // New button style with spans
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'inline';
-        } else {
-            // Simple button style
-            submitBtn.textContent = 'Submitting...';
-        }
-        submitBtn.disabled = true;
-
-        try {
-            // Ensure we have a fresh CSRF token
-            let token = getCSRFToken();
-            if (!token) {
-                console.log('No CSRF token found, refreshing...');
-                token = await refreshCSRFToken();
-            }
-
-            // Create FormData
-            const formData = new FormData(form);
-
-            console.log('Sending AJAX request to:', form.action);
-
-            // Submit via AJAX with retry logic
-            const response = await fetchWithCSRFRetry(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            const data = await response.json();
-            console.log('Response data:', data);
-
-            if (data.success) {
-                // Show success message with reference number
-                agrisysModal.success(data.message, {
-                    title: 'Registration Submitted!',
-                    reference: data.registration_number || data.fishr_number || data.reference_number || null,
-                    onClose: () => {
-                        // Reset button state BEFORE closing form
-                        if (btnText) btnText.style.display = 'inline';
-                        if (btnLoading) btnLoading.style.display = 'none';
-                        submitBtn.disabled = false;
-
-                        // Reset form and go back to home
-                        form.reset();
-
-                        // Reset other livelihood field if it was showing
-                        const livelihoodSelect = document.getElementById('main_livelihood');
-                        if (livelihoodSelect) {
-                            toggleOtherLivelihood(livelihoodSelect);
-                        }
-
-                        // Close form and return to landing
-                        closeFormFishR();
-                        // Scroll to top after modal closes and form is hidden
-                        setTimeout(() => {
-                            document.documentElement.scrollTop = 0;
-                            document.body.scrollTop = 0;
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }, 500);
-                    }
-                });
-            } else {
-                // Show error message
-                if (data.errors) {
-                    const errorList = Object.values(data.errors).flat();
-                    agrisysModal.validationError(errorList, { title: 'Submission Failed' });
-                } else {
-                    agrisysModal.error(data.message || 'There was an error submitting your request.', { title: 'Submission Failed' });
-                }
-                
-                // Reset button state on error so user can retry
-                if (btnText) btnText.style.display = 'inline';
-                if (btnLoading) btnLoading.style.display = 'none';
-                submitBtn.disabled = false;
-            }
-        } catch (error) {
-            console.error('FishR submission error:', error);
-
-            if (error.message.includes('CSRF') || error.message.includes('419')) {
-                agrisysModal.error('Your session has expired. Please refresh the page and try again.', { title: 'Session Expired' });
-            } else {
-                agrisysModal.error('There was an error submitting your request. Please try again.', { title: 'Submission Error' });
-            }
-            
-            // Reset button state on error so user can retry
-            if (btnText) btnText.style.display = 'inline';
-            if (btnLoading) btnLoading.style.display = 'none';
-            submitBtn.disabled = false;
-        }
-        // Removed the finally block - button state is now handled in success/error cases
-    });
 }
 
 /**
@@ -613,13 +485,15 @@ function showFishRValidationErrors(errors) {
     }
 }
 
-
+// ==============================================
+// FORM VALIDATION - CRITICAL FIX
+// ==============================================
 
 /**
  * Validates the form before submission
- */
-/**
- * Validates the form before submission
+ * ✓ FIXED: Variables defined before use
+ * ✓ FIXED: Only ONE secondary livelihood check
+ * ✓ FIXED: Returns boolean value
  */
 function validateFishRForm() {
     const form = document.getElementById('fishr-registration-form');
@@ -629,14 +503,18 @@ function validateFishRForm() {
     const errors = [];
 
     // Clear previous error states
-    clearFormErrors();
+    if (typeof clearFormErrors === 'function') {
+        clearFormErrors();
+    }
 
     // === CHECK FOR ANY FIELDS WITH RED BORDER (Real-time validation errors) ===
     const fieldsWithErrors = form.querySelectorAll('input[style*="border-color: rgb(255, 107, 107)"], select[style*="border-color: rgb(255, 107, 107)"]');
     
     if (fieldsWithErrors.length > 0) {
         errors.push('Please fix the validation errors in red before submitting');
-        displayValidationErrors(errors);
+        if (typeof displayValidationErrors === 'function') {
+            displayValidationErrors(errors);
+        }
         
         // Scroll to first field with error
         fieldsWithErrors[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -667,14 +545,18 @@ function validateFishRForm() {
 
         if (!value) {
             errors.push(`${field.label} is required`);
-            markFieldError(input);
+            if (typeof markFieldError === 'function') {
+                markFieldError(input);
+            }
             isValid = false;
         } else {
             // Additional field-specific validation
             if (field.type === 'tel') {
                 if (!isValidPhoneNumber(value)) {
                     errors.push(`${field.label} must be in format: 09XXXXXXXXX (11 digits starting with 09)`);
-                    markFieldError(input);
+                    if (typeof markFieldError === 'function') {
+                        markFieldError(input);
+                    }
                     isValid = false;
                 }
             }
@@ -686,7 +568,9 @@ function validateFishRForm() {
     if (firstNameInput && firstNameInput.value) {
         if (!isValidNameFormat(firstNameInput.value)) {
             errors.push('First Name can only contain letters, spaces, hyphens, and apostrophes');
-            markFieldError(firstNameInput);
+            if (typeof markFieldError === 'function') {
+                markFieldError(firstNameInput);
+            }
             isValid = false;
         }
     }
@@ -696,7 +580,9 @@ function validateFishRForm() {
     if (lastNameInput && lastNameInput.value) {
         if (!isValidNameFormat(lastNameInput.value)) {
             errors.push('Last Name can only contain letters, spaces, hyphens, and apostrophes');
-            markFieldError(lastNameInput);
+            if (typeof markFieldError === 'function') {
+                markFieldError(lastNameInput);
+            }
             isValid = false;
         }
     }
@@ -706,7 +592,9 @@ function validateFishRForm() {
     if (middleNameInput && middleNameInput.value) {
         if (!isValidNameFormat(middleNameInput.value)) {
             errors.push('Middle Name can only contain letters, spaces, hyphens, and apostrophes');
-            markFieldError(middleNameInput);
+            if (typeof markFieldError === 'function') {
+                markFieldError(middleNameInput);
+            }
             isValid = false;
         }
     }
@@ -716,42 +604,54 @@ function validateFishRForm() {
     if (nameExtInput && nameExtInput.value) {
         if (!/^[a-zA-Z.\s]*$/.test(nameExtInput.value)) {
             errors.push('Name Extension can only contain letters, periods, and spaces');
-            markFieldError(nameExtInput);
+            if (typeof markFieldError === 'function') {
+                markFieldError(nameExtInput);
+            }
             isValid = false;
         }
     }
 
-    // Conditional validation for "others" livelihood
+    // ✓ DEFINE VARIABLES FIRST
     const livelihoodSelect = form.querySelector('[name="main_livelihood"]');
     const otherLivelihoodInput = form.querySelector('[name="other_livelihood"]');
 
+    // Conditional validation for "others" livelihood
     if (livelihoodSelect && livelihoodSelect.value === 'others') {
         if (!otherLivelihoodInput || !otherLivelihoodInput.value.trim()) {
             errors.push('Please specify your livelihood when selecting "Others"');
-            if (otherLivelihoodInput) markFieldError(otherLivelihoodInput);
+            if (typeof markFieldError === 'function') {
+                markFieldError(otherLivelihoodInput);
+            }
             isValid = false;
         }
     }
 
-    // Conditional validation for secondary "others" livelihood
+    // ✓ DEFINE SECONDARY VARIABLES
     const secondaryLivelihoodSelect = form.querySelector('[name="secondary_livelihood"]');
     const otherSecondaryLivelihoodInput = form.querySelector('[name="other_secondary_livelihood"]');
 
+    // Conditional validation for secondary "others" livelihood
     if (secondaryLivelihoodSelect && secondaryLivelihoodSelect.value === 'others') {
         if (!otherSecondaryLivelihoodInput || !otherSecondaryLivelihoodInput.value.trim()) {
             errors.push('Please specify your secondary livelihood when selecting "Others"');
-            if (otherSecondaryLivelihoodInput) markFieldError(otherSecondaryLivelihoodInput);
+            if (typeof markFieldError === 'function') {
+                markFieldError(otherSecondaryLivelihoodInput);
+            }
             isValid = false;
         }
     }
 
-    // Validate that secondary livelihood is different from main livelihood
+    // ✓ ONLY ONE CHECK FOR SECONDARY LIVELIHOOD MATCH (with defined variables)
     if (livelihoodSelect && secondaryLivelihoodSelect && 
-        livelihoodSelect.value && secondaryLivelihoodSelect.value && 
-        livelihoodSelect.value === secondaryLivelihoodSelect.value) {
-        errors.push('Secondary livelihood cannot be the same as main livelihood');
-        markFieldError(secondaryLivelihoodSelect);
-        isValid = false;
+        livelihoodSelect.value && secondaryLivelihoodSelect.value) {
+        
+        if (livelihoodSelect.value === secondaryLivelihoodSelect.value) {
+            errors.push('Secondary livelihood cannot be the same as main livelihood');
+            if (typeof markFieldError === 'function') {
+                markFieldError(secondaryLivelihoodSelect);
+            }
+            isValid = false;
+        }
     }
 
     // Supporting documents validation (optional - only validate if file is provided)
@@ -761,17 +661,155 @@ function validateFishRForm() {
         const maxSize = 10 * 1024 * 1024;
         if (docsInput.files[0].size > maxSize) {
             errors.push('Supporting document must not exceed 10MB');
-            markFieldError(docsInput);
+            if (typeof markFieldError === 'function') {
+                markFieldError(docsInput);
+            }
             isValid = false;
         }
     }
 
     // Show validation errors if any
     if (!isValid) {
-        displayValidationErrors(errors);
+        if (typeof displayValidationErrors === 'function') {
+            displayValidationErrors(errors);
+        }
     }
 
-    return isValid;
+    return isValid; // ✓ Always return the validation result
+}
+
+/**
+ * Initialize FishR form submission handling with enhanced CSRF protection
+ * ✓ FIXED: Calls validateFishRForm() before submitting
+ */
+function initializeFishRFormSubmission() {
+    const form = document.getElementById('fishr-registration-form');
+    if (!form) {
+        console.log('FishR form not found for AJAX initialization');
+        return;
+    }
+
+    console.log('Initializing FishR AJAX form submission');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('FishR form submitted');
+
+        // Check authentication before submitting
+        if (!isUserAuthenticatedAndVerified()) {
+            showAuthRequired('FishR Registration');
+            return false;
+        }
+
+        // ✓✓✓ CRITICAL FIX: VALIDATE FORM BEFORE SUBMITTING ✓✓✓
+        if (!validateFishRForm()) {
+            console.log('Form validation failed - submission blocked');
+            return false; // STOP HERE - Don't proceed if validation fails
+        }
+        // ✓✓✓ END OF CRITICAL FIX ✓✓✓
+
+        const submitBtn = document.getElementById('fishr-submit-btn');
+
+        // Show loading state - handle both button styles
+        const originalText = submitBtn.textContent;
+        const btnText = submitBtn.querySelector('.fishr-btn-text');
+        const btnLoading = submitBtn.querySelector('.fishr-btn-loading');
+
+        if (btnText && btnLoading) {
+            // New button style with spans
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+        } else {
+            // Simple button style
+            submitBtn.textContent = 'Submitting...';
+        }
+        submitBtn.disabled = true;
+
+        try {
+            // Ensure we have a fresh CSRF token
+            let token = getCSRFToken();
+            if (!token) {
+                console.log('No CSRF token found, refreshing...');
+                token = await refreshCSRFToken();
+            }
+
+            // Create FormData
+            const formData = new FormData(form);
+
+            console.log('Sending AJAX request to:', form.action);
+
+            // Submit via AJAX with retry logic
+            const response = await fetchWithCSRFRetry(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await response.json();
+            console.log('Response data:', data);
+
+            if (data.success) {
+                // Show success message with reference number
+                agrisysModal.success(data.message, {
+                    title: 'Registration Submitted!',
+                    reference: data.registration_number || data.fishr_number || data.reference_number || null,
+                    onClose: () => {
+                        // Reset button state BEFORE closing form
+                        if (btnText) btnText.style.display = 'inline';
+                        if (btnLoading) btnLoading.style.display = 'none';
+                        submitBtn.disabled = false;
+
+                        // Reset form and go back to home
+                        form.reset();
+
+                        // Reset other livelihood field if it was showing
+                        const livelihoodSelect = document.getElementById('fishr-main_livelihood');
+                        if (livelihoodSelect) {
+                            toggleOtherLivelihood(livelihoodSelect);
+                        }
+
+                        // Close form and return to landing
+                        closeFormFishR();
+                        // Scroll to top after modal closes and form is hidden
+                        setTimeout(() => {
+                            document.documentElement.scrollTop = 0;
+                            document.body.scrollTop = 0;
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }, 500);
+                    }
+                });
+            } else {
+                // Show error message
+                if (data.errors) {
+                    const errorList = Object.values(data.errors).flat();
+                    agrisysModal.validationError(errorList, { title: 'Submission Failed' });
+                } else {
+                    agrisysModal.error(data.message || 'There was an error submitting your request.', { title: 'Submission Failed' });
+                }
+                
+                // Reset button state on error so user can retry
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoading) btnLoading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('FishR submission error:', error);
+
+            if (error.message.includes('CSRF') || error.message.includes('419')) {
+                agrisysModal.error('Your session has expired. Please refresh the page and try again.', { title: 'Session Expired' });
+            } else {
+                agrisysModal.error('There was an error submitting your request. Please try again.', { title: 'Submission Error' });
+            }
+            
+            // Reset button state on error so user can retry
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoading) btnLoading.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    });
 }
 
 /**
@@ -788,7 +826,7 @@ function fillSampleFishRData() {
         last_name: 'Mangingisda',
         sex: 'Male',
         barangay: 'Riverside',
-        mobile_number: '09123456789',
+        contact_number: '09123456789',
         main_livelihood: 'aquaculture'
     };
 
@@ -956,7 +994,7 @@ function initializeFishRModule() {
     initializeFishRFormSubmission();
 
     // Set up initial form state
-    const livelihoodSelect = document.getElementById('main_livelihood');
+    const livelihoodSelect = document.getElementById('fishr-main_livelihood');
     if (livelihoodSelect) {
         // Initialize other livelihood field visibility
         if (livelihoodSelect.value) {
@@ -984,8 +1022,7 @@ function initializeFishRModule() {
 
     console.log('FishR module initialized successfully');
 
-    /**
- * Also handle window load event for additional safety*/
+    // Also handle window load event for additional safety
     window.addEventListener('load', function() {
         console.log('Window loaded, double-checking FishR form display');
 
@@ -1036,7 +1073,7 @@ function validateSecondaryLivelihoodMatch() {
     const warning = document.getElementById('fishr-secondary_livelihood-warning');
 
     if (!mainLivelihood || !secondaryLivelihood || !warning) {
-        return;
+        return true; // Return true if elements don't exist
     }
 
     const mainValue = mainLivelihood.value;
@@ -1046,48 +1083,12 @@ function validateSecondaryLivelihoodMatch() {
     if (mainValue && secondaryValue && mainValue === secondaryValue) {
         warning.style.display = 'block';
         secondaryLivelihood.style.borderColor = '#ff6b6b';
-        return false;
+        return false; // RETURN FALSE TO BLOCK (used by real-time validation)
     } else {
         warning.style.display = 'none';
         secondaryLivelihood.style.borderColor = '';
-        return true;
+        return true; // RETURN TRUE TO ALLOW (used by real-time validation)
     }
-}
-
-/**
- * Handle main livelihood change - also validate secondary livelihood
- */
-function toggleOtherLivelihood(select) {
-    if (!select) {
-        console.error('Select element not provided to toggleOtherLivelihood');
-        return;
-    }
-
-    const otherField = document.getElementById('fishr-other-livelihood-field');
-    const otherInput = document.getElementById('fishr-other_livelihood');
-    const selectedValue = select.value;
-
-    if (otherField && otherInput) {
-        if (selectedValue === 'others') {
-            // Show other livelihood field and make it required
-            otherField.style.display = 'block';
-            otherInput.setAttribute('required', 'required');
-            otherInput.focus();
-        } else {
-            // Hide other livelihood field and remove requirement
-            otherField.style.display = 'none';
-            otherInput.removeAttribute('required');
-            otherInput.value = '';
-        }
-    }
-
-    // Update supporting documents requirement based on livelihood
-    updateDocumentsRequirement(selectedValue);
-
-    // ADDED: Validate secondary livelihood when main livelihood changes
-    validateSecondaryLivelihoodMatch();
-
-    console.log('FishR livelihood changed to:', selectedValue);
 }
 
 // ==============================================
@@ -1109,6 +1110,7 @@ function isValidNameFormat(name) {
     const namePattern = /^[a-zA-Z\s\'-]*$/;
     return namePattern.test(name);
 }
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     const nameFields = [{
@@ -1186,6 +1188,107 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // === REAL-TIME VALIDATION FOR OTHER LIVELIHOOD FIELD ===
+    const otherLivelihoodInput = document.getElementById('fishr-other_livelihood');
+    const otherLivelihoodWarning = document.getElementById('fishr-other_livelihood-warning');
+
+    // Create warning span if it doesn't exist
+    if (otherLivelihoodInput && !otherLivelihoodWarning) {
+        const warningSpan = document.createElement('span');
+        warningSpan.id = 'fishr-other_livelihood-warning';
+        warningSpan.className = 'validation-warning';
+        warningSpan.style.color = '#ff6b6b';
+        warningSpan.style.fontSize = '0.875rem';
+        warningSpan.style.display = 'none';
+        warningSpan.style.marginTop = '4px';
+        warningSpan.textContent = 'Please provide specific details about your livelihood activity';
+        otherLivelihoodInput.parentNode.appendChild(warningSpan);
+    }
+
+    if (otherLivelihoodInput) {
+        otherLivelihoodInput.addEventListener('input', function(e) {
+            const value = e.target.value.trim();
+
+            if (value === '') {
+                // Empty field shows warning
+                const warning = document.getElementById('fishr-other_livelihood-warning');
+                if (warning) warning.style.display = 'block';
+                otherLivelihoodInput.style.borderColor = '#ff6b6b';
+            } else {
+                // Has content - clear warning
+                const warning = document.getElementById('fishr-other_livelihood-warning');
+                if (warning) warning.style.display = 'none';
+                otherLivelihoodInput.style.borderColor = '';
+            }
+        });
+
+        // Also validate on blur
+        otherLivelihoodInput.addEventListener('blur', function(e) {
+            const value = e.target.value.trim();
+
+            if (value === '') {
+                const warning = document.getElementById('fishr-other_livelihood-warning');
+                if (warning) warning.style.display = 'block';
+                otherLivelihoodInput.style.borderColor = '#ff6b6b';
+            } else {
+                const warning = document.getElementById('fishr-other_livelihood-warning');
+                if (warning) warning.style.display = 'none';
+                otherLivelihoodInput.style.borderColor = '';
+            }
+        });
+    }
+
+    // === REAL-TIME VALIDATION FOR OTHER SECONDARY LIVELIHOOD FIELD ===
+    const otherSecondaryLivelihoodInput = document.getElementById('fishr-other_secondary_livelihood');
+    const otherSecondaryLivelihoodWarning = document.getElementById('fishr-other_secondary_livelihood-warning');
+
+    // Create warning span if it doesn't exist
+    if (otherSecondaryLivelihoodInput && !otherSecondaryLivelihoodWarning) {
+        const warningSpan = document.createElement('span');
+        warningSpan.id = 'fishr-other_secondary_livelihood-warning';
+        warningSpan.className = 'validation-warning';
+        warningSpan.style.color = '#ff6b6b';
+        warningSpan.style.fontSize = '0.875rem';
+        warningSpan.style.display = 'none';
+        warningSpan.style.marginTop = '4px';
+        warningSpan.textContent = 'Please provide specific details about your secondary livelihood activity';
+        otherSecondaryLivelihoodInput.parentNode.appendChild(warningSpan);
+    }
+
+    if (otherSecondaryLivelihoodInput) {
+        otherSecondaryLivelihoodInput.addEventListener('input', function(e) {
+            const value = e.target.value.trim();
+
+            if (value === '') {
+                // Empty field shows warning
+                const warning = document.getElementById('fishr-other_secondary_livelihood-warning');
+                if (warning) warning.style.display = 'block';
+                otherSecondaryLivelihoodInput.style.borderColor = '#ff6b6b';
+            } else {
+                // Has content - clear warning
+                const warning = document.getElementById('fishr-other_secondary_livelihood-warning');
+                if (warning) warning.style.display = 'none';
+                otherSecondaryLivelihoodInput.style.borderColor = '';
+            }
+        });
+
+        // Also validate on blur
+        otherSecondaryLivelihoodInput.addEventListener('blur', function(e) {
+            const value = e.target.value.trim();
+
+            if (value === '') {
+                const warning = document.getElementById('fishr-other_secondary_livelihood-warning');
+                if (warning) warning.style.display = 'block';
+                otherSecondaryLivelihoodInput.style.borderColor = '#ff6b6b';
+            } else {
+                const warning = document.getElementById('fishr-other_secondary_livelihood-warning');
+                if (warning) warning.style.display = 'none';
+                otherSecondaryLivelihoodInput.style.borderColor = '';
+            }
+        });
+    }
+
     // Small delay to ensure all elements are ready
     setTimeout(initializeFishRModule, 100);
 });
@@ -1201,6 +1304,7 @@ window.showFishrTab = showFishrTab;
 window.toggleOtherLivelihood = toggleOtherLivelihood;
 window.fillSampleFishRData = fillSampleFishRData;
 window.toggleOtherSecondaryLivelihood = toggleOtherSecondaryLivelihood; 
-window.validateSecondaryLivelihoodMatch = validateSecondaryLivelihoodMatch;  
+window.validateSecondaryLivelihoodMatch = validateSecondaryLivelihoodMatch;
+window.validateFishRForm = validateFishRForm;
 
-console.log('Enhanced FishR JavaScript module loaded with CSRF protection');
+console.log('✓ Enhanced FishR JavaScript module loaded with CSRF protection and full validation');
