@@ -125,7 +125,7 @@ class RsbsaController extends Controller
                 'data' => [
                     'id' => $application->id,
                     'application_number' => $application->application_number,
-                    
+
                     // Basic info
                     'full_name' => $application->full_name_with_extension,
                     'first_name' => $application->first_name,
@@ -133,15 +133,15 @@ class RsbsaController extends Controller
                     'last_name' => $application->last_name,
                     'name_extension' => $application->name_extension,
                     'sex' => $application->sex,
-                    
+
                     // Contact & location
                     'contact_number' => $application->contact_number,
                     'barangay' => $application->barangay,
                     'address' => $application->address,
-                    
+
                     // Main livelihood
                     'main_livelihood' => $application->main_livelihood,
-                    
+
                     // Farmer-specific
                     'farmer_crops' => $application->farmer_crops,
                     'farmer_other_crops' => $application->farmer_other_crops,
@@ -151,23 +151,23 @@ class RsbsaController extends Controller
                     'farmer_land_ownership' => $application->farmer_land_ownership,
                     'farmer_special_status' => $application->farmer_special_status,
                     'farm_location' => $application->farm_location,
-                    
+
                     // Farmworker-specific
                     'farmworker_type' => $application->farmworker_type,
                     'farmworker_other_type' => $application->farmworker_other_type,
-                    
+
                     // Fisherfolk-specific
                     'fisherfolk_activity' => $application->fisherfolk_activity,
                     'fisherfolk_other_activity' => $application->fisherfolk_other_activity,
-                    
+
                     // Agri-youth-specific
                     'agriyouth_farming_household' => $application->agriyouth_farming_household,
                     'agriyouth_training' => $application->agriyouth_training,
                     'agriyouth_participation' => $application->agriyouth_participation,
-                    
+
                     // General
                     'commodity' => $application->commodity,
-                    
+
                     // Status
                     'status' => $application->status,
                     'status_color' => $application->status_color,
@@ -218,15 +218,15 @@ class RsbsaController extends Controller
                 'last_name' => 'required|string|max:100|regex:/^[a-zA-Z\s\'-]+$/',
                 'name_extension' => 'nullable|string|max:10|regex:/^[a-zA-Z.\s]*$/',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
-                
+
                 // Contact & location
                 'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'barangay' => 'required|string|max:100',
                 'address' => 'required|string|max:500',
-                
+
                 // Main livelihood
                 'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
-                
+
                 // Farmer-specific
                 'farmer_crops' => 'nullable|required_if:main_livelihood,Farmer|string|max:100',
                 'farmer_other_crops' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
@@ -236,23 +236,23 @@ class RsbsaController extends Controller
                 'farmer_land_ownership' => 'nullable|required_if:main_livelihood,Farmer|in:Owner,Tenant,Lessee',
                 'farmer_special_status' => 'nullable|in:Ancestral Domain,Agrarian Reform Beneficiary,None',
                 'farm_location' => 'nullable|required_if:main_livelihood,Farmer|string|max:500|regex:/^[a-zA-Z0-9\s,\'-]*$/',
-                
+
                 // Farmworker-specific
                 'farmworker_type' => 'nullable|required_if:main_livelihood,Farmworker/Laborer|string|max:100',
                 'farmworker_other_type' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
-                
+
                 // Fisherfolk-specific
                 'fisherfolk_activity' => 'nullable|required_if:main_livelihood,Fisherfolk|string|max:100',
                 'fisherfolk_other_activity' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
-                
+
                 // Agri-youth-specific
                 'agriyouth_farming_household' => 'nullable|required_if:main_livelihood,Agri-youth|in:Yes,No',
                 'agriyouth_training' => 'nullable|required_if:main_livelihood,Agri-youth|string|max:100',
                 'agriyouth_participation' => 'nullable|required_if:main_livelihood,Agri-youth|in:Participated,Not Participated',
-                
+
                 // General
                 'commodity' => 'nullable|string|max:1000',
-                
+
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
             ]);
@@ -271,12 +271,12 @@ class RsbsaController extends Controller
             // Handle file upload if provided
             if ($request->hasFile('supporting_document')) {
                 $file = $request->file('supporting_document');
-                
+
                 // Delete old document if exists
                 if ($application->supporting_document_path && Storage::disk('public')->exists($application->supporting_document_path)) {
                     Storage::disk('public')->delete($application->supporting_document_path);
                 }
-                
+
                 // Store new document
                 $path = $file->store('rsbsa-applications', 'public');
                 $validated['supporting_document_path'] = $path;
@@ -488,15 +488,15 @@ class RsbsaController extends Controller
                 'last_name' => 'required|string|max:100|regex:/^[a-zA-Z\s\'-]+$/',
                 'name_extension' => 'nullable|string|max:10|regex:/^[a-zA-Z.\s]*$/',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
-                
+
                 // Contact & location
                 'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'barangay' => 'required|string|max:100',
                 'address' => 'required|string|max:500',
-                
+
                 // Main livelihood
                 'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
-                
+
                 // Farmer-specific
                 'farmer_crops' => 'nullable|required_if:main_livelihood,Farmer|string|max:100',
                 'farmer_other_crops' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
@@ -506,23 +506,23 @@ class RsbsaController extends Controller
                 'farmer_land_ownership' => 'nullable|required_if:main_livelihood,Farmer|in:Owner,Tenant,Lessee',
                 'farmer_special_status' => 'nullable|in:Ancestral Domain,Agrarian Reform Beneficiary,None',
                 'farm_location' => 'nullable|required_if:main_livelihood,Farmer|string|max:500|regex:/^[a-zA-Z0-9\s,\'-]*$/',
-                
+
                 // Farmworker-specific
                 'farmworker_type' => 'nullable|required_if:main_livelihood,Farmworker/Laborer|string|max:100',
                 'farmworker_other_type' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
-                
+
                 // Fisherfolk-specific
                 'fisherfolk_activity' => 'nullable|required_if:main_livelihood,Fisherfolk|string|max:100',
                 'fisherfolk_other_activity' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
-                
+
                 // Agri-youth-specific
                 'agriyouth_farming_household' => 'nullable|required_if:main_livelihood,Agri-youth|in:Yes,No',
                 'agriyouth_training' => 'nullable|required_if:main_livelihood,Agri-youth|string|max:100',
                 'agriyouth_participation' => 'nullable|required_if:main_livelihood,Agri-youth|in:Participated,Not Participated',
-                
+
                 // General
                 'commodity' => 'nullable|string|max:1000',
-                
+
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
             ]);
@@ -779,7 +779,7 @@ class RsbsaController extends Controller
     /**
      * Log activity helper method
      */
-    private function logActivity($action, $subject, $id, $data = [])
+    protected function logActivity($action, $subject, $id, $data = [])
     {
         Log::info("RSBSA {$action}", array_merge([
             'subject' => $subject,
