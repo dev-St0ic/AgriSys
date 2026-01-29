@@ -324,15 +324,15 @@ function resetFishRForm() {
         const errorTexts = form.querySelectorAll('.error-text');
         errorTexts.forEach(error => error.remove());
 
-        // Reset submit button state
-       const submitBtn = document.getElementById('fishr-submit-btn');
+       // Reset submit button state to normal
+        const submitBtn = document.getElementById('fishr-submit-btn');
         const btnText = submitBtn.querySelector('.fishr-btn-text');
         const btnLoading = submitBtn.querySelector('.fishr-btn-loading');
 
-        // Show loading state - properly hide text and show loading
-        if (btnText) btnText.style.display = 'none';
-        if (btnLoading) btnLoading.style.display = 'inline';
-        submitBtn.disabled = true;
+        // Show normal state - properly show text and hide loading
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoading) btnLoading.style.display = 'none';  
+        submitBtn.disabled = false;
 
         // Reset to first tab if showTab function exists
         if (typeof showFishrTab === 'function') {
@@ -433,6 +433,11 @@ function updateDocumentsRequirement(livelihoodType) {
 /**
  * Initialize FishR form submission handling with enhanced CSRF protection
  */
+// CORRECTED SECTION - Replace the initializeFishRFormSubmission function
+
+/**
+ * Initialize FishR form submission handling with enhanced CSRF protection
+ */
 function initializeFishRFormSubmission() {
     const form = document.getElementById('fishr-registration-form');
     if (!form) {
@@ -456,8 +461,8 @@ function initializeFishRFormSubmission() {
 
         // Show loading state - handle both button styles
         const originalText = submitBtn.textContent;
-        const btnText = submitBtn.querySelector('.btn-text');
-        const btnLoading = submitBtn.querySelector('.btn-loading');
+        const btnText = submitBtn.querySelector('.fishr-btn-text');
+        const btnLoading = submitBtn.querySelector('.fishr-btn-loading');
 
         if (btnText && btnLoading) {
             // New button style with spans
@@ -501,6 +506,11 @@ function initializeFishRFormSubmission() {
                     title: 'Registration Submitted!',
                     reference: data.registration_number || data.fishr_number || data.reference_number || null,
                     onClose: () => {
+                        // Reset button state BEFORE closing form
+                        if (btnText) btnText.style.display = 'inline';
+                        if (btnLoading) btnLoading.style.display = 'none';
+                        submitBtn.disabled = false;
+
                         // Reset form and go back to home
                         form.reset();
 
@@ -528,6 +538,11 @@ function initializeFishRFormSubmission() {
                 } else {
                     agrisysModal.error(data.message || 'There was an error submitting your request.', { title: 'Submission Failed' });
                 }
+                
+                // Reset button state on error so user can retry
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoading) btnLoading.style.display = 'none';
+                submitBtn.disabled = false;
             }
         } catch (error) {
             console.error('FishR submission error:', error);
@@ -537,12 +552,13 @@ function initializeFishRFormSubmission() {
             } else {
                 agrisysModal.error('There was an error submitting your request. Please try again.', { title: 'Submission Error' });
             }
-        } finally {
-            // Reset button state - handle both styles
+            
+            // Reset button state on error so user can retry
             if (btnText) btnText.style.display = 'inline';
             if (btnLoading) btnLoading.style.display = 'none';
             submitBtn.disabled = false;
         }
+        // Removed the finally block - button state is now handled in success/error cases
     });
 }
 
