@@ -303,15 +303,32 @@ function resetFishRForm() {
         form.reset();
 
         // Hide other livelihood field
-        const otherField = document.getElementById('other-livelihood-field');
+        const otherField = document.getElementById('fishr-other-livelihood-field');
         if (otherField) {
             otherField.style.display = 'none';
         }
 
-        // Remove required attribute from other livelihood input
-        const otherInput = document.getElementById('other_livelihood');
+        // Hide other secondary livelihood field
+        const otherSecondaryField = document.getElementById('fishr-other-secondary-livelihood-field');
+        if (otherSecondaryField) {
+            otherSecondaryField.style.display = 'none';
+        }
+
+        // Remove required attribute from other livelihood inputs
+        const otherInput = document.getElementById('fishr-other_livelihood');
         if (otherInput) {
             otherInput.removeAttribute('required');
+        }
+
+        const otherSecondaryInput = document.getElementById('fishr-other_secondary_livelihood');
+        if (otherSecondaryInput) {
+            otherSecondaryInput.removeAttribute('required');
+        }
+
+        // Hide secondary livelihood warning
+        const secondaryWarning = document.getElementById('fishr-secondary_livelihood-warning');
+        if (secondaryWarning) {
+            secondaryWarning.style.display = 'none';
         }
 
         // Hide messages
@@ -324,7 +341,7 @@ function resetFishRForm() {
         const errorTexts = form.querySelectorAll('.error-text');
         errorTexts.forEach(error => error.remove());
 
-       // Reset submit button state to normal
+        // Reset submit button state to normal
         const submitBtn = document.getElementById('fishr-submit-btn');
         const btnText = submitBtn.querySelector('.fishr-btn-text');
         const btnLoading = submitBtn.querySelector('.fishr-btn-loading');
@@ -333,14 +350,6 @@ function resetFishRForm() {
         if (btnText) btnText.style.display = 'inline';
         if (btnLoading) btnLoading.style.display = 'none';  
         submitBtn.disabled = false;
-
-        // Reset to first tab if showTab function exists
-        if (typeof showFishrTab === 'function') {
-            const firstTabBtn = document.querySelector('#fishr-form .tab-btn');
-            if (firstTabBtn) {
-                showTab('fishr-form-tab', { target: firstTabBtn });
-            }
-        }
 
         console.log('FishR form reset to initial state');
     }
@@ -695,6 +704,39 @@ function validateFishRForm() {
         }
     }
 
+    
+    // Real-time validation for contact number
+        const contactInput = document.getElementById('fishr-contact_number');
+        const contactWarning = document.getElementById('fishr-contact_number-warning');
+
+        if (contactInput && contactWarning) {
+            // Validate on input (real-time)
+            contactInput.addEventListener('input', function(e) {
+                const value = e.target.value;
+                const phonePattern = /^09\d{9}$/;
+
+                if (value && !phonePattern.test(value)) {
+                    contactWarning.style.display = 'block';
+                    contactInput.style.borderColor = '#ff6b6b';
+                } else {
+                    contactWarning.style.display = 'none';
+                    contactInput.style.borderColor = '';
+                }
+            });
+
+            // Also validate on blur
+            contactInput.addEventListener('blur', function(e) {
+                const value = e.target.value;
+                const phonePattern = /^09\d{9}$/;
+
+                if (value && !phonePattern.test(value)) {
+                    contactWarning.style.display = 'block';
+                    contactInput.style.borderColor = '#ff6b6b';
+                }
+            });
+        }
+
+
     // Conditional validation for "others" livelihood
     const livelihoodSelect = form.querySelector('[name="main_livelihood"]');
     const otherLivelihoodInput = form.querySelector('[name="other_livelihood"]');
@@ -705,6 +747,27 @@ function validateFishRForm() {
             if (otherLivelihoodInput) markFieldError(otherLivelihoodInput);
             isValid = false;
         }
+    }
+
+    // Conditional validation for secondary "others" livelihood
+    const secondaryLivelihoodSelect = form.querySelector('[name="secondary_livelihood"]');
+    const otherSecondaryLivelihoodInput = form.querySelector('[name="other_secondary_livelihood"]');
+
+    if (secondaryLivelihoodSelect && secondaryLivelihoodSelect.value === 'others') {
+        if (!otherSecondaryLivelihoodInput || !otherSecondaryLivelihoodInput.value.trim()) {
+            errors.push('Please specify your secondary livelihood when selecting "Others"');
+            if (otherSecondaryLivelihoodInput) markFieldError(otherSecondaryLivelihoodInput);
+            isValid = false;
+        }
+    }
+
+    // Validate that secondary livelihood is different from main livelihood
+    if (livelihoodSelect && secondaryLivelihoodSelect && 
+        livelihoodSelect.value && secondaryLivelihoodSelect.value && 
+        livelihoodSelect.value === secondaryLivelihoodSelect.value) {
+        errors.push('Secondary livelihood cannot be the same as main livelihood');
+        markFieldError(secondaryLivelihoodSelect);
+        isValid = false;
     }
 
     // Supporting documents validation (optional - only validate if file is provided)
@@ -947,6 +1010,102 @@ function initializeFishRModule() {
     });
 }
 
+/**
+ * Handles secondary livelihood selection change
+ */
+function toggleOtherSecondaryLivelihood(select) {
+    if (!select) {
+        console.error('Select element not provided to toggleOtherSecondaryLivelihood');
+        return;
+    }
+
+    const otherField = document.getElementById('fishr-other-secondary-livelihood-field');
+    const otherInput = document.getElementById('fishr-other_secondary_livelihood');
+    const selectedValue = select.value;
+
+    if (otherField && otherInput) {
+        if (selectedValue === 'others') {
+            // Show other secondary livelihood field and make it required
+            otherField.style.display = 'block';
+            otherInput.setAttribute('required', 'required');
+            otherInput.focus();
+        } else {
+            // Hide other secondary livelihood field and remove requirement
+            otherField.style.display = 'none';
+            otherInput.removeAttribute('required');
+            otherInput.value = '';
+        }
+    }
+
+    // Validate that secondary livelihood is different from main livelihood
+    validateSecondaryLivelihoodMatch();
+
+    console.log('FishR secondary livelihood changed to:', selectedValue);
+}
+
+/**
+ * Real-time validation: Check if secondary livelihood matches main livelihood
+ */
+function validateSecondaryLivelihoodMatch() {
+    const mainLivelihood = document.getElementById('fishr-main_livelihood');
+    const secondaryLivelihood = document.getElementById('fishr-secondary_livelihood');
+    const warning = document.getElementById('fishr-secondary_livelihood-warning');
+
+    if (!mainLivelihood || !secondaryLivelihood || !warning) {
+        return;
+    }
+
+    const mainValue = mainLivelihood.value;
+    const secondaryValue = secondaryLivelihood.value;
+
+    // Only validate if both fields have values
+    if (mainValue && secondaryValue && mainValue === secondaryValue) {
+        warning.style.display = 'block';
+        secondaryLivelihood.style.borderColor = '#ff6b6b';
+        return false;
+    } else {
+        warning.style.display = 'none';
+        secondaryLivelihood.style.borderColor = '';
+        return true;
+    }
+}
+
+/**
+ * Handle main livelihood change - also validate secondary livelihood
+ */
+function toggleOtherLivelihood(select) {
+    if (!select) {
+        console.error('Select element not provided to toggleOtherLivelihood');
+        return;
+    }
+
+    const otherField = document.getElementById('fishr-other-livelihood-field');
+    const otherInput = document.getElementById('fishr-other_livelihood');
+    const selectedValue = select.value;
+
+    if (otherField && otherInput) {
+        if (selectedValue === 'others') {
+            // Show other livelihood field and make it required
+            otherField.style.display = 'block';
+            otherInput.setAttribute('required', 'required');
+            otherInput.focus();
+        } else {
+            // Hide other livelihood field and remove requirement
+            otherField.style.display = 'none';
+            otherInput.removeAttribute('required');
+            otherInput.value = '';
+        }
+    }
+
+    // Update supporting documents requirement based on livelihood
+    updateDocumentsRequirement(selectedValue);
+
+    // ADDED: Validate secondary livelihood when main livelihood changes
+    validateSecondaryLivelihoodMatch();
+
+    console.log('FishR livelihood changed to:', selectedValue);
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Small delay to ensure all elements are ready
@@ -963,5 +1122,7 @@ window.closeFormFishR = closeFormFishR;
 window.showFishrTab = showFishrTab;
 window.toggleOtherLivelihood = toggleOtherLivelihood;
 window.fillSampleFishRData = fillSampleFishRData;
+window.toggleOtherSecondaryLivelihood = toggleOtherSecondaryLivelihood; 
+window.validateSecondaryLivelihoodMatch = validateSecondaryLivelihoodMatch;  
 
 console.log('Enhanced FishR JavaScript module loaded with CSRF protection');

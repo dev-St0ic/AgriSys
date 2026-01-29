@@ -141,6 +141,8 @@
                 <input type="tel" id="fishr-contact_number" name="contact_number" placeholder="Example: 09123456789"
                     value="{{ old('contact_number') }}" pattern="^09\d{9}$"
                     title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)" required>
+                <span class="validation-warning" id="fishr-contact_number-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Contact number must be in the format 09XXXXXXXXX (11 digits starting with 09)</span>
                 @error('contact_number')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
@@ -171,6 +173,35 @@
                     placeholder="Specify other livelihood" value="{{ old('other_livelihood') }}">
                 <small class="fishr-form-text">Please provide specific details about your livelihood activity</small>
                 @error('other_livelihood')
+                    <span class="fishr-error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="fishr-form-group">
+                <label for="fishr-secondary_livelihood">Secondary Livelihood (Optional)</label>
+                <select id="fishr-secondary_livelihood" name="secondary_livelihood"
+                    onchange="toggleOtherSecondaryLivelihood(this); validateSecondaryLivelihoodMatch()">
+                    <option value="" selected>Select Livelihood (Optional)</option>
+                    <option value="capture">Capture Fishing</option>
+                    <option value="aquaculture">Aquaculture</option>
+                    <option value="vending">Fish Vending</option>
+                    <option value="processing">Fish Processing</option>
+                    <option value="others">Others</option>
+                </select>
+                <span class="validation-warning" id="fishr-secondary_livelihood-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Secondary livelihood cannot be the same as main livelihood</span>
+                @error('secondary_livelihood')
+                    <span class="fishr-error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="fishr-form-group" id="fishr-other-secondary-livelihood-field"
+                style="display: none;">
+                <label for="fishr-other_secondary_livelihood">Please specify (if others) *</label>
+                <input type="text" id="fishr-other_secondary_livelihood" name="other_secondary_livelihood"
+                    placeholder="Specify other secondary livelihood" value="{{ old('other_secondary_livelihood') }}">
+                <small class="fishr-form-text">Please provide specific details about your secondary livelihood activity</small>
+                @error('other_secondary_livelihood')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
             </div>
