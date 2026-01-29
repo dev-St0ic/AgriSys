@@ -45,47 +45,47 @@ class ApplicationController extends Controller
     public function submitFishR(Request $request)
     {
         try {
-        // ✅ ADD THIS AUTHENTICATION CHECK
-        $userId = session('user.id');
+            // ✅ AUTHENTICATION CHECK
+            $userId = session('user.id');
 
-        if (!$userId) {
-            Log::warning('FishR submission attempted without authentication');
+            if (!$userId) {
+                Log::warning('FishR submission attempted without authentication');
 
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You must be logged in to submit a FishR registration.',
-                    'require_auth' => true
-                ], 401);
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You must be logged in to submit a FishR registration.',
+                        'require_auth' => true
+                    ], 401);
+                }
+
+                return redirect()->route('landing.page')
+                    ->with('error', 'You must be logged in to submit a FishR registration.');
             }
 
-            return redirect()->route('landing.page')
-                ->with('error', 'You must be logged in to submit a FishR registration.');
-        }
+            // Verify user exists
+            $userExists = \App\Models\UserRegistration::find($userId);
+            if (!$userExists) {
+                Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
 
-        // Verify user exists
-        $userExists = \App\Models\UserRegistration::find($userId);
-        if (!$userExists) {
-            Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid user session. Please log in again.',
+                        'require_auth' => true
+                    ], 401);
+                }
 
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid user session. Please log in again.',
-                    'require_auth' => true
-                ], 401);
+                return redirect()->route('landing.page')
+                    ->with('error', 'Invalid user session. Please log in again.');
             }
 
-            return redirect()->route('landing.page')
-                ->with('error', 'Invalid user session. Please log in again.');
-        }
+            Log::info('FishR submission started', [
+                'user_id' => $userId,
+                'username' => $userExists->username
+            ]);
 
-        Log::info('FishR submission started', [
-            'user_id' => $userId,
-            'username' => $userExists->username
-        ]);
-
-            // Enhanced validation with better error messages
+            // ✅ FIXED: All validation rules in correct place
             $validated = $request->validate([
                 'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
@@ -96,6 +96,8 @@ class ApplicationController extends Controller
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
                 'other_livelihood' => 'nullable|string|max:255|required_if:main_livelihood,others',
+                'secondary_livelihood' => ['nullable', 'in:capture,aquaculture,vending,processing,others'],
+                'other_secondary_livelihood' => ['nullable', 'string', 'max:255', 'required_if:secondary_livelihood,others'],
                 'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
             ], [
                 'first_name.required' => 'First name is required',
@@ -110,6 +112,8 @@ class ApplicationController extends Controller
                 'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX',
                 'main_livelihood.required' => 'Please select your main livelihood',
                 'other_livelihood.required_if' => 'Please specify your livelihood when selecting "Others"',
+                'secondary_livelihood.in' => 'Please select a valid secondary livelihood',
+                'other_secondary_livelihood.required_if' => 'Please specify your secondary livelihood when selecting "Others"',
                 'supporting_documents.mimes' => 'Supporting documents must be PDF, JPG, JPEG, or PNG',
                 'supporting_documents.max' => 'Supporting documents must not exceed 10MB'
             ]);
@@ -126,11 +130,20 @@ class ApplicationController extends Controller
                 }
             }
 
-            // Determine livelihood description
+            // FIXED: Only get livelihood description if value exists
             $livelihoodDescription = $this->getLivelihoodDescription(
                 $validated['main_livelihood'],
                 $validated['other_livelihood'] ?? null
             );
+
+            // FIXED: Only get secondary livelihood description if secondary_livelihood is selected
+            $secondaryLivelihoodDescription = null;
+            if (!empty($validated['secondary_livelihood'])) {
+                $secondaryLivelihoodDescription = $this->getLivelihoodDescription(
+                    $validated['secondary_livelihood'],
+                    $validated['other_secondary_livelihood'] ?? null
+                );
+            }
 
             // Generate unique registration number
             $registrationNumber = $this->generateUniqueRegistrationNumber();
@@ -138,12 +151,12 @@ class ApplicationController extends Controller
             // Normalize contact number to +639 format
             $normalizedContactNumber = $this->normalizeMobileNumber($validated['contact_number']);
 
-            // Create the FishR registration
+            //  FIXED: Create with all fields properly set
             $fishRRegistration = FishrApplication::create([
                 'user_id' => $userId,
                 'registration_number' => $registrationNumber,
                 'first_name' => $validated['first_name'],
-                'middle_name' => $validated['middle_name'],
+                'middle_name' => $validated['middle_name'] ?? null,
                 'last_name' => $validated['last_name'],
                 'name_extension' => $validated['name_extension'] ?? null,
                 'sex' => $validated['sex'],
@@ -152,6 +165,9 @@ class ApplicationController extends Controller
                 'main_livelihood' => $validated['main_livelihood'],
                 'livelihood_description' => $livelihoodDescription,
                 'other_livelihood' => $validated['other_livelihood'] ?? null,
+                'secondary_livelihood' => $validated['secondary_livelihood'] ?? null,
+                'other_secondary_livelihood' => $validated['other_secondary_livelihood'] ?? null,
+                'secondary_livelihood_description' => $secondaryLivelihoodDescription,
                 'document_path' => $documentPath,
                 'status' => 'pending'
             ]);
@@ -160,7 +176,8 @@ class ApplicationController extends Controller
                 'id' => $fishRRegistration->id,
                 'registration_number' => $fishRRegistration->registration_number,
                 'name' => $fishRRegistration->full_name,
-                'livelihood' => $livelihoodDescription
+                'main_livelihood' => $livelihoodDescription,
+                'secondary_livelihood' => $secondaryLivelihoodDescription
             ]);
 
             // Log activity
@@ -168,7 +185,8 @@ class ApplicationController extends Controller
                 \Spatie\Activitylog\Facades\Activity::withProperties([
                     'registration_number' => $fishRRegistration->registration_number,
                     'full_name' => $fishRRegistration->full_name,
-                    'livelihood' => $livelihoodDescription,
+                    'main_livelihood' => $livelihoodDescription,
+                    'secondary_livelihood' => $secondaryLivelihoodDescription,
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
                 ])->log('submitted - FishrApplication (ID: ' . $fishRRegistration->id . ')');

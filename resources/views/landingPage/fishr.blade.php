@@ -122,7 +122,7 @@
                             <option value="Rosario">Rosario</option>
                             <option value="Sampaguita Village">Sampaguita Village</option>
                             <option value="San Antonio">San Antonio</option>
-                            <option value="San Lorenzo Ruiz">San Lorenzo</option>
+                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
                             <option value="San Roque">San Roque</option>
                             <option value="San Vicente">San Vicente</option>
                             <option value="Santo Niño">Santo Niño</option> 

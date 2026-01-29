@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\FishrApplication;
 use App\Models\UserRegistration;
 
-class FishrApplicationSeeder extends Seeder
+class FishrRequestSeeder extends Seeder
 {
     /**
      * Run the database seeds.

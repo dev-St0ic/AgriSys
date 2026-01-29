@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class FishRController extends Controller
 {
@@ -178,17 +179,25 @@ class FishRController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'barangay' => 'required|string|max:100',
 
-                // Main livelihood (NOW EDITABLE)
+                // Main livelihood (EDITABLE)
                 'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
                 'other_livelihood' => 'nullable|string|max:255',
-                
-                // Secondary livelihood (NEW - NOW EDITABLE)
-                'secondary_livelihood' => 'nullable|in:capture,aquaculture,vending,processing,others',
+
+                // Secondary livelihood (EDITABLE)
+                'secondary_livelihood' => [
+                    'nullable',
+                    'in:capture,aquaculture,vending,processing,others',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value && $value === $request->input('main_livelihood')) {
+                            $fail('Secondary livelihood cannot be the same as main livelihood.');
+                        }
+                    },
+                ],
                 'other_secondary_livelihood' => 'nullable|string|max:255',
-                
+
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             ]);
@@ -208,6 +217,31 @@ class FishRController extends Controller
                 $filename = 'fishr_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('fishr_documents', $filename, 'public');
                 $validated['document_path'] = $path;
+            }
+
+            // Always recalculate livelihood_description when main_livelihood changes
+            $livelihood_map = [
+                'capture' => 'Capture Fishing',
+                'aquaculture' => 'Aquaculture',
+                'vending' => 'Fish Vending',
+                'processing' => 'Fish Processing',
+                'others' => $validated['other_livelihood'] ?? 'Others'
+            ];
+            $validated['livelihood_description'] = $livelihood_map[$validated['main_livelihood']] ?? 'Others';
+
+            // Always recalculate secondary_livelihood_description
+            if (!empty($validated['secondary_livelihood'])) {
+                $secondary_map = [
+                    'capture' => 'Capture Fishing',
+                    'aquaculture' => 'Aquaculture',
+                    'vending' => 'Fish Vending',
+                    'processing' => 'Fish Processing',
+                    'others' => $validated['other_secondary_livelihood'] ?? 'Others'
+                ];
+                $validated['secondary_livelihood_description'] = $secondary_map[$validated['secondary_livelihood']] ?? 'Others';
+            } else {
+                // Clear secondary livelihood data if not selected
+                $validated['secondary_livelihood_description'] = null;
             }
 
             // Update the registration with all fields
@@ -232,9 +266,10 @@ class FishRController extends Controller
                 'data' => [
                     'id' => $registration->id,
                     'full_name' => $registration->full_name,
+                    'livelihood_description' => $registration->livelihood_description,
+                    'secondary_livelihood_description' => $registration->secondary_livelihood_description,
                     'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
                     'document_path' => $registration->document_path,
-                    'secondary_livelihood' => $registration->secondary_livelihood,
                 ]
             ]);
 
@@ -359,10 +394,18 @@ class FishRController extends Controller
 
                 // Main livelihood info
                 'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
-                'other_livelihood' => 'nullable|string|max:255',
-                
-                // Secondary livelihood info (NEW)
-                'secondary_livelihood' => 'nullable|in:capture,aquaculture,vending,processing,others',
+                'other_livelihood' => 'nullable|string|max:255', 
+
+                // Secondary livelihood info
+                'secondary_livelihood' => [
+                    'nullable',
+                    'in:capture,aquaculture,vending,processing,others',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value && $value === $request->input('main_livelihood')) {
+                            $fail('Secondary livelihood cannot be the same as main livelihood.');
+                        }
+                    },
+                ],
                 'other_secondary_livelihood' => 'nullable|string|max:255',
 
                 // Status
@@ -376,7 +419,7 @@ class FishRController extends Controller
             // Generate unique registration number
             $validated['registration_number'] = $this->generateRegistrationNumber();
 
-            // Calculate livelihood_description
+            // FIXED: Calculate livelihood_description for main livelihood
             $livelihood_map = [
                 'capture' => 'Capture Fishing',
                 'aquaculture' => 'Aquaculture',
@@ -386,6 +429,18 @@ class FishRController extends Controller
             ];
             $validated['livelihood_description'] = $livelihood_map[$validated['main_livelihood']] ?? 'Others';
 
+            // Calculate secondary_livelihood_description
+            if (!empty($validated['secondary_livelihood'])) {
+                $secondary_map = [
+                    'capture' => 'Capture Fishing',
+                    'aquaculture' => 'Aquaculture',
+                    'vending' => 'Fish Vending',
+                    'processing' => 'Fish Processing',
+                    'others' => $validated['other_secondary_livelihood'] ?? 'Others'
+                ];
+                $validated['secondary_livelihood_description'] = $secondary_map[$validated['secondary_livelihood']] ?? 'Others';
+            }
+
             // Handle document upload
             if ($request->hasFile('supporting_document')) {
                 $file = $request->file('supporting_document');
@@ -394,8 +449,8 @@ class FishRController extends Controller
                 $validated['document_path'] = $path;
             }
 
-            // Set default status if not provided
-            $validated['status'] = $validated['status'] ?? 'pending';
+            // Set default status to pending (user applications always start as pending)
+            $validated['status'] = 'pending';
 
             // Create the registration
             $registration = FishrApplication::create($validated);
@@ -406,14 +461,14 @@ class FishRController extends Controller
             $this->logActivity('created', 'FishrApplication', $registration->id, [
                 'registration_number' => $registration->registration_number,
                 'livelihood' => $registration->livelihood_description,
-                'secondary_livelihood' => $registration->secondary_livelihood_description,
+                'secondary_livelihood' => $registration->secondary_livelihood_description ?? 'None',
                 'barangay' => $registration->barangay
             ]);
 
-            Log::info('FishR registration created by admin', [
+            Log::info('FishR registration created', [
                 'registration_id' => $registration->id,
                 'registration_number' => $registration->registration_number,
-                'created_by' => auth()->user()->name,
+                'created_by' => auth()->user()->name ?? 'Admin',
             ]);
 
             return response()->json([
@@ -432,6 +487,7 @@ class FishRController extends Controller
                 'message' => 'Validation failed',
                 'errors' => $e->errors()
             ], 422);
+
         } catch (\Exception $e) {
             Log::error('Error creating FishR registration', [
                 'error' => $e->getMessage(),
@@ -944,26 +1000,6 @@ class FishRController extends Controller
                 'success' => false,
                 'message' => 'Error deleting annex: ' . $e->getMessage()
             ], 500);
-        }
-    }
-
-    /**
-     * Log activity for audit trail
-     */
-    private function logActivity($action, $model, $id, $properties = [])
-    {
-        try {
-            activity()
-                ->performedOn(new FishrApplication())
-                ->causedBy(auth()->user())
-                ->withProperties(array_merge(['id' => $id], $properties))
-                ->log("{$action}_{$model}");
-        } catch (\Exception $e) {
-            Log::warning('Failed to log activity', [
-                'action' => $action,
-                'model' => $model,
-                'error' => $e->getMessage()
-            ]);
         }
     }
 }
