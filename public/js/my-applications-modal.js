@@ -192,7 +192,7 @@ function handleResubmit(applicationType) {
 
     const typeMap = {
         'RSBSA Registration': {
-            formId: 'rsbsa-form',
+            formId: 'new-rsbsa',
             openFunction: (e) => openRSBSAForm(e),
             path: '/services/rsbsa'
         },
@@ -332,25 +332,114 @@ function formatApplicationDate(dateString) {
 }
 
 /**
- * Filter applications by status
+ * Filter applications by status - FIXED VERSION
  */
 function filterApplicationsByStatus(status) {
     const cards = document.querySelectorAll('.app-card');
     const buttons = document.querySelectorAll('.filter-btn');
 
+    // Remove active class from all buttons
     buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    // Add active class to clicked button
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+
+    // ALWAYS remove the empty filter message first
+    removeEmptyFilterMessage();
 
     if (status === 'all') {
+        // Show all cards
         cards.forEach(card => card.style.display = '');
     } else {
+        // Filter by specific status
+        let visibleCount = 0;
         cards.forEach(card => {
             const cardStatus = card.className.match(/status-(\w+)/);
             if (cardStatus) {
                 const currentStatus = cardStatus[1];
-                card.style.display = currentStatus === status ? '' : 'none';
+                const isVisible = currentStatus === status;
+                card.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
             }
         });
+
+        // Show empty message ONLY if no cards match filter
+        if (visibleCount === 0) {
+            showEmptyFilterMessage(status);
+        }
+    }
+}
+
+/**
+ * Show empty state message when filter has no results
+ */
+function showEmptyFilterMessage(status) {
+    let messageContainer = document.querySelector('.empty-filter-message');
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.className = 'empty-filter-message';
+        const grid = document.getElementById('applications-modal-grid');
+        if (grid && grid.parentElement) {
+            grid.parentElement.appendChild(messageContainer);
+        } else {
+            return;
+        }
+    }
+
+    const messages = {
+        'pending': {
+            title: 'No Pending Applications',
+            text: 'You don\'t have any applications currently under review.'
+        },
+        'under-review': {
+            title: 'No Applications Under Review',
+            text: 'You don\'t have any applications currently being reviewed.'
+        },
+        'processing': {
+            title: 'No Applications Being Processed',
+            text: 'You don\'t have any applications currently being processed.'
+        },
+        'approved': {
+            title: 'No Approved Applications',
+            text: 'You don\'t have any approved applications yet. Submit an application to get started!',
+            button: 'Browse Services'
+        },
+        'rejected': {
+            title: 'No Rejected Applications',
+            text: 'Great! You don\'t have any rejected applications.'
+        }
+    };
+
+    const message = messages[status] || {
+        title: 'No Applications Found',
+        text: 'There are no applications with this status.'
+    };
+
+    messageContainer.innerHTML = `
+        <div class="empty-filter-state">
+            <div class="empty-filter-icon">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                    <line x1="9" y1="17" x2="15" y2="17"/>
+                </svg>
+            </div>
+            <h3 class="empty-filter-title">${message.title}</h3>
+            <p class="empty-filter-text">${message.text}</p>
+            ${message.button ? `<button class="empty-filter-btn" onclick="filterApplicationsByStatus('all');">${message.button}</button>` : ''}
+        </div>
+    `;
+}
+
+/**
+ * Remove empty filter message
+ */
+function removeEmptyFilterMessage() {
+    const messageContainer = document.querySelector('.empty-filter-message');
+    if (messageContainer) {
+        messageContainer.remove();
     }
 }
 
@@ -403,5 +492,8 @@ window.renderEmptyApplications = renderEmptyApplications;
 window.filterApplicationsByStatus = filterApplicationsByStatus;
 window.resetApplicationFilters = resetApplicationFilters;
 window.handleResubmit = handleResubmit;
+window.showEmptyFilterMessage = showEmptyFilterMessage;
+window.removeEmptyFilterMessage = removeEmptyFilterMessage;
+
 
 console.log('Enhanced My Applications Modal - Simplified Version Loaded');

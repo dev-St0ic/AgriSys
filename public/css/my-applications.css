@@ -573,3 +573,118 @@
         font-size: 14px;
     }
 }
+/* Empty Filter Message Container */
+.empty-filter-message {
+    grid-column: 1 / -1;
+    margin-bottom: 30px;
+}
+
+.empty-filter-state {
+    background: white;
+    border-radius: 14px;
+    padding: 50px 40px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.empty-filter-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0A6953;
+}
+
+.empty-filter-title {
+    color: #1f2937;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.empty-filter-text {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 16px 0;
+}
+
+.empty-filter-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #0A6953 0%, #2d6a4f 100%);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.2);
+}
+
+.empty-filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(10, 105, 83, 0.3);
+}
+
+.empty-filter-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .empty-filter-state {
+        padding: 40px 30px;
+    }
+
+    .empty-filter-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .empty-filter-title {
+        font-size: 18px;
+    }
+
+    .empty-filter-text {
+        font-size: 13px;
+    }
+
+    .empty-filter-btn {
+        padding: 9px 20px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .empty-filter-state {
+        padding: 30px 20px;
+    }
+
+    .empty-filter-icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 16px;
+    }
+
+    .empty-filter-title {
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .empty-filter-text {
+        font-size: 12px;
+        margin-bottom: 14px;
+    }
+
+    .empty-filter-btn {
+        padding: 8px 18px;
+        font-size: 11px;
+    }
+}

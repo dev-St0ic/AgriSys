@@ -153,7 +153,7 @@ class ApplicationController extends Controller
                 'livelihood_description' => $livelihoodDescription,
                 'other_livelihood' => $validated['other_livelihood'] ?? null,
                 'document_path' => $documentPath,
-                'status' => 'under_review'
+                'status' => 'pending'
             ]);
 
             Log::info('FishR registration created successfully', [
@@ -1144,7 +1144,7 @@ public function submitRsbsa(Request $request)
                 'barangay' => $validated['barangay'],
                 'training_type' => $validated['training_type'],
                 'document_paths' => $documentPaths,
-                'status' => 'under_review'
+                'status' => 'pending'
             ]);
 
             Log::info('Training application created successfully', [

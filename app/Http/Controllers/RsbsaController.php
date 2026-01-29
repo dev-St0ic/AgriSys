@@ -115,7 +115,7 @@ class RsbsaController extends Controller
     /**
      * Display the specified RSBSA application
      */
-    public function show($id)
+   public function show($id)
     {
         try {
             $application = RsbsaApplication::findOrFail($id);
@@ -137,8 +137,8 @@ class RsbsaController extends Controller
                     // Contact & location
                     'contact_number' => $application->contact_number,
                     'barangay' => $application->barangay,
-                    'address' => $application->address,
-
+                    'address' => $application->address, // NEW: Add address
+                    
                     // Main livelihood
                     'main_livelihood' => $application->main_livelihood,
 
@@ -776,16 +776,25 @@ class RsbsaController extends Controller
         }
     }
 
-    /**
-     * Log activity helper method
-     */
-    protected function logActivity($action, $subject, $id, $data = [])
+    // /**
+    //  * Log activity helper method
+    //  */
+    // protected function logActivity($action, $subject, $id, $data = [])
+    // {
+    //     Log::info("RSBSA {$action}", array_merge([
+    //         'subject' => $subject,
+    //         'id' => $id,
+    //         'user_id' => auth()->id(),
+    //         'user_name' => auth()->user()->name ?? 'System'
+    //     ], $data));
+    // }
+    protected function logActivity(string $action, string $model, ?int $modelId = null, ?array $properties = null, ?string $description = null): void
     {
         Log::info("RSBSA {$action}", array_merge([
-            'subject' => $subject,
-            'id' => $id,
+            'model' => $model,
+            'modelId' => $modelId,
             'user_id' => auth()->id(),
             'user_name' => auth()->user()->name ?? 'System'
-        ], $data));
+        ], $properties ?? []));
     }
 }

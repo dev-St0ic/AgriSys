@@ -54,6 +54,7 @@ class FishrApplication extends Model
     public function getFormattedStatusAttribute()
     {
         return match($this->status) {
+            'pending' => 'Pending',
             'under_review' => 'Under Review',
             'approved' => 'Approved',
             'rejected' => 'Rejected',
@@ -67,6 +68,7 @@ class FishrApplication extends Model
     public function getStatusColorAttribute()
     {
         return match($this->status) {
+            'pending' => 'secondary',
             'under_review' => 'warning',
             'approved' => 'success',
             'rejected' => 'danger',

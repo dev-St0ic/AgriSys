@@ -779,6 +779,31 @@ input.is-invalid {
     transition: all 0.3s ease;
     position: relative;
     margin-top: 10px;
+    min-height: 48px;  /* Set fixed height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Text span - always takes full width */
+.btn-text {
+    display: block;
+    width: 100%;
+}
+
+/* Loader span - absolutely positioned over text */
+.btn-loader {
+    position: absolute;
+    display: none;
+}
+
+.auth-submit-btn.loading .btn-text {
+    visibility: hidden;  /* Keep space but hide */
+}
+
+.auth-submit-btn.loading .btn-loader {
+    display: inline-block !important;
+    visibility: visible;
 }
 
 .auth-submit-btn:hover {

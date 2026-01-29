@@ -51,6 +51,7 @@ class TrainingApplication extends Model
     public function getFormattedStatusAttribute()
     {
         return match($this->status) {
+            'pending' => 'Pending',
             'under_review' => 'Under Review',
             'approved' => 'Approved',
             'rejected' => 'Rejected',
