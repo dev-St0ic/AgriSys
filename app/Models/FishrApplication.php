@@ -136,8 +136,8 @@ class FishrApplication extends Model
     public function getStatusColorAttribute(): string
     {
         return match($this->status) {
-            'pending' => 'warning',      // Yellow
-            'under_review' => 'info',    // Blue
+            'pending' => 'info',      // blue
+            'under_review' => 'warning',    // yellow
             'approved' => 'success',     // Green
             'rejected' => 'danger',      // Red
             default => 'secondary'
