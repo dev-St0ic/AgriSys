@@ -656,7 +656,29 @@ function validateFishRForm() {
     if (livelihoodSelect && secondaryLivelihoodSelect && 
         livelihoodSelect.value && secondaryLivelihoodSelect.value) {
         
-        if (livelihoodSelect.value === secondaryLivelihoodSelect.value) {
+        if (livelihoodSelect.value === secondaryLivelihoodSelect.value && 
+            livelihoodSelect.value !== 'others') {
+            errors.push('Secondary livelihood cannot be the same as main livelihood');
+            if (typeof markFieldError === 'function') {
+                markFieldError(secondaryLivelihoodSelect);
+            }
+            isValid = false;
+        }
+    }
+
+
+    // Text match check (allows both to be "others" with same text)
+    if (!validateSecondaryLivelihoodTextMatch()) {
+        errors.push('Secondary livelihood cannot be similar to main livelihood');
+        isValid = false;
+    }
+    
+      // If both are "others", check if the text is the same
+    if (livelihoodSelect.value === 'others' && secondaryLivelihoodSelect.value === 'others') {
+        const mainOthersText = (otherLivelihoodInput?.value || '').trim().toLowerCase();
+        const secondaryOthersText = (otherSecondaryLivelihoodInput?.value || '').trim().toLowerCase();
+        
+        if (mainOthersText && secondaryOthersText && mainOthersText === secondaryOthersText) {
             errors.push('Secondary livelihood cannot be the same as main livelihood');
             if (typeof markFieldError === 'function') {
                 markFieldError(secondaryLivelihoodSelect);
@@ -919,6 +941,27 @@ function validateSecondaryLivelihoodTextMatch() {
             showWarning = true;
         }
     }
+    
+    // Keep only the mismatches between "others" text and standard livelihood types
+    // Case 1: Secondary is "others" and its text matches the main livelihood type
+    if (secondaryValue === 'others' && mainValue !== 'others' && mainValue) {
+        const livelihoodTextMap = {
+            'capture': ['capture', 'fishing'],
+            'aquaculture': ['aquaculture', 'fish pond', 'fishpond'],
+            'vending': ['vending', 'vendor'],
+            'processing': ['processing', 'processor']
+        };
+
+        const mainLivelihoodTexts = livelihoodTextMap[mainValue] || [];
+        const hasMatch = mainLivelihoodTexts.some(text => 
+            secondaryOthersValue.includes(text)
+        );
+
+        if (hasMatch) {
+            showWarning = true;
+        }
+    }
+    
     // Case 2: Secondary is "others" and its text matches the main livelihood type
     else if (secondaryValue === 'others' && mainValue !== 'others' && mainValue) {
         const livelihoodTextMap = {
@@ -1205,8 +1248,8 @@ function validateSecondaryLivelihoodMatch() {
     const mainValue = mainLivelihood.value;
     const secondaryValue = secondaryLivelihood.value;
 
-    // Only validate if both fields have values
-    if (mainValue && secondaryValue && mainValue === secondaryValue) {
+    // Main and Secondary livelihood dropdown comparison
+    if (mainValue && secondaryValue && mainValue === secondaryValue && mainValue !== 'others') {
         warning.style.display = 'block';
         secondaryLivelihood.style.borderColor = '#ff6b6b';
         return false; // RETURN FALSE TO BLOCK (used by real-time validation)
@@ -1415,6 +1458,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // ✓ VALIDATE TEXT MATCH ON BLUR TOO
             validateSecondaryLivelihoodTextMatch();
+        });
+    }
+
+        // === REAL-TIME VALIDATION FOR MAIN LIVELIHOOD "OTHERS" FIELD ===
+    if (otherLivelihoodInput) {
+        otherLivelihoodInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            validateSecondaryLivelihoodTextMatch();
+        });
+
+        otherLivelihoodInput.addEventListener('blur', function(e) {
+            validateSecondaryLivelihoodTextMatch();
+        });
+    }
+
+    // === REAL-TIME VALIDATION FOR SECONDARY LIVELIHOOD "OTHERS" TEXT MATCH ===
+    if (otherSecondaryLivelihoodInput) {
+        otherSecondaryLivelihoodInput.addEventListener('input', function(e) {
+            const mainLivelihood = document.getElementById('fishr-main_livelihood');
+            const secondaryLivelihood = document.getElementById('fishr-secondary_livelihood');
+            
+            // Check if both are "others"
+            if (mainLivelihood.value === 'others' && secondaryLivelihood.value === 'others') {
+                const mainOthersText = (otherLivelihoodInput?.value || '').trim().toLowerCase();
+                const secondaryOthersText = (e.target.value || '').trim().toLowerCase();
+                
+                if (mainOthersText && secondaryOthersText && mainOthersText === secondaryOthersText) {
+                    e.target.style.borderColor = '#ff6b6b';
+                    e.target.style.backgroundColor = '#ffe6e6';
+                } else {
+                    e.target.style.borderColor = '';
+                    e.target.style.backgroundColor = '';
+                }
+            }
+        });
+
+        otherSecondaryLivelihoodInput.addEventListener('blur', function(e) {
+            const mainLivelihood = document.getElementById('fishr-main_livelihood');
+            const secondaryLivelihood = document.getElementById('fishr-secondary_livelihood');
+            
+            if (mainLivelihood.value === 'others' && secondaryLivelihood.value === 'others') {
+                const mainOthersText = (otherLivelihoodInput?.value || '').trim().toLowerCase();
+                const secondaryOthersText = (e.target.value || '').trim().toLowerCase();
+                
+                if (mainOthersText && secondaryOthersText && mainOthersText === secondaryOthersText) {
+                    e.target.style.borderColor = '#ff6b6b';
+                    e.target.style.backgroundColor = '#ffe6e6';
+                } else {
+                    e.target.style.borderColor = '';
+                    e.target.style.backgroundColor = '';
+                }
+            }
         });
     }
     
