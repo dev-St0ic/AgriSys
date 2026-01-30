@@ -542,7 +542,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i></i>Cancel
                     </button>
-                    <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateRegistrationStatus()">
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn" onclick="updateRegistrationStatus()" disabled>
                         <i class="fas fa-save me-2"></i>Update Status
                     </button>
                 </div>
@@ -1066,7 +1066,7 @@
                                     </select>
                                     <small class="text-muted d-block mt-2" id="edit_secondary_livelihood_warning" 
                                         style="color: #ff6b6b; display: none;">
-                                        Secondary livelihood cannot be the same as main livelihood
+                                        <!-- Secondary livelihood cannot be the same as main livelihood -->
                                     </small>
                                 </div>
                                 <div class="col-md-6" id="edit_other_fishr_secondary_livelihood_container" style="display: none;">
@@ -1146,7 +1146,7 @@
                     <div class="alert alert-info border-left-info mb-0">
                         <i class="fas fa-lightbulb me-2"></i>
                         <strong>Note:</strong> You can edit all registration information here.
-                        To change registration status or add remarks, use the "Change Status" button from the main table.
+                        To change registration status or add remarks, use the "Change Status" button from the actions table.
                     </div>
                 </form>
             </div>
@@ -1478,7 +1478,7 @@
                                         </label>
                                         <input type="text" class="form-control" id="fishr_other_livelihood" maxlength="255" placeholder="Please specify..." oninput="validateAddOtherLivelihoodText()" onblur="capitalizeAddOtherLivelihood()">
                                         <small class="text-muted d-block mt-2" id="add_other_livelihood_warning" style="color: #ff6b6b; display: none;">
-                                            Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas allowed
+                                            <!-- Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas allowed -->
                                         </small>
                                     </div>
                                 </div>
@@ -1509,7 +1509,7 @@
                                         <input type="text" class="form-control" id="fishr_other_secondary_livelihood" 
                                             maxlength="255" placeholder="Please specify..." oninput="validateAddOtherSecondaryLivelihoodText()" onblur="capitalizeAddOtherSecondaryLivelihood()">
                                         <small class="text-muted d-block mt-2" id="add_other_secondary_livelihood_warning" style="color: #ff6b6b; display: none;">
-                                            Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas allowed
+                                            <!-- Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas allowed -->
                                         </small>
                                     </div>
                                 </div>
@@ -1604,6 +1604,23 @@
                         <i class="fas fa-save me-1"></i>Create Registration
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Status Card -->
+    <div class="card border-0 bg-light">
+        <div class="card-header bg-white border-0 pb-0">
+            <h6 class="mb-0 fw-semibold text-primary">
+                <i class="fas fa-check-double me-2"></i>Confirmation Status
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="confirmStatusChange">
+                <label class="form-check-label" for="confirmStatusChange">
+                    I confirm that all information is accurate and I want to proceed with this status change
+                </label>
             </div>
         </div>
     </div>
@@ -4153,7 +4170,7 @@ function downloadAnnex(registrationId, annexId) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -4249,130 +4266,136 @@ function downloadAnnex(registrationId, annexId) {
      * ✓ INCLUDES: Auto-capitalization enforcement check
      */
     function validateFishrForm() {
-        const form = document.getElementById('addFishrForm');
-        if (!form) return false;
+    const form = document.getElementById('addFishrForm');
+    if (!form) return false;
 
-        let isValid = true;
+    let isValid = true;
 
-        // Clear previous error states
-        document.querySelectorAll('#addFishrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('#addFishrModal .invalid-feedback').forEach(el => el.remove());
+    // Clear previous error states
+    document.querySelectorAll('#addFishrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('#addFishrModal .invalid-feedback').forEach(el => el.remove());
+    
 
-        // Required field validation
-        const requiredFields = [
-            { name: 'first_name', label: 'First Name', element: 'fishr_first_name' },
-            { name: 'last_name', label: 'Last Name', element: 'fishr_last_name' },
-            { name: 'sex', label: 'Sex', element: 'fishr_sex' },
-            { name: 'contact_number', label: 'Contact Number', element: 'fishr_contact_number' },
-            { name: 'barangay', label: 'Barangay', element: 'fishr_barangay' },
-            { name: 'main_livelihood', label: 'Main Livelihood', element: 'fishr_main_livelihood' },
-            { name: 'status', label: 'Status', element: 'fishr_status' }
-        ];
+    // Required fields
+    const requiredFields = [
+        { name: 'first_name', label: 'First Name', element: 'fishr_first_name' },
+        { name: 'last_name', label: 'Last Name', element: 'fishr_last_name' },
+        { name: 'sex', label: 'Sex', element: 'fishr_sex' },
+        { name: 'contact_number', label: 'Contact Number', element: 'fishr_contact_number' },
+        { name: 'barangay', label: 'Barangay', element: 'fishr_barangay' },
+        { name: 'main_livelihood', label: 'Main Livelihood', element: 'fishr_main_livelihood' },
+        { name: 'status', label: 'Status', element: 'fishr_status' }
+    ];
 
-        requiredFields.forEach(field => {
-            const input = document.getElementById(field.element);
-            if (input && (!input.value || input.value.trim() === '')) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = field.label + ' is required';
-                input.parentNode.appendChild(errorDiv);
-                isValid = false;
-            }
-        });
-
-        // Validate "Others" livelihood if selected
-        const mainLivelihood = document.getElementById('fishr_main_livelihood').value;
-        if (mainLivelihood === 'others') {
-            const otherLivelihood = document.getElementById('fishr_other_livelihood');
-            
-            // Check if field is empty
-            if (!otherLivelihood.value || otherLivelihood.value.trim() === '') {
-                otherLivelihood.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please specify your livelihood when selecting "Others"';
-                otherLivelihood.parentNode.appendChild(errorDiv);
-                isValid = false;
-            }
-            // Check for invalid characters
-            else if (!isValidOthersLivelihoodText(otherLivelihood.value)) {
-                otherLivelihood.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas are allowed';
-                otherLivelihood.parentNode.appendChild(errorDiv);
-                isValid = false;
-            }
-        }
-
-        // Validate secondary livelihood (if selected)
-        const secondaryLivelihood = document.getElementById('fishr_secondary_livelihood').value;
-        
-        // Check if secondary is same as main
-        if (secondaryLivelihood && mainLivelihood && secondaryLivelihood === mainLivelihood) {
-            const secondaryInput = document.getElementById('fishr_secondary_livelihood');
-            secondaryInput.classList.add('is-invalid');
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.element);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Secondary livelihood cannot be the same as main livelihood';
-            secondaryInput.parentNode.appendChild(errorDiv);
+            errorDiv.textContent = field.label + ' is required';
+            input.parentNode.appendChild(errorDiv);
             isValid = false;
         }
+    });
 
-        // Validate secondary "Others" livelihood if selected
-        if (secondaryLivelihood === 'others') {
-            const otherSecondaryLivelihood = document.getElementById('fishr_other_secondary_livelihood');
-            
-            // Check if field is empty
-            if (!otherSecondaryLivelihood.value || otherSecondaryLivelihood.value.trim() === '') {
-                otherSecondaryLivelihood.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please specify your secondary livelihood when selecting "Others"';
-                otherSecondaryLivelihood.parentNode.appendChild(errorDiv);
-                isValid = false;
-            }
-            // Check for invalid characters
-            else if (!isValidOthersLivelihoodText(otherSecondaryLivelihood.value)) {
-                otherSecondaryLivelihood.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas are allowed';
-                otherSecondaryLivelihood.parentNode.appendChild(errorDiv);
-                isValid = false;
-            }
+    // Validate Main Livelihood "Others"
+    const mainLivelihood = document.getElementById('fishr_main_livelihood').value;
+    if (mainLivelihood === 'others') {
+        const otherLivelihood = document.getElementById('fishr_other_livelihood');
+        
+        if (!otherLivelihood.value || otherLivelihood.value.trim() === '') {
+            otherLivelihood.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please specify your livelihood';
+            otherLivelihood.parentNode.appendChild(errorDiv);
+            isValid = false;
+        } else if (!isValidOthersLivelihoodText(otherLivelihood.value)) {
+            otherLivelihood.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas allowed';
+            otherLivelihood.parentNode.appendChild(errorDiv);
+            isValid = false;
         }
-
-        // Validate contact number format
-        const contactInput = document.getElementById('fishr_contact_number');
-        if (contactInput && contactInput.value.trim()) {
-            if (!isValidPhoneNumber(contactInput.value.trim())) {
-                contactInput.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
-                contactInput.parentNode.appendChild(errorDiv);
-                isValid = false;
-            }
-        }
-
-        // Validate file size if document is uploaded
-        const docInput = document.getElementById('fishr_supporting_document');
-        if (docInput && docInput.files && docInput.files.length > 0) {
-            const maxSize = 10 * 1024 * 1024; // 10MB
-            if (docInput.files[0].size > maxSize) {
-                docInput.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Supporting document must not exceed 10MB';
-                docInput.parentNode.appendChild(errorDiv);
-                isValid = false;
-            }
-        }
-
-        return isValid;
     }
+
+    // Validate Secondary Livelihood
+    const secondaryLivelihood = document.getElementById('fishr_secondary_livelihood').value;
+    
+    // Cannot be same as main
+    if (secondaryLivelihood && mainLivelihood && secondaryLivelihood === mainLivelihood) {
+        const secondaryInput = document.getElementById('fishr_secondary_livelihood');
+        secondaryInput.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Secondary livelihood cannot be same as main livelihood';
+        secondaryInput.parentNode.appendChild(errorDiv);
+        isValid = false;
+    }
+
+    // Validate Secondary Livelihood "Others"
+    if (secondaryLivelihood === 'others') {
+        const otherSecondaryLivelihood = document.getElementById('fishr_other_secondary_livelihood');
+        
+        if (!otherSecondaryLivelihood.value || otherSecondaryLivelihood.value.trim() === '') {
+            otherSecondaryLivelihood.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please specify your secondary livelihood';
+            otherSecondaryLivelihood.parentNode.appendChild(errorDiv);
+            isValid = false;
+        } else if (!isValidOthersLivelihoodText(otherSecondaryLivelihood.value)) {
+            otherSecondaryLivelihood.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Only letters, numbers, spaces, hyphens, apostrophes, periods, and commas allowed';
+            otherSecondaryLivelihood.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate Contact Number
+    const contactInput = document.getElementById('fishr_contact_number');
+    if (contactInput && contactInput.value.trim()) {
+        if (!isValidPhoneNumber(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Format: 09XXXXXXXXX (11 digits)';
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate File Size
+    const docInput = document.getElementById('fishr_supporting_document');
+    if (docInput && docInput.files && docInput.files.length > 0) {
+        const maxSize = 10 * 1024 * 1024;
+        if (docInput.files[0].size > maxSize) {
+            docInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'File must not exceed 10MB';
+            docInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
+// Utility functions
+function isValidOthersLivelihoodText(text) {
+    const validPattern = /^[a-zA-Z0-9\s\'-.,]*$/;
+    return validPattern.test(text);
+}
+
+function isValidPhoneNumber(phone) {
+    const phonePattern = /^09\d{9}$/;
+    return phonePattern.test(phone);
+}
 
     /**
      * Utility: Validate "Others" livelihood text pattern
@@ -4408,7 +4431,7 @@ function downloadAnnex(registrationId, annexId) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -4996,7 +5019,7 @@ function validateEditFishrForm() {
             contactInput.classList.add('is-invalid');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
             
             const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
             if (existingError) existingError.remove();
@@ -5406,7 +5429,7 @@ function validateEditFishrContactNumber(contactNumber) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
         input.parentNode.appendChild(errorDiv);
         return false;
     }
@@ -5557,7 +5580,7 @@ function validateEditFishrContactNumber(contactNumber) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -5873,42 +5896,220 @@ function updateRegistrationStatus() {
      * Toggle Edit Other Secondary Livelihood Field
      */
     function toggleEditOtherSecondaryFishrLivelihood() {
-        const secondaryLivelihood = document.getElementById('edit_fishr_secondary_livelihood').value;
-        const container = document.getElementById('edit_other_fishr_secondary_livelihood_container');
-        const input = document.getElementById('edit_fishr_other_secondary_livelihood');
-        
-        if (secondaryLivelihood === 'others') {
-            container.style.display = 'block';
-            input.required = true;
-        } else {
-            container.style.display = 'none';
-            input.required = false;
-            input.value = '';
-        }
+    const secondaryLivelihood = document.getElementById('edit_fishr_secondary_livelihood').value;
+    const container = document.getElementById('edit_other_fishr_secondary_livelihood_container');
+    const input = document.getElementById('edit_fishr_other_secondary_livelihood');
+    
+    if (secondaryLivelihood === 'others') {
+        container.style.display = 'block';
+        input.required = true;
+        input.focus();
+    } else {
+        container.style.display = 'none';
+        input.required = false;
+        input.value = '';
+        clearEditOtherSecondaryLivelihoodWarning();
     }
+
+    // Trigger change detection
+    const form = document.getElementById('editFishrForm');
+    if (form.dataset.registrationId) {
+        checkEditFishrFormChanges(form.dataset.registrationId);
+    }
+}
 
     /**
      * Validate Edit Secondary Livelihood - Cannot be same as main
      */
     function validateEditSecondaryLivelihood() {
-        const mainLivelihood = document.getElementById('edit_fishr_livelihood').value;
-        const secondaryLivelihood = document.getElementById('edit_fishr_secondary_livelihood').value;
-        const warningElement = document.getElementById('edit_secondary_livelihood_warning');
-        
-        if (secondaryLivelihood && mainLivelihood && secondaryLivelihood === mainLivelihood) {
-            if (warningElement) {
-                warningElement.style.display = 'block';
-            }
-            document.getElementById('edit_fishr_secondary_livelihood').classList.add('is-invalid');
-            return false;
-        } else {
-            if (warningElement) {
-                warningElement.style.display = 'none';
-            }
-            document.getElementById('edit_fishr_secondary_livelihood').classList.remove('is-invalid');
-            return true;
+    const mainLivelihood = document.getElementById('edit_fishr_livelihood').value;
+    const secondaryLivelihood = document.getElementById('edit_fishr_secondary_livelihood').value;
+    const warning = document.getElementById('edit_secondary_livelihood_warning');
+
+    // Check if secondary is same as main (dropdown values)
+    if (secondaryLivelihood && mainLivelihood && secondaryLivelihood === mainLivelihood) {
+        if (warning) {
+            warning.textContent = 'Secondary livelihood cannot be the same as main livelihood';
+            warning.style.display = 'block';
+        }
+        document.getElementById('edit_fishr_secondary_livelihood').classList.add('is-invalid');
+        document.getElementById('edit_fishr_secondary_livelihood').style.borderColor = '#ff6b6b';
+        return false;
+    } else {
+        if (warning) {
+            warning.style.display = 'none';
+        }
+        document.getElementById('edit_fishr_secondary_livelihood').classList.remove('is-invalid');
+        document.getElementById('edit_fishr_secondary_livelihood').style.borderColor = '';
+    }
+
+    // Also check text match if both are "others"
+    validateEditSecondaryLivelihoodTextMatch();
+    return true;
+}
+
+///
+//  * Prevents secondary "others" from having same text as main "others"
+//  * Also prevents secondary "others" from matching main livelihood types
+//  */
+function validateEditSecondaryLivelihoodTextMatch() {
+    const mainLivelihoodSelect = document.getElementById('edit_fishr_livelihood');
+    const secondaryLivelihoodSelect = document.getElementById('edit_fishr_secondary_livelihood');
+    const mainOthersInput = document.getElementById('edit_fishr_other_livelihood');
+    const secondaryOthersInput = document.getElementById('edit_fishr_other_secondary_livelihood');
+
+    if (!secondaryOthersInput) return true;
+
+    let textMatchWarning = document.getElementById('edit_other_secondary_livelihood_text_match_warning');
+    if (!textMatchWarning) {
+        textMatchWarning = document.createElement('span');
+        textMatchWarning.id = 'edit_other_secondary_livelihood_text_match_warning';
+        textMatchWarning.className = 'validation-warning';
+        textMatchWarning.style.color = '#ff6b6b';
+        textMatchWarning.style.fontSize = '0.875rem';
+        textMatchWarning.style.display = 'none';
+        textMatchWarning.style.marginTop = '4px';
+        textMatchWarning.textContent = 'Secondary livelihood cannot be the same as main livelihood';
+        secondaryOthersInput.parentNode.appendChild(textMatchWarning);
+    }
+
+    const mainValue = mainLivelihoodSelect?.value || '';
+    const secondaryValue = secondaryLivelihoodSelect?.value || '';
+    const mainOthersValue = (mainOthersInput?.value || '').trim().toLowerCase();
+    const secondaryOthersValue = (secondaryOthersInput?.value || '').trim().toLowerCase();
+
+    let showWarning = false;
+
+    // Case 1: Both are "others" and have the same text
+    if (mainValue === 'others' && secondaryValue === 'others') {
+        if (mainOthersValue && secondaryOthersValue && mainOthersValue === secondaryOthersValue) {
+            showWarning = true;
         }
     }
+    // Case 2: Secondary is "others" and its text matches the main livelihood type
+    else if (secondaryValue === 'others' && mainValue !== 'others' && mainValue) {
+        const livelihoodTextMap = {
+            'capture': ['capture', 'fishing'],
+            'aquaculture': ['aquaculture', 'fish pond', 'fishpond'],
+            'vending': ['vending', 'vendor'],
+            'processing': ['processing', 'processor']
+        };
+
+        const mainLivelihoodTexts = livelihoodTextMap[mainValue] || [];
+        const hasMatch = mainLivelihoodTexts.some(text => 
+            secondaryOthersValue.includes(text)
+        );
+
+        if (hasMatch) {
+            showWarning = true;
+        }
+    }
+    // Case 3: Main is "others" and secondary is a standard option that matches main's text
+    else if (mainValue === 'others' && secondaryValue !== 'others' && secondaryValue) {
+        const livelihoodTextMap = {
+            'capture': ['capture', 'fishing'],
+            'aquaculture': ['aquaculture', 'fish pond', 'fishpond'],
+            'vending': ['vending', 'vendor'],
+            'processing': ['processing', 'processor']
+        };
+
+        const secondaryTexts = livelihoodTextMap[secondaryValue] || [];
+        const hasMatch = secondaryTexts.some(text => 
+            mainOthersValue.includes(text)
+        );
+
+        if (hasMatch) {
+            showWarning = true;
+        }
+    }
+
+    if (showWarning) {
+        textMatchWarning.style.display = 'block';
+        secondaryLivelihoodSelect.style.borderColor = '#ff6b6b';
+        if (secondaryOthersInput) secondaryOthersInput.style.borderColor = '#ff6b6b';
+        if (secondaryOthersInput) secondaryOthersInput.style.backgroundColor = '#ffe6e6';
+        return false;
+    } else {
+        textMatchWarning.style.display = 'none';
+        secondaryLivelihoodSelect.style.borderColor = '';
+        if (secondaryOthersInput) secondaryOthersInput.style.borderColor = '';
+        if (secondaryOthersInput) secondaryOthersInput.style.backgroundColor = '';
+        return true;
+    }
+}
+
+/**
+ * NEW: validateEditOtherSecondaryLivelihoodText
+ * Real-time validation for special characters in secondary "others" field
+ */
+function validateEditOtherSecondaryLivelihoodText() {
+    const input = document.getElementById('edit_fishr_other_secondary_livelihood');
+    const warning = document.getElementById('edit_other_secondary_livelihood_special_chars_warning');
+    const value = input.value;
+
+    // Pattern: Only letters, numbers, spaces, hyphens, apostrophes, periods, commas
+    const validPattern = /^[a-zA-Z0-9\s\'-.,]*$/;
+
+    if (value && !validPattern.test(value)) {
+        if (warning) {
+            warning.style.display = 'block';
+        }
+        input.style.borderColor = '#ff6b6b';
+        input.style.backgroundColor = '#ffe6e6';
+    } else {
+        if (warning) {
+            warning.style.display = 'none';
+        }
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+    }
+
+    // Also check for text match with main livelihood
+    validateEditSecondaryLivelihoodTextMatch();
+}
+
+/**
+ * NEW: capitalizeEditOtherSecondaryLivelihood
+ * Auto-capitalize on blur
+ */
+function capitalizeEditOtherSecondaryLivelihood() {
+    const input = document.getElementById('edit_fishr_other_secondary_livelihood');
+    if (!input || !input.value) return;
+
+    const value = input.value.trim();
+    
+    // Capitalize first letter of each word
+    const capitalized = value
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+    input.value = capitalized;
+
+    // Trigger change detection
+    const form = document.getElementById('editFishrForm');
+    if (form.dataset.registrationId) {
+        checkEditFishrFormChanges(form.dataset.registrationId);
+    }
+}
+
+/**
+ * NEW: clearEditOtherSecondaryLivelihoodWarning
+ * Clears all warnings for secondary "others" field
+ */
+function clearEditOtherSecondaryLivelihoodWarning() {
+    const warning = document.getElementById('edit_other_secondary_livelihood_special_chars_warning');
+    const input = document.getElementById('edit_fishr_other_secondary_livelihood');
+    const textMatchWarning = document.getElementById('edit_other_secondary_livelihood_text_match_warning');
+    
+    if (warning) warning.style.display = 'none';
+    if (textMatchWarning) textMatchWarning.style.display = 'none';
+    if (input) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+    }
+}
 
     /**
      * Toggle Add Other Secondary Livelihood Field
@@ -6294,6 +6495,364 @@ function validateAddSecondaryLivelihoodInForm() {
     
     return true;
 }
+// =====================================================
+// add FISHR MODAL - REAL-TIME VALIDATION
+// =====================================================
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Name fields validation
+    const nameFields = [
+        { id: 'fishr_first_name', pattern: /^[a-zA-Z\s\'-]*$/ },
+        { id: 'fishr_middle_name', pattern: /^[a-zA-Z\s\'-]*$/ },
+        { id: 'fishr_last_name', pattern: /^[a-zA-Z\s\'-]*$/ },
+        { id: 'fishr_name_extension', pattern: /^[a-zA-Z.\s]*$/ }
+    ];
+
+    nameFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input) return;
+
+        input.addEventListener('input', function(e) {
+            const value = e.target.value;
+            
+            if (value && !field.pattern.test(value)) {
+                markAdminFieldError(input, 'Invalid characters');
+            } else {
+                clearAdminFieldError(input);
+            }
+        });
+
+        input.addEventListener('blur', function(e) {
+            if (e.target.value && !field.pattern.test(e.target.value)) {
+                markAdminFieldError(input, 'Invalid characters');
+            }
+        });
+    });
+
+    // Contact number validation
+    const contactInput = document.getElementById('fishr_contact_number');
+    if (contactInput) {
+        const phonePattern = /^09\d{9}$/;
+
+        contactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            
+            if (value && !phonePattern.test(value)) {
+                markAdminFieldError(contactInput, 'Format: 09XXXXXXXXX');
+            } else {
+                clearAdminFieldError(contactInput);
+            }
+        });
+
+        contactInput.addEventListener('blur', function(e) {
+            if (e.target.value && !phonePattern.test(e.target.value)) {
+                markAdminFieldError(contactInput, 'Format: 09XXXXXXXXX');
+            }
+        });
+    }
+
+    // Main livelihood change
+    const mainLivelihoodSelect = document.getElementById('fishr_main_livelihood');
+    if (mainLivelihoodSelect) {
+        mainLivelihoodSelect.addEventListener('change', function() {
+            toggleOtherLivelihood();
+            validateAdminSecondaryLivelihood();
+        });
+    }
+
+    // Secondary livelihood change
+    const secondaryLivelihoodSelect = document.getElementById('fishr_secondary_livelihood');
+    if (secondaryLivelihoodSelect) {
+        secondaryLivelihoodSelect.addEventListener('change', function() {
+            toggleAddOtherSecondaryLivelihood();
+            validateAdminSecondaryLivelihood();
+        });
+    }
+
+    // Other livelihood validation
+    const otherLivelihoodInput = document.getElementById('fishr_other_livelihood');
+    if (otherLivelihoodInput) {
+        otherLivelihoodInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            
+            if (value && !isValidOthersLivelihoodText(value)) {
+                markAdminFieldError(otherLivelihoodInput, 'Only: letters, numbers, spaces, hyphens, apostrophes, periods, commas');
+            } else {
+                clearAdminFieldError(otherLivelihoodInput);
+            }
+            
+            validateAdminSecondaryLivelihood();
+        });
+
+        otherLivelihoodInput.addEventListener('blur', function(e) {
+            if (e.target.value && !isValidOthersLivelihoodText(e.target.value)) {
+                markAdminFieldError(otherLivelihoodInput, 'Invalid characters');
+            }
+        });
+    }
+
+    // Other secondary livelihood validation
+    const otherSecondaryLivelihoodInput = document.getElementById('fishr_other_secondary_livelihood');
+    if (otherSecondaryLivelihoodInput) {
+        otherSecondaryLivelihoodInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            
+            if (value && !isValidOthersLivelihoodText(value)) {
+                markAdminFieldError(otherSecondaryLivelihoodInput, 'Invalid characters');
+            } else {
+                clearAdminFieldError(otherSecondaryLivelihoodInput);
+            }
+            
+            validateAdminSecondaryLivelihood();
+        });
+
+        otherSecondaryLivelihoodInput.addEventListener('blur', function(e) {
+            if (e.target.value && !isValidOthersLivelihoodText(e.target.value)) {
+                markAdminFieldError(otherSecondaryLivelihoodInput, 'Invalid characters');
+            }
+        });
+    }
+});
+
+// Mark field with error (red border)
+function markAdminFieldError(input, message = '') {
+    if (!input) return;
+    
+    input.style.borderColor = '#ff6b6b';
+    input.style.backgroundColor = '#ffe6e6';
+    
+    // Remove old error if exists
+    const oldError = input.parentNode.querySelector('.error-message');
+    if (oldError) oldError.remove();
+    
+    // Add error message below field
+    if (message) {
+        const errorSpan = document.createElement('small');
+        errorSpan.className = 'error-message';
+        errorSpan.style.color = '#ff6b6b';
+        errorSpan.style.display = 'block';
+        errorSpan.style.marginTop = '4px';
+        errorSpan.textContent = message;
+        input.parentNode.appendChild(errorSpan);
+    }
+}
+
+// Clear field error
+function clearAdminFieldError(input) {
+    if (!input) return;
+    
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+    
+    // Remove error message
+    const errorSpan = input.parentNode.querySelector('.error-message');
+    if (errorSpan) errorSpan.remove();
+}
+
+// Validate secondary livelihood
+function validateAdminSecondaryLivelihood() {
+    const mainLivelihood = document.getElementById('fishr_main_livelihood');
+    const secondaryLivelihood = document.getElementById('fishr_secondary_livelihood');
+    
+    if (!mainLivelihood || !secondaryLivelihood) return;
+    
+    const mainValue = mainLivelihood.value;
+    const secondaryValue = secondaryLivelihood.value;
+    
+    // Check if same
+    if (mainValue && secondaryValue && mainValue === secondaryValue) {
+        markAdminFieldError(secondaryLivelihood, 'Cannot be same as main livelihood');
+        return false;
+    }
+    
+    // Check text match if both are "others"
+    if (mainValue === 'others' && secondaryValue === 'others') {
+        const mainOthers = document.getElementById('fishr_other_livelihood');
+        const secondaryOthers = document.getElementById('fishr_other_secondary_livelihood');
+        
+        const mainText = (mainOthers?.value || '').trim().toLowerCase();
+        const secondaryText = (secondaryOthers?.value || '').trim().toLowerCase();
+        
+        if (mainText && secondaryText && mainText === secondaryText) {
+            markAdminFieldError(secondaryOthers, 'Cannot be same as main livelihood');
+            return false;
+        }
+    }
+    
+    clearAdminFieldError(secondaryLivelihood);
+    return true;
+}
+
+// Utility functions (if not already defined)
+function isValidOthersLivelihoodText(text) {
+    const validPattern = /^[a-zA-Z0-9\s\'-.,]*$/;
+    return validPattern.test(text);
+}
+
+// =====================================================
+// EDIT FISHR MODAL - REAL-TIME VALIDATION
+// =====================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editModal = document.getElementById('editFishrModal');
+    
+    if (editModal) {
+        editModal.addEventListener('shown.bs.modal', function() {
+            setupEditModalValidation();
+        });
+    }
+});
+
+function setupEditModalValidation() {
+    // Name fields validation
+    const nameFields = [
+        { id: 'edit_fishr_first_name', pattern: /^[a-zA-Z\s\'-]*$/ },
+        { id: 'edit_fishr_middle_name', pattern: /^[a-zA-Z\s\'-]*$/ },
+        { id: 'edit_fishr_last_name', pattern: /^[a-zA-Z\s\'-]*$/ },
+        { id: 'edit_fishr_extension', pattern: /^[a-zA-Z.\s]*$/ }
+    ];
+
+    nameFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input) return;
+
+        input.addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (value && !field.pattern.test(value)) {
+                markEditFieldError(input, 'Invalid characters');
+            } else {
+                clearEditFieldError(input);
+            }
+            checkEditFishrFormChanges(document.getElementById('editFishrForm').dataset.registrationId);
+        });
+
+        input.addEventListener('blur', function(e) {
+            if (e.target.value && !field.pattern.test(e.target.value)) {
+                markEditFieldError(input, 'Invalid characters');
+            }
+        });
+    });
+
+    // Contact number validation
+    const contactInput = document.getElementById('edit_fishr_contact_number');
+    if (contactInput) {
+        const phonePattern = /^09\d{9}$/;
+
+        contactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (value && !phonePattern.test(value)) {
+                markEditFieldError(contactInput, 'Format: 09XXXXXXXXX');
+            } else {
+                clearEditFieldError(contactInput);
+            }
+            checkEditFishrFormChanges(document.getElementById('editFishrForm').dataset.registrationId);
+        });
+    }
+
+    // Main livelihood change
+    const mainLivelihoodSelect = document.getElementById('edit_fishr_livelihood');
+    if (mainLivelihoodSelect) {
+        mainLivelihoodSelect.addEventListener('change', function() {
+            toggleEditOtherFishrLivelihood();
+            validateEditSecondaryLivelihood();
+            checkEditFishrFormChanges(document.getElementById('editFishrForm').dataset.registrationId);
+        });
+    }
+
+    // Secondary livelihood change
+    const secondaryLivelihoodSelect = document.getElementById('edit_fishr_secondary_livelihood');
+    if (secondaryLivelihoodSelect) {
+        secondaryLivelihoodSelect.addEventListener('change', function() {
+            toggleEditOtherSecondaryFishrLivelihood();
+            validateEditSecondaryLivelihood();
+            checkEditFishrFormChanges(document.getElementById('editFishrForm').dataset.registrationId);
+        });
+    }
+
+    // Other livelihood validation
+    const otherLivelihoodInput = document.getElementById('edit_fishr_other_livelihood');
+    if (otherLivelihoodInput) {
+        otherLivelihoodInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (value && !isValidOthersLivelihoodText(value)) {
+                markEditFieldError(otherLivelihoodInput, 'Only: letters, numbers, spaces, hyphens, apostrophes');
+            } else {
+                clearEditFieldError(otherLivelihoodInput);
+            }
+            checkEditFishrFormChanges(document.getElementById('editFishrForm').dataset.registrationId);
+        });
+
+        otherLivelihoodInput.addEventListener('blur', function(e) {
+            if (e.target.value) {
+                capitalizeEditOtherLivelihood(e.target);
+            }
+        });
+    }
+
+    // Other secondary livelihood validation
+    const otherSecondaryLivelihoodInput = document.getElementById('edit_fishr_other_secondary_livelihood');
+    if (otherSecondaryLivelihoodInput) {
+        otherSecondaryLivelihoodInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (value && !isValidOthersLivelihoodText(value)) {
+                markEditFieldError(otherSecondaryLivelihoodInput, 'Invalid characters');
+            } else {
+                clearEditFieldError(otherSecondaryLivelihoodInput);
+            }
+            validateEditSecondaryLivelihoodTextMatch();
+            checkEditFishrFormChanges(document.getElementById('editFishrForm').dataset.registrationId);
+        });
+
+        otherSecondaryLivelihoodInput.addEventListener('blur', function(e) {
+            if (e.target.value) {
+                capitalizeEditOtherSecondaryLivelihood();
+            }
+        });
+    }
+}
+
+// Mark field with error
+function markEditFieldError(input, message = '') {
+    if (!input) return;
+    input.style.borderColor = '#ff6b6b';
+    input.style.backgroundColor = '#ffe6e6';
+    
+    const oldError = input.parentNode.querySelector('.error-message');
+    if (oldError) oldError.remove();
+    
+    if (message) {
+        const errorSpan = document.createElement('small');
+        errorSpan.className = 'error-message';
+        errorSpan.style.color = '#ff6b6b';
+        errorSpan.style.display = 'block';
+        errorSpan.style.marginTop = '4px';
+        errorSpan.textContent = message;
+        input.parentNode.appendChild(errorSpan);
+    }
+}
+
+// Clear field error
+function clearEditFieldError(input) {
+    if (!input) return;
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+    
+    const errorSpan = input.parentNode.querySelector('.error-message');
+    if (errorSpan) errorSpan.remove();
+}
+
+// Capitalize other livelihood
+function capitalizeEditOtherLivelihood(input) {
+    const value = input.value.trim();
+    if (value) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+        
+        checkEditFishrFormChanges(document.getElementById('editFishrForm').dataset.registrationId);
+    }
+}
     </script>
 @endsection

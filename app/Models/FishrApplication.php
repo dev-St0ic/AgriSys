@@ -179,7 +179,8 @@ class FishrApplication extends Model
     }
 
     /**
-     * Get applicant phone number
+     * Get applicant phone number - FIXED: Removed direct method call
+     * Use $model->applicant_phone instead of $model->getApplicantPhone()
      */
     public function getApplicantPhoneAttribute(): string
     {
@@ -187,7 +188,8 @@ class FishrApplication extends Model
     }
 
     /**
-     * Get applicant name
+     * Get applicant name - FIXED: Use as property accessor
+     * Use $model->applicant_name instead of $model->getApplicantName()
      */
     public function getApplicantNameAttribute(): string
     {
@@ -195,9 +197,10 @@ class FishrApplication extends Model
     }
 
     /**
-     * Get application type name
+     * Get application type name - FIXED: Change to method if it's called as method
+     * Keep this as a regular method since it's called as getApplicationTypeName()
      */
-    public function getApplicationTypeNameAttribute(): string
+    public function getApplicationTypeName(): string
     {
         return 'FishR Registration';
     }

@@ -326,8 +326,8 @@ class FishRController extends Controller
                     $previousStatus,
                     $validated['status'],
                     $validated['remarks'],
-                    $registration->getApplicantPhone(),
-                    $registration->getApplicantName()
+                    $registration->applicant_phone,
+                    $registration->applicant_name
                 ));
 
                 // Send admin notification
