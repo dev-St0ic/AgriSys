@@ -19,7 +19,7 @@
                         <i class="fas fa-graduation-cap text-primary"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $totalApplications }}</div>
-                    <div class="stat-label text-primary">Total Applications</div>
+                    <div class="stat-label text-primary">Total Requests</div>
                 </div>
             </div>
         </div>
@@ -174,7 +174,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center">Date Applied</th>
-                            <th class="text-center">Application #</th>
+                            <th class="text-center">Request #</th>
                             <th class="text-center">Name</th>
                             <th class="text-center">Training Type</th>
                             <th class="text-center">Status</th>
@@ -257,7 +257,7 @@
                                                 <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                         onclick="deleteApplication({{ $training->id }}, '{{ $training->application_number }}')">
-                                                        <i class="fas fa-trash me-2"></i>Delete Application
+                                                        <i class="fas fa-trash me-2"></i>Delete Request
                                                     </a>
                                                 </li>
                                             </ul>
@@ -346,7 +346,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i></i>Update Application Status
+                        <i></i>Update Request Status
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -356,14 +356,14 @@
                     <div class="card bg-light border-primary mb-4">
                         <div class="card-header bg-white border-0 pb-0">
                             <h6 class="mb-0 fw-semibold text-primary">
-                                <i class="fas fa-info-circle me-2"></i>Application Information
+                                <i class="fas fa-info-circle me-2"></i>Request Information
                             </h6>
                         </div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="mb-2">
-                                        <small class="text-muted d-block">Application #</small>
+                                        <small class="text-muted d-block">Request #</small>
                                         <strong class="text-primary" id="updateAppNumber"></strong>
                                     </div>
                                     <div class="mb-2">
@@ -452,7 +452,7 @@
                     <!-- Info Alert -->
                     <div class="alert alert-info border-left-info mt-3 mb-0">
                         <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Note:</strong> This will update the application status and store your remarks in the system.
+                        <strong>Note:</strong> This will update the request status and store your remarks in the system.
                     </div>
                 </div>
 
@@ -474,7 +474,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i></i>Application Details
+                        <i></i>Request Details
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -603,7 +603,7 @@
                                             To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
                                         @endif
                                     @else
-                                        No date filter applied - showing all applications
+                                        No date filter applied - showing all requests
                                     @endif
                                 </span>
                             </div>
@@ -796,7 +796,7 @@
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
                                 <h6 class="mb-0 fw-semibold text-primary">
-                                    <i class="fas fa-cog me-2"></i>Application Status
+                                    <i class="fas fa-cog me-2"></i>Request Status
                                 </h6>
                             </div>
                             <div class="card-body">
@@ -828,7 +828,7 @@
                                     Remarks (Optional)
                                 </label>
                                 <textarea class="form-control" id="training_remarks" rows="4"
-                                    placeholder="Add any comments about this application..."
+                                    placeholder="Add any comments about this request..."
                                     maxlength="1000"
                                     oninput="updateTrainingRemarksCounter()"></textarea>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
@@ -849,7 +849,7 @@
                         <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddTraining()">
-                        <i class="fas fa-save me-1"></i>Create Application
+                        <i class="fas fa-save me-1"></i>Create Request
                     </button>
                 </div>
             </div>
@@ -863,7 +863,7 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title w-100 text-center">
-                    <i></i>Edit Application - <span id="editTrainingNumber"></span>
+                    <i></i>Edit Request - <span id="editTrainingNumber"></span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -932,7 +932,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="edit_training_app_number" class="form-label fw-semibold">
-                                        Application Number
+                                        Request Number
                                     </label>
                                     <input type="text" class="form-control" id="edit_training_app_number" disabled placeholder="-">
                                     <small class="text-muted d-block mt-2">
@@ -1065,7 +1065,7 @@
                     <div class="card mb-3 border-0 bg-light">
                         <div class="card-header bg-white border-0 pb-0">
                             <h6 class="mb-0 fw-semibold text-primary">
-                                <i class="fas fa-info-circle me-2"></i>Application Status (Read-only)
+                                <i class="fas fa-info-circle me-2"></i>Request Status (Read-only)
                             </h6>
                         </div>
                         <div class="card-body">
@@ -1087,8 +1087,8 @@
                     <!-- Info Alert -->
                     <div class="alert alert-info border-left-info mb-0">
                         <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Note:</strong> You can edit all application information here.
-                        To change application status or add remarks, use the "Change Status" button from the main table.
+                        <strong>Note:</strong> You can edit all request information here.
+                        To change request status or add remarks, use the "Change Status" button from the main table.
                     </div>
                 </form>
             </div>
@@ -1789,7 +1789,7 @@
                         return response.json();
                     })
                     .then(response => {
-                        if (!response.success) throw new Error('Failed to load application details');
+                        if (!response.success) throw new Error('Failed to load request details');
 
                         const data = response.data;
                         document.getElementById('updateApplicationId').value = id;
@@ -1976,7 +1976,7 @@
                     <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="text-muted">Loading application details...</p>
+                    <p class="text-muted">Loading request details...</p>
                 </div>`;
             
             modal.show();
@@ -1987,7 +1987,7 @@
                     return response.json();
                 })
                 .then(response => {
-                    if (!response.success) throw new Error('Failed to load application details');
+                    if (!response.success) throw new Error('Failed to load request details');
 
                     const data = response.data;
 
@@ -2061,7 +2061,7 @@
                                     <div class="card-body">
                                         <div class="row g-2">
                                             <div class="col-12">
-                                                <strong>Application #:</strong>
+                                                <strong>Request #:</strong>
                                                 <span class="text-primary d-block">${escapeHtml(data.application_number)}</span>
                                             </div>
                                             <div class="col-12">
@@ -2151,11 +2151,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', error.message || 'Error loading application details. Please try again.');
+                    showToast('error', error.message || 'Error loading request details. Please try again.');
                     detailsContainer.innerHTML = `
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-circle me-2"></i>
-                            ${error.message || 'Error loading application details. Please try again.'}
+                            ${error.message || 'Error loading request details. Please try again.'}
                         </div>`;
                 });
         }
@@ -2541,7 +2541,7 @@
         function updateDateFilterStatus(dateFrom, dateTo) {
             const statusElement = document.getElementById('dateFilterStatus');
             if (!dateFrom && !dateTo) {
-                statusElement.innerHTML = 'No date filter applied - showing all applications';
+                statusElement.innerHTML = 'No date filter applied - showing all requests';
             } else {
                 let statusText = 'Current filter: ';
                 if (dateFrom) {
@@ -2640,7 +2640,7 @@
                     <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
+                            <i></i>Cancel
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
@@ -2735,7 +2735,7 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to delete application');
+                    throw new Error(data.message || 'Failed to delete request');
                 }
 
                 // Close modal
@@ -2764,7 +2764,7 @@
                 currentDeleteTrainingId = null;
 
             } catch (error) {
-                console.error('Error deleting application:', error);
+                console.error('Error deleting request:', error);
                 
                 // Close modal first
                 const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteTrainingModal'));
@@ -2773,7 +2773,7 @@
                 }
 
                 // Show error
-                showToast('error', 'Error deleting application: ' + error.message);
+                showToast('error', 'Error deleting request: ' + error.message);
 
             } finally {
                 // Reset button state
@@ -2832,7 +2832,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', data.message || 'Application deleted successfully');
+                        showToast('success', data.message || 'Request deleted successfully');
 
                         // Remove row from table with animation
                         const row = document.querySelector(`tr[data-application-id="${id}"]`);
@@ -2854,12 +2854,12 @@
                             setTimeout(() => window.location.reload(), 1500);
                         }
                     } else {
-                        throw new Error(data.message || 'Failed to delete application');
+                        throw new Error(data.message || 'Failed to delete request');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Failed to delete application: ' + error.message);
+                    showToast('error', 'Failed to delete request: ' + error.message);
                 });
         }
 
@@ -2940,83 +2940,96 @@
             `;
             }
         }
+function validateTrainingForm() {
+    console.log('=== STARTING VALIDATION ===');
+    let isValid = true;
+    const errors = [];
 
-        // Validate training form
-        function validateTrainingForm() {
-            let isValid = true;
+    // REQUIRED FIELDS
+    const requiredFields = [
+        { id: 'training_first_name', label: 'First Name' },
+        { id: 'training_last_name', label: 'Last Name' },
+        { id: 'training_barangay', label: 'Barangay' },
+        { id: 'training_contact_number', label: 'Contact Number' },
+        { id: 'training_type', label: 'Training Type' },
+        { id: 'training_status', label: 'Initial Status' }
+    ];
 
-            // Required fields
-            const requiredFields = [{
-                    id: 'training_first_name',
-                    label: 'First Name'
-                },
-                {
-                    id: 'training_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    id: 'training_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    id: 'training_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    id: 'training_type',
-                    label: 'Training Type'
-                },
-                {
-                    id: 'training_status',
-                    label: 'Status'
-                }
-            ];
+    // Check all required fields
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (input) {
+            const value = input.value.trim();
+            
+            // Remove old errors
+            const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+            if (oldFeedback) oldFeedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
 
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field.id);
-                if (input && (!input.value || input.value.trim() === '')) {
-                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
-
-                    input.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = field.label + ' is required';
-                    input.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            });
-
-            // Validate contact number
-            const contactNumber = document.getElementById('training_contact_number').value.trim();
-            if (!validateTrainingContactNumber(contactNumber)) {
+            // Check if empty
+            if (!value) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = field.label + ' is required';
+                input.parentNode.appendChild(errorDiv);
                 isValid = false;
+                errors.push(field.label);
+                console.log(`❌ Validation failed: ${field.label} is empty`);
+            } else {
+                input.classList.add('is-valid');
+                console.log(`✓ ${field.label} is valid`);
             }
-
-            return isValid;
         }
+    });
 
-    function submitAddTraining() {
-    if (!validateTrainingForm()) {
-        showToast('error', 'Please fix all validation errors before submitting');
-        return;
+    // VALIDATE CONTACT NUMBER if filled
+    const contactNumber = document.getElementById('training_contact_number').value.trim();
+    if (contactNumber) {
+        if (!validateTrainingContactNumber(contactNumber)) {
+            isValid = false;
+            errors.push('Contact Number');
+            console.log('❌ Contact number validation failed');
+        }
     }
 
-     // Auto-capitalize all name fields BEFORE validation
-    const firstNameInput = document.getElementById('training_first_name');
-    const middleNameInput = document.getElementById('training_middle_name');
-    const lastNameInput = document.getElementById('training_last_name');
+    console.log(`=== VALIDATION RESULT: ${isValid ? 'PASSED ✓' : 'FAILED ❌'} ===`);
+    return isValid;
+}
+function submitAddTraining() {
+    console.log('=== FORM SUBMISSION STARTED ===');
     
-    if (firstNameInput.value) capitalizeTrainingName(firstNameInput);
-    if (middleNameInput.value) capitalizeTrainingName(middleNameInput);
-    if (lastNameInput.value) capitalizeTrainingName(lastNameInput);
+    const form = document.getElementById('addTrainingForm');
+    
+    // CHECK IF FORM ALREADY HAS VALIDATION ERRORS FROM REAL-TIME VALIDATION
+    const hasExistingErrors = form.querySelectorAll('.is-invalid').length > 0;
+    
+    if (hasExistingErrors) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        console.log('❌ FORM HAS EXISTING ERRORS - STOPPING SUBMISSION');
+        return;
+    }
+    
+    // STEP 1: CLEAR OLD ERRORS FIRST
+    form.querySelectorAll('.is-invalid, .is-valid').forEach(el => {
+        el.classList.remove('is-invalid', 'is-valid');
+    });
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
 
-    // NOW validate
-    if (!validateTrainingForm()) {
+    // STEP 2: RUN VALIDATION
+    console.log('Running form validation...');
+    const isValid = validateTrainingForm();
+    
+    // CRITICAL: If validation failed, STOP HERE and DO NOT SUBMIT
+    if (!isValid) {
+        console.log('❌ VALIDATION FAILED - STOPPING SUBMISSION');
         showToast('error', 'Please fix all validation errors before submitting');
         return;
     }
 
+    console.log('✓ VALIDATION PASSED - PROCEEDING WITH SUBMISSION');
+
+    // STEP 3: BUILD FORMDATA (only after validation passes)
     const formData = new FormData();
     formData.append('first_name', document.getElementById('training_first_name').value.trim());
     formData.append('middle_name', document.getElementById('training_middle_name').value.trim());
@@ -3033,54 +3046,57 @@
         formData.append('supporting_document', docInput.files[0]);
     }
 
+    // STEP 4: DISABLE BUTTON AND SHOW LOADING
     const submitBtn = document.querySelector('#addTrainingModal .btn-primary');
     const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
     submitBtn.disabled = true;
 
+    // STEP 5: SUBMIT TO SERVER
+    console.log('Sending request to server...');
     fetch('/admin/training/requests/create', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
-                modal.hide();
-                showToast('success', data.message || 'Training registration created successfully');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(field => {
-                        const input = document.getElementById('training_' + field);
-                        if (input) {
-                            const feedback = input.parentNode.querySelector('.invalid-feedback');
-                            if (feedback) feedback.remove();
-                            input.classList.add('is-invalid');
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'invalid-feedback d-block';
-                            errorDiv.textContent = data.errors[field][0];
-                            input.parentNode.appendChild(errorDiv);
-                        }
-                    });
-                }
-                showToast('error', data.message || 'Failed to create training request');
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Server response:', data);
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
+            modal.hide();
+            showToast('success', data.message || 'Training registration created successfully');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            if (data.errors) {
+                Object.keys(data.errors).forEach(field => {
+                    const inputId = 'training_' + field;
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = data.errors[field][0];
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', 'An error occurred while creating the request');
-        })
-        .finally(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        });
+            showToast('error', data.message || 'Failed to create training request');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'An error occurred while creating the request');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
 }
         // Helper function to format file sizes
         function formatFileSize(bytes) {
@@ -3367,74 +3383,109 @@ function checkEditTrainingFormChanges(trainingId) {
  * Validate Edit Training Form
  */
 function validateEditTrainingForm() {
-    const form = document.getElementById('editTrainingForm');
+    console.log('=== STARTING EDIT VALIDATION ===');
     let isValid = true;
+    const errors = [];
 
-    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-
+    // REQUIRED FIELDS
     const requiredFields = [
-        { name: 'first_name', label: 'First Name', element: 'edit_training_first_name' },
-        { name: 'last_name', label: 'Last Name', element: 'edit_training_last_name' },
-        { name: 'contact_number', label: 'Contact Number', element: 'edit_training_contact_number' },
-        { name: 'barangay', label: 'Barangay', element: 'edit_training_barangay' },
-        { name: 'training_type', label: 'Training Type', element: 'edit_training_type' }
+        { id: 'edit_training_first_name', label: 'First Name' },
+        { id: 'edit_training_last_name', label: 'Last Name' },
+        { id: 'edit_training_barangay', label: 'Barangay' },
+        { id: 'edit_training_contact_number', label: 'Contact Number' },
+        { id: 'edit_training_type', label: 'Training Type' }
     ];
 
+    // Check all required fields
     requiredFields.forEach(field => {
-        const input = document.getElementById(field.element);
-        if (input && (!input.value || input.value.trim() === '')) {
-            input.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = field.label + ' is required';
-            input.parentNode.appendChild(errorDiv);
-            isValid = false;
+        const input = document.getElementById(field.id);
+        if (input) {
+            const value = input.value.trim();
+            
+            // Remove old errors
+            const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+            if (oldFeedback) oldFeedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            // Check if empty
+            if (!value) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = field.label + ' is required';
+                input.parentNode.appendChild(errorDiv);
+                isValid = false;
+                errors.push(field.label);
+                console.log(`❌ Validation failed: ${field.label} is empty`);
+            } else {
+                input.classList.add('is-valid');
+                console.log(`✓ ${field.label} is valid`);
+            }
         }
     });
 
-    const contactInput = document.getElementById('edit_training_contact_number');
-    if (contactInput && contactInput.value.trim()) {
-        if (!validateEditTrainingContactNumber(contactInput.value.trim())) {
+    // VALIDATE CONTACT NUMBER if filled
+    const contactNumber = document.getElementById('edit_training_contact_number').value.trim();
+    if (contactNumber) {
+        if (!validateEditTrainingContactNumber(contactNumber)) {
             isValid = false;
+            errors.push('Contact Number');
+            console.log('❌ Contact number validation failed');
         }
     }
 
+    console.log(`=== EDIT VALIDATION RESULT: ${isValid ? 'PASSED ✓' : 'FAILED ❌'} ===`);
     return isValid;
 }
+
+
 // FIXED: handleEditTrainingSubmit - Add validation check BEFORE submission
 function handleEditTrainingSubmit() {
+    console.log('=== EDIT FORM SUBMISSION STARTED ===');
+
     const form = document.getElementById('editTrainingForm');
-    const trainingId = form.dataset.trainingId;
     const submitBtn = document.getElementById('editTrainingSubmitBtn');
 
-     // Auto-capitalize all name fields BEFORE validation
-    const firstNameInput = document.getElementById('edit_training_first_name');
-    const middleNameInput = document.getElementById('edit_training_middle_name');
-    const lastNameInput = document.getElementById('edit_training_last_name');
+    // CHECK IF FORM ALREADY HAS VALIDATION ERRORS FROM REAL-TIME VALIDATION
+    const hasExistingErrors = form.querySelectorAll('.is-invalid').length > 0;
     
-    if (firstNameInput.value) capitalizeEditTrainingName(firstNameInput);
-    if (middleNameInput.value) capitalizeEditTrainingName(middleNameInput);
-    if (lastNameInput.value) capitalizeEditTrainingName(lastNameInput);
-
-    // NOW validate
-    if (!validateEditTrainingForm()) {
-        showToast('error', 'Please fix all validation errors');
+    if (hasExistingErrors) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        console.log('❌ FORM HAS EXISTING ERRORS - STOPPING SUBMISSION');
         return;
     }
 
-    if (!validateEditTrainingForm()) {
-        showToast('error', 'Please fix all validation errors');
+    // STEP 1: CLEAR OLD ERRORS
+    console.log('Clearing old validation errors...');
+    form.querySelectorAll('.is-invalid, .is-valid').forEach(el => {
+        el.classList.remove('is-invalid', 'is-valid');
+    });
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+    // STEP 2: VALIDATE FORM
+    console.log('Running edit form validation...');
+    const isValid = validateEditTrainingForm();
+    
+    // CRITICAL: If validation failed, STOP HERE and DO NOT PROCEED
+    if (!isValid) {
+        console.log('❌ VALIDATION FAILED - STOPPING SUBMISSION');
+        showToast('error', 'Please fix all validation errors before submitting');
         return;
     }
 
+    console.log('✓ VALIDATION PASSED - CHECKING FOR CHANGES');
+
+    // STEP 3: CHECK FOR CHANGES
     const hasChanges = submitBtn?.dataset.hasChanges === 'true';
 
     if (!hasChanges) {
+        console.log('⚠ No changes detected');
         showToast('warning', 'No changes detected. Please modify the fields before updating.');
         return;
     }
 
+    // STEP 4: SHOW CONFIRMATION (only after validation passes)
+    console.log('✓ Changes detected - showing confirmation');
     const originalData = JSON.parse(form.dataset.originalData || '{}');
     let changedFields = [];
 
@@ -3445,16 +3496,20 @@ function handleEditTrainingSubmit() {
         'name_extension': 'Extension',
         'contact_number': 'Contact Number',
         'barangay': 'Barangay',
-        'training_type': 'Training Type',
-        'supporting_document': 'Supporting Document'
+        'training_type': 'Training Type'
     };
 
     const fields = ['first_name', 'middle_name', 'last_name', 'name_extension', 'contact_number', 'barangay', 'training_type'];
 
     fields.forEach(field => {
-        const input = form.querySelector(`[name="${field}"]`);
-        if (input && input.value !== originalData[field]) {
-            changedFields.push(fieldLabels[field] || field);
+        const fieldElement = form.querySelector(`[name="${field}"]`);
+        if (fieldElement) {
+            const currentValue = fieldElement.value;
+            const originalValue = originalData[field] || '';
+
+            if (currentValue !== originalValue) {
+                changedFields.push(fieldLabels[field] || field);
+            }
         }
     });
 
@@ -3470,7 +3525,7 @@ function handleEditTrainingSubmit() {
     showConfirmationToast(
         'Confirm Update',
         changesText,
-        () => proceedWithEditTraining(form, trainingId)
+        () => proceedWithEditTraining(form, form.dataset.trainingId)
     );
 }
 /**
@@ -3800,33 +3855,17 @@ function capitalizeEditTrainingName(input) {
         }
     }
 }
-
-// /**
-//  * Initialize name field auto-capitalize when modal is shown
-//  */
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Initialize Add Modal name listeners
-//     initAddTrainingNameListeners();
-
-//     // Initialize Edit Modal name listeners
-//     initEditTrainingNameListeners();
-
-//     // Add contact number validation for edit modal
-//     const editTrainingContactInput = document.getElementById('edit_training_contact_number');
-//     if (editTrainingContactInput) {
-//         editTrainingContactInput.addEventListener('input', function() {
-//             validateEditTrainingContactNumber(this.value);
-//         });
-//     }
-// });
 function validateEditTrainingContactNumber(contactNumber) {
     const input = document.getElementById('edit_training_contact_number');
     if (!input) return true;
 
-    const feedback = input.parentNode.querySelector('.invalid-feedback');
-    if (feedback) feedback.remove();
+    // Remove old error first
+    const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+    if (oldFeedback) oldFeedback.remove();
+
     input.classList.remove('is-invalid', 'is-valid');
 
+    // Empty check
     if (!contactNumber || !contactNumber.trim()) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
@@ -3836,27 +3875,25 @@ function validateEditTrainingContactNumber(contactNumber) {
         return false;
     }
 
-    // Remove spaces, dashes, parentheses
-    const cleaned = contactNumber.replace(/[\s\-()]/g, '');
-    const digits = cleaned.replace(/\D/g, '');
+    // Remove any spaces/hyphens for digit check
+    const digitsOnly = contactNumber.replace(/\D/g, '');
 
-    // Check digit count - MUST BE 11
-    if (digits.length !== 11) {
+    // Must be exactly 11 digits
+    if (digitsOnly.length !== 11) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = `Must be 11 digits (you have ${digits.length})`;
+        errorDiv.textContent = `Contact number must be 11 digits (you entered ${digitsOnly.length})`;
         input.parentNode.appendChild(errorDiv);
         return false;
     }
 
-    // FIXED REGEX: ^09\d{9}$ (NOT ^(\+639|09)\d{9}$)
-    const phoneRegex = /^09\d{9}$/;
-    if (!phoneRegex.test(digits)) {
+    // Must start with 09
+    if (!digitsOnly.startsWith('09')) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = 'Must start with 09 (e.g., 09123456789)';
+        errorDiv.textContent = 'Contact number must start with 09 (e.g., 09123456789)';
         input.parentNode.appendChild(errorDiv);
         return false;
     }
@@ -3864,6 +3901,7 @@ function validateEditTrainingContactNumber(contactNumber) {
     input.classList.add('is-valid');
     return true;
 }
+
 // ============================================
 // NAME VALIDATION AND CAPITALIZATION FIXES
 // ============================================
@@ -4092,10 +4130,12 @@ function validateTrainingContactNumber(contactNumber) {
     const input = document.getElementById('training_contact_number');
     if (!input) return true;
 
-    const feedback = input.parentNode.querySelector('.invalid-feedback');
-    if (feedback) feedback.remove();
+    // Remove old error first
+    const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+    if (oldFeedback) oldFeedback.remove();
     input.classList.remove('is-invalid', 'is-valid');
 
+    // Empty check
     if (!contactNumber || !contactNumber.trim()) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
@@ -4105,27 +4145,25 @@ function validateTrainingContactNumber(contactNumber) {
         return false;
     }
 
-    // Remove spaces, dashes, parentheses
-    const cleaned = contactNumber.replace(/[\s\-()]/g, '');
-    const digits = cleaned.replace(/\D/g, '');
+    // Remove any spaces/hyphens for digit check
+    const digitsOnly = contactNumber.replace(/\D/g, '');
 
-    // Check digit count - MUST BE 11
-    if (digits.length !== 11) {
+    // Must be exactly 11 digits
+    if (digitsOnly.length !== 11) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = `Must be 11 digits (you have ${digits.length})`;
+        errorDiv.textContent = `Contact number must be 11 digits (you entered ${digitsOnly.length})`;
         input.parentNode.appendChild(errorDiv);
         return false;
     }
 
-    // FIXED REGEX: ^09\d{9}$ (NOT ^(\+639|09)\d{9}$)
-    const phoneRegex = /^09\d{9}$/;
-    if (!phoneRegex.test(digits)) {
+    // Must start with 09
+    if (!digitsOnly.startsWith('09')) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = 'Must start with 09 (e.g., 09123456789)';
+        errorDiv.textContent = 'Contact number must start with 09 (e.g., 09123456789)';
         input.parentNode.appendChild(errorDiv);
         return false;
     }
@@ -4134,6 +4172,55 @@ function validateTrainingContactNumber(contactNumber) {
     return true;
 }
 
+/**
+ * FIXED: validateEditTrainingContactNumber - Edit Modal Contact Validation
+ * Returns TRUE only if contact number is valid
+ */
+function validateEditTrainingContactNumber(contactNumber) {
+    const input = document.getElementById('edit_training_contact_number');
+    if (!input) return true;
+
+    // Remove old error first
+    const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+    if (oldFeedback) oldFeedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    // Empty check
+    if (!contactNumber || !contactNumber.trim()) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number is required';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Remove any spaces/hyphens for digit check
+    const digitsOnly = contactNumber.replace(/\D/g, '');
+
+    // Must be exactly 11 digits
+    if (digitsOnly.length !== 11) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = `Contact number must be 11 digits (you entered ${digitsOnly.length})`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Must start with 09
+    if (!digitsOnly.startsWith('09')) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number must start with 09 (e.g., 09123456789)';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    input.classList.add('is-valid');
+    return true;
+}
 /**
  * Download helper for Training documents
  */
@@ -4181,5 +4268,6 @@ function getCSRFToken() {
         });
     }
 });
+
     </script>
 @endsection

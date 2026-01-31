@@ -58,6 +58,7 @@ class TrainingApplication extends Model
             default => ucfirst(str_replace('_', ' ', $this->status))
         };
     }
+    
 
     /**
      * Get the status color for badges
@@ -65,6 +66,7 @@ class TrainingApplication extends Model
     public function getStatusColorAttribute()
     {
         return match($this->status) {
+            'pending' => 'info',
             'under_review' => 'warning',
             'approved' => 'success',
             'rejected' => 'danger',
