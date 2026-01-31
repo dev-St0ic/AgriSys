@@ -569,19 +569,24 @@ function submitBoatRForm(event) {
  * Validates Boat Registration form data
  * UPDATED: Requires FishR validation, prevents submission without verified FishR
  */
+/**
+ * Validates Boat Registration form data
+ * UPDATED: Includes boat classification and conditional engine validation
+ */
 function validateBoatRForm(form) {
     const formData = new FormData(form);
+    
+    // Base required fields
     const requiredFields = [
         'first_name',
         'last_name',
         'fishr_number',
         'vessel_name',
         'boat_type',
+        'boat_classification',  // ADD THIS
         'boat_length',
         'boat_width',
         'boat_depth',
-        'engine_type',
-        'engine_horsepower',
         'primary_fishing_gear'
     ];
 
@@ -599,7 +604,32 @@ function validateBoatRForm(form) {
         return false;
     }
 
-    // UPDATED: Validate FishR number format
+    // UPDATED: Validate engine fields only if motorized
+    const boatClassification = formData.get('boat_classification');
+    if (boatClassification === 'Motorized') {
+        const engineType = formData.get('engine_type');
+        const engineHP = formData.get('engine_horsepower');
+
+        if (!engineType || engineType.trim() === '') {
+            agrisysModal.warning('Please enter the engine type for motorized boats', { title: 'Missing Engine Information' });
+            return false;
+        }
+
+        if (!engineHP || engineHP.trim() === '') {
+            agrisysModal.warning('Please enter the engine horsepower for motorized boats', { title: 'Missing Engine Information' });
+            return false;
+        }
+
+        // Validate engine horsepower is a number
+        const hp = parseInt(engineHP);
+        if (isNaN(hp) || hp <= 0 || hp > 500) {
+            agrisysModal.warning('Please enter valid engine horsepower (1-500 HP)', { title: 'Invalid Value' });
+            return false;
+        }
+    }
+
+    // UPDATED SECTION: Rest of FishR validation code stays the same
+    // Validate FishR number format
     const fishRNumber = formData.get('fishr_number');
     if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
         agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)', { title: 'Invalid Format' });
@@ -608,7 +638,7 @@ function validateBoatRForm(form) {
         return false;
     }
 
-    // CRITICAL: Check if FishR was validated - CANNOT SUBMIT WITHOUT VALIDATION
+    // CRITICAL: Check if FishR was validated
     const fishRInput = form.querySelector('#boatr_fishr_number');
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
         agrisysModal.error('Your FishR registration number has not been validated or is invalid. Please ensure you have a valid approved FishR number. Click away from the field to trigger validation.', { title: 'FishR Validation Required' });
@@ -616,7 +646,7 @@ function validateBoatRForm(form) {
         return false;
     }
 
-    // Validate boat dimensions
+    // Validate boat dimensions (existing code)
     const length = parseFloat(formData.get('boat_length'));
     const width = parseFloat(formData.get('boat_width'));
     const depth = parseFloat(formData.get('boat_depth'));
@@ -633,13 +663,6 @@ function validateBoatRForm(form) {
 
     if (isNaN(depth) || depth <= 0 || depth > 30) {
         agrisysModal.warning('Please enter a valid boat depth (1-30 feet)', { title: 'Invalid Measurement' });
-        return false;
-    }
-
-    // Validate engine horsepower
-    const hp = parseInt(formData.get('engine_horsepower'));
-    if (isNaN(hp) || hp <= 0 || hp > 500) {
-        agrisysModal.warning('Please enter valid engine horsepower (1-500 HP)', { title: 'Invalid Value' });
         return false;
     }
 
@@ -674,10 +697,19 @@ function initializeBoatRForm() {
 /**
  * Reset Boat Registration form
  */
+/**
+ * Reset Boat Registration form
+ */
 function resetBoatRForm() {
     const form = document.getElementById('boatr-registration-form');
     if (form) {
         form.reset();
+
+        // Hide engine fields on reset
+        const engineFieldsContainer = document.getElementById('boatr_engine_fields_container');
+        if (engineFieldsContainer) {
+            engineFieldsContainer.style.display = 'none';
+        }
 
         // Clear validation messages
         const validationMessages = form.querySelectorAll('.validation-message');
@@ -704,43 +736,43 @@ function resetBoatRForm() {
     }
 }
 
-/**
- * Fill sample data for testing
- */
-function fillSampleBoatRData() {
-    const form = document.getElementById('boatr-registration-form');
-    if (!form) return;
+// /**
+//  * Fill sample data for testing
+//  */
+// function fillSampleBoatRData() {
+//     const form = document.getElementById('boatr-registration-form');
+//     if (!form) return;
 
-    const sampleData = {
-        first_name: 'Juan',
-        middle_name: 'dela',
-        last_name: 'Cruz',
-        fishr_number: 'FISHR-SAMPLE01',
-        vessel_name: 'MV Lucky Star',
-        boat_type: 'Banca',
-        boat_length: '15.5',
-        boat_width: '3.2',
-        boat_depth: '2.1',
-        engine_type: 'Yamaha Outboard Motor',
-        engine_horsepower: '40',
-        primary_fishing_gear: 'Hook and Line'
-    };
+//     const sampleData = {
+//         first_name: 'Juan',
+//         middle_name: 'dela',
+//         last_name: 'Cruz',
+//         fishr_number: 'FISHR-SAMPLE01',
+//         vessel_name: 'MV Lucky Star',
+//         boat_type: 'Banca',
+//         boat_length: '15.5',
+//         boat_width: '3.2',
+//         boat_depth: '2.1',
+//         engine_type: 'Yamaha Outboard Motor',
+//         engine_horsepower: '40',
+//         primary_fishing_gear: 'Hook and Line'
+//     };
 
-    Object.keys(sampleData).forEach(key => {
-        const input = form.querySelector(`[name="${key}"]`);
-        if (input) {
-            input.value = sampleData[key];
-        }
-    });
+//     Object.keys(sampleData).forEach(key => {
+//         const input = form.querySelector(`[name="${key}"]`);
+//         if (input) {
+//             input.value = sampleData[key];
+//         }
+//     });
 
-    // Trigger boat type change
-    const boatTypeSelect = form.querySelector('[name="boat_type"]');
-    if (boatTypeSelect) {
-        handleBoatTypeChange(boatTypeSelect);
-    }
+//     // Trigger boat type change
+//     const boatTypeSelect = form.querySelector('[name="boat_type"]');
+//     if (boatTypeSelect) {
+//         handleBoatTypeChange(boatTypeSelect);
+//     }
 
-    console.log('Sample data filled');
-}
+//     console.log('Sample data filled');
+// }
 
 // ==============================================
 // CSS STYLES INJECTION
@@ -1051,10 +1083,74 @@ function injectBoatRStyles() {
             margin-bottom: 5px;
             color: #555;
         }
+
+        /* Engine fields container styling */
+        #boatr_engine_fields_container {
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #boatr_engine_fields_container.visible {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     `;
 
     document.head.appendChild(style);
     console.log('BoatR styles injected');
+}
+
+// ==============================================
+// BOAT CLASSIFICATION MANAGEMENT
+// ==============================================
+
+/**
+ * Handles boat classification (motorization) selection changes
+ */
+function handleBoatClassificationChange(select) {
+    if (!select) {
+        console.error('Select element not provided');
+        return;
+    }
+
+    const classification = select.value;
+    console.log("Selected Boat Classification:", classification);
+
+    const engineFieldsContainer = document.getElementById('boatr_engine_fields_container');
+    const engineTypeInput = document.getElementById('boatr_engine_type');
+    const engineHorsepowerInput = document.getElementById('boatr_engine_horsepower');
+
+    if (!engineFieldsContainer) {
+        console.error('Engine fields container not found');
+        return;
+    }
+
+    if (classification === 'Motorized') {
+        // Show engine fields and make them required
+        engineFieldsContainer.style.display = 'block';
+        engineTypeInput.required = true;
+        engineHorsepowerInput.required = true;
+        console.log('Engine fields shown and set as required');
+    } else if (classification === 'Non-motorized') {
+        // Hide engine fields and make them optional
+        engineFieldsContainer.style.display = 'none';
+        engineTypeInput.required = false;
+        engineHorsepowerInput.required = false;
+        // Clear the fields
+        engineTypeInput.value = '';
+        engineHorsepowerInput.value = '';
+        console.log('Engine fields hidden and cleared');
+    }
 }
 
 // ==============================================
@@ -1088,6 +1184,32 @@ function initializeBoatRegistration() {
     initializeBoatRForm();
 }
 
+/**
+ * Initialize Boat Registration form
+ */
+function initializeBoatRForm() {
+    console.log('Initializing BoatR form...');
+
+    // Initialize FishR validation
+    initializeFishRValidation();
+
+    // Initialize boat type field
+    const boatTypeSelect = document.getElementById('boatr_boat_type');
+    if (boatTypeSelect && boatTypeSelect.value) {
+        handleBoatTypeChange(boatTypeSelect);
+    }
+
+    // Initialize boat classification field
+    const boatClassificationSelect = document.getElementById('boatr_boat_classification');
+    if (boatClassificationSelect && boatClassificationSelect.value) {
+        handleBoatClassificationChange(boatClassificationSelect);
+    }
+
+    // Ensure CSRF token is available
+    ensureCSRFToken();
+
+    console.log('BoatR form initialized successfully');
+}
 // ==============================================
 // GLOBAL FUNCTIONS FOR COMPATIBILITY
 // ==============================================
@@ -1102,6 +1224,7 @@ window.fillSampleBoatRData = fillSampleBoatRData;
 window.previewSingleFile = previewSingleFile;
 window.removeSingleFile = removeSingleFile;
 window.showTab = showTab;
+window.handleBoatClassificationChange = handleBoatClassificationChange;
 
 // Auto-initialize when script loads
 if (document.readyState === 'loading') {
