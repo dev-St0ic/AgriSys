@@ -768,10 +768,24 @@ function handleRSBSAFormSubmission() {
             return false;
         }
 
-        const validation = validateRSBSAForm(this);
+       const validation = validateRSBSAFormSubmission(this);
         if (!validation.isValid) {
-            agrisysModal.validationError(validation.errors, { title: 'Please Correct the Following' });
+            displayRSBSAValidationErrors(validation.errors);
             return false;
+        }
+
+        // Contact number validation
+        const contactField = form.querySelector('[name="contact_number"]');
+        if (!contactField || !contactField.value.trim()) {
+            isValid = false;
+            errors['contact_number'] = ['Contact number is required'];
+        } else {
+            const contactValue = contactField.value.replace(/\s+/g, ''); // Remove spaces
+            const contactPattern = /^09\d{9}$/;
+            if (!contactPattern.test(contactValue)) {
+                isValid = false;
+                errors['contact_number'] = ['Contact number must be 09XXXXXXXXX (11 digits)'];
+            }
         }
 
         const submitButton = this.querySelector('.rsbsa-submit-btn') || this.querySelector('[type="submit"]') || this.querySelector('button[type="submit"]');
@@ -1038,7 +1052,100 @@ function checkAndShowRSBSAOnLoad() {
         }, 100);
     }
 }
+/**
+ * NEW: Handle RSBSA validation errors inline with auto-scroll (NO MODAL)
+ */
+function displayRSBSAValidationErrors(errors) {
+    console.log('Displaying RSBSA validation errors:', errors);
 
+    // Clear previous error messages
+    const errorSpans = document.querySelectorAll('#rsbsa-form .error-text');
+    errorSpans.forEach(span => span.remove());
+
+    let firstErrorField = null;
+
+    // Show new error messages inline
+    for (const fieldName in errors) {
+        const input = document.querySelector(`#rsbsa-form [name="${fieldName}"]`);
+        if (input) {
+            const errorSpan = document.createElement('span');
+            errorSpan.className = 'error-text';
+            errorSpan.textContent = errors[fieldName][0];
+            errorSpan.style.color = '#dc3545';
+            errorSpan.style.fontSize = '12px';
+            errorSpan.style.marginTop = '5px';
+            errorSpan.style.display = 'block';
+            input.parentNode.appendChild(errorSpan);
+
+            // Mark first error field
+            if (!firstErrorField) {
+                firstErrorField = input;
+            }
+        }
+    }
+
+    // Auto-scroll to first error field like FishR does
+    if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstErrorField.focus();
+    }
+}
+
+/**
+ * UPDATED: Form submission validation - returns object instead of modal
+ */
+function validateRSBSAFormSubmission(form) {
+    const errors = {};
+    let isValid = true;
+
+    const requiredFields = [
+        'first_name',
+        'last_name',
+        'sex',
+        'barangay',
+        'address',
+        'contact_number',
+        'main_livelihood'
+    ];
+
+    requiredFields.forEach(fieldName => {
+        const field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field || !field.value.trim()) {
+            isValid = false;
+            errors[fieldName] = [`${fieldName.replace('_', ' ').charAt(0).toUpperCase() + fieldName.replace('_', ' ').slice(1)} is required`];
+        }
+    });
+
+    // Farmer validations
+    const livelihoodField = form.querySelector('[name="main_livelihood"]');
+    if (livelihoodField && livelihoodField.value === 'Farmer') {
+        const farmerCropsField = form.querySelector('[name="farmer_crops"]');
+        if (!farmerCropsField || !farmerCropsField.value) {
+            isValid = false;
+            errors['farmer_crops'] = ['Crops/Commodity is required'];
+        }
+
+        const typeOfFarmField = form.querySelector('[name="farmer_type_of_farm"]');
+        if (!typeOfFarmField || !typeOfFarmField.value) {
+            isValid = false;
+            errors['farmer_type_of_farm'] = ['Type of farm is required'];
+        }
+
+        const landOwnershipField = form.querySelector('[name="farmer_land_ownership"]');
+        if (!landOwnershipField || !landOwnershipField.value) {
+            isValid = false;
+            errors['farmer_land_ownership'] = ['Land ownership is required'];
+        }
+
+        const farmLocationField = form.querySelector('[name="farm_location"]');
+        if (!farmLocationField || !farmLocationField.value.trim()) {
+            isValid = false;
+            errors['farm_location'] = ['Farm location is required'];
+        }
+    }
+
+    return { isValid, errors };
+}
 /**
  * Initialize RSBSA module
  */
@@ -1050,12 +1157,12 @@ function initializeRSBSAModule() {
     handleRSBSAFormSubmission();
     initializeRSBSATabs();
 
-    const contactInput = document.querySelector('#rsbsa-form [name="contact_number"]');
-    if (contactInput) {
-        contactInput.addEventListener('input', function(e) {
-            formatMobileNumber(e.target);
-        });
-    }
+    // const contactInput = document.querySelector('#rsbsa-form [name="contact_number"]');
+    // if (contactInput) {
+    //     contactInput.addEventListener('input', function(e) {
+    //         formatMobileNumber(e.target);
+    //     });
+    // }
 
     const allInputs = document.querySelectorAll('#rsbsa-form input, #rsbsa-form select');
     allInputs.forEach(input => {
@@ -1099,6 +1206,116 @@ function initializeRSBSAModule() {
             clearRSBSAForm();
         }
     });
+
+    // === REAL-TIME VALIDATION FOR NAME FIELDS ===
+const nameFields = [{
+    id: 'rsbsa-first_name',
+    pattern: /^[a-zA-Z\s\'-]*$/
+},
+{
+    id: 'rsbsa-middle_name',
+    pattern: /^[a-zA-Z\s\'-]*$/
+},
+{
+    id: 'rsbsa-last_name',
+    pattern: /^[a-zA-Z\s\'-]*$/
+}
+];
+
+nameFields.forEach(field => {
+    const input = document.getElementById(field.id);
+    const warning = document.getElementById(field.id + '-warning');
+
+    if (input && warning) {
+        input.addEventListener('input', function(e) {
+            const value = e.target.value;
+
+            if (!field.pattern.test(value)) {
+                warning.style.display = 'block';
+                input.style.borderColor = '#ff6b6b';
+            } else {
+                warning.style.display = 'none';
+                input.style.borderColor = '';
+            }
+        });
+
+        input.addEventListener('blur', function(e) {
+            if (!field.pattern.test(e.target.value) && e.target.value !== '') {
+                warning.style.display = 'block';
+                input.style.borderColor = '#ff6b6b';
+            }
+        });
+    }
+});
+
+// === REAL-TIME VALIDATION FOR CONTACT NUMBER ===
+const contactInput = document.querySelector('#rsbsa-form [name="contact_number"]');
+const contactWarning = document.getElementById('rsbsa-mobile-warning');
+
+if (contactInput && contactWarning) {
+    const phonePattern = /^09\d{9}$/;
+
+    contactInput.addEventListener('input', function(e) {
+        const value = e.target.value;
+
+        if (value && !phonePattern.test(value)) {
+            contactWarning.style.display = 'block';
+            contactInput.style.borderColor = '#ff6b6b';
+        } else {
+            contactWarning.style.display = 'none';
+            contactInput.style.borderColor = '';
+        }
+    });
+
+    contactInput.addEventListener('blur', function(e) {
+        const value = e.target.value;
+
+        if (value && !phonePattern.test(value)) {
+            contactWarning.style.display = 'block';
+            contactInput.style.borderColor = '#ff6b6b';
+        }
+    });
+}
+
+// === REAL-TIME VALIDATION FOR ADDRESS ===
+const addressInput = document.querySelector('#rsbsa-form [name="address"]');
+if (addressInput) {
+    addressInput.addEventListener('input', function(e) {
+        const value = e.target.value;
+        const pattern = /^[a-zA-Z0-9\s,.\'-]*$/;
+
+        if (value && !pattern.test(value)) {
+            this.style.borderColor = '#ff6b6b';
+            this.style.backgroundColor = '#ffe6e6';
+        } else {
+            this.style.borderColor = '';
+            this.style.backgroundColor = '';
+        }
+    });
+}
+
+// === REAL-TIME VALIDATION FOR FARM LOCATION (FARMER ONLY) ===
+const farmLocationInput = document.querySelector('#rsbsa-form [name="farm_location"]');
+if (farmLocationInput) {
+    const farmLocationWarning = document.getElementById('rsbsa-farm_location-warning');
+    
+    farmLocationInput.addEventListener('input', function(e) {
+        const value = e.target.value;
+        const pattern = /^[a-zA-Z0-9\s,.\'-]*$/;
+
+        if (value && !pattern.test(value)) {
+            if (farmLocationWarning) {
+                farmLocationWarning.style.display = 'block';
+            }
+            this.style.borderColor = '#ff6b6b';
+        } else {
+            if (farmLocationWarning) {
+                farmLocationWarning.style.display = 'none';
+            }
+            this.style.borderColor = '';
+        }
+    });
+}
 
     console.log('RSBSA module initialized successfully');
 }
