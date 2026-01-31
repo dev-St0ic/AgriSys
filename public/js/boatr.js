@@ -317,7 +317,7 @@ function handleFishRInput(event) {
         // Valid format - show pending validation
         fishRInput.style.borderColor = '#ffc107';
         fishRInput.style.backgroundColor = '#fffbf0';
-        showValidationMessage(fishRInput, '🔄 Checking FishR registration...', 'warning');
+        showValidationMessage(fishRInput, 'Checking FishR registration...', 'warning');
 
         // Debounced validation
         clearTimeout(fishRInput.validationTimeout);
@@ -366,7 +366,7 @@ async function validateFishRNumberSilent(fishRInput) {
         // Show loading state
         fishRInput.style.borderColor = '#ffc107';
         fishRInput.style.backgroundColor = '#fffbf0';
-        showValidationMessage(fishRInput, '🔄 Validating FishR registration...', 'warning');
+        showValidationMessage(fishRInput, 'Validating FishR registration...', 'warning');
 
         const response = await fetch(`/api/validate-fishr/${encodeURIComponent(number)}`);
         const data = await response.json();
@@ -569,11 +569,7 @@ function submitBoatRForm(event) {
  * Validates Boat Registration form data
  * UPDATED: Requires FishR validation, prevents submission without verified FishR
  */
-/**
- * Validates Boat Registration form data
- * UPDATED: Includes boat classification and conditional engine validation
- */
-function validateBoatRForm(form) {
+function validateBoatRFormUpdated(form) {
     const formData = new FormData(form);
     
     // Base required fields
@@ -583,7 +579,7 @@ function validateBoatRForm(form) {
         'fishr_number',
         'vessel_name',
         'boat_type',
-        'boat_classification',  // ADD THIS
+        'boat_classification',
         'boat_length',
         'boat_width',
         'boat_depth',
@@ -604,31 +600,66 @@ function validateBoatRForm(form) {
         return false;
     }
 
-    // UPDATED: Validate engine fields only if motorized
+    // ========== NEW: VALIDATE CONTACT NUMBER ==========
+    const contactNumber = formData.get('contact_number');
+    if (!contactNumber) {
+        agrisysModal.warning('Contact number is required', { title: 'Missing Information' });
+        document.getElementById('boatr_contact_number').focus();
+        return false;
+    }
+
+    const cleaned = contactNumber.replace(/[\s\-]/g, '');
+    const contactPatterns = [
+        /^09\d{9}$/
+    ];
+
+    const isValidContact = contactPatterns.some(pattern => pattern.test(cleaned));
+    if (!isValidContact) {
+        agrisysModal.warning('Please enter a valid contact number (09XXXXXXXXX)', { title: 'Invalid Contact Number' });
+        document.getElementById('boatr_contact_number').focus();
+        return false;
+    }
+
+    // ========== NEW: VALIDATE VESSEL NAME ==========
+    const vesselName = formData.get('vessel_name');
+    const vesselNamePattern = /^[a-zA-Z0-9\s\-']*$/;
+    
+    if (!vesselNamePattern.test(vesselName)) {
+        agrisysModal.warning('Vessel name contains invalid special characters. Only use letters, numbers, spaces, hyphens, and apostrophes.', { title: 'Invalid Vessel Name' });
+        document.getElementById('boatr_vessel_name').focus();
+        return false;
+    }
+
+    // Validate boat classification
     const boatClassification = formData.get('boat_classification');
+    console.log('🚤 Boat Classification:', boatClassification);
+
     if (boatClassification === 'Motorized') {
+        console.log('✅ Motorized boat detected - engine fields are REQUIRED');
+        
         const engineType = formData.get('engine_type');
         const engineHP = formData.get('engine_horsepower');
 
         if (!engineType || engineType.trim() === '') {
             agrisysModal.warning('Please enter the engine type for motorized boats', { title: 'Missing Engine Information' });
+            document.getElementById('boatr_engine_type').focus();
             return false;
         }
 
         if (!engineHP || engineHP.trim() === '') {
             agrisysModal.warning('Please enter the engine horsepower for motorized boats', { title: 'Missing Engine Information' });
+            document.getElementById('boatr_engine_horsepower').focus();
             return false;
         }
 
-        // Validate engine horsepower is a number
         const hp = parseInt(engineHP);
         if (isNaN(hp) || hp <= 0 || hp > 500) {
             agrisysModal.warning('Please enter valid engine horsepower (1-500 HP)', { title: 'Invalid Value' });
+            document.getElementById('boatr_engine_horsepower').focus();
             return false;
         }
     }
 
-    // UPDATED SECTION: Rest of FishR validation code stays the same
     // Validate FishR number format
     const fishRNumber = formData.get('fishr_number');
     if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
@@ -641,12 +672,12 @@ function validateBoatRForm(form) {
     // CRITICAL: Check if FishR was validated
     const fishRInput = form.querySelector('#boatr_fishr_number');
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
-        agrisysModal.error('Your FishR registration number has not been validated or is invalid. Please ensure you have a valid approved FishR number. Click away from the field to trigger validation.', { title: 'FishR Validation Required' });
+        agrisysModal.error('Your FishR registration number has not been validated or is invalid.', { title: 'FishR Validation Required' });
         if (fishRInput) fishRInput.focus();
         return false;
     }
 
-    // Validate boat dimensions (existing code)
+    // Validate boat dimensions
     const length = parseFloat(formData.get('boat_length'));
     const width = parseFloat(formData.get('boat_width'));
     const depth = parseFloat(formData.get('boat_depth'));
@@ -668,6 +699,43 @@ function validateBoatRForm(form) {
 
     return true;
 }
+
+
+// ==============================================
+// UPDATE initializeBoatRForm TO INCLUDE NEW VALIDATIONS
+// Replace the existing initializeBoatRForm with this
+// ==============================================
+
+function initializeBoatRFormUpdated() {
+    console.log('Initializing BoatR form with enhanced validation...');
+
+    // Initialize FishR validation
+    initializeFishRValidation();
+
+    // Initialize Contact Number validation (NEW)
+    initializeBoatRContactValidation();
+
+    // Initialize Vessel Name validation (NEW)
+    initializeBoatRVesselNameValidation();
+
+    // Initialize boat type field
+    const boatTypeSelect = document.getElementById('boatr_boat_type');
+    if (boatTypeSelect && boatTypeSelect.value) {
+        handleBoatTypeChange(boatTypeSelect);
+    }
+
+    // Initialize boat classification field
+    const boatClassificationSelect = document.getElementById('boatr_boat_classification');
+    if (boatClassificationSelect && boatClassificationSelect.value) {
+        handleBoatClassificationChange(boatClassificationSelect);
+    }
+
+    // Ensure CSRF token is available
+    ensureCSRFToken();
+
+    console.log('BoatR form initialized successfully with enhanced validation');
+}
+
 
 // ==============================================
 // UTILITY FUNCTIONS
@@ -1176,6 +1244,243 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
+/**
+ * Initialize Contact Number Real-Time Validation
+ */
+function initializeBoatRContactValidation() {
+    const contactInput = document.getElementById('boatr_contact_number');
+    if (!contactInput) return;
+
+    // Real-time validation on input
+    contactInput.addEventListener('input', function(e) {
+        validateBoatRContact(e.target);
+    });
+
+    // Validation on blur
+    contactInput.addEventListener('blur', function(e) {
+        validateBoatRContactOnBlur(e.target);
+    });
+
+    console.log('BoatR contact validation initialized');
+}
+
+/**
+ * Real-time contact validation with visual feedback
+ */
+function validateBoatRContact(input) {
+    const value = input.value.trim();
+    let warningElement = document.getElementById('boatr_contact_number-warning');
+
+    // Clear previous styling
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    // Empty field - no warning
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    // Remove spaces and hyphens for checking
+    const cleaned = value.replace(/[\s\-]/g, '');
+
+    // Valid formats:
+    // 09XXXXXXXXX (11 digits)
+    const patterns = [
+        /^09\d{9}$/,        // 09XXXXXXXXX
+    ];
+
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    // Create warning element if not exists
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'boatr_contact_number-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.display = 'none';
+        warningElement.style.marginTop = '4px';
+        warningElement.style.display = 'block';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (isValid) {
+        // Valid contact number
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.color = '#28a745';
+        warningElement.textContent = '✓ Valid contact number';
+        warningElement.style.display = 'block';
+
+        // Auto-hide success message after 2 seconds
+        setTimeout(() => {
+            if (input.value.trim() === value) {
+                warningElement.style.display = 'none';
+                input.style.borderColor = '';
+                input.style.backgroundColor = '';
+            }
+        }, 2000);
+    } else if (/^09\d{0,8}$/.test(cleaned) || /^\+639\d{0,8}$/.test(cleaned) || /^639\d{0,8}$/.test(cleaned)) {
+        // Incomplete but valid format so far
+        input.style.borderColor = '#ffc107';
+        input.style.backgroundColor = '#fffbf0';
+        warningElement.style.color = '#856404';
+        warningElement.textContent = 'Continue entering digits...';
+        warningElement.style.display = 'block';
+    } else {
+        // Invalid format
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Format: 09XXXXXXXXX';
+        warningElement.style.display = 'block';
+    }
+}
+
+/**
+ * Contact validation on blur (when user leaves field)
+ */
+function validateBoatRContactOnBlur(input) {
+    const value = input.value.trim();
+    const warningElement = document.getElementById('boatr_contact_number-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [
+        /^09\d{9}$/,
+    ];
+
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!isValid) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Invalid contact number. Use: 09XXXXXXXXX';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+/**
+ * Initialize Vessel Name Validation
+ */
+function initializeBoatRVesselNameValidation() {
+    const vesselNameInput = document.getElementById('boatr_vessel_name');
+    if (!vesselNameInput) return;
+
+    // Real-time validation on input
+    vesselNameInput.addEventListener('input', function(e) {
+        validateBoatRVesselName(e.target);
+    });
+
+    // Validation on blur
+    vesselNameInput.addEventListener('blur', function(e) {
+        validateBoatRVesselNameOnBlur(e.target);
+    });
+
+    console.log('BoatR vessel name validation initialized');
+}
+/**
+ * Real-time vessel name validation
+ * Allowed: Letters, numbers, spaces, hyphens, apostrophes
+ * Not allowed: Special characters like @, #, $, %, &, !, etc.
+ */
+function validateBoatRVesselName(input) {
+    const value = input.value;
+    let warningElement = document.getElementById('boatr_vessel_name-warning');
+
+    // Clear previous styling
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    // Empty field - no warning
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    // Pattern: Only allow letters (a-z, A-Z), numbers (0-9), spaces, hyphens (-), apostrophes (')
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    // Create warning element if not exists
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'boatr_vessel_name-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        warningElement.style.display = 'none';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (hasInvalidChars) {
+        // Invalid - contains special characters
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Only letters, numbers, spaces, hyphens (-), and apostrophes (\') are allowed';
+        warningElement.style.display = 'block';
+    } else if (value.length > 0) {
+        // Valid vessel name
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.color = '#28a745';
+        warningElement.textContent = '✓ Valid vessel name';
+        warningElement.style.display = 'block';
+
+        // Auto-hide success message after 2 seconds
+        setTimeout(() => {
+            if (input.value === value) {
+                warningElement.style.display = 'none';
+                input.style.borderColor = '';
+                input.style.backgroundColor = '';
+            }
+        }, 2000);
+    }
+}
+
+/**
+ * Vessel name validation on blur
+ */
+function validateBoatRVesselNameOnBlur(input) {
+    const value = input.value;
+    const warningElement = document.getElementById('boatr_vessel_name-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Special characters are not allowed. Use only letters, numbers, spaces, hyphens, and apostrophes.';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+
+
 /**
  * Legacy initialization function
  */
@@ -1189,6 +1494,8 @@ function initializeBoatRegistration() {
  */
 function initializeBoatRForm() {
     console.log('Initializing BoatR form...');
+
+      initializeBoatRFormUpdated();
 
     // Initialize FishR validation
     initializeFishRValidation();

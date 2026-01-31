@@ -195,14 +195,14 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span
-                        class="required">*</span></label>
+                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span class="required">*</span></label>
                 <select id="boatr_primary_fishing_gear" name="primary_fishing_gear" required>
                     <option value="" disabled selected>Select Primary Gear</option>
                     <option value="Hook and Line">Hook and Line</option>
                     <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
                     <option value="Fish Trap">Fish Trap</option>
                     <option value="Fish Coral">Fish Coral</option>
+                    <option value="Not Applicable">Not Applicable (N/A)</option>
                 </select>
             </div>
 
