@@ -4444,7 +4444,7 @@ function isValidPhoneNumber(phone) {
         function submitAddFishr() {
             // Validate form
             if (!validateFishrForm()) {
-                showToast('error', 'Please fix all validation errors before submitting');
+                showToast('error', 'Please fix all validation errors');
                 return;
             }
 
