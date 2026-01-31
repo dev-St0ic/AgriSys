@@ -101,31 +101,33 @@
             <div class="training-form-group">
                 <label for="training_barangay">Barangay <span class="required-asterisk">*</span></label>
                 <select id="training_barangay" name="barangay" required>
-                    <option value="" disabled selected>Select Barangay</option>
-                    <option value="Bagong Silang">Bagong Silang</option>
-                    <option value="Calendola">Calendola</option>
-                    <option value="Chrysanthemum">Chrysanthemum</option>
-                    <option value="Cuyab">Cuyab</option>
-                    <option value="Fatima">Fatima</option>
-                    <option value="G.S.I.S.">G.S.I.S.</option>
-                    <option value="Landayan">Landayan</option>
-                    <option value="Laram">Laram</option>
-                    <option value="Magsaysay">Magsaysay</option>
-                    <option value="Maharlika">Maharlika</option>
-                    <option value="Narra">Narra</option>
-                    <option value="Nueva">Nueva</option>
-                    <option value="Pacita 1">Pacita 1</option>
-                    <option value="Pacita 2">Pacita 2</option>
-                    <option value="Poblacion">Poblacion</option>
-                    <option value="Rosario">Rosario</option>
-                    <option value="Riverside">Riverside</option>
-                    <option value="Sampaguita Village">Sampaguita Village</option>
-                    <option value="San Antonio">San Antonio</option>
-                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                    <option value="San Roque">San Roque</option>
-                    <option value="San Vicente">San Vicente</option>
-                    <option value="United Bayanihan">United Bayanihan</option>
-                    <option value="United Better Living">United Better Living</option>
+                  <option value="Bagong Silang">Bagong Silang</option>
+                            <option value="Calendola">Calendola</option>
+                            <option value="Chrysanthemum">Chrysanthemum</option>
+                            <option value="Cuyab">Cuyab</option>
+                            <option value="Estrella">Estrella</option>
+                            <option value="Fatima">Fatima</option>
+                            <option value="G.S.I.S.">G.S.I.S.</option>
+                            <option value="Landayan">Landayan</option>
+                            <option value="Langgam">Langgam</option>
+                            <option value="Laram">Laram</option>
+                            <option value="Magsaysay">Magsaysay</option>
+                            <option value="Maharlika">Maharlika</option>
+                            <option value="Narra">Narra</option>
+                            <option value="Nueva">Nueva</option>
+                            <option value="Pacita 1">Pacita 1</option>
+                            <option value="Pacita 2">Pacita 2</option>
+                            <option value="Poblacion">Poblacion</option>
+                            <option value="Riverside">Riverside</option>
+                            <option value="Rosario">Rosario</option>
+                            <option value="Sampaguita Village">Sampaguita Village</option>
+                            <option value="San Antonio">San Antonio</option>
+                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                            <option value="San Roque">San Roque</option>
+                            <option value="San Vicente">San Vicente</option>
+                            <option value="Santo Niño">Santo Niño</option> 
+                            <option value="United Bayanihan">United Bayanihan</option>
+                            <option value="United Better Living">United Better Living</option>
                 </select>
             </div>
 
@@ -229,8 +231,7 @@
             </div>
 
             <h3>Training Duration</h3>
-            <p>Most training programs run for 3-5 days, depending on the complexity of the subject matter. Advanced
-                programs may extend to 1-2 weeks.</p>
+            <p>Most training programs run for 1-3 days, depending on the complexity of the subject matter.</p>
         </div>
     </div>
 </section>

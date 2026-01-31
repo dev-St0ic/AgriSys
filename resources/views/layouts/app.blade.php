@@ -963,7 +963,7 @@
                                         data-tooltip="Training Registrations" aria-label="Training Registrations"
                                         role="menuitem">
                                         <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
-                                        <span class="nav-link-text">Training Registrations</span>
+                                        <span class="nav-link-text">Training Requests</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">

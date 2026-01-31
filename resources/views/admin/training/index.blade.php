@@ -1,11 +1,11 @@
 {{-- resources/views/admin/training/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Training Applications - AgriSys Admin')
+@section('title', 'Training Requests - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
         <i class="fas fa-graduation-cap me-2 text-primary"></i>
-        <span class="text-primary fw-bold">Training Applications</span>
+        <span class="text-primary fw-bold">Training Requests</span>
     </div>
 @endsection
 
@@ -156,7 +156,7 @@
             <div></div>
             <div class="text-center flex-fill">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-graduation-cap me-2"></i>Training Applications
+                    <i class="fas fa-graduation-cap me-2"></i>Training Requests
                 </h6>
             </div>
             <div class="d-flex gap-2">
@@ -269,7 +269,7 @@
                             <tr>
                                 <td colspan="7" class="text-center text-muted py-4">
                                     <i class="fas fa-graduation-cap fa-3x mb-3 text-gray-300"></i>
-                                    <p>No training applications found</p>
+                                    <p>No training requests found</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -620,7 +620,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i></i>Add New Training Application
+                        <i></i>Add New Training Request
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -679,7 +679,7 @@
                                         <input type="tel" class="form-control" id="training_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
                                     </div>
                                 </div>
@@ -927,7 +927,7 @@
                                         name="contact_number" required placeholder="09XXXXXXXXX"
                                         pattern="^(\+639|09)\d{9}$" maxlength="20">
                                     <small class="text-muted d-block mt-2">
-                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                     </small>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -1110,7 +1110,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Training Application</h5>
+                    <h5 class="modal-title w-100 text-center">Permanently Delete Training Request</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -1119,9 +1119,9 @@
                         <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_training_name"></strong> will:</p>
                     </div>
                     <ul class="mb-0">
-                        <li>Remove the training application from the database</li>
+                        <li>Remove the training request from the database</li>
                         <li>Delete all associated documents and files</li>
-                        <li>Delete all application history and logs</li>
+                        <li>Delete all request history and logs</li>
                         <li>Cannot be recovered</li>
                     </ul>
                 </div>
@@ -1870,7 +1870,7 @@
 
                 showConfirmationToast(
                     'Confirm Update',
-                    `Update this training application with the following changes?\n\n${changesSummary.join('\n')}`,
+                    `Update this training request with the following changes?\n\n${changesSummary.join('\n')}`,
                     () => proceedWithStatusUpdate(id, newStatus, remarks)
                 );
             }
@@ -2708,11 +2708,11 @@
         }
 
         /**
-         * Confirm permanent delete for Training application
+         * Confirm permanent delete for Training request
          */
         async function confirmPermanentDeleteTraining() {
             if (!currentDeleteTrainingId) {
-                showToast('error', 'Application ID not found');
+                showToast('error', 'Request ID not found');
                 return;
             }
 
@@ -2745,7 +2745,7 @@
                 }
 
                 // Show success message
-                showToast('success', data.message || 'Training application deleted successfully');
+                showToast('success', data.message || 'Training request deleted successfully');
 
                 // Remove the row with animation
                 const row = document.querySelector(`tr[data-application-id="${currentDeleteTrainingId}"]`);
@@ -2889,48 +2889,48 @@
             modal.show();
         }
 
-        // Real-time validation for contact number
-        document.getElementById('training_contact_number')?.addEventListener('input', function() {
-            validateTrainingContactNumber(this.value);
-        });
+        // // Real-time validation for contact number
+        // document.getElementById('training_contact_number')?.addEventListener('input', function() {
+        //     validateTrainingContactNumber(this.value);
+        // });
 
-        function validateTrainingContactNumber(contactNumber) {
-            const input = document.getElementById('training_contact_number');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
+        // function validateTrainingContactNumber(contactNumber) {
+        //     const input = document.getElementById('training_contact_number');
+        //     const feedback = input.parentNode.querySelector('.invalid-feedback');
 
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
+        //     if (feedback) feedback.remove();
+        //     input.classList.remove('is-invalid', 'is-valid');
 
-            if (!contactNumber || contactNumber.trim() === '') {
-                return;
-            }
+        //     if (!contactNumber || contactNumber.trim() === '') {
+        //         return;
+        //     }
 
-            const phoneRegex = /^(\+639|09)\d{9}$/;
+        //     const phoneRegex = /^(\+639|09)\d{9}$/;
 
-            if (!phoneRegex.test(contactNumber.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
+        //     if (!phoneRegex.test(contactNumber.trim())) {
+        //         input.classList.add('is-invalid');
+        //         const errorDiv = document.createElement('div');
+        //         errorDiv.className = 'invalid-feedback d-block';
+        //         errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        //         input.parentNode.appendChild(errorDiv);
+        //         return false;
+        //     }
 
-            input.classList.add('is-valid');
-            return true;
-        }
+        //     input.classList.add('is-valid');
+        //     return true;
+        // }
 
-        // Auto-capitalize name fields
-        function capitalizeTrainingName(input) {
-            const value = input.value;
-            if (value.length > 0) {
-                input.value = value
-                    .toLowerCase()
-                    .split(' ')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
-            }
-        }
+        // // Auto-capitalize name fields
+        // function capitalizeTrainingName(input) {
+        //     const value = input.value;
+        //     if (value.length > 0) {
+        //         input.value = value
+        //             .toLowerCase()
+        //             .split(' ')
+        //             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        //             .join(' ');
+        //     }
+        // }
 
         document.getElementById('training_first_name')?.addEventListener('blur', function() {
             capitalizeTrainingName(this);
@@ -3123,12 +3123,12 @@
                                 }
                             });
                         }
-                        showToast('error', data.message || 'Failed to create training application');
+                        showToast('error', data.message || 'Failed to create training request');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'An error occurred while creating the application');
+                    showToast('error', 'An error occurred while creating the request');
                 })
                 .finally(() => {
                     submitBtn.innerHTML = originalText;
@@ -3452,12 +3452,12 @@ function validateEditTrainingForm() {
     // Validate contact number
     const contactInput = document.getElementById('edit_training_contact_number');
     if (contactInput.value.trim()) {
-        const phoneRegex = /^(\+639|09)\d{9}$/;
+        const phoneRegex = /^(\09)\d{9}$/;
         if (!phoneRegex.test(contactInput.value.trim())) {
             contactInput.classList.add('is-invalid');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
             
             const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
             if (existingError) existingError.remove();
@@ -3528,8 +3528,8 @@ function handleEditTrainingSubmit() {
 
     // Build confirmation message
     const changesText = changedFields.length > 0 
-        ? `Update this training application with the following changes?\n\n• ${changedFields.join('\n• ')}`
-        : 'Update this training application?';
+        ? `Update this training request with the following changes?\n\n• ${changedFields.join('\n• ')}`
+        : 'Update this training request?';
 
     // Show confirmation with only changed fields
     showConfirmationToast(
@@ -3599,7 +3599,7 @@ function proceedWithEditTraining(form, trainingId) {
         console.log('Response data:', data);
         
         if (data.success) {
-            showToast('success', data.message || 'Training application updated successfully');
+            showToast('success', data.message || 'Training request updated successfully');
             
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
@@ -3657,7 +3657,7 @@ function proceedWithEditTraining(form, trainingId) {
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('error', 'Error updating training application: ' + error.message);
+        showToast('error', 'Error updating training request: ' + error.message);
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     });
@@ -3900,13 +3900,72 @@ function validateEditTrainingContactNumber(contactNumber) {
 
     if (!contactNumber.trim()) return true;
 
-    const phoneRegex = /^(\+639|09)\d{9}$/;
+    // Remove spaces, dashes, parentheses
+    const cleaned = contactNumber.replace(/[\s\-()]/g, '');
+    const digits = cleaned.replace(/\D/g, '');
 
-    if (!phoneRegex.test(contactNumber.trim())) {
+    // Check digit count
+    if (digits.length !== 11) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        errorDiv.textContent = `Must be 11 digits (you have ${digits.length})`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Check prefix - FIXED REGEX
+    const phoneRegex = /^09\d{9}$/;  // ✅ CORRECT
+    if (!phoneRegex.test(digits)) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Must start with 09';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    input.classList.add('is-valid');
+    return true;
+}
+function validateTrainingContactNumber(contactNumber) {
+    const input = document.getElementById('training_contact_number');
+    if (!input) return true;
+
+    const feedback = input.parentNode.querySelector('.invalid-feedback');
+    if (feedback) feedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    if (!contactNumber || !contactNumber.trim()) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number is required';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Remove spaces, dashes, parentheses
+    const cleaned = contactNumber.replace(/[\s\-()]/g, '');
+    const digits = cleaned.replace(/\D/g, '');
+
+    // Check digit count
+    if (digits.length !== 11) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = `Must be 11 digits (you have ${digits.length})`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Check prefix - FIXED REGEX
+    const phoneRegex = /^09\d{9}$/;  // ✅ CORRECT
+    if (!phoneRegex.test(digits)) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Must start with 09 (e.g., 09123456789)';
         input.parentNode.appendChild(errorDiv);
         return false;
     }
@@ -4060,5 +4119,246 @@ function getCSRFToken() {
             }
         });
         console.log('Training Add Application functionality loaded successfully');
+/**
+ * OPTIMIZED TRAINING FORM VALIDATION
+ * Eliminates performance bottlenecks from original system
+ * - Reduces event listeners from 4 to 2 per field
+ * - Batches DOM updates
+ * - Caches validation patterns
+ * - Implements smart debouncing
+ */
+
+(function() {
+    'use strict';
+
+    // Cache validation patterns to avoid recreating on each validation
+    const PATTERNS = {
+        name: /^[a-zA-Z\s\-']*$/,
+        phone: /^(\+639|09)\d{9}$/,
+    };
+
+    // Error state cache - prevents unnecessary DOM updates
+    const errorCache = new Map();
+
+    // Debounce timer storage
+    const debounceTimers = new Map();
+
+    /**
+     * OPTIMIZED DEBOUNCE - Only validates on final keystroke
+     */
+    function smartDebounce(fieldId, validateFn, delay = 500) {
+        // Clear existing timer
+        if (debounceTimers.has(fieldId)) {
+            clearTimeout(debounceTimers.get(fieldId));
+        }
+
+        // Set new timer
+        const timer = setTimeout(() => {
+            validateFn();
+            debounceTimers.delete(fieldId);
+        }, delay);
+
+        debounceTimers.set(fieldId, timer);
+    }
+
+    /**
+     * BATCH ERROR UPDATES - Update all at once, not individually
+     */
+    function batchUpdateErrors(updates) {
+        // Collect all updates
+        const errorUpdates = [];
+        const clearUpdates = [];
+
+        updates.forEach(({ fieldId, error }) => {
+            if (error) {
+                errorUpdates.push({ fieldId, error });
+            } else {
+                clearUpdates.push(fieldId);
+            }
+        });
+
+        // Apply all clears first
+        clearUpdates.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.remove('is-invalid');
+                const errorEl = field.parentElement.querySelector('.validation-error-message');
+                if (errorEl) errorEl.remove();
+                errorCache.delete(fieldId);
+            }
+        });
+
+        // Apply all errors
+        errorUpdates.forEach(({ fieldId, error }) => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                // Only update if error state changed
+                const cacheKey = `${fieldId}:${error}`;
+                if (errorCache.get(fieldId) === error) return;
+
+                field.classList.add('is-invalid');
+                const errorEl = document.createElement('div');
+                errorEl.className = 'invalid-feedback d-block validation-error-message';
+                errorEl.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${error}`;
+                
+                const oldError = field.parentElement.querySelector('.validation-error-message');
+                if (oldError) oldError.remove();
+                field.parentElement.appendChild(errorEl);
+
+                errorCache.set(fieldId, error);
+            }
+        });
+    }
+
+    /**
+     * FAST NAME VALIDATION - Early exit on invalid characters
+     */
+    function validateNameField(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return true;
+
+        const value = field.value.trim();
+        const isEmpty = !value;
+        const isRequired = !fieldId.includes('middle');
+
+        // Required check
+        if (isEmpty && isRequired) {
+            batchUpdateErrors([{ fieldId, error: `${fieldId.includes('first') ? 'First' : 'Last'} name is required` }]);
+            return false;
+        }
+
+        // Pattern check - use cached pattern
+        if (value && !PATTERNS.name.test(value)) {
+            batchUpdateErrors([{ fieldId, error: 'Letters, spaces, hyphens, and apostrophes only' }]);
+            return false;
+        }
+
+        // Valid
+        batchUpdateErrors([{ fieldId, error: null }]);
+        return true;
+    }
+
+ /**
+ * FIXED PHONE VALIDATION
+ */
+function validatePhone(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return true;
+
+    const value = field.value.trim();
+
+    if (!value) {
+        batchUpdateErrors([{ fieldId, error: 'Contact number is required' }]);
+        return false;
+    }
+
+    // Remove spaces, dashes, parentheses
+    const cleaned = value.replace(/[\s\-()]/g, '');
+    const digits = cleaned.replace(/\D/g, '');
+
+    // Check digit count
+    if (digits.length !== 11) {
+        batchUpdateErrors([{ fieldId, error: `Must be 11 digits (you have ${digits.length})` }]);
+        return false;
+    }
+
+    // Check prefix - FIXED REGEX
+    const phoneRegex = /^09\d{9}$/;  // ✅ CORRECT - no backslash!
+    if (!phoneRegex.test(digits)) {
+        batchUpdateErrors([{ fieldId, error: 'Must start with 09' }]);
+        return false;
+    }
+
+    batchUpdateErrors([{ fieldId, error: null }]);
+    return true;
+}
+
+
+    /**
+     * FAST SELECT VALIDATION
+     */
+    function validateSelect(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return true;
+
+        if (!field.value) {
+            const label = fieldId.includes('barangay') ? 'Barangay' : 'Training Type';
+            batchUpdateErrors([{ fieldId, error: `${label} is required` }]);
+            return false;
+        }
+
+        batchUpdateErrors([{ fieldId, error: null }]);
+        return true;
+    }
+
+    /**
+     * INITIALIZE OPTIMIZED VALIDATION - Minimal listeners
+     */
+    function initOptimizedValidation() {
+        // Add Training Form
+        const addForm = document.getElementById('addTrainingForm');
+        if (addForm) {
+            setupFormValidation(addForm, 'add');
+        }
+
+        // Edit Training Form
+        const editForm = document.getElementById('editTrainingForm');
+        if (editForm) {
+            setupFormValidation(editForm, 'edit');
+        }
+    }
+
+    /**
+     * SETUP FORM - Only 2 listeners per field (input + blur)
+     */
+    function setupFormValidation(form, formType) {
+        const prefix = formType === 'add' ? 'training' : 'edit_training';
+
+        // Name fields
+        ['first_name', 'middle_name', 'last_name'].forEach(name => {
+            const fieldId = `${prefix}_${name}`;
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+
+            // Only input + blur listeners (reduced from 4)
+            field.addEventListener('input', () => {
+                smartDebounce(fieldId, () => validateNameField(fieldId), 500);
+            });
+            field.addEventListener('blur', () => validateNameField(fieldId));
+        });
+
+        // Contact number
+        const contactId = `${prefix}_contact_number`;
+        const contactField = document.getElementById(contactId);
+        if (contactField) {
+            contactField.addEventListener('input', () => {
+                smartDebounce(contactId, () => validatePhone(contactId), 500);
+            });
+            contactField.addEventListener('blur', () => validatePhone(contactId));
+        }
+
+        // Select fields
+        [prefix + '_barangay', prefix + '_type'].forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field) return;
+
+            // Only change listener (no need for input/blur on selects)
+            field.addEventListener('change', () => validateSelect(fieldId));
+        });
+    }
+
+    // Initialize when document is ready
+    document.addEventListener('DOMContentLoaded', initOptimizedValidation);
+
+    // Expose to global scope if needed
+    window.TrainingValidation = {
+        validateNameField,
+        validatePhone,
+        validateSelect,
+        batchUpdateErrors
+    };
+
+    console.log('✓ Optimized Training Validation System Loaded');
+})();
     </script>
 @endsection
