@@ -41,6 +41,28 @@ Route::get('/csrf-token', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 })->name('csrf.token');
 
+// download barangay cert
+Route::get('/download/{file}', function($file) {
+    // Whitelist allowed files (security measure)
+    $allowedFiles = [
+        'Barangay-Certification'
+      
+    ];
+    
+    // Check if file is in whitelist
+    if (!in_array($file, $allowedFiles)) {
+        abort(403, 'Unauthorized file');
+    }
+    
+    $filePath = storage_path('app/public/documents/' . $file . '.pdf');
+    
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found');
+    }
+    
+    return response()->download($filePath);
+})->name('download');
+
 // Application Form Submission Routes (Public)
 Route::post('/apply/rsbsa', [ApplicationController::class, 'submitRsbsa'])->name('apply.rsbsa');
 Route::post('/apply/seedlings', [ApplicationController::class, 'submitSeedlings'])->name('apply.seedlings');

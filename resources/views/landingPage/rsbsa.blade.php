@@ -512,11 +512,12 @@
 
             <!-- SUPPORTING DOCUMENTS (Not location-specific, all livelihoods) -->
             <div class="rsbsa-form-group">
-                <label>Supporting Document (Optional)</label>
+                <label>Supporting Document (Barangay Certificate)<span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="file" id="rsbsa-supporting_docs" name="supporting_docs"
-                    accept=".pdf,.jpg,.jpeg,.png">
+                    accept=".pdf,.jpg,.jpeg,.png" required>
                 <small class="rsbsa-form-help">
-                    Upload proof of livelihood status (e.g., farm photo, barangay certificate, ID). Accepted formats:
+                    Upload a Barangay Certificate as proof of livelihood.
+                    You may download the official Barangay Certificate form from the <strong>Requirements section.</strong> Accepted formats:
                     JPG, PNG, PDF (Max 10MB).
                 </small>
                 @error('supporting_docs')
@@ -546,11 +547,18 @@
                 <strong>2×2 ID Picture (Recent, within the last 6 months)</strong><br>
                 Can be taken at any photo studio.
             </li>
+            <li>
+                <strong>Barangay Certificate</strong><br>
+                Proof of residency and livelihood status:
+                 <a href="{{ route('download', 'Barangay-Certification') }}" 
+                class="btn-download">Download Barangay Certificate</a>
+            </li>
         </ol>
         <h4>Who May Register</h4>
         <ul>
             <li>Agricultural Workers</li>
             <li>Farmers</li>
+            <li>Farmworker/Laborer</li>
             <li>Fisherfolk</li>
             <li>Livestock Raisers</li>
             <li>Poultry Raisers</li>
@@ -569,7 +577,7 @@
 
         <h4>Important Information</h4>
         <ul>
-            <li>All applications shall undergo review and approval by the City Agriculture Office. Processing time may
+            <li>All applications shall undergo initial review and endorsement by the Barangay Chairman, followed by final review and approval by the City Agriculture Office. Processing time may
                 vary depending on the completeness of submitted documents.</li>
             <li>The office may contact the applicant for additional information or verification.</li>
             <li>All information provided must be accurate and truthful. Incomplete or incorrect submissions may result
