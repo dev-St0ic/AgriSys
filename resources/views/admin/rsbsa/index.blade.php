@@ -4815,11 +4815,11 @@ function viewApplication(id) {
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-       
 /**
  * CORRECTED: Validate RSBSA form - checks required fields based on livelihood type
  */
 function validateRsbsaForm() {
+    const form = document.getElementById('addRsbsaForm'); // FIX: Define form variable
     let isValid = true;
 
     // Clear previous validation states
@@ -4837,6 +4837,39 @@ function validateRsbsaForm() {
         { id: 'rsbsa_main_livelihood', label: 'Main Livelihood' },
         { id: 'rsbsa_status', label: 'Status' }
     ];
+
+    // VALIDATE FILE UPLOAD - REQUIRED
+    const fileField = form.querySelector('[name="supporting_document"]');
+    if (!fileField || !fileField.files || fileField.files.length === 0) {
+        isValid = false;
+        fileField?.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Supporting document is required';
+        fileField?.parentNode?.appendChild(errorDiv);
+    } else if (fileField.files && fileField.files.length > 0) {
+        const file = fileField.files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+
+        if (file.size > maxSize) {
+            isValid = false;
+            fileField.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'File size must be less than 10MB';
+            fileField.parentNode.appendChild(errorDiv);
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+            isValid = false;
+            fileField.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'File must be JPG, PNG, or PDF format';
+            fileField.parentNode.appendChild(errorDiv);
+        }
+    }
 
     // Validate common required fields
     requiredFields.forEach(field => {
