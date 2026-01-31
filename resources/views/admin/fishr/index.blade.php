@@ -1499,7 +1499,6 @@
                                         </select>
                                         <small class="text-muted d-block mt-2" id="add_secondary_livelihood_warning" 
                                             style="color: #ff6b6b; display: none;">
-                                            Secondary livelihood cannot be the same as main livelihood
                                         </small>
                                     </div>
                                     <div class="col-md-6" id="add_other_secondary_livelihood_container" style="display: none;">
@@ -4282,7 +4281,18 @@ function isValidPhoneNumber(phone) {
  function submitAddFishr() {
     console.log('🔍 Starting FishR form validation...');
     
-    // STEP 1: Validate all fields
+    const form = document.getElementById('addFishrForm');
+    
+    // STEP 1: CHECK IF FORM ALREADY HAS VALIDATION ERRORS FROM REAL-TIME VALIDATION
+    const hasExistingErrors = form.querySelectorAll('.is-invalid').length > 0;
+    
+    if (hasExistingErrors) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        console.log('❌ FORM HAS EXISTING ERRORS - STOPPING SUBMISSION');
+        return;
+    }
+    
+    // STEP 2: VALIDATE ALL FIELDS
     const isValid = validateFishrFormOnSubmit(false);
     console.log('✅ Validation complete. Result:', isValid);
     
@@ -4294,10 +4304,9 @@ function isValidPhoneNumber(phone) {
 
     console.log('✅ Form validation passed');
 
-    // STEP 2: Prepare FormData
+    // STEP 3: PREPARE FORMDATA
     const formData = new FormData();
     
-    // ✅ GET CSRF TOKEN CORRECTLY
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     console.log('CSRF Token:', csrfToken ? 'Found' : 'NOT FOUND');
     
@@ -4349,7 +4358,7 @@ function isValidPhoneNumber(phone) {
         formData.append('supporting_document', docInput.files[0]);
     }
 
-    // Show loading state
+    // STEP 4: SHOW LOADING STATE
     const submitBtn = document.querySelector('#addFishrModal .btn-primary');
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
@@ -4357,17 +4366,16 @@ function isValidPhoneNumber(phone) {
 
     console.log('📨 Sending POST request to /admin/fishr-registrations');
 
-    // Send request - ✅ CRITICAL: No Content-Type header for FormData
-    fetch('/admin/fishr-registrations', {
+    // STEP 5: SUBMIT TO SERVER
+    fetch('/admin/fishr-registrations/create', {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': csrfToken,  // ✅ Send CSRF token in header
+            'X-CSRF-TOKEN': csrfToken,
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
-            // DO NOT set Content-Type - browser will set it automatically with boundary
         },
         body: formData,
-        credentials: 'same-origin'  // ✅ Important for CSRF
+        credentials: 'same-origin'
     })
     .then(response => {
         console.log('📦 Response status:', response.status);
@@ -4470,9 +4478,8 @@ function validateAdminSecondaryLivelihood() {
         return true;
     }
 }
-
 /**
- * Validate secondary livelihood text match in edit modal
+ * Validate Secondary Livelihood Text Cannot Match Main Text (Edit Modal)
  */
 function validateEditSecondaryLivelihoodTextMatch() {
     const mainLivelihoodSelect = document.getElementById('edit_fishr_livelihood');
@@ -4487,12 +4494,59 @@ function validateEditSecondaryLivelihoodTextMatch() {
     const mainOthersValue = (mainOthersInput?.value || '').trim().toLowerCase();
     const secondaryOthersValue = (secondaryOthersInput?.value || '').trim().toLowerCase();
 
+    // Only warn if BOTH are "others" AND have identical text
     if (mainValue === 'others' && secondaryValue === 'others') {
         if (mainOthersValue && secondaryOthersValue && mainOthersValue === secondaryOthersValue) {
             return false;
         }
     }
 
+    return true;
+}
+
+/**
+ * Validate Secondary in form submission
+ */
+function validateAddSecondaryLivelihoodInForm() {
+    const secondaryLivelihood = document.getElementById('fishr_secondary_livelihood').value;
+    const mainLivelihood = document.getElementById('fishr_main_livelihood').value;
+    
+    if (secondaryLivelihood === 'others') {
+        const otherSecondaryLivelihood = document.getElementById('fishr_other_secondary_livelihood');
+        if (!otherSecondaryLivelihood.value || otherSecondaryLivelihood.value.trim() === '') {
+            otherSecondaryLivelihood.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please specify the other secondary livelihood';
+            
+            const existingError = otherSecondaryLivelihood.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
+            otherSecondaryLivelihood.parentNode.appendChild(errorDiv);
+            return false;
+        }
+    }
+    
+    // Allow if both are "others"
+    if (secondaryLivelihood === 'others' && mainLivelihood === 'others') {
+        return true;
+    }
+    
+    // Validate secondary livelihood is not same as main (if not both "others")
+    if (secondaryLivelihood && mainLivelihood && secondaryLivelihood === mainLivelihood) {
+        const secondaryInput = document.getElementById('fishr_secondary_livelihood');
+        secondaryInput.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Secondary livelihood cannot be the same as main livelihood';
+        
+        const existingError = secondaryInput.parentNode.querySelector('.invalid-feedback');
+        if (existingError) existingError.remove();
+        
+        secondaryInput.parentNode.appendChild(errorDiv);
+        return false;
+    }
+    
     return true;
 }
 // ====================================================
@@ -4888,20 +4942,29 @@ function handleEditFishrSubmit() {
     const registrationId = form.dataset.registrationId;
     const submitBtn = document.getElementById('editFishrSubmitBtn');
 
-    // Validate form FIRST
+    // STEP 1: CHECK IF FORM ALREADY HAS VALIDATION ERRORS FROM REAL-TIME VALIDATION
+    const hasExistingErrors = form.querySelectorAll('.is-invalid').length > 0;
+    
+    if (hasExistingErrors) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        console.log('❌ FORM HAS EXISTING ERRORS - STOPPING SUBMISSION');
+        return;
+    }
+
+    // STEP 2: VALIDATE FORM
     if (!validateFishrFormOnSubmit(true)) {
         showToast('error', 'Please fix all validation errors');
         return;
     }
 
-    // Check for actual changes
+    // STEP 3: CHECK FOR ACTUAL CHANGES
     const hasChanges = submitBtn?.dataset.hasChanges === 'true';
     if (!hasChanges) {
         showToast('warning', 'No changes detected. Please modify the fields before updating.');
         return;
     }
 
-    // Build changes summary from actually changed fields
+    // STEP 4: BUILD CHANGES SUMMARY
     const originalData = JSON.parse(form.dataset.originalData || '{}');
     let changedFields = [];
 
@@ -4920,7 +4983,6 @@ function handleEditFishrSubmit() {
         'supporting_document': 'Supporting Document'
     };
 
-    // Check which fields have changed
     const fields = [
         'first_name', 'middle_name', 'last_name', 'name_extension',
         'sex', 'contact_number', 'barangay', 'main_livelihood', 'other_livelihood',
@@ -4940,12 +5002,11 @@ function handleEditFishrSubmit() {
         changedFields.push('Supporting Document');
     }
 
-    // Build confirmation message
+    // STEP 5: SHOW CONFIRMATION
     const changesText = changedFields.length > 0 
         ? `Update this registration with the following changes?\n\n• ${changedFields.join('\n• ')}`
         : 'Update this registration?';
 
-    // Show confirmation
     showConfirmationToast(
         'Confirm Update',
         changesText,
@@ -6005,20 +6066,55 @@ function capitalizeAddOtherSecondaryLivelihood() {
 /**
  * Validate Secondary Livelihood cannot be same as Main
  */
+/**
+ * Validate Secondary Livelihood - Allow both "others" if different text
+ */
 function validateAddSecondaryLivelihood() {
     const mainLivelihood = document.getElementById('fishr_main_livelihood').value;
     const secondaryLivelihood = document.getElementById('fishr_secondary_livelihood').value;
     const warning = document.getElementById('add_secondary_livelihood_warning');
 
-    if (secondaryLivelihood && mainLivelihood && secondaryLivelihood === mainLivelihood) {
-        warning.style.display = 'block';
-        document.getElementById('fishr_secondary_livelihood').classList.add('is-invalid');
-        return false;
-    } else {
-        warning.style.display = 'none';
+    // If no secondary selected, no validation needed
+    if (!secondaryLivelihood) {
+        if (warning) warning.style.display = 'none';
+        return true;
+    }
+
+    // CASE 1: Both are "others" - Allow it (they specify different text in other fields)
+    if (mainLivelihood === 'others' && secondaryLivelihood === 'others') {
+        if (warning) warning.style.display = 'none';
         document.getElementById('fishr_secondary_livelihood').classList.remove('is-invalid');
         return true;
     }
+
+    // CASE 2: Same standard type (both capture, both aquaculture, etc.) - NOT ALLOWED
+    if (secondaryLivelihood === mainLivelihood && mainLivelihood !== 'others') {
+        if (warning) {
+            warning.textContent = 'Secondary livelihood cannot be the same as main livelihood';
+            warning.style.display = 'block';
+        }
+        document.getElementById('fishr_secondary_livelihood').classList.add('is-invalid');
+        return false;
+    }
+
+    // CASE 3: Secondary is standard type, main is "others" - Allow it
+    if (mainLivelihood === 'others' && secondaryLivelihood !== 'others') {
+        if (warning) warning.style.display = 'none';
+        document.getElementById('fishr_secondary_livelihood').classList.remove('is-invalid');
+        return true;
+    }
+
+    // CASE 4: Main is standard type, secondary is "others" - Allow it
+    if (mainLivelihood !== 'others' && secondaryLivelihood === 'others') {
+        if (warning) warning.style.display = 'none';
+        document.getElementById('fishr_secondary_livelihood').classList.remove('is-invalid');
+        return true;
+    }
+
+    // Default: Allow
+    if (warning) warning.style.display = 'none';
+    document.getElementById('fishr_secondary_livelihood').classList.remove('is-invalid');
+    return true;
 }
 
 /**
@@ -6839,26 +6935,55 @@ function validateEditSecondaryLivelihood() {
     const secondaryValue = document.getElementById('edit_fishr_secondary_livelihood').value;
     const warning = document.getElementById('edit_secondary_livelihood_warning');
 
-    if (secondaryValue && mainValue && secondaryValue === mainValue) {
+    // If no secondary selected, no validation needed
+    if (!secondaryValue) {
+        if (warning) warning.style.display = 'none';
+        document.getElementById('edit_fishr_secondary_livelihood').classList.remove('is-invalid');
+        return true;
+    }
+
+    // CASE 1: Both are "others" - Allow it (they specify different text in other fields)
+    if (mainValue === 'others' && secondaryValue === 'others') {
+        if (warning) warning.style.display = 'none';
+        document.getElementById('edit_fishr_secondary_livelihood').classList.remove('is-invalid');
+        return true;
+    }
+
+    // CASE 2: Same standard type (both capture, both aquaculture, etc.) - NOT ALLOWED
+    if (secondaryValue === mainValue && mainValue !== 'others') {
         if (warning) {
             warning.textContent = 'Secondary livelihood cannot be the same as main livelihood';
             warning.style.display = 'block';
         }
+        document.getElementById('edit_fishr_secondary_livelihood').classList.add('is-invalid');
         return false;
-    } else {
+    }
+
+    // CASE 3: Secondary is standard type, main is "others" - Allow it
+    if (mainValue === 'others' && secondaryValue !== 'others') {
         if (warning) warning.style.display = 'none';
+        document.getElementById('edit_fishr_secondary_livelihood').classList.remove('is-invalid');
         return true;
     }
+
+    // CASE 4: Main is standard type, secondary is "others" - Allow it
+    if (mainValue !== 'others' && secondaryValue === 'others') {
+        if (warning) warning.style.display = 'none';
+        document.getElementById('edit_fishr_secondary_livelihood').classList.remove('is-invalid');
+        return true;
+    }
+
+    // Default: Allow
+    if (warning) warning.style.display = 'none';
+    document.getElementById('edit_fishr_secondary_livelihood').classList.remove('is-invalid');
+    return true;
 }
 
-
 /**
- * COMPLETE FORM VALIDATION - FIX FOR BOTH ADD & EDIT
+ * COMPLETE FORM VALIDATION - FIXED VERSION
+ * Properly validates all required fields including barangay and main livelihood
  * @param {boolean} isEditMode - true for edit, false for add
  * @returns {boolean} - true if valid
- */
-/**
- * COMPLETE WORKING VALIDATION - With Correct IDs
  */
 function validateFishrFormOnSubmit(isEditMode = false) {
     console.log('🔍 validateFishrFormOnSubmit called, isEditMode:', isEditMode);
@@ -6879,9 +7004,15 @@ function validateFishrFormOnSubmit(isEditMode = false) {
         { id: `${prefix}last_name`, label: 'Last Name' },
         { id: `${prefix}sex`, label: 'Sex' },
         { id: `${prefix}contact_number`, label: 'Contact Number' },
-        { id: `${prefix}barangay`, label: 'Barangay' },
-        { id: `${prefix}main_livelihood`, label: 'Main Livelihood' }  // ✅ FIXED: main_livelihood
+        { id: `${prefix}barangay`, label: 'Barangay' }
     ];
+    
+    // Add main livelihood with proper ID mapping
+    if (isEditMode) {
+        requiredFields.push({ id: 'edit_fishr_livelihood', label: 'Main Livelihood' });
+    } else {
+        requiredFields.push({ id: 'fishr_main_livelihood', label: 'Main Livelihood' });
+    }
     
     // For Add form, also require status
     if (!isEditMode) {
@@ -6899,7 +7030,7 @@ function validateFishrFormOnSubmit(isEditMode = false) {
         }
         
         const value = input.value ? input.value.trim() : '';
-        console.log(`Field ${field.id}: "${value}"`);
+        console.log(`Field ${field.id}: "${value}" (exists: ${!!input})`);
         
         if (!value) {
             console.error(`❌ ${field.label} is empty`);
@@ -6909,6 +7040,11 @@ function validateFishrFormOnSubmit(isEditMode = false) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
             errorDiv.textContent = `${field.label} is required`;
+            
+            // Remove existing error first
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            
             input.parentNode.appendChild(errorDiv);
             
             isValid = false;
@@ -6943,8 +7079,15 @@ function validateFishrFormOnSubmit(isEditMode = false) {
     }
     
     // ========== MAIN LIVELIHOOD "OTHERS" ==========
-    const mainLivelihood = document.getElementById(`${prefix}main_livelihood`);  // ✅ FIXED: main_livelihood
-    if (mainLivelihood && mainLivelihood.value === 'others') {
+    // Find main livelihood field
+    let mainLivelihoodField = null;
+    if (isEditMode) {
+        mainLivelihoodField = document.getElementById('edit_fishr_livelihood');
+    } else {
+        mainLivelihoodField = document.getElementById('fishr_main_livelihood');
+    }
+    
+    if (mainLivelihoodField && mainLivelihoodField.value === 'others') {
         const otherLivelihoodId = `${prefix}other_livelihood`;
         const otherLivelihood = document.getElementById(otherLivelihoodId);
         
@@ -6961,6 +7104,10 @@ function validateFishrFormOnSubmit(isEditMode = false) {
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
                 errorDiv.textContent = 'Please specify your livelihood type';
+                
+                const existing = otherLivelihood.parentNode.querySelector('.invalid-feedback');
+                if (existing) existing.remove();
+                
                 otherLivelihood.parentNode.appendChild(errorDiv);
                 
                 isValid = false;
@@ -6974,9 +7121,9 @@ function validateFishrFormOnSubmit(isEditMode = false) {
     const secondaryLivelihood = document.getElementById(`${prefix}secondary_livelihood`);
     if (secondaryLivelihood && secondaryLivelihood.value) {
         const secondaryValue = secondaryLivelihood.value;
-        const mainValue = mainLivelihood ? mainLivelihood.value : '';
+        const mainValue = mainLivelihoodField ? mainLivelihoodField.value : '';
         
-        // Cannot be same as main
+        // Cannot be same as main (UNLESS both are "others")
         if (secondaryValue === mainValue && mainValue !== 'others') {
             console.error(`❌ Secondary cannot equal main livelihood`);
             secondaryLivelihood.classList.add('is-invalid');
@@ -6985,6 +7132,10 @@ function validateFishrFormOnSubmit(isEditMode = false) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
             errorDiv.textContent = 'Secondary livelihood cannot be the same as main livelihood';
+            
+            const existing = secondaryLivelihood.parentNode.querySelector('.invalid-feedback');
+            if (existing) existing.remove();
+            
             secondaryLivelihood.parentNode.appendChild(errorDiv);
             
             isValid = false;
@@ -7010,6 +7161,10 @@ function validateFishrFormOnSubmit(isEditMode = false) {
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
                     errorDiv.textContent = 'Please specify secondary livelihood';
+                    
+                    const existing = otherSecondary.parentNode.querySelector('.invalid-feedback');
+                    if (existing) existing.remove();
+                    
                     otherSecondary.parentNode.appendChild(errorDiv);
                     
                     isValid = false;
@@ -7031,6 +7186,10 @@ function validateFishrFormOnSubmit(isEditMode = false) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
             errorDiv.textContent = 'File must not exceed 10MB';
+            
+            const existing = fileInput.parentNode.querySelector('.invalid-feedback');
+            if (existing) existing.remove();
+            
             fileInput.parentNode.appendChild(errorDiv);
             
             isValid = false;
