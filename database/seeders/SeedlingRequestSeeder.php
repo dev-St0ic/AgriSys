@@ -137,7 +137,6 @@ class SeedlingRequestSeeder extends Seeder
                 'purpose' => $this->getRandomPurpose(),
                 'total_quantity' => 0,
                 'approved_quantity' => null,
-                'preferred_delivery_date' => $createdDate->copy()->addDays(rand(7, 21)),
                 'status' => $status,
                 'reviewed_by' => $status !== 'pending' ? $users->random()->id : null,
                 'reviewed_at' => $status !== 'pending' ? $createdDate->copy()->addHours($processingHours) : null,
@@ -147,6 +146,18 @@ class SeedlingRequestSeeder extends Seeder
                 'created_at' => $createdDate,
                 'updated_at' => $status !== 'pending' ? $createdDate->copy()->addHours($processingHours) : $createdDate,
             ]);
+
+            // Set pickup date for approved requests
+            if (in_array($status, ['approved', 'partially_approved'])) {
+                $approvalDate = $createdDate->copy()->addHours($processingHours);
+                $pickupDate = $approvalDate->copy()->addDays(rand(7, 30));
+                $pickupExpiredAt = $pickupDate->copy()->addDays(1)->endOfDay();
+                
+                $request->update([
+                    'pickup_date' => $pickupDate,
+                    'pickup_expired_at' => $pickupExpiredAt,
+                ]);
+            }
 
             // Add items to request
             $this->addItemsToRequest($request, $categories, $status, $selectedUser->id);
@@ -168,6 +179,8 @@ class SeedlingRequestSeeder extends Seeder
 
         $this->command->info("Created {$count} requests for {$month}");
     }
+
+    
 
     private function addItemsToRequest($request, $categories, $status, $userId): void
     {

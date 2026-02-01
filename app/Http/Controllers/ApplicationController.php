@@ -443,6 +443,7 @@ public function submitSeedlings(Request $request)
             'mobile' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:255',
             'selected_seedlings' => 'required|string',
+            'pickup_date' => 'nullable|date|after_or_equal:today|before_or_equal:' . now()->addDays(30)->format('Y-m-d'),
             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ], [
             'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
@@ -469,6 +470,10 @@ public function submitSeedlings(Request $request)
             }
         }
 
+        if ($request->has('pickup_date') && $request->pickup_date) {
+            $validated['pickup_date'] = \Carbon\Carbon::parse($validated['pickup_date'])->startOfDay();
+        }
+
         // Generate unique request number
         $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
@@ -488,7 +493,12 @@ public function submitSeedlings(Request $request)
             'barangay' => $validated['barangay'],
             'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
             'document_path' => $documentPath,
-            'status' => 'pending'
+            'status' => 'pending',
+            'pickup_date' => $validated['pickup_date'] ?? null,
+            'pickup_expired_at' => $validated['pickup_date'] 
+                ? \Carbon\Carbon::parse($validated['pickup_date'])->addDays(1)->endOfDay()
+                : null,
+            'pickup_reminder_sent' => false
         ]);
 
         // Create individual request items from selections

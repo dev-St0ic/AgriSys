@@ -138,7 +138,6 @@ class SeedlingRequestFactory extends Factory
 
             'requested_quantity' => $totalQuantity,
             'total_quantity' => $totalQuantity,
-            'preferred_delivery_date' => $this->faker->optional(0.8)->dateTimeBetween('now', '+30 days'),
             'document_path' => $this->faker->optional(0.3)->filePath(),
 
             // Status fields - default values
@@ -171,6 +170,9 @@ class SeedlingRequestFactory extends Factory
             'approved_quantity' => null,
             'approved_at' => null,
             'rejected_at' => null,
+            'pickup_date' => $this->faker->optional(0.7)->dateTimeBetween('now', '+30 days'),
+            'pickup_expired_at' => null, // Will be set when pickup_date is set
+            'pickup_reminder_sent' => false,
         ];
     }
 

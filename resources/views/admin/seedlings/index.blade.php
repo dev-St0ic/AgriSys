@@ -193,6 +193,7 @@
                                     <th class="px-3 py-3 fw-medium text-white border-end">Barangay</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Requested Items</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Status</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end text-center">Pickup Date</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Documents</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Actions</th>
                                 </tr>
@@ -326,6 +327,38 @@
                                                 } }}">
                                                 {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                             </span>
+                                        </td>
+                                        <!--  NEW: Pickup Date Column -->
+                                        <td class="px-3 py-3 border-end text-center">
+                                            @if($request->pickup_date)
+                                                <div class="pickup-date-cell">
+                                                    <small class="d-block fw-semibold">
+                                                        {{ $request->pickup_date->format('M d, Y') }}
+                                                    </small>
+                                                    <small class="d-block text-muted">
+                                                        {{ $request->pickup_date->format('g:i A') }}
+                                                    </small>
+                                                    
+                                                    @if($request->pickup_date->isPast())
+                                                        <span class="badge bg-danger badge-sm mt-2">
+                                                            <i class="fas fa-times-circle me-1"></i>Expired
+                                                        </span>
+                                                    @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                                                        <span class="badge bg-warning text-dark badge-sm mt-2">
+                                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                                            {{ now()->diffInDays($request->pickup_expired_at) }}d left
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-success badge-sm mt-2">
+                                                            <i class="fas fa-check-circle me-1"></i>Active
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-muted text-center d-block">
+                                                    <i class="fas fa-minus me-1"></i>Not set
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="px-3 py-3 text-center">
                                             <div class="seedling-table-documents">
@@ -528,8 +561,7 @@
                                     <div class="col-12">
                                         <div class="card border-secondary">
                                             <div class="card-header bg-secondary text-white">
-                                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional
-                                                    Information</h6>
+                                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
                                             </div>
                                             <div class="card-body">
                                                 <div class="row g-3">
@@ -545,6 +577,67 @@
                                                             {{ $request->purpose ?? 'Not provided' }}
                                                         </p>
                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ✅ NEW: Pickup Date Card -->
+                                    <div class="col-12">
+                                        <div class="card border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Pickup Information</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    @if($request->pickup_date)
+                                                        <div class="col-md-6">
+                                                            <strong>Pickup Date:</strong>
+                                                            <p class="mb-0">
+                                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                                {{ $request->pickup_date->format('F d, Y') }}
+                                                            </p>
+                                                            <small class="text-muted">
+                                                                ({{ $request->pickup_date->diffForHumans() }})
+                                                            </small>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong>Pickup Status:</strong>
+                                                            <p class="mb-0">
+                                                                @if($request->pickup_date && $request->pickup_date->isPast())
+                                                                    <span class="badge bg-danger">
+                                                                        <i class="fas fa-times-circle me-1"></i>Expired
+                                                                    </span>
+                                                                @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                                                                    <span class="badge bg-warning text-dark">
+                                                                        <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
+                                                                    </span>
+                                                                @else
+                                                                    <span class="badge bg-success">
+                                                                        <i class="fas fa-check-circle me-1"></i>Active
+                                                                    </span>
+                                                                @endif
+                                                            </p>
+                                                        </div>
+                                                        @if($request->pickup_expired_at)
+                                                            <div class="col-12">
+                                                                <strong>Expiration Date:</strong>
+                                                                <p class="mb-0">
+                                                                    <i class="fas fa-clock me-1"></i>
+                                                                    {{ $request->pickup_expired_at->format('F d, Y g:i A') }}
+                                                                </p>
+                                                                <small class="text-muted">
+                                                                    Expires in {{ now()->diffInDays($request->pickup_expired_at) }} days
+                                                                </small>
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        <div class="col-12">
+                                                            <p class="text-muted mb-0">
+                                                                <i class="fas fa-info-circle me-1"></i>No pickup date set
+                                                            </p>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -809,7 +902,7 @@
                                                         onchange="checkForEditChanges({{ $request->id }})"
                                                         oninput="checkForEditChanges({{ $request->id }})">
                                                     <small class="text-muted d-block mt-2">
-                                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                                     </small>
                                                 </div>
                                                 <div class="col-md-6 mb-3">
@@ -1213,6 +1306,50 @@
                                         </div>
                                     </div>
 
+                                    <!-- ✅ NEW: Pickup Date Section in Status Modal -->
+                                    @if($request->status === 'approved' || $request->status === 'partially_approved')
+                                        <div class="card border-0 bg-light mb-3">
+                                            <div class="card-header bg-white border-0 pb-0">
+                                                <h6 class="mb-0 fw-semibold text-primary">
+                                                    <i class="fas fa-calendar-check me-2"></i>Pickup Date
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    @if($request->pickup_date)
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-semibold">Current Pickup Date</label>
+                                                            <div class="alert alert-info mb-0">
+                                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                                {{ $request->pickup_date->format('F d, Y') }}
+                                                                
+                                                                @if($request->pickup_date->isPast())
+                                                                    <span class="badge bg-danger float-end">
+                                                                        <i class="fas fa-exclamation-circle me-1"></i>Expired
+                                                                    </span>
+                                                                @elseif(now()->diffInDays($request->pickup_expired_at) <= 3)
+                                                                    <span class="badge bg-warning float-end text-dark">
+                                                                        <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
+                                                                    </span>
+                                                                @else
+                                                                    <span class="badge bg-success float-end">
+                                                                        <i class="fas fa-check-circle me-1"></i>Active
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="col-12">
+                                                            <p class="text-muted">
+                                                                <i class="fas fa-info-circle me-1"></i>No pickup date assigned
+                                                            </p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
                                     <!-- Info Alert -->
                                     <div class="alert alert-info border-left-info mb-0">
                                         <i class="fas fa-lightbulb me-2"></i>
@@ -1304,7 +1441,7 @@
                                         <input type="tel" class="form-control" id="seedling_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX 
                                         </small>
                                     </div>
                                 </div>
@@ -2586,6 +2723,32 @@
         #deleteSeedlingModal .modal-backdrop {
             opacity: 0.5;
         }
+        /* Pickup Date Column Styling */
+.pickup-date-cell {
+    padding: 0.5rem 0;
+}
+
+.pickup-date-cell small {
+    line-height: 1.4;
+}
+
+.pickup-date-cell .badge-sm {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pickup-date-cell {
+        font-size: 0.85rem;
+    }
+    
+    .pickup-date-cell .badge-sm {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
     </style>
 
     <script>
@@ -4199,7 +4362,7 @@
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }

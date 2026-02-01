@@ -666,22 +666,54 @@ function showSeedlingsTab(tabId, event) {
     }
 }
 
+// pick uo date
+function showPickupDateField(totalQuantity) {
+    const pickupDateSection = document.getElementById('pickup-date-section');
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    
+    // ✅ SHOW PICKUP DATE FIELD FOR ALL REQUESTS (removed the >= 100 check)
+    if (pickupDateSection) pickupDateSection.style.display = 'block';
+    if (pickupInput) {
+        pickupInput.required = true;
+        
+        // Set dynamic min and max dates based on TODAY
+        const today = new Date();
+        const minDate = new Date(today);
+        minDate.setDate(minDate.getDate() + 7); // 7 days from today
+        
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 30); // 30 days from today
+        
+        // Format dates as YYYY-MM-DD
+        const formatDate = (date) => date.toISOString().split('T')[0];
+        
+        pickupInput.min = formatDate(minDate);
+        pickupInput.max = formatDate(maxDate);
+        pickupInput.value = ''; // Clear any previous value
+    }
+}
+
 // ==============================================
 // SUPPORTING DOCUMENTS
 // ==============================================
-
 function toggleSupportingDocuments(totalQuantity) {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
 
+    // Show supporting documents ONLY for 100+ items
     if (totalQuantity >= 100) {
         if (docsField) docsField.style.display = 'block';
-      
+        if (docsInput) docsInput.required = false; // ✅ OPTIONAL, NOT REQUIRED
     } else {
         if (docsField) docsField.style.display = 'none';
+        if (docsInput) {
+            docsInput.required = false;
+            docsInput.value = '';
+        }
     }
+    
+    showPickupDateField(totalQuantity);
 }
-
 // ==============================================
 // SUMMARY DISPLAY
 // ==============================================
@@ -725,6 +757,14 @@ function submitSeedlingsRequest(event) {
         return false;
     }
 
+    // ✅ CHECK PICKUP DATE VALIDATION FIRST (BEFORE ANY SUBMISSION)
+    const pickupDateSection = document.getElementById('pickup-date-section');
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    if (pickupDateSection && pickupDateSection.style.display !== 'none' && !pickupInput.value) {
+        agrisysModal.warning('Please select a pickup date', { title: 'Pickup Date Required' });
+        return false; // STOP execution
+    }
+
     const submitBtn = form.querySelector('.seedlings-submit-btn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Submitting...';
@@ -738,7 +778,7 @@ function submitSeedlingsRequest(event) {
         agrisysModal.warning('Please select items first', { title: 'No Items Selected' });
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-        return;
+        return false;
     }
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -760,7 +800,6 @@ function submitSeedlingsRequest(event) {
                 onClose: () => {
                     performCompleteReset();
                     closeFormSeedlings();
-                    // Scroll to top after modal closes and form is hidden
                     setTimeout(() => {
                         document.documentElement.scrollTop = 0;
                         document.body.scrollTop = 0;
@@ -786,7 +825,6 @@ function submitSeedlingsRequest(event) {
         submitBtn.disabled = false;
     });
 }
-
 
 /**
  * Show all main page sections
@@ -855,15 +893,24 @@ function performCompleteReset() {
 
     console.log('Complete reset performed');
 }
-
 function resetSupportingDocuments() {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
+    const pickupDateSection = document.getElementById('pickup-date-section');
+    const pickupInput = document.getElementById('seedlings-pickup_date');
 
+    // Hide docs (will be shown again if 100+ items)
     if (docsField) docsField.style.display = 'none';
     if (docsInput) {
-        docsInput.removeAttribute('required');
+        docsInput.required = false; // ✅ Optional
         docsInput.value = '';
+    }
+    
+    // Pickup date always shows but reset it
+    if (pickupDateSection) pickupDateSection.style.display = 'block';
+    if (pickupInput) {
+        pickupInput.required = true; // ✅ Always required
+        pickupInput.value = '';
     }
 }
 
@@ -885,6 +932,21 @@ function restorePreviousSelections() {
         });
     });
 }
+
+
+// // ALSO UPDATE toggleSupportingDocuments() TO SHOW DOCS FOR ALL TOO:
+
+// function toggleSupportingDocuments(totalQuantity) {
+//     const docsField = document.getElementById('supporting-docs-field');
+//     const docsInput = document.getElementById('seedlings-docs');
+
+//     // ✅ SHOW FOR ALL REQUESTS
+//     if (docsField) docsField.style.display = 'block';
+//     if (docsInput) docsInput.required = true;
+    
+//     showPickupDateField(totalQuantity);
+// }
+
 
 // ==============================================
 // INITIALIZATION
@@ -1199,5 +1261,6 @@ window.changePage = changePage;
 window.updatePagination = updatePagination;
 window.initCategoryTabs = initCategoryTabs;
 window.applyFilters = applyFilters;
+window.showPickupDateField = showPickupDateField;
 
 console.log('Modern Seedlings module loaded successfully');
