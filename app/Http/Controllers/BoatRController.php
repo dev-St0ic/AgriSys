@@ -152,10 +152,13 @@ class BoatRController extends Controller
                 'boat_length' => 'required|numeric|min:0.1|max:999.99',
                 'boat_width' => 'required|numeric|min:0.1|max:999.99',
                 'boat_depth' => 'required|numeric|min:0.1|max:999.99',
+                
+                // boat classification
+                'boat_classification' => 'required|in:Motorized,Non-motorized',
 
                 // Engine Information
-                'engine_type' => 'required|string|max:100',
-                'engine_horsepower' => 'required|integer|min:1|max:9999',
+                'engine_type' => 'nullable|string|max:100',
+                'engine_horsepower' => 'nullable|integer|min:1|max:9999',
 
                 // Fishing Information
                 'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral,Not Applicable',
@@ -170,6 +173,24 @@ class BoatRController extends Controller
                 // IMPORTANT:
                 'fishr_application_id' => 'nullable|exists:fishr_applications,id'
             ]);
+
+             if ($validated['boat_classification'] === 'Motorized') {
+            if (empty($validated['engine_type'])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'engine_type' => ['Engine Type is required for motorized boats']
+                ]);
+            }
+            
+            if (empty($validated['engine_horsepower'])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'engine_horsepower' => ['Engine Horsepower is required for motorized boats']
+                ]);
+            }
+        } else {
+            // For non-motorized boats, clear engine fields
+            $validated['engine_type'] = null;
+            $validated['engine_horsepower'] = null;
+        }
 
             if (!isset($validated['fishr_application_id'])) {
                 $validated['fishr_application_id'] = null;
@@ -298,17 +319,36 @@ public function update(Request $request, $id)
             'barangay' => 'required|string|max:100',
             'vessel_name' => 'required|string|max:100',
             'boat_type' => 'required|string|max:100',
+            'boat_classification' => 'required|in:Motorized,Non-motorized',
             'boat_length' => 'required|numeric|min:0.1',
             'boat_width' => 'required|numeric|min:0.1',
             'boat_depth' => 'required|numeric|min:0.1',
-            'engine_type' => 'required|string|max:100',
-            'engine_horsepower' => 'required|integer|min:1',
+            'engine_type' => 'nullable|string|max:100',
+            'engine_horsepower' => 'nullable|integer|min:1',
             'primary_fishing_gear' => 'required|string|max:100',
             'inspection_notes' => 'nullable|string|max:2000',
             'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'inspection_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'replace_inspection_document' => 'nullable|boolean',
         ]);
+
+        if ($validated['boat_classification'] === 'Motorized') {
+    if (empty($validated['engine_type'])) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'engine_type' => ['Engine Type is required for motorized boats']
+        ]);
+    }
+    
+    if (empty($validated['engine_horsepower'])) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'engine_horsepower' => ['Engine Horsepower is required for motorized boats']
+        ]);
+    }
+} else {
+    // For non-motorized boats, clear engine fields
+    $validated['engine_type'] = null;
+    $validated['engine_horsepower'] = null;
+}
 
         // ✅ FIXED: Use correct model class name
         $boatr = BoatrApplication::findOrFail($id);
@@ -323,6 +363,7 @@ public function update(Request $request, $id)
             'barangay' => $validated['barangay'],
             'vessel_name' => $validated['vessel_name'],
             'boat_type' => $validated['boat_type'],
+            'boat_classification' => $validated['boat_classification'],
             'boat_length' => $validated['boat_length'],
             'boat_width' => $validated['boat_width'],
             'boat_depth' => $validated['boat_depth'],
@@ -823,6 +864,7 @@ private function getChangedFields($original, $updated)
                 'boat_dimensions' => $registration->boat_dimensions,
                 'engine_type' => $registration->engine_type,
                 'engine_horsepower' => $registration->engine_horsepower,
+                'boat_classification' => $registration->boat_classification,
                 'primary_fishing_gear' => $registration->primary_fishing_gear,
                 'status' => $registration->status,
                 'status_color' => $registration->status_color,

@@ -4925,7 +4925,10 @@ function confirmPermanentDeleteBoatr() {
                     // Populate Location
                     document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
                     // Populate Boat Classification
-                    const classificationBadge = document.getElementById('viewRegBoatClassification');
+                    const classificationBadge = document.getElementById('viewRegBoatClassification').innerHTML = 
+    `<span class="badge bg-primary" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+        ${data.boat_classification || 'N/A'}
+    </span>`;
                     if (data.boat_classification) {
                         const badgeColor = data.boat_classification === 'Motorized' ? 'primary' : 'warning';
                         classificationBadge.innerHTML = `<span class="badge bg-${badgeColor}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${data.boat_classification}</span>`;
@@ -6334,10 +6337,15 @@ async function submitAddBoatr() {
     });
 
     // === STEP 4: Boat Classification (CORRECT ORDER - GET VALUE FIRST) ===
-    const boatClassificationVal = document.getElementById('boatr_boat_classification').value.trim();
-    formData.append('boat_classification', boatClassificationVal);
 
-    console.log('Boat Classification:', boatClassificationVal);
+    const boatClassificationVal = document.getElementById('boatr_boat_classification').value.trim();
+if (!boatClassificationVal) {
+    showToast('error', 'Boat Classification is required');
+    return;
+}
+formData.append('boat_classification', boatClassificationVal);
+
+console.log('Boat Classification:', boatClassificationVal);
 
     // === STEP 5: Engine Information (Only if Motorized) ===
     if (boatClassificationVal === 'Motorized') {
@@ -7394,14 +7402,18 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     form.dataset.originalData = JSON.stringify(originalData);
     form.dataset.registrationId = registrationId;
     form.dataset.hasChanges = 'false';  // Set to false initially
+
+    
 // === Boat Classification (CORRECT ORDER - GET VALUE FIRST) ===
-    const boatClassificationElement = document.getElementById('edit_boatr_boat_classification');
-    if (boatClassificationElement) {
-        boatClassificationElement.value = data.boat_classification || '';
-        
-        // === CRITICAL: Trigger the change handler to show/hide engine fields ===
-        handleEditBoatClassificationChange(boatClassificationElement);
-    }
+ const boatClassificationElement = document.getElementById('edit_boatr_boat_classification');
+if (boatClassificationElement) {
+    // Default to 'Non-motorized' if NULL
+    const classification = data.boat_classification || 'Non-motorized';
+    boatClassificationElement.value = classification;
+    
+    // Trigger the change handler to show/hide engine fields
+    handleEditBoatClassificationChange(boatClassificationElement);
+}
 
     // === Handle Engine Information ===
     document.getElementById('edit_boatr_engine_type').value = data.engine_type || '';
