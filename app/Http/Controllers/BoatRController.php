@@ -862,6 +862,7 @@ private function getChangedFields($original, $updated)
                 'boat_width' => $registration->boat_width,
                 'boat_depth' => $registration->boat_depth,
                 'boat_dimensions' => $registration->boat_dimensions,
+                'boat_classification' => $registration->boat_classification, 
                 'engine_type' => $registration->engine_type,
                 'engine_horsepower' => $registration->engine_horsepower,
                 'boat_classification' => $registration->boat_classification,

@@ -3892,7 +3892,7 @@
                     <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
+                            <i></i>Cancel
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
@@ -7394,6 +7394,7 @@ function initializeEditBoatrFormFixed(registrationId, data) {
         boat_width: data.boat_width || '',
         boat_depth: data.boat_depth || '',
         engine_type: data.engine_type || '',
+        boat_classification: data.boat_classification || '',
         engine_horsepower: data.engine_horsepower || '',
         primary_fishing_gear: data.primary_fishing_gear || '',
         inspection_notes: data.inspection_notes || ''
@@ -7660,38 +7661,48 @@ function checkEditBoatrFormChanges(registrationId) {
     let hasChanges = false;
 
     const fields = [
-        { id: 'edit_boatr_first_name', key: 'first_name' },
-        { id: 'edit_boatr_middle_name', key: 'middle_name' },
-        { id: 'edit_boatr_last_name', key: 'last_name' },
-        { id: 'edit_boatr_extension', key: 'name_extension' },
-        { id: 'edit_boatr_contact_number', key: 'contact_number' },
-        { id: 'edit_boatr_barangay', key: 'barangay' },
-        { id: 'edit_boatr_vessel_name', key: 'vessel_name' },
-        { id: 'edit_boatr_boat_type', key: 'boat_type' },
-        { id: 'edit_boatr_boat_length', key: 'boat_length' },
-        { id: 'edit_boatr_boat_width', key: 'boat_width' },
-        { id: 'edit_boatr_boat_depth', key: 'boat_depth' },
-        { id: 'edit_boatr_engine_type', key: 'engine_type' },
-        { id: 'edit_boatr_engine_horsepower', key: 'engine_horsepower' },
-        { id: 'edit_boatr_primary_fishing_gear', key: 'primary_fishing_gear' },
-        { id: 'edit_boatr_inspection_notes', key: 'inspection_notes' }
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'contact_number', 'barangay', 'vessel_name', 'boat_type',
+        'boat_length', 'boat_width', 'boat_depth', 'boat_classification',  // ✅ ADDED
+        'engine_type', 'engine_horsepower', 'primary_fishing_gear', 'inspection_notes'
     ];
 
+    const fieldIdMap = {
+        'first_name': 'edit_boatr_first_name',
+        'middle_name': 'edit_boatr_middle_name',
+        'last_name': 'edit_boatr_last_name',
+        'name_extension': 'edit_boatr_extension',
+        'contact_number': 'edit_boatr_contact_number',
+        'barangay': 'edit_boatr_barangay',
+        'vessel_name': 'edit_boatr_vessel_name',
+        'boat_type': 'edit_boatr_boat_type',
+        'boat_length': 'edit_boatr_boat_length',
+        'boat_width': 'edit_boatr_boat_width',
+        'boat_depth': 'edit_boatr_boat_depth',
+        'boat_classification': 'edit_boatr_boat_classification',  // ✅ ADDED
+        'engine_type': 'edit_boatr_engine_type',
+        'engine_horsepower': 'edit_boatr_engine_horsepower',
+        'primary_fishing_gear': 'edit_boatr_primary_fishing_gear',
+        'inspection_notes': 'edit_boatr_inspection_notes'
+    };
+
     fields.forEach(field => {
-        const fieldElement = document.getElementById(field.id);
-        if (fieldElement) {
-            //  Important: Convert to string and trim for proper comparison
-            const currentValue = String(fieldElement.value || '').trim();
-            const originalValue = String(originalData[field.key] || '').trim();
+        const fieldId = fieldIdMap[field];
+        if (!fieldId) return;
 
-            console.log(`${field.id}: "${currentValue}" vs "${originalValue}" = ${currentValue === originalValue ? 'SAME' : 'CHANGED'}`);
+        const fieldElement = document.getElementById(fieldId);
+        if (!fieldElement) return;
 
-            if (currentValue !== originalValue) {
-                hasChanges = true;
-                fieldElement.classList.add('form-changed');
-            } else {
-                fieldElement.classList.remove('form-changed');
-            }
+        const currentValue = String(fieldElement.value || '').trim();
+        const originalValue = String(originalData[field] || '').trim();
+
+        console.log(`${field}: "${currentValue}" vs "${originalValue}"`);
+
+        if (currentValue !== originalValue) {
+            hasChanges = true;
+            fieldElement.classList.add('form-changed');
+        } else {
+            fieldElement.classList.remove('form-changed');
         }
     });
 
@@ -7699,13 +7710,11 @@ function checkEditBoatrFormChanges(registrationId) {
     const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
     if (supportingDocInput && supportingDocInput.files && supportingDocInput.files.length > 0) {
         hasChanges = true;
-        console.log('Supporting document file detected');
     }
 
     const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
     if (inspectionDocInput && inspectionDocInput.files && inspectionDocInput.files.length > 0) {
         hasChanges = true;
-        console.log('Inspection document file detected');
     }
 
     // Update button state
