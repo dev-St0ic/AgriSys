@@ -158,7 +158,7 @@ class BoatRController extends Controller
                 'engine_horsepower' => 'required|integer|min:1|max:9999',
 
                 // Fishing Information
-                'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral, Not Applicable',
+                'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral,Not Applicable',
 
                 // Status
                 'status' => 'nullable|in:pending,under_review,inspection_required,inspection_scheduled,documents_pending,approved,rejected',

@@ -656,6 +656,7 @@
                                             <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
                                             <option value="Fish Trap">Fish Trap</option>
                                             <option value="Fish Coral">Fish Coral</option>
+                                            <option value="Not Applicable">Not Applicable (N/A)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1092,6 +1093,12 @@
                                     <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Specifications</h6>
                                 </div>
                                 <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Classification:</strong>
+                                            <span id="viewRegBoatClassification"></span>
+                                        </div>
+                                    </div>
                                     <div class="row g-2">
                                         <div class="col-12">
                                             <strong>Dimensions:</strong>
@@ -1760,6 +1767,7 @@
                                         <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
                                         <option value="Fish Trap">Fish Trap</option>
                                         <option value="Fish Coral">Fish Coral</option>
+                                        <option value="Not Applicable">Not Applicable (N/A)</option>
                                     </select>
                                 </div>
                             </div>
@@ -4916,7 +4924,14 @@ function confirmPermanentDeleteBoatr() {
 
                     // Populate Location
                     document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
-
+                    // Populate Boat Classification
+                    const classificationBadge = document.getElementById('viewRegBoatClassification');
+                    if (data.boat_classification) {
+                        const badgeColor = data.boat_classification === 'Motorized' ? 'primary' : 'warning';
+                        classificationBadge.innerHTML = `<span class="badge bg-${badgeColor}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${data.boat_classification}</span>`;
+                    } else {
+                        classificationBadge.textContent = 'N/A';
+                    }
                     // Populate Boat Specifications
                     const dimensions = `${data.boat_length || '0'} x ${data.boat_width || '0'} x ${data.boat_depth || '0'} ft`;
                     document.getElementById('viewRegDimensions').textContent = dimensions;
@@ -7043,41 +7058,62 @@ async function submitAddBoatr() {
         /**
          * Update the showAddBoatrModal function
          */
-        function showAddBoatrModal() {
-            const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
+     function showAddBoatrModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
 
-            // Reset form
-            document.getElementById('addBoatrForm').reset();
-            document.getElementById('boatr_fishr_app_id').value = ''; // IMPORTANT
+    // Reset form
+    document.getElementById('addBoatrForm').reset();
+    document.getElementById('boatr_fishr_app_id').value = ''; // IMPORTANT
 
-            // Remove validation errors
-            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
-                el.classList.remove('is-invalid');
-            });
+    // Remove validation errors
+    document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
+        el.classList.remove('is-invalid');
+    });
 
-            document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => {
-                el.textContent = '';
-            });
+    document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => {
+        el.textContent = '';
+    });
 
-            // Remove validation messages
-            document.querySelectorAll('#addBoatrModal .admin-validation-message').forEach(el => {
-                el.remove();
-            });
+    // Remove validation messages
+    document.querySelectorAll('#addBoatrModal .validation-message').forEach(el => {
+        el.remove();
+    });
 
-            // Clear document preview
-            const preview = document.getElementById('boatr_doc_preview');
-            if (preview) {
-                preview.innerHTML = '';
-                preview.style.display = 'none';
-            }
+    // Remove warning elements
+    document.querySelectorAll('#addBoatrModal [id*="-warning"]').forEach(el => {
+        el.remove();
+    });
 
-            modal.show();
+    // Clear document preview
+    const preview = document.getElementById('boatr_doc_preview');
+    if (preview) {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+    }
 
-            // Init FishR after modal opens
-            setTimeout(() => {
-                initializeAdminFishRValidation();
-            }, 100);
-        }
+    modal.show();
+
+    // Init FishR after modal opens
+    setTimeout(() => {
+        initializeAdminFishRValidation();
+        // === ADD THESE NEW INITIALIZATIONS ===
+        initializeBoatRAddContactValidation();
+        initializeBoatRAddVesselNameValidation();
+        
+        // Auto-capitalize name fields
+        document.getElementById('boatr_first_name')?.addEventListener('blur', function() {
+            capitalizeBoatRAddName(this);
+        });
+
+        document.getElementById('boatr_middle_name')?.addEventListener('blur', function() {
+            capitalizeBoatRAddName(this);
+        });
+
+        document.getElementById('boatr_last_name')?.addEventListener('blur', function() {
+            capitalizeBoatRAddName(this);
+        });
+    }, 100);
+}
 
         /**
          * Update validateBoatrForm to NOT validate FishR during submission
@@ -7358,12 +7394,18 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     form.dataset.originalData = JSON.stringify(originalData);
     form.dataset.registrationId = registrationId;
     form.dataset.hasChanges = 'false';  // Set to false initially
-    // === Boat Classification ===
-const boatClassificationElement = document.getElementById('edit_boatr_boat_classification');
-if (boatClassificationElement) {
-    boatClassificationElement.value = data.boat_classification || '';
-    handleEditBoatClassificationChange(boatClassificationElement);
-} 
+// === Boat Classification (CORRECT ORDER - GET VALUE FIRST) ===
+    const boatClassificationElement = document.getElementById('edit_boatr_boat_classification');
+    if (boatClassificationElement) {
+        boatClassificationElement.value = data.boat_classification || '';
+        
+        // === CRITICAL: Trigger the change handler to show/hide engine fields ===
+        handleEditBoatClassificationChange(boatClassificationElement);
+    }
+
+    // === Handle Engine Information ===
+    document.getElementById('edit_boatr_engine_type').value = data.engine_type || '';
+    document.getElementById('edit_boatr_engine_horsepower').value = data.engine_horsepower || '';
 
     // === Handle Supporting Document Preview ===
     const previewContainer = document.getElementById('edit_boatr_supporting_document_preview');
@@ -7438,6 +7480,31 @@ if (boatClassificationElement) {
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
     form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+
+    // Add change listeners
+    addEditBoatrFormChangeListeners(registrationId);
+    
+    // Reset counter
+    updateEditBoatrInspectionCounter();
+
+    // === ADD THESE EVENT LISTENERS ===
+    // Auto-capitalize name fields
+    document.getElementById('edit_boatr_first_name')?.addEventListener('blur', function() {
+        capitalizeEditBoatRName(this);
+    });
+
+    document.getElementById('edit_boatr_middle_name')?.addEventListener('blur', function() {
+        capitalizeEditBoatRName(this);
+    });
+
+    document.getElementById('edit_boatr_last_name')?.addEventListener('blur', function() {
+        capitalizeEditBoatRName(this);
+    });
+
+    // Initialize real-time validations
+    initializeEditBoatRContactValidation();
+    initializeEditBoatRVesselNameValidation();
+
     
     // Reset file inputs
     const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
@@ -9247,5 +9314,393 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+/**
+ * Real-time validation for edit contact number
+ */
+function initializeEditBoatRContactValidation() {
+    const contactInput = document.getElementById('edit_boatr_contact_number');
+    if (!contactInput) return;
+
+    contactInput.addEventListener('input', function(e) {
+        validateEditBoatRContact(e.target);
+    });
+
+    contactInput.addEventListener('blur', function(e) {
+        validateEditBoatRContactOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time contact validation with visual feedback
+ */
+function validateEditBoatRContact(input) {
+    const value = input.value.trim();
+    let warningElement = document.getElementById('edit_boatr_contact_number-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'edit_boatr_contact_number-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (isValid) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    } else if (/^09\d{0,8}$/.test(cleaned)) {
+        input.style.borderColor = '#ffc107';
+        input.style.backgroundColor = '#fffbf0';
+        warningElement.style.color = '#856404';
+        warningElement.textContent = 'Continue entering digits...';
+        warningElement.style.display = 'block';
+    } else {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Format: 09XXXXXXXXX';
+        warningElement.style.display = 'block';
+    }
+}
+
+/**
+ * Contact validation on blur
+ */
+function validateEditBoatRContactOnBlur(input) {
+    const value = input.value.trim();
+    const warningElement = document.getElementById('edit_boatr_contact_number-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!isValid) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Invalid contact number. Use: 09XXXXXXXXX';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+
+/**
+ * Auto-capitalize name fields
+ */
+function capitalizeEditBoatRName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+/**
+ * Initialize vessel name validation
+ */
+function initializeEditBoatRVesselNameValidation() {
+    const vesselNameInput = document.getElementById('edit_boatr_vessel_name');
+    if (!vesselNameInput) return;
+
+    vesselNameInput.addEventListener('input', function(e) {
+        validateEditBoatRVesselName(e.target);
+    });
+
+    vesselNameInput.addEventListener('blur', function(e) {
+        validateEditBoatRVesselNameOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time vessel name validation
+ */
+function validateEditBoatRVesselName(input) {
+    const value = input.value;
+    let warningElement = document.getElementById('edit_boatr_vessel_name-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'edit_boatr_vessel_name-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        warningElement.style.display = 'none';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Only letters, numbers, spaces, hyphens (-), and apostrophes (\') are allowed';
+        warningElement.style.display = 'block';
+    } else if (value.length > 0) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    }
+}
+
+/**
+ * Vessel name validation on blur
+ */
+function validateEditBoatRVesselNameOnBlur(input) {
+    const value = input.value;
+    const warningElement = document.getElementById('edit_boatr_vessel_name-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Special characters not allowed';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+/**
+ * Real-time validation for add contact number
+ */
+function initializeBoatRAddContactValidation() {
+    const contactInput = document.getElementById('boatr_contact_number');
+    if (!contactInput) return;
+
+    contactInput.addEventListener('input', function(e) {
+        validateBoatRAddContact(e.target);
+    });
+
+    contactInput.addEventListener('blur', function(e) {
+        validateBoatRAddContactOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time contact validation with visual feedback
+ */
+function validateBoatRAddContact(input) {
+    const value = input.value.trim();
+    let warningElement = document.getElementById('boatr_contact_number-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'boatr_contact_number-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (isValid) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    } else if (/^09\d{0,8}$/.test(cleaned)) {
+        input.style.borderColor = '#ffc107';
+        input.style.backgroundColor = '#fffbf0';
+        warningElement.style.color = '#856404';
+        warningElement.textContent = 'Continue entering digits...';
+        warningElement.style.display = 'block';
+    } else {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Format: 09XXXXXXXXX';
+        warningElement.style.display = 'block';
+    }
+}
+
+/**
+ * Contact validation on blur
+ */
+function validateBoatRAddContactOnBlur(input) {
+    const value = input.value.trim();
+    const warningElement = document.getElementById('boatr_contact_number-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!isValid) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Invalid contact number. Use: 09XXXXXXXXX';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+
+/**
+ * Auto-capitalize name fields
+ */
+function capitalizeBoatRAddName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+/**
+ * Initialize vessel name validation for add modal
+ */
+function initializeBoatRAddVesselNameValidation() {
+    const vesselNameInput = document.getElementById('boatr_vessel_name');
+    if (!vesselNameInput) return;
+
+    vesselNameInput.addEventListener('input', function(e) {
+        validateBoatRAddVesselName(e.target);
+    });
+
+    vesselNameInput.addEventListener('blur', function(e) {
+        validateBoatRAddVesselNameOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time vessel name validation for add modal
+ */
+function validateBoatRAddVesselName(input) {
+    const value = input.value;
+    let warningElement = document.getElementById('boatr_vessel_name-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'boatr_vessel_name-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        warningElement.style.display = 'none';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Only letters, numbers, spaces, hyphens (-), and apostrophes (\') are allowed';
+        warningElement.style.display = 'block';
+    } else if (value.length > 0) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    }
+}
+
+/**
+ * Vessel name validation on blur for add modal
+ */
+function validateBoatRAddVesselNameOnBlur(input) {
+    const value = input.value;
+    const warningElement = document.getElementById('boatr_vessel_name-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Special characters not allowed';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
     </script>
 @endsection
