@@ -12,7 +12,7 @@ use App\Services\NotificationService;
 class SeedlingRequestController extends Controller
 {
     /**
-     * Display all seedling requests with filtering and statistics
+     * Display all supply requests with filtering and statistics
      */
     public function index(Request $request)
     {
@@ -124,7 +124,7 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Show the form for creating a new seedling request
+     * Show the form for creating a new supply request
      */
     public function create()
     {
@@ -139,7 +139,7 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Store a newly created seedling request
+     * Store a newly created supply request
      */
     public function store(Request $request)
     {
@@ -222,13 +222,13 @@ class SeedlingRequestController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Seedling request created successfully!'
+                    'message' => 'Supply request created successfully!'
                 ], 201);
             }
 
             // Otherwise redirect
             return redirect()->route('admin.seedlings.requests')
-                ->with('success', 'Seedling request created successfully!');
+                ->with('success', 'Supply request created successfully!');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Handle validation errors
@@ -243,7 +243,7 @@ class SeedlingRequestController extends Controller
 
         } catch (\Exception $e) {
             \DB::rollback();
-            \Log::error('Failed to create seedling request: ' . $e->getMessage());
+            \Log::error('Failed to create supply request: ' . $e->getMessage());
 
             // Check if it's an AJAX request (our modal will be)
             if ($request->expectsJson()) {
@@ -259,7 +259,7 @@ class SeedlingRequestController extends Controller
         }
     }
     /**
-     * Show the form for editing a seedling request
+     * Show the form for editing a supply request
      */
     public function edit(SeedlingRequest $seedlingRequest)
     {
@@ -282,7 +282,7 @@ class SeedlingRequestController extends Controller
         return view('admin.seedlings.edit', compact('seedlingRequest', 'categories', 'barangays'));
     }
     /**
- * Update a seedling request - Personal information only
+ * Update a supply request - Personal information only
  * For edit modal functionality
  */
 public function update(Request $request, SeedlingRequest $seedlingRequest)
@@ -359,7 +359,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             activity()
                 ->performedOn($seedlingRequest)
                 ->withProperties(['changes' => $changes])
-                ->log('Updated seedling request personal information');
+                ->log('Updated supply request personal information');
         }
 
         \DB::commit();
@@ -368,8 +368,8 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         if ($request->expectsJson()) {
             $changeCount = count($changes);
             $message = $changeCount > 0
-                ? "Seedling request updated successfully! ({$changeCount} field" . ($changeCount !== 1 ? 's' : '') . " changed)"
-                : "Seedling request updated successfully!";
+                ? "Supply request updated successfully! ({$changeCount} field" . ($changeCount !== 1 ? 's' : '') . " changed)"
+                : "Supply request updated successfully!";
 
             return response()->json([
                 'success' => true,
@@ -379,7 +379,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         }
 
         $message = count($changes) > 0
-            ? 'Seedling request updated successfully!'
+            ? 'Supply request updated successfully!'
             : 'No changes were made.';
 
         return redirect()->route('admin.seedlings.requests')
@@ -387,7 +387,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 
     } catch (\Exception $e) {
         \DB::rollback();
-        \Log::error('Failed to update seedling request: ' . $e->getMessage(), [
+        \Log::error('Failed to update supply request: ' . $e->getMessage(), [
             'request_id' => $seedlingRequest->id,
             'error_trace' => $e->getTraceAsString()
         ]);
@@ -408,7 +408,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 
 
     /**
-     * Remove a seedling request - ALLOWS ALL STATUSES WITH SUPPLY RETURN
+     * Remove a supply request - ALLOWS ALL STATUSES WITH SUPPLY RETURN
      */
     public function destroy(SeedlingRequest $seedlingRequest)
     {
@@ -441,7 +441,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             ]);
 
             // Log the deletion
-            \Log::info('Seedling request deleted', [
+            \Log::info('Supply request deleted', [
                 'request_id' => $seedlingRequest->id,
                 'request_number' => $requestNumber,
                 'deleted_by' => auth()->user()->name ?? 'System',
@@ -462,7 +462,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             }
 
             // For regular requests, redirect
-            $message = "Seedling request {$requestNumber} deleted successfully!";
+            $message = "Supply request {$requestNumber} deleted successfully!";
             if ($approvedItems->count() > 0) {
                 $message .= " {$approvedItems->count()} approved item(s) supplies have been returned to inventory.";
             }
@@ -471,7 +471,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 ->with('success', $message);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to delete seedling request', [
+            \Log::error('Failed to delete supply request', [
                 'request_id' => $seedlingRequest->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -726,7 +726,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 }
 
         /**
-     * Export seedling requests to CSV
+     * Export supply requests to CSV
      */
     public function export(Request $request)
     {
@@ -851,7 +851,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             return response()->stream($callback, 200, $headers);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to export seedling requests: ' . $e->getMessage());
+            \Log::error('Failed to export supply requests: ' . $e->getMessage());
 
             if (request()->expectsJson()) {
                 return response()->json([

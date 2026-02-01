@@ -3693,16 +3693,16 @@
                 return;
             }
 
-            const phoneRegex = /^(\+639|09)\d{9}$/;
+            // const phoneRegex = /^(\+639|09)\d{9}$/;
 
-            if (!phoneRegex.test(contactNumber.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
+            // if (!phoneRegex.test(contactNumber.trim())) {
+            //     input.classList.add('is-invalid');
+            //     const errorDiv = document.createElement('div');
+            //     errorDiv.className = 'invalid-feedback d-block';
+            //     errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            //     input.parentNode.appendChild(errorDiv);
+            //     return false;
+            // }
 
             input.classList.add('is-valid');
             return true;
@@ -3859,6 +3859,15 @@
 
         // Submit add seedling form
         function submitAddSeedling() {
+            // CHECK FOR VALIDATION ERRORS FIRST
+            const invalidFields = document.querySelectorAll('#addSeedlingModal .is-invalid');
+            const visibleWarnings = Array.from(document.querySelectorAll('#addSeedlingModal [id$="-warning"]'))
+                .filter(warning => warning.style.display !== 'none');
+
+            if (invalidFields.length > 0 || visibleWarnings.length > 0) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return false;
+            }
             if (!validateSeedlingForm()) {
                 showToast('error', 'Please fix all validation errors before submitting');
                 return;
@@ -4013,6 +4022,7 @@
                 submitBtn.disabled = false;
                 submitBtn.dataset.hasChanges = 'false';
             }
+            initializeEditModalValidation(requestId);
         }
 
 
@@ -4072,6 +4082,17 @@
         function handleEditSeedlingSubmit(requestId) {
             const form = document.getElementById('editForm' + requestId);
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+         
+
+            // CHECK FOR VALIDATION ERRORS FIRST
+            const invalidFields = modal.querySelectorAll('.is-invalid');
+            const visibleWarnings = Array.from(modal.querySelectorAll('[id$="-warning"]'))
+                .filter(warning => warning.style.display !== 'none');
+
+            if (invalidFields.length > 0 || visibleWarnings.length > 0) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return false;
+            }
 
             if (!form) {
                 console.error('Form not found:', 'editForm' + requestId);
@@ -4805,5 +4826,230 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializeEditFormListeners();
         });
+
+        // =============================================
+// REAL-TIME VALIDATION FOR ADD SEEDLING MODAL
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Real-time validation for ADD modal name fields
+    const addNameFields = [
+        {
+            id: 'seedling_first_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'seedling_middle_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'seedling_last_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        }
+    ];
+
+    // Setup ADD modal validations
+    addNameFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        
+        if (input) {
+            // Create warning message element if it doesn't exist
+            let warning = document.getElementById(field.id + '-warning');
+            if (!warning) {
+                warning = document.createElement('span');
+                warning.id = field.id + '-warning';
+                warning.className = 'validation-warning';
+                warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                warning.textContent = field.message;
+                input.parentNode.appendChild(warning);
+            }
+
+            // Real-time input validation
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value)) {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            // Validation on blur
+            input.addEventListener('blur', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value) && value !== '') {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+
+    // Real-time validation for ADD modal contact number
+    const addContactInput = document.getElementById('seedling_contact_number');
+    if (addContactInput) {
+        let contactWarning = document.getElementById('seedling_contact_number-warning');
+        if (!contactWarning) {
+            contactWarning = document.createElement('span');
+            contactWarning.id = 'seedling_contact_number-warning';
+            contactWarning.className = 'validation-warning';
+            contactWarning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+            contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+            addContactInput.parentNode.appendChild(contactWarning);
+        }
+
+        addContactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                contactWarning.style.display = 'block';
+                addContactInput.style.borderColor = '#ff6b6b';
+                addContactInput.classList.add('is-invalid');
+            } else {
+                contactWarning.style.display = 'none';
+                addContactInput.style.borderColor = '';
+                addContactInput.classList.remove('is-invalid');
+            }
+        });
+
+        // addContactInput.addEventListener('blur', function(e) {
+        //     const value = e.target.value;
+        //     const phonePattern = /^09\d{9}$/;
+
+        //     if (value !== '' && !phonePattern.test(value)) {
+        //         contactWarning.style.display = 'block';
+        //         addContactInput.style.borderColor = '#ff6b6b';
+        //         addContactInput.classList.add('is-invalid');
+        //     }
+        // });
+    }
+});
+
+// =============================================
+// REAL-TIME VALIDATION FOR EDIT MODALS
+// =============================================
+
+function initializeEditModalValidation(requestId) {
+    // Real-time validation for EDIT modal name fields
+    const editNameFields = [
+        {
+            id: 'edit_first_name_' + requestId,
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'edit_middle_name_' + requestId,
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'edit_last_name_' + requestId,
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        }
+    ];
+
+    editNameFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        
+        if (input) {
+            // Create warning message element if it doesn't exist
+            let warning = document.getElementById(field.id + '-warning');
+            if (!warning) {
+                warning = document.createElement('span');
+                warning.id = field.id + '-warning';
+                warning.className = 'validation-warning';
+                warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                warning.textContent = field.message;
+                input.parentNode.appendChild(warning);
+            }
+
+            // Real-time input validation
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value)) {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            // Validation on blur
+            input.addEventListener('blur', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value) && value !== '') {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+
+    // Real-time validation for EDIT modal contact number
+    const editContactInput = document.getElementById('edit_contact_number_' + requestId);
+    if (editContactInput) {
+        let contactWarning = document.getElementById('edit_contact_number_' + requestId + '-warning');
+        if (!contactWarning) {
+            contactWarning = document.createElement('span');
+            contactWarning.id = 'edit_contact_number_' + requestId + '-warning';
+            contactWarning.className = 'validation-warning';
+            contactWarning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+            contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+            editContactInput.parentNode.appendChild(contactWarning);
+        }
+
+        editContactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                contactWarning.style.display = 'block';
+                editContactInput.style.borderColor = '#ff6b6b';
+                editContactInput.classList.add('is-invalid');
+            } else {
+                contactWarning.style.display = 'none';
+                editContactInput.style.borderColor = '';
+                editContactInput.classList.remove('is-invalid');
+            }
+        });
+
+        // editContactInput.addEventListener('blur', function(e) {
+        //     const value = e.target.value;
+        //     const phonePattern = /^09\d{9}$/;
+
+        //     if (value !== '' && !phonePattern.test(value)) {
+        //         contactWarning.style.display = 'block';
+        //         editContactInput.style.borderColor = '#ff6b6b';
+        //         editContactInput.classList.add('is-invalid');
+        //     }
+        // });
+    }
+}
     </script>
 @endsection
