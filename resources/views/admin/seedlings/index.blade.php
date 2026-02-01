@@ -2,11 +2,11 @@
 
 @extends('layouts.app')
 
-@section('title', 'Seedling Requests - AgriSys Admin')
+@section('title', 'Supply Requests - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
         <i class="fas fa-seedling text-primary me-2"></i>
-        <span class="text-primary fw-bold">Seedling Requests</span>
+        <span class="text-primary fw-bold">Supply Requests</span>
     </div>
 @endsection
 
@@ -108,12 +108,33 @@
                         <div class="col-md-2">
                             <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Barangay</option>
-                                @foreach ($barangays as $barangay)
-                                    <option value="{{ $barangay }}"
-                                        {{ request('barangay') == $barangay ? 'selected' : '' }}>
-                                        {{ $barangay }}
-                                    </option>
-                                @endforeach
+                                <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
+                                <option value="Calendola" {{ request('barangay') == 'Calendola' ? 'selected' : '' }}>Calendola</option>
+                                <option value="Chrysanthemum" {{ request('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
+                                <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
+                                <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella</option>
+                                <option value="Fatima" {{ request('barangay') == 'Fatima' ? 'selected' : '' }}>Fatima</option>
+                                <option value="G.S.I.S." {{ request('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.</option>
+                                <option value="Landayan" {{ request('barangay') == 'Landayan' ? 'selected' : '' }}>Landayan</option>
+                                <option value="Langgam" {{ request('barangay') == 'Langgam' ? 'selected' : '' }}>Langgam</option>
+                                <option value="Laram" {{ request('barangay') == 'Laram' ? 'selected' : '' }}>Laram</option>
+                                <option value="Magsaysay" {{ request('barangay') == 'Magsaysay' ? 'selected' : '' }}>Magsaysay</option>
+                                <option value="Maharlika" {{ request('barangay') == 'Maharlika' ? 'selected' : '' }}>Maharlika</option>
+                                <option value="Narra" {{ request('barangay') == 'Narra' ? 'selected' : '' }}>Narra</option>
+                                <option value="Nueva" {{ request('barangay') == 'Nueva' ? 'selected' : '' }}>Nueva</option>
+                                <option value="Pacita 1" {{ request('barangay') == 'Pacita 1' ? 'selected' : '' }}>Pacita 1</option>
+                                <option value="Pacita 2" {{ request('barangay') == 'Pacita 2' ? 'selected' : '' }}>Pacita 2</option>
+                                <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
+                                <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>Riverside</option>
+                                <option value="Rosario" {{ request('barangay') == 'Rosario' ? 'selected' : '' }}>Rosario</option>
+                                <option value="Sampaguita Village" {{ request('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village</option>
+                                <option value="San Antonio" {{ request('barangay') == 'San Antonio' ? 'selected' : '' }}>San Antonio</option>
+                                <option value="San Lorenzo Ruiz" {{ request('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz</option>
+                                <option value="San Roque" {{ request('barangay') == 'San Roque' ? 'selected' : '' }}>San Roque</option>
+                                <option value="San Vicente" {{ request('barangay') == 'San Vicente' ? 'selected' : '' }}>San Vicente</option>
+                                <option value="Santo Niño" {{ request('barangay') == 'Santo Niño' ? 'selected' : '' }}>Santo Niño</option>
+                                <option value="United Bayanihan" {{ request('barangay') == 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan</option>
+                                <option value="United Better Living" {{ request('barangay') == 'United Better Living' ? 'selected' : '' }}>United Better Living</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -148,7 +169,7 @@
                     <div></div>
                     <div class="text-center flex-fill">
                         <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-seedling me-2"></i>Seedling Requests
+                            <i class="fas fa-seedling me-2"></i>Supply Requests
                         </h6>
                     </div>
                     <div class="d-flex gap-2">
@@ -311,7 +332,7 @@
                                                 @if ($request->hasDocuments())
                                                     <div class="seedling-document-previews">
                                                         <button type="button" class="seedling-mini-doc"
-                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')"
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Supply Request #{{ $request->request_number }} - Supporting Document')"
                                                             title="Supporting Document">
                                                             <div class="seedling-mini-doc-icon">
                                                                 <i class="fas fa-file-alt text-primary"></i>
@@ -319,7 +340,7 @@
                                                         </button>
                                                     </div>
                                                     <button type="button" class="seedling-document-summary"
-                                                        onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')"
+                                                        onclick="viewDocument('{{ $request->document_path }}', 'Supply Request #{{ $request->request_number }} - Supporting Document')"
                                                         style="background: none; border: none; padding: 0; cursor: pointer;">
                                                         <small class="text-muted">1 document</small>
                                                     </button>
@@ -392,7 +413,7 @@
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title w-100 text-center">
                                     <i></i>
-                                    Seedling Request Details - {{ $request->request_number }}
+                                    Supply Request Details - {{ $request->request_number }}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -638,7 +659,7 @@
                                                         <span class="badge bg-primary mb-3">Uploaded</span>
                                                         <br>
                                                         <button class="btn btn-sm btn-outline-primary"
-                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Supply Request #{{ $request->request_number }} - Supporting Document')">
                                                             <i class="fas fa-eye me-1"></i>View Document
                                                         </button>
                                                     </div>
@@ -825,12 +846,33 @@
                                                         name="barangay" required
                                                         onchange="checkForEditChanges({{ $request->id }})">
                                                         <option value="">Select Barangay</option>
-                                                        @foreach ($barangays as $barangay)
-                                                            <option value="{{ $barangay }}"
-                                                                {{ $request->barangay === $barangay ? 'selected' : '' }}>
-                                                                {{ $barangay }}
-                                                            </option>
-                                                        @endforeach
+                                                        <option value="Bagong Silang" {{ $request->barangay === 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
+                                                        <option value="Calendola" {{ $request->barangay === 'Calendola' ? 'selected' : '' }}>Calendola</option>
+                                                        <option value="Chrysanthemum" {{ $request->barangay === 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
+                                                        <option value="Cuyab" {{ $request->barangay === 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
+                                                        <option value="Estrella" {{ $request->barangay === 'Estrella' ? 'selected' : '' }}>Estrella</option>
+                                                        <option value="Fatima" {{ $request->barangay === 'Fatima' ? 'selected' : '' }}>Fatima</option>
+                                                        <option value="G.S.I.S." {{ $request->barangay === 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.</option>
+                                                        <option value="Landayan" {{ $request->barangay === 'Landayan' ? 'selected' : '' }}>Landayan</option>
+                                                        <option value="Langgam" {{ $request->barangay === 'Langgam' ? 'selected' : '' }}>Langgam</option>
+                                                        <option value="Laram" {{ $request->barangay === 'Laram' ? 'selected' : '' }}>Laram</option>
+                                                        <option value="Magsaysay" {{ $request->barangay === 'Magsaysay' ? 'selected' : '' }}>Magsaysay</option>
+                                                        <option value="Maharlika" {{ $request->barangay === 'Maharlika' ? 'selected' : '' }}>Maharlika</option>
+                                                        <option value="Narra" {{ $request->barangay === 'Narra' ? 'selected' : '' }}>Narra</option>
+                                                        <option value="Nueva" {{ $request->barangay === 'Nueva' ? 'selected' : '' }}>Nueva</option>
+                                                        <option value="Pacita 1" {{ $request->barangay === 'Pacita 1' ? 'selected' : '' }}>Pacita 1</option>
+                                                        <option value="Pacita 2" {{ $request->barangay === 'Pacita 2' ? 'selected' : '' }}>Pacita 2</option>
+                                                        <option value="Poblacion" {{ $request->barangay === 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
+                                                        <option value="Riverside" {{ $request->barangay === 'Riverside' ? 'selected' : '' }}>Riverside</option>
+                                                        <option value="Rosario" {{ $request->barangay === 'Rosario' ? 'selected' : '' }}>Rosario</option>
+                                                        <option value="Sampaguita Village" {{ $request->barangay === 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village</option>
+                                                        <option value="San Antonio" {{ $request->barangay === 'San Antonio' ? 'selected' : '' }}>San Antonio</option>
+                                                        <option value="San Lorenzo Ruiz" {{ $request->barangay === 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz</option>
+                                                        <option value="San Roque" {{ $request->barangay === 'San Roque' ? 'selected' : '' }}>San Roque</option>
+                                                        <option value="San Vicente" {{ $request->barangay === 'San Vicente' ? 'selected' : '' }}>San Vicente</option>
+                                                        <option value="Santo Niño" {{ $request->barangay === 'Santo Niño' ? 'selected' : '' }}>Santo Niño</option>
+                                                        <option value="United Bayanihan" {{ $request->barangay === 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan</option>
+                                                        <option value="United Better Living" {{ $request->barangay === 'United Better Living' ? 'selected' : '' }}>United Better Living</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -1196,7 +1238,7 @@
     </div>
     </div>
 
-    <!-- Add Seedling Request Modal - IMPROVED DESIGN -->
+    <!-- Add Supply Request Modal - IMPROVED DESIGN -->
     <div class="modal fade" id="addSeedlingModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -1284,7 +1326,33 @@
                                         </label>
                                         <select class="form-select" id="seedling_barangay" required>
                                             <option value="">Select Barangay</option>
-                                            <!-- Barangays will be populated from server data -->
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1412,12 +1480,12 @@
         </div>
     </div>
 
-    <!-- DELETE SEEDLING REQUEST MODAL -->
+    <!-- DELETE SUpply REQUEST MODAL -->
     <div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Seedling Request</h5>
+                    <h5 class="modal-title w-100 text-center">Permanently Delete Supply Request</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -1427,7 +1495,7 @@
                                 id="delete_seedling_name"></strong> will:</p>
                     </div>
                     <ul class="mb-0">
-                        <li>Remove the seedling request from the database</li>
+                        <li>Remove the supply request from the database</li>
                         <li>Delete all associated documents and files</li>
                         <li>Delete all request history and logs</li>
                         <li>Return approved supplies back to inventory</li>
@@ -1509,12 +1577,12 @@
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No seedling requests found</h5>
+            <h5 class="text-muted">No supply requests found</h5>
             <p class="text-muted">
                 @if (request('search') || request('status'))
                     No requests match your search criteria.
                 @else
-                    There are no seedling requests yet.
+                    There are no supply requests yet.
                 @endif
             </p>
             @if (request('search') || request('status'))
@@ -3013,16 +3081,16 @@
             return metaTag ? metaTag.getAttribute('content') : '';
         }
 
-        // Delete seedling request with confirmation toast
+        // Delete supply request with confirmation toast
         function deleteSeedlingRequest(id, requestNumber) {
             showConfirmationToast(
-                'Delete Seedling Request',
+                'Delete Supply Request',
                 `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
                 () => proceedWithSeedlingDelete(id, requestNumber)
             );
         }
 
-        // Proceed with seedling request deletion
+        // Proceed with supply request deletion
         function proceedWithSeedlingDelete(id, requestNumber) {
             fetch(`/admin/seedlings/requests/${id}`, {
                     method: 'DELETE',
@@ -3038,7 +3106,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', data.message || 'Seedling request deleted successfully');
+                        showToast('success', data.message || 'Supply request deleted successfully');
 
                         const row = document.querySelector(`tr[data-request-id="${id}"]`);
                         if (row) {
@@ -3056,12 +3124,12 @@
                             setTimeout(() => window.location.reload(), 1500);
                         }
                     } else {
-                        throw new Error(data.message || 'Failed to delete seedling request');
+                        throw new Error(data.message || 'Failed to delete supply request');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Failed to delete seedling request: ' + error.message);
+                    showToast('error', 'Failed to delete supply request: ' + error.message);
                 });
         }
 
@@ -3492,8 +3560,8 @@
             document.getElementById('addSeedlingForm').reset();
             seedlingItemCounter = 0;
 
-            // Populate barangays
-            populateSeedlingBarangays();
+            // // Populate barangays
+            // populateSeedlingBarangays();
 
             // Add one empty item row
             addSeedlingItemRow();
@@ -3512,30 +3580,30 @@
             modal.show();
         }
 
-        // Populate barangays dropdown
-        function populateSeedlingBarangays() {
-            const barangaySelect = document.getElementById('seedling_barangay');
+        // // Populate barangays dropdown
+        // function populateSeedlingBarangays() {
+        //     const barangaySelect = document.getElementById('seedling_barangay');
 
-            // Get barangays from the page's data (if available)
-            const barangayElements = document.querySelectorAll('option[value*=""]');
+        //     // Get barangays from the page's data (if available)
+        //     const barangayElements = document.querySelectorAll('option[value*=""]');
 
-            // If barangays are already populated, return
-            if (barangaySelect.querySelectorAll('option').length > 1) {
-                return;
-            }
+        //     // If barangays are already populated, return
+        //     if (barangaySelect.querySelectorAll('option').length > 1) {
+        //         return;
+        //     }
 
-            // Fetch barangays from server or use hardcoded list
-            const barangays = @json($barangays ?? collect());
+        //     // Fetch barangays from server or use hardcoded list
+        //     const barangays = @json($barangays ?? collect());
 
-            if (barangays && barangays.length > 0) {
-                barangays.forEach(barangay => {
-                    const option = document.createElement('option');
-                    option.value = barangay;
-                    option.textContent = barangay;
-                    barangaySelect.appendChild(option);
-                });
-            }
-        }
+        //     if (barangays && barangays.length > 0) {
+        //         barangays.forEach(barangay => {
+        //             const option = document.createElement('option');
+        //             option.value = barangay;
+        //             option.textContent = barangay;
+        //             barangaySelect.appendChild(option);
+        //         });
+        //     }
+        // }
 
         // Add item row
         function addSeedlingItemRow() {
@@ -3848,7 +3916,7 @@
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
                         modal.hide();
 
-                        showToast('success', data.message || 'Seedling request created successfully');
+                        showToast('success', data.message || 'Supply request created successfully');
 
                         setTimeout(() => {
                             window.location.reload();
@@ -3869,7 +3937,7 @@
                                 }
                             });
                         }
-                        showToast('error', data.message || 'Failed to create seedling request');
+                        showToast('error', data.message || 'Failed to create supply request');
                     }
                 })
                 .catch(error => {
@@ -4626,7 +4694,7 @@
         }
 
         /**
-         * Confirm permanent delete for seedling request
+         * Confirm permanent delete for supply request
          */
         async function confirmPermanentDeleteSeedling() {
             if (!currentDeleteSeedlingId) {
@@ -4663,7 +4731,7 @@
                 }
 
                 // Show success message
-                showToast('success', data.message || 'Seedling request deleted successfully');
+                showToast('success', data.message || 'Supply request deleted successfully');
 
                 // Remove the row with animation
                 const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);

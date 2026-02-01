@@ -917,6 +917,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize category show more/less
     setupCategoryToggle();
+
+    // Real-time validation for contact number
+    const mobileInput = document.getElementById('seedlings-mobile');
+    const mobileWarning = document.getElementById('seedlings-mobile-warning');
+
+    if (mobileInput) {
+        mobileInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                if (!mobileWarning) {
+                    const warning = document.createElement('span');
+                    warning.className = 'validation-warning';
+                    warning.id = 'seedlings-mobile-warning';
+                    warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: block; margin-top: 4px;';
+                    warning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+                    mobileInput.parentNode.appendChild(warning);
+                } else {
+                    mobileWarning.style.display = 'block';
+                }
+                mobileInput.style.borderColor = '#ff6b6b';
+            } else {
+                if (mobileWarning) {
+                    mobileWarning.style.display = 'none';
+                }
+                mobileInput.style.borderColor = '';
+            }
+        });
+
+        mobileInput.addEventListener('blur', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                if (!mobileWarning) {
+                    const warning = document.createElement('span');
+                    warning.className = 'validation-warning';
+                    warning.id = 'seedlings-mobile-warning';
+                    warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: block; margin-top: 4px;';
+                    warning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+                    mobileInput.parentNode.appendChild(warning);
+                } else {
+                    mobileWarning.style.display = 'block';
+                }
+                mobileInput.style.borderColor = '#ff6b6b';
+            }
+        });
+    }
 });
 
 

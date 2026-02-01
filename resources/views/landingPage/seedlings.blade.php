@@ -318,37 +318,41 @@
                 <input type="tel" id="seedlings-mobile" name="mobile" placeholder="Example: 09123456789"
                     pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
+                <span class="validation-warning" id="seedlings-mobile-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Contact number must be in format 09XXXXXXXXX (11 digits)</span>
             </div>
 
             <div class="seedlings-form-group">
                 <label for="seedlings-barangay">Barangay <span class="required-asterisk">*</span></label>
                 <select id="seedlings-barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
-                    <option value="Bagong Silang">Bagong Silang</option>
-                    <option value="Calendola">Calendola</option>
-                    <option value="Chrysanthemum">Chrysanthemum</option>
-                    <option value="Cuyab">Cuyab</option>
-                    <option value="Estrella">Estrella</option>
-                    <option value="Fatima">Fatima</option>
-                    <option value="G.S.I.S.">G.S.I.S.</option>
-                    <option value="Landayan">Landayan</option>
-                    <option value="Laram">Laram</option>
-                    <option value="Magsaysay">Magsaysay</option>
-                    <option value="Maharlika">Maharlika</option>
-                    <option value="Narra">Narra</option>
-                    <option value="Nueva">Nueva</option>
-                    <option value="Pacita 1">Pacita 1</option>
-                    <option value="Pacita 2">Pacita 2</option>
-                    <option value="Poblacion">Poblacion</option>
-                    <option value="Rosario">Rosario</option>
-                    <option value="Riverside">Riverside</option>
-                    <option value="Sampaguita Village">Sampaguita Village</option>
-                    <option value="San Antonio">San Antonio</option>
-                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                    <option value="San Roque">San Roque</option>
-                    <option value="San Vicente">San Vicente</option>
-                    <option value="United Bayanihan">United Bayanihan</option>
-                    <option value="United Better Living">United Better Living</option>
+                            <option value="Bagong Silang">Bagong Silang</option>
+                            <option value="Calendola">Calendola</option>
+                            <option value="Chrysanthemum">Chrysanthemum</option>
+                            <option value="Cuyab">Cuyab</option>
+                            <option value="Estrella">Estrella</option>
+                            <option value="Fatima">Fatima</option>
+                            <option value="G.S.I.S.">G.S.I.S.</option>
+                            <option value="Landayan">Landayan</option>
+                            <option value="Langgam">Langgam</option>
+                            <option value="Laram">Laram</option>
+                            <option value="Magsaysay">Magsaysay</option>
+                            <option value="Maharlika">Maharlika</option>
+                            <option value="Narra">Narra</option>
+                            <option value="Nueva">Nueva</option>
+                            <option value="Pacita 1">Pacita 1</option>
+                            <option value="Pacita 2">Pacita 2</option>
+                            <option value="Poblacion">Poblacion</option>
+                            <option value="Riverside">Riverside</option>
+                            <option value="Rosario">Rosario</option>
+                            <option value="Sampaguita Village">Sampaguita Village</option>
+                            <option value="San Antonio">San Antonio</option>
+                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                            <option value="San Roque">San Roque</option>
+                            <option value="San Vicente">San Vicente</option>
+                            <option value="Santo Niño">Santo Niño</option> 
+                            <option value="United Bayanihan">United Bayanihan</option>
+                            <option value="United Better Living">United Better Living</option>
                 </select>
             </div>
 
