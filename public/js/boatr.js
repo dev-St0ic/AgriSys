@@ -1437,7 +1437,6 @@ function validateBoatRContact(input) {
         input.style.borderColor = '#28a745';
         input.style.backgroundColor = '#f8fff8';
         warningElement.style.color = '#28a745';
-        warningElement.textContent = '✓ Valid contact number';
         warningElement.style.display = 'block';
 
         // Auto-hide success message after 2 seconds

@@ -849,7 +849,7 @@ public function submitBoatR(Request $request)
             'boat_depth' => 'required|numeric|min:1|max:30',
             'engine_type' => 'required_if:boat_classification,Motorized|nullable|string|max:255',
             'engine_horsepower' => 'required_if:boat_classification,Motorized|nullable|integer|min:1|max:500',
-            'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral','Not Applicable',
+            'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral,Not Applicable',
             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ]);
 
