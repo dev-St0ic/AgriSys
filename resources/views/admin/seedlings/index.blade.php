@@ -3560,8 +3560,7 @@
             document.getElementById('addSeedlingForm').reset();
             seedlingItemCounter = 0;
 
-            // // Populate barangays
-            // populateSeedlingBarangays();
+            
 
             // Add one empty item row
             addSeedlingItemRow();
