@@ -595,7 +595,10 @@ function proceedToSeedlingsForm() {
         totalQuantity: totalQuantity
     };
 
-    // Go directly to form (no alert popup)
+    // Close modal BEFORE showing form
+    closeCartModal();
+
+    // Go directly to form
     showApplicationForm();
 }
 
@@ -611,7 +614,13 @@ function showApplicationForm() {
 
         showSeedlingsTab('seedlings-form-tab', null);
 
+        // Ensure body scroll is enabled
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+
+        // Force scroll to top with delay
         setTimeout(() => {
+            window.scrollTo(0, 0);
             appForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     }
