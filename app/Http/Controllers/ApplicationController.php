@@ -442,7 +442,6 @@ public function submitSeedlings(Request $request)
             'extension_name' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
             'mobile' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:255',
-            'address' => 'required|string|max:500',
             'selected_seedlings' => 'required|string',
             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ], [
@@ -486,7 +485,6 @@ public function submitSeedlings(Request $request)
             'extension_name' => $validated['extension_name'] ?? null,
             'contact_number' => $normalizedMobile,
             'email' => null,
-            'address' => $validated['address'],
             'barangay' => $validated['barangay'],
             'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
             'document_path' => $documentPath,

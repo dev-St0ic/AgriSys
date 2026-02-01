@@ -352,13 +352,6 @@
                 </select>
             </div>
 
-            <div class="seedlings-form-group">
-                <label for="address">Complete Address <span class="required-asterisk">*</span></label>
-                <input type="text" id="address" name="address" placeholder="Example: 123 Main Street" required>
-                <small>Include house number, street, subdivision if applicable. This helps us locate your area for
-                    distribution.</small>
-            </div>
-
             <div class="seedlings-form-group" id="supporting-docs-field">
                 <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
                 <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png"
