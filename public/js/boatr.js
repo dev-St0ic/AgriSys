@@ -354,8 +354,47 @@ async function validateFishRNumber(event) {
     await validateFishRNumberSilent(fishRInput);
 }
 
+// /**
+//  * Silent FishR validation
+//  */
+// async function validateFishRNumberSilent(fishRInput) {
+//     const number = fishRInput.value.trim();
+
+//     if (!number) return;
+
+//     try {
+//         // Show loading state
+//         fishRInput.style.borderColor = '#ffc107';
+//         fishRInput.style.backgroundColor = '#fffbf0';
+//         showValidationMessage(fishRInput, 'Validating FishR registration...', 'warning');
+
+//         const response = await fetch(`/api/validate-fishr/${encodeURIComponent(number)}`);
+//         const data = await response.json();
+
+//         if (data.valid) {
+//             // Valid FishR number
+//             fishRInput.style.borderColor = '#28a745';
+//             fishRInput.style.backgroundColor = '#f8fff8';
+//             showValidationMessage(fishRInput, 'Valid FishR registration number', 'success');
+//             fishRInput.dataset.validated = 'true';
+//         } else {
+//             // Invalid FishR number
+//             fishRInput.style.borderColor = '#dc3545';
+//             fishRInput.style.backgroundColor = '#fff8f8';
+//             showValidationMessage(fishRInput, 'Invalid or non-approved FishR number. Please ensure you have an approved FishR registration.', 'error');
+//             fishRInput.dataset.validated = 'false';
+//         }
+//     } catch (error) {
+//         console.error('Error validating FishR number:', error);
+//         fishRInput.style.borderColor = '#ffc107';
+//         fishRInput.style.backgroundColor = '#fffbf0';
+//         showValidationMessage(fishRInput, 'Unable to verify FishR number. Please check your connection.', 'warning');
+//         fishRInput.dataset.validated = 'error';
+//     }
+// }
+
 /**
- * Silent FishR validation
+ * Enhanced FishR validation with ownership check
  */
 async function validateFishRNumberSilent(fishRInput) {
     const number = fishRInput.value.trim();
@@ -368,28 +407,148 @@ async function validateFishRNumberSilent(fishRInput) {
         fishRInput.style.backgroundColor = '#fffbf0';
         showValidationMessage(fishRInput, 'Validating FishR registration...', 'warning');
 
-        const response = await fetch(`/api/validate-fishr/${encodeURIComponent(number)}`);
+        const response = await fetch(`/admin/boatr/validate-fishr/${encodeURIComponent(number)}`);
         const data = await response.json();
 
-        if (data.valid) {
-            // Valid FishR number
+        if (data.valid && data.approved && data.user_owned) {
+            // ✅ All checks passed
             fishRInput.style.borderColor = '#28a745';
             fishRInput.style.backgroundColor = '#f8fff8';
-            showValidationMessage(fishRInput, 'Valid FishR registration number', 'success');
+            
+            // Store the FishR data for later use
             fishRInput.dataset.validated = 'true';
-        } else {
-            // Invalid FishR number
+            fishRInput.dataset.fishrData = JSON.stringify({
+                fishr_app_id: data.fishr_app_id,
+                fisher_name: data.fisher_name,
+                first_name: data.first_name,
+                middle_name: data.middle_name,
+                last_name: data.last_name,
+                name_extension: data.name_extension,
+                registration_number: data.registration_number
+            });
+
+            showValidationMessage(
+                fishRInput, 
+                `✓ Valid FishR: ${data.fisher_name}`, 
+                'success'
+            );
+
+            // Auto-populate name fields if empty
+            autofillBoatrNameFromFishR(data);
+
+        } else if (data.valid && !data.approved) {
+            // ❌ Not approved
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
-            showValidationMessage(fishRInput, 'Invalid or non-approved FishR number. Please ensure you have an approved FishR registration.', 'error');
+            showValidationMessage(
+                fishRInput, 
+                `Not approved. Status: ${data.message}`, 
+                'error'
+            );
+            fishRInput.dataset.validated = 'false';
+
+        } else if (data.valid && !data.user_owned) {
+            // ❌ Doesn't belong to current user
+            fishRInput.style.borderColor = '#dc3545';
+            fishRInput.style.backgroundColor = '#fff8f8';
+            showValidationMessage(
+                fishRInput, 
+                'This FishR is registered to another account', 
+                'error'
+            );
+            fishRInput.dataset.validated = 'false';
+
+        } else {
+            // ❌ Not found
+            fishRInput.style.borderColor = '#dc3545';
+            fishRInput.style.backgroundColor = '#fff8f8';
+            showValidationMessage(
+                fishRInput, 
+                data.message || 'FishR registration not found', 
+                'error'
+            );
             fishRInput.dataset.validated = 'false';
         }
+
     } catch (error) {
         console.error('Error validating FishR number:', error);
         fishRInput.style.borderColor = '#ffc107';
         fishRInput.style.backgroundColor = '#fffbf0';
-        showValidationMessage(fishRInput, 'Unable to verify FishR number. Please check your connection.', 'warning');
+        showValidationMessage(
+            fishRInput, 
+            'Unable to verify FishR number. Check your connection.', 
+            'warning'
+        );
         fishRInput.dataset.validated = 'error';
+    }
+}
+
+/**
+ * Auto-fill BoatR name fields from validated FishR data
+ */
+function autofillBoatrNameFromFishR(fishrData) {
+    const firstNameInput = document.getElementById('boatr_first_name');
+    const middleNameInput = document.getElementById('boatr_middle_name');
+    const lastNameInput = document.getElementById('boatr_last_name');
+    const extensionInput = document.getElementById('boatr_name_extension');
+
+    // Only fill if fields are empty
+    if (firstNameInput && !firstNameInput.value && fishrData.first_name) {
+        firstNameInput.value = fishrData.first_name;
+    }
+
+    if (middleNameInput && !middleNameInput.value && fishrData.middle_name) {
+        middleNameInput.value = fishrData.middle_name;
+    }
+
+    if (lastNameInput && !lastNameInput.value && fishrData.last_name) {
+        lastNameInput.value = fishrData.last_name;
+    }
+
+    if (extensionInput && !extensionInput.value && fishrData.name_extension) {
+        extensionInput.value = fishrData.name_extension;
+    }
+
+    console.log('BoatR form auto-filled from FishR data');
+}
+
+/**
+ * Validate that BoatR names match FishR registration
+ */
+function validateBoatrNamesMatchFishR() {
+    const fishRInput = document.getElementById('boatr_fishr_number');
+    
+    if (!fishRInput || fishRInput.dataset.validated !== 'true') {
+        return true; // Skip if FishR not validated
+    }
+
+    try {
+        const fishrData = JSON.parse(fishRInput.dataset.fishrData);
+        
+        const firstNameInput = document.getElementById('boatr_first_name');
+        const lastNameInput = document.getElementById('boatr_last_name');
+
+        const boatrFirstName = firstNameInput.value.trim().toUpperCase();
+        const boatrLastName = lastNameInput.value.trim().toUpperCase();
+        
+        const fishrFirstName = (fishrData.first_name || '').trim().toUpperCase();
+        const fishrLastName = (fishrData.last_name || '').trim().toUpperCase();
+
+        // Check if names match
+        if (boatrFirstName !== fishrFirstName || boatrLastName !== fishrLastName) {
+            agrisysModal.warning(
+                `First and Last names must match your FishR registration:\n\nFishR: ${fishrData.fisher_name}\n\nBoatR: ${boatrFirstName} ${boatrLastName}`,
+                { title: 'Name Mismatch' }
+            );
+            firstNameInput.focus();
+            return false;
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error('Error validating name match:', error);
+        return true; // Don't block if can't parse
     }
 }
 
@@ -677,6 +836,10 @@ function validateBoatRForm(form) {
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
         agrisysModal.error('Your FishR registration number has not been validated or is invalid.', { title: 'FishR Validation Required' });
         if (fishRInput) fishRInput.focus();
+        return false;
+    }
+
+    if (!validateBoatrNamesMatchFishR()) {
         return false;
     }
 

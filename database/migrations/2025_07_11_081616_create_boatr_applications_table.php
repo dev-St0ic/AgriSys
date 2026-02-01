@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('name_extension')->nullable();
             $table->string('contact_number', 20)->nullable();
             $table->string('barangay')->nullable(); // Barangay location
-            $table->string('fishr_number')->nullable(); // FishR registration number
+            $table->string('fishr_number')->nullable()->unique(); // FishR registration number
             $table->unsignedBigInteger('fishr_application_id')->nullable(); // Foreign key to fishr_applications table
 
             // Vessel Information
