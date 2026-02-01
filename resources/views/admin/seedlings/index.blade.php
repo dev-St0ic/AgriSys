@@ -444,10 +444,6 @@
                                                         <strong>Barangay:</strong>
                                                         <span>{{ $request->barangay }}</span>
                                                     </div>
-                                                    <div class="col-12">
-                                                        <strong>Address:</strong>
-                                                        <span>{{ $request->address }}</span>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -836,18 +832,6 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_address_{{ $request->id }}"
-                                                        class="form-label fw-semibold">
-                                                        Address <span class="text-danger">*</span>
-                                                    </label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_address_{{ $request->id }}" name="address"
-                                                        value="{{ $request->address }}" required maxlength="500"
-                                                        placeholder="Full address"
-                                                        onchange="checkForEditChanges({{ $request->id }})"
-                                                        oninput="checkForEditChanges({{ $request->id }})">
                                                 </div>
                                             </div>
                                         </div>
@@ -1302,13 +1286,6 @@
                                             <option value="">Select Barangay</option>
                                             <!-- Barangays will be populated from server data -->
                                         </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="seedling_address" class="form-label fw-semibold">
-                                            Address <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="seedling_address" required
-                                            maxlength="500" placeholder="Full address">
                                     </div>
                                 </div>
                             </div>
@@ -3762,10 +3739,6 @@
                 {
                     id: 'seedling_barangay',
                     label: 'Barangay'
-                },
-                {
-                    id: 'seedling_address',
-                    label: 'Address'
                 }
             ];
 
@@ -3833,7 +3806,6 @@
             formData.append('extension_name', document.getElementById('seedling_extension').value);
             formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
             formData.append('barangay', document.getElementById('seedling_barangay').value);
-            formData.append('address', document.getElementById('seedling_address').value.trim());
             formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
             formData.append('purpose', document.getElementById('seedling_purpose').value.trim());
             formData.append('status', document.getElementById('seedling_status').value);
@@ -3945,7 +3917,6 @@
             originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
             originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
             originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
-            originalData.address = document.getElementById('edit_address_' + requestId).value;
             originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
             originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
             // Store in form data attribute
@@ -3992,7 +3963,7 @@
             // Check all form fields
             const fields = [
                 'first_name', 'middle_name', 'last_name', 'extension_name',
-                'contact_number', 'barangay', 'address',
+                'contact_number', 'barangay',
                 'planting_location', 'purpose'
             ];
 
@@ -4060,7 +4031,6 @@
                 'extension_name': 'Extension',
                 'contact_number': 'Contact Number',
                 'barangay': 'Barangay',
-                'address': 'Address',
                 'planting_location': 'Planting Location',
                 'purpose': 'Purpose',
                 'supporting_document': 'Supporting Document'
@@ -4102,10 +4072,6 @@
                 {
                     id: 'edit_barangay_' + requestId,
                     label: 'Barangay'
-                },
-                {
-                    id: 'edit_address_' + requestId,
-                    label: 'Address'
                 }
             ];
 

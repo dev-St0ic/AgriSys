@@ -22,7 +22,6 @@ class SeedlingRequest extends Model
         'last_name',
         'extension_name',
         'contact_number',
-        'address',
         'barangay',
         'planting_location',
         'purpose',

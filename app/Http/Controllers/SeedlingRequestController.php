@@ -150,7 +150,6 @@ class SeedlingRequestController extends Controller
             'last_name' => 'required|string|max:255',
             'extension_name' => 'nullable|string|max:10',
             'contact_number' => 'required|string|max:20',
-            'address' => 'required|string|max:500',
             'barangay' => 'required|string|max:255',
             'planting_location' => 'nullable|string|max:500',
             'purpose' => 'nullable|string|max:1000',
@@ -181,7 +180,6 @@ class SeedlingRequestController extends Controller
                 'last_name' => $validated['last_name'],
                 'extension_name' => $validated['extension_name'],
                 'contact_number' => $validated['contact_number'],
-                'address' => $validated['address'],
                 'barangay' => $validated['barangay'],
                 'planting_location' => $validated['planting_location'],
                 'purpose' => $validated['purpose'],
@@ -297,7 +295,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         'last_name' => 'required|string|max:255',
         'extension_name' => 'nullable|string|max:10',
         'contact_number' => 'required|string|max:20',
-        'address' => 'required|string|max:500',
         'barangay' => 'required|string|max:255',
         'planting_location' => 'nullable|string|max:500',
         'purpose' => 'nullable|string|max:1000',
@@ -307,7 +304,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         'contact_number.regex' => 'Please enter a valid Philippine mobile number.',
         'first_name.required' => 'First name is required.',
         'last_name.required' => 'Last name is required.',
-        'address.required' => 'Address is required.',
         'barangay.required' => 'Barangay is required.',
     ]);
 
@@ -324,7 +320,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         $changes = [];
         $changedFields = [
             'first_name', 'middle_name', 'last_name', 'extension_name',
-            'contact_number', 'address', 'barangay',
+            'contact_number',  'barangay',
             'planting_location', 'purpose'
         ];
 
@@ -804,7 +800,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                     'Full Name',
                     'Contact Number',
                     'Barangay',
-                    'Address',
                     'Planting Location',
                     'Purpose',
                     'Total Quantity',
@@ -837,7 +832,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                         $request->full_name,
                         $request->contact_number,
                         $request->barangay,
-                        $request->address,
                         $request->planting_location ?? 'N/A',
                         $request->purpose ?? 'N/A',
                         $request->total_quantity,
