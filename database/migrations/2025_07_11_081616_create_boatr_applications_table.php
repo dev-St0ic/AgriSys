@@ -40,6 +40,8 @@ return new class extends Migration
                 'Skiff (Typical Design)'
             ])->nullable();
 
+            $table->enum('boat_classification', ['Motorized', 'Non-motorized'])->nullable();
+
             // Boat Dimensions
             $table->decimal('boat_length', 5, 2)->nullable(); // in feet
             $table->decimal('boat_width', 5, 2)->nullable();  // in feet
@@ -54,7 +56,8 @@ return new class extends Migration
                 'Hook and Line',
                 'Bottom Set Gill Net',
                 'Fish Trap',
-                'Fish Coral'
+                'Fish Coral',
+                'Not Applicable'
             ])->nullable();
 
             // FIXED: Single User Document (not array)

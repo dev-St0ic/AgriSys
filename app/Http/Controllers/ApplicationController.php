@@ -821,251 +821,113 @@ public function submitRsbsa(Request $request)
     /**
      * Submit Boat Registration request - COMPLETE WORKING VERSION
      */
-    public function submitBoatR(Request $request)
-    {
-        try {
-        // ADD THIS AUTHENTICATION CHECK
+public function submitBoatR(Request $request)
+{
+    try {
         $userId = session('user.id');
-
         if (!$userId) {
-            Log::warning('BoatR submission attempted without authentication');
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You must be logged in to submit a BoatR registration.',
-                    'require_auth' => true
-                ], 401);
-            }
-
-            return redirect()->route('landing.page')
-                ->with('error', 'You must be logged in to submit a BoatR registration.');
+            return response()->json([
+                'success' => false,
+                'message' => 'You must be logged in to submit a BoatR registration.',
+                'require_auth' => true
+            ], 401);
         }
 
-        // Verify user exists
-        $userExists = \App\Models\UserRegistration::find($userId);
-        if (!$userExists) {
-            Log::error('User ID does not exist', ['user_id' => $userId]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid user session. Please log in again.',
-                    'require_auth' => true
-                ], 401);
-            }
-
-            return redirect()->route('landing.page')
-                ->with('error', 'Invalid user session. Please log in again.');
-        }
-
-        Log::info('BoatR submission started', [
-            'user_id' => $userId,
-            'username' => $userExists->username,
-            'request_method' => $request->method(),
-            'has_csrf' => $request->has('_token'),
-            'content_type' => $request->header('Content-Type')
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'name_extension' => ['nullable', 'string', 'max:10', 'in:Jr.,Sr.,II,III,IV,V'],
+            'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
+            'barangay' => 'required|string|max:255',
+            'fishr_number' => 'required|string|max:255',
+            'vessel_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\-\']*$/'],
+            'boat_type' => 'required|in:Spoon,Plumb,Banca,Rake Stem - Rake Stern,Rake Stem - Transom/Spoon/Plumb Stern,Skiff (Typical Design)',
+            'boat_classification' => 'required|in:Motorized,Non-motorized',
+            'boat_length' => 'required|numeric|min:1|max:200',
+            'boat_width' => 'required|numeric|min:1|max:50',
+            'boat_depth' => 'required|numeric|min:1|max:30',
+            'engine_type' => 'required_if:boat_classification,Motorized|nullable|string|max:255',
+            'engine_horsepower' => 'required_if:boat_classification,Motorized|nullable|integer|min:1|max:500',
+            'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral','Not Applicable',
+            'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ]);
 
-            // Enhanced validation
-            $validated = $request->validate([
-                'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
-                'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
-                'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
-                'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
-                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'barangay' => 'required|string|max:255',
-                'fishr_number' => 'required|string|max:255',
-                'vessel_name' => 'required|string|max:255',
-                'boat_type' => 'required|in:Spoon,Plumb,Banca,Rake Stem - Rake Stern,Rake Stem - Transom/Spoon/Plumb Stern,Skiff (Typical Design)',
-                'boat_length' => 'required|numeric|min:1|max:200',
-                'boat_width' => 'required|numeric|min:1|max:50',
-                'boat_depth' => 'required|numeric|min:1|max:30',
-                'engine_type' => 'required|string|max:255',
-                'engine_horsepower' => 'required|integer|min:1|max:500',
-                'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral',
-                'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
-            ], [
-                'first_name.required' => 'First name is required',
-                'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
-                'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
-                'last_name.required' => 'Last name is required',
-                'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
-                'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
-                'contact_number.required' => 'Contact number is required',
-                'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX',
-                'email.email' => 'Please enter a valid email address',
-                'barangay.required' => 'Barangay is required',
-                'fishr_number.required' => 'FishR registration number is required',
-                'vessel_name.required' => 'Vessel name is required',
-                'boat_type.required' => 'Please select a boat type',
-                'boat_type.in' => 'Invalid boat type selected',
-                'boat_length.required' => 'Boat length is required',
-                'boat_length.numeric' => 'Boat length must be a number',
-                'boat_width.required' => 'Boat width is required',
-                'boat_width.numeric' => 'Boat width must be a number',
-                'boat_depth.required' => 'Boat depth is required',
-                'boat_depth.numeric' => 'Boat depth must be a number',
-                'engine_type.required' => 'Engine type is required',
-                'engine_horsepower.required' => 'Engine horsepower is required',
-                'engine_horsepower.integer' => 'Engine horsepower must be a whole number',
-                'primary_fishing_gear.required' => 'Please select primary fishing gear',
-                'primary_fishing_gear.in' => 'Invalid fishing gear selected',
-                'supporting_documents.mimes' => 'Document must be PDF, JPG, JPEG, or PNG',
-                'supporting_documents.max' => 'Document must not exceed 10MB'
-            ]);
+        $applicationNumber = $this->generateUniqueApplicationNumber();
+        
+        // Only set engine fields if motorized
+        if ($validated['boat_classification'] === 'Non-motorized') {
+            $validated['engine_type'] = null;
+            $validated['engine_horsepower'] = null;
+        }
 
-            Log::info('BoatR validation passed');
+        $boatRRegistration = BoatrApplication::create([
+            'user_id' => $userId,
+            'application_number' => $applicationNumber,
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'],
+            'last_name' => $validated['last_name'],
+            'name_extension' => $validated['name_extension'],
+            'contact_number' => $validated['contact_number'],
+            'barangay' => $validated['barangay'],
+            'fishr_number' => $validated['fishr_number'],
+            'vessel_name' => $validated['vessel_name'],
+            'boat_type' => $validated['boat_type'],
+            'boat_length' => $validated['boat_length'],
+            'boat_width' => $validated['boat_width'],
+            'boat_depth' => $validated['boat_depth'],
+            'engine_type' => $validated['engine_type'],
+            'engine_horsepower' => $validated['engine_horsepower'],
+            'primary_fishing_gear' => $validated['primary_fishing_gear'],
+            'status' => 'pending',
+            'inspection_completed' => false,
+        ]);
 
-            // Optional: Validate FishR number (skip for testing)
-            // $fishRExists = FishrApplication::where('registration_number', $validated['fishr_number'])
-            //     ->where('status', 'approved')
-            //     ->exists();
+        // Handle file upload
+        if ($request->hasFile('supporting_documents')) {
+            $file = $request->file('supporting_documents');
+            if ($file->isValid()) {
+                $fileName = $applicationNumber . '_user_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                Storage::disk('public')->makeDirectory('boatr_documents/user_uploads');
+                $documentPath = $file->storeAs('boatr_documents/user_uploads', $fileName, 'public');
 
-            // if (!$fishRExists) {
-            //     if ($request->ajax() || $request->wantsJson()) {
-            //         return response()->json([
-            //             'success' => false,
-            //             'message' => 'Invalid FishR registration number.',
-            //             'errors' => ['fishr_number' => ['Invalid or non-approved FishR number']]
-            //         ], 422);
-            //     }
-            //     return redirect()->back()->withErrors(['fishr_number' => 'Invalid FishR number'])->withInput();
-            // }
-
-            // Generate unique application number
-            $applicationNumber = $this->generateUniqueApplicationNumber();
-            Log::info('Generated application number: ' . $applicationNumber);
-
-            // Normalize contact number to +639 format
-            $normalizedContactNumber = $this->normalizeMobileNumber($validated['contact_number']);
-
-            // Create the BoatR registration
-            $boatRRegistration = BoatrApplication::create([
-                'user_id' => $userId,
-                'application_number' => $applicationNumber,
-                'first_name' => $validated['first_name'],
-                'middle_name' => $validated['middle_name'],
-                'last_name' => $validated['last_name'],
-                'name_extension' => $validated['name_extension'] ?? null,
-                'contact_number' => $normalizedContactNumber,
-                'email' => null,
-                'barangay' => $validated['barangay'],
-                'fishr_number' => $validated['fishr_number'],
-                'vessel_name' => $validated['vessel_name'],
-                'boat_type' => $validated['boat_type'],
-                'boat_length' => $validated['boat_length'],
-                'boat_width' => $validated['boat_width'],
-                'boat_depth' => $validated['boat_depth'],
-                'engine_type' => $validated['engine_type'],
-                'engine_horsepower' => $validated['engine_horsepower'],
-                'primary_fishing_gear' => $validated['primary_fishing_gear'],
-                'status' => 'pending',
-                'inspection_completed' => false,
-            ]);
-
-            Log::info('BoatR registration created with ID: ' . $boatRRegistration->id);
-
-            // Log activity
-            try {
-                \Spatie\Activitylog\Facades\Activity::withProperties([
-                    'application_number' => $boatRRegistration->application_number,
-                    'full_name' => $boatRRegistration->full_name,
-                    'vessel_name' => $boatRRegistration->vessel_name,
-                    'boat_type' => $boatRRegistration->boat_type,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
-                ])->log('submitted - BoatrApplication (ID: ' . $boatRRegistration->id . ')');
-            } catch (\Exception $e) {
-                Log::error('Activity logging failed: ' . $e->getMessage());
-            }
-
-            // Handle single file upload if provided
-            $documentUploaded = false;
-            if ($request->hasFile('supporting_documents')) {
-                $file = $request->file('supporting_documents');
-                if ($file->isValid()) {
-                    $originalName = $file->getClientOriginalName();
-                    $fileName = $applicationNumber . '_user_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-                    // Ensure directory exists
-                    Storage::disk('public')->makeDirectory('boatr_documents/user_uploads');
-
-                    $documentPath = $file->storeAs('boatr_documents/user_uploads', $fileName, 'public');
-
-                    // Update the registration with document info
-                    $boatRRegistration->update([
-                        'user_document_path' => $documentPath,
-                        'user_document_name' => $originalName,
-                        'user_document_type' => $file->getClientOriginalExtension(),
-                        'user_document_size' => $file->getSize(),
-                        'user_document_uploaded_at' => now()
-                    ]);
-
-                    $documentUploaded = true;
-                    Log::info('Document uploaded successfully', ['path' => $documentPath]);
-                }
-            }
-
-            Log::info('BoatR registration completed successfully', [
-                'id' => $boatRRegistration->id,
-                'application_number' => $boatRRegistration->application_number,
-                'has_document' => $documentUploaded
-            ]);
-
-            $successMessage = 'Your BoatR registration has been submitted successfully! Application Number: ' .
-                            $boatRRegistration->application_number .
-                            '. An on-site inspection will be scheduled. You will receive an SMS notification with further instructions.';
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $successMessage,
-                    'application_number' => $boatRRegistration->application_number,
-                    'data' => [
-                        'id' => $boatRRegistration->id,
-                        'name' => $boatRRegistration->full_name,
-                        'vessel_name' => $boatRRegistration->vessel_name,
-                        'status' => $boatRRegistration->status,
-                        'has_document' => $documentUploaded
-                    ]
+                $boatRRegistration->update([
+                    'user_document_path' => $documentPath,
+                    'user_document_name' => $file->getClientOriginalName(),
+                    'user_document_type' => $file->getClientOriginalExtension(),
+                    'user_document_size' => $file->getSize(),
+                    'user_document_uploaded_at' => now()
                 ]);
             }
-
-            return redirect()->route('landing.page')->with('success', $successMessage);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::warning('BoatR validation failed', ['errors' => $e->errors()]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check your input and try again.',
-                    'errors' => $e->errors()
-                ], 422);
-            }
-
-            return redirect()->back()->withErrors($e->validator)->withInput();
-
-        } catch (\Exception $e) {
-            Log::error('BoatR registration error: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            $errorMessage = 'There was an error submitting your boat registration. Please try again.';
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage)->withInput();
         }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your BoatR registration has been submitted successfully! Application Number: ' . $boatRRegistration->application_number,
+            'application_number' => $boatRRegistration->application_number,
+            'data' => [
+                'id' => $boatRRegistration->id,
+                'name' => $boatRRegistration->full_name,
+                'vessel_name' => $boatRRegistration->vessel_name,
+                'status' => $boatRRegistration->status,
+                'has_document' => !empty($boatRRegistration->user_document_path)
+            ]
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        Log::error('BoatR registration error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'There was an error submitting your boat registration. Please try again.'
+        ], 500);
     }
+}
 
     /**
      * Submit training application
