@@ -392,9 +392,8 @@ async function validateFishRNumber(event) {
 //         fishRInput.dataset.validated = 'error';
 //     }
 // }
-
 /**
- * Enhanced FishR validation with ownership check
+ * Enhanced FishR validation - 1:1 relationship
  */
 async function validateFishRNumberSilent(fishRInput) {
     const number = fishRInput.value.trim();
@@ -402,7 +401,6 @@ async function validateFishRNumberSilent(fishRInput) {
     if (!number) return;
 
     try {
-        // Show loading state
         fishRInput.style.borderColor = '#ffc107';
         fishRInput.style.backgroundColor = '#fffbf0';
         showValidationMessage(fishRInput, 'Validating FishR registration...', 'warning');
@@ -410,61 +408,68 @@ async function validateFishRNumberSilent(fishRInput) {
         const response = await fetch(`/admin/boatr/validate-fishr/${encodeURIComponent(number)}`);
         const data = await response.json();
 
-        if (data.valid && data.approved && data.user_owned) {
-            // ✅ All checks passed
+        if (data.valid && data.approved && !data.already_used && !data.name_mismatch) {
+            // ✅ ALL CHECKS PASSED
             fishRInput.style.borderColor = '#28a745';
             fishRInput.style.backgroundColor = '#f8fff8';
             
-            // Store the FishR data for later use
             fishRInput.dataset.validated = 'true';
             fishRInput.dataset.fishrData = JSON.stringify({
                 fishr_app_id: data.fishr_app_id,
                 fisher_name: data.fisher_name,
                 first_name: data.first_name,
-                middle_name: data.middle_name,
                 last_name: data.last_name,
-                name_extension: data.name_extension,
                 registration_number: data.registration_number
             });
 
             showValidationMessage(
                 fishRInput, 
-                `✓ Valid FishR: ${data.fisher_name}`, 
+                `✓ Valid & Ready: ${data.fisher_name}`, 
                 'success'
             );
 
-            // Auto-populate name fields if empty
             autofillBoatrNameFromFishR(data);
 
-        } else if (data.valid && !data.approved) {
-            // ❌ Not approved
+        } else if (!data.approved) {
+            // ❌ NOT APPROVED
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
                 fishRInput, 
-                `Not approved. Status: ${data.message}`, 
+                `❌ ${data.message}`, 
                 'error'
             );
             fishRInput.dataset.validated = 'false';
 
-        } else if (data.valid && !data.user_owned) {
-            // ❌ Doesn't belong to current user
+        } else if (data.already_used) {
+            // ❌ ALREADY USED FOR ANOTHER BOAT
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
                 fishRInput, 
-                'This FishR is registered to another account', 
+                `❌ Already Used: ${data.message}`, 
+                'error'
+            );
+            fishRInput.dataset.validated = 'false';
+
+        } else if (data.name_mismatch) {
+            // ❌ NAME DOESN'T MATCH
+            fishRInput.style.borderColor = '#dc3545';
+            fishRInput.style.backgroundColor = '#fff8f8';
+            showValidationMessage(
+                fishRInput, 
+                `❌ Name Mismatch: ${data.message}`, 
                 'error'
             );
             fishRInput.dataset.validated = 'false';
 
         } else {
-            // ❌ Not found
+            // ❌ NOT FOUND
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
                 fishRInput, 
-                data.message || 'FishR registration not found', 
+                `❌ ${data.message}`, 
                 'error'
             );
             fishRInput.dataset.validated = 'false';
@@ -476,7 +481,7 @@ async function validateFishRNumberSilent(fishRInput) {
         fishRInput.style.backgroundColor = '#fffbf0';
         showValidationMessage(
             fishRInput, 
-            'Unable to verify FishR number. Check your connection.', 
+            'Unable to verify. Check your connection.', 
             'warning'
         );
         fishRInput.dataset.validated = 'error';

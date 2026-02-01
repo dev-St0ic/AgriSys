@@ -1655,9 +1655,9 @@ private function getChangedFields($original, $updated)
     //         ], 200);
     //     }
     // }
-    /**
- * Validate FishR number with ownership and name verification
- * ENHANCED: Checks user ownership, approved status, and name match
+ /**
+ * Validate FishR number for BoatR registration
+ * ONE FishR = ONE BoatR (1:1 relationship)
  */
 public function validateFishrNumber($fishrNumber)
 {
@@ -1665,8 +1665,7 @@ public function validateFishrNumber($fishrNumber)
         $fishrNumber = urldecode(trim($fishrNumber));
 
         \Log::info('Validating FishR registration number', [
-            'registration_number' => $fishrNumber,
-            'current_user_id' => auth()->id()
+            'registration_number' => $fishrNumber
         ]);
 
         if (empty($fishrNumber)) {
@@ -1707,39 +1706,70 @@ public function validateFishrNumber($fishrNumber)
 
             return response()->json([
                 'valid' => false,
-                'message' => 'FishR registration is not approved. Current status: ' . $fishrApp->status,
-                'approved' => false
+                'approved' => false,
+                'message' => 'FishR registration must be APPROVED first. Current status: ' . $fishrApp->status
             ], 200);
         }
 
-        // ✅ CHECK 2: Verify user is logged in
-        $currentUserId = auth()->id();
-        if (!$currentUserId) {
-            \Log::warning('FishR validation attempted without authentication');
+        // ✅ CHECK 2: Verify FishR is not already used in BoatR
+        $boatrExists = \App\Models\BoatrApplication::where('fishr_number', $fishrApp->registration_number)
+            ->where('id', '!=', auth()->user()?->id) // Exclude current user's own applications
+            ->exists();
 
-            return response()->json([
-                'valid' => false,
-                'message' => 'You must be logged in to validate FishR number',
-                'require_auth' => true
-            ], 401);
-        }
-
-        // ✅ CHECK 3: Verify FishR belongs to current user
-        if ($fishrApp->user_id && $fishrApp->user_id != $currentUserId) {
-            \Log::warning('FishR ownership mismatch', [
-                'registration_number' => $fishrApp->registration_number,
-                'fishr_user_id' => $fishrApp->user_id,
-                'current_user_id' => $currentUserId
+        if ($boatrExists) {
+            \Log::warning('FishR already used for BoatR registration', [
+                'registration_number' => $fishrApp->registration_number
             ]);
 
             return response()->json([
                 'valid' => false,
-                'message' => 'This FishR registration does not belong to your account',
-                'user_owned' => false
+                'already_used' => true,
+                'message' => 'This FishR has already been registered for a boat. Each FishR can only have ONE boat registration.'
             ], 200);
         }
 
-        // Build full name from FishR record
+        // ✅ CHECK 3: Verify this is the logged-in user's FishR (by name match)
+        $currentUserId = auth()->id();
+        if (!$currentUserId) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'You must be logged in',
+                'require_auth' => true
+            ], 401);
+        }
+
+        // Get current user
+        $currentUser = \App\Models\UserRegistration::find($currentUserId);
+        
+        if (!$currentUser) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'User not found'
+            ], 401);
+        }
+
+        // Compare names (case-insensitive)
+        $fishrFirstName = strtoupper(trim($fishrApp->first_name ?? ''));
+        $fishrLastName = strtoupper(trim($fishrApp->last_name ?? ''));
+        $userFirstName = strtoupper(trim($currentUser->first_name ?? ''));
+        $userLastName = strtoupper(trim($currentUser->last_name ?? ''));
+
+        if ($fishrFirstName !== $userFirstName || $fishrLastName !== $userLastName) {
+            \Log::warning('FishR name does not match logged-in user', [
+                'registration_number' => $fishrApp->registration_number,
+                'fishr_name' => "$fishrFirstName $fishrLastName",
+                'user_name' => "$userFirstName $userLastName",
+                'user_id' => $currentUserId
+            ]);
+
+            return response()->json([
+                'valid' => false,
+                'name_mismatch' => true,
+                'message' => "This FishR is registered under a different name. Your name: $userFirstName $userLastName, FishR name: $fishrFirstName $fishrLastName"
+            ], 200);
+        }
+
+        // ✅ ALL CHECKS PASSED
         $fishrFullName = trim(implode(' ', array_filter([
             $fishrApp->first_name ?? '',
             $fishrApp->middle_name ?? '',
@@ -1751,13 +1781,16 @@ public function validateFishrNumber($fishrNumber)
             'id' => $fishrApp->id,
             'registration_number' => $fishrApp->registration_number,
             'fisher_name' => $fishrFullName,
-            'status' => $fishrApp->status
+            'status' => $fishrApp->status,
+            'user_id' => $currentUserId
         ]);
 
         return response()->json([
             'valid' => true,
-            'exists' => true,
-            'message' => 'Valid approved FishR registration',
+            'approved' => true,
+            'already_used' => false,
+            'name_mismatch' => false,
+            'message' => 'Valid approved FishR - Ready for BoatR registration',
             'fisher_name' => $fishrFullName,
             'first_name' => $fishrApp->first_name ?? '',
             'middle_name' => $fishrApp->middle_name ?? '',
@@ -1768,28 +1801,19 @@ public function validateFishrNumber($fishrNumber)
             'sex' => $fishrApp->sex ?? '',
             'main_livelihood' => $fishrApp->main_livelihood ?? '',
             'fishr_app_id' => $fishrApp->id,
-            'registration_number' => $fishrApp->registration_number,
-            'approved' => true,
-            'user_owned' => true
+            'registration_number' => $fishrApp->registration_number
         ], 200);
 
     } catch (\Exception $e) {
         \Log::error('Error validating FishR registration number', [
             'registration_number' => $fishrNumber,
             'error_message' => $e->getMessage(),
-            'error_file' => $e->getFile(),
-            'error_line' => $e->getLine(),
             'trace' => $e->getTraceAsString()
         ]);
 
         return response()->json([
             'valid' => false,
-            'message' => 'Error validating registration: ' . $e->getMessage(),
-            'debug' => env('APP_DEBUG') ? [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ] : null
+            'message' => 'Error validating registration: ' . $e->getMessage()
         ], 200);
     }
 }

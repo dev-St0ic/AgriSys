@@ -861,7 +861,7 @@ public function submitBoatR(Request $request)
             $validated['engine_horsepower'] = null;
         }
 
-        // ✅ VALIDATE FISHR OWNERSHIP AND NAME MATCH
+  // ✅ VALIDATE FISHR - 1:1 RELATIONSHIP
 try {
     $fishrRegistration = \App\Models\FishrApplication::where('registration_number', $validated['fishr_number'])
         ->where('status', 'approved')
@@ -874,51 +874,38 @@ try {
         ], 422);
     }
 
-    // Check ownership
-    if ($fishrRegistration->user_id && $fishrRegistration->user_id != $userId) {
-        Log::warning('FishR ownership mismatch in BoatR submission', [
-            'fishr_id' => $fishrRegistration->id,
-            'fishr_user_id' => $fishrRegistration->user_id,
-            'boatr_user_id' => $userId
+    // Check if this FishR is already used for BoatR (1:1 relationship)
+    $boatrExists = BoatrApplication::where('fishr_number', $validated['fishr_number'])->first();
+    if ($boatrExists) {
+        Log::warning('FishR already used for BoatR', [
+            'fishr_number' => $validated['fishr_number'],
+            'existing_boatr_id' => $boatrExists->id
         ]);
 
         return response()->json([
             'success' => false,
-            'message' => 'This FishR registration does not belong to your account'
+            'message' => 'This FishR has already been registered for a boat registration. Each FishR can only be used once.'
         ], 422);
     }
 
     // Check name match
-    $fishrFullName = trim(implode(' ', array_filter([
-        $fishrRegistration->first_name,
-        $fishrRegistration->middle_name,
-        $fishrRegistration->last_name
-    ])));
-
-    $boatrFullName = trim(implode(' ', array_filter([
-        $validated['first_name'],
-        $validated['middle_name'] ?? null,
-        $validated['last_name']
-    ])));
-
-    // Compare first and last names (case-insensitive)
     if (
         strtoupper($validated['first_name']) !== strtoupper($fishrRegistration->first_name) ||
         strtoupper($validated['last_name']) !== strtoupper($fishrRegistration->last_name)
     ) {
         Log::warning('Name mismatch in BoatR submission', [
-            'fishr_name' => $fishrFullName,
-            'boatr_name' => $boatrFullName
+            'fishr_name' => $fishrRegistration->first_name . ' ' . $fishrRegistration->last_name,
+            'boatr_name' => $validated['first_name'] . ' ' . $validated['last_name']
         ]);
 
         return response()->json([
             'success' => false,
-            'message' => 'Your first and last names do not match your FishR registration'
+            'message' => 'Your names do not match your FishR registration'
         ], 422);
     }
 
 } catch (\Exception $e) {
-    Log::error('FishR validation error in BoatR submission: ' . $e->getMessage());
+    Log::error('FishR validation error: ' . $e->getMessage());
     
     return response()->json([
         'success' => false,
