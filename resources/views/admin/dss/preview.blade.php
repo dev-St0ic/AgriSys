@@ -84,6 +84,14 @@
                         id="rsbsa-tab" data-service="rsbsa" type="button">
                         <i class="fas fa-users me-2"></i>RSBSA Request Report
                     </button>
+                    <button class="btn {{ $service === 'fishr' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
+                        id="fishr-tab" data-service="fishr" type="button">
+                        <i class="fas fa-fish me-2"></i>FISHR Request Report
+                    </button>
+                    <button class="btn {{ $service === 'boatr' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
+                        id="boatr-tab" data-service="boatr" type="button">
+                        <i class="fas fa-ship me-2"></i>BOATR Request Report
+                    </button>
                 </div>
             </div>
         </div>

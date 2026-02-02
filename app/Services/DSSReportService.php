@@ -1046,4 +1046,431 @@ PROMPT;
         }
         return $formatted ?: '- No commodity data available';
     }
+
+    /**
+     * ================================================================
+     * FISHR-SPECIFIC REPORT GENERATION
+     * ================================================================
+     */
+
+    /**
+     * Generate FISHR-specific DSS report
+     */
+    public function generateFishrReport(array $data): array
+    {
+        $cacheKey = 'dss_fishr_report_' . md5(serialize($data));
+        $cacheDuration = config('services.anthropic.cache_duration', 3600);
+
+        return Cache::remember($cacheKey, $cacheDuration, function() use ($data) {
+            try {
+                if (!empty($this->anthropicApiKey)) {
+                    return $this->generateFishrLLMReport($data);
+                }
+                return $this->generateFishrFallbackReport($data);
+            } catch (\Exception $e) {
+                Log::error('FISHR DSS Report Generation Failed', [
+                    'error' => $e->getMessage(),
+                ]);
+                return $this->generateFishrFallbackReport($data);
+            }
+        });
+    }
+
+    private function generateFishrLLMReport(array $data): array
+    {
+        $prompt = $this->buildFishrPrompt($data);
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'x-api-key' => $this->anthropicApiKey,
+            'anthropic-version' => '2023-06-01'
+        ])->timeout(300)->post($this->anthropicApiUrl, [
+            'model' => $this->model,
+            'max_tokens' => $this->maxTokens,
+            'temperature' => $this->temperature,
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $responseData = $response->json();
+            $generatedText = $responseData['content'][0]['text'] ?? '';
+            return $this->parseGeneratedFishrReport($generatedText, $data);
+        }
+
+        throw new \Exception('LLM API request failed: ' . $response->body());
+    }
+
+    private function buildFishrPrompt(array $data): string
+    {
+        $period = $data['period'];
+        $stats = $data['fishr_stats'];
+        $byLivelihood = $data['fishr_by_livelihood'];
+        $byBarangay = $data['fishr_by_barangay'];
+        $demographics = $data['fishr_demographics'];
+        $trends = $data['fishr_trends'];
+
+        return "Generate a comprehensive Decision Support System (DSS) report for FISHR (Fisheries Registration) applications.
+
+ANALYSIS PERIOD: {$period['month']} ({$period['start_date']} to {$period['end_date']})
+
+APPLICATION STATISTICS:
+- Total Applications: {$stats['total_applications']}
+- Approved: {$stats['approved']} ({$stats['approval_rate']}%)
+- Rejected: {$stats['rejected']} ({$stats['rejection_rate']}%)
+- Pending: {$stats['pending']}
+- With FISHR Numbers Assigned: {$stats['with_fishr_number']}
+
+LIVELIHOOD ANALYSIS:
+{$this->formatFishrLivelihoods($byLivelihood)}
+
+GEOGRAPHIC DISTRIBUTION:
+- Total Barangays: {$byBarangay['total_barangays_covered']}
+- Top Barangays: {$this->formatBarangays($byBarangay['top_barangays'])}
+
+DEMOGRAPHICS:
+- Male: {$demographics['male_count']} ({$demographics['male_percentage']}%)
+- Female: {$demographics['female_count']} ({$demographics['female_percentage']}%)
+
+TRENDS:
+- Current Month: {$trends['current_month_total']} applications
+- Previous Month: {$trends['previous_month_total']} applications
+- Change: {$trends['change_percentage']}% ({$trends['trend']})
+
+RESPONSE FORMAT (JSON):
+{
+    \"executive_summary\": \"2-3 sentence overview of FISHR registration performance and status\",
+    \"performance_assessment\": {
+        \"overall_rating\": \"Excellent/Good/Fair/Poor\",
+        \"approval_efficiency\": \"description\",
+        \"coverage_adequacy\": \"description\",
+        \"trend_analysis\": \"description\"
+    },
+    \"key_findings\": [
+        \"finding 1\",
+        \"finding 2\",
+        \"finding 3\"
+    ],
+    \"critical_issues\": [
+        \"issue 1 (if any)\",
+        \"issue 2 (if any)\"
+    ],
+    \"recommendations\": {
+        \"immediate_actions\": [\"action 1\", \"action 2\"],
+        \"short_term_strategies\": [\"strategy 1\", \"strategy 2\"],
+        \"long_term_vision\": [\"vision 1\", \"vision 2\"]
+    },
+    \"fisheries_insights\": [
+        \"insight 1\",
+        \"insight 2\"
+    ],
+    \"confidence_level\": \"High/Medium/Low\",
+    \"confidence_score\": 0-100
+}
+
+Provide actionable insights focusing on fisher welfare, sustainable fishing practices, and program efficiency.";
+    }
+
+    private function formatFishrLivelihoods(array $byLivelihood): string
+    {
+        $formatted = '';
+        foreach ($byLivelihood['distribution'] as $livelihood) {
+            $formatted .= "- {$livelihood['livelihood']}: {$livelihood['total']} applications ({$livelihood['approval_rate']}% approved)\n";
+        }
+        return $formatted ?: '- No livelihood data available';
+    }
+
+    private function parseGeneratedFishrReport(string $text, array $data): array
+    {
+        try {
+            $jsonStart = strpos($text, '{');
+            $jsonEnd = strrpos($text, '}');
+
+            if ($jsonStart !== false && $jsonEnd !== false) {
+                $jsonString = substr($text, $jsonStart, $jsonEnd - $jsonStart + 1);
+                $reportData = json_decode($jsonString, true);
+
+                if (json_last_error() === JSON_ERROR_NONE && is_array($reportData)) {
+                    return [
+                        'success' => true,
+                        'source' => 'AI-Generated (Claude via Anthropic API)',
+                        'report_data' => $reportData,
+                        'generated_at' => now()->toIso8601String(),
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to parse FISHR report JSON, using fallback', ['error' => $e->getMessage()]);
+        }
+
+        return $this->generateFishrFallbackReport($data);
+    }
+
+    private function generateFishrFallbackReport(array $data): array
+    {
+        $stats = $data['fishr_stats'];
+        $byLivelihood = $data['fishr_by_livelihood'];
+        $byBarangay = $data['fishr_by_barangay'];
+        $demographics = $data['fishr_demographics'];
+        $trends = $data['fishr_trends'];
+
+        $trendDescription = $trends['trend'] === 'increasing' ?
+            "Applications have increased by {$trends['change_percentage']}% compared to last month" :
+            ($trends['trend'] === 'decreasing' ?
+                "Applications have decreased by " . abs($trends['change_percentage']) . "% compared to last month" :
+                "Applications remain stable");
+
+        return [
+            'success' => true,
+            'source' => 'System-Generated (Fallback Analysis)',
+            'report_data' => [
+                'executive_summary' => "FISHR registration program processed {$stats['total_applications']} applications with a {$stats['approval_rate']}% approval rate. The program covers {$byBarangay['total_barangays_covered']} barangays and has assigned {$stats['with_fishr_number']} FISHR numbers to registered fisherfolk.",
+                'performance_assessment' => [
+                    'overall_rating' => $stats['approval_rate'] >= 75 ? 'Good' : ($stats['approval_rate'] >= 50 ? 'Fair' : 'Needs Improvement'),
+                    'approval_efficiency' => "{$stats['approval_rate']}% approval rate with {$stats['approved']} approved applications",
+                    'coverage_adequacy' => "Program covers {$byBarangay['total_barangays_covered']} barangays with {$byLivelihood['total_livelihood_types']} different livelihood types",
+                    'trend_analysis' => $trendDescription,
+                ],
+                'key_findings' => [
+                    "Processed {$stats['total_applications']} FISHR applications",
+                    "Gender distribution: {$demographics['male_percentage']}% male, {$demographics['female_percentage']}% female",
+                    "Most common livelihood: " . ($byLivelihood['most_common'][0]['livelihood'] ?? 'N/A'),
+                    "{$stats['with_fishr_number']} fisherfolk have been assigned FISHR numbers",
+                ],
+                'critical_issues' => $stats['pending'] > 20 ?
+                    ["High number of pending applications ({$stats['pending']}) requires attention"] : [],
+                'recommendations' => [
+                    'immediate_actions' => ['Process pending applications', 'Expedite FISHR number assignments'],
+                    'short_term_strategies' => ['Conduct fisher orientation programs', 'Improve document verification process'],
+                    'long_term_vision' => ['Develop integrated fisheries database', 'Implement sustainable fishing education programs'],
+                ],
+                'fisheries_insights' => [
+                    "Total fisherfolk registered: {$stats['total_applications']}",
+                    "Coverage across {$byBarangay['total_barangays_covered']} barangays",
+                    "Primary livelihoods include " . implode(', ', array_column(array_slice($byLivelihood['distribution'], 0, 3), 'livelihood')),
+                ],
+                'confidence_level' => 'Medium',
+                'confidence_score' => 65,
+            ],
+        ];
+    }
+
+    /**
+     * ================================================================
+     * BOATR-SPECIFIC REPORT GENERATION
+     * ================================================================
+     */
+
+    /**
+     * Generate BOATR-specific DSS report
+     */
+    public function generateBoatrReport(array $data): array
+    {
+        $cacheKey = 'dss_boatr_report_' . md5(serialize($data));
+        $cacheDuration = config('services.anthropic.cache_duration', 3600);
+
+        return Cache::remember($cacheKey, $cacheDuration, function() use ($data) {
+            try {
+                if (!empty($this->anthropicApiKey)) {
+                    return $this->generateBoatrLLMReport($data);
+                }
+                return $this->generateBoatrFallbackReport($data);
+            } catch (\Exception $e) {
+                Log::error('BOATR DSS Report Generation Failed', [
+                    'error' => $e->getMessage(),
+                ]);
+                return $this->generateBoatrFallbackReport($data);
+            }
+        });
+    }
+
+    private function generateBoatrLLMReport(array $data): array
+    {
+        $prompt = $this->buildBoatrPrompt($data);
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'x-api-key' => $this->anthropicApiKey,
+            'anthropic-version' => '2023-06-01'
+        ])->timeout(300)->post($this->anthropicApiUrl, [
+            'model' => $this->model,
+            'max_tokens' => $this->maxTokens,
+            'temperature' => $this->temperature,
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ]
+        ]);
+
+        if ($response->successful()) {
+            $responseData = $response->json();
+            $generatedText = $responseData['content'][0]['text'] ?? '';
+            return $this->parseGeneratedBoatrReport($generatedText, $data);
+        }
+
+        throw new \Exception('LLM API request failed: ' . $response->body());
+    }
+
+    private function buildBoatrPrompt(array $data): string
+    {
+        $period = $data['period'];
+        $stats = $data['boatr_stats'];
+        $byBoatType = $data['boatr_by_boat_type'];
+        $byBarangay = $data['boatr_by_barangay'];
+        $engineAnalysis = $data['boatr_engine_analysis'];
+        $inspectionAnalysis = $data['boatr_inspection_analysis'];
+        $trends = $data['boatr_trends'];
+
+        return "Generate a comprehensive Decision Support System (DSS) report for BOATR (Boat Registration) applications.
+
+ANALYSIS PERIOD: {$period['month']} ({$period['start_date']} to {$period['end_date']})
+
+APPLICATION STATISTICS:
+- Total Applications: {$stats['total_applications']}
+- Approved: {$stats['approved']} ({$stats['approval_rate']}%)
+- Rejected: {$stats['rejected']}
+- Pending: {$stats['pending']}
+- Inspections Completed: {$inspectionAnalysis['inspections_completed']} ({$inspectionAnalysis['completion_rate']}%)
+
+BOAT SPECIFICATIONS:
+- Average Boat Length: {$stats['avg_boat_length']}
+- Average Engine Horsepower: {$stats['avg_horsepower']}
+- Most Common Boat Type: " . ($byBoatType['most_common'][0]['boat_type'] ?? 'N/A') . "
+- Most Common Engine: " . ($engineAnalysis['most_common_engine']['type'] ?? 'N/A') . "
+
+BOAT TYPE DISTRIBUTION:
+{$this->formatBoatTypes($byBoatType)}
+
+GEOGRAPHIC DISTRIBUTION:
+- Total Barangays: {$byBarangay['total_barangays_covered']}
+- Top Barangays: {$this->formatBarangays($byBarangay['top_barangays'])}
+
+INSPECTION STATUS:
+- Completed: {$inspectionAnalysis['inspections_completed']}
+- Pending: {$inspectionAnalysis['inspections_pending']}
+- Completion Rate: {$inspectionAnalysis['completion_rate']}%
+
+TRENDS:
+- Current Month: {$trends['current_month_total']} applications
+- Previous Month: {$trends['previous_month_total']} applications
+- Change: {$trends['change_percentage']}% ({$trends['trend']})
+
+RESPONSE FORMAT (JSON):
+{
+    \"executive_summary\": \"2-3 sentence overview of BOATR registration performance and status\",
+    \"performance_assessment\": {
+        \"overall_rating\": \"Excellent/Good/Fair/Poor\",
+        \"approval_efficiency\": \"description\",
+        \"inspection_effectiveness\": \"description\",
+        \"trend_analysis\": \"description\"
+    },
+    \"key_findings\": [
+        \"finding 1\",
+        \"finding 2\",
+        \"finding 3\"
+    ],
+    \"critical_issues\": [
+        \"issue 1 (if any)\",
+        \"issue 2 (if any)\"
+    ],
+    \"recommendations\": {
+        \"immediate_actions\": [\"action 1\", \"action 2\"],
+        \"short_term_strategies\": [\"strategy 1\", \"strategy 2\"],
+        \"long_term_vision\": [\"vision 1\", \"vision 2\"]
+    },
+    \"vessel_insights\": [
+        \"insight 1\",
+        \"insight 2\"
+    ],
+    \"confidence_level\": \"High/Medium/Low\",
+    \"confidence_score\": 0-100
+}
+
+Provide actionable insights focusing on vessel safety, registration compliance, and inspection efficiency.";
+    }
+
+    private function formatBoatTypes(array $byBoatType): string
+    {
+        $formatted = '';
+        foreach ($byBoatType['distribution'] as $type) {
+            $formatted .= "- {$type['boat_type']}: {$type['total']} boats (avg length: {$type['avg_length']}m, avg HP: {$type['avg_horsepower']})\n";
+        }
+        return $formatted ?: '- No boat type data available';
+    }
+
+    private function parseGeneratedBoatrReport(string $text, array $data): array
+    {
+        try {
+            $jsonStart = strpos($text, '{');
+            $jsonEnd = strrpos($text, '}');
+
+            if ($jsonStart !== false && $jsonEnd !== false) {
+                $jsonString = substr($text, $jsonStart, $jsonEnd - $jsonStart + 1);
+                $reportData = json_decode($jsonString, true);
+
+                if (json_last_error() === JSON_ERROR_NONE && is_array($reportData)) {
+                    return [
+                        'success' => true,
+                        'source' => 'AI-Generated (Claude via Anthropic API)',
+                        'report_data' => $reportData,
+                        'generated_at' => now()->toIso8601String(),
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to parse BOATR report JSON, using fallback', ['error' => $e->getMessage()]);
+        }
+
+        return $this->generateBoatrFallbackReport($data);
+    }
+
+    private function generateBoatrFallbackReport(array $data): array
+    {
+        $stats = $data['boatr_stats'];
+        $byBoatType = $data['boatr_by_boat_type'];
+        $byBarangay = $data['boatr_by_barangay'];
+        $inspectionAnalysis = $data['boatr_inspection_analysis'];
+        $trends = $data['boatr_trends'];
+
+        $trendDescription = $trends['trend'] === 'increasing' ?
+            "Applications have increased by {$trends['change_percentage']}% compared to last month" :
+            ($trends['trend'] === 'decreasing' ?
+                "Applications have decreased by " . abs($trends['change_percentage']) . "% compared to last month" :
+                "Applications remain stable");
+
+        return [
+            'success' => true,
+            'source' => 'System-Generated (Fallback Analysis)',
+            'report_data' => [
+                'executive_summary' => "BOATR registration program processed {$stats['total_applications']} boat registration applications with a {$stats['approval_rate']}% approval rate. Program covers {$byBarangay['total_barangays_covered']} barangays and has completed {$inspectionAnalysis['inspections_completed']} vessel inspections.",
+                'performance_assessment' => [
+                    'overall_rating' => $stats['approval_rate'] >= 75 ? 'Good' : ($stats['approval_rate'] >= 50 ? 'Fair' : 'Needs Improvement'),
+                    'approval_efficiency' => "{$stats['approval_rate']}% approval rate with {$stats['approved']} approved registrations",
+                    'inspection_effectiveness' => "{$inspectionAnalysis['completion_rate']}% inspection completion rate ({$inspectionAnalysis['inspections_completed']} of {$inspectionAnalysis['total_applications']} completed)",
+                    'trend_analysis' => $trendDescription,
+                ],
+                'key_findings' => [
+                    "Processed {$stats['total_applications']} boat registration applications",
+                    "Average vessel specifications: {$stats['avg_boat_length']} length, {$stats['avg_horsepower']} engine power",
+                    "Most common boat type: " . ($byBoatType['most_common'][0]['boat_type'] ?? 'N/A'),
+                    "Inspection completion rate: {$inspectionAnalysis['completion_rate']}%",
+                ],
+                'critical_issues' => $inspectionAnalysis['inspections_pending'] > 10 ?
+                    ["High number of pending inspections ({$inspectionAnalysis['inspections_pending']}) requires attention"] : [],
+                'recommendations' => [
+                    'immediate_actions' => ['Complete pending vessel inspections', 'Process pending applications'],
+                    'short_term_strategies' => ['Streamline inspection procedures', 'Improve documentation processes'],
+                    'long_term_vision' => ['Implement digital inspection system', 'Develop vessel tracking database'],
+                ],
+                'vessel_insights' => [
+                    "Total vessels registered: {$stats['total_applications']}",
+                    "Coverage across {$byBarangay['total_barangays_covered']} barangays",
+                    "{$byBoatType['total_boat_types']} different boat types registered",
+                    "Average boat specifications indicate " . ($stats['avg_boat_length'] > '10 meters' ? 'medium to large' : 'small to medium') . " vessels",
+                ],
+                'confidence_level' => 'Medium',
+                'confidence_score' => 65,
+            ],
+        ];
+    }
 }

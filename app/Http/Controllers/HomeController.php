@@ -27,12 +27,19 @@ class HomeController extends Controller
 
         // Get user session - set to null if not available (don't pass errors)
         $user = session('user', null);
-        
+
+        // Get DSS report metadata for all services
+        $rsbsaReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('rsbsa');
+        $seedlingReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('comprehensive');
+        $trainingReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('training');
+        $fishrReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('fishr');
+        $boatrReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('boatr');
+
         // Clear any error messages from session to prevent notification display
         session()->forget('error');
         session()->forget('errors');
 
-        return view('landingPage.landing', compact('slides', 'user'));
+        return view('landingPage.landing', compact('slides', 'user', 'rsbsaReport', 'seedlingReport', 'trainingReport', 'fishrReport', 'boatrReport'));
     }
 
     /**
@@ -51,7 +58,7 @@ class HomeController extends Controller
                     'message' => 'Session expired'
                 ], 401);
             }
-            
+
             // Redirect to home without the error flag to prevent notifications
             return redirect('/');
         }
@@ -68,11 +75,18 @@ class HomeController extends Controller
 
         // Use database images if available, otherwise use fallback
         $slides = $slideshowImages->count() > 0 ? $slideshowImages : collect($fallbackImages);
-        
+
+        // Get DSS report metadata for all services
+        $rsbsaReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('rsbsa');
+        $seedlingReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('comprehensive');
+        $trainingReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('training');
+        $fishrReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('fishr');
+        $boatrReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('boatr');
+
         // Clear any error messages
         session()->forget('error');
         session()->forget('errors');
 
-        return view('landingPage.landing', compact('slides', 'user'));
+        return view('landingPage.landing', compact('slides', 'user', 'rsbsaReport', 'seedlingReport', 'trainingReport', 'fishrReport', 'boatrReport'));
     }
 }

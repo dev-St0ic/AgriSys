@@ -118,7 +118,7 @@
                     <option value="San Lorenzo Ruiz">San Lorenzo</option>
                     <option value="San Roque">San Roque</option>
                     <option value="San Vicente">San Vicente</option>
-                    <option value="Santo Niño">Santo Niño</option> 
+                    <option value="Santo Niño">Santo Niño</option>
                     <option value="United Bayanihan">United Bayanihan</option>
                     <option value="United Better Living">United Better Living</option>
                 </select>
@@ -153,8 +153,10 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_boat_classification">Boat Classification (Motorization) <span class="required">*</span></label>
-                <select id="boatr_boat_classification" name="boat_classification" required onchange="handleBoatClassificationChange(this)">
+                <label for="boatr_boat_classification">Boat Classification (Motorization) <span
+                        class="required">*</span></label>
+                <select id="boatr_boat_classification" name="boat_classification" required
+                    onchange="handleBoatClassificationChange(this)">
                     <option value="" disabled selected>Select Classification</option>
                     <option value="Motorized">Motorized</option>
                     <option value="Non-motorized">Non-motorized</option>
@@ -179,7 +181,7 @@
                 </div>
             </div>
 
-           <div id="boatr_engine_fields_container" style="display: none;">
+            <div id="boatr_engine_fields_container" style="display: none;">
                 <div class="boatr-form-group">
                     <label for="boatr_engine_type">Engine Type <span class="required">*</span></label>
                     <input type="text" id="boatr_engine_type" name="engine_type"
@@ -195,7 +197,8 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span class="required">*</span></label>
+                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span
+                        class="required">*</span></label>
                 <select id="boatr_primary_fishing_gear" name="primary_fishing_gear" required>
                     <option value="" disabled selected>Select Primary Gear</option>
                     <option value="Hook and Line">Hook and Line</option>
@@ -264,6 +267,41 @@
     </div>
 
     <div class="boatr-tab-content" id="boatr-info-tab">
+        <!-- DSS Report Information -->
+        @if (isset($boatrReport) && $boatrReport['exists'])
+            <div
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; margin-bottom: 25px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h4 style="margin: 0 0 15px 0; color: white; font-size: 1.1rem; display: flex; align-items: center;">
+                    <svg style="width: 24px; height: 24px; margin-right: 10px;" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd"
+                            d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Latest DSS Analytics Report
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">📅 Report Generated</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">
+                            {{ \Carbon\Carbon::parse($boatrReport['generated_at'])->format('M d, Y H:i:s') }}</div>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">🤖 Analysis Source</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ ucfirst($boatrReport['source']) }}</div>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">📊 Data Period</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ $boatrReport['period_label'] }}</div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <h4>BoatR Registration</h4>
         <p>
             BoatR (Boat Registration) is a service of the City Agriculture Office that facilitates the
@@ -278,7 +316,8 @@
             <li>An on-site inspection and measurement of the fishing vessel is mandatory.</li>
             <li>Submission of complete and accurate information is required for approval.</li>
             <li>Payment of applicable fees shall be made at the City Treasury Office after inspection.</li>
-            <li>The BoatR Registration Certificate of Number (CN) shall be issued upon completion of all requirements.</li>
+            <li>The BoatR Registration Certificate of Number (CN) shall be issued upon completion of all requirements.
+            </li>
         </ul>
 
         <h4>Application Process</h4>

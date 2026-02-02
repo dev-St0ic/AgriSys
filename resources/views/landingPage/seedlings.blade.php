@@ -127,7 +127,7 @@
                             @endif
                         </div>
 
-                      <!-- Item Image -->
+                        <!-- Item Image -->
                         <div class="seedlings-item-image">
                             @if ($item->image_path)
                                 <img src="{{ Storage::url($item->image_path) }}" alt="{{ $item->name }}">
@@ -173,8 +173,7 @@
                                 </button>
                                 <input type="number" id="qty-{{ $item->id }}"
                                     name="quantity_{{ $item->id }}" min="{{ $item->min_quantity ?? 1 }}"
-                                    max="{{ $item->current_supply }}"
-                                    value="1" class="qty-input"
+                                    max="{{ $item->current_supply }}" value="1" class="qty-input"
                                     onchange="updateQuantity('{{ $item->id }}')">
                                 <button type="button" class="qty-btn"
                                     onclick="incrementQty('{{ $item->id }}')">
@@ -315,64 +314,63 @@
                     pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
                 <span class="validation-warning" id="seedlings-mobile-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Contact number must be in format 09XXXXXXXXX (11 digits)</span>
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Contact number must be
+                    in format 09XXXXXXXXX (11 digits)</span>
             </div>
 
             <div class="seedlings-form-group">
                 <label for="seedlings-barangay">Barangay <span class="required-asterisk">*</span></label>
                 <select id="seedlings-barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
-                            <option value="Bagong Silang">Bagong Silang</option>
-                            <option value="Calendola">Calendola</option>
-                            <option value="Chrysanthemum">Chrysanthemum</option>
-                            <option value="Cuyab">Cuyab</option>
-                            <option value="Estrella">Estrella</option>
-                            <option value="Fatima">Fatima</option>
-                            <option value="G.S.I.S.">G.S.I.S.</option>
-                            <option value="Landayan">Landayan</option>
-                            <option value="Langgam">Langgam</option>
-                            <option value="Laram">Laram</option>
-                            <option value="Magsaysay">Magsaysay</option>
-                            <option value="Maharlika">Maharlika</option>
-                            <option value="Narra">Narra</option>
-                            <option value="Nueva">Nueva</option>
-                            <option value="Pacita 1">Pacita 1</option>
-                            <option value="Pacita 2">Pacita 2</option>
-                            <option value="Poblacion">Poblacion</option>
-                            <option value="Riverside">Riverside</option>
-                            <option value="Rosario">Rosario</option>
-                            <option value="Sampaguita Village">Sampaguita Village</option>
-                            <option value="San Antonio">San Antonio</option>
-                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                            <option value="San Roque">San Roque</option>
-                            <option value="San Vicente">San Vicente</option>
-                            <option value="Santo Niño">Santo Niño</option> 
-                            <option value="United Bayanihan">United Bayanihan</option>
-                            <option value="United Better Living">United Better Living</option>
+                    <option value="Bagong Silang">Bagong Silang</option>
+                    <option value="Calendola">Calendola</option>
+                    <option value="Chrysanthemum">Chrysanthemum</option>
+                    <option value="Cuyab">Cuyab</option>
+                    <option value="Estrella">Estrella</option>
+                    <option value="Fatima">Fatima</option>
+                    <option value="G.S.I.S.">G.S.I.S.</option>
+                    <option value="Landayan">Landayan</option>
+                    <option value="Langgam">Langgam</option>
+                    <option value="Laram">Laram</option>
+                    <option value="Magsaysay">Magsaysay</option>
+                    <option value="Maharlika">Maharlika</option>
+                    <option value="Narra">Narra</option>
+                    <option value="Nueva">Nueva</option>
+                    <option value="Pacita 1">Pacita 1</option>
+                    <option value="Pacita 2">Pacita 2</option>
+                    <option value="Poblacion">Poblacion</option>
+                    <option value="Riverside">Riverside</option>
+                    <option value="Rosario">Rosario</option>
+                    <option value="Sampaguita Village">Sampaguita Village</option>
+                    <option value="San Antonio">San Antonio</option>
+                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                    <option value="San Roque">San Roque</option>
+                    <option value="San Vicente">San Vicente</option>
+                    <option value="Santo Niño">Santo Niño</option>
+                    <option value="United Bayanihan">United Bayanihan</option>
+                    <option value="United Better Living">United Better Living</option>
                 </select>
             </div>
 
             <div class="seedlings-form-group" id="pickup-date-section">
                 <label for="seedlings-pickup_date">
-                    <i class="fas fa-calendar-check"></i> Pickup Date 
+                    <i class="fas fa-calendar-check"></i> Pickup Date
                     <span class="required-asterisk">*</span>
                 </label>
-                
+
                 <!-- INFO BOX (Always visible) -->
-                <div class="pickup-info-box" style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
+                <div class="pickup-info-box"
+                    style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
                     <i class="fas fa-info-circle" style="color: #40916c; margin-right: 8px;"></i>
                     <strong>Weekdays only (Mon-Fri)</strong> • Valid for 30 days from approval
                 </div>
 
                 <!-- CALENDAR INPUT -->
-                <input 
-                    type="date" 
-                    id="seedlings-pickup_date" 
-                    name="pickup_date"
-                    required>
+                <input type="date" id="seedlings-pickup_date" name="pickup_date" required>
 
                 <!-- SELECTED DATE DISPLAY (After selection) -->
-                <div id="pickup-date-display" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                <div id="pickup-date-display"
+                    style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
                     <strong>Selected:</strong> <span id="pickup-date-text"></span>
                 </div>
             </div>
@@ -392,16 +390,52 @@
     </div>
 
     <div id="seedlings-requirements-tab" class="seedlings-tab-content" style="display: none;">
+        <!-- DSS Report Information -->
+        @if (isset($seedlingReport) && $seedlingReport['exists'])
+            <div
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; margin-bottom: 25px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h4 style="margin: 0 0 15px 0; color: white; font-size: 1.1rem; display: flex; align-items: center;">
+                    <svg style="width: 24px; height: 24px; margin-right: 10px;" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd"
+                            d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Latest DSS Analytics Report
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">📅 Report Generated</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">
+                            {{ \Carbon\Carbon::parse($seedlingReport['generated_at'])->format('M d, Y H:i:s') }}</div>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">🤖 Analysis Source</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ ucfirst($seedlingReport['source']) }}
+                        </div>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">📊 Data Period</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ $seedlingReport['period_label'] }}</div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <h3>Requirements for Supplies & Garden Tools Request</h3>
 
         <h4>For Walk-in Individual Clients:</h4>
         <ul>
             <li>No documentary requirements.</li>
             <li>Client must fill out:</li>
-                <ul>
-                    <li>Seedling/Seeds/Fertilizer Dispersal Masterlist</li>
-                    <li>Client Feedback Form</li>
-                </ul>
+            <ul>
+                <li>Seedling/Seeds/Fertilizer Dispersal Masterlist</li>
+                <li>Client Feedback Form</li>
+            </ul>
         </ul>
 
         <h4>For Institutional Clients (Barangay, Schools, NGOs, Associations):</h4>
@@ -409,7 +443,7 @@
             <li>Request Letter addressed to the Honorable City Mayor, signed by the requesting party.</li>
         </ul>
 
-          <h4>For Seeds and Organic Fertilizer Requests:</h4>
+        <h4>For Seeds and Organic Fertilizer Requests:</h4>
         <ul>
             <li>One (1) photocopy of a valid government-issued ID.</li>
         </ul>
@@ -422,13 +456,16 @@
 
         <h4>Important Notes:</h4>
         <ul>
-            <li>AgriSys registration is provided to facilitate online requests, tracking, and record-keeping. Walk-in clients without an account may still avail of the service.</li>
+            <li>AgriSys registration is provided to facilitate online requests, tracking, and record-keeping. Walk-in
+                clients without an account may still avail of the service.</li>
             <li>Distribution is free and subject to availability.</li>
-            <li>All requests are processed through the City Agriculture Office following approval procedures outlined in the Citizen’s Charter.</li>
+            <li>All requests are processed through the City Agriculture Office following approval procedures outlined in
+                the Citizen’s Charter.</li>
         </ul>
 
         <h4>Distribution Information:</h4>
-        <p>You may pick up the requested supplies at the City Agriculture Office. You will receive an SMS notification once your request is approved.</p>
+        <p>You may pick up the requested supplies at the City Agriculture Office. You will receive an SMS notification
+            once your request is approved.</p>
     </div>
 
     <div id="seedlings-summary-tab" class="seedlings-tab-content" style="display: none;">

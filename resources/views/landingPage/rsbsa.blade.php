@@ -123,33 +123,33 @@
             <div class="rsbsa-form-group">
                 <label>Barangay <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <select name="barangay" id="rsbsa-barangay" required>
-                   <option value="Bagong Silang">Bagong Silang</option>
-                            <option value="Calendola">Calendola</option>
-                            <option value="Chrysanthemum">Chrysanthemum</option>
-                            <option value="Cuyab">Cuyab</option>
-                            <option value="Estrella">Estrella</option>
-                            <option value="Fatima">Fatima</option>
-                            <option value="G.S.I.S.">G.S.I.S.</option>
-                            <option value="Landayan">Landayan</option>
-                            <option value="Langgam">Langgam</option>
-                            <option value="Laram">Laram</option>
-                            <option value="Magsaysay">Magsaysay</option>
-                            <option value="Maharlika">Maharlika</option>
-                            <option value="Narra">Narra</option>
-                            <option value="Nueva">Nueva</option>
-                            <option value="Pacita 1">Pacita 1</option>
-                            <option value="Pacita 2">Pacita 2</option>
-                            <option value="Poblacion">Poblacion</option>
-                            <option value="Riverside">Riverside</option>
-                            <option value="Rosario">Rosario</option>
-                            <option value="Sampaguita Village">Sampaguita Village</option>
-                            <option value="San Antonio">San Antonio</option>
-                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                            <option value="San Roque">San Roque</option>
-                            <option value="San Vicente">San Vicente</option>
-                            <option value="Santo Niño">Santo Niño</option> 
-                            <option value="United Bayanihan">United Bayanihan</option>
-                            <option value="United Better Living">United Better Living</option>
+                    <option value="Bagong Silang">Bagong Silang</option>
+                    <option value="Calendola">Calendola</option>
+                    <option value="Chrysanthemum">Chrysanthemum</option>
+                    <option value="Cuyab">Cuyab</option>
+                    <option value="Estrella">Estrella</option>
+                    <option value="Fatima">Fatima</option>
+                    <option value="G.S.I.S.">G.S.I.S.</option>
+                    <option value="Landayan">Landayan</option>
+                    <option value="Langgam">Langgam</option>
+                    <option value="Laram">Laram</option>
+                    <option value="Magsaysay">Magsaysay</option>
+                    <option value="Maharlika">Maharlika</option>
+                    <option value="Narra">Narra</option>
+                    <option value="Nueva">Nueva</option>
+                    <option value="Pacita 1">Pacita 1</option>
+                    <option value="Pacita 2">Pacita 2</option>
+                    <option value="Poblacion">Poblacion</option>
+                    <option value="Riverside">Riverside</option>
+                    <option value="Rosario">Rosario</option>
+                    <option value="Sampaguita Village">Sampaguita Village</option>
+                    <option value="San Antonio">San Antonio</option>
+                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                    <option value="San Roque">San Roque</option>
+                    <option value="San Vicente">San Vicente</option>
+                    <option value="Santo Niño">Santo Niño</option>
+                    <option value="United Bayanihan">United Bayanihan</option>
+                    <option value="United Better Living">United Better Living</option>
                 </select>
                 @error('barangay')
                     <span
@@ -511,12 +511,14 @@
 
             <!-- SUPPORTING DOCUMENTS (Not location-specific, all livelihoods) -->
             <div class="rsbsa-form-group">
-                <label>Supporting Document (Barangay Certificate) <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <label>Supporting Document (Barangay Certificate) <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="file" id="rsbsa-supporting_docs" name="supporting_docs"
                     accept=".pdf,.jpg,.jpeg,.png" required>
                 <small class="rsbsa-form-help">
                     Upload a Barangay Certificate as proof of livelihood.
-                    You may download the official Barangay Certificate form from the <strong>Requirements section.</strong> Accepted formats:
+                    You may download the official Barangay Certificate form from the <strong>Requirements
+                        section.</strong> Accepted formats:
                     JPG, PNG, PDF (Max 10MB).
                 </small>
                 @error('supporting_docs')
@@ -549,8 +551,8 @@
             <li>
                 <strong>Barangay Certificate</strong><br>
                 Proof of residency and livelihood status:
-                 <a href="{{ route('download', 'Barangay-Certification') }}" 
-                class="btn-download">Download Barangay Certificate</a>
+                <a href="{{ route('download', 'Barangay-Certification') }}" class="btn-download">Download Barangay
+                    Certificate</a>
             </li>
         </ol>
         <h4>Who May Register</h4>
@@ -566,6 +568,42 @@
 
     <!-- INFORMATION TAB -->
     <div class="rsbsa-tab-content" id="information" style="display: none;">
+        <!-- DSS Report Information -->
+        @if (isset($rsbsaReport) && $rsbsaReport['exists'])
+            <div
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; margin-bottom: 25px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h4 style="margin: 0 0 15px 0; color: white; font-size: 1.1rem; display: flex; align-items: center;">
+                    <svg style="width: 24px; height: 24px; margin-right: 10px;" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd"
+                            d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Latest DSS Analytics Report
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">📅 Report Generated</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">
+                            {{ \Carbon\Carbon::parse($rsbsaReport['generated_at'])->format('M d, Y H:i:s') }}</div>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">🤖 Analysis Source</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ ucfirst($rsbsaReport['source']) }}
+                        </div>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">📊 Data Period</div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ $rsbsaReport['period_label'] }}</div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <h4>RSBSA Registration</h4>
         <p>
             RSBSA (Registry System for Basic Sectors in Agriculture) is a national registry for farmers, fisherfolk,
@@ -576,7 +614,8 @@
 
         <h4>Important Information</h4>
         <ul>
-            <li>All applications shall undergo initial review and endorsement by the Barangay Chairman, followed by final review and approval by the City Agriculture Office. Processing time may
+            <li>All applications shall undergo initial review and endorsement by the Barangay Chairman, followed by
+                final review and approval by the City Agriculture Office. Processing time may
                 vary depending on the completeness of submitted documents.</li>
             <li>The office may contact the applicant for additional information or verification.</li>
             <li>All information provided must be accurate and truthful. Incomplete or incorrect submissions may result
