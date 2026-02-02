@@ -696,22 +696,13 @@ function showPickupDateField(totalQuantity) {
 
 // ==============================================
 // SUPPORTING DOCUMENTS
-// ==============================================
 function toggleSupportingDocuments(totalQuantity) {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
 
-    // Show supporting documents ONLY for 100+ items
-    if (totalQuantity >= 100) {
-        if (docsField) docsField.style.display = 'block';
-        if (docsInput) docsInput.required = false; // ✅ OPTIONAL, NOT REQUIRED
-    } else {
-        if (docsField) docsField.style.display = 'none';
-        if (docsInput) {
-            docsInput.required = false;
-            docsInput.value = '';
-        }
-    }
+    // ✅ ALWAYS SHOW supporting documents as OPTIONAL
+    if (docsField) docsField.style.display = 'block';
+    if (docsInput) docsInput.required = false; // Always optional
     
     showPickupDateField(totalQuantity);
 }
@@ -900,17 +891,17 @@ function resetSupportingDocuments() {
     const pickupDateSection = document.getElementById('pickup-date-section');
     const pickupInput = document.getElementById('seedlings-pickup_date');
 
-    // Hide docs (will be shown again if 100+ items)
-    if (docsField) docsField.style.display = 'none';
+    // ✅ Always show docs as optional
+    if (docsField) docsField.style.display = 'block';
     if (docsInput) {
-        docsInput.required = false; // ✅ Optional
+        docsInput.required = false;
         docsInput.value = '';
     }
     
     // Pickup date always shows but reset it
     if (pickupDateSection) pickupDateSection.style.display = 'block';
     if (pickupInput) {
-        pickupInput.required = true; // ✅ Always required
+        pickupInput.required = true;
         pickupInput.value = '';
     }
 }
