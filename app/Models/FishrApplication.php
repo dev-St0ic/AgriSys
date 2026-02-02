@@ -2,230 +2,346 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-use App\Traits\SendsApplicationSms;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FishrApplication extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, SendsApplicationSms;
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'fishr_applications';
 
     protected $fillable = [
-        'user_id', // Foreign key to user_registration table
-        'registration_number',
+        // Personal Information
         'first_name',
         'middle_name',
         'last_name',
         'name_extension',
         'sex',
+        
+        // Contact Information
         'barangay',
+        'barangay_id',
         'contact_number',
+        
+        // Main Livelihood
         'main_livelihood',
         'livelihood_description',
         'other_livelihood',
+        
+        // Secondary Livelihood (NEW)
+        'secondary_livelihood',
+        'other_secondary_livelihood',
+        
+        // Supporting Documents
         'document_path',
+        
+        // Status Management
         'status',
         'remarks',
         'status_updated_at',
-        'updated_by'
+        'updated_by',
+        
+        // FishR Number
+        'fishr_number',
+        'fishr_number_assigned_at',
+        'fishr_number_assigned_by',
+        
+        // Registration
+        'registration_number',
+        'user_id',
     ];
 
     protected $casts = [
-        'status_updated_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'status_updated_at' => 'datetime',
+        'fishr_number_assigned_at' => 'datetime',
     ];
+
+    // ===== RELATIONSHIPS =====
+
+    /**
+     * Get the user who owns this application
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(UserRegistration::class, 'user_id');
+    }
+
+    /**
+     * Get the admin user who updated the status
+     */
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Get the admin user who assigned the FishR number
+     */
+    public function assignedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'fishr_number_assigned_by');
+    }
+
+    /**
+     * Get all annexes for this registration
+     */
+    public function annexes(): HasMany
+    {
+        return $this->hasMany(FishrAnnex::class, 'fishr_application_id', 'id');
+    }
+
+    // ===== ACCESSORS & MUTATORS =====
 
     /**
      * Get the full name attribute
      */
-    public function getFullNameAttribute()
+    public function getFullNameAttribute(): string
     {
-        $parts = array_filter([$this->first_name, $this->middle_name, $this->last_name]);
-        return implode(' ', $parts);
+        $name = "{$this->first_name} {$this->last_name}";
+        
+        if ($this->middle_name) {
+            $name = "{$this->first_name} {$this->middle_name} {$this->last_name}";
+        }
+        
+        if ($this->name_extension) {
+            $name .= " {$this->name_extension}";
+        }
+        
+        return trim($name);
     }
 
     /**
-     * Get the formatted status for display
+     * Get formatted status with label
      */
-    public function getFormattedStatusAttribute()
+    public function getFormattedStatusAttribute(): string
     {
         return match($this->status) {
             'pending' => 'Pending',
             'under_review' => 'Under Review',
             'approved' => 'Approved',
             'rejected' => 'Rejected',
-            default => ucfirst(str_replace('_', ' ', $this->status))
+            default => ucfirst($this->status)
         };
     }
 
     /**
-     * Get the status color for badges
+     * Get status color for UI display
      */
-    public function getStatusColorAttribute()
+    public function getStatusColorAttribute(): string
     {
         return match($this->status) {
-            'pending' => 'secondary',
-            'under_review' => 'warning',
-            'approved' => 'success',
-            'rejected' => 'danger',
+            'pending' => 'info',      // blue
+            'under_review' => 'warning',    // yellow
+            'approved' => 'success',     // Green
+            'rejected' => 'danger',      // Red
             default => 'secondary'
         };
     }
 
     /**
-     * Relationship with admin who updated the status
+     * Get livelihood description based on main livelihood
      */
-    public function updatedBy()
+    public function getLivelihoodDescriptionAttribute(): string
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return match($this->main_livelihood) {
+            'capture' => 'Capture Fishing',
+            'aquaculture' => 'Aquaculture',
+            'vending' => 'Fish Vending',
+            'processing' => 'Fish Processing',
+            'others' => $this->other_livelihood ?? 'Others',
+            default => 'Unknown'
+        };
     }
 
     /**
-     * Scope for filtering by status
+     * Get secondary livelihood description
      */
-    public function scopeWithStatus($query, $status)
+    public function getSecondaryLivelihoodDescriptionAttribute(): ?string
     {
-        if ($status) {
-            return $query->where('status', $status);
+        if (!$this->secondary_livelihood) {
+            return null;
         }
-        return $query;
+
+        return match($this->secondary_livelihood) {
+            'capture' => 'Capture Fishing',
+            'aquaculture' => 'Aquaculture',
+            'vending' => 'Fish Vending',
+            'processing' => 'Fish Processing',
+            'others' => $this->other_secondary_livelihood ?? 'Others',
+            default => null
+        };
     }
 
     /**
-     * Scope for filtering by livelihood
+     * Get applicant phone number - FIXED: Removed direct method call
+     * Use $model->applicant_phone instead of $model->getApplicantPhone()
      */
-    public function scopeWithLivelihood($query, $livelihood)
+    public function getApplicantPhoneAttribute(): string
     {
-        if ($livelihood) {
-            return $query->where('main_livelihood', $livelihood);
-        }
-        return $query;
+        return $this->contact_number ?? '';
     }
 
     /**
-     * Scope for filtering by barangay
+     * Get applicant name - FIXED: Use as property accessor
+     * Use $model->applicant_name instead of $model->getApplicantName()
      */
-    public function scopeWithBarangay($query, $barangay)
+    public function getApplicantNameAttribute(): string
     {
-        if ($barangay) {
-            return $query->where('barangay', $barangay);
-        }
-        return $query;
+        return $this->full_name;
     }
 
     /**
-     * Scope for searching
-     */
-    public function scopeSearch($query, $search)
-    {
-        if ($search) {
-            return $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('middle_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('registration_number', 'like', "%{$search}%")
-                  ->orWhere('contact_number', 'like', "%{$search}%");
-            });
-        }
-        return $query;
-    }
-
-    /**
-     * Relationship: FishR application belongs to a user
-     */
-    public function user()
-    {
-        return $this->belongsTo(UserRegistration::class, 'user_id');
-    }
-
-    /**
-     * Relationship: FishR application has many annexes
-     */
-    public function annexes()
-    {
-        return $this->hasMany(FishrAnnex::class, 'fishr_application_id');
-    }
-
-    /**
-     * Check if the application has a supporting document
-     */
-    public function hasDocument()
-    {
-        return !empty($this->document_path) && \Storage::disk('public')->exists($this->document_path);
-    }
-
-    /**
-     * Get the document URL if it exists
-     */
-    public function getDocumentUrlAttribute()
-    {
-        if ($this->hasDocument()) {
-            return asset('storage/' . $this->document_path);
-        }
-        return null;
-    }
-
-    /**
-     * Get the file extension of the document
-     */
-    public function getDocumentExtensionAttribute()
-    {
-        if ($this->document_path) {
-            return strtolower(pathinfo($this->document_path, PATHINFO_EXTENSION));
-        }
-        return null;
-    }
-
-    /**
-     * Check if document is an image
-     */
-    public function isDocumentImage()
-    {
-        return in_array($this->document_extension, ['jpg', 'jpeg', 'png', 'gif']);
-    }
-
-    /**
-     * Check if document is a PDF
-     */
-    public function isDocumentPdf()
-    {
-        return $this->document_extension === 'pdf';
-    }
-
-    // Log activity options
-   public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
-    }
-
-    /**
-     * Get applicant phone number for SMS notifications
-     */
-    public function getApplicantPhone(): ?string
-    {
-        return $this->contact_number;
-    }
-
-    /**
-     * Get applicant name for SMS notifications
-     */
-    public function getApplicantName(): ?string
-    {
-        return trim($this->first_name . ' ' . $this->last_name);
-    }
-
-    /**
-     * Get application type name for SMS notifications
+     * Get application type name - FIXED: Change to method if it's called as method
+     * Keep this as a regular method since it's called as getApplicationTypeName()
      */
     public function getApplicationTypeName(): string
     {
         return 'FishR Registration';
+    }
+
+    // ===== SCOPES =====
+
+    /**
+     * Scope to get pending applications
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope to get under review applications
+     */
+    public function scopeUnderReview($query)
+    {
+        return $query->where('status', 'under_review');
+    }
+
+    /**
+     * Scope to get approved applications
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    /**
+     * Scope to get rejected applications
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    /**
+     * Scope to filter by barangay
+     */
+    public function scopeByBarangay($query, string $barangay)
+    {
+        return $query->where('barangay', $barangay);
+    }
+
+    /**
+     * Scope to filter by main livelihood
+     */
+    public function scopeByMainLivelihood($query, string $livelihood)
+    {
+        return $query->where('main_livelihood', $livelihood);
+    }
+
+    /**
+     * Scope to filter by secondary livelihood
+     */
+    public function scopeBySecondaryLivelihood($query, string $livelihood)
+    {
+        return $query->where('secondary_livelihood', $livelihood);
+    }
+
+    /**
+     * Scope to filter by date range
+     */
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
+    }
+
+    /**
+     * Scope to search by name or contact
+     */
+    public function scopeSearch($query, string $searchTerm)
+    {
+        return $query->where(function ($q) use ($searchTerm) {
+            $q->where('registration_number', 'like', "%{$searchTerm}%")
+              ->orWhere('first_name', 'like', "%{$searchTerm}%")
+              ->orWhere('last_name', 'like', "%{$searchTerm}%")
+              ->orWhere('contact_number', 'like', "%{$searchTerm}%");
+        });
+    }
+
+    // ===== METHODS =====
+
+    /**
+     * Check if application has secondary livelihood
+     */
+    public function hasSecondaryLivelihood(): bool
+    {
+        return !is_null($this->secondary_livelihood) && $this->secondary_livelihood !== '';
+    }
+
+    /**
+     * Check if application is approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    /**
+     * Check if application has a FishR number assigned
+     */
+    public function hasFishrNumber(): bool
+    {
+        return !is_null($this->fishr_number);
+    }
+
+    /**
+     * Check if application can be rejected (must be pending or under review)
+     */
+    public function canBeRejected(): bool
+    {
+        return in_array($this->status, ['pending', 'under_review']);
+    }
+
+    /**
+     * Check if FishR number can be assigned (must be approved and not already assigned)
+     */
+    public function canAssignFishrNumber(): bool
+    {
+        return $this->status === 'approved' && !$this->hasFishrNumber();
+    }
+
+    /**
+     * Get the livelihood details as array
+     */
+    public function getLivelihoodDetails(): array
+    {
+        return [
+            'main' => [
+                'type' => $this->main_livelihood,
+                'description' => $this->livelihood_description,
+                'other' => $this->other_livelihood,
+            ],
+            'secondary' => $this->hasSecondaryLivelihood() ? [
+                'type' => $this->secondary_livelihood,
+                'description' => $this->secondary_livelihood_description,
+                'other' => $this->other_secondary_livelihood,
+            ] : null,
+        ];
     }
 }

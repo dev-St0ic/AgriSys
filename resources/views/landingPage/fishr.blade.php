@@ -101,33 +101,33 @@
                 <label for="fishr-barangay">Barangay <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <select id="fishr-barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
-                    <option value="Bagong Silang">Bagong Silang</option>
-                    <option value="Cuyab">Cuyab</option>
-                    <option value="Estrella">Estrella</option>
-                    <option value="G.S.I.S.">G.S.I.S.</option>
-                    <option value="Landayan">Landayan</option>
-                    <option value="Langgam">Langgam</option>
-                    <option value="Laram">Laram</option>
-                    <option value="Magsaysay">Magsaysay</option>
-                    <option value="Nueva">Nueva</option>
-                    <option value="Poblacion">Poblacion</option>
-                    <option value="Riverside">Riverside</option>
-                    <option value="San Antonio">San Antonio</option>
-                    <option value="San Roque">San Roque</option>
-                    <option value="San Vicente">San Vicente</option>
-                    <option value="Santo Niño">Santo Niño</option>
-                    <option value="United Bayanihan">United Bayanihan</option>
-                    <option value="United Better Living">United Better Living</option>
-                    <option value="Sampaguita Village">Sampaguita Village</option>
-                    <option value="Calendola">Calendola</option>
-                    <option value="Narra">Narra</option>
-                    <option value="Chrysanthemum">Chrysanthemum</option>
-                    <option value="Fatima">Fatima</option>
-                    <option value="Maharlika">Maharlika</option>
-                    <option value="Pacita 1">Pacita 1</option>
-                    <option value="Pacita 2">Pacita 2</option>
-                    <option value="Rosario">Rosario</option>
-                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                            <option value="Bagong Silang">Bagong Silang</option>
+                            <option value="Calendola">Calendola</option>
+                            <option value="Chrysanthemum">Chrysanthemum</option>
+                            <option value="Cuyab">Cuyab</option>
+                            <option value="Estrella">Estrella</option>
+                            <option value="Fatima">Fatima</option>
+                            <option value="G.S.I.S.">G.S.I.S.</option>
+                            <option value="Landayan">Landayan</option>
+                            <option value="Langgam">Langgam</option>
+                            <option value="Laram">Laram</option>
+                            <option value="Magsaysay">Magsaysay</option>
+                            <option value="Maharlika">Maharlika</option>
+                            <option value="Narra">Narra</option>
+                            <option value="Nueva">Nueva</option>
+                            <option value="Pacita 1">Pacita 1</option>
+                            <option value="Pacita 2">Pacita 2</option>
+                            <option value="Poblacion">Poblacion</option>
+                            <option value="Riverside">Riverside</option>
+                            <option value="Rosario">Rosario</option>
+                            <option value="Sampaguita Village">Sampaguita Village</option>
+                            <option value="San Antonio">San Antonio</option>
+                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                            <option value="San Roque">San Roque</option>
+                            <option value="San Vicente">San Vicente</option>
+                            <option value="Santo Niño">Santo Niño</option> 
+                            <option value="United Bayanihan">United Bayanihan</option>
+                            <option value="United Better Living">United Better Living</option>
                 </select>
                 @error('barangay')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -141,6 +141,8 @@
                 <input type="tel" id="fishr-contact_number" name="contact_number" placeholder="Example: 09123456789"
                     value="{{ old('contact_number') }}" pattern="^09\d{9}$"
                     title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)" required>
+                <span class="validation-warning" id="fishr-contact_number-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Contact number must be in the format 09XXXXXXXXX (11 digits starting with 09)</span>
                 @error('contact_number')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
@@ -166,11 +168,40 @@
 
             <div class="fishr-form-group" id="fishr-other-livelihood-field"
                 style="display: {{ old('main_livelihood') == 'others' ? 'block' : 'none' }};">
-                <label for="fishr-other_livelihood">Please specify (if others) *</label>
+                <label for="fishr-other_livelihood">Please specify (if others) <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-other_livelihood" name="other_livelihood"
                     placeholder="Specify other livelihood" value="{{ old('other_livelihood') }}">
-                <small class="fishr-form-text">Please provide specific details about your livelihood activity</small>
                 @error('other_livelihood')
+                    <span class="fishr-error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="fishr-form-group">
+                <label for="fishr-secondary_livelihood">Secondary Livelihood (Optional)</label>
+                <select id="fishr-secondary_livelihood" name="secondary_livelihood"
+                    onchange="toggleOtherSecondaryLivelihood(this); validateSecondaryLivelihoodMatch()">
+                    <option value="" selected>Select Livelihood</option>
+                    <option value="capture">Capture Fishing</option>
+                    <option value="aquaculture">Aquaculture</option>
+                    <option value="vending">Fish Vending</option>
+                    <option value="processing">Fish Processing</option>
+                    <option value="others">Others</option>
+                </select>
+                <span class="validation-warning" id="fishr-secondary_livelihood-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Secondary livelihood cannot be the same as main livelihood</span>
+                @error('secondary_livelihood')
+                    <span class="fishr-error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="fishr-form-group" id="fishr-other-secondary-livelihood-field"
+                style="display: none;">
+                <label for="fishr-other_secondary_livelihood">Please specify (if others) <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
+                <input type="text" id="fishr-other_secondary_livelihood" name="other_secondary_livelihood"
+                    placeholder="Specify other secondary livelihood" value="{{ old('other_secondary_livelihood') }}">
+                @error('other_secondary_livelihood')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
             </div>
@@ -181,7 +212,7 @@
                 </label>
                 <input type="file" id="supporting_document" name="supporting_document"
                     accept=".pdf,.jpg,.jpeg,.png">
-                <small class="fishr-form-text">Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB). Required for aquaculture, fish vending, and fish processing only.</small>
+                <small class="fishr-form-text">Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB)</small>
                 @error('supporting_documents')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror

@@ -14,49 +14,72 @@ return new class extends Migration
         Schema::create('fishr_applications', function (Blueprint $table) {
             $table->id();
 
+            // User relationship
             $table->unsignedBigInteger('user_id')->nullable();
-
-            $table->string('registration_number')->unique()->nullable();
-            $table->string('first_name')->nullable();
-            $table->string('middle_name')->nullable();
-            $table->string('last_name')->nullable();
-            $table->string('name_extension')->nullable();
-            $table->enum('sex', ['Male', 'Female', 'Preferred not to say'])->nullable();
-            $table->string('barangay')->nullable();
-            $table->unsignedBigInteger('barangay_id')->nullable(); // Foreign key to barangays table
-            $table->string('contact_number', 20)->nullable();
-            $table->enum('main_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others'])->nullable();
-            $table->string('livelihood_description')->nullable();
-            $table->string('other_livelihood')->nullable();
-            $table->string('document_path')->nullable();
-            $table->enum('status', ['pending','under_review', 'approved', 'rejected'])->default('under_review');
-
-            // Admin management fields
-            $table->text('remarks')->nullable();
-            $table->timestamp('status_updated_at')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            // Indexes for better performance
-            $table->index(['status', 'created_at']);
-            $table->index(['barangay', 'main_livelihood']);
-            $table->index('barangay_id');
-            $table->index('registration_number');
-            $table->index('contact_number'); // Added for search functionality
-            $table->index(['first_name', 'last_name']); // Added for name searches
-
-            // Foreign key constraints
             $table->foreign('user_id')
                 ->references('id')
                 ->on('user_registration')
                 ->onDelete('cascade');
 
-            // Foreign key for admin who updated the status and barangay
-            // Will be added in separate migration after all tables are created
-            // $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('set null');
-            // $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
+            // Registration Information
+            $table->string('registration_number')->unique()->nullable();
+            
+            // Personal Information
+            $table->string('first_name')->nullable();
+            $table->string('middle_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('name_extension')->nullable();
+            $table->enum('sex', ['Male', 'Female', 'Preferred not to say'])->nullable();
+            
+            // Contact Information
+            $table->string('barangay')->nullable();
+            $table->unsignedBigInteger('barangay_id')->nullable();
+            $table->string('contact_number', 20)->nullable();
+            
+            // Main Livelihood Information
+            $table->enum('main_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others'])->nullable();
+            $table->string('livelihood_description')->nullable();
+            $table->string('other_livelihood')->nullable();
+            
+            // Secondary Livelihood Information (NEW)
+            $table->enum('secondary_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others'])->nullable();
+            $table->string('other_secondary_livelihood')->nullable();
+            
+            // Supporting Documents
+            $table->string('document_path')->nullable();
+            
+            // Status Management
+            $table->enum('status', ['pending', 'under_review', 'approved', 'rejected'])->default('pending');
+            $table->text('remarks')->nullable();
+            $table->timestamp('status_updated_at')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->foreign('updated_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
+            
+            // FishR Number (for approved registrations)
+            $table->string('fishr_number')->unique()->nullable();
+            $table->timestamp('fishr_number_assigned_at')->nullable();
+            $table->unsignedBigInteger('fishr_number_assigned_by')->nullable();
+            $table->foreign('fishr_number_assigned_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
+            
+            // Timestamps
+            $table->timestamps();
+            $table->softDeletes();
+
+            // Indexes for performance
+            $table->index(['status', 'created_at']);
+            $table->index(['barangay', 'main_livelihood']);
+            $table->index('barangay_id');
+            $table->index('registration_number');
+            $table->index('contact_number');
+            $table->index(['first_name', 'last_name']);
+            $table->index('fishr_number');
+            $table->index('user_id');
         });
     }
 

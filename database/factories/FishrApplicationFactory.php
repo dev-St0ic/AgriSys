@@ -29,7 +29,16 @@ class FishrApplicationFactory extends Factory
     {
         $livelihoods = ['capture', 'aquaculture', 'vending', 'processing', 'others'];
         $mainLivelihood = $this->faker->randomElement($livelihoods);
-        $status = $this->faker->randomElement(['pending','under_review', 'approved', 'rejected']);
+        
+        // Secondary livelihood - can be null or different from main
+        $secondaryLivelihood = null;
+        if ($this->faker->boolean(60)) { // 60% chance of having secondary
+            do {
+                $secondaryLivelihood = $this->faker->randomElement($livelihoods);
+            } while ($secondaryLivelihood === $mainLivelihood);
+        }
+        
+        $status = $this->faker->randomElement(['pending', 'under_review', 'approved', 'rejected']);
 
         // All 27 barangays from San Pedro, Laguna
         $barangays = [
@@ -65,12 +74,23 @@ class FishrApplicationFactory extends Factory
 
         if ($status !== 'under_review') {
             $statusUpdatedAt = $this->faker->dateTimeBetween($createdAt, 'now');
-            $updatedBy = User::inRandomOrder()->first()?->id ?? 1; // Assumes you have users
+            $updatedBy = User::inRandomOrder()->first()?->id ?? 1;
 
             // Generate remarks for some entries
             if ($this->faker->boolean(60)) { // 60% chance of having remarks
                 $remarks = $this->getRandomRemarks($status);
             }
+        }
+
+        // Generate FishR number for approved registrations
+        $fishrNumber = null;
+        $fishrNumberAssignedAt = null;
+        $fishrNumberAssignedBy = null;
+
+        if ($status === 'approved' && $this->faker->boolean(70)) { // 70% of approved have FishR number
+            $fishrNumber = 'FISHR-' . strtoupper(Str::random(8));
+            $fishrNumberAssignedAt = $this->faker->dateTimeBetween($statusUpdatedAt ?? $createdAt, 'now');
+            $fishrNumberAssignedBy = User::inRandomOrder()->first()?->id ?? 1;
         }
 
         $firstName = $this->faker->randomElement($filipinoFirstNames);
@@ -90,18 +110,29 @@ class FishrApplicationFactory extends Factory
                 '09' . $this->faker->numerify('#########'),
                 '09' . $this->faker->numerify('#########')
             ]),
+            // Main livelihood
             'main_livelihood' => $mainLivelihood,
             'livelihood_description' => $this->getLivelihoodDescription($mainLivelihood),
             'other_livelihood' => $mainLivelihood === 'others' ? $this->faker->jobTitle : null,
+            // Secondary livelihood (NEW)
+            'secondary_livelihood' => $secondaryLivelihood,
+            'other_secondary_livelihood' => $secondaryLivelihood === 'others' ? $this->faker->jobTitle : null,
+            // Document
             'document_path' => $this->faker->optional(0.4)->randomElement([
                 'fishr_documents/sample_id.pdf',
                 'fishr_documents/barangay_cert.jpg',
                 'fishr_documents/proof_fishing.png'
             ]),
+            // Status
             'status' => $status,
             'remarks' => $remarks,
             'status_updated_at' => $statusUpdatedAt,
             'updated_by' => $updatedBy,
+            // FishR Number
+            'fishr_number' => $fishrNumber,
+            'fishr_number_assigned_at' => $fishrNumberAssignedAt,
+            'fishr_number_assigned_by' => $fishrNumberAssignedBy,
+            // Timestamps
             'created_at' => $createdAt,
             'updated_at' => $statusUpdatedAt ?? $createdAt,
         ];
@@ -172,32 +203,9 @@ class FishrApplicationFactory extends Factory
             'remarks' => null,
             'status_updated_at' => null,
             'updated_by' => null,
-        ]);
-    }
-
-    /**
-     * State for approved registrations
-     */
-    public function approved(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'approved',
-            'remarks' => $this->getRandomRemarks('approved'),
-            'status_updated_at' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
-            'updated_by' => User::inRandomOrder()->first()?->id ?? 1,
-        ]);
-    }
-
-    /**
-     * State for rejected registrations
-     */
-    public function rejected(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'rejected',
-            'remarks' => $this->getRandomRemarks('rejected'),
-            'status_updated_at' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
-            'updated_by' => User::inRandomOrder()->first()?->id ?? 1,
+            'fishr_number' => null,
+            'fishr_number_assigned_at' => null,
+            'fishr_number_assigned_by' => null,
         ]);
     }
 
@@ -211,6 +219,65 @@ class FishrApplicationFactory extends Factory
             'remarks' => null,
             'status_updated_at' => null,
             'updated_by' => null,
+            'fishr_number' => null,
+            'fishr_number_assigned_at' => null,
+            'fishr_number_assigned_by' => null,
+        ]);
+    }
+
+    /**
+     * State for approved registrations
+     */
+    public function approved(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'approved',
+            'remarks' => $this->getRandomRemarks('approved'),
+            'status_updated_at' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
+            'updated_by' => User::inRandomOrder()->first()?->id ?? 1,
+            // Maybe assign FishR number
+            'fishr_number' => $this->faker->boolean(70) ? 'FISHR-' . strtoupper(Str::random(8)) : null,
+            'fishr_number_assigned_at' => $this->faker->boolean(70) ? 
+                $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now') : null,
+            'fishr_number_assigned_by' => $this->faker->boolean(70) ? 
+                User::inRandomOrder()->first()?->id ?? 1 : null,
+        ]);
+    }
+
+    /**
+     * State for rejected registrations
+     */
+    public function rejected(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'rejected',
+            'remarks' => $this->getRandomRemarks('rejected'),
+            'status_updated_at' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
+            'updated_by' => User::inRandomOrder()->first()?->id ?? 1,
+            'fishr_number' => null,
+            'fishr_number_assigned_at' => null,
+            'fishr_number_assigned_by' => null,
+        ]);
+    }
+
+    /**
+     * State for registrations with secondary livelihood
+     */
+    public function withSecondaryLivelihood(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'secondary_livelihood' => $this->faker->randomElement(['capture', 'aquaculture', 'vending', 'processing']),
+        ]);
+    }
+
+    /**
+     * State for registrations without secondary livelihood
+     */
+    public function withoutSecondaryLivelihood(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'secondary_livelihood' => null,
+            'other_secondary_livelihood' => null,
         ]);
     }
 }
