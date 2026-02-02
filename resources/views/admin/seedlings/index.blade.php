@@ -622,8 +622,7 @@
                                         <div class="card border-primary">
                                             <div class="card-header bg-light">
                                                 <h6 class="mb-0 text-dark">
-                                                    <i class="fas fa-seedling me-2 text-primary"></i>
-                                                    <strong>Requested Items by Category</strong>
+                                                  <strong>Requested Items by Category</strong>
                                                 </h6>
                                             </div>
                                             <div class="card-body">
@@ -672,7 +671,7 @@
 
                                                             @if ($pendingItems->count() > 0)
                                                                 <div class="mb-2">
-                                                                    <small class="text-warning fw-semibold">⏳
+                                                                    <small class="text-warning fw-semibold">
                                                                         Pending:</small>
                                                                     <div class="d-flex flex-wrap gap-2 mt-1">
                                                                         @foreach ($pendingItems as $item)
@@ -2342,9 +2341,19 @@
         }
 
         [id^="viewModal"] .card-header.bg-light {
-            background: #f8f9fa !important;
-            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #e7f3ff 0%, #d4e8ff 100%) !important;
             font-weight: 600;
+            color: #0d6efd !important;
+        }
+
+        [id^="viewModal"] .card-header.bg-light h6 {
+            color: #0d6efd !important;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        [id^="viewModal"] .card-header.bg-light i {
+            color: #0d6efd !important;
         }
 
         [id^="viewModal"] .card-body {
@@ -2394,6 +2403,31 @@
             letter-spacing: 0.5px;
             display: inline-block;
             margin-top: 0.25rem;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge.bg-success {
+            background-color: #198754 !important;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge.bg-warning {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
+
+        [id^="viewModal"] .badge.bg-danger {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge.bg-secondary {
+            background-color: #6c757d !important;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge strong {
+            color: white !important;
         }
 
         /* Responsive Adjustments */
