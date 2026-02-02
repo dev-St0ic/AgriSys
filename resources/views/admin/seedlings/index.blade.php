@@ -947,50 +947,58 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                   <!-- ✅ NEW: Pickup Date Section in Edit Modal -->
-@if($request->status === 'approved' || $request->status === 'partially_approved')
-    <div class="card border-0 bg-light mb-3">
-        <div class="card-header bg-white border-0 pb-0">
-            <h6 class="mb-0 fw-semibold text-primary">
-                <i class="fas fa-calendar-check me-2"></i>Pickup Date
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                @if($request->pickup_date)
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Current Pickup Date</label>
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            {{ $request->pickup_date->format('F d, Y') }}
-                            
-                            @if($request->pickup_date->isPast())
-                                <span class="badge bg-danger float-end">
-                                    <i class="fas fa-exclamation-circle me-1"></i>Expired
-                                </span>
-                            @elseif(now()->diffInDays($request->pickup_expired_at) <= 3)
-                                <span class="badge bg-warning float-end text-dark">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
-                                </span>
-                            @else
-                                <span class="badge bg-success float-end">
-                                    <i class="fas fa-check-circle me-1"></i>Active
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                @else
-                    <div class="col-12">
-                        <p class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>No pickup date assigned
-                        </p>
-                    </div>
-                @endif
+<!-- ✅ NEW: Pickup Date Section in Edit Modal - EDITABLE -->
+<div class="card border-0 bg-light mb-3">
+    <div class="card-header bg-white border-0 pb-0">
+        <h6 class="mb-0 fw-semibold text-primary">
+            <i class="fas fa-calendar-check me-2"></i>Pickup Date
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="edit_seedling_pickup_date_{{ $request->id }}" class="form-label fw-semibold">
+                    Set/Update Pickup Date
+                </label>
+                <input 
+                    type="date" 
+                    id="edit_seedling_pickup_date_{{ $request->id }}" 
+                    name="pickup_date"
+                    class="form-control"
+                    value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
+                    onchange="checkForEditChanges({{ $request->id }})">
+                
+                <div id="edit_pickup_date_display_{{ $request->id }}" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                    <strong>Selected:</strong> <span id="edit_pickup_date_text_{{ $request->id }}"></span>
+                </div>
             </div>
+            @if($request->pickup_date)
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Current Status</label>
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        {{ $request->pickup_date->format('F d, Y') }}
+                        
+                        @if($request->pickup_date->isPast())
+                            <span class="badge bg-danger float-end">
+                                <i class="fas fa-exclamation-circle me-1"></i>Expired
+                            </span>
+                        @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                            <span class="badge bg-warning float-end text-dark">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
+                            </span>
+                        @else
+                            <span class="badge bg-success float-end">
+                                <i class="fas fa-check-circle me-1"></i>Active
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
-@endif
+</div>
+
                                     <!-- Supporting Document Card EDIT MODAL-->
                                     <div class="card mb-3 border-0 bg-light">
                                         <div class="card-header bg-white border-0 pb-0">
@@ -1287,49 +1295,59 @@
                                         </div>
                                     </div>
 
-                                    <!-- ✅ NEW: Pickup Date Section in Status Modal -->
-                                    @if($request->status === 'approved' || $request->status === 'partially_approved')
-                                        <div class="card border-0 bg-light mb-3">
-                                            <div class="card-header bg-white border-0 pb-0">
-                                                <h6 class="mb-0 fw-semibold text-primary">
-                                                    <i class="fas fa-calendar-check me-2"></i>Pickup Date
-                                                </h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    @if($request->pickup_date)
-                                                        <div class="col-md-6">
-                                                            <label class="form-label fw-semibold">Current Pickup Date</label>
-                                                            <div class="alert alert-info mb-0">
-                                                                <i class="fas fa-calendar-alt me-2"></i>
-                                                                {{ $request->pickup_date->format('F d, Y') }}
-                                                                
-                                                                @if($request->pickup_date->isPast())
-                                                                    <span class="badge bg-danger float-end">
-                                                                        <i class="fas fa-exclamation-circle me-1"></i>Expired
-                                                                    </span>
-                                                                @elseif(now()->diffInDays($request->pickup_expired_at) <= 3)
-                                                                    <span class="badge bg-warning float-end text-dark">
-                                                                        <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
-                                                                    </span>
-                                                                @else
-                                                                    <span class="badge bg-success float-end">
-                                                                        <i class="fas fa-check-circle me-1"></i>Active
-                                                                    </span>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    @else
-                                                        <div class="col-12">
-                                                            <p class="text-muted">
-                                                                <i class="fas fa-info-circle me-1"></i>No pickup date assigned
-                                                            </p>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
+                                    <!-- ✅ NEW: Pickup Date Section in Edit Modal -->
+@if($request->status === 'approved' || $request->status === 'partially_approved')
+    <div class="card border-0 bg-light mb-3">
+        <div class="card-header bg-white border-0 pb-0">
+            <h6 class="mb-0 fw-semibold text-primary">
+                <i class="fas fa-calendar-check me-2"></i>Pickup Date
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="edit_seedling_pickup_date_{{ $request->id }}" class="form-label fw-semibold">
+                        Set/Update Pickup Date
+                    </label>
+                    <input 
+                        type="date" 
+                        id="edit_seedling_pickup_date_{{ $request->id }}" 
+                        name="pickup_date"
+                        class="form-control"
+                        value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
+                        onchange="checkForEditChanges({{ $request->id }})">
+                    
+                    <div id="edit_pickup_date_display_{{ $request->id }}" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                        <strong>Selected:</strong> <span id="edit_pickup_date_text_{{ $request->id }}"></span>
+                    </div>
+                </div>
+                @if($request->pickup_date)
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Current Status</label>
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            {{ $request->pickup_date->format('F d, Y') }}
+                            
+                            @if($request->pickup_date->isPast())
+                                <span class="badge bg-danger float-end">
+                                    <i class="fas fa-exclamation-circle me-1"></i>Expired
+                                </span>
+                            @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                                <span class="badge bg-warning float-end text-dark">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
+                                </span>
+                            @else
+                                <span class="badge bg-success float-end">
+                                    <i class="fas fa-check-circle me-1"></i>Active
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+@endif
 
                                     <!-- Info Alert -->
                                     <div class="alert alert-info border-left-info mb-0">
@@ -4236,8 +4254,12 @@ function validateAddSeedlingPickupDate() {
             originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
             originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
             originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
+            // ✅ STORE ORIGINAL PICKUP DATE
+            const pickupDateInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+            const originalPickupDate = pickupDateInput ? pickupDateInput.value : '';
             // Store in form data attribute
             form.dataset.originalData = JSON.stringify(originalData);
+            form.dataset.originalPickupDate = originalPickupDate;  
             form.dataset.hasOriginalDocument = hasDocument ? 'true' : 'false';
             form.dataset.originalDocumentPath = documentPath || '';
 
@@ -4268,60 +4290,76 @@ function validateAddSeedlingPickupDate() {
 
 
         // Check for changes in edit form
-        function checkForEditChanges(requestId) {
-            const form = document.getElementById('editForm' + requestId);
-            const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+       function checkForEditChanges(requestId) {
+    const form = document.getElementById('editForm' + requestId);
+    const submitBtn = document.getElementById('editSubmitBtn' + requestId);
 
-            if (!form || !submitBtn) return;
+    if (!form || !submitBtn) return;
 
-            const originalData = JSON.parse(form.dataset.originalData || '{}');
-            let hasChanges = false;
-            let changedFields = [];
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let hasChanges = false;
+    let changedFields = [];
 
-            // Check all form fields
-            const fields = [
-                'first_name', 'middle_name', 'last_name', 'extension_name',
-                'contact_number', 'barangay'
-            ];
+    // Check all form fields
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'extension_name',
+        'contact_number', 'barangay'
+    ];
 
-            fields.forEach(field => {
-                const input = form.querySelector(`[name="${field}"]`);
-                if (input && input.value !== originalData[field]) {
-                    hasChanges = true;
-                    changedFields.push(field);
-                    input.classList.add('form-changed');
-                } else if (input) {
-                    input.classList.remove('form-changed');
-                }
-            });
-
-            // Check file input - ONLY if a NEW file was selected
-            const fileInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                hasChanges = true;
-                changedFields.push('supporting_document');
-                console.log('New file selected:', fileInput.files[0].name);
-            }
-
-            // Update button state
-            if (hasChanges) {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'true';
-                submitBtn.dataset.changedFields = JSON.stringify(changedFields);
-            } else {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'false';
-            }
+    fields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && input.value !== originalData[field]) {
+            hasChanges = true;
+            changedFields.push(field);
+            input.classList.add('form-changed');
+        } else if (input) {
+            input.classList.remove('form-changed');
         }
+    });
+
+    // ✅ ADD PICKUP DATE CHANGE DETECTION
+    const pickupDateInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+    if (pickupDateInput) {
+        const originalPickupDate = form.dataset.originalPickupDate || '';
+        const currentPickupDate = pickupDateInput.value || '';
+        
+        if (currentPickupDate !== originalPickupDate) {
+            hasChanges = true;
+            changedFields.push('pickup_date');
+            pickupDateInput.classList.add('form-changed');
+        } else {
+            pickupDateInput.classList.remove('form-changed');
+        }
+    }
+
+    // Check file input - ONLY if a NEW file was selected
+    const fileInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        hasChanges = true;
+        changedFields.push('supporting_document');
+        console.log('New file selected:', fileInput.files[0].name);
+    }
+
+    // Update button state
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+        submitBtn.dataset.changedFields = JSON.stringify(changedFields);
+    } else {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
+}
 
         // Handle edit form submission with changes summary
         function handleEditSeedlingSubmit(requestId) {
             const form = document.getElementById('editForm' + requestId);
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+            const modal = document.getElementById('editSeedlingModal' + requestId); 
          
 
             // CHECK FOR VALIDATION ERRORS FIRST
@@ -4951,83 +4989,84 @@ function validateAddSeedlingPickupDate() {
             }
         }
 
-        /**
-         * Confirm permanent delete for supply request
-         */
-        async function confirmPermanentDeleteSeedling() {
-            if (!currentDeleteSeedlingId) {
-                showToast('error', 'Request ID not found');
-                return;
+      /**
+ * Confirm permanent delete for supply request
+ */
+async function confirmPermanentDeleteSeedling() {
+    if (!currentDeleteSeedlingId) {
+        showToast('error', 'Request ID not found');
+        return;
+    }
+
+    try {
+        // Show loading state
+        const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+        const deleteModalElement = document.getElementById('deleteSeedlingModal');  // ✅ Changed name to avoid conflict
+        
+        deleteBtn.querySelector('.btn-text').style.display = 'none';
+        deleteBtn.querySelector('.btn-loader').style.display = 'inline';
+        deleteBtn.disabled = true;
+
+        const response = await fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
+        });
 
-            try {
-                // Show loading state
-                const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-                deleteBtn.querySelector('.btn-text').style.display = 'none';
-                deleteBtn.querySelector('.btn-loader').style.display = 'inline';
-                deleteBtn.disabled = true;
+        const data = await response.json();
 
-                const response = await fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to delete request');
-                }
-
-                // Close modal
-                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
-                if (deleteModal) {
-                    deleteModal.hide();
-                }
-
-                // Show success message
-                showToast('success', data.message || 'Supply request deleted successfully');
-
-                // Remove the row with animation
-                const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
-                if (row) {
-                    row.style.transition = 'opacity 0.3s ease';
-                    row.style.opacity = '0';
-                    setTimeout(() => row.remove(), 300);
-                }
-
-                // Reload page to refresh statistics
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-
-                // Reset for next use
-                currentDeleteSeedlingId = null;
-
-            } catch (error) {
-                console.error('Error deleting request:', error);
-
-                // Close modal first
-                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
-                if (deleteModal) {
-                    deleteModal.hide();
-                }
-
-                // Show error
-                showToast('error', 'Error deleting request: ' + error.message);
-
-            } finally {
-                // Reset button state
-                const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-                deleteBtn.querySelector('.btn-text').style.display = 'inline';
-                deleteBtn.querySelector('.btn-loader').style.display = 'none';
-                deleteBtn.disabled = false;
-            }
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to delete request');
         }
 
+        // Close modal
+        const deleteModal = bootstrap.Modal.getInstance(deleteModalElement);
+        if (deleteModal) {
+            deleteModal.hide();
+        }
+
+        // Show success message
+        showToast('success', data.message || 'Supply request deleted successfully');
+
+        // Remove the row with animation
+        const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
+        if (row) {
+            row.style.transition = 'opacity 0.3s ease';
+            row.style.opacity = '0';
+            setTimeout(() => row.remove(), 300);
+        }
+
+        // Reload page to refresh statistics
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+
+        // Reset for next use
+        currentDeleteSeedlingId = null;
+
+    } catch (error) {
+        console.error('Error deleting request:', error);
+
+        // Close modal first
+        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
+        if (deleteModal) {
+            deleteModal.hide();
+        }
+
+        // Show error
+        showToast('error', 'Error deleting request: ' + error.message);
+
+    } finally {
+        // Reset button state
+        const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+        deleteBtn.querySelector('.btn-text').style.display = 'inline';
+        deleteBtn.querySelector('.btn-loader').style.display = 'none';
+        deleteBtn.disabled = false;
+    }
+}
         /**
          * Clean up modal on close
          */
@@ -5458,7 +5497,72 @@ function updateAddSeedlingRemarksCounter() {
             document.getElementById('addRemarksCounter').classList.add('text-muted');
         }
     }
+
+}
+// Initialize pickup date field in edit modal (add to existing initializePickupDateEditModal function or create new)
+function initializePickupDateEditModal(requestId) {
+    const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+    const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
+    const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
+
+    if (!pickupInput) return;
+
+    // Set min/max dates
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 1);
     
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    // Validate on change
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+            return;
+        }
+
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+        checkForEditChanges(requestId);
+    });
+
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+        }
+    });
 }
     </script>
 @endsection

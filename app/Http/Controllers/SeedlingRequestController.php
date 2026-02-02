@@ -320,6 +320,20 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         'contact_number' => 'required|string|max:20',
         'barangay' => 'required|string|max:255',
         'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        'pickup_date' => [
+            'nullable',
+            'date',
+            'after_or_equal:today',
+            function ($attribute, $value, $fail) {
+                if ($value) {
+                    $date = \Carbon\Carbon::parse($value);
+                    if ($date->isWeekend()) {
+                        $fail('Pickup date cannot be on Saturday or Sunday.');
+                    }
+                }
+            }
+        ],
+    
     ], [
         'contact_number.required' => 'Contact number is required.',
         'contact_number.regex' => 'Please enter a valid Philippine mobile number.',
