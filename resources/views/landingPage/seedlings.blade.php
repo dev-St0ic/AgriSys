@@ -53,7 +53,7 @@
                 <i class="fas fa-shopping-cart"></i> <span id="filter-count">0</span>
             </button>
             <button type="button" class="filter-clear-btn" onclick="clearAllSelections()">
-                <i class="fas fa-times"></i> Clear All
+                <i></i> Clear All
             </button>
         </div>
     </div>
