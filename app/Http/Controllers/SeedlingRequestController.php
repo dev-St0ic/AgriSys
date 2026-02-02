@@ -152,6 +152,21 @@ class SeedlingRequestController extends Controller
             'contact_number' => 'required|string|max:20',
             'barangay' => 'required|string|max:255',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'status' => 'nullable|in:pending,under_review,approved,partially_approved,rejected',
+            'remarks' => 'nullable|string|max:1000',
+            'pickup_date' => [
+            'nullable',
+            'date',
+            'after_or_equal:today',
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        $date = \Carbon\Carbon::parse($value);
+                        if ($date->isWeekend()) {
+                            $fail('Pickup date cannot be on Saturday or Sunday.');
+                        }
+                    }
+                }
+            ],
 
             // Items - Dynamic array structure
             'items' => 'required|array|min:1',
@@ -171,6 +186,14 @@ class SeedlingRequestController extends Controller
                 $documentPath = $request->file('document')->store('seedling-requests', 'public');
             }
 
+             // ✅ PARSE AND FORMAT PICKUP DATE
+            $pickupDate = null;
+            $pickupExpiredAt = null;
+            if (!empty($validated['pickup_date'])) {
+                $pickupDate = \Carbon\Carbon::parse($validated['pickup_date'])->startOfDay();
+                $pickupExpiredAt = $pickupDate->copy()->addDays(1)->endOfDay();
+            }
+
             // Create the main request
             $seedlingRequest = SeedlingRequest::create([
                 'first_name' => $validated['first_name'],
@@ -180,7 +203,11 @@ class SeedlingRequestController extends Controller
                 'contact_number' => $validated['contact_number'],
                 'barangay' => $validated['barangay'],
                 'document_path' => $documentPath,
-                'status' => 'pending',
+                'status' => $validated['status'] ?? 'pending',
+                'remarks' => $validated['remarks'] ?? null,
+                'pickup_date' => $pickupDate, 
+                'pickup_expired_at' => $pickupExpiredAt, 
+                'pickup_reminder_sent' => false, 
             ]);
 
             // Create request items from dynamic selections
