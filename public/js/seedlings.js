@@ -680,7 +680,7 @@ function showPickupDateField(totalQuantity) {
         // Set dynamic min and max dates based on TODAY
         const today = new Date();
         const minDate = new Date(today);
-        minDate.setDate(minDate.getDate() + 7); // 7 days from today
+        minDate.setDate(minDate.getDate() + 1); // 1 day from today
         
         const maxDate = new Date(today);
         maxDate.setDate(maxDate.getDate() + 30); // 30 days from today
@@ -704,7 +704,7 @@ function initPickupDateField() {
     // Set min/max dates
     const today = new Date();
     const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 7);
+    minDate.setDate(minDate.getDate() + 1);
     
     const maxDate = new Date(today);
     maxDate.setDate(maxDate.getDate() + 30);
@@ -1331,10 +1331,10 @@ function initPickupDateField() {
 
     if (!pickupInput) return;
 
-    // ✅ Set min/max dates (7-30 days from today)
+    // ✅ Set min/max dates (1-30 days from today)
     const today = new Date();
     const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 7); // 7 days from today
+    minDate.setDate(minDate.getDate() + 1); // 1 day from today
     
     const maxDate = new Date(today);
     maxDate.setDate(maxDate.getDate() + 30); // 30 days from today

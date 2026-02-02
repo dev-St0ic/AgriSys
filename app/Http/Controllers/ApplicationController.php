@@ -468,7 +468,7 @@ public function submitSeedlings(Request $request)
             'mobile.regex' => 'Mobile number must be in the format 09XXXXXXXXX',
             'pickup_date.required' => 'Pickup date is required',
             'pickup_date.date' => 'Pickup date must be a valid date',
-            'pickup_date.after_or_equal' => 'Pickup date must be at least 7 days from today',
+            'pickup_date.after_or_equal' => 'Pickup date must be at least 1 day from today',
             'pickup_date.before_or_equal' => 'Pickup date must be within 30 days from today',
         ]);
 
