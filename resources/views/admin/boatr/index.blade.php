@@ -563,6 +563,49 @@
                             </div>
                         </div>
 
+           <!-- Boat Classification Card -->
+<div class="card mb-3 border-0 bg-light">
+    <div class="card-header bg-white border-0 pb-0">
+        <h6 class="mb-0 fw-semibold text-primary">
+            <i class="fas fa-cog me-2"></i>Engine Information
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <label for="boatr_boat_classification" class="form-label fw-semibold">
+                    Boat Classification <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="boatr_boat_classification" name="boat_classification" required onchange="handleBoatClassificationChange(this)">
+                    <option value="">Select Classification</option>
+                    <option value="Motorized">Motorized</option>
+                    <option value="Non-motorized">Non-motorized</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ENGINE FIELDS - HIDDEN BY DEFAULT -->
+        <div id="boatr_engine_fields_container" style="display: none;">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="boatr_engine_type" class="form-label fw-semibold">
+                        Engine Type <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="boatr_engine_type" name="engine_type" maxlength="100" placeholder="e.g., Diesel, Gasoline, Outboard">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="boatr_engine_horsepower" class="form-label fw-semibold">
+                        Engine Horsepower <span class="text-danger">*</span>
+                    </label>
+                    <input type="number" class="form-control" id="boatr_engine_horsepower" name="engine_horsepower" min="1" max="9999" placeholder="0">
+                    <small class="text-muted d-block mt-2">HP</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
                         <!-- Boat Dimensions Card -->
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
@@ -594,32 +637,6 @@
                             </div>
                         </div>
 
-                        <!-- Engine Information Card -->
-                        <div class="card mb-3 border-0 bg-light">
-                            <div class="card-header bg-white border-0 pb-0">
-                                <h6 class="mb-0 fw-semibold text-primary">
-                                    <i class="fas fa-cog me-2"></i>Engine Information
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="boatr_engine_type" class="form-label fw-semibold">
-                                            Engine Type <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="boatr_engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline, Outboard">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="boatr_engine_horsepower" class="form-label fw-semibold">
-                                            Engine Horsepower <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="number" class="form-control" id="boatr_engine_horsepower" min="1" max="9999" required placeholder="0">
-                                        <small class="text-muted d-block mt-2">HP</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Fishing Information Card -->
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
@@ -639,6 +656,7 @@
                                             <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
                                             <option value="Fish Trap">Fish Trap</option>
                                             <option value="Fish Coral">Fish Coral</option>
+                                            <option value="Not Applicable">Not Applicable (N/A)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1075,6 +1093,12 @@
                                     <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Specifications</h6>
                                 </div>
                                 <div class="card-body">
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <strong>Classification:</strong>
+                                            <span id="viewRegBoatClassification"></span>
+                                        </div>
+                                    </div>
                                     <div class="row g-2">
                                         <div class="col-12">
                                             <strong>Dimensions:</strong>
@@ -1645,6 +1669,49 @@
                         </div>
                     </div>
 
+                     <!-- Engine Information Card -->
+                    <div class="card mb-3 border-0 bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-primary">
+                                <i class="fas fa-cog me-2"></i>Engine Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_boatr_boat_classification" class="form-label fw-semibold">
+                                        Boat Classification <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="edit_boatr_boat_classification" name="boat_classification" required onchange="handleEditBoatClassificationChange(this)">
+                                        <option value="">Select Classification</option>
+                                        <option value="Motorized">Motorized</option>
+                                        <option value="Non-motorized">Non-motorized</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="edit_boatr_engine_fields_container" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_boatr_engine_type" class="form-label fw-semibold">
+                                            Engine Type <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="edit_boatr_engine_type"
+                                            name="engine_type" maxlength="100" placeholder="e.g., Diesel, Gasoline">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_boatr_engine_horsepower" class="form-label fw-semibold">
+                                            Engine Horsepower <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="edit_boatr_engine_horsepower"
+                                            name="engine_horsepower" min="1" max="9999" placeholder="0">
+                                        <small class="text-muted d-block mt-2">HP</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Boat Dimensions Card -->
                     <div class="card mb-3 border-0 bg-light">
                         <div class="card-header bg-white border-0 pb-0">
@@ -1679,33 +1746,6 @@
                         </div>
                     </div>
 
-                    <!-- Engine Information Card -->
-                    <div class="card mb-3 border-0 bg-light">
-                        <div class="card-header bg-white border-0 pb-0">
-                            <h6 class="mb-0 fw-semibold text-primary">
-                                <i class="fas fa-cog me-2"></i>Engine Information
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="edit_boatr_engine_type" class="form-label fw-semibold">
-                                        Engine Type <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="edit_boatr_engine_type"
-                                        name="engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="edit_boatr_engine_horsepower" class="form-label fw-semibold">
-                                        Engine Horsepower <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" class="form-control" id="edit_boatr_engine_horsepower"
-                                        name="engine_horsepower" min="1" max="9999" required placeholder="0">
-                                    <small class="text-muted d-block mt-2">HP</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Fishing Information Card -->
                     <div class="card mb-3 border-0 bg-light">
@@ -1727,6 +1767,7 @@
                                         <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
                                         <option value="Fish Trap">Fish Trap</option>
                                         <option value="Fish Coral">Fish Coral</option>
+                                        <option value="Not Applicable">Not Applicable (N/A)</option>
                                     </select>
                                 </div>
                             </div>
@@ -3851,7 +3892,7 @@
                     <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
+                            <i></i>Cancel
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
@@ -4883,7 +4924,17 @@ function confirmPermanentDeleteBoatr() {
 
                     // Populate Location
                     document.getElementById('viewRegBarangay').textContent = data.barangay || 'N/A';
-
+                    // Populate Boat Classification
+                    const classificationBadge = document.getElementById('viewRegBoatClassification').innerHTML = 
+    `<span class="badge bg-primary" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
+        ${data.boat_classification || 'N/A'}
+    </span>`;
+                    if (data.boat_classification) {
+                        const badgeColor = data.boat_classification === 'Motorized' ? 'primary' : 'warning';
+                        classificationBadge.innerHTML = `<span class="badge bg-${badgeColor}" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">${data.boat_classification}</span>`;
+                    } else {
+                        classificationBadge.textContent = 'N/A';
+                    }
                     // Populate Boat Specifications
                     const dimensions = `${data.boat_length || '0'} x ${data.boat_width || '0'} x ${data.boat_depth || '0'} ft`;
                     document.getElementById('viewRegDimensions').textContent = dimensions;
@@ -6204,8 +6255,11 @@ function confirmPermanentDeleteBoatr() {
 
             reader.readAsDataURL(file);
         }
-        // submit add boatr form
-  async function submitAddBoatr() {
+     /**
+ * COMPLETE UPDATED: submitAddBoatr() Function
+ * With proper boat classification and engine field handling
+ */
+async function submitAddBoatr() {
     console.log('=== submitAddBoatr START ===');
     
     // Remove any old validation errors first
@@ -6224,72 +6278,121 @@ function confirmPermanentDeleteBoatr() {
     // Prepare form data
     const formData = new FormData();
 
+    // === STEP 1: Personal Information ===
     const firstNameVal = document.getElementById('boatr_first_name').value.trim();
+    const middleNameVal = document.getElementById('boatr_middle_name').value.trim();
     const lastNameVal = document.getElementById('boatr_last_name').value.trim();
+    const extensionVal = document.getElementById('boatr_name_extension').value.trim();
     const contactVal = document.getElementById('boatr_contact_number').value.trim();
     const barangayVal = document.getElementById('boatr_barangay').value.trim();
-    const fishrVal = document.getElementById('boatr_fishr_number').value.trim();
-    const vesselVal = document.getElementById('boatr_vessel_name').value.trim();
-    const boatTypeVal = document.getElementById('boatr_boat_type').value.trim();
-    const lengthVal = document.getElementById('boatr_boat_length').value.trim();
-    const widthVal = document.getElementById('boatr_boat_width').value.trim();
-    const depthVal = document.getElementById('boatr_boat_depth').value.trim();
-    const engineTypeVal = document.getElementById('boatr_engine_type').value.trim();
-    const engineHpVal = document.getElementById('boatr_engine_horsepower').value.trim();
-    const gearVal = document.getElementById('boatr_primary_fishing_gear').value.trim();
-    const statusVal = document.getElementById('boatr_status').value.trim();
-    const remarksVal = document.getElementById('boatr_remarks').value.trim();
-    const fishrAppIdVal = document.getElementById('boatr_fishr_app_id').value.trim();
 
-    console.log('Form values:', {
+    formData.append('first_name', firstNameVal);
+    formData.append('middle_name', middleNameVal);
+    formData.append('last_name', lastNameVal);
+    formData.append('name_extension', extensionVal);
+    formData.append('contact_number', contactVal);
+    formData.append('barangay', barangayVal);
+
+    console.log('Personal Info:', {
         firstName: firstNameVal,
         lastName: lastNameVal,
         contact: contactVal,
-        barangay: barangayVal,
-        fishr: fishrVal,
-        vessel: vesselVal,
-        boatType: boatTypeVal,
-        length: lengthVal,
-        width: widthVal,
-        depth: depthVal,
-        engineType: engineTypeVal,
-        engineHp: engineHpVal,
-        gear: gearVal,
-        status: statusVal,
-        fishrAppId: fishrAppIdVal
+        barangay: barangayVal
     });
 
-    formData.append('first_name', firstNameVal);
-    formData.append('middle_name', document.getElementById('boatr_middle_name').value.trim());
-    formData.append('last_name', lastNameVal);
-    formData.append('name_extension', document.getElementById('boatr_name_extension').value || '');
-    formData.append('contact_number', contactVal);
-    formData.append('barangay', barangayVal);
+    // === STEP 2: Vessel Information ===
+    const fishrVal = document.getElementById('boatr_fishr_number').value.trim();
+    const vesselVal = document.getElementById('boatr_vessel_name').value.trim();
+    const boatTypeVal = document.getElementById('boatr_boat_type').value.trim();
+    const fishrAppIdVal = document.getElementById('boatr_fishr_app_id').value.trim();
+
     formData.append('fishr_number', fishrVal);
     formData.append('vessel_name', vesselVal);
     formData.append('boat_type', boatTypeVal);
-    formData.append('boat_length', parseFloat(lengthVal) || 0);
-    formData.append('boat_width', parseFloat(widthVal) || 0);
-    formData.append('boat_depth', parseFloat(depthVal) || 0);
-    formData.append('engine_type', engineTypeVal);
-    formData.append('engine_horsepower', parseInt(engineHpVal) || 0);
-    formData.append('primary_fishing_gear', gearVal);
-    formData.append('status', statusVal || 'pending');
-    formData.append('remarks', remarksVal);
-    
-    // IMPORTANT: Add fishr_application_id if it was validated
+
     if (fishrAppIdVal) {
         formData.append('fishr_application_id', fishrAppIdVal);
     }
 
-    // Add document if uploaded
+    console.log('Vessel Info:', {
+        fishr: fishrVal,
+        vessel: vesselVal,
+        boatType: boatTypeVal,
+        fishrAppId: fishrAppIdVal
+    });
+
+    // === STEP 3: Boat Dimensions ===
+    const lengthVal = document.getElementById('boatr_boat_length').value.trim();
+    const widthVal = document.getElementById('boatr_boat_width').value.trim();
+    const depthVal = document.getElementById('boatr_boat_depth').value.trim();
+
+    formData.append('boat_length', parseFloat(lengthVal) || 0);
+    formData.append('boat_width', parseFloat(widthVal) || 0);
+    formData.append('boat_depth', parseFloat(depthVal) || 0);
+
+    console.log('Dimensions:', {
+        length: lengthVal,
+        width: widthVal,
+        depth: depthVal
+    });
+
+    // === STEP 4: Boat Classification (CORRECT ORDER - GET VALUE FIRST) ===
+
+    const boatClassificationVal = document.getElementById('boatr_boat_classification').value.trim();
+if (!boatClassificationVal) {
+    showToast('error', 'Boat Classification is required');
+    return;
+}
+formData.append('boat_classification', boatClassificationVal);
+
+console.log('Boat Classification:', boatClassificationVal);
+
+    // === STEP 5: Engine Information (Only if Motorized) ===
+    if (boatClassificationVal === 'Motorized') {
+        const engineTypeVal = document.getElementById('boatr_engine_type').value.trim();
+        const engineHpVal = document.getElementById('boatr_engine_horsepower').value.trim();
+
+        formData.append('engine_type', engineTypeVal);
+        formData.append('engine_horsepower', parseInt(engineHpVal) || 0);
+
+        console.log('Engine Info (Motorized):', {
+            engineType: engineTypeVal,
+            engineHp: engineHpVal
+        });
+    } else {
+        // For non-motorized boats, send empty values
+        formData.append('engine_type', '');
+        formData.append('engine_horsepower', 0);
+
+        console.log('Engine Info (Non-motorized): EMPTY');
+    }
+
+    // === STEP 6: Fishing Gear ===
+    const gearVal = document.getElementById('boatr_primary_fishing_gear').value.trim();
+    formData.append('primary_fishing_gear', gearVal);
+
+    console.log('Fishing Gear:', gearVal);
+
+    // === STEP 7: Status & Remarks ===
+    const statusVal = document.getElementById('boatr_status').value.trim() || 'pending';
+    const remarksVal = document.getElementById('boatr_remarks').value.trim();
+
+    formData.append('status', statusVal);
+    formData.append('remarks', remarksVal);
+
+    console.log('Status & Remarks:', {
+        status: statusVal,
+        remarks: remarksVal
+    });
+
+    // === STEP 8: Supporting Document (if uploaded) ===
     const docInput = document.getElementById('boatr_user_document');
     if (docInput && docInput.files && docInput.files[0]) {
         console.log('File to upload:', docInput.files[0].name);
         formData.append('user_document', docInput.files[0]);
     }
 
-    // Find submit button
+    // === STEP 9: Find Submit Button ===
     const submitBtn = document.querySelector('#addBoatrModal .modal-footer .btn-primary');
     if (!submitBtn) {
         showToast('error', 'Submit button not found');
@@ -6301,93 +6404,105 @@ function confirmPermanentDeleteBoatr() {
     submitBtn.disabled = true;
 
     console.log('Sending request to:', '/admin/boatr/requests/create');
+    console.log('Form Data Summary:');
+    for (let [key, value] of formData.entries()) {
+        if (key !== 'user_document') { // Don't log file objects
+            console.log(`  ${key}: ${value}`);
+        }
+    }
 
-    // Submit to backend
+    // === STEP 10: Submit to Backend ===
     fetch('/admin/boatr/requests/create', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || getCSRFToken(),
-                'Accept': 'application/json'
-                // NOTE: Do NOT set Content-Type with FormData, browser will set it automatically
-            },
-            body: formData
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-            
-            return response.json().then(data => ({
-                status: response.status,
-                ok: response.ok,
-                data: data
-            }));
-        })
-        .then(({status, ok, data}) => {
-            console.log('Response data:', data);
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || getCSRFToken(),
+            'Accept': 'application/json'
+            // NOTE: Do NOT set Content-Type with FormData, browser will set it automatically
+        },
+        body: formData
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        return response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        }));
+    })
+    .then(({status, ok, data}) => {
+        console.log('Response data:', data);
 
-            if (ok && data.success) {
-                // IMPORTANT: Close modal BEFORE showing success message
-                const modalElement = document.getElementById('addBoatrModal');
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                if (modal) {
-                    modal.hide();
-                }
-
-                // Clear form
-                document.getElementById('addBoatrForm').reset();
-                document.getElementById('boatr_fishr_app_id').value = '';
-
-                // Show success message
-                showToast('success', data.message || 'BoatR application created successfully');
-
-                console.log('Success! Reloading page in 2 seconds...');
-
-                // CRITICAL: Wait longer to ensure modal is fully closed and database is committed
-                setTimeout(() => {
-                    console.log('Performing full page reload...');
-                    window.location.href = window.location.href;
-                }, 2000);
-
-            } else {
-                // Show validation errors
-                console.log('Validation errors:', data.errors);
-                
-                if (data.errors && typeof data.errors === 'object') {
-                    Object.keys(data.errors).forEach(field => {
-                        const fieldName = field.replace(/_/g, '-');
-                        const input = document.getElementById('boatr_' + fieldName) || 
-                                    document.getElementById('boatr-' + fieldName);
-                        
-                        if (input) {
-                            input.classList.add('is-invalid');
-                            const errorDiv = input.parentNode.querySelector('.invalid-feedback') || 
-                                        document.createElement('div');
-                            errorDiv.className = 'invalid-feedback d-block';
-                            errorDiv.textContent = Array.isArray(data.errors[field]) ? 
-                                                data.errors[field][0] : 
-                                                data.errors[field];
-                            
-                            if (!input.parentNode.querySelector('.invalid-feedback')) {
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        }
-                    });
-                }
-                showToast('error', data.message || 'Failed to create BoatR application');
-                
-                // Reset button
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+        if (ok && data.success) {
+            // IMPORTANT: Close modal BEFORE showing success message
+            const modalElement = document.getElementById('addBoatrModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
             }
-        })
-        .catch(error => {
-            console.error('Fetch error:', error);
-            showToast('error', 'An error occurred while creating the application: ' + error.message);
+
+            // Clear form
+            document.getElementById('addBoatrForm').reset();
+            document.getElementById('boatr_fishr_app_id').value = '';
+            
+            // Hide engine fields
+            const engineContainer = document.getElementById('boatr_engine_fields_container');
+            if (engineContainer) {
+                engineContainer.style.display = 'none';
+            }
+
+            // Show success message
+            showToast('success', data.message || 'BoatR application created successfully');
+
+            console.log('Success! Reloading page in 2 seconds...');
+
+            // CRITICAL: Wait longer to ensure modal is fully closed and database is committed
+            setTimeout(() => {
+                console.log('Performing full page reload...');
+                window.location.href = window.location.href;
+            }, 2000);
+
+        } else {
+            // Show validation errors
+            console.log('Validation errors:', data.errors);
+            
+            if (data.errors && typeof data.errors === 'object') {
+                Object.keys(data.errors).forEach(field => {
+                    const fieldName = field.replace(/_/g, '-');
+                    const input = document.getElementById('boatr_' + fieldName) || 
+                                document.getElementById('boatr-' + fieldName);
+                    
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        const errorDiv = input.parentNode.querySelector('.invalid-feedback') || 
+                                    document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = Array.isArray(data.errors[field]) ? 
+                                            data.errors[field][0] : 
+                                            data.errors[field];
+                        
+                        if (!input.parentNode.querySelector('.invalid-feedback')) {
+                            input.parentNode.appendChild(errorDiv);
+                        }
+                    }
+                });
+            }
+            showToast('error', data.message || 'Failed to create BoatR application');
             
             // Reset button
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-        });
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        showToast('error', 'An error occurred while creating the application: ' + error.message);
+        
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
 }
         // ========== MODAL BACKDROP CLEANUP ==========
         document.addEventListener('DOMContentLoaded', function() {
@@ -6951,102 +7066,232 @@ function confirmPermanentDeleteBoatr() {
         /**
          * Update the showAddBoatrModal function
          */
-        function showAddBoatrModal() {
-            const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
+     function showAddBoatrModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
 
-            // Reset form
-            document.getElementById('addBoatrForm').reset();
-            document.getElementById('boatr_fishr_app_id').value = ''; // IMPORTANT
+    // Reset form
+    document.getElementById('addBoatrForm').reset();
+    document.getElementById('boatr_fishr_app_id').value = ''; // IMPORTANT
 
-            // Remove validation errors
-            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
-                el.classList.remove('is-invalid');
-            });
+    // Remove validation errors
+    document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
+        el.classList.remove('is-invalid');
+    });
 
-            document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => {
-                el.textContent = '';
-            });
+    document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => {
+        el.textContent = '';
+    });
 
-            // Remove validation messages
-            document.querySelectorAll('#addBoatrModal .admin-validation-message').forEach(el => {
-                el.remove();
-            });
+    // Remove validation messages
+    document.querySelectorAll('#addBoatrModal .validation-message').forEach(el => {
+        el.remove();
+    });
 
-            // Clear document preview
-            const preview = document.getElementById('boatr_doc_preview');
-            if (preview) {
-                preview.innerHTML = '';
-                preview.style.display = 'none';
-            }
+    // Remove warning elements
+    document.querySelectorAll('#addBoatrModal [id*="-warning"]').forEach(el => {
+        el.remove();
+    });
 
-            modal.show();
+    // Clear document preview
+    const preview = document.getElementById('boatr_doc_preview');
+    if (preview) {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+    }
 
-            // Init FishR after modal opens
-            setTimeout(() => {
-                initializeAdminFishRValidation();
-            }, 100);
-        }
+    modal.show();
+
+    // Init FishR after modal opens
+    setTimeout(() => {
+        initializeAdminFishRValidation();
+        // === ADD THESE NEW INITIALIZATIONS ===
+        initializeBoatRAddContactValidation();
+        initializeBoatRAddVesselNameValidation();
+        
+        // Auto-capitalize name fields
+        document.getElementById('boatr_first_name')?.addEventListener('blur', function() {
+            capitalizeBoatRAddName(this);
+        });
+
+        document.getElementById('boatr_middle_name')?.addEventListener('blur', function() {
+            capitalizeBoatRAddName(this);
+        });
+
+        document.getElementById('boatr_last_name')?.addEventListener('blur', function() {
+            capitalizeBoatRAddName(this);
+        });
+    }, 100);
+}
 
         /**
          * Update validateBoatrForm to NOT validate FishR during submission
          */
-        async function validateBoatrForm() {
-            let isValid = true;
-            const errors = [];
+/**
+ * FIXED: Validate BoatR Form Before Submission
+ */
+async function validateBoatrForm() {
+    console.log('=== Validating BoatR Form ===');
+    
+    let isValid = true;
+    const errors = [];
 
-            // Check all required fields
-            const requiredFields = [
-                { id: 'boatr_first_name', label: 'First Name' },
-                { id: 'boatr_last_name', label: 'Last Name' },
-                { id: 'boatr_contact_number', label: 'Contact Number' },
-                { id: 'boatr_barangay', label: 'Barangay' },
-                { id: 'boatr_fishr_number', label: 'FishR Number' },
-                { id: 'boatr_vessel_name', label: 'Vessel Name' },
-                { id: 'boatr_boat_type', label: 'Boat Type' },
-                { id: 'boatr_boat_length', label: 'Boat Length' },
-                { id: 'boatr_boat_width', label: 'Boat Width' },
-                { id: 'boatr_boat_depth', label: 'Boat Depth' },
-                { id: 'boatr_engine_type', label: 'Engine Type' },
-                { id: 'boatr_engine_horsepower', label: 'Engine Horsepower' },
-                { id: 'boatr_primary_fishing_gear', label: 'Primary Fishing Gear' }
-            ];
+    // === STEP 1: Validate Personal Information ===
+    const firstName = document.getElementById('boatr_first_name');
+    const lastName = document.getElementById('boatr_last_name');
+    const contact = document.getElementById('boatr_contact_number');
+    const barangay = document.getElementById('boatr_barangay');
 
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field.id);
-                if (!input || !input.value || input.value.trim() === '') {
-                    input?.classList.add('is-invalid');
-                    errors.push(`${field.label} is required`);
-                    isValid = false;
-                } else {
-                    input.classList.remove('is-invalid');
-                }
-            });
+    if (!firstName?.value?.trim()) {
+        firstName?.classList.add('is-invalid');
+        errors.push('First name is required');
+        isValid = false;
+    }
 
-            // Validate contact number format
-            const contactInput = document.getElementById('boatr_contact_number');
-            if (contactInput && contactInput.value) {
-                const phoneRegex = /^(\+639|09)\d{9}$/;
-                if (!phoneRegex.test(contactInput.value.trim())) {
-                    contactInput.classList.add('is-invalid');
-                    errors.push('Contact number must be in format 09XXXXXXXXX or +639XXXXXXXXX');
-                    isValid = false;
-                }
-            }
+    if (!lastName?.value?.trim()) {
+        lastName?.classList.add('is-invalid');
+        errors.push('Last name is required');
+        isValid = false;
+    }
 
-            // Validate FishR number was validated
-            const fishrInput = document.getElementById('boatr_fishr_number');
-            if (!fishrInput.classList.contains('is-valid')) {
-                fishrInput.classList.add('is-invalid');
-                errors.push('Please validate FishR number by tabbing out of the field');
+    // Validate contact number format
+    if (!contact?.value?.trim()) {
+        contact?.classList.add('is-invalid');
+        errors.push('Contact number is required');
+        isValid = false;
+    } else {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contact.value.trim())) {
+            contact?.classList.add('is-invalid');
+            errors.push('Contact number format invalid (use 09XXXXXXXXX or +639XXXXXXXXX)');
+            isValid = false;
+        }
+    }
+
+    if (!barangay?.value?.trim()) {
+        barangay?.classList.add('is-invalid');
+        errors.push('Barangay is required');
+        isValid = false;
+    }
+
+    // === STEP 2: Validate Vessel Information ===
+    const fishr = document.getElementById('boatr_fishr_number');
+    const vessel = document.getElementById('boatr_vessel_name');
+    const boatType = document.getElementById('boatr_boat_type');
+
+    if (!fishr?.value?.trim()) {
+        fishr?.classList.add('is-invalid');
+        errors.push('FishR number is required');
+        isValid = false;
+    } else if (!/^FISHR-[A-Z0-9]{8}$/i.test(fishr.value.trim())) {
+        fishr?.classList.add('is-invalid');
+        errors.push('Invalid FishR format (use FISHR-XXXXXXXX)');
+        isValid = false;
+    }
+
+    if (!vessel?.value?.trim()) {
+        vessel?.classList.add('is-invalid');
+        errors.push('Vessel name is required');
+        isValid = false;
+    } else {
+        const vesselPattern = /^[a-zA-Z0-9\s\-']*$/;
+        if (!vesselPattern.test(vessel.value.trim())) {
+            vessel?.classList.add('is-invalid');
+            errors.push('Vessel name contains invalid characters');
+            isValid = false;
+        }
+    }
+
+    if (!boatType?.value?.trim()) {
+        boatType?.classList.add('is-invalid');
+        errors.push('Boat type is required');
+        isValid = false;
+    }
+
+    // === STEP 3: Validate Boat Dimensions ===
+    const length = document.getElementById('boatr_boat_length');
+    const width = document.getElementById('boatr_boat_width');
+    const depth = document.getElementById('boatr_boat_depth');
+
+    if (!length?.value?.trim()) {
+        length?.classList.add('is-invalid');
+        errors.push('Boat length is required');
+        isValid = false;
+    } else if (parseFloat(length.value) <= 0 || parseFloat(length.value) > 200) {
+        length?.classList.add('is-invalid');
+        errors.push('Boat length must be between 1-200 feet');
+        isValid = false;
+    }
+
+    if (!width?.value?.trim()) {
+        width?.classList.add('is-invalid');
+        errors.push('Boat width is required');
+        isValid = false;
+    } else if (parseFloat(width.value) <= 0 || parseFloat(width.value) > 50) {
+        width?.classList.add('is-invalid');
+        errors.push('Boat width must be between 1-50 feet');
+        isValid = false;
+    }
+
+    if (!depth?.value?.trim()) {
+        depth?.classList.add('is-invalid');
+        errors.push('Boat depth is required');
+        isValid = false;
+    } else if (parseFloat(depth.value) <= 0 || parseFloat(depth.value) > 30) {
+        depth?.classList.add('is-invalid');
+        errors.push('Boat depth must be between 1-30 feet');
+        isValid = false;
+    }
+
+    // === STEP 4: Validate Boat Classification & Engine Info ===
+    const boatClassification = document.getElementById('boatr_boat_classification');
+    
+    if (!boatClassification?.value?.trim()) {
+        boatClassification?.classList.add('is-invalid');
+        errors.push('Boat classification is required');
+        isValid = false;
+    } else if (boatClassification.value === 'Motorized') {
+        // MOTORIZED: Engine fields are REQUIRED
+        const engineType = document.getElementById('boatr_engine_type');
+        const engineHp = document.getElementById('boatr_engine_horsepower');
+
+        if (!engineType?.value?.trim()) {
+            engineType?.classList.add('is-invalid');
+            errors.push('Engine type is required for motorized boats');
+            isValid = false;
+        }
+
+        if (!engineHp?.value?.trim()) {
+            engineHp?.classList.add('is-invalid');
+            errors.push('Engine horsepower is required for motorized boats');
+            isValid = false;
+        } else {
+            const hp = parseInt(engineHp.value);
+            if (isNaN(hp) || hp <= 0 || hp > 9999) {
+                engineHp?.classList.add('is-invalid');
+                errors.push('Engine horsepower must be between 1-9999 HP');
                 isValid = false;
             }
-
-            if (!isValid && errors.length > 0) {
-                console.log('Validation errors:', errors);
-            }
-
-            return isValid;
         }
+    }
+    // Non-motorized: Engine fields are optional, so no validation needed
+
+    // === STEP 5: Validate Fishing Gear ===
+    const gear = document.getElementById('boatr_primary_fishing_gear');
+    
+    if (!gear?.value?.trim()) {
+        gear?.classList.add('is-invalid');
+        errors.push('Primary fishing gear is required');
+        isValid = false;
+    }
+
+    // === STEP 6: Show Errors ===
+    if (!isValid && errors.length > 0) {
+        console.log('Validation errors:', errors);
+        showToast('error', errors[0]);
+    }
+
+    return isValid;
+}
 
   /**
  * FIXED: Show Edit BoatR Modal - Works with correct form ID
@@ -7121,6 +7366,7 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     document.getElementById('edit_boatr_boat_type').value = data.boat_type || '';
     document.getElementById('edit_boatr_fishr_number').value = data.fishr_number || '';
     
+    
     // === Boat Dimensions ===
     document.getElementById('edit_boatr_boat_length').value = data.boat_length || '';
     document.getElementById('edit_boatr_boat_width').value = data.boat_width || '';
@@ -7148,6 +7394,7 @@ function initializeEditBoatrFormFixed(registrationId, data) {
         boat_width: data.boat_width || '',
         boat_depth: data.boat_depth || '',
         engine_type: data.engine_type || '',
+        boat_classification: data.boat_classification || '',
         engine_horsepower: data.engine_horsepower || '',
         primary_fishing_gear: data.primary_fishing_gear || '',
         inspection_notes: data.inspection_notes || ''
@@ -7156,7 +7403,23 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     form.dataset.originalData = JSON.stringify(originalData);
     form.dataset.registrationId = registrationId;
     form.dataset.hasChanges = 'false';  // Set to false initially
+
     
+// === Boat Classification (CORRECT ORDER - GET VALUE FIRST) ===
+ const boatClassificationElement = document.getElementById('edit_boatr_boat_classification');
+if (boatClassificationElement) {
+    // Default to 'Non-motorized' if NULL
+    const classification = data.boat_classification || 'Non-motorized';
+    boatClassificationElement.value = classification;
+    
+    // Trigger the change handler to show/hide engine fields
+    handleEditBoatClassificationChange(boatClassificationElement);
+}
+
+    // === Handle Engine Information ===
+    document.getElementById('edit_boatr_engine_type').value = data.engine_type || '';
+    document.getElementById('edit_boatr_engine_horsepower').value = data.engine_horsepower || '';
+
     // === Handle Supporting Document Preview ===
     const previewContainer = document.getElementById('edit_boatr_supporting_document_preview');
     const currentDocContainer = document.getElementById('edit_boatr_current_document');
@@ -7168,6 +7431,7 @@ function initializeEditBoatrFormFixed(registrationId, data) {
         currentDocContainer.style.display = 'none';
         previewContainer.innerHTML = '<small class="text-muted d-block">No document currently uploaded</small>';
     }
+    
     
     // === Inspection Information ===
     const inspectionStatusBadge = document.getElementById('edit_boatr_inspection_status_badge');
@@ -7229,6 +7493,31 @@ function initializeEditBoatrFormFixed(registrationId, data) {
     form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
     form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+
+    // Add change listeners
+    addEditBoatrFormChangeListeners(registrationId);
+    
+    // Reset counter
+    updateEditBoatrInspectionCounter();
+
+    // === ADD THESE EVENT LISTENERS ===
+    // Auto-capitalize name fields
+    document.getElementById('edit_boatr_first_name')?.addEventListener('blur', function() {
+        capitalizeEditBoatRName(this);
+    });
+
+    document.getElementById('edit_boatr_middle_name')?.addEventListener('blur', function() {
+        capitalizeEditBoatRName(this);
+    });
+
+    document.getElementById('edit_boatr_last_name')?.addEventListener('blur', function() {
+        capitalizeEditBoatRName(this);
+    });
+
+    // Initialize real-time validations
+    initializeEditBoatRContactValidation();
+    initializeEditBoatRVesselNameValidation();
+
     
     // Reset file inputs
     const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
@@ -7372,38 +7661,48 @@ function checkEditBoatrFormChanges(registrationId) {
     let hasChanges = false;
 
     const fields = [
-        { id: 'edit_boatr_first_name', key: 'first_name' },
-        { id: 'edit_boatr_middle_name', key: 'middle_name' },
-        { id: 'edit_boatr_last_name', key: 'last_name' },
-        { id: 'edit_boatr_extension', key: 'name_extension' },
-        { id: 'edit_boatr_contact_number', key: 'contact_number' },
-        { id: 'edit_boatr_barangay', key: 'barangay' },
-        { id: 'edit_boatr_vessel_name', key: 'vessel_name' },
-        { id: 'edit_boatr_boat_type', key: 'boat_type' },
-        { id: 'edit_boatr_boat_length', key: 'boat_length' },
-        { id: 'edit_boatr_boat_width', key: 'boat_width' },
-        { id: 'edit_boatr_boat_depth', key: 'boat_depth' },
-        { id: 'edit_boatr_engine_type', key: 'engine_type' },
-        { id: 'edit_boatr_engine_horsepower', key: 'engine_horsepower' },
-        { id: 'edit_boatr_primary_fishing_gear', key: 'primary_fishing_gear' },
-        { id: 'edit_boatr_inspection_notes', key: 'inspection_notes' }
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'contact_number', 'barangay', 'vessel_name', 'boat_type',
+        'boat_length', 'boat_width', 'boat_depth', 'boat_classification',  // ✅ ADDED
+        'engine_type', 'engine_horsepower', 'primary_fishing_gear', 'inspection_notes'
     ];
 
+    const fieldIdMap = {
+        'first_name': 'edit_boatr_first_name',
+        'middle_name': 'edit_boatr_middle_name',
+        'last_name': 'edit_boatr_last_name',
+        'name_extension': 'edit_boatr_extension',
+        'contact_number': 'edit_boatr_contact_number',
+        'barangay': 'edit_boatr_barangay',
+        'vessel_name': 'edit_boatr_vessel_name',
+        'boat_type': 'edit_boatr_boat_type',
+        'boat_length': 'edit_boatr_boat_length',
+        'boat_width': 'edit_boatr_boat_width',
+        'boat_depth': 'edit_boatr_boat_depth',
+        'boat_classification': 'edit_boatr_boat_classification',  // ✅ ADDED
+        'engine_type': 'edit_boatr_engine_type',
+        'engine_horsepower': 'edit_boatr_engine_horsepower',
+        'primary_fishing_gear': 'edit_boatr_primary_fishing_gear',
+        'inspection_notes': 'edit_boatr_inspection_notes'
+    };
+
     fields.forEach(field => {
-        const fieldElement = document.getElementById(field.id);
-        if (fieldElement) {
-            //  Important: Convert to string and trim for proper comparison
-            const currentValue = String(fieldElement.value || '').trim();
-            const originalValue = String(originalData[field.key] || '').trim();
+        const fieldId = fieldIdMap[field];
+        if (!fieldId) return;
 
-            console.log(`${field.id}: "${currentValue}" vs "${originalValue}" = ${currentValue === originalValue ? 'SAME' : 'CHANGED'}`);
+        const fieldElement = document.getElementById(fieldId);
+        if (!fieldElement) return;
 
-            if (currentValue !== originalValue) {
-                hasChanges = true;
-                fieldElement.classList.add('form-changed');
-            } else {
-                fieldElement.classList.remove('form-changed');
-            }
+        const currentValue = String(fieldElement.value || '').trim();
+        const originalValue = String(originalData[field] || '').trim();
+
+        console.log(`${field}: "${currentValue}" vs "${originalValue}"`);
+
+        if (currentValue !== originalValue) {
+            hasChanges = true;
+            fieldElement.classList.add('form-changed');
+        } else {
+            fieldElement.classList.remove('form-changed');
         }
     });
 
@@ -7411,13 +7710,11 @@ function checkEditBoatrFormChanges(registrationId) {
     const supportingDocInput = document.getElementById('edit_boatr_supporting_document');
     if (supportingDocInput && supportingDocInput.files && supportingDocInput.files.length > 0) {
         hasChanges = true;
-        console.log('Supporting document file detected');
     }
 
     const inspectionDocInput = document.getElementById('edit_boatr_inspection_document');
     if (inspectionDocInput && inspectionDocInput.files && inspectionDocInput.files.length > 0) {
         hasChanges = true;
-        console.log('Inspection document file detected');
     }
 
     // Update button state
@@ -7438,9 +7735,9 @@ function checkEditBoatrFormChanges(registrationId) {
     console.log('Form has changes:', hasChanges);
 }
 
-
 /**
- * FIXED: Proceed with Edit BoatR Submission
+ * COMPLETE UPDATED: proceedWithEditBoatrSubmit() Function
+ * With proper boat classification and engine field handling for edit operations
  */
 function proceedWithEditBoatrSubmit(form, registrationId) {
     console.log('=== proceedWithEditBoatrSubmit ===', { registrationId });
@@ -7460,47 +7757,83 @@ function proceedWithEditBoatrSubmit(form, registrationId) {
     // Build FormData with proper field mapping
     const formData = new FormData();
     
-    const fieldMap = {
-        'edit_boatr_first_name': 'first_name',
-        'edit_boatr_middle_name': 'middle_name',
-        'edit_boatr_last_name': 'last_name',
-        'edit_boatr_extension': 'name_extension',
-        'edit_boatr_contact_number': 'contact_number',
-        'edit_boatr_barangay': 'barangay',
-        'edit_boatr_vessel_name': 'vessel_name',
-        'edit_boatr_boat_type': 'boat_type',
-        'edit_boatr_boat_length': 'boat_length',
-        'edit_boatr_boat_width': 'boat_width',
-        'edit_boatr_boat_depth': 'boat_depth',
-        'edit_boatr_engine_type': 'engine_type',
-        'edit_boatr_engine_horsepower': 'engine_horsepower',
-        'edit_boatr_primary_fishing_gear': 'primary_fishing_gear',
-        'edit_boatr_inspection_notes': 'inspection_notes'
-    };
+    // === STEP 1: Personal Information ===
+    formData.append('first_name', document.getElementById('edit_boatr_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('edit_boatr_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('edit_boatr_last_name').value.trim());
+    formData.append('name_extension', document.getElementById('edit_boatr_extension').value.trim());
+    formData.append('contact_number', document.getElementById('edit_boatr_contact_number').value.trim());
+    formData.append('barangay', document.getElementById('edit_boatr_barangay').value.trim());
 
-    // Add form fields
-    Object.keys(fieldMap).forEach(fieldId => {
-        const input = document.getElementById(fieldId);
-        if (input) {
-            formData.append(fieldMap[fieldId], input.value.trim());
-        }
-    });
+    console.log('Personal Info appended');
 
-    // Add file uploads if present
+    // === STEP 2: Vessel Information ===
+    formData.append('vessel_name', document.getElementById('edit_boatr_vessel_name').value.trim());
+    formData.append('boat_type', document.getElementById('edit_boatr_boat_type').value.trim());
+    // Note: FishR number is read-only, so we don't send it
+
+    console.log('Vessel Info appended');
+
+    // === STEP 3: Boat Dimensions ===
+    formData.append('boat_length', document.getElementById('edit_boatr_boat_length').value.trim());
+    formData.append('boat_width', document.getElementById('edit_boatr_boat_width').value.trim());
+    formData.append('boat_depth', document.getElementById('edit_boatr_boat_depth').value.trim());
+
+    console.log('Dimensions appended');
+
+    // === STEP 4: Boat Classification (CORRECT ORDER - GET VALUE FIRST) ===
+    const boatClassificationVal = document.getElementById('edit_boatr_boat_classification').value.trim();
+    formData.append('boat_classification', boatClassificationVal);
+
+    console.log('Boat Classification:', boatClassificationVal);
+
+    // === STEP 5: Engine Information (Only if Motorized) ===
+    if (boatClassificationVal === 'Motorized') {
+        const engineTypeVal = document.getElementById('edit_boatr_engine_type').value.trim();
+        const engineHpVal = document.getElementById('edit_boatr_engine_horsepower').value.trim();
+
+        formData.append('engine_type', engineTypeVal);
+        formData.append('engine_horsepower', engineHpVal);
+
+        console.log('Engine Info (Motorized):', {
+            engineType: engineTypeVal,
+            engineHp: engineHpVal
+        });
+    } else {
+        // For non-motorized boats, send empty values
+        formData.append('engine_type', '');
+        formData.append('engine_horsepower', '');
+
+        console.log('Engine Info (Non-motorized): EMPTY');
+    }
+
+    // === STEP 6: Fishing Gear ===
+    formData.append('primary_fishing_gear', document.getElementById('edit_boatr_primary_fishing_gear').value.trim());
+
+    console.log('Fishing Gear appended');
+
+    // === STEP 7: Inspection Notes ===
+    formData.append('inspection_notes', document.getElementById('edit_boatr_inspection_notes').value.trim());
+
+    console.log('Inspection Notes appended');
+
+    // === STEP 8: Supporting Document (if new file uploaded) ===
     const supportingDoc = document.getElementById('edit_boatr_supporting_document');
-    if (supportingDoc && supportingDoc.files[0]) {
+    if (supportingDoc && supportingDoc.files && supportingDoc.files[0]) {
         formData.append('supporting_document', supportingDoc.files[0]);
         console.log('Added supporting document:', supportingDoc.files[0].name);
     }
 
+    // === STEP 9: Inspection Document (if new file uploaded) ===
     const inspectionDoc = document.getElementById('edit_boatr_inspection_document');
-    if (inspectionDoc && inspectionDoc.files[0]) {
+    if (inspectionDoc && inspectionDoc.files && inspectionDoc.files[0]) {
         formData.append('inspection_document', inspectionDoc.files[0]);
         // Signal backend to REPLACE the inspection document, not add
         formData.append('replace_inspection_document', '1');
         console.log('Added inspection document (REPLACE mode):', inspectionDoc.files[0].name);
     }
 
+    // === STEP 10: Method Spoofing ===
     // CRITICAL: Add _method = PUT for Laravel method spoofing
     // This tells Laravel to treat the POST request as a PUT request
     formData.append('_method', 'PUT');
@@ -7510,7 +7843,7 @@ function proceedWithEditBoatrSubmit(form, registrationId) {
     console.log('- URL: /admin/boatr/requests/' + registrationId);
     console.log('- Content-Type: multipart/form-data (auto-set by browser)');
 
-    // Send request
+    // === STEP 11: Send Request ===
     // NOTE: Use POST method with _method=PUT in FormData
     // Laravel will intercept the _method parameter and treat this as a PUT request
     fetch(`/admin/boatr/requests/${registrationId}`, {
@@ -7593,7 +7926,6 @@ function proceedWithEditBoatrSubmit(form, registrationId) {
         submitBtn.disabled = false;
     });
 }
-
 
 
 /**
@@ -8129,14 +8461,16 @@ function updateEditBoatrInspectionCounter() {
                 submitBtn.disabled = false;
             }
         }
-
-  /**
- * Handle Edit BoatR Form Submission - with changes summary
+/**
+ * COMPLETE UPDATED: handleEditBoatrSubmit() Function
+ * Entry point for edit form submission - with changes summary and confirmation
  */
 function handleEditBoatrSubmit() {
     const form = document.getElementById('editBoatrForm');
     const registrationId = form.dataset.registrationId;
     const submitBtn = document.getElementById('editBoatrSubmitBtn');
+
+    console.log('=== handleEditBoatrSubmit START ===', { registrationId });
 
     // Validate form first
     if (!validateEditBoatrForm()) {
@@ -8168,6 +8502,7 @@ function handleEditBoatrSubmit() {
         'boat_length': 'Boat Length',
         'boat_width': 'Boat Width',
         'boat_depth': 'Boat Depth',
+        'boat_classification': 'Boat Classification',
         'engine_type': 'Engine Type',
         'engine_horsepower': 'Engine Horsepower',
         'primary_fishing_gear': 'Primary Fishing Gear',
@@ -8180,16 +8515,44 @@ function handleEditBoatrSubmit() {
     const fields = [
         'first_name', 'middle_name', 'last_name', 'name_extension',
         'contact_number', 'barangay', 'vessel_name', 'boat_type',
-        'boat_length', 'boat_width', 'boat_depth', 'engine_type',
-        'engine_horsepower', 'primary_fishing_gear', 'inspection_notes'
+        'boat_length', 'boat_width', 'boat_depth', 'boat_classification',
+        'engine_type', 'engine_horsepower', 'primary_fishing_gear', 'inspection_notes'
     ];
 
     fields.forEach(field => {
-        const fieldElement = form.querySelector(`[name="${field}"]`);
+        let fieldElement = null;
+        
+        // Map field names to actual input IDs
+        const fieldIdMap = {
+            'first_name': 'edit_boatr_first_name',
+            'middle_name': 'edit_boatr_middle_name',
+            'last_name': 'edit_boatr_last_name',
+            'name_extension': 'edit_boatr_extension',
+            'contact_number': 'edit_boatr_contact_number',
+            'barangay': 'edit_boatr_barangay',
+            'vessel_name': 'edit_boatr_vessel_name',
+            'boat_type': 'edit_boatr_boat_type',
+            'boat_length': 'edit_boatr_boat_length',
+            'boat_width': 'edit_boatr_boat_width',
+            'boat_depth': 'edit_boatr_boat_depth',
+            'boat_classification': 'edit_boatr_boat_classification',
+            'engine_type': 'edit_boatr_engine_type',
+            'engine_horsepower': 'edit_boatr_engine_horsepower',
+            'primary_fishing_gear': 'edit_boatr_primary_fishing_gear',
+            'inspection_notes': 'edit_boatr_inspection_notes'
+        };
+
+        const fieldId = fieldIdMap[field];
+        if (fieldId) {
+            fieldElement = document.getElementById(fieldId);
+        }
+
         if (fieldElement) {
             // Convert to string and trim for proper comparison
             const currentValue = String(fieldElement.value || '').trim();
             const originalValue = String(originalData[field] || '').trim();
+
+            console.log(`Field "${field}": "${currentValue}" vs "${originalValue}" = ${currentValue === originalValue ? 'SAME' : 'CHANGED'}`);
 
             if (currentValue !== originalValue) {
                 changedFields.push(fieldLabels[field] || field);
@@ -8208,6 +8571,8 @@ function handleEditBoatrSubmit() {
         changedFields.push('Inspection Document');
     }
 
+    console.log('Changed fields:', changedFields);
+
     // Build confirmation message
     const changesText = changedFields.length > 0 
         ? `Update this BoatR application with the following changes?\n\n• ${changedFields.join('\n• ')}`
@@ -8221,6 +8586,140 @@ function handleEditBoatrSubmit() {
     );
 }
 
+
+/**
+ * UPDATED: validateEditBoatrForm() Function
+ * Validates all required fields in the edit form
+ */
+function validateEditBoatrForm() {
+    const form = document.getElementById('editBoatrForm');
+    let isValid = true;
+    const errors = [];
+    
+    // Clear previous validation errors
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+    // === Define required fields with their IDs and labels ===
+    const requiredFields = [
+        { id: 'edit_boatr_first_name', label: 'First Name', pattern: null },
+        { id: 'edit_boatr_last_name', label: 'Last Name', pattern: null },
+        { id: 'edit_boatr_contact_number', label: 'Contact Number', pattern: /^(\+639|09)\d{9}$/ },
+        { id: 'edit_boatr_barangay', label: 'Barangay', pattern: null },
+        { id: 'edit_boatr_vessel_name', label: 'Vessel Name', pattern: null },
+        { id: 'edit_boatr_boat_type', label: 'Boat Type', pattern: null },
+        { id: 'edit_boatr_boat_length', label: 'Boat Length', pattern: /^[0-9.]+$/ },
+        { id: 'edit_boatr_boat_width', label: 'Boat Width', pattern: /^[0-9.]+$/ },
+        { id: 'edit_boatr_boat_depth', label: 'Boat Depth', pattern: /^[0-9.]+$/ },
+        { id: 'edit_boatr_boat_classification', label: 'Boat Classification', pattern: null },
+        { id: 'edit_boatr_primary_fishing_gear', label: 'Primary Fishing Gear', pattern: null }
+    ];
+
+    // Validate each required field
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        
+        if (!input) {
+            console.error(`Field not found: ${field.id}`);
+            return;
+        }
+
+        const value = input.value.trim();
+
+        // Check if empty
+        if (!value) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = `${field.label} is required`;
+            
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            input.parentNode.appendChild(errorDiv);
+            
+            errors.push(`${field.label} is required`);
+            isValid = false;
+        }
+        // Check pattern if specified
+        else if (field.pattern && !field.pattern.test(value)) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            
+            let errorMsg = `Invalid ${field.label.toLowerCase()}`;
+            if (field.id === 'edit_boatr_contact_number') {
+                errorMsg = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            }
+            
+            errorDiv.textContent = errorMsg;
+            
+            const existingError = input.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            input.parentNode.appendChild(errorDiv);
+            
+            errors.push(errorMsg);
+            isValid = false;
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+
+    // === Validate Engine Fields if Motorized ===
+    const boatClassificationSelect = document.getElementById('edit_boatr_boat_classification');
+    if (boatClassificationSelect && boatClassificationSelect.value === 'Motorized') {
+        const engineTypeInput = document.getElementById('edit_boatr_engine_type');
+        const engineHpInput = document.getElementById('edit_boatr_engine_horsepower');
+
+        if (!engineTypeInput.value.trim()) {
+            engineTypeInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Engine Type is required for motorized boats';
+            
+            const existingError = engineTypeInput.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            engineTypeInput.parentNode.appendChild(errorDiv);
+            
+            errors.push('Engine Type is required for motorized boats');
+            isValid = false;
+        }
+
+        if (!engineHpInput.value.trim()) {
+            engineHpInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Engine Horsepower is required for motorized boats';
+            
+            const existingError = engineHpInput.parentNode.querySelector('.invalid-feedback');
+            if (existingError) existingError.remove();
+            engineHpInput.parentNode.appendChild(errorDiv);
+            
+            errors.push('Engine Horsepower is required for motorized boats');
+            isValid = false;
+        } else {
+            const hp = parseInt(engineHpInput.value);
+            if (isNaN(hp) || hp <= 0 || hp > 9999) {
+                engineHpInput.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Engine horsepower must be between 1-9999 HP';
+                
+                const existingError = engineHpInput.parentNode.querySelector('.invalid-feedback');
+                if (existingError) existingError.remove();
+                engineHpInput.parentNode.appendChild(errorDiv);
+                
+                errors.push('Engine horsepower must be between 1-9999 HP');
+                isValid = false;
+            }
+        }
+    }
+
+    if (!isValid && errors.length > 0) {
+        console.log('Validation errors:', errors);
+    }
+
+    return isValid;
+}
 /**
  * Validate Edit BoatR Form
  */
@@ -8371,6 +8870,104 @@ function validateEditBoatrForm() {
                 }
             }
         }
+  /**
+ * FIXED: Handle Boat Classification Change - Show/Hide Engine Fields
+ */
+function handleBoatClassificationChange(select) {
+    const classification = select.value;
+    const engineContainer = document.getElementById('boatr_engine_fields_container');
+    const engineTypeInput = document.getElementById('boatr_engine_type');
+    const engineHpInput = document.getElementById('boatr_engine_horsepower');
+
+    console.log('🚤 Boat Classification Changed:', classification);
+
+    if (!engineContainer) {
+        console.error('❌ Engine container NOT FOUND');
+        return;
+    }
+
+    if (!engineTypeInput || !engineHpInput) {
+        console.error('❌ Engine input fields NOT FOUND');
+        return;
+    }
+
+    if (classification === 'Motorized') {
+        // SHOW and REQUIRE engine fields
+        engineContainer.style.display = 'block';
+        engineTypeInput.required = true;
+        engineHpInput.required = true;
+        engineTypeInput.classList.remove('is-invalid');
+        engineHpInput.classList.remove('is-invalid');
+        console.log('✅ Engine fields VISIBLE and REQUIRED');
+    } else if (classification === 'Non-motorized') {
+        // HIDE and CLEAR engine fields
+        engineContainer.style.display = 'none';
+        engineTypeInput.required = false;
+        engineHpInput.required = false;
+        engineTypeInput.value = '';
+        engineHpInput.value = '';
+        engineTypeInput.classList.remove('is-invalid');
+        engineHpInput.classList.remove('is-invalid');
+        console.log('✅ Engine fields HIDDEN and CLEARED');
+    } else {
+        // Default: HIDE
+        engineContainer.style.display = 'none';
+        engineTypeInput.required = false;
+        engineHpInput.required = false;
+    }
+}
+/**
+ * FIXED: Handle Edit Boat Classification Change
+ */
+function handleEditBoatClassificationChange(select) {
+    const classification = select.value;
+    const engineContainer = document.getElementById('edit_boatr_engine_fields_container');
+    const engineTypeInput = document.getElementById('edit_boatr_engine_type');
+    const engineHpInput = document.getElementById('edit_boatr_engine_horsepower');
+
+    console.log('🚤 Edit Boat Classification Changed:', classification);
+
+    if (!engineContainer) {
+        console.error('❌ Edit Engine container NOT FOUND');
+        return;
+    }
+
+    if (!engineTypeInput || !engineHpInput) {
+        console.error('❌ Edit Engine input fields NOT FOUND');
+        return;
+    }
+
+    if (classification === 'Motorized') {
+        // SHOW and REQUIRE engine fields
+        engineContainer.style.display = 'block';
+        engineTypeInput.required = true;
+        engineHpInput.required = true;
+        engineTypeInput.classList.remove('is-invalid');
+        engineHpInput.classList.remove('is-invalid');
+        console.log('✅ Edit: Engine fields VISIBLE and REQUIRED');
+    } else if (classification === 'Non-motorized') {
+        // HIDE and CLEAR engine fields
+        engineContainer.style.display = 'none';
+        engineTypeInput.required = false;
+        engineHpInput.required = false;
+        engineTypeInput.value = '';
+        engineHpInput.value = '';
+        engineTypeInput.classList.remove('is-invalid');
+        engineHpInput.classList.remove('is-invalid');
+        console.log('✅ Edit: Engine fields HIDDEN and CLEARED');
+    } else {
+        // Default: HIDE
+        engineContainer.style.display = 'none';
+        engineTypeInput.required = false;
+        engineHpInput.required = false;
+    }
+
+    // Trigger change detection for edit form
+    const editForm = document.getElementById('editBoatrForm');
+    if (editForm && editForm.dataset.registrationId) {
+        checkEditBoatrFormChanges(editForm.dataset.registrationId);
+    }
+}
 
         /**
          * Initialize remarks counter when add modal is shown
@@ -8708,5 +9305,423 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+document.addEventListener('DOMContentLoaded', function() {
+    const addBoatrModal = document.getElementById('addBoatrModal');
+    
+    if (addBoatrModal) {
+        addBoatrModal.addEventListener('shown.bs.modal', function() {
+            // Reset form
+            document.getElementById('addBoatrForm').reset();
+            
+            // IMPORTANT: Hide engine fields by default
+            const engineContainer = document.getElementById('boatr_engine_fields_container');
+            if (engineContainer) {
+                engineContainer.style.display = 'none';
+            }
+            
+            // Reset boat classification
+            const classificationSelect = document.getElementById('boatr_boat_classification');
+            if (classificationSelect) {
+                classificationSelect.value = '';
+            }
+            
+            // Clear validation
+            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            
+            // Initialize counters
+            updateBoatrRemarksCounter();
+        });
+    }
+});
+/**
+ * Real-time validation for edit contact number
+ */
+function initializeEditBoatRContactValidation() {
+    const contactInput = document.getElementById('edit_boatr_contact_number');
+    if (!contactInput) return;
+
+    contactInput.addEventListener('input', function(e) {
+        validateEditBoatRContact(e.target);
+    });
+
+    contactInput.addEventListener('blur', function(e) {
+        validateEditBoatRContactOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time contact validation with visual feedback
+ */
+function validateEditBoatRContact(input) {
+    const value = input.value.trim();
+    let warningElement = document.getElementById('edit_boatr_contact_number-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'edit_boatr_contact_number-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (isValid) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    } else if (/^09\d{0,8}$/.test(cleaned)) {
+        input.style.borderColor = '#ffc107';
+        input.style.backgroundColor = '#fffbf0';
+        warningElement.style.color = '#856404';
+        warningElement.textContent = 'Continue entering digits...';
+        warningElement.style.display = 'block';
+    } else {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Format: 09XXXXXXXXX';
+        warningElement.style.display = 'block';
+    }
+}
+
+/**
+ * Contact validation on blur
+ */
+function validateEditBoatRContactOnBlur(input) {
+    const value = input.value.trim();
+    const warningElement = document.getElementById('edit_boatr_contact_number-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!isValid) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Invalid contact number. Use: 09XXXXXXXXX';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+
+/**
+ * Auto-capitalize name fields
+ */
+function capitalizeEditBoatRName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+/**
+ * Initialize vessel name validation
+ */
+function initializeEditBoatRVesselNameValidation() {
+    const vesselNameInput = document.getElementById('edit_boatr_vessel_name');
+    if (!vesselNameInput) return;
+
+    vesselNameInput.addEventListener('input', function(e) {
+        validateEditBoatRVesselName(e.target);
+    });
+
+    vesselNameInput.addEventListener('blur', function(e) {
+        validateEditBoatRVesselNameOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time vessel name validation
+ */
+function validateEditBoatRVesselName(input) {
+    const value = input.value;
+    let warningElement = document.getElementById('edit_boatr_vessel_name-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'edit_boatr_vessel_name-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        warningElement.style.display = 'none';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Only letters, numbers, spaces, hyphens (-), and apostrophes (\') are allowed';
+        warningElement.style.display = 'block';
+    } else if (value.length > 0) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    }
+}
+
+/**
+ * Vessel name validation on blur
+ */
+function validateEditBoatRVesselNameOnBlur(input) {
+    const value = input.value;
+    const warningElement = document.getElementById('edit_boatr_vessel_name-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Special characters not allowed';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+/**
+ * Real-time validation for add contact number
+ */
+function initializeBoatRAddContactValidation() {
+    const contactInput = document.getElementById('boatr_contact_number');
+    if (!contactInput) return;
+
+    contactInput.addEventListener('input', function(e) {
+        validateBoatRAddContact(e.target);
+    });
+
+    contactInput.addEventListener('blur', function(e) {
+        validateBoatRAddContactOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time contact validation with visual feedback
+ */
+function validateBoatRAddContact(input) {
+    const value = input.value.trim();
+    let warningElement = document.getElementById('boatr_contact_number-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'boatr_contact_number-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (isValid) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    } else if (/^09\d{0,8}$/.test(cleaned)) {
+        input.style.borderColor = '#ffc107';
+        input.style.backgroundColor = '#fffbf0';
+        warningElement.style.color = '#856404';
+        warningElement.textContent = 'Continue entering digits...';
+        warningElement.style.display = 'block';
+    } else {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Format: 09XXXXXXXXX';
+        warningElement.style.display = 'block';
+    }
+}
+
+/**
+ * Contact validation on blur
+ */
+function validateBoatRAddContactOnBlur(input) {
+    const value = input.value.trim();
+    const warningElement = document.getElementById('boatr_contact_number-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const cleaned = value.replace(/[\s\-]/g, '');
+    const patterns = [/^09\d{9}$/];
+    const isValid = patterns.some(pattern => pattern.test(cleaned));
+
+    if (!isValid) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Invalid contact number. Use: 09XXXXXXXXX';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
+
+/**
+ * Auto-capitalize name fields
+ */
+function capitalizeBoatRAddName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+/**
+ * Initialize vessel name validation for add modal
+ */
+function initializeBoatRAddVesselNameValidation() {
+    const vesselNameInput = document.getElementById('boatr_vessel_name');
+    if (!vesselNameInput) return;
+
+    vesselNameInput.addEventListener('input', function(e) {
+        validateBoatRAddVesselName(e.target);
+    });
+
+    vesselNameInput.addEventListener('blur', function(e) {
+        validateBoatRAddVesselNameOnBlur(e.target);
+    });
+}
+
+/**
+ * Real-time vessel name validation for add modal
+ */
+function validateBoatRAddVesselName(input) {
+    const value = input.value;
+    let warningElement = document.getElementById('boatr_vessel_name-warning');
+
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+
+    if (!value) {
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (!warningElement) {
+        warningElement = document.createElement('span');
+        warningElement.id = 'boatr_vessel_name-warning';
+        warningElement.style.color = '#ff6b6b';
+        warningElement.style.fontSize = '0.875rem';
+        warningElement.style.marginTop = '4px';
+        warningElement.style.display = 'none';
+        input.parentNode.appendChild(warningElement);
+    }
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        warningElement.style.color = '#dc3545';
+        warningElement.textContent = 'Only letters, numbers, spaces, hyphens (-), and apostrophes (\') are allowed';
+        warningElement.style.display = 'block';
+    } else if (value.length > 0) {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+        warningElement.style.display = 'none';
+    }
+}
+
+/**
+ * Vessel name validation on blur for add modal
+ */
+function validateBoatRAddVesselNameOnBlur(input) {
+    const value = input.value;
+    const warningElement = document.getElementById('boatr_vessel_name-warning');
+
+    if (!value) {
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        if (warningElement) warningElement.style.display = 'none';
+        return;
+    }
+
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    const hasInvalidChars = !validPattern.test(value);
+
+    if (hasInvalidChars) {
+        input.style.borderColor = '#dc3545';
+        input.style.backgroundColor = '#fff8f8';
+        if (warningElement) {
+            warningElement.style.display = 'block';
+            warningElement.textContent = 'Special characters not allowed';
+        }
+    } else {
+        input.style.borderColor = '#28a745';
+        input.style.backgroundColor = '#f8fff8';
+    }
+}
     </script>
 @endsection

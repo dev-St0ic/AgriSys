@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('name_extension')->nullable();
             $table->string('contact_number', 20)->nullable();
             $table->string('barangay')->nullable(); // Barangay location
-            $table->string('fishr_number')->nullable(); // FishR registration number
+            $table->string('fishr_number')->nullable()->unique(); // FishR registration number
             $table->unsignedBigInteger('fishr_application_id')->nullable(); // Foreign key to fishr_applications table
 
             // Vessel Information
@@ -39,6 +39,8 @@ return new class extends Migration
                 'Rake Stem - Transom/Spoon/Plumb Stern',
                 'Skiff (Typical Design)'
             ])->nullable();
+
+            $table->enum('boat_classification', ['Motorized', 'Non-motorized'])->nullable();
 
             // Boat Dimensions
             $table->decimal('boat_length', 5, 2)->nullable(); // in feet
@@ -54,7 +56,8 @@ return new class extends Migration
                 'Hook and Line',
                 'Bottom Set Gill Net',
                 'Fish Trap',
-                'Fish Coral'
+                'Fish Coral',
+                'Not Applicable'
             ])->nullable();
 
             // FIXED: Single User Document (not array)

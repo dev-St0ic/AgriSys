@@ -152,13 +152,16 @@ class BoatRController extends Controller
                 'boat_length' => 'required|numeric|min:0.1|max:999.99',
                 'boat_width' => 'required|numeric|min:0.1|max:999.99',
                 'boat_depth' => 'required|numeric|min:0.1|max:999.99',
+                
+                // boat classification
+                'boat_classification' => 'required|in:Motorized,Non-motorized',
 
                 // Engine Information
-                'engine_type' => 'required|string|max:100',
-                'engine_horsepower' => 'required|integer|min:1|max:9999',
+                'engine_type' => 'nullable|string|max:100',
+                'engine_horsepower' => 'nullable|integer|min:1|max:9999',
 
                 // Fishing Information
-                'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral',
+                'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral,Not Applicable',
 
                 // Status
                 'status' => 'nullable|in:pending,under_review,inspection_required,inspection_scheduled,documents_pending,approved,rejected',
@@ -170,6 +173,24 @@ class BoatRController extends Controller
                 // IMPORTANT:
                 'fishr_application_id' => 'nullable|exists:fishr_applications,id'
             ]);
+
+             if ($validated['boat_classification'] === 'Motorized') {
+            if (empty($validated['engine_type'])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'engine_type' => ['Engine Type is required for motorized boats']
+                ]);
+            }
+            
+            if (empty($validated['engine_horsepower'])) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'engine_horsepower' => ['Engine Horsepower is required for motorized boats']
+                ]);
+            }
+        } else {
+            // For non-motorized boats, clear engine fields
+            $validated['engine_type'] = null;
+            $validated['engine_horsepower'] = null;
+        }
 
             if (!isset($validated['fishr_application_id'])) {
                 $validated['fishr_application_id'] = null;
@@ -298,17 +319,36 @@ public function update(Request $request, $id)
             'barangay' => 'required|string|max:100',
             'vessel_name' => 'required|string|max:100',
             'boat_type' => 'required|string|max:100',
+            'boat_classification' => 'required|in:Motorized,Non-motorized',
             'boat_length' => 'required|numeric|min:0.1',
             'boat_width' => 'required|numeric|min:0.1',
             'boat_depth' => 'required|numeric|min:0.1',
-            'engine_type' => 'required|string|max:100',
-            'engine_horsepower' => 'required|integer|min:1',
+            'engine_type' => 'nullable|string|max:100',
+            'engine_horsepower' => 'nullable|integer|min:1',
             'primary_fishing_gear' => 'required|string|max:100',
             'inspection_notes' => 'nullable|string|max:2000',
             'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'inspection_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'replace_inspection_document' => 'nullable|boolean',
         ]);
+
+        if ($validated['boat_classification'] === 'Motorized') {
+    if (empty($validated['engine_type'])) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'engine_type' => ['Engine Type is required for motorized boats']
+        ]);
+    }
+    
+    if (empty($validated['engine_horsepower'])) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'engine_horsepower' => ['Engine Horsepower is required for motorized boats']
+        ]);
+    }
+} else {
+    // For non-motorized boats, clear engine fields
+    $validated['engine_type'] = null;
+    $validated['engine_horsepower'] = null;
+}
 
         // ✅ FIXED: Use correct model class name
         $boatr = BoatrApplication::findOrFail($id);
@@ -323,6 +363,7 @@ public function update(Request $request, $id)
             'barangay' => $validated['barangay'],
             'vessel_name' => $validated['vessel_name'],
             'boat_type' => $validated['boat_type'],
+            'boat_classification' => $validated['boat_classification'],
             'boat_length' => $validated['boat_length'],
             'boat_width' => $validated['boat_width'],
             'boat_depth' => $validated['boat_depth'],
@@ -821,8 +862,10 @@ private function getChangedFields($original, $updated)
                 'boat_width' => $registration->boat_width,
                 'boat_depth' => $registration->boat_depth,
                 'boat_dimensions' => $registration->boat_dimensions,
+                'boat_classification' => $registration->boat_classification, 
                 'engine_type' => $registration->engine_type,
                 'engine_horsepower' => $registration->engine_horsepower,
+                'boat_classification' => $registration->boat_classification,
                 'primary_fishing_gear' => $registration->primary_fishing_gear,
                 'status' => $registration->status,
                 'status_color' => $registration->status_color,
@@ -1548,111 +1591,273 @@ private function getChangedFields($original, $updated)
             ], 500);
         }
     }
-        /**
-     * Validate FishR number and return fisher information
-     * FIXED: Uses correct 'registration_number' column from fishr_applications table
-     */
-    public function validateFishrNumber($fishrNumber)
-    {
-        try {
-            // Decode and sanitize the parameter
-            $fishrNumber = urldecode(trim($fishrNumber));
+    //     /**
+    //  * Validate FishR number and return fisher information
+    //  * FIXED: Uses correct 'registration_number' column from fishr_applications table
+    //  */
+    // public function validateFishrNumber($fishrNumber)
+    // {
+    //     try {
+    //         // Decode and sanitize the parameter
+    //         $fishrNumber = urldecode(trim($fishrNumber));
 
-            \Log::info('Validating FishR registration number', [
-                'registration_number' => $fishrNumber
-            ]);
+    //         \Log::info('Validating FishR registration number', [
+    //             'registration_number' => $fishrNumber
+    //         ]);
 
-            if (empty($fishrNumber)) {
-                return response()->json([
-                    'exists' => false,
-                    'message' => 'Registration number is required'
-                ], 200);
-            }
+    //         if (empty($fishrNumber)) {
+    //             return response()->json([
+    //                 'exists' => false,
+    //                 'message' => 'Registration number is required'
+    //             ], 200);
+    //         }
 
-            // Query using the correct column name: registration_number
-            // The registration_number includes the FISHR- prefix in the database
-            $searchValue = $fishrNumber;
+    //         // Query using the correct column name: registration_number
+    //         // The registration_number includes the FISHR- prefix in the database
+    //         $searchValue = $fishrNumber;
 
-            // If user didn't include FISHR- prefix, add it for the search
-            if (!str_starts_with(strtoupper($searchValue), 'FISHR-')) {
-                $searchValue = 'FISHR-' . $searchValue;
-            }
+    //         // If user didn't include FISHR- prefix, add it for the search
+    //         if (!str_starts_with(strtoupper($searchValue), 'FISHR-')) {
+    //             $searchValue = 'FISHR-' . $searchValue;
+    //         }
 
-            \Log::info('Searching for registration', [
-                'original_input' => $fishrNumber,
-                'search_value' => $searchValue
-            ]);
+    //         \Log::info('Searching for registration', [
+    //             'original_input' => $fishrNumber,
+    //             'search_value' => $searchValue
+    //         ]);
 
-            $fishrApp = \App\Models\FishrApplication::where('registration_number', $searchValue)
-                ->orWhere('registration_number', strtoupper($searchValue))
-                ->orWhere('registration_number', strtolower($searchValue))
-                ->first();
+    //         $fishrApp = \App\Models\FishrApplication::where('registration_number', $searchValue)
+    //             ->orWhere('registration_number', strtoupper($searchValue))
+    //             ->orWhere('registration_number', strtolower($searchValue))
+    //             ->first();
 
-            \Log::info('FishR registration search result', [
-                'registration_number' => $fishrNumber,
-                'found' => $fishrApp ? 'Yes' : 'No'
-            ]);
+    //         \Log::info('FishR registration search result', [
+    //             'registration_number' => $fishrNumber,
+    //             'found' => $fishrApp ? 'Yes' : 'No'
+    //         ]);
 
-            if ($fishrApp) {
-                // Build full name from components
-                $fullName = $fishrApp->first_name;
-                if ($fishrApp->middle_name) {
-                    $fullName .= ' ' . $fishrApp->middle_name;
-                }
-                $fullName .= ' ' . $fishrApp->last_name;
-                if ($fishrApp->name_extension) {
-                    $fullName .= ' ' . $fishrApp->name_extension;
-                }
+    //         if ($fishrApp) {
+    //             // Build full name from components
+    //             $fullName = $fishrApp->first_name;
+    //             if ($fishrApp->middle_name) {
+    //                 $fullName .= ' ' . $fishrApp->middle_name;
+    //             }
+    //             $fullName .= ' ' . $fishrApp->last_name;
+    //             if ($fishrApp->name_extension) {
+    //                 $fullName .= ' ' . $fishrApp->name_extension;
+    //             }
 
-                \Log::info('FishR registration found', [
-                    'id' => $fishrApp->id,
-                    'name' => $fullName,
-                    'registration_number' => $fishrApp->registration_number
-                ]);
+    //             \Log::info('FishR registration found', [
+    //                 'id' => $fishrApp->id,
+    //                 'name' => $fullName,
+    //                 'registration_number' => $fishrApp->registration_number
+    //             ]);
 
-                return response()->json([
-                    'exists' => true,
-                    'fisher_name' => trim($fullName),
-                    'first_name' => $fishrApp->first_name ?? '',
-                    'middle_name' => $fishrApp->middle_name ?? '',
-                    'last_name' => $fishrApp->last_name ?? '',
-                    'name_extension' => $fishrApp->name_extension ?? '',
-                    'contact_number' => $fishrApp->contact_number ?? '',
-                    'barangay' => $fishrApp->barangay ?? '',
-                    'sex' => $fishrApp->sex ?? '',
-                    'main_livelihood' => $fishrApp->main_livelihood ?? '',
-                    'fishr_app_id' => $fishrApp->id,
-                    'registration_number' => $fishrApp->registration_number
-                ], 200);
-            }
+    //             return response()->json([
+    //                 'exists' => true,
+    //                 'fisher_name' => trim($fullName),
+    //                 'first_name' => $fishrApp->first_name ?? '',
+    //                 'middle_name' => $fishrApp->middle_name ?? '',
+    //                 'last_name' => $fishrApp->last_name ?? '',
+    //                 'name_extension' => $fishrApp->name_extension ?? '',
+    //                 'contact_number' => $fishrApp->contact_number ?? '',
+    //                 'barangay' => $fishrApp->barangay ?? '',
+    //                 'sex' => $fishrApp->sex ?? '',
+    //                 'main_livelihood' => $fishrApp->main_livelihood ?? '',
+    //                 'fishr_app_id' => $fishrApp->id,
+    //                 'registration_number' => $fishrApp->registration_number
+    //             ], 200);
+    //         }
 
-            \Log::info('FishR registration not found', [
-                'registration_number' => $fishrNumber
-            ]);
+    //         \Log::info('FishR registration not found', [
+    //             'registration_number' => $fishrNumber
+    //         ]);
 
+    //         return response()->json([
+    //             'exists' => false,
+    //             'message' => 'Registration number not found in the system. Please verify the FishR registration number.'
+    //         ], 200);
+
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error validating FishR registration number', [
+    //             'registration_number' => $fishrNumber,
+    //             'error_message' => $e->getMessage(),
+    //             'error_file' => $e->getFile(),
+    //             'error_line' => $e->getLine(),
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+
+    //         return response()->json([
+    //             'exists' => false,
+    //             'message' => 'Error validating registration: ' . $e->getMessage(),
+    //             'debug' => env('APP_DEBUG') ? [
+    //                 'error' => $e->getMessage(),
+    //                 'file' => $e->getFile(),
+    //                 'line' => $e->getLine()
+    //             ] : null
+    //         ], 200);
+    //     }
+    // }
+ /**
+ * Validate FishR number for BoatR registration
+ * ONE FishR = ONE BoatR (1:1 relationship)
+ */
+public function validateFishrNumber($fishrNumber)
+{
+    try {
+        $fishrNumber = urldecode(trim($fishrNumber));
+
+        \Log::info('Validating FishR registration number', [
+            'registration_number' => $fishrNumber
+        ]);
+
+        if (empty($fishrNumber)) {
             return response()->json([
-                'exists' => false,
-                'message' => 'Registration number not found in the system. Please verify the FishR registration number.'
-            ], 200);
-
-        } catch (\Exception $e) {
-            \Log::error('Error validating FishR registration number', [
-                'registration_number' => $fishrNumber,
-                'error_message' => $e->getMessage(),
-                'error_file' => $e->getFile(),
-                'error_line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'exists' => false,
-                'message' => 'Error validating registration: ' . $e->getMessage(),
-                'debug' => env('APP_DEBUG') ? [
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ] : null
+                'valid' => false,
+                'message' => 'Registration number is required'
             ], 200);
         }
+
+        // Search for FishR record
+        $searchValue = $fishrNumber;
+        if (!str_starts_with(strtoupper($searchValue), 'FISHR-')) {
+            $searchValue = 'FISHR-' . $searchValue;
+        }
+
+        $fishrApp = \App\Models\FishrApplication::where('registration_number', $searchValue)
+            ->orWhere('registration_number', strtoupper($searchValue))
+            ->orWhere('registration_number', strtolower($searchValue))
+            ->first();
+
+        if (!$fishrApp) {
+            \Log::warning('FishR registration not found', [
+                'registration_number' => $fishrNumber
+            ]);
+
+            return response()->json([
+                'valid' => false,
+                'message' => 'FishR registration number not found in system'
+            ], 200);
+        }
+
+        // ✅ CHECK 1: Verify FishR is approved
+        if ($fishrApp->status !== 'approved') {
+            \Log::warning('FishR registration not approved', [
+                'registration_number' => $fishrApp->registration_number,
+                'status' => $fishrApp->status
+            ]);
+
+            return response()->json([
+                'valid' => false,
+                'approved' => false,
+                'message' => 'FishR registration must be APPROVED first. Current status: ' . $fishrApp->status
+            ], 200);
+        }
+
+        // ✅ CHECK 2: Verify FishR is not already used in BoatR
+        $boatrExists = \App\Models\BoatrApplication::where('fishr_number', $fishrApp->registration_number)
+            ->where('id', '!=', auth()->user()?->id) // Exclude current user's own applications
+            ->exists();
+
+        if ($boatrExists) {
+            \Log::warning('FishR already used for BoatR registration', [
+                'registration_number' => $fishrApp->registration_number
+            ]);
+
+            return response()->json([
+                'valid' => false,
+                'already_used' => true,
+                'message' => 'This FishR has already been registered for a boat. Each FishR can only have ONE boat registration.'
+            ], 200);
+        }
+
+        // ✅ CHECK 3: Verify this is the logged-in user's FishR (by name match)
+        $currentUserId = auth()->id();
+        if (!$currentUserId) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'You must be logged in',
+                'require_auth' => true
+            ], 401);
+        }
+
+        // Get current user
+        $currentUser = \App\Models\UserRegistration::find($currentUserId);
+        
+        if (!$currentUser) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'User not found'
+            ], 401);
+        }
+
+        // Compare names (case-insensitive)
+        $fishrFirstName = strtoupper(trim($fishrApp->first_name ?? ''));
+        $fishrLastName = strtoupper(trim($fishrApp->last_name ?? ''));
+        $userFirstName = strtoupper(trim($currentUser->first_name ?? ''));
+        $userLastName = strtoupper(trim($currentUser->last_name ?? ''));
+
+        if ($fishrFirstName !== $userFirstName || $fishrLastName !== $userLastName) {
+            \Log::warning('FishR name does not match logged-in user', [
+                'registration_number' => $fishrApp->registration_number,
+                'fishr_name' => "$fishrFirstName $fishrLastName",
+                'user_name' => "$userFirstName $userLastName",
+                'user_id' => $currentUserId
+            ]);
+
+            return response()->json([
+                'valid' => false,
+                'name_mismatch' => true,
+                'message' => "This FishR is registered under a different name. Your name: $userFirstName $userLastName, FishR name: $fishrFirstName $fishrLastName"
+            ], 200);
+        }
+
+        // ✅ ALL CHECKS PASSED
+        $fishrFullName = trim(implode(' ', array_filter([
+            $fishrApp->first_name ?? '',
+            $fishrApp->middle_name ?? '',
+            $fishrApp->last_name ?? '',
+            $fishrApp->name_extension ?? ''
+        ])));
+
+        \Log::info('FishR registration validated successfully', [
+            'id' => $fishrApp->id,
+            'registration_number' => $fishrApp->registration_number,
+            'fisher_name' => $fishrFullName,
+            'status' => $fishrApp->status,
+            'user_id' => $currentUserId
+        ]);
+
+        return response()->json([
+            'valid' => true,
+            'approved' => true,
+            'already_used' => false,
+            'name_mismatch' => false,
+            'message' => 'Valid approved FishR - Ready for BoatR registration',
+            'fisher_name' => $fishrFullName,
+            'first_name' => $fishrApp->first_name ?? '',
+            'middle_name' => $fishrApp->middle_name ?? '',
+            'last_name' => $fishrApp->last_name ?? '',
+            'name_extension' => $fishrApp->name_extension ?? '',
+            'contact_number' => $fishrApp->contact_number ?? '',
+            'barangay' => $fishrApp->barangay ?? '',
+            'sex' => $fishrApp->sex ?? '',
+            'main_livelihood' => $fishrApp->main_livelihood ?? '',
+            'fishr_app_id' => $fishrApp->id,
+            'registration_number' => $fishrApp->registration_number
+        ], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Error validating FishR registration number', [
+            'registration_number' => $fishrNumber,
+            'error_message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'valid' => false,
+            'message' => 'Error validating registration: ' . $e->getMessage()
+        ], 200);
     }
+}
 }

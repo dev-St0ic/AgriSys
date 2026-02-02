@@ -27,6 +27,7 @@ class BoatrApplication extends Model
         'fishr_number',
         'vessel_name',
         'boat_type',
+        'boat_classification',
         'boat_length',
         'boat_width',
         'boat_depth',
@@ -502,7 +503,8 @@ class BoatrApplication extends Model
             'Hook and Line',
             'Bottom Set Gill Net',
             'Fish Trap',
-            'Fish Coral'
+            'Fish Coral',
+            'Not Applicable'
         ];
     }
 

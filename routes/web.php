@@ -242,6 +242,11 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         ->name('validate-fishr')
         ->where('fishrNumber', '.*'); // Allow special characters like dashes
     });
+    Route::middleware(['web'])->group(function () {
+    Route::get('/validate-fishr/{fishrNumber}', [\App\Http\Controllers\BoatRController::class, 'validateFishrNumber'])
+        ->where('fishrNumber', '.*')
+        ->name('validate.fishr');
+});
 
     // ==============================================
     // TRAINING REGISTRATIONS MANAGEMENT

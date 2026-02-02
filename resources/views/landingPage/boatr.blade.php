@@ -152,6 +152,15 @@
                 </select>
             </div>
 
+            <div class="boatr-form-group">
+                <label for="boatr_boat_classification">Boat Classification (Motorization) <span class="required">*</span></label>
+                <select id="boatr_boat_classification" name="boat_classification" required onchange="handleBoatClassificationChange(this)">
+                    <option value="" disabled selected>Select Classification</option>
+                    <option value="Motorized">Motorized</option>
+                    <option value="Non-motorized">Non-motorized</option>
+                </select>
+            </div>
+
             <div class="boatr-form-row">
                 <div class="boatr-form-group">
                     <label for="boatr_boat_length">Length (feet) <span class="required">*</span></label>
@@ -170,28 +179,30 @@
                 </div>
             </div>
 
-            <div class="boatr-form-group">
-                <label for="boatr_engine_type">Engine Type <span class="required">*</span></label>
-                <input type="text" id="boatr_engine_type" name="engine_type"
-                    placeholder="Example: Yamaha 40HP Outboard" required>
-                <small class="boatr-form-help">Brand and model of your boat engine</small>
+           <div id="boatr_engine_fields_container" style="display: none;">
+                <div class="boatr-form-group">
+                    <label for="boatr_engine_type">Engine Type <span class="required">*</span></label>
+                    <input type="text" id="boatr_engine_type" name="engine_type"
+                        placeholder="Example: Yamaha 40HP Outboard">
+                    <small class="boatr-form-help">Brand and model of your boat engine</small>
+                </div>
+
+                <div class="boatr-form-group">
+                    <label for="boatr_engine_horsepower">Engine Horsepower <span class="required">*</span></label>
+                    <input type="number" id="boatr_engine_horsepower" name="engine_horsepower" step="1"
+                        min="1" max="500" placeholder="Example: 40">
+                </div>
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_engine_horsepower">Engine Horsepower <span class="required">*</span></label>
-                <input type="number" id="boatr_engine_horsepower" name="engine_horsepower" step="1"
-                    min="1" max="500" placeholder="Example: 40" required>
-            </div>
-
-            <div class="boatr-form-group">
-                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span
-                        class="required">*</span></label>
+                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span class="required">*</span></label>
                 <select id="boatr_primary_fishing_gear" name="primary_fishing_gear" required>
                     <option value="" disabled selected>Select Primary Gear</option>
                     <option value="Hook and Line">Hook and Line</option>
                     <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
                     <option value="Fish Trap">Fish Trap</option>
                     <option value="Fish Coral">Fish Coral</option>
+                    <option value="Not Applicable">Not Applicable (N/A)</option>
                 </select>
             </div>
 
