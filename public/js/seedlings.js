@@ -114,6 +114,8 @@ function initializeCategoryTabs() {
     toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
     toggleButton.setAttribute('data-expanded', 'false');
     toggleButton.type = 'button';
+    toggleButton.style.flexShrink = '0'; // ← ADDed THIS
+    toggleButton.style.whiteSpace = 'nowrap'; // ← ADDed THIS
 
     toggleButton.addEventListener('click', function(e) {
         e.preventDefault();
@@ -665,13 +667,12 @@ function showSeedlingsTab(tabId, event) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
-
-// pick uo date
+// Pick up date - ALWAYS SHOW
 function showPickupDateField(totalQuantity) {
     const pickupDateSection = document.getElementById('pickup-date-section');
     const pickupInput = document.getElementById('seedlings-pickup_date');
     
-    // ✅ SHOW PICKUP DATE FIELD FOR ALL REQUESTS (removed the >= 100 check)
+    // ✅ SHOW PICKUP DATE FIELD FOR ALL REQUESTS
     if (pickupDateSection) pickupDateSection.style.display = 'block';
     if (pickupInput) {
         pickupInput.required = true;
