@@ -4,1470 +4,1660 @@
 @section('page-title', 'Dashboard')
 
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
-@endpush
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
 @endpush
 
 @section('content')
-<div class="dashboard-wrapper p-4">
-    <!-- Welcome Section with Quick Stats -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="welcome-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h1 class="greeting-title">
-                            @php
-                                $hour = now()->format('H');
-                                $greeting = $hour < 12 ? 'Good Morning' : ($hour < 18 ? 'Good Afternoon' : 'Good Evening');
-                            @endphp
-                            {{ $greeting }}, {{ $user->name }}
-                        </h1>
-                        <p class="greeting-time">
-                            <i class="fas fa-clock me-2"></i>{{ now()->format('l, F j, Y') }}
-                        </p>
-                    </div>
-                    <div class="quick-stats">
-                        <div class="stat-badge">
-                            <span class="badge-label">System Status</span>
-                            <span class="badge badge-success"><i class="fas fa-circle-notch fa-spin me-1"></i>Online</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CRITICAL ALERTS SECTION - ENHANCED DESIGN -->
-    @if(count($criticalAlerts) > 0)
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="critical-alerts-container">
-                <!-- Header with Icon -->
-                <div class="alerts-header-enhanced">
-                    <div class="alerts-header-content">
-                        <div class="alerts-header-icon">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <div class="alerts-header-text">
-                            <h5 class="alerts-header-title">Critical Alerts</h5>
-                            <p class="alerts-header-subtitle">{{ count($criticalAlerts) }} active alert{{ count($criticalAlerts) > 1 ? 's' : '' }} require immediate attention</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Alerts Grid -->
-                <div class="critical-alerts-grid">
-                    @foreach($criticalAlerts as $alert)
-                    <div class="critical-alert-card alert-{{ $alert['color'] }}">
-                        <!-- Alert Indicator Bar -->
-                        <div class="alert-indicator"></div>
-
-                        <!-- Main Content -->
-                        <div class="alert-card-content">
-                            <!-- Icon and Title Section -->
-                            <div class="alert-header-section">
-                                <div class="alert-icon-wrapper alert-icon-{{ $alert['color'] }}">
-                                    <i class="{{ $alert['icon'] }}"></i>
-                                </div>
-                                <div class="alert-title-wrapper">
-                                    <h6 class="alert-title-text">{{ $alert['title'] }}</h6>
-                                    <p class="alert-subtitle-text">{{ $alert['subtitle'] }}</p>
-                                </div>
-                                <div class="alert-count-badge">
-                                    <span class="count-number">{{ $alert['count'] }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            @if(count($alert['actions']) > 0)
-                            <div class="alert-actions-wrapper">
-                                @foreach($alert['actions'] as $action)
-                                <a href="{{ route($action['route']) }}" class="btn-alert-enhanced">
-                                    <span>{{ $action['label'] }}</span>
-                                    <i class="fas fa-arrow-right"></i>
-                                </a>
-                                @endforeach
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- KEY METRICS - 2x2 GRID WITH BETTER ORGANIZATION -->
-    <div class="row mb-4 g-3">
-        <!-- First Row: Pending Approvals & Out of Stock -->
-        <div class="col-lg-6 col-md-6">
-            <div class="metric-card metric-card-pending">
-                <div class="metric-content-wrapper">
-                    <div class="metric-header">
-                        <div class="metric-icon-box pending">
-                            <i class="fas fa-hourglass-half"></i>
-                        </div>
-                        <div class="metric-info">
-                            <span class="metric-label">Pending Approvals</span>
-                            <span class="metric-number">{{ $keyMetrics['total_pending'] }}</span>
-                        </div>
-                    </div>
-                    <div class="metric-footer">
-                        <a href="#" class="metric-link">View Details <i class="fas fa-arrow-right ms-1"></i></a>
-                    </div>
-                </div>
+    <div class="farmvista-dashboard">
+        <!-- Header Section with Welcome -->
+        <div class="dashboard-welcome-header">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Good Morning!</h1>
             </div>
         </div>
 
-        <div class="col-lg-6 col-md-6">
-            <div class="metric-card metric-card-supply">
-                <div class="metric-content-wrapper">
-                    <div class="metric-header">
-                        <div class="metric-icon-box supply">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <div class="metric-info">
-                            <span class="metric-label">Out of Stock</span>
-                            <span class="metric-number">{{ $keyMetrics['out_of_stock_items'] }}</span>
-                        </div>
-                    </div>
-                    <div class="metric-footer">
-                        <a href="#" class="metric-link">Manage Stock <i class="fas fa-arrow-right ms-1"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-main-grid">
+            <!-- Left Column - Main Content -->
+            <div class="dashboard-left-section">
 
-        <!-- Second Row: Total Users & Low Stock Items -->
-        <div class="col-lg-6 col-md-6">
-            <div class="metric-card metric-card-users">
-                <div class="metric-content-wrapper">
-                    <div class="metric-header">
-                        <div class="metric-icon-box users">
+                <!-- Key Metrics Cards Row -->
+                <div class="metrics-row">
+                    <!-- Active Users Card -->
+                    <div class="metric-card-modern">
+                        <div class="metric-icon-wrapper green">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="metric-info">
-                            <span class="metric-label">Total Users</span>
-                            <span class="metric-number">{{ $keyMetrics['total_users'] }}</span>
+                            <div class="metric-label">Active Users</div>
+                            <div class="metric-value-large">{{ number_format($keyMetrics['total_users'] ?? 0) }}</div>
+                            <div class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i> +2% from last month
+                            </div>
                         </div>
                     </div>
-                    <div class="metric-footer">
-                        <a href="#" class="metric-link">All Users <i class="fas fa-arrow-right ms-1"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-lg-6 col-md-6">
-            <div class="metric-card metric-card-info">
-                <div class="metric-content-wrapper">
-                    <div class="metric-header">
-                        <div class="metric-icon-box info">
-                            <i class="fas fa-chart-line"></i>
+                    <!-- Current Applications Card -->
+                    <div class="metric-card-modern">
+                        <div class="metric-icon-wrapper blue">
+                            <i class="fas fa-file-alt"></i>
                         </div>
                         <div class="metric-info">
-                            <span class="metric-label">Low Stock Items</span>
-                            <span class="metric-number">{{ count($supplyAlerts['low_stock'] ?? []) }}</span>
-                        </div>
-                    </div>
-                    <div class="metric-footer">
-                        <a href="#" class="metric-link">Monitor <i class="fas fa-arrow-right ms-1"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SUPPLY MANAGEMENT SECTION WITH HEADER AND CARDS -->
-    <div class="supply-management-section">
-        <!-- SUPPLY MANAGEMENT TITLE SECTION -->
-        <div class="supply-section-header">
-            <div class="supply-header-content">
-                <div class="supply-header-icon">
-                    <i class="fas fa-warehouse"></i>
-                </div>
-                <div class="supply-header-text">
-                    <h5 class="supply-header-title">Supply Management</h5>
-                    <p class="supply-header-subtitle">Monitor supply levels and manage stock alerts</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SUPPLY MANAGEMENT - DUAL COLUMN LAYOUT -->
-        <div class="row g-3 mt-0">
-            <!-- OUT OF STOCK -->
-            <div class="col-lg-6">
-                <a href="{{ route('admin.seedlings.supply-management.items', ['status' => 'out_of_stock']) }}" class="card card-enhanced supply-card-link">
-                    <div class="card-header-enhanced">
-                        <h6 class="card-title">
-                            <i class="fas fa-times-circle text-danger me-2"></i>Out of Stock Items
-                        </h6>
-                        <span class="badge bg-danger text-white">{{ count($supplyAlerts['out_of_stock']) }}</span>
-                    </div>
-                    <div class="card-body card-body-enhanced">
-                        @if(count($supplyAlerts['out_of_stock']) > 0)
-                        <div class="supply-list">
-                            @foreach($supplyAlerts['out_of_stock'] as $item)
-                            <div class="supply-item critical" onclick="event.stopPropagation();">
-                                <div class="supply-info">
-                                    <div class="supply-name">{{ $item['item'] }}</div>
-                                    <div class="supply-category">{{ $item['category'] }}</div>
-                                </div>
-                                <div class="supply-badge critical">
-                                    <i class="fas fa-exclamation"></i>
-                                </div>
+                            <div class="metric-label">Current Applications</div>
+                            <div class="metric-value-large">{{ number_format($keyMetrics['total_pending'] ?? 0) }}</div>
+                            <div class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i> +5.67% from last month
                             </div>
-                            @endforeach
                         </div>
-                        @else
-                        <div class="empty-state">
+                    </div>
+
+                    <!-- Approval Status Card -->
+                    <div class="metric-card-modern">
+                        <div class="metric-icon-wrapper purple">
                             <i class="fas fa-check-circle"></i>
-                            <p>All items in stock</p>
                         </div>
-                        @endif
+                        <div class="metric-info">
+                            <div class="metric-label">Approval Status</div>
+                            @php
+                                $approvedCount = collect($applicationStatus ?? [])->sum('approved');
+                            @endphp
+                            <div class="metric-value-large">{{ number_format($approvedCount) }}</div>
+                            <div class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i> +150% from last month
+                            </div>
+                        </div>
                     </div>
-                </a>
-            </div>
 
-            <!-- LOW STOCK -->
-            <div class="col-lg-6">
-                <a href="{{ route('admin.seedlings.supply-management.items', ['status' => 'low_stock']) }}" class="card card-enhanced supply-card-link">
-                    <div class="card-header-enhanced">
-                        <h6 class="card-title">
-                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>Low Stock Items
-                        </h6>
-                        <span class="badge bg-warning text-dark">{{ count($supplyAlerts['low_stock']) }}</span>
+                    <!-- Upcoming Deadlines Card -->
+                    <div class="metric-card-modern">
+                        <div class="metric-icon-wrapper orange">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="metric-info">
+                            <div class="metric-label">Pending Reviews</div>
+                            <div class="metric-value-large">{{ number_format($keyMetrics['total_pending'] ?? 0) }}</div>
+                            <div class="metric-description">{{ collect($recentActivity ?? [])->count() }} applications need
+                                attention</div>
+                        </div>
                     </div>
-                    <div class="card-body card-body-enhanced">
-                        @if(count($supplyAlerts['low_stock']) > 0)
-                        <div class="supply-list">
-                            @foreach($supplyAlerts['low_stock'] as $item)
-                            <div class="supply-item warning" onclick="event.stopPropagation();">
-                                <div class="supply-info">
-                                    <div class="supply-name">{{ $item['item'] }}</div>
-                                    <div class="supply-detail">{{ $item['current'] }} / {{ $item['minimum'] }} (min)</div>
+                </div>
+
+                <!-- User Registration Chart -->
+                <div class="chart-card-farmvista">
+                    <div class="chart-header-modern">
+                        <div class="chart-title-area">
+                            <h3 class="chart-title">User Registration</h3>
+                            <div class="chart-legend-inline">
+                                <span class="legend-dot green"></span> New Users
+                                <span class="legend-dot blue"></span> Present
+                            </div>
+                        </div>
+                        <div class="chart-filters">
+                            <select class="time-filter-select">
+                                <option>Last 6 Months</option>
+                                <option>Last 12 Months</option>
+                                <option>This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container-area">
+                        <canvas id="userRegistrationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Service Overview Cards -->
+                <div class="service-overview-grid">
+                    @php
+                        $serviceImages = [
+                            'rsbsa' => 'ServicesRSBSATemporary.jpg',
+                            'seedling' => 'ServicesSeedlingsTemporary.jpg',
+                            'fishr' => 'ServicesFishrTemporary.jpg',
+                            'boatr' => 'ServicesBoatrTemporary.jpg',
+                            'training' => 'ServicesTrainingTemporary.jpg',
+                        ];
+                    @endphp
+                    @foreach ($applicationStatus ?? [] as $key => $service)
+                        <div class="service-card">
+                            <div class="service-image-wrapper">
+                                <img src="{{ asset('images/services/' . ($serviceImages[$key] ?? 'default.jpg')) }}"
+                                    alt="{{ $service['name'] }}" class="service-image">
+                                <div class="service-image-overlay"></div>
+                            </div>
+                            <div class="service-content">
+                                <h4 class="service-name">{{ $service['name'] }}</h4>
+                                <div class="service-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value warning">{{ $service['pending'] }}</div>
+                                        <div class="stat-label">Pending</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value success">{{ $service['approved'] }}</div>
+                                        <div class="stat-label">Approved</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value danger">{{ $service['rejected'] }}</div>
+                                        <div class="stat-label">Rejected</div>
+                                    </div>
                                 </div>
-                                <div class="supply-progress">
-                                    <div class="progress-bar" style="width: {{ ($item['current'] / $item['minimum'] * 100) }}%"></div>
+                                <a href="{{ route($service['route']) }}" class="service-action-link">
+                                    View Details <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <!-- Supply Management Card -->
+                    <div class="service-card">
+                        <div class="service-image-wrapper">
+                            <img src="{{ asset('images/services/SupplyManagement.png') }}" alt="Supply Management"
+                                class="service-image">
+                            <div class="service-image-overlay"></div>
+                        </div>
+                        <div class="service-content">
+                            <h4 class="service-name">Supply Management</h4>
+                            <div class="service-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value warning">{{ $supplyAlerts['total_issues'] ?? 0 }}</div>
+                                    <div class="stat-label">Low Stock</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value success">
+                                        {{ count($supplyAlerts['out_of_stock'] ?? []) + count($supplyAlerts['low_stock'] ?? []) }}
+                                    </div>
+                                    <div class="stat-label">Total Items</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value danger">{{ $keyMetrics['out_of_stock_items'] ?? 0 }}</div>
+                                    <div class="stat-label">Out of Stock</div>
                                 </div>
                             </div>
+                            <a href="{{ route('admin.seedlings.supply-management.index') }}" class="service-action-link">
+                                View Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Management -->
+                <div class="task-card-farmvista">
+                    <div class="card-header-with-action">
+                        <h3 class="card-title-compact">Task Management</h3>
+                        <div class="header-actions-compact">
+                            <button class="icon-btn-compact"
+                                onclick="window.location.href='{{ route('admin.seedlings.supply-management.index') }}'">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <a href="{{ route('admin.rsbsa.applications') }}" class="view-all-link-compact">
+                                View All <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="task-list">
+                        <div class="task-table-header">
+                            <div class="task-col-name">Task Name</div>
+                            <div class="task-col-assigned">Assigned To</div>
+                            <div class="task-col-due">Due Date</div>
+                            <div class="task-col-status">Status</div>
+                        </div>
+                        @if (isset($recentActivity) && count($recentActivity) > 0)
+                            @foreach ($recentActivity->take(5) as $activity)
+                                <div class="task-row">
+                                    <div class="task-col-name">
+                                        <span class="task-name-text">{{ $activity['type'] ?? 'Application' }}
+                                            Review</span>
+                                    </div>
+                                    <div class="task-col-assigned">
+                                        <span class="task-assigned-text">{{ $activity['name'] ?? 'N/A' }}</span>
+                                    </div>
+                                    <div class="task-col-due">
+                                        <span
+                                            class="task-date-text">{{ $activity['created_at']->format('M d, Y') }}</span>
+                                    </div>
+                                    <div class="task-col-status">
+                                        <span class="task-status-badge {{ $activity['status_color'] ?? 'warning' }}">
+                                            {{ $activity['action'] ?? 'Pending' }}
+                                        </span>
+                                    </div>
+                                </div>
                             @endforeach
-                        </div>
                         @else
-                        <div class="empty-state">
-                            <i class="fas fa-leaf"></i>
-                            <p>All supplies are healthy</p>
-                        </div>
+                            <div class="task-empty-state">
+                                <i class="fas fa-tasks"></i>
+                                <p>No pending tasks</p>
+                            </div>
                         @endif
                     </div>
-                </a>
+                </div>
+
             </div>
-        </div>
-    </div>
 
-    <!-- APPLICATION STATUS OVERVIEW WITH CHARTS -->
-    <div class="row mb-4 mt-4">
-        <div class="col-12">
-            <div class="section-header">
-                <h5 class="section-title">
-                    <i class="fas fa-chart-bar me-2"></i>Application Status Overview
-                </h5>
-                <p class="section-subtitle">Track application submissions and approvals across all services</p>
-            </div>
-        </div>
-    </div>
+            <!-- Right Column - Sidebar -->
+            <div class="dashboard-right-section">
 
-    <div class="row mb-4 g-3">
-        @foreach($applicationStatus as $service)
-        <div class="col-lg-4 col-md-6">
-            <div class="status-card-enhanced">
-                <div class="status-card-header">
-                    <div class="status-icon-wrapper">
-                        <i class="{{ $service['icon'] }} fa-lg"></i>
+                <!-- Weather Widget - San Pedro, Laguna -->
+                <div class="weather-card-farmvista" id="weatherCard">
+                    <div class="card-header-compact">
+                        <h3 class="card-title-compact">
+                            <i class="fas fa-map-marker-alt"></i> San Pedro, Laguna
+                        </h3>
+                        <span class="weather-time" id="weatherTime">--:--</span>
                     </div>
-                    <div class="status-title-group">
-                        <h6 class="status-name">{{ $service['name'] }}</h6>
-                        <span class="status-total">{{ $service['pending'] + $service['approved'] + $service['rejected'] }} total</span>
+                    <div class="weather-main-display">
+                        <div class="weather-icon-large" id="weatherIcon">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <div class="weather-temp-large">
+                            <span id="weatherTemp">--</span>°C
+                        </div>
+                        <div class="weather-condition" id="weatherCondition">Loading weather...</div>
                     </div>
-                </div>
-
-                <div class="status-stats-container">
-                    <div class="status-stat">
-                        <a href="{{ route($service['route'], ['filter' => 'pending']) }}" class="stat-box pending">
-                            <span class="stat-value">{{ $service['pending'] }}</span>
-                            <span class="stat-name">Pending</span>
-                        </a>
-                    </div>
-                    <div class="status-stat">
-                        <a href="{{ route($service['route'], ['filter' => 'approved']) }}" class="stat-box approved">
-                            <span class="stat-value">{{ $service['approved'] }}</span>
-                            <span class="stat-name">Approved</span>
-                        </a>
-                    </div>
-                    <div class="status-stat">
-                        <a href="{{ route($service['route'], ['filter' => 'rejected']) }}" class="stat-box rejected">
-                            <span class="stat-value">{{ $service['rejected'] }}</span>
-                            <span class="stat-name">Rejected</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="status-action">
-                    <a href="{{ route($service['route']) }}" class="btn btn-status-action w-100">
-                        <i class="fas fa-arrow-right me-2"></i>Manage Applications
-                    </a>
-                </div>
-            </div>
-        </div>
-        @endforeach
-    </div>
-
-    <!-- RECENT ACTIVITY -->
-    <div class="row mb-4 g-3">
-        <div class="col-lg-12">
-            <div class="card card-enhanced">
-                <div class="card-header-enhanced">
-                    <h6 class="card-title">
-                        <i class="fas fa-history me-2"></i>Recent Activity
-                    </h6>
-                    <span class="badge bg-light text-dark">Latest</span>
-                </div>
-                <div class="card-body card-body-enhanced">
-                    @if(count($recentActivity) > 0)
-                    <div class="activity-list">
-                        @foreach($recentActivity as $activity)
-                        <a href="{{ $activity['action_url'] }}" class="activity-item">
-                            <div class="activity-left">
-                                <div class="activity-icon">
-                                    <i class="fas fa-arrow-right"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <div class="activity-type">{{ $activity['type'] }}</div>
-                                    <div class="activity-name">{{ $activity['name'] }}</div>
-                                </div>
+                    <div class="weather-details-grid">
+                        <div class="weather-detail-item">
+                            <i class="fas fa-tint"></i>
+                            <div>
+                                <div class="detail-label">Humidity</div>
+                                <div class="detail-value" id="humidity">--%</div>
                             </div>
-                            <div class="activity-right">
-                                <span class="activity-time">{{ $activity['created_at']->diffForHumans() }}</span>
-                                <span class="badge badge-{{ $activity['status_color'] }}">{{ $activity['action'] }}</span>
+                        </div>
+                        <div class="weather-detail-item">
+                            <i class="fas fa-cloud-rain"></i>
+                            <div>
+                                <div class="detail-label">Rain Chance</div>
+                                <div class="detail-value" id="rainChance">--%</div>
                             </div>
-                        </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Summary Donut Chart -->
+                <div class="summary-card-farmvista">
+                    <div class="card-header-compact">
+                        <h3 class="card-title-compact">Service Summary</h3>
+                    </div>
+                    <div class="donut-chart-wrapper">
+                        <canvas id="serviceSummaryChart"></canvas>
+                    </div>
+                    <div class="chart-legend-list">
+                        @php
+                            $colors = ['#4CAF50', '#FFC107', '#2196F3', '#E91E63', '#9C27B0'];
+                            $index = 0;
+                        @endphp
+                        @foreach ($applicationStatus ?? [] as $service)
+                            <div class="legend-item-row">
+                                <span class="legend-color-box" style="background: {{ $colors[$index % 5] }}"></span>
+                                <span class="legend-text">{{ $service['name'] }}</span>
+                                <span class="legend-value">{{ $service['pending'] + $service['approved'] }}</span>
+                            </div>
+                            @php $index++; @endphp
                         @endforeach
                     </div>
-                    @else
-                    <div class="empty-state">
-                        <i class="fas fa-check-circle"></i>
-                        <p>No pending activities</p>
-                    </div>
-                    @endif
                 </div>
+
+                <!-- Geographic Distribution Chart -->
+                <div class="summary-card-farmvista">
+                    <div class="card-header-compact">
+                        <h3 class="card-title-compact">Top 5 Barangays</h3>
+                        <select class="time-filter-compact" id="geoDistributionFilter">
+                            <option value="users">Users</option>
+                            <option value="applications">Applications</option>
+                        </select>
+                    </div>
+                    <div class="geo-chart-wrapper">
+                        <canvas id="geographicDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activities Card -->
+                <div class="summary-card-farmvista">
+                    <div class="card-header-compact">
+                        <h3 class="card-title-compact">Recent Activities</h3>
+                    </div>
+                    <div class="activities-list">
+                        @if (isset($recentActivity) && count($recentActivity) > 0)
+                            @foreach ($recentActivity->take(5) as $activity)
+                                <div class="activity-item">
+                                    <div class="activity-icon {{ $activity['status_color'] ?? 'warning' }}">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <div class="activity-title">{{ $activity['type'] ?? 'Application' }}</div>
+                                        <div class="activity-name">{{ $activity['name'] ?? 'N/A' }}</div>
+                                        <div class="activity-time">{{ $activity['created_at']->diffForHumans() }}</div>
+                                    </div>
+                                    <div class="activity-badge {{ $activity['status_color'] ?? 'warning' }}">
+                                        {{ $activity['action'] ?? 'Pending' }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="activities-empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No recent activities</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
             </div>
         </div>
+
     </div>
 
-<script>
-    // Supply Status Chart
-    const supplyCtx = document.getElementById('supplyStatusChart')?.getContext('2d');
-    if (supplyCtx) {
-        @php
-            $totalSupplyItems = count($supplyAlerts['out_of_stock'] ?? []) + count($supplyAlerts['low_stock'] ?? []) + ($keyMetrics['total_users'] ?? 0);
-            $outOfStock = count($supplyAlerts['out_of_stock'] ?? []);
-            $lowStock = count($supplyAlerts['low_stock'] ?? []);
-            $healthy = max(0, $totalSupplyItems - $outOfStock - $lowStock);
-            $totalForChart = $outOfStock + $lowStock + $healthy;
-        @endphp
-        
-        new Chart(supplyCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Healthy', 'Low Stock', 'Out of Stock'],
-                datasets: [{
-                    data: [
-                        {{ $healthy > 0 ? $healthy : 0 }},
-                        {{ $lowStock }},
-                        {{ $outOfStock }}
-                    ],
-                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: { size: 12 },
-                            padding: 15,
-                            usePointStyle: true
+    <!-- Load Chart.js before our scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+
+    <!-- Chart Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // User Registration Bar Chart
+            const userRegistrationCtx = document.getElementById('userRegistrationChart');
+            if (userRegistrationCtx) {
+                // Get current month and calculate last 6 months
+                const months = [];
+                const currentDate = new Date();
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+                    months.push(date.toLocaleDateString('en-US', {
+                        month: 'short',
+                        year: 'numeric'
+                    }));
+                }
+
+                new Chart(userRegistrationCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'New Users',
+                            data: [45, 62, 58, 71, 83, 95],
+                            backgroundColor: '#4CAF50',
+                            borderRadius: 8,
+                            barThickness: 40
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#ffffff',
+                                titleColor: '#000000',
+                                bodyColor: '#666666',
+                                borderColor: '#e0e0e0',
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + ' users';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#f5f5f5'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + ' users';
+                                    },
+                                    stepSize: 20
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
                         }
                     }
-                }
+                });
             }
+
+            // Service Summary Donut Chart
+            const serviceSummaryCtx = document.getElementById('serviceSummaryChart');
+            if (serviceSummaryCtx) {
+                @php
+                    $serviceData = collect($applicationStatus ?? [])
+                        ->map(function ($service) {
+                            return $service['pending'] + $service['approved'];
+                        })
+                        ->values();
+                @endphp
+                new Chart(serviceSummaryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: {!! json_encode(
+                            collect($applicationStatus ?? [])->pluck('name')->values(),
+                        ) !!},
+                        datasets: [{
+                            data: {!! json_encode($serviceData) !!},
+                            backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#E91E63',
+                                '#9C27B0'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#ffffff',
+                                titleColor: '#000000',
+                                bodyColor: '#666666',
+                                borderColor: '#e0e0e0',
+                                borderWidth: 1
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Geographic Distribution Bar Chart
+            const geoDistributionCtx = document.getElementById('geographicDistributionChart');
+            if (geoDistributionCtx) {
+                @php
+                    $usersData = collect($geographicDistribution['users'] ?? []);
+                    $applicationsData = collect($geographicDistribution['applications'] ?? []);
+                    $userLabels = $usersData->pluck('barangay')->toArray();
+                    $userCounts = $usersData->pluck('count')->toArray();
+                    $appLabels = $applicationsData->pluck('barangay')->toArray();
+                    $appCounts = $applicationsData->pluck('count')->toArray();
+                @endphp
+
+                const geoData = {
+                    users: {
+                        labels: {!! json_encode($userLabels) !!},
+                        data: {!! json_encode($userCounts) !!}
+                    },
+                    applications: {
+                        labels: {!! json_encode($appLabels) !!},
+                        data: {!! json_encode($appCounts) !!}
+                    }
+                };
+
+                let currentGeoView = 'users';
+
+                const geoChart = new Chart(geoDistributionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: geoData.users.labels,
+                        datasets: [{
+                            label: 'Registered Users',
+                            data: geoData.users.data,
+                            backgroundColor: '#4CAF50',
+                            borderRadius: 6,
+                            barThickness: 25
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#ffffff',
+                                titleColor: '#000000',
+                                bodyColor: '#666666',
+                                borderColor: '#e0e0e0',
+                                borderWidth: 1,
+                                padding: 8,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.x + (currentGeoView === 'users' ?
+                                            ' users' : ' applications');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#f5f5f5'
+                                },
+                                ticks: {
+                                    stepSize: 1,
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Filter change handler
+                document.getElementById('geoDistributionFilter').addEventListener('change', function(e) {
+                    currentGeoView = e.target.value;
+                    const isUsers = currentGeoView === 'users';
+
+                    geoChart.data.labels = geoData[currentGeoView].labels;
+                    geoChart.data.datasets[0].data = geoData[currentGeoView].data;
+                    geoChart.data.datasets[0].label = isUsers ? 'Registered Users' : 'Total Applications';
+                    geoChart.data.datasets[0].backgroundColor = isUsers ? '#4CAF50' : '#2196F3';
+                    geoChart.update();
+                });
+            }
+
         });
-    }
-</script>
 
-<style>
-    :root {
-        --primary: #4e73df;
-        --success: #1cc88a;
-        --danger: #e74a3b;
-        --warning: #f6c23e;
-        --info: #36b9cc;
-        --light: #f8f9fc;
-        --dark: #2e3338;
-        --gray: #858796;
-    }
-
-    .dashboard-wrapper {
-        max-width: 1450px;
-        margin: 0 auto;
-        background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
-        min-height: 100vh;
-        padding: 1rem !important;
-    }
-
-    /* ==================== WELCOME SECTION ==================== */
-    .welcome-card {
-        background: linear-gradient(135deg, var(--primary) 0%, #224abe 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(78, 115, 223, 0.2);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .welcome-card::before {
-        content: '';
-        position: absolute;
-        right: -50px;
-        top: -50px;
-        width: 150px;
-        height: 150px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-    }
-
-    .greeting-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .greeting-time {
-        opacity: 0.95;
-        margin-bottom: 0;
-        font-size: 0.95rem;
-    }
-
-    .quick-stats {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .stat-badge {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.5rem;
-    }
-
-    .badge-label {
-        font-size: 0.8rem;
-        opacity: 0.9;
-    }
-
-    /* ==================== CRITICAL ALERTS - ENHANCED DESIGN ==================== */
-    .critical-alerts-container {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .alerts-header-enhanced {
-        background: linear-gradient(135deg, #fff5f5 0%, #fffaf0 100%);
-        border-bottom: 2px solid #ffe5e5;
-        padding: 1.75rem 1.75rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .alerts-header-content {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        width: 100%;
-    }
-
-    .alerts-header-icon {
-        width: 56px;
-        height: 56px;
-        background: linear-gradient(135deg, var(--danger), #d63a25);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.75rem;
-        flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.25);
-    }
-
-    .alerts-header-text {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-
-    .alerts-header-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0;
-    }
-
-    .alerts-header-subtitle {
-        font-size: 0.9rem;
-        color: var(--gray);
-        margin-bottom: 0;
-    }
-
-    /* Critical Alerts Grid */
-    .critical-alerts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 1.25rem;
-        padding: 1.75rem;
-    }
-
-    .critical-alert-card {
-        position: relative;
-        background: white;
-        border-radius: 10px;
-        border: 1.5px solid;
-        overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        flex-direction: column;
-    }
-
-    .critical-alert-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-    }
-
-    .critical-alert-card.alert-danger {
-        border-color: #ffe5e5;
-        background: linear-gradient(135deg, #fff9f9 0%, #fffbfb 100%);
-    }
-
-    .critical-alert-card.alert-danger:hover {
-        border-color: var(--danger);
-    }
-
-    .critical-alert-card.alert-warning {
-        border-color: #fff3e0;
-        background: linear-gradient(135deg, #fffef9 0%, #fffdfb 100%);
-    }
-
-    .critical-alert-card.alert-warning:hover {
-        border-color: var(--warning);
-    }
-
-    .alert-indicator {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--danger), #f6c23e);
-        animation: slideIn 0.6s ease;
-    }
-
-    @keyframes slideIn {
-        from {
-            width: 0;
-        }
-        to {
-            width: 100%;
-        }
-    }
-
-    .alert-card-content {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        flex: 1;
-    }
-
-    .alert-header-section {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .alert-icon-wrapper {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        flex-shrink: 0;
-    }
-
-    .alert-icon-danger {
-        background: linear-gradient(135deg, var(--danger), #d63a25);
-        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.2);
-    }
-
-    .alert-icon-warning {
-        background: linear-gradient(135deg, var(--warning), #fcb92d);
-        box-shadow: 0 4px 12px rgba(246, 194, 62, 0.2);
-    }
-
-    .alert-title-wrapper {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-    }
-
-    .alert-title-text {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0;
-        line-height: 1.4;
-    }
-
-    .alert-subtitle-text {
-        font-size: 0.85rem;
-        color: var(--gray);
-        margin-bottom: 0;
-        line-height: 1.4;
-    }
-
-    .alert-count-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 44px;
-        height: 44px;
-        background: linear-gradient(135deg, var(--danger), #d63a25);
-        border-radius: 10px;
-        color: white;
-        font-weight: 700;
-        font-size: 1.3rem;
-        box-shadow: 0 4px 12px rgba(231, 74, 59, 0.2);
-        flex-shrink: 0;
-    }
-
-    .count-number {
-        line-height: 1;
-    }
-
-    /* Alert Actions */
-    .alert-actions-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        border-top: 1px solid #e3e6f0;
-        padding-top: 1.25rem;
-        margin-top: auto;
-    }
-
-    .btn-alert-enhanced {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: 0.85rem 1.25rem;
-        background: linear-gradient(135deg, var(--danger), #d63a25);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-
-    .btn-alert-enhanced:hover {
-        box-shadow: 0 6px 16px rgba(231, 74, 59, 0.3);
-        transform: translateY(-2px);
-        color: white;
-        text-decoration: none;
-    }
-
-    .btn-alert-enhanced i {
-        font-size: 0.85rem;
-        transition: transform 0.2s ease;
-    }
-
-    .btn-alert-enhanced:hover i {
-        transform: translateX(4px);
-    }
-
-    /* ==================== SECTION HEADERS ==================== */
-    .section-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .section-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.5rem;
-    }
-
-    .section-subtitle {
-        font-size: 0.9rem;
-        color: var(--gray);
-        margin-bottom: 0;
-    }
-
-    /* ==================== SUPPLY MANAGEMENT SECTION ==================== */
-    .supply-management-section {
-        margin-bottom: 2rem;
-    }
-
-    .supply-section-header {
-        background: white;
-        border-radius: 12px 12px 0 0;
-        padding: 1.75rem;
-        border-bottom: 2px solid #e3e6f0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .supply-header-content {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-    }
-
-    .supply-header-icon {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, var(--primary), #3d5fd5);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
-    }
-
-    .supply-header-text {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-
-    .supply-header-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0;
-    }
-
-    .supply-header-subtitle {
-        font-size: 0.9rem;
-        color: var(--gray);
-        margin-bottom: 0;
-    }
-
-    .supply-card-link {
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .supply-card-link:hover {
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    /* ==================== METRIC CARDS - 2x2 LAYOUT ==================== */
-    .metric-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-top: 4px solid;
-        position: relative;
-        height: 100%;
-    }
-
-    .metric-card:hover {
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-        transform: translateY(-4px);
-    }
-
-    .metric-card-pending {
-        border-top-color: var(--warning);
-    }
-
-    .metric-card-supply {
-        border-top-color: var(--danger);
-    }
-
-    .metric-card-users {
-        border-top-color: var(--info);
-    }
-
-    .metric-card-info {
-        border-top-color: var(--primary);
-    }
-
-    .metric-content-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        height: 100%;
-    }
-
-    .metric-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .metric-icon-box {
-        width: 50px;
-        height: 50px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: white;
-        flex-shrink: 0;
-    }
-
-    .metric-icon-box.pending {
-        background: linear-gradient(135deg, var(--warning), #fcb92d);
-    }
-
-    .metric-icon-box.supply {
-        background: linear-gradient(135deg, var(--danger), #d63a25);
-    }
-
-    .metric-icon-box.users {
-        background: linear-gradient(135deg, var(--info), #2fa7b8);
-    }
-
-    .metric-icon-box.info {
-        background: linear-gradient(135deg, var(--primary), #3d5fd5);
-    }
-
-    .metric-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-        flex: 1;
-    }
-
-    .metric-label {
-        font-size: 0.85rem;
-        color: var(--gray);
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .metric-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    .metric-footer {
-        border-top: 1px solid #e3e6f0;
-        padding-top: 1rem;
-        margin-top: auto;
-    }
-
-    .metric-link {
-        color: var(--primary);
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .metric-link:hover {
-        color: #224abe;
-        gap: 0.75rem;
-    }
-
-    /* ==================== CARD STYLES ==================== */
-    .card-enhanced {
-        border: none;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .card-enhanced:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-    }
-
-    .card-header-enhanced {
-        background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
-        padding: 1.5rem;
-        border-bottom: 2px solid #e3e6f0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-shrink: 0;
-    }
-
-    .card-title {
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0;
-    }
-
-    .card-body-enhanced {
-        padding: 0;
-        flex: 1;
-        overflow-y: auto;
-        max-height: 450px;
-    }
-
-    .card-body-enhanced::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .card-body-enhanced::-webkit-scrollbar-track {
-        background: #f1f3f5;
-    }
-
-    .card-body-enhanced::-webkit-scrollbar-thumb {
-        background: #adb5bd;
-        border-radius: 3px;
-    }
-
-    /* ==================== SUPPLY LIST ==================== */
-    .supply-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .supply-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 1.25rem;
-        background: white;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.2s ease;
-        border-left: 3px solid;
-        border-bottom: 1px solid #e3e6f0;
-    }
-
-    .supply-item:last-child {
-        border-bottom: none;
-    }
-
-    .supply-item.critical {
-        border-left-color: var(--danger);
-    }
-
-    .supply-item.critical:hover {
-        background: #fff5f5;
-        padding-left: 1.5rem;
-    }
-
-    .supply-item.warning {
-        border-left-color: var(--warning);
-    }
-
-    .supply-item.warning:hover {
-        background: #fffaf0;
-        padding-left: 1.5rem;
-    }
-
-    .supply-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-        flex: 1;
-    }
-
-    .supply-name {
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--dark);
-    }
-
-    .supply-category {
-        font-size: 0.8rem;
-        color: var(--gray);
-    }
-
-    .supply-detail {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--gray);
-    }
-
-    .supply-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        color: white;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    .supply-badge.critical {
-        background: var(--danger);
-    }
-
-    .supply-progress {
-        width: 100%;
-        max-width: 80px;
-        height: 4px;
-        background: #e3e6f0;
-        border-radius: 2px;
-        overflow: hidden;
-        margin-left: auto;
-    }
-
-    .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, var(--warning), #fcb92d);
-        transition: width 0.3s ease;
-    }
-
-    /* ==================== ACTIVITY LIST ==================== */
-    .activity-list {
-        max-height: 550px;
-        overflow-y: auto;
-    }
-
-    .activity-list::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .activity-list::-webkit-scrollbar-track {
-        background: #f1f3f5;
-    }
-
-    .activity-list::-webkit-scrollbar-thumb {
-        background: #adb5bd;
-        border-radius: 3px;
-    }
-
-    .activity-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem;
-        border-bottom: 1px solid #e3e6f0;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.2s ease;
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-item:hover {
-        background-color: #f8f9fc;
-        padding-left: 1.25rem;
-    }
-
-    .activity-left {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex: 1;
-    }
-
-    .activity-icon {
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, var(--primary), #3d5fd5);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    .activity-content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-    }
-
-    .activity-type {
-        font-size: 0.75rem;
-        color: var(--gray);
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .activity-name {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: var(--dark);
-    }
-
-    .activity-right {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-align: right;
-    }
-
-    .activity-time {
-        font-size: 0.8rem;
-        color: var(--gray);
-        white-space: nowrap;
-    }
-
-    /* ==================== STATUS CARDS - ENHANCED ==================== */
-    .status-card-enhanced {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        align-items: center;
-        border-top: 5px solid var(--primary);
-    }
-
-    .status-card-enhanced:hover {
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-        transform: translateY(-4px);
-    }
-
-    .status-card-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        width: 100%;
-    }
-
-    .status-icon-wrapper {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, var(--primary), #3d5fd5);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.3rem;
-        flex-shrink: 0;
-    }
-
-    .status-title-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-    }
-
-    .status-name {
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0;
-    }
-
-    .status-total {
-        font-size: 0.8rem;
-        color: var(--gray);
-    }
-
-    .status-stats-container {
-        display: flex;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .status-stat {
-        flex: 1;
-    }
-
-    .stat-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.2s ease;
-        border: 2px solid;
-        text-align: center;
-        gap: 0.5rem;
-    }
-
-    .stat-box.pending {
-        background: #fffaf0;
-        border-color: var(--warning);
-        color: #cc8800;
-    }
-
-    .stat-box.pending:hover {
-        background: var(--warning);
-        color: white;
-    }
-
-    .stat-box.approved {
-        background: #f0fdf4;
-        border-color: var(--success);
-        color: #16a34a;
-    }
-
-    .stat-box.approved:hover {
-        background: var(--success);
-        color: white;
-    }
-
-    .stat-box.rejected {
-        background: #fef2f2;
-        border-color: var(--danger);
-        color: #b91c1c;
-    }
-
-    .stat-box.rejected:hover {
-        background: var(--danger);
-        color: white;
-    }
-
-    .stat-value {
-        font-size: 1.4rem;
-        font-weight: 700;
-    }
-
-    .stat-name {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .status-action {
-        width: 100%;
-        border-top: 1px solid #e3e6f0;
-        padding-top: 1rem;
-        margin-top: auto;
-    }
-
-    .btn-status-action {
-        background: linear-gradient(135deg, var(--primary), #3d5fd5);
-        border: none;
-        color: white;
-        font-weight: 600;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        display: inline-block;
-        text-decoration: none;
-    }
-
-    .btn-status-action:hover {
-        box-shadow: 0 6px 16px rgba(78, 115, 223, 0.3);
-        transform: translateY(-2px);
-        color: white;
-        text-decoration: none;
-    }
-
-    /* ==================== EMPTY STATE ==================== */
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: var(--gray);
-    }
-
-    .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        display: block;
-        color: var(--success);
-    }
-
-    .empty-state p {
-        font-size: 0.95rem;
-        margin-bottom: 0;
-    }
-
-    /* ==================== RESPONSIVE ==================== */
-    @media (max-width: 992px) {
-        .greeting-title {
-            font-size: 1.5rem;
+        // Weather Widget - Separate from DOMContentLoaded to ensure it runs
+        (function() {
+            // Weather condition mapping
+            const weatherConditions = {
+                0: {
+                    description: 'Clear Sky',
+                    icon: 'fas fa-sun'
+                },
+                1: {
+                    description: 'Mainly Clear',
+                    icon: 'fas fa-sun'
+                },
+                2: {
+                    description: 'Partly Cloudy',
+                    icon: 'fas fa-cloud-sun'
+                },
+                3: {
+                    description: 'Overcast',
+                    icon: 'fas fa-cloud'
+                },
+                45: {
+                    description: 'Foggy',
+                    icon: 'fas fa-smog'
+                },
+                48: {
+                    description: 'Foggy',
+                    icon: 'fas fa-smog'
+                },
+                51: {
+                    description: 'Light Drizzle',
+                    icon: 'fas fa-cloud-rain'
+                },
+                53: {
+                    description: 'Drizzle',
+                    icon: 'fas fa-cloud-rain'
+                },
+                55: {
+                    description: 'Heavy Drizzle',
+                    icon: 'fas fa-cloud-showers-heavy'
+                },
+                61: {
+                    description: 'Light Rain',
+                    icon: 'fas fa-cloud-rain'
+                },
+                63: {
+                    description: 'Rain',
+                    icon: 'fas fa-cloud-showers-heavy'
+                },
+                65: {
+                    description: 'Heavy Rain',
+                    icon: 'fas fa-cloud-showers-heavy'
+                },
+                71: {
+                    description: 'Light Snow',
+                    icon: 'fas fa-snowflake'
+                },
+                73: {
+                    description: 'Snow',
+                    icon: 'fas fa-snowflake'
+                },
+                75: {
+                    description: 'Heavy Snow',
+                    icon: 'fas fa-snowflake'
+                },
+                77: {
+                    description: 'Snow Grains',
+                    icon: 'fas fa-snowflake'
+                },
+                80: {
+                    description: 'Light Showers',
+                    icon: 'fas fa-cloud-rain'
+                },
+                81: {
+                    description: 'Showers',
+                    icon: 'fas fa-cloud-showers-heavy'
+                },
+                82: {
+                    description: 'Heavy Showers',
+                    icon: 'fas fa-cloud-showers-heavy'
+                },
+                85: {
+                    description: 'Light Snow Showers',
+                    icon: 'fas fa-snowflake'
+                },
+                86: {
+                    description: 'Snow Showers',
+                    icon: 'fas fa-snowflake'
+                },
+                95: {
+                    description: 'Thunderstorm',
+                    icon: 'fas fa-bolt'
+                },
+                96: {
+                    description: 'Thunderstorm with Hail',
+                    icon: 'fas fa-bolt'
+                },
+                99: {
+                    description: 'Thunderstorm with Hail',
+                    icon: 'fas fa-bolt'
+                }
+            };
+
+            function updateWeather() {
+                fetch(
+                        'https://api.open-meteo.com/v1/forecast?latitude=14.3583&longitude=121.0161&current_weather=true&hourly=relativehumidity_2m,precipitation_probability&timezone=Asia/Manila'
+                    )
+                    .then(response => {
+                        if (!response.ok) throw new Error('Weather API failed');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.current_weather) return;
+
+                        const w = data.current_weather;
+                        const condition = weatherConditions[w.weathercode] || {
+                            description: 'Unknown',
+                            icon: 'fas fa-cloud'
+                        };
+
+                        // Get current hour index for hourly data
+                        const now = new Date();
+                        const currentHourIndex = now.getHours();
+
+                        // Update all elements
+                        const tempEl = document.getElementById('weatherTemp');
+                        const iconEl = document.getElementById('weatherIcon');
+                        const condEl = document.getElementById('weatherCondition');
+                        const humidityEl = document.getElementById('humidity');
+                        const rainEl = document.getElementById('rainChance');
+                        const timeEl = document.getElementById('weatherTime');
+
+                        if (tempEl) tempEl.textContent = Math.round(w.temperature);
+                        if (iconEl) iconEl.innerHTML = '<i class="' + condition.icon + '"></i>';
+                        if (condEl) condEl.textContent = condition.description;
+
+                        // Update humidity from hourly data
+                        if (humidityEl && data.hourly && data.hourly.relativehumidity_2m) {
+                            const humidity = data.hourly.relativehumidity_2m[currentHourIndex] || 0;
+                            humidityEl.textContent = Math.round(humidity) + '%';
+                        }
+
+                        // Update rain chance from hourly data
+                        if (rainEl && data.hourly && data.hourly.precipitation_probability) {
+                            const rainChance = data.hourly.precipitation_probability[currentHourIndex] || 0;
+                            rainEl.textContent = Math.round(rainChance) + '%';
+                        }
+
+                        if (timeEl) {
+                            const time = new Date(w.time);
+                            timeEl.textContent = time.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Weather error:', error);
+                        const condEl = document.getElementById('weatherCondition');
+                        if (condEl) condEl.textContent = 'Weather unavailable';
+                    });
+            }
+
+            // Wait for DOM and then update
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateWeather);
+            } else {
+                updateWeather();
+            }
+
+            // Refresh every 10 minutes
+            setInterval(updateWeather, 600000);
+        })();
+    </script>
+
+    <style>
+        /* Modern FarmVista Dashboard Styles */
+        .farmvista-dashboard {
+            padding: 2rem;
+            background: #f5f7fa;
+            min-height: 100vh;
         }
 
-        .status-stats-container {
-            grid-template-columns: repeat(3, 1fr);
+        /* Welcome Header */
+        .dashboard-welcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .quick-stats {
-            flex-direction: column;
-            align-items: flex-start;
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
         }
 
-        .critical-alerts-grid {
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-wrapper {
-            padding: 0.75rem !important;
+        .welcome-subtitle {
+            font-size: 0.95rem;
+            color: #666;
+            margin: 0.5rem 0 0 0;
         }
 
-        .metric-header {
-            flex-direction: column;
-            align-items: flex-start;
+        .header-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .metric-number {
-            font-size: 1.5rem;
-        }
-
-        .activity-right {
-            flex-direction: column;
-            align-items: flex-end;
+        .weather-mini {
+            display: flex;
+            align-items: center;
             gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 0.9rem;
+            color: #333;
         }
 
-        .status-stats-container {
-            grid-template-columns: 1fr;
+        .weather-mini i {
+            color: #FFC107;
+            font-size: 1.2rem;
         }
 
-        .stat-box {
-            padding: 0.75rem;
+        .export-btn-modern {
+            padding: 0.75rem 1.5rem;
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
         }
 
-        .card-body-enhanced {
-            max-height: 400px;
+        .export-btn-modern:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
 
-        .critical-alerts-grid {
-            grid-template-columns: 1fr;
+        /* Main Grid Layout */
+        .dashboard-main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
         }
 
-        .alerts-header-enhanced {
-            padding: 1.25rem;
+        /* Metrics Row */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .alert-card-content {
-            padding: 1rem;
+        .metric-card-modern {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
         }
 
-        .supply-section-header {
-            padding: 1.25rem;
+        .metric-card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
 
-        .supply-header-content {
-            gap: 0.75rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .greeting-title {
-            font-size: 1.3rem;
-        }
-
-        .metric-number {
-            font-size: 1.3rem;
+        .metric-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            flex-shrink: 0;
         }
 
-        .section-title {
-            font-size: 1.1rem;
+        .metric-icon-wrapper.green {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+        }
+
+        .metric-icon-wrapper.blue {
+            background: linear-gradient(135deg, #2196F3, #42A5F5);
+        }
+
+        .metric-icon-wrapper.purple {
+            background: linear-gradient(135deg, #9C27B0, #BA68C8);
+        }
+
+        .metric-icon-wrapper.orange {
+            background: linear-gradient(135deg, #FF9800, #FFA726);
+        }
+
+        .metric-info {
+            flex: 1;
         }
 
         .metric-label {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.5rem;
         }
 
-        .status-stats-container {
-            grid-template-columns: 1fr;
+        .metric-value-large {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
         }
 
-        .alerts-header-content {
+        .metric-trend {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .metric-trend.positive {
+            color: #4CAF50;
+        }
+
+        .metric-trend.negative {
+            color: #f44336;
+        }
+
+        .metric-description {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        /* Chart Card */
+        .chart-card-farmvista {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header-modern {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .chart-legend-inline {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .legend-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.25rem;
+        }
+
+        .legend-dot.green {
+            background: #4CAF50;
+        }
+
+        .legend-dot.yellow {
+            background: #FFC107;
+        }
+
+        .chart-filters {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .time-filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: white;
+        }
+
+        .chart-container-area {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Service Overview Grid */
+        .service-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .service-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover .service-image {
+            transform: scale(1.05);
+        }
+
+        .service-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4));
+        }
+
+        .service-icon-badge-overlay {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .service-content {
+            padding: 1.5rem;
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-icon-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .service-icon-badge.rsbsa,
+        .service-icon-badge-overlay.rsbsa {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+        }
+
+        .service-icon-badge.seedling,
+        .service-icon-badge-overlay.seedling {
+            background: linear-gradient(135deg, #FFC107, #FFD54F);
+        }
+
+        .service-icon-badge.fishr,
+        .service-icon-badge-overlay.fishr {
+            background: linear-gradient(135deg, #2196F3, #42A5F5);
+        }
+
+        .service-icon-badge.boatr,
+        .service-icon-badge-overlay.boatr {
+            background: linear-gradient(135deg, #E91E63, #F06292);
+        }
+
+        .service-icon-badge.training,
+        .service-icon-badge-overlay.training {
+            background: linear-gradient(135deg, #9C27B0, #BA68C8);
+        }
+
+        .service-icon-badge.supply,
+        .service-icon-badge-overlay.supply {
+            background: linear-gradient(135deg, #FF9800, #FFB74D);
+        }
+
+        .service-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4CAF50;
+            margin: 0 0 1rem 0;
+        }
+
+        .service-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-value.success {
+            color: #4CAF50;
+        }
+
+        .stat-value.warning {
+            color: #FFC107;
+        }
+
+        .stat-value.danger {
+            color: #f44336;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        .service-action-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem;
+            background: #4CAF50;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .service-action-link:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Right Sidebar Cards */
+        .dashboard-right-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .summary-card-farmvista,
+        .metrics-card-farmvista,
+        .weather-card-farmvista,
+        .task-card-farmvista {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Weather Card Styles */
+        .weather-card-farmvista {
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            color: white;
+        }
+
+        .weather-card-farmvista .card-header-compact {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .weather-card-farmvista .card-title-compact {
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .weather-time {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .weather-main-display {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .weather-icon-large {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .weather-temp-large {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .weather-condition {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1.5rem;
+        }
+
+        .weather-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .weather-detail-item {
+            display: flex;
+            align-items: center;
             gap: 0.75rem;
         }
 
-        .alerts-header-icon {
-            width: 48px;
-            height: 48px;
+        .weather-detail-item i {
             font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        .alerts-header-title {
-            font-size: 1.1rem;
+        .detail-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.25rem;
         }
 
-        .alerts-header-subtitle {
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .card-header-compact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title-compact {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .time-filter-compact {
+            padding: 0.4rem 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
             font-size: 0.8rem;
+            cursor: pointer;
+            background: white;
         }
 
-        .supply-header-icon {
-            width: 42px;
-            height: 42px;
-            font-size: 1.25rem;
+        .donut-chart-wrapper {
+            height: 200px;
+            position: relative;
+            margin-bottom: 1rem;
         }
 
-        .supply-header-title {
-            font-size: 1.1rem;
+        .geo-chart-wrapper {
+            height: 250px;
+            position: relative;
+            margin-bottom: 0.5rem;
         }
 
-        .supply-header-subtitle {
+        /* Recent Activities */
+        .activities-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .activity-item:hover {
+            background: #f0f0f0;
+        }
+
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.warning {
+            background: #FFC107;
+        }
+
+        .activity-icon.success {
+            background: #4CAF50;
+        }
+
+        .activity-icon.danger {
+            background: #f44336;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-name {
             font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
         }
-    }
-</style>
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .activity-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .activity-badge.warning {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        .activity-badge.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .activity-badge.danger {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .activities-empty-state {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: #999;
+        }
+
+        .activities-empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.3;
+        }
+
+        .activities-empty-state p {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .chart-legend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .legend-item-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-color-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .legend-text {
+            flex: 1;
+            color: #666;
+        }
+
+        .legend-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Gauge Chart */
+        .gauge-chart-wrapper {
+            height: 150px;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .metrics-info-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .metric-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .metric-label-text {
+            color: #666;
+        }
+
+        .metric-value-text {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Task Management */
+        .card-header-with-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-actions-compact {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .icon-btn-compact {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .icon-btn-compact:hover {
+            background: #45a049;
+            transform: scale(1.1);
+        }
+
+        .view-all-link-compact {
+            font-size: 0.85rem;
+            color: #666;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.3s;
+        }
+
+        .view-all-link-compact:hover {
+            color: #4CAF50;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-table-header {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+            gap: 0.5rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .task-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+            gap: 0.5rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f5f5f5;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .task-name-text {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .task-assigned-text,
+        .task-date-text {
+            color: #666;
+        }
+
+        .task-status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .task-status-badge.warning {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        .task-status-badge.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .task-status-badge.danger {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .task-empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: #999;
+        }
+
+        .task-empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .dashboard-main-grid {
+                grid-template-columns: 1fr 320px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-right-section {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .task-card-farmvista {
+                margin-top: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .farmvista-dashboard {
+                padding: 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .dashboard-welcome-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+
+            .service-overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .task-table-header,
+            .task-row {
+                grid-template-columns: 1fr;
+                gap: 0.25rem;
+            }
+
+            .task-table-header {
+                display: none;
+            }
+
+            .task-row {
+                padding: 1rem;
+                background: #f9f9f9;
+                border-radius: 8px;
+                margin-bottom: 0.5rem;
+                border: none;
+            }
+
+            .task-col-name::before {
+                content: 'Task: ';
+                font-weight: 600;
+                color: #999;
+            }
+
+            .task-col-assigned::before {
+                content: 'Assigned: ';
+                font-weight: 600;
+                color: #999;
+            }
+
+            .task-col-due::before {
+                content: 'Due: ';
+                font-weight: 600;
+                color: #999;
+            }
+        }
+    </style>
 
 @endsection

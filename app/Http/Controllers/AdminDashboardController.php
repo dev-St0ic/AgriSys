@@ -37,13 +37,17 @@ class AdminDashboardController extends Controller
         // APPLICATION STATUS OVERVIEW
         $applicationStatus = $this->getApplicationStatusOverview();
 
+        // GEOGRAPHIC DISTRIBUTION
+        $geographicDistribution = $this->getGeographicDistribution();
+
         return view('admin.dashboard', compact(
             'user',
             'criticalAlerts',
             'keyMetrics',
             'recentActivity',
             'supplyAlerts',
-            'applicationStatus'
+            'applicationStatus',
+            'geographicDistribution'
         ));
     }
 
@@ -82,7 +86,7 @@ class AdminDashboardController extends Controller
         }
 
         // RECENT REJECTIONS - Count from services that have rejected_at (RSBSA & Seedling only)
-        $recentRejections = 
+        $recentRejections =
             RsbsaApplication::where('rejected_at', '>=', Carbon::now()->subDays(7))->count() +
             SeedlingRequest::where('rejected_at', '>=', Carbon::now()->subDays(7))->count();
 
@@ -269,7 +273,7 @@ class AdminDashboardController extends Controller
     {
         $services = [
             'rsbsa' => [
-                'name' => 'RSBSA',
+                'name' => 'Rsbsa Registration',
                 'icon' => 'fas fa-seedling',
                 'pending' => RsbsaApplication::whereIn('status', ['pending', 'under_review'])->count(),
                 'approved' => RsbsaApplication::where('status', 'approved')->count(),
@@ -277,7 +281,7 @@ class AdminDashboardController extends Controller
                 'route' => 'admin.rsbsa.applications'
             ],
             'seedling' => [
-                'name' => 'Seedling',
+                'name' => 'Supplies Request',
                 'icon' => 'fas fa-leaf',
                 'pending' => SeedlingRequest::whereIn('status', ['pending', 'under_review'])->count(),
                 'approved' => SeedlingRequest::where('status', 'approved')->count(),
@@ -285,7 +289,7 @@ class AdminDashboardController extends Controller
                 'route' => 'admin.seedlings.requests'
             ],
             'fishr' => [
-                'name' => 'FishR',
+                'name' => 'FishrR Registration',
                 'icon' => 'fas fa-fish',
                 'pending' => FishrApplication::whereIn('status', ['pending', 'under_review'])->count(),
                 'approved' => FishrApplication::where('status', 'approved')->count(),
@@ -293,7 +297,7 @@ class AdminDashboardController extends Controller
                 'route' => 'admin.fishr.requests'
             ],
             'boatr' => [
-                'name' => 'BoatR',
+                'name' => 'BoatR Registration',
                 'icon' => 'fas fa-ship',
                 'pending' => BoatrApplication::whereIn('status', ['pending', 'under_review'])->count(),
                 'approved' => BoatrApplication::where('status', 'approved')->count(),
@@ -301,7 +305,7 @@ class AdminDashboardController extends Controller
                 'route' => 'admin.boatr.requests'
             ],
             'training' => [
-                'name' => 'Training',
+                'name' => 'Training Registration',
                 'icon' => 'fas fa-graduation-cap',
                 'pending' => TrainingApplication::whereIn('status', ['pending', 'under_review'])->count(),
                 'approved' => TrainingApplication::where('status', 'approved')->count(),
@@ -311,5 +315,82 @@ class AdminDashboardController extends Controller
         ];
 
         return $services;
+    }
+
+    /**
+     * Get geographic distribution of users by barangay
+     */
+    private function getGeographicDistribution(): array
+    {
+        // Get user distribution by barangay from user_registration table
+        $userDistribution = \DB::table('user_registration')
+            ->select('barangay', \DB::raw('COUNT(*) as count'))
+            ->whereNotNull('barangay')
+            ->where('barangay', '!=', '')
+            ->groupBy('barangay')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get();
+
+        // Get application distribution by barangay
+        $applicationDistribution = collect();
+
+        // RSBSA applications
+        $rsbsaData = RsbsaApplication::select('barangay', \DB::raw('COUNT(*) as count'))
+            ->whereNotNull('barangay')
+            ->where('barangay', '!=', '')
+            ->groupBy('barangay')
+            ->get();
+
+        // Seedling requests
+        $seedlingData = SeedlingRequest::select('barangay', \DB::raw('COUNT(*) as count'))
+            ->whereNotNull('barangay')
+            ->where('barangay', '!=', '')
+            ->groupBy('barangay')
+            ->get();
+
+        // FishR applications
+        $fishrData = FishrApplication::select('barangay', \DB::raw('COUNT(*) as count'))
+            ->whereNotNull('barangay')
+            ->where('barangay', '!=', '')
+            ->groupBy('barangay')
+            ->get();
+
+        // BoatR applications
+        $boatrData = BoatrApplication::select('barangay', \DB::raw('COUNT(*) as count'))
+            ->whereNotNull('barangay')
+            ->where('barangay', '!=', '')
+            ->groupBy('barangay')
+            ->get();
+
+        // Training applications
+        $trainingData = TrainingApplication::select('barangay', \DB::raw('COUNT(*) as count'))
+            ->whereNotNull('barangay')
+            ->where('barangay', '!=', '')
+            ->groupBy('barangay')
+            ->get();
+
+        // Merge all application data by barangay
+        $mergedData = collect();
+        foreach ([$rsbsaData, $seedlingData, $fishrData, $boatrData, $trainingData] as $dataset) {
+            foreach ($dataset as $item) {
+                $existing = $mergedData->firstWhere('barangay', $item->barangay);
+                if ($existing) {
+                    $existing->count += $item->count;
+                } else {
+                    $mergedData->push((object)[
+                        'barangay' => $item->barangay,
+                        'count' => $item->count
+                    ]);
+                }
+            }
+        }
+
+        $applicationDistribution = $mergedData->sortByDesc('count')->take(5);
+
+        return [
+            'users' => $userDistribution->toArray(),
+            'applications' => $applicationDistribution->values()->toArray()
+        ];
     }
 }
