@@ -123,34 +123,33 @@
             <div class="rsbsa-form-group">
                 <label>Barangay <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <select name="barangay" id="rsbsa-barangay" required>
-                    <option value="" disabled selected>Select Barangay</option>
-                    <option value="Bagong Silang">Bagong Silang</option>
-                    <option value="Cuyab">Cuyab</option>
-                    <option value="Estrella">Estrella</option>
-                    <option value="G.S.I.S.">G.S.I.S.</option>
-                    <option value="Landayan">Landayan</option>
-                    <option value="Langgam">Langgam</option>
-                    <option value="Laram">Laram</option>
-                    <option value="Magsaysay">Magsaysay</option>
-                    <option value="Nueva">Nueva</option>
-                    <option value="Poblacion">Poblacion</option>
-                    <option value="Riverside">Riverside</option>
-                    <option value="San Antonio">San Antonio</option>
-                    <option value="San Roque">San Roque</option>
-                    <option value="San Vicente">San Vicente</option>
-                    <option value="Santo Niño">Santo Niño</option>
-                    <option value="United Bayanihan">United Bayanihan</option>
-                    <option value="United Better Living">United Better Living</option>
-                    <option value="Sampaguita Village">Sampaguita Village</option>
-                    <option value="Calendola">Calendola</option>
-                    <option value="Narra">Narra</option>
-                    <option value="Chrysanthemum">Chrysanthemum</option>
-                    <option value="Fatima">Fatima</option>
-                    <option value="Maharlika">Maharlika</option>
-                    <option value="Pacita 1">Pacita 1</option>
-                    <option value="Pacita 2">Pacita 2</option>
-                    <option value="Rosario">Rosario</option>
-                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                   <option value="Bagong Silang">Bagong Silang</option>
+                            <option value="Calendola">Calendola</option>
+                            <option value="Chrysanthemum">Chrysanthemum</option>
+                            <option value="Cuyab">Cuyab</option>
+                            <option value="Estrella">Estrella</option>
+                            <option value="Fatima">Fatima</option>
+                            <option value="G.S.I.S.">G.S.I.S.</option>
+                            <option value="Landayan">Landayan</option>
+                            <option value="Langgam">Langgam</option>
+                            <option value="Laram">Laram</option>
+                            <option value="Magsaysay">Magsaysay</option>
+                            <option value="Maharlika">Maharlika</option>
+                            <option value="Narra">Narra</option>
+                            <option value="Nueva">Nueva</option>
+                            <option value="Pacita 1">Pacita 1</option>
+                            <option value="Pacita 2">Pacita 2</option>
+                            <option value="Poblacion">Poblacion</option>
+                            <option value="Riverside">Riverside</option>
+                            <option value="Rosario">Rosario</option>
+                            <option value="Sampaguita Village">Sampaguita Village</option>
+                            <option value="San Antonio">San Antonio</option>
+                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                            <option value="San Roque">San Roque</option>
+                            <option value="San Vicente">San Vicente</option>
+                            <option value="Santo Niño">Santo Niño</option> 
+                            <option value="United Bayanihan">United Bayanihan</option>
+                            <option value="United Better Living">United Better Living</option>
                 </select>
                 @error('barangay')
                     <span
@@ -512,11 +511,12 @@
 
             <!-- SUPPORTING DOCUMENTS (Not location-specific, all livelihoods) -->
             <div class="rsbsa-form-group">
-                <label>Supporting Document (Optional)</label>
+                <label>Supporting Document (Barangay Certificate) <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="file" id="rsbsa-supporting_docs" name="supporting_docs"
-                    accept=".pdf,.jpg,.jpeg,.png">
+                    accept=".pdf,.jpg,.jpeg,.png" required>
                 <small class="rsbsa-form-help">
-                    Upload proof of livelihood status (e.g., farm photo, barangay certificate, ID). Accepted formats:
+                    Upload a Barangay Certificate as proof of livelihood.
+                    You may download the official Barangay Certificate form from the <strong>Requirements section.</strong> Accepted formats:
                     JPG, PNG, PDF (Max 10MB).
                 </small>
                 @error('supporting_docs')
@@ -546,11 +546,18 @@
                 <strong>2×2 ID Picture (Recent, within the last 6 months)</strong><br>
                 Can be taken at any photo studio.
             </li>
+            <li>
+                <strong>Barangay Certificate</strong><br>
+                Proof of residency and livelihood status:
+                 <a href="{{ route('download', 'Barangay-Certification') }}" 
+                class="btn-download">Download Barangay Certificate</a>
+            </li>
         </ol>
         <h4>Who May Register</h4>
         <ul>
             <li>Agricultural Workers</li>
             <li>Farmers</li>
+            <li>Farmworker/Laborer</li>
             <li>Fisherfolk</li>
             <li>Livestock Raisers</li>
             <li>Poultry Raisers</li>
@@ -569,7 +576,7 @@
 
         <h4>Important Information</h4>
         <ul>
-            <li>All applications shall undergo review and approval by the City Agriculture Office. Processing time may
+            <li>All applications shall undergo initial review and endorsement by the Barangay Chairman, followed by final review and approval by the City Agriculture Office. Processing time may
                 vary depending on the completeness of submitted documents.</li>
             <li>The office may contact the applicant for additional information or verification.</li>
             <li>All information provided must be accurate and truthful. Incomplete or incorrect submissions may result

@@ -922,7 +922,7 @@
                                         href="{{ route('admin.rsbsa.applications') }}" data-tooltip="RSBSA Applications"
                                         aria-label="RSBSA Applications" role="menuitem">
                                         <i class="fas fa-file-alt" aria-hidden="true"></i>
-                                        <span class="nav-link-text">RSBSA Applications</span>
+                                        <span class="nav-link-text">RSBSA Registrations</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
