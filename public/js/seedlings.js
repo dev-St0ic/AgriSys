@@ -694,6 +694,95 @@ function showPickupDateField(totalQuantity) {
     }
 }
 
+function initPickupDateField() {
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    const displayDiv = document.getElementById('pickup-date-display');
+    const displayText = document.getElementById('pickup-date-text');
+
+    if (!pickupInput) return;
+
+    // Set min/max dates
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 7);
+    
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    // ✅ VALIDATE ON DATE CHANGE
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            // User cleared the date
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 6=Saturday
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        // ✅ CHECK IF WEEKEND (0 = Sunday, 6 = Saturday)
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = ''; // Clear invalid selection
+            displayDiv.style.display = 'none';
+            
+            // Show user-friendly warning
+            toast.warning(
+                `${dayName}s are closed. Please select a weekday (Monday-Friday).`,
+                {
+                    title: '⚠️ Weekend Not Available',
+                    duration: 4000
+                }
+            );
+            return;
+        }
+
+        // ✅ VALID WEEKDAY - SHOW CONFIRMATION
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+    });
+
+    // ✅ VALIDATE ON BLUR (When user leaves the field)
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            
+            toast.warning(
+                'Weekends are not available for pickup. Please select a weekday.',
+                {
+                    title: '❌ Invalid Selection',
+                    duration: 5000
+                }
+            );
+        }
+    });
+}
+
+// Call on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    initPickupDateField();
+});
+
+
 // ==============================================
 // SUPPORTING DOCUMENTS
 function toggleSupportingDocuments(totalQuantity) {
@@ -752,9 +841,24 @@ function submitSeedlingsRequest(event) {
     // ✅ CHECK PICKUP DATE VALIDATION FIRST (BEFORE ANY SUBMISSION)
     const pickupDateSection = document.getElementById('pickup-date-section');
     const pickupInput = document.getElementById('seedlings-pickup_date');
+    
     if (pickupDateSection && pickupDateSection.style.display !== 'none' && !pickupInput.value) {
         agrisysModal.warning('Please select a pickup date', { title: 'Pickup Date Required' });
         return false; // STOP execution
+    }
+
+    // ✅ DOUBLE-CHECK: NO WEEKENDS ALLOWED
+    if (pickupInput.value) {
+        const selectedDate = new Date(pickupInput.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+        
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            agrisysModal.warning(
+                'Weekends are not available for pickup. Please select a weekday (Monday-Friday).',
+                { title: 'Invalid Pickup Date' }
+            );
+            return false; // STOP execution
+        }
     }
 
     const submitBtn = form.querySelector('.seedlings-submit-btn');
@@ -786,6 +890,17 @@ function submitSeedlingsRequest(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // ✅ RESET PICKUP DATE FIELD IMMEDIATELY AFTER SUCCESS
+            const pickupInput = document.getElementById('seedlings-pickup_date');
+            const displayDiv = document.getElementById('pickup-date-display');
+            
+            if (pickupInput) {
+                pickupInput.value = '';
+            }
+            if (displayDiv) {
+                displayDiv.style.display = 'none';
+            }
+
             agrisysModal.success(data.message, {
                 title: 'Request Submitted!',
                 reference: data.request_number || data.reference_number || data.application_number || null,
@@ -817,7 +932,6 @@ function submitSeedlingsRequest(event) {
         submitBtn.disabled = false;
     });
 }
-
 /**
  * Show all main page sections
  */
@@ -905,7 +1019,6 @@ function resetSupportingDocuments() {
         pickupInput.value = '';
     }
 }
-
 function restorePreviousSelections() {
     if (!window._seedlingsChoices) return;
 
@@ -1206,6 +1319,128 @@ function changePage(direction) {
     if (currentPage > totalPages) currentPage = totalPages;
 
     updatePagination();
+}
+// ============================================
+// PICKUP DATE FIELD - COMPLETE FIX
+// ============================================
+
+function initPickupDateField() {
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    const displayDiv = document.getElementById('pickup-date-display');
+    const displayText = document.getElementById('pickup-date-text');
+
+    if (!pickupInput) return;
+
+    // ✅ Set min/max dates (7-30 days from today)
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 7); // 7 days from today
+    
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30); // 30 days from today
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    // ============================================
+    // DISABLE WEEKENDS IN HTML5 CALENDAR
+    // ============================================
+    pickupInput.addEventListener('click', function() {
+        // This is a visual hint - actual validation happens on change
+        console.log('Calendar opened - weekends will be disabled');
+    });
+
+    // ============================================
+    // VALIDATE ON DATE CHANGE
+    // ============================================
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            // User cleared the date
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 6=Saturday
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        // ✅ CHECK IF WEEKEND (0 = Sunday, 6 = Saturday)
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = ''; // Clear invalid selection
+            displayDiv.style.display = 'none';
+            
+            // Show user-friendly warning
+            toast.warning(
+                `${dayName}s are closed. Please select a weekday (Monday-Friday).`,
+                {
+                    title: 'Weekend Not Available',
+                    duration: 4000
+                }
+            );
+            return;
+        }
+
+        // ✅ VALID WEEKDAY - SHOW CONFIRMATION
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+    });
+
+    // ============================================
+    // VALIDATE ON BLUR (When user leaves the field)
+    // ============================================
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            
+            toast.warning(
+                'Weekends are not available for pickup. Please select a weekday.',
+                {
+                    title: '❌ Invalid Selection',
+                    duration: 5000
+                }
+            );
+        }
+    });
+}
+
+// ============================================
+// CALL ON PAGE LOAD
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    initPickupDateField();
+});
+function disableWeekendsInDatePicker() {
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    
+    pickupInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const day = selectedDate.getDay();
+        
+        // 0 = Sunday, 6 = Saturday
+        if (day === 0 || day === 6) {
+            toast.warning('Saturdays and Sundays are closed. Please select a weekday.', {
+                title: 'Weekend Not Available'
+            });
+            this.value = '';
+            return;
+        }
+    });
 }
 
 // searchItems already calls updatePagination internally

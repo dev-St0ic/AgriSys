@@ -352,21 +352,28 @@
                 </select>
             </div>
 
-            <div class="seedlings-form-group" id="pickup-date-section" style="display: none; background: #f0f4f8; padding: 15px; border-radius: 8px; border-left: 4px solid #40916c;">
+            <div class="seedlings-form-group" id="pickup-date-section">
                 <label for="seedlings-pickup_date">
-                    <i class="fas fa-calendar-check"></i> Pickup Date <span class="required-asterisk">*</span>
+                    <i class="fas fa-calendar-check"></i> Pickup Date 
+                    <span class="required-asterisk">*</span>
                 </label>
-                <input type="date" id="seedlings-pickup_date" name="pickup_date" 
-                    min="{{ now()->addDays(7)->format('Y-m-d') }}"
-                    max="{{ now()->addDays(30)->format('Y-m-d') }}"
-                    placeholder="Select your preferred pickup date"
-                    required>
                 
-                <div class="pickup-info-box" style="margin-top: 12px; padding: 10px; background: #e8f5e9; border-radius: 6px; font-size: 0.9rem;">
+                <!-- INFO BOX (Always visible) -->
+                <div class="pickup-info-box" style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
                     <i class="fas fa-info-circle" style="color: #40916c; margin-right: 8px;"></i>
-                    <strong>Important:</strong> Your approved items must be picked up within 30 days from the approval date. 
-                    <br>If not picked up within this period, your request will expire and you'll need to submit a new request.
-                    <br><small style="color: #666; margin-top: 5px; display: block;">Available pickup dates: 7 to 30 days from approval</small>
+                    <strong>Weekdays only (Mon-Fri)</strong> • Valid for 30 days from approval
+                </div>
+
+                <!-- CALENDAR INPUT -->
+                <input 
+                    type="date" 
+                    id="seedlings-pickup_date" 
+                    name="pickup_date"
+                    required>
+
+                <!-- SELECTED DATE DISPLAY (After selection) -->
+                <div id="pickup-date-display" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                    <strong>Selected:</strong> <span id="pickup-date-text"></span>
                 </div>
             </div>
 

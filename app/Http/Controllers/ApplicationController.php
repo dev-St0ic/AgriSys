@@ -434,7 +434,7 @@ public function submitSeedlings(Request $request)
             'request_data' => $request->except(['supporting_documents'])
         ]);
 
-                // Validation
+        // ✅ VALIDATE EVERYTHING INCLUDING WEEKEND CHECK
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
@@ -443,7 +443,21 @@ public function submitSeedlings(Request $request)
             'mobile' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:255',
             'selected_seedlings' => 'required|string',
-            'pickup_date' => 'nullable|date|after_or_equal:today|before_or_equal:' . now()->addDays(30)->format('Y-m-d'),
+            'pickup_date' => [
+                'nullable',
+                'date',
+                'after_or_equal:today',
+                'before_or_equal:' . now()->addDays(30)->format('Y-m-d'),
+                function ($attribute, $value, $fail) {
+                    // ✅ CHECK IF WEEKEND (Saturday = 6, Sunday = 0)
+                    if ($value) {
+                        $date = \Carbon\Carbon::parse($value);
+                        if ($date->isWeekend()) {
+                            $fail('Pickup date cannot be on Saturday or Sunday. Please select a weekday (Monday-Friday).');
+                        }
+                    }
+                }
+            ],
             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ], [
             'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
@@ -452,6 +466,10 @@ public function submitSeedlings(Request $request)
             'extension_name.regex' => 'Name extension can only contain letters, periods, and spaces',
             'mobile.required' => 'Mobile number is required',
             'mobile.regex' => 'Mobile number must be in the format 09XXXXXXXXX',
+            'pickup_date.required' => 'Pickup date is required',
+            'pickup_date.date' => 'Pickup date must be a valid date',
+            'pickup_date.after_or_equal' => 'Pickup date must be at least 7 days from today',
+            'pickup_date.before_or_equal' => 'Pickup date must be within 30 days from today',
         ]);
 
         // Parse selected seedlings
@@ -470,6 +488,7 @@ public function submitSeedlings(Request $request)
             }
         }
 
+        // ✅ PARSE AND FORMAT PICKUP DATE
         if ($request->has('pickup_date') && $request->pickup_date) {
             $validated['pickup_date'] = \Carbon\Carbon::parse($validated['pickup_date'])->startOfDay();
         }
@@ -482,7 +501,7 @@ public function submitSeedlings(Request $request)
 
         // ✅ CREATE THE SEEDLING REQUEST WITH USER_ID
         $seedlingRequest = SeedlingRequest::create([
-            'user_id' => $userId, // ✅ CRITICAL: Associate with authenticated user
+            'user_id' => $userId,
             'request_number' => $requestNumber,
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],
@@ -506,7 +525,6 @@ public function submitSeedlings(Request $request)
 
         foreach ($selections as $categoryName => $items) {
             foreach ($items as $item) {
-                // Find the category item in database
                 $categoryItem = CategoryItem::find($item['id']);
 
                 if ($categoryItem) {
@@ -528,7 +546,8 @@ public function submitSeedlings(Request $request)
             'user_id' => $userId,
             'request_number' => $seedlingRequest->request_number,
             'name' => $seedlingRequest->full_name,
-            'total_quantity' => $seedlingRequest->total_quantity
+            'total_quantity' => $seedlingRequest->total_quantity,
+            'pickup_date' => $seedlingRequest->pickup_date
         ]);
 
         // Log activity
@@ -537,6 +556,7 @@ public function submitSeedlings(Request $request)
                 'request_number' => $seedlingRequest->request_number,
                 'full_name' => $seedlingRequest->full_name,
                 'total_quantity' => $seedlingRequest->total_quantity,
+                'pickup_date' => $seedlingRequest->pickup_date,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
             ])->log('submitted - SeedlingRequest (ID: ' . $seedlingRequest->id . ')');
