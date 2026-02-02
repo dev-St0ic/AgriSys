@@ -1,11 +1,11 @@
 {{-- resources/views/admin/training/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Training Applications - AgriSys Admin')
+@section('title', 'Training Requests - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
         <i class="fas fa-graduation-cap me-2 text-primary"></i>
-        <span class="text-primary fw-bold">Training Applications</span>
+        <span class="text-primary fw-bold">Training Requests</span>
     </div>
 @endsection
 
@@ -19,7 +19,7 @@
                         <i class="fas fa-graduation-cap text-primary"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $totalApplications }}</div>
-                    <div class="stat-label text-primary">Total Applications</div>
+                    <div class="stat-label text-primary">Total Requests</div>
                 </div>
             </div>
         </div>
@@ -156,7 +156,7 @@
             <div></div>
             <div class="text-center flex-fill">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-graduation-cap me-2"></i>Training Applications
+                    <i class="fas fa-graduation-cap me-2"></i>Training Requests
                 </h6>
             </div>
             <div class="d-flex gap-2">
@@ -174,7 +174,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center">Date Applied</th>
-                            <th class="text-center">Application #</th>
+                            <th class="text-center">Request #</th>
                             <th class="text-center">Name</th>
                             <th class="text-center">Training Type</th>
                             <th class="text-center">Status</th>
@@ -257,7 +257,7 @@
                                                 <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                         onclick="deleteApplication({{ $training->id }}, '{{ $training->application_number }}')">
-                                                        <i class="fas fa-trash me-2"></i>Delete Application
+                                                        <i class="fas fa-trash me-2"></i>Delete Request
                                                     </a>
                                                 </li>
                                             </ul>
@@ -269,7 +269,7 @@
                             <tr>
                                 <td colspan="7" class="text-center text-muted py-4">
                                     <i class="fas fa-graduation-cap fa-3x mb-3 text-gray-300"></i>
-                                    <p>No training applications found</p>
+                                    <p>No training requests found</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -346,7 +346,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i></i>Update Application Status
+                        <i></i>Update Request Status
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -356,14 +356,14 @@
                     <div class="card bg-light border-primary mb-4">
                         <div class="card-header bg-white border-0 pb-0">
                             <h6 class="mb-0 fw-semibold text-primary">
-                                <i class="fas fa-info-circle me-2"></i>Application Information
+                                <i class="fas fa-info-circle me-2"></i>Request Information
                             </h6>
                         </div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="mb-2">
-                                        <small class="text-muted d-block">Application #</small>
+                                        <small class="text-muted d-block">Request #</small>
                                         <strong class="text-primary" id="updateAppNumber"></strong>
                                     </div>
                                     <div class="mb-2">
@@ -452,7 +452,7 @@
                     <!-- Info Alert -->
                     <div class="alert alert-info border-left-info mt-3 mb-0">
                         <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Note:</strong> This will update the application status and store your remarks in the system.
+                        <strong>Note:</strong> This will update the request status and store your remarks in the system.
                     </div>
                 </div>
 
@@ -474,7 +474,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i></i>Application Details
+                        <i></i>Request Details
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -603,7 +603,7 @@
                                             To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
                                         @endif
                                     @else
-                                        No date filter applied - showing all applications
+                                        No date filter applied - showing all requests
                                     @endif
                                 </span>
                             </div>
@@ -620,7 +620,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i></i>Add New Training Application
+                        <i></i>Add New Training Request
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -679,7 +679,7 @@
                                         <input type="tel" class="form-control" id="training_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
                                     </div>
                                 </div>
@@ -796,7 +796,7 @@
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
                                 <h6 class="mb-0 fw-semibold text-primary">
-                                    <i class="fas fa-cog me-2"></i>Application Status
+                                    <i class="fas fa-cog me-2"></i>Request Status
                                 </h6>
                             </div>
                             <div class="card-body">
@@ -828,7 +828,7 @@
                                     Remarks (Optional)
                                 </label>
                                 <textarea class="form-control" id="training_remarks" rows="4"
-                                    placeholder="Add any comments about this application..."
+                                    placeholder="Add any comments about this request..."
                                     maxlength="1000"
                                     oninput="updateTrainingRemarksCounter()"></textarea>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
@@ -849,7 +849,7 @@
                         <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-primary" onclick="submitAddTraining()">
-                        <i class="fas fa-save me-1"></i>Create Application
+                        <i class="fas fa-save me-1"></i>Create Request
                     </button>
                 </div>
             </div>
@@ -863,7 +863,7 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title w-100 text-center">
-                    <i></i>Edit Application - <span id="editTrainingNumber"></span>
+                    <i></i>Edit Request - <span id="editTrainingNumber"></span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -927,12 +927,12 @@
                                         name="contact_number" required placeholder="09XXXXXXXXX"
                                         pattern="^(\+639|09)\d{9}$" maxlength="20">
                                     <small class="text-muted d-block mt-2">
-                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                     </small>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="edit_training_app_number" class="form-label fw-semibold">
-                                        Application Number
+                                        Request Number
                                     </label>
                                     <input type="text" class="form-control" id="edit_training_app_number" disabled placeholder="-">
                                     <small class="text-muted d-block mt-2">
@@ -1065,7 +1065,7 @@
                     <div class="card mb-3 border-0 bg-light">
                         <div class="card-header bg-white border-0 pb-0">
                             <h6 class="mb-0 fw-semibold text-primary">
-                                <i class="fas fa-info-circle me-2"></i>Application Status (Read-only)
+                                <i class="fas fa-info-circle me-2"></i>Request Status (Read-only)
                             </h6>
                         </div>
                         <div class="card-body">
@@ -1087,8 +1087,8 @@
                     <!-- Info Alert -->
                     <div class="alert alert-info border-left-info mb-0">
                         <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Note:</strong> You can edit all application information here.
-                        To change application status or add remarks, use the "Change Status" button from the main table.
+                        <strong>Note:</strong> You can edit all request information here.
+                        To change request status or add remarks, use the "Change Status" button from the main table.
                     </div>
                 </form>
             </div>
@@ -1110,7 +1110,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Training Application</h5>
+                    <h5 class="modal-title w-100 text-center">Permanently Delete Training Request</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -1119,9 +1119,9 @@
                         <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_training_name"></strong> will:</p>
                     </div>
                     <ul class="mb-0">
-                        <li>Remove the training application from the database</li>
+                        <li>Remove the training request from the database</li>
                         <li>Delete all associated documents and files</li>
-                        <li>Delete all application history and logs</li>
+                        <li>Delete all request history and logs</li>
                         <li>Cannot be recovered</li>
                     </ul>
                 </div>
@@ -1789,7 +1789,7 @@
                         return response.json();
                     })
                     .then(response => {
-                        if (!response.success) throw new Error('Failed to load application details');
+                        if (!response.success) throw new Error('Failed to load request details');
 
                         const data = response.data;
                         document.getElementById('updateApplicationId').value = id;
@@ -1870,7 +1870,7 @@
 
                 showConfirmationToast(
                     'Confirm Update',
-                    `Update this training application with the following changes?\n\n${changesSummary.join('\n')}`,
+                    `Update this training request with the following changes?\n\n${changesSummary.join('\n')}`,
                     () => proceedWithStatusUpdate(id, newStatus, remarks)
                 );
             }
@@ -1976,7 +1976,7 @@
                     <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="text-muted">Loading application details...</p>
+                    <p class="text-muted">Loading request details...</p>
                 </div>`;
             
             modal.show();
@@ -1987,7 +1987,7 @@
                     return response.json();
                 })
                 .then(response => {
-                    if (!response.success) throw new Error('Failed to load application details');
+                    if (!response.success) throw new Error('Failed to load request details');
 
                     const data = response.data;
 
@@ -2061,7 +2061,7 @@
                                     <div class="card-body">
                                         <div class="row g-2">
                                             <div class="col-12">
-                                                <strong>Application #:</strong>
+                                                <strong>Request #:</strong>
                                                 <span class="text-primary d-block">${escapeHtml(data.application_number)}</span>
                                             </div>
                                             <div class="col-12">
@@ -2151,11 +2151,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', error.message || 'Error loading application details. Please try again.');
+                    showToast('error', error.message || 'Error loading request details. Please try again.');
                     detailsContainer.innerHTML = `
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-circle me-2"></i>
-                            ${error.message || 'Error loading application details. Please try again.'}
+                            ${error.message || 'Error loading request details. Please try again.'}
                         </div>`;
                 });
         }
@@ -2541,7 +2541,7 @@
         function updateDateFilterStatus(dateFrom, dateTo) {
             const statusElement = document.getElementById('dateFilterStatus');
             if (!dateFrom && !dateTo) {
-                statusElement.innerHTML = 'No date filter applied - showing all applications';
+                statusElement.innerHTML = 'No date filter applied - showing all requests';
             } else {
                 let statusText = 'Current filter: ';
                 if (dateFrom) {
@@ -2640,7 +2640,7 @@
                     <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
+                            <i></i>Cancel
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
@@ -2708,11 +2708,11 @@
         }
 
         /**
-         * Confirm permanent delete for Training application
+         * Confirm permanent delete for Training request
          */
         async function confirmPermanentDeleteTraining() {
             if (!currentDeleteTrainingId) {
-                showToast('error', 'Application ID not found');
+                showToast('error', 'Request ID not found');
                 return;
             }
 
@@ -2735,7 +2735,7 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to delete application');
+                    throw new Error(data.message || 'Failed to delete request');
                 }
 
                 // Close modal
@@ -2745,7 +2745,7 @@
                 }
 
                 // Show success message
-                showToast('success', data.message || 'Training application deleted successfully');
+                showToast('success', data.message || 'Training request deleted successfully');
 
                 // Remove the row with animation
                 const row = document.querySelector(`tr[data-application-id="${currentDeleteTrainingId}"]`);
@@ -2764,7 +2764,7 @@
                 currentDeleteTrainingId = null;
 
             } catch (error) {
-                console.error('Error deleting application:', error);
+                console.error('Error deleting request:', error);
                 
                 // Close modal first
                 const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteTrainingModal'));
@@ -2773,7 +2773,7 @@
                 }
 
                 // Show error
-                showToast('error', 'Error deleting application: ' + error.message);
+                showToast('error', 'Error deleting request: ' + error.message);
 
             } finally {
                 // Reset button state
@@ -2832,7 +2832,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', data.message || 'Application deleted successfully');
+                        showToast('success', data.message || 'Request deleted successfully');
 
                         // Remove row from table with animation
                         const row = document.querySelector(`tr[data-application-id="${id}"]`);
@@ -2854,12 +2854,12 @@
                             setTimeout(() => window.location.reload(), 1500);
                         }
                     } else {
-                        throw new Error(data.message || 'Failed to delete application');
+                        throw new Error(data.message || 'Failed to delete request');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Failed to delete application: ' + error.message);
+                    showToast('error', 'Failed to delete request: ' + error.message);
                 });
         }
 
@@ -2889,60 +2889,6 @@
             modal.show();
         }
 
-        // Real-time validation for contact number
-        document.getElementById('training_contact_number')?.addEventListener('input', function() {
-            validateTrainingContactNumber(this.value);
-        });
-
-        function validateTrainingContactNumber(contactNumber) {
-            const input = document.getElementById('training_contact_number');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!contactNumber || contactNumber.trim() === '') {
-                return;
-            }
-
-            const phoneRegex = /^(\+639|09)\d{9}$/;
-
-            if (!phoneRegex.test(contactNumber.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
-        // Auto-capitalize name fields
-        function capitalizeTrainingName(input) {
-            const value = input.value;
-            if (value.length > 0) {
-                input.value = value
-                    .toLowerCase()
-                    .split(' ')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
-            }
-        }
-
-        document.getElementById('training_first_name')?.addEventListener('blur', function() {
-            capitalizeTrainingName(this);
-        });
-
-        document.getElementById('training_middle_name')?.addEventListener('blur', function() {
-            capitalizeTrainingName(this);
-        });
-
-        document.getElementById('training_last_name')?.addEventListener('blur', function() {
-            capitalizeTrainingName(this);
-        });
 
         // Document preview for file
         function previewTrainingDocument() {
@@ -2994,148 +2940,164 @@
             `;
             }
         }
+function validateTrainingForm() {
+    console.log('=== STARTING VALIDATION ===');
+    let isValid = true;
+    const errors = [];
 
-        // Validate training form
-        function validateTrainingForm() {
-            let isValid = true;
+    // REQUIRED FIELDS
+    const requiredFields = [
+        { id: 'training_first_name', label: 'First Name' },
+        { id: 'training_last_name', label: 'Last Name' },
+        { id: 'training_barangay', label: 'Barangay' },
+        { id: 'training_contact_number', label: 'Contact Number' },
+        { id: 'training_type', label: 'Training Type' },
+        { id: 'training_status', label: 'Initial Status' }
+    ];
 
-            // Required fields
-            const requiredFields = [{
-                    id: 'training_first_name',
-                    label: 'First Name'
-                },
-                {
-                    id: 'training_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    id: 'training_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    id: 'training_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    id: 'training_type',
-                    label: 'Training Type'
-                },
-                {
-                    id: 'training_status',
-                    label: 'Status'
-                }
-            ];
+    // Check all required fields
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (input) {
+            const value = input.value.trim();
+            
+            // Remove old errors
+            const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+            if (oldFeedback) oldFeedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
 
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field.id);
-                if (input && (!input.value || input.value.trim() === '')) {
-                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
-
-                    input.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = field.label + ' is required';
-                    input.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            });
-
-            // Validate contact number
-            const contactNumber = document.getElementById('training_contact_number').value.trim();
-            if (!validateTrainingContactNumber(contactNumber)) {
+            // Check if empty
+            if (!value) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = field.label + ' is required';
+                input.parentNode.appendChild(errorDiv);
                 isValid = false;
+                errors.push(field.label);
+                console.log(`❌ Validation failed: ${field.label} is empty`);
+            } else {
+                input.classList.add('is-valid');
+                console.log(`✓ ${field.label} is valid`);
             }
-
-            return isValid;
         }
+    });
 
-        // Submit add training form
-        function submitAddTraining() {
-            // Validate form
-            if (!validateTrainingForm()) {
-                showToast('error', 'Please fix all validation errors before submitting');
-                return;
-            }
+    // VALIDATE CONTACT NUMBER if filled
+    const contactNumber = document.getElementById('training_contact_number').value.trim();
+    if (contactNumber) {
+        if (!validateTrainingContactNumber(contactNumber)) {
+            isValid = false;
+            errors.push('Contact Number');
+            console.log('❌ Contact number validation failed');
+        }
+    }
 
-            // Prepare form data
-            const formData = new FormData();
+    console.log(`=== VALIDATION RESULT: ${isValid ? 'PASSED ✓' : 'FAILED ❌'} ===`);
+    return isValid;
+}
+function submitAddTraining() {
+    console.log('=== FORM SUBMISSION STARTED ===');
+    
+    const form = document.getElementById('addTrainingForm');
+    
+    // CHECK IF FORM ALREADY HAS VALIDATION ERRORS FROM REAL-TIME VALIDATION
+    const hasExistingErrors = form.querySelectorAll('.is-invalid').length > 0;
+    
+    if (hasExistingErrors) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        console.log('❌ FORM HAS EXISTING ERRORS - STOPPING SUBMISSION');
+        return;
+    }
+    
+    // STEP 1: CLEAR OLD ERRORS FIRST
+    form.querySelectorAll('.is-invalid, .is-valid').forEach(el => {
+        el.classList.remove('is-invalid', 'is-valid');
+    });
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
 
-            formData.append('first_name', document.getElementById('training_first_name').value.trim());
-            formData.append('middle_name', document.getElementById('training_middle_name').value.trim());
-            formData.append('last_name', document.getElementById('training_last_name').value.trim());
-            formData.append('name_extension', document.getElementById('training_name_extension').value);
-            formData.append('barangay', document.getElementById('training_barangay').value.trim());
-            formData.append('contact_number', document.getElementById('training_contact_number').value.trim());
-            formData.append('training_type', document.getElementById('training_type').value);
-            formData.append('status', document.getElementById('training_status').value);
-            formData.append('remarks', document.getElementById('training_remarks').value.trim());
+    // STEP 2: RUN VALIDATION
+    console.log('Running form validation...');
+    const isValid = validateTrainingForm();
+    
+    // CRITICAL: If validation failed, STOP HERE and DO NOT SUBMIT
+    if (!isValid) {
+        console.log('❌ VALIDATION FAILED - STOPPING SUBMISSION');
+        showToast('error', 'Please fix all validation errors before submitting');
+        return;
+    }
 
-            // Add document if uploaded
-            const docInput = document.getElementById('training_supporting_document');
-            if (docInput.files && docInput.files.length > 0) {
-                formData.append('supporting_document', docInput.files[0]);
-            }
+    console.log('✓ VALIDATION PASSED - PROCEEDING WITH SUBMISSION');
 
-            // Find submit button
-            const submitBtn = document.querySelector('#addTrainingModal .btn-primary');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
-            submitBtn.disabled = true;
+    // STEP 3: BUILD FORMDATA (only after validation passes)
+    const formData = new FormData();
+    formData.append('first_name', document.getElementById('training_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('training_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('training_last_name').value.trim());
+    formData.append('name_extension', document.getElementById('training_name_extension').value);
+    formData.append('barangay', document.getElementById('training_barangay').value.trim());
+    formData.append('contact_number', document.getElementById('training_contact_number').value.trim());
+    formData.append('training_type', document.getElementById('training_type').value);
+    formData.append('status', document.getElementById('training_status').value);
+    formData.append('remarks', document.getElementById('training_remarks').value.trim());
 
-            // Submit to backend
-            fetch('/admin/training/requests/create', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Close modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
-                        modal.hide();
+    const docInput = document.getElementById('training_supporting_document');
+    if (docInput.files && docInput.files.length > 0) {
+        formData.append('supporting_document', docInput.files[0]);
+    }
 
-                        // Show success message
-                        showToast('success', data.message || 'Training registration created successfully');
+    // STEP 4: DISABLE BUTTON AND SHOW LOADING
+    const submitBtn = document.querySelector('#addTrainingModal .btn-primary');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+    submitBtn.disabled = true;
 
-                        // Reload page after short delay
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        // Show validation errors
-                        if (data.errors) {
-                            Object.keys(data.errors).forEach(field => {
-                                const input = document.getElementById('training_' + field);
-                                if (input) {
-                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                                    if (feedback) feedback.remove();
-
-                                    input.classList.add('is-invalid');
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.className = 'invalid-feedback d-block';
-                                    errorDiv.textContent = data.errors[field][0];
-                                    input.parentNode.appendChild(errorDiv);
-                                }
-                            });
-                        }
-                        showToast('error', data.message || 'Failed to create training application');
+    // STEP 5: SUBMIT TO SERVER
+    console.log('Sending request to server...');
+    fetch('/admin/training/requests/create', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Server response:', data);
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
+            modal.hide();
+            showToast('success', data.message || 'Training registration created successfully');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            if (data.errors) {
+                Object.keys(data.errors).forEach(field => {
+                    const inputId = 'training_' + field;
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = data.errors[field][0];
+                        input.parentNode.appendChild(errorDiv);
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'An error occurred while creating the application');
-                })
-                .finally(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
                 });
+            }
+            showToast('error', data.message || 'Failed to create training request');
         }
-
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'An error occurred while creating the request');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
         // Helper function to format file sizes
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -3421,78 +3383,109 @@ function checkEditTrainingFormChanges(trainingId) {
  * Validate Edit Training Form
  */
 function validateEditTrainingForm() {
-    const form = document.getElementById('editTrainingForm');
+    console.log('=== STARTING EDIT VALIDATION ===');
     let isValid = true;
-    
-    // Required fields
+    const errors = [];
+
+    // REQUIRED FIELDS
     const requiredFields = [
-        { name: 'first_name', label: 'First Name', element: 'edit_training_first_name' },
-        { name: 'last_name', label: 'Last Name', element: 'edit_training_last_name' },
-        { name: 'contact_number', label: 'Contact Number', element: 'edit_training_contact_number' },
-        { name: 'barangay', label: 'Barangay', element: 'edit_training_barangay' },
-        { name: 'training_type', label: 'Training Type', element: 'edit_training_type' }
+        { id: 'edit_training_first_name', label: 'First Name' },
+        { id: 'edit_training_last_name', label: 'Last Name' },
+        { id: 'edit_training_barangay', label: 'Barangay' },
+        { id: 'edit_training_contact_number', label: 'Contact Number' },
+        { id: 'edit_training_type', label: 'Training Type' }
     ];
-    
+
+    // Check all required fields
     requiredFields.forEach(field => {
-        const input = document.getElementById(field.element);
-        if (input && (!input.value || input.value.trim() === '')) {
-            input.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = field.label + ' is required';
+        const input = document.getElementById(field.id);
+        if (input) {
+            const value = input.value.trim();
             
-            const existingError = input.parentNode.querySelector('.invalid-feedback');
-            if (existingError) existingError.remove();
-            
-            input.parentNode.appendChild(errorDiv);
-            isValid = false;
+            // Remove old errors
+            const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+            if (oldFeedback) oldFeedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            // Check if empty
+            if (!value) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = field.label + ' is required';
+                input.parentNode.appendChild(errorDiv);
+                isValid = false;
+                errors.push(field.label);
+                console.log(`❌ Validation failed: ${field.label} is empty`);
+            } else {
+                input.classList.add('is-valid');
+                console.log(`✓ ${field.label} is valid`);
+            }
         }
     });
-    
-    // Validate contact number
-    const contactInput = document.getElementById('edit_training_contact_number');
-    if (contactInput.value.trim()) {
-        const phoneRegex = /^(\+639|09)\d{9}$/;
-        if (!phoneRegex.test(contactInput.value.trim())) {
-            contactInput.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-            
-            const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
-            if (existingError) existingError.remove();
-            
-            contactInput.parentNode.appendChild(errorDiv);
+
+    // VALIDATE CONTACT NUMBER if filled
+    const contactNumber = document.getElementById('edit_training_contact_number').value.trim();
+    if (contactNumber) {
+        if (!validateEditTrainingContactNumber(contactNumber)) {
             isValid = false;
+            errors.push('Contact Number');
+            console.log('❌ Contact number validation failed');
         }
     }
-    
+
+    console.log(`=== EDIT VALIDATION RESULT: ${isValid ? 'PASSED ✓' : 'FAILED ❌'} ===`);
     return isValid;
 }
 
-/**
- * Handle Edit Training Form Submission - with changes summary
- */
+
+// FIXED: handleEditTrainingSubmit - Add validation check BEFORE submission
 function handleEditTrainingSubmit() {
+    console.log('=== EDIT FORM SUBMISSION STARTED ===');
+
     const form = document.getElementById('editTrainingForm');
-    const trainingId = form.dataset.trainingId;
     const submitBtn = document.getElementById('editTrainingSubmitBtn');
 
-    // Validate form first
-    if (!validateEditTrainingForm()) {
-        showToast('error', 'Please fix all validation errors');
+    // CHECK IF FORM ALREADY HAS VALIDATION ERRORS FROM REAL-TIME VALIDATION
+    const hasExistingErrors = form.querySelectorAll('.is-invalid').length > 0;
+    
+    if (hasExistingErrors) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        console.log('❌ FORM HAS EXISTING ERRORS - STOPPING SUBMISSION');
         return;
     }
 
+    // STEP 1: CLEAR OLD ERRORS
+    console.log('Clearing old validation errors...');
+    form.querySelectorAll('.is-invalid, .is-valid').forEach(el => {
+        el.classList.remove('is-invalid', 'is-valid');
+    });
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+    // STEP 2: VALIDATE FORM
+    console.log('Running edit form validation...');
+    const isValid = validateEditTrainingForm();
+    
+    // CRITICAL: If validation failed, STOP HERE and DO NOT PROCEED
+    if (!isValid) {
+        console.log('❌ VALIDATION FAILED - STOPPING SUBMISSION');
+        showToast('error', 'Please fix all validation errors before submitting');
+        return;
+    }
+
+    console.log('✓ VALIDATION PASSED - CHECKING FOR CHANGES');
+
+    // STEP 3: CHECK FOR CHANGES
     const hasChanges = submitBtn?.dataset.hasChanges === 'true';
 
-    // If no changes, show warning and return
     if (!hasChanges) {
+        console.log('⚠ No changes detected');
         showToast('warning', 'No changes detected. Please modify the fields before updating.');
         return;
     }
 
-    // Build changes summary ONLY from actually changed fields
+    // STEP 4: SHOW CONFIRMATION (only after validation passes)
+    console.log('✓ Changes detected - showing confirmation');
     const originalData = JSON.parse(form.dataset.originalData || '{}');
     let changedFields = [];
 
@@ -3503,42 +3496,38 @@ function handleEditTrainingSubmit() {
         'name_extension': 'Extension',
         'contact_number': 'Contact Number',
         'barangay': 'Barangay',
-        'training_type': 'Training Type',
-        'supporting_document': 'Supporting Document'
+        'training_type': 'Training Type'
     };
 
-    // Check which fields have changed
-    const fields = [
-        'first_name', 'middle_name', 'last_name', 'name_extension',
-        'contact_number', 'barangay', 'training_type'
-    ];
+    const fields = ['first_name', 'middle_name', 'last_name', 'name_extension', 'contact_number', 'barangay', 'training_type'];
 
     fields.forEach(field => {
-        const input = form.querySelector(`[name="${field}"]`);
-        if (input && input.value !== originalData[field]) {
-            changedFields.push(fieldLabels[field] || field);
+        const fieldElement = form.querySelector(`[name="${field}"]`);
+        if (fieldElement) {
+            const currentValue = fieldElement.value;
+            const originalValue = originalData[field] || '';
+
+            if (currentValue !== originalValue) {
+                changedFields.push(fieldLabels[field] || field);
+            }
         }
     });
 
-    // Check file input - ONLY if a NEW file was selected
     const fileInput = document.getElementById('edit_training_supporting_document');
     if (fileInput && fileInput.files && fileInput.files.length > 0) {
         changedFields.push('Supporting Document');
     }
 
-    // Build confirmation message
     const changesText = changedFields.length > 0 
-        ? `Update this training application with the following changes?\n\n• ${changedFields.join('\n• ')}`
-        : 'Update this training application?';
+        ? `Update this training request with the following changes?\n\n• ${changedFields.join('\n• ')}`
+        : 'Update this training request?';
 
-    // Show confirmation with only changed fields
     showConfirmationToast(
         'Confirm Update',
         changesText,
-        () => proceedWithEditTraining(form, trainingId)
+        () => proceedWithEditTraining(form, form.dataset.trainingId)
     );
 }
-
 /**
  * Proceed with Edit Training Submission - FIXED with PUT/multipart
  */
@@ -3599,7 +3588,7 @@ function proceedWithEditTraining(form, trainingId) {
         console.log('Response data:', data);
         
         if (data.success) {
-            showToast('success', data.message || 'Training application updated successfully');
+            showToast('success', data.message || 'Training request updated successfully');
             
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
@@ -3657,7 +3646,7 @@ function proceedWithEditTraining(form, trainingId) {
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('error', 'Error updating training application: ' + error.message);
+        showToast('error', 'Error updating training request: ' + error.message);
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     });
@@ -3866,47 +3855,45 @@ function capitalizeEditTrainingName(input) {
         }
     }
 }
-
-/**
- * Initialize name field auto-capitalize when modal is shown
- */
-document.addEventListener('DOMContentLoaded', function() {
-    // Set up event delegation for dynamically added elements
-    document.addEventListener('focusout', function(e) {
-        if (e.target.id === 'edit_training_first_name' ||
-            e.target.id === 'edit_training_middle_name' ||
-            e.target.id === 'edit_training_last_name') {
-            capitalizeEditTrainingName(e.target);
-        }
-    });
-
-    // Add contact number validation
-    const contactInput = document.getElementById('edit_training_contact_number');
-    if (contactInput) {
-        contactInput.addEventListener('input', function() {
-            validateEditTrainingContactNumber(this.value);
-        });
-    }
-});
-
-/**
- * Validate contact number in edit form
- */
 function validateEditTrainingContactNumber(contactNumber) {
     const input = document.getElementById('edit_training_contact_number');
-    const feedback = input.parentNode.querySelector('.invalid-feedback');
-    if (feedback) feedback.remove();
+    if (!input) return true;
+
+    // Remove old error first
+    const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+    if (oldFeedback) oldFeedback.remove();
+
     input.classList.remove('is-invalid', 'is-valid');
 
-    if (!contactNumber.trim()) return true;
-
-    const phoneRegex = /^(\+639|09)\d{9}$/;
-
-    if (!phoneRegex.test(contactNumber.trim())) {
+    // Empty check
+    if (!contactNumber || !contactNumber.trim()) {
         input.classList.add('is-invalid');
         const errorDiv = document.createElement('div');
         errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        errorDiv.textContent = 'Contact number is required';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Remove any spaces/hyphens for digit check
+    const digitsOnly = contactNumber.replace(/\D/g, '');
+
+    // Must be exactly 11 digits
+    if (digitsOnly.length !== 11) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = `Contact number must be 11 digits (you entered ${digitsOnly.length})`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Must start with 09
+    if (!digitsOnly.startsWith('09')) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number must start with 09 (e.g., 09123456789)';
         input.parentNode.appendChild(errorDiv);
         return false;
     }
@@ -3915,6 +3902,325 @@ function validateEditTrainingContactNumber(contactNumber) {
     return true;
 }
 
+// ============================================
+// NAME VALIDATION AND CAPITALIZATION FIXES
+// ============================================
+
+/**
+ * Auto-capitalize name fields (Add Modal)
+ */
+function capitalizeTrainingName(input) {
+    const value = input.value;
+    if (value && value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+/**
+ * Validate Training Name Field (Add Modal)
+ */
+function validateTrainingNameField(fieldId) {
+    const input = document.getElementById(fieldId);
+    if (!input) return true;
+
+    // Remove old error
+    const oldError = input.parentNode.querySelector('.invalid-feedback');
+    if (oldError) oldError.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    const value = input.value.trim();
+    const isRequired = !fieldId.includes('middle');
+
+    // Check if empty and required
+    if (!value && isRequired) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        const fieldLabel = fieldId.includes('first') ? 'First' : 'Last';
+        errorDiv.textContent = `${fieldLabel} name is required`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Check if has invalid characters (only allow letters, spaces, hyphens, apostrophes)
+    const nameRegex = /^[a-zA-Z\s\-']*$/;
+    if (value && !nameRegex.test(value)) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Only letters, spaces, hyphens, and apostrophes are allowed';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Valid
+    if (value) {
+        input.classList.add('is-valid');
+    }
+    return true;
+}
+
+/**
+ * Auto-capitalize name fields (Edit Modal)
+ */
+function capitalizeEditTrainingName(input) {
+    const value = input.value;
+    if (value && value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
+        // Trigger change detection after capitalization
+        const form = document.getElementById('editTrainingForm');
+        if (form && form.dataset.trainingId) {
+            checkEditTrainingFormChanges(form.dataset.trainingId);
+        }
+    }
+}
+
+/**
+ * Validate Edit Training Name Field (Edit Modal)
+ */
+function validateEditTrainingNameField(fieldId) {
+    const input = document.getElementById(fieldId);
+    if (!input) return true;
+
+    // Remove old error
+    const oldError = input.parentNode.querySelector('.invalid-feedback');
+    if (oldError) oldError.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    const value = input.value.trim();
+    const isRequired = !fieldId.includes('middle');
+
+    // Check if empty and required
+    if (!value && isRequired) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        const fieldLabel = fieldId.includes('first') ? 'First' : 'Last';
+        errorDiv.textContent = `${fieldLabel} name is required`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Check if has invalid characters
+    const nameRegex = /^[a-zA-Z\s\-']*$/;
+    if (value && !nameRegex.test(value)) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Only letters, spaces, hyphens, and apostrophes are allowed';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Valid
+    if (value) {
+        input.classList.add('is-valid');
+    }
+    return true;
+}
+
+/**
+ * Initialize Name Field Listeners (Add Modal)
+ */
+function initAddTrainingNameListeners() {
+    const firstNameInput = document.getElementById('training_first_name');
+    const middleNameInput = document.getElementById('training_middle_name');
+    const lastNameInput = document.getElementById('training_last_name');
+
+    // First Name
+    if (firstNameInput) {
+        firstNameInput.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+            validateTrainingNameField('training_first_name');
+        });
+        firstNameInput.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateTrainingNameField('training_first_name');
+            }
+        });
+    }
+
+    // Middle Name
+    if (middleNameInput) {
+        middleNameInput.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+            validateTrainingNameField('training_middle_name');
+        });
+        middleNameInput.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateTrainingNameField('training_middle_name');
+            }
+        });
+    }
+
+    // Last Name
+    if (lastNameInput) {
+        lastNameInput.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+            validateTrainingNameField('training_last_name');
+        });
+        lastNameInput.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateTrainingNameField('training_last_name');
+            }
+        });
+    }
+}
+
+/**
+ * Initialize Name Field Listeners (Edit Modal)
+ */
+function initEditTrainingNameListeners() {
+    const firstNameInput = document.getElementById('edit_training_first_name');
+    const middleNameInput = document.getElementById('edit_training_middle_name');
+    const lastNameInput = document.getElementById('edit_training_last_name');
+
+    // First Name
+    if (firstNameInput) {
+        firstNameInput.addEventListener('blur', function() {
+            capitalizeEditTrainingName(this);
+            validateEditTrainingNameField('edit_training_first_name');
+        });
+        firstNameInput.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateEditTrainingNameField('edit_training_first_name');
+            }
+        });
+    }
+
+    // Middle Name
+    if (middleNameInput) {
+        middleNameInput.addEventListener('blur', function() {
+            capitalizeEditTrainingName(this);
+            validateEditTrainingNameField('edit_training_middle_name');
+        });
+        middleNameInput.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateEditTrainingNameField('edit_training_middle_name');
+            }
+        });
+    }
+
+    // Last Name
+    if (lastNameInput) {
+        lastNameInput.addEventListener('blur', function() {
+            capitalizeEditTrainingName(this);
+            validateEditTrainingNameField('edit_training_last_name');
+        });
+        lastNameInput.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateEditTrainingNameField('edit_training_last_name');
+            }
+        });
+    }
+}
+
+
+// FIXED: validateTrainingContactNumber - For Add Modal
+function validateTrainingContactNumber(contactNumber) {
+    const input = document.getElementById('training_contact_number');
+    if (!input) return true;
+
+    // Remove old error first
+    const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+    if (oldFeedback) oldFeedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    // Empty check
+    if (!contactNumber || !contactNumber.trim()) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number is required';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Remove any spaces/hyphens for digit check
+    const digitsOnly = contactNumber.replace(/\D/g, '');
+
+    // Must be exactly 11 digits
+    if (digitsOnly.length !== 11) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = `Contact number must be 11 digits (you entered ${digitsOnly.length})`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Must start with 09
+    if (!digitsOnly.startsWith('09')) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number must start with 09 (e.g., 09123456789)';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    input.classList.add('is-valid');
+    return true;
+}
+
+/**
+ * FIXED: validateEditTrainingContactNumber - Edit Modal Contact Validation
+ * Returns TRUE only if contact number is valid
+ */
+function validateEditTrainingContactNumber(contactNumber) {
+    const input = document.getElementById('edit_training_contact_number');
+    if (!input) return true;
+
+    // Remove old error first
+    const oldFeedback = input.parentNode.querySelector('.invalid-feedback');
+    if (oldFeedback) oldFeedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+
+    // Empty check
+    if (!contactNumber || !contactNumber.trim()) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number is required';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Remove any spaces/hyphens for digit check
+    const digitsOnly = contactNumber.replace(/\D/g, '');
+
+    // Must be exactly 11 digits
+    if (digitsOnly.length !== 11) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = `Contact number must be 11 digits (you entered ${digitsOnly.length})`;
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    // Must start with 09
+    if (!digitsOnly.startsWith('09')) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Contact number must start with 09 (e.g., 09123456789)';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+
+    input.classList.add('is-valid');
+    return true;
+}
 /**
  * Download helper for Training documents
  */
@@ -3935,130 +4241,33 @@ function getCSRFToken() {
     return metaTag ? metaTag.getAttribute('content') : '';
 }
 
-        // // Proceed with edit submission
-        // function proceedWithEditTraining() {
-        //     const form = document.getElementById('editTrainingForm');
-        //     const submitBtn = document.getElementById('editTrainingSubmitBtn');
+ document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Add Modal name listeners
+    initAddTrainingNameListeners();
 
-        //     if (!currentEditingTrainingId) {
-        //         showToast('error', 'Training ID not found');
-        //         return;
-        //     }
+    // Initialize Edit Modal name listeners
+    initEditTrainingNameListeners();
 
-        //     submitBtn.innerHTML =
-        //         '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
-        //     submitBtn.disabled = true;
-
-        //     const formData = new FormData();
-        //     formData.append('first_name', document.getElementById('edit_training_first_name').value.trim());
-        //     formData.append('middle_name', document.getElementById('edit_training_middle_name').value.trim());
-        //     formData.append('last_name', document.getElementById('edit_training_last_name').value.trim());
-        //     formData.append('name_extension', document.getElementById('edit_training_extension').value);
-        //     formData.append('contact_number', document.getElementById('edit_training_contact').value.trim());
-        //     formData.append('barangay', document.getElementById('edit_training_barangay').value);
-        //     formData.append('training_type', document.getElementById('edit_training_type').value);
-        //     formData.append('_method', 'PUT');
-
-        //     fetch(`/admin/training/requests/${currentEditingTrainingId}`, {
-        //             method: 'POST',
-        //             headers: {
-        //                 'X-CSRF-TOKEN': getCSRFToken(),
-        //                 'X-Requested-With': 'XMLHttpRequest'
-        //             },
-        //             body: formData
-        //         })
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             if (data.success) {
-        //                 showToast('success', 'Training application updated successfully');
-        //                 const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
-        //                 if (modal) modal.hide();
-
-        //                 // Reload the page
-        //                 setTimeout(() => {
-        //                     location.reload();
-        //                 }, 1000);
-        //             } else {
-        //                 showToast('error', data.message || 'Failed to update training');
-        //                 submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        //                 submitBtn.disabled = false;
-        //             }
-        //         })
-        //         .catch(error => {
-        //             showToast('error', 'Error: ' + error.message);
-        //             submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        //             submitBtn.disabled = false;
-        //         });
-        // }
-
-        // // Add event listeners for edit training form
-        // function initializeEditTrainingFormListeners() {
-        //     const form = document.getElementById('editTrainingForm');
-        //     if (!form) return;
-
-        //     const fields = ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name',
-        //         'edit_training_extension', 'edit_training_contact', 
-        //         'edit_training_barangay', 'edit_training_type'
-        //     ];
-
-        //     fields.forEach(id => {
-        //         const element = document.getElementById(id);
-        //         if (element) {
-        //             element.addEventListener('blur', function() {
-        //                 if (id.includes('contact')) {
-        //                     validateEditTrainingContactNumber(this);
-        //                 } 
-        //                 checkForEditTrainingChanges();
-        //             });
-
-        //             element.addEventListener('change', function() {
-        //                 checkForEditTrainingChanges();
-        //             });
-
-        //             element.addEventListener('input', function() {
-        //                 checkForEditTrainingChanges();
-        //             });
-        //         }
-        //     });
-        // }
-
-        // Initialize on document ready
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeEditTrainingFormListeners();
-        });
-
-        // Helper function to get CSRF token
-        function getCSRFToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            return metaTag ? metaTag.getAttribute('content') : '';
-        }
-
-        // Update remarks character counter for training
-        function updateTrainingRemarksCounter() {
-            const textarea = document.getElementById('training_remarks');
-            const charCount = document.getElementById('charCountTraining');
-            
-            if (textarea && charCount) {
-                charCount.textContent = textarea.value.length;
-                
-                // Change color based on length
-                if (textarea.value.length > 900) {
-                    charCount.parentElement.classList.add('text-warning');
-                    charCount.parentElement.classList.remove('text-muted');
-                } else {
-                    charCount.parentElement.classList.remove('text-warning');
-                    charCount.parentElement.classList.add('text-muted');
-                }
-            }
-        }
-
-        // Initialize counter on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const textarea = document.getElementById('training_remarks');
-            if (textarea) {
-                textarea.addEventListener('input', updateTrainingRemarksCounter);
+    // Add contact number validation for edit modal
+    const editTrainingContactInput = document.getElementById('edit_training_contact_number');
+    if (editTrainingContactInput) {
+        editTrainingContactInput.addEventListener('blur', function() {
+            if (this.value) {
+                validateEditTrainingContactNumber(this.value);
             }
         });
-        console.log('Training Add Application functionality loaded successfully');
+    }
+
+    // Add contact number validation for add modal
+    const trainingContactInput = document.getElementById('training_contact_number');
+    if (trainingContactInput) {
+        trainingContactInput.addEventListener('blur', function() {
+            if (this.value) {
+                validateTrainingContactNumber(this.value);
+            }
+        });
+    }
+});
+
     </script>
 @endsection
