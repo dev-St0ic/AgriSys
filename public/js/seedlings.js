@@ -1046,64 +1046,67 @@ window.backToSeedlingsChoice = backToSeedlingsChoice;
 // QUICK VIEW MODAL (E-COMMERCE STYLE)
 // ==============================================
 
-function showQuickView(itemId, itemName, categoryName, description, stock, unit, stockStatus, icon, imagePath) {
-    const modal = document.getElementById('quickViewModal');
-    if (!modal) return;
+// function showQuickView(itemId, itemName, categoryName, description, stock, unit, stockStatus, icon, imagePath) {
+//     const modal = document.getElementById('quickViewModal');
+//     if (!modal) return;
 
-    // Populate modal content
-    const qvImage = document.getElementById('qv-image');
-    const qvName = document.getElementById('qv-name');
-    const qvCategory = document.getElementById('qv-category');
-    const qvDescription = document.getElementById('qv-description');
-    const qvStock = document.getElementById('qv-stock');
-    const qvStockBadge = document.getElementById('qv-stock-badge');
+//     // Populate modal content
+//     const qvImage = document.getElementById('qv-image');
+//     const qvName = document.getElementById('qv-name');
+//     const qvCategory = document.getElementById('qv-category');
+//     const qvDescription = document.getElementById('qv-description');
+//     const qvStock = document.getElementById('qv-stock');
+//     const qvStockBadge = document.getElementById('qv-stock-badge');
 
-    // Set image
-    if (imagePath) {
-        qvImage.src = imagePath;
-        qvImage.style.display = 'block';
-    } else {
-        qvImage.style.display = 'none';
-    }
+//     // Set image
+//     if (imagePath) {
+//         qvImage.src = imagePath;
+//         qvImage.style.display = 'block';
+//     } else {
+//         qvImage.style.display = 'none';
+//     }
 
-    // Set content
-    qvName.textContent = itemName;
-    qvCategory.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
-    qvDescription.textContent = description || 'No description available';
-    qvStock.textContent = `${stock} ${unit}`;
+//     // Set content
+//     qvName.textContent = itemName;
+//     qvCategory.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
+//     qvDescription.textContent = description || 'No description available';
+//     qvStock.textContent = `${stock} ${unit}`;
 
-    // Set stock badge
-    let badgeClass = '';
-    let badgeText = '';
-    if (stockStatus === 'in_stock') {
-        badgeClass = 'in_stock';
-        badgeText = 'In Stock';
-    } else if (stockStatus === 'low_stock') {
-        badgeClass = 'low_stock';
-        badgeText = 'Low Stock';
-    } else {
-        badgeClass = 'out_of_stock';
-        badgeText = 'Out of Stock';
-    }
-    qvStockBadge.className = `qv-stock-badge ${badgeClass}`;
-    qvStockBadge.textContent = badgeText;
+//     // Set stock badge
+//     let badgeClass = '';
+//     let badgeText = '';
+//     if (stockStatus === 'in_stock') {
+//         badgeClass = 'in_stock';
+//         badgeText = 'In Stock';
+//     } else if (stockStatus === 'low_stock') {
+//         badgeClass = 'low_stock';
+//         badgeText = 'Low Stock';
+//     } else {
+//         badgeClass = 'out_of_stock';
+//         badgeText = 'Out of Stock';
+//     }
+//     qvStockBadge.className = `qv-stock-badge ${badgeClass}`;
+//     qvStockBadge.textContent = badgeText;
 
-    // Show modal
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
+//     // Show modal
+//     modal.style.display = 'flex';
+//     document.body.style.overflow = 'hidden';
 
-function closeQuickView(event) {
-    if (event) {
-        event.stopPropagation();
-    }
+//     return false;
+// }
 
-    const modal = document.getElementById('quickViewModal');
-    if (!modal) return;
+// function closeQuickView(event) {
+//     if (event) {
+//         event.stopPropagation();
+//     }
 
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-}
+//     const modal = document.getElementById('quickViewModal');
+//     if (!modal) return;
+
+//     modal.style.display = 'none';
+//     document.body.style.overflow = '';
+//     return false;
+// }
 
 // Export quick view functions
 window.showQuickView = showQuickView;

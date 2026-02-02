@@ -127,9 +127,8 @@
                             @endif
                         </div>
 
-                        <!-- Item Image -->
-                        <div class="seedlings-item-image"
-                            onclick="showQuickView('{{ $item->id }}', '{{ addslashes($item->name) }}', '{{ addslashes($category->display_name) }}', '{{ addslashes($item->description ?? '') }}', '{{ $item->current_supply }}', '{{ $item->unit }}', '{{ $item->stock_status }}', '{{ $category->icon ?? 'fa-leaf' }}', '{{ $item->image_path ? Storage::url($item->image_path) : '' }}')">
+                      <!-- Item Image -->
+                        <div class="seedlings-item-image">
                             @if ($item->image_path)
                                 <img src="{{ Storage::url($item->image_path) }}" alt="{{ $item->name }}">
                             @else
@@ -137,9 +136,6 @@
                                     <i class="fas {{ $category->icon ?? 'fa-leaf' }} fa-3x"></i>
                                 </div>
                             @endif
-                            <div class="seedlings-quick-view-overlay">
-                                <i class="fas fa-eye"></i> Quick View
-                            </div>
                         </div>
 
                         <!-- Item Info -->
