@@ -120,12 +120,6 @@ class SeedlingRequestFactory extends Factory
             'extension_name' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => $this->faker->phoneNumber,
             'barangay' => $this->faker->randomElement($barangays),
-            'planting_location' => $this->faker->optional(0.8)->address,
-            'purpose' => $this->faker->optional(0.9)->randomElement([
-                'Backyard gardening', 'Community garden project', 'School garden',
-                'Livelihood project', 'Food security', 'Educational purposes',
-                'Urban farming', 'Aquaponics project', 'Landscape beautification', 'Fish farming'
-            ]),
             'seedling_type' => $this->formatSeedlingTypes($selectedSeeds, $selectedSeedlings, $selectedFruits, $selectedOrnamentals, $selectedFingerlings, $selectedFertilizers),
 
             // Store items - Laravel will cast to JSON automatically

@@ -151,8 +151,6 @@ class SeedlingRequestController extends Controller
             'extension_name' => 'nullable|string|max:10',
             'contact_number' => 'required|string|max:20',
             'barangay' => 'required|string|max:255',
-            'planting_location' => 'nullable|string|max:500',
-            'purpose' => 'nullable|string|max:1000',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
 
             // Items - Dynamic array structure
@@ -181,8 +179,6 @@ class SeedlingRequestController extends Controller
                 'extension_name' => $validated['extension_name'],
                 'contact_number' => $validated['contact_number'],
                 'barangay' => $validated['barangay'],
-                'planting_location' => $validated['planting_location'],
-                'purpose' => $validated['purpose'],
                 'document_path' => $documentPath,
                 'status' => 'pending',
             ]);
@@ -296,8 +292,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         'extension_name' => 'nullable|string|max:10',
         'contact_number' => 'required|string|max:20',
         'barangay' => 'required|string|max:255',
-        'planting_location' => 'nullable|string|max:500',
-        'purpose' => 'nullable|string|max:1000',
         'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
     ], [
         'contact_number.required' => 'Contact number is required.',
@@ -320,8 +314,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         $changes = [];
         $changedFields = [
             'first_name', 'middle_name', 'last_name', 'extension_name',
-            'contact_number',  'barangay',
-            'planting_location', 'purpose'
+            'contact_number',  'barangay'
         ];
 
         foreach ($changedFields as $field) {
@@ -800,8 +793,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                     'Full Name',
                     'Contact Number',
                     'Barangay',
-                    'Planting Location',
-                    'Purpose',
                     'Total Quantity',
                     'Items Requested',
                     'Status',
@@ -832,8 +823,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                         $request->full_name,
                         $request->contact_number,
                         $request->barangay,
-                        $request->planting_location ?? 'N/A',
-                        $request->purpose ?? 'N/A',
                         $request->total_quantity,
                         $itemsText,
                         ucfirst(str_replace('_', ' ', $request->status)),

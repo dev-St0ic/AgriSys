@@ -556,32 +556,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Additional Information Card -->
-                                    <div class="col-12">
-                                        <div class="card border-secondary">
-                                            <div class="card-header bg-secondary text-white">
-                                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <strong>Planting Location:</strong>
-                                                        <p class="mb-0">
-                                                            {{ $request->planting_location ?? 'Not provided' }}
-                                                        </p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <strong>Purpose:</strong>
-                                                        <p class="mb-0">
-                                                            {{ $request->purpose ?? 'Not provided' }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <!-- ✅ NEW: Pickup Date Card -->
                                     <div class="col-12">
                                         <div class="card border-info">
@@ -978,35 +952,6 @@
                                             <h6 class="mb-0 fw-semibold text-primary">
                                                 <i class="fas fa-info-circle me-2"></i>Additional Information
                                             </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_planting_location_{{ $request->id }}"
-                                                        class="form-label fw-semibold">
-                                                        Planting Location
-                                                    </label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_planting_location_{{ $request->id }}"
-                                                        name="planting_location"
-                                                        value="{{ $request->planting_location }}" maxlength="500"
-                                                        placeholder="Where will the seedlings be planted?"
-                                                        onchange="checkForEditChanges({{ $request->id }})"
-                                                        oninput="checkForEditChanges({{ $request->id }})">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="edit_purpose_{{ $request->id }}"
-                                                    class="form-label fw-semibold">
-                                                    Purpose
-                                                </label>
-                                                <textarea class="form-control" id="edit_purpose_{{ $request->id }}" name="purpose" rows="3"
-                                                    maxlength="1000" placeholder="Why are you requesting these seedlings?"
-                                                    onchange="checkForEditChanges({{ $request->id }})" oninput="checkForEditChanges({{ $request->id }})">{{ $request->purpose }}</textarea>
-                                                <small class="text-muted d-block mt-2">
-                                                    <i class="fas fa-info-circle me-1"></i>Maximum 1000 characters
-                                                </small>
-                                            </div>
                                         </div>
                                     </div>
 
@@ -1553,24 +1498,6 @@
                                 <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="fas fa-pencil-alt me-2"></i>Additional Information
                                 </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="seedling_planting_location" class="form-label fw-semibold">
-                                            Planting Location
-                                        </label>
-                                        <input type="text" class="form-control" id="seedling_planting_location"
-                                            maxlength="500" placeholder="Where will the seedlings be planted?">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="seedling_purpose" class="form-label fw-semibold">
-                                        Purpose
-                                    </label>
-                                    <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000"
-                                        placeholder="Why are you requesting these seedlings?"></textarea>
-                                </div>
                             </div>
                         </div>
 
@@ -4045,8 +3972,6 @@
             formData.append('extension_name', document.getElementById('seedling_extension').value);
             formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
             formData.append('barangay', document.getElementById('seedling_barangay').value);
-            formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
-            formData.append('purpose', document.getElementById('seedling_purpose').value.trim());
             formData.append('status', document.getElementById('seedling_status').value);
             formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
 
@@ -4156,8 +4081,6 @@
             originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
             originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
             originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
-            originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
-            originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
             // Store in form data attribute
             form.dataset.originalData = JSON.stringify(originalData);
             form.dataset.hasOriginalDocument = hasDocument ? 'true' : 'false';
@@ -4203,8 +4126,7 @@
             // Check all form fields
             const fields = [
                 'first_name', 'middle_name', 'last_name', 'extension_name',
-                'contact_number', 'barangay',
-                'planting_location', 'purpose'
+                'contact_number', 'barangay'
             ];
 
             fields.forEach(field => {
@@ -4282,8 +4204,6 @@
                 'extension_name': 'Extension',
                 'contact_number': 'Contact Number',
                 'barangay': 'Barangay',
-                'planting_location': 'Planting Location',
-                'purpose': 'Purpose',
                 'supporting_document': 'Supporting Document'
             };
 

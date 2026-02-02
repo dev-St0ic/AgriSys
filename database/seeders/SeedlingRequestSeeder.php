@@ -133,8 +133,6 @@ class SeedlingRequestSeeder extends Seeder
                 'extension_name' => rand(0, 10) > 8 ? ['Jr.', 'Sr.', 'III'][rand(0, 2)] : null,
                 'contact_number' => '09' . rand(100000000, 999999999),
                 'barangay' => $this->getRandomBarangay(),
-                'planting_location' => fake()->address(),
-                'purpose' => $this->getRandomPurpose(),
                 'total_quantity' => 0,
                 'approved_quantity' => null,
                 'status' => $status,

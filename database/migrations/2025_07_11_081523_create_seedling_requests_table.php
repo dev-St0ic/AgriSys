@@ -21,8 +21,6 @@ return new class extends Migration
             $table->string('extension_name')->nullable();
             $table->string('contact_number')->nullable();
             $table->string('barangay')->nullable();
-            $table->text('planting_location')->nullable();
-            $table->text('purpose')->nullable();
 
             // Quantities
             $table->integer('total_quantity')->default(0);

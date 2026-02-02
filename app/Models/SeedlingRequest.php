@@ -23,8 +23,6 @@ class SeedlingRequest extends Model
         'extension_name',
         'contact_number',
         'barangay',
-        'planting_location',
-        'purpose',
         'total_quantity',
         'approved_quantity',
         'pickup_date',
