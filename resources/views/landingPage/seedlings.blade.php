@@ -173,8 +173,8 @@
                                 </button>
                                 <input type="number" id="qty-{{ $item->id }}"
                                     name="quantity_{{ $item->id }}" min="{{ $item->min_quantity ?? 1 }}"
-                                    max="{{ min($item->max_quantity ?? 999, $item->current_supply) }}"
-                                    value="{{ $item->min_quantity ?? 1 }}" class="qty-input"
+                                    max="{{ $item->current_supply }}"
+                                    value="1" class="qty-input"
                                     onchange="updateQuantity('{{ $item->id }}')">
                                 <button type="button" class="qty-btn"
                                     onclick="incrementQty('{{ $item->id }}')">
@@ -428,7 +428,7 @@
         </ul>
 
         <h4>Distribution Information:</h4>
-        <p>Seedlings will be distributed at the City Agriculture Office. You will receive an SMS notification once your request is approved.</p>
+        <p>You may pick up the requested supplies at the City Agriculture Office. You will receive an SMS notification once your request is approved.</p>
     </div>
 
     <div id="seedlings-summary-tab" class="seedlings-tab-content" style="display: none;">
