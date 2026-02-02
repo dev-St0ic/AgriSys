@@ -114,6 +114,8 @@ function initializeCategoryTabs() {
     toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
     toggleButton.setAttribute('data-expanded', 'false');
     toggleButton.type = 'button';
+    toggleButton.style.flexShrink = '0'; // ← ADDed THIS
+    toggleButton.style.whiteSpace = 'nowrap'; // ← ADDed THIS
 
     toggleButton.addEventListener('click', function(e) {
         e.preventDefault();
@@ -595,7 +597,10 @@ function proceedToSeedlingsForm() {
         totalQuantity: totalQuantity
     };
 
-    // Go directly to form (no alert popup)
+    // Close modal BEFORE showing form
+    closeCartModal();
+
+    // Go directly to form
     showApplicationForm();
 }
 
@@ -611,7 +616,13 @@ function showApplicationForm() {
 
         showSeedlingsTab('seedlings-form-tab', null);
 
+        // Ensure body scroll is enabled
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+
+        // Force scroll to top with delay
         setTimeout(() => {
+            window.scrollTo(0, 0);
             appForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     }
@@ -656,23 +667,134 @@ function showSeedlingsTab(tabId, event) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
+// Pick up date - ALWAYS SHOW
+function showPickupDateField(totalQuantity) {
+    const pickupDateSection = document.getElementById('pickup-date-section');
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    
+    // ✅ SHOW PICKUP DATE FIELD FOR ALL REQUESTS
+    if (pickupDateSection) pickupDateSection.style.display = 'block';
+    if (pickupInput) {
+        pickupInput.required = true;
+        
+        // Set dynamic min and max dates based on TODAY
+        const today = new Date();
+        const minDate = new Date(today);
+        minDate.setDate(minDate.getDate() + 1); // 1 day from today
+        
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 30); // 30 days from today
+        
+        // Format dates as YYYY-MM-DD
+        const formatDate = (date) => date.toISOString().split('T')[0];
+        
+        pickupInput.min = formatDate(minDate);
+        pickupInput.max = formatDate(maxDate);
+        pickupInput.value = ''; // Clear any previous value
+    }
+}
+
+function initPickupDateField() {
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    const displayDiv = document.getElementById('pickup-date-display');
+    const displayText = document.getElementById('pickup-date-text');
+
+    if (!pickupInput) return;
+
+    // Set min/max dates
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 1);
+    
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    // ✅ VALIDATE ON DATE CHANGE
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            // User cleared the date
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 6=Saturday
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        // ✅ CHECK IF WEEKEND (0 = Sunday, 6 = Saturday)
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = ''; // Clear invalid selection
+            displayDiv.style.display = 'none';
+            
+            // Show user-friendly warning
+            toast.warning(
+                `${dayName}s are closed. Please select a weekday (Monday-Friday).`,
+                {
+                    title: '⚠️ Weekend Not Available',
+                    duration: 4000
+                }
+            );
+            return;
+        }
+
+        // ✅ VALID WEEKDAY - SHOW CONFIRMATION
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+    });
+
+    // ✅ VALIDATE ON BLUR (When user leaves the field)
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            
+            toast.warning(
+                'Weekends are not available for pickup. Please select a weekday.',
+                {
+                    title: '❌ Invalid Selection',
+                    duration: 5000
+                }
+            );
+        }
+    });
+}
+
+// Call on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    initPickupDateField();
+});
+
 
 // ==============================================
 // SUPPORTING DOCUMENTS
-// ==============================================
-
 function toggleSupportingDocuments(totalQuantity) {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
 
-    if (totalQuantity >= 100) {
-        if (docsField) docsField.style.display = 'block';
-      
-    } else {
-        if (docsField) docsField.style.display = 'none';
-    }
+    // ✅ ALWAYS SHOW supporting documents as OPTIONAL
+    if (docsField) docsField.style.display = 'block';
+    if (docsInput) docsInput.required = false; // Always optional
+    
+    showPickupDateField(totalQuantity);
 }
-
 // ==============================================
 // SUMMARY DISPLAY
 // ==============================================
@@ -716,6 +838,29 @@ function submitSeedlingsRequest(event) {
         return false;
     }
 
+    // ✅ CHECK PICKUP DATE VALIDATION FIRST (BEFORE ANY SUBMISSION)
+    const pickupDateSection = document.getElementById('pickup-date-section');
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    
+    if (pickupDateSection && pickupDateSection.style.display !== 'none' && !pickupInput.value) {
+        agrisysModal.warning('Please select a pickup date', { title: 'Pickup Date Required' });
+        return false; // STOP execution
+    }
+
+    // ✅ DOUBLE-CHECK: NO WEEKENDS ALLOWED
+    if (pickupInput.value) {
+        const selectedDate = new Date(pickupInput.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+        
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            agrisysModal.warning(
+                'Weekends are not available for pickup. Please select a weekday (Monday-Friday).',
+                { title: 'Invalid Pickup Date' }
+            );
+            return false; // STOP execution
+        }
+    }
+
     const submitBtn = form.querySelector('.seedlings-submit-btn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Submitting...';
@@ -729,7 +874,7 @@ function submitSeedlingsRequest(event) {
         agrisysModal.warning('Please select items first', { title: 'No Items Selected' });
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-        return;
+        return false;
     }
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -745,13 +890,23 @@ function submitSeedlingsRequest(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // ✅ RESET PICKUP DATE FIELD IMMEDIATELY AFTER SUCCESS
+            const pickupInput = document.getElementById('seedlings-pickup_date');
+            const displayDiv = document.getElementById('pickup-date-display');
+            
+            if (pickupInput) {
+                pickupInput.value = '';
+            }
+            if (displayDiv) {
+                displayDiv.style.display = 'none';
+            }
+
             agrisysModal.success(data.message, {
                 title: 'Request Submitted!',
                 reference: data.request_number || data.reference_number || data.application_number || null,
                 onClose: () => {
                     performCompleteReset();
                     closeFormSeedlings();
-                    // Scroll to top after modal closes and form is hidden
                     setTimeout(() => {
                         document.documentElement.scrollTop = 0;
                         document.body.scrollTop = 0;
@@ -777,8 +932,6 @@ function submitSeedlingsRequest(event) {
         submitBtn.disabled = false;
     });
 }
-
-
 /**
  * Show all main page sections
  */
@@ -846,18 +999,26 @@ function performCompleteReset() {
 
     console.log('Complete reset performed');
 }
-
 function resetSupportingDocuments() {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
+    const pickupDateSection = document.getElementById('pickup-date-section');
+    const pickupInput = document.getElementById('seedlings-pickup_date');
 
-    if (docsField) docsField.style.display = 'none';
+    // ✅ Always show docs as optional
+    if (docsField) docsField.style.display = 'block';
     if (docsInput) {
-        docsInput.removeAttribute('required');
+        docsInput.required = false;
         docsInput.value = '';
     }
+    
+    // Pickup date always shows but reset it
+    if (pickupDateSection) pickupDateSection.style.display = 'block';
+    if (pickupInput) {
+        pickupInput.required = true;
+        pickupInput.value = '';
+    }
 }
-
 function restorePreviousSelections() {
     if (!window._seedlingsChoices) return;
 
@@ -876,6 +1037,21 @@ function restorePreviousSelections() {
         });
     });
 }
+
+
+// // ALSO UPDATE toggleSupportingDocuments() TO SHOW DOCS FOR ALL TOO:
+
+// function toggleSupportingDocuments(totalQuantity) {
+//     const docsField = document.getElementById('supporting-docs-field');
+//     const docsInput = document.getElementById('seedlings-docs');
+
+//     // ✅ SHOW FOR ALL REQUESTS
+//     if (docsField) docsField.style.display = 'block';
+//     if (docsInput) docsInput.required = true;
+    
+//     showPickupDateField(totalQuantity);
+// }
+
 
 // ==============================================
 // INITIALIZATION
@@ -908,6 +1084,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize category show more/less
     setupCategoryToggle();
+
+    // Real-time validation for contact number
+    const mobileInput = document.getElementById('seedlings-mobile');
+    const mobileWarning = document.getElementById('seedlings-mobile-warning');
+
+    if (mobileInput) {
+        mobileInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                if (!mobileWarning) {
+                    const warning = document.createElement('span');
+                    warning.className = 'validation-warning';
+                    warning.id = 'seedlings-mobile-warning';
+                    warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: block; margin-top: 4px;';
+                    warning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+                    mobileInput.parentNode.appendChild(warning);
+                } else {
+                    mobileWarning.style.display = 'block';
+                }
+                mobileInput.style.borderColor = '#ff6b6b';
+            } else {
+                if (mobileWarning) {
+                    mobileWarning.style.display = 'none';
+                }
+                mobileInput.style.borderColor = '';
+            }
+        });
+
+        mobileInput.addEventListener('blur', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                if (!mobileWarning) {
+                    const warning = document.createElement('span');
+                    warning.className = 'validation-warning';
+                    warning.id = 'seedlings-mobile-warning';
+                    warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: block; margin-top: 4px;';
+                    warning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+                    mobileInput.parentNode.appendChild(warning);
+                } else {
+                    mobileWarning.style.display = 'block';
+                }
+                mobileInput.style.borderColor = '#ff6b6b';
+            }
+        });
+    }
 });
 
 
@@ -926,64 +1151,67 @@ window.backToSeedlingsChoice = backToSeedlingsChoice;
 // QUICK VIEW MODAL (E-COMMERCE STYLE)
 // ==============================================
 
-function showQuickView(itemId, itemName, categoryName, description, stock, unit, stockStatus, icon, imagePath) {
-    const modal = document.getElementById('quickViewModal');
-    if (!modal) return;
+// function showQuickView(itemId, itemName, categoryName, description, stock, unit, stockStatus, icon, imagePath) {
+//     const modal = document.getElementById('quickViewModal');
+//     if (!modal) return;
 
-    // Populate modal content
-    const qvImage = document.getElementById('qv-image');
-    const qvName = document.getElementById('qv-name');
-    const qvCategory = document.getElementById('qv-category');
-    const qvDescription = document.getElementById('qv-description');
-    const qvStock = document.getElementById('qv-stock');
-    const qvStockBadge = document.getElementById('qv-stock-badge');
+//     // Populate modal content
+//     const qvImage = document.getElementById('qv-image');
+//     const qvName = document.getElementById('qv-name');
+//     const qvCategory = document.getElementById('qv-category');
+//     const qvDescription = document.getElementById('qv-description');
+//     const qvStock = document.getElementById('qv-stock');
+//     const qvStockBadge = document.getElementById('qv-stock-badge');
 
-    // Set image
-    if (imagePath) {
-        qvImage.src = imagePath;
-        qvImage.style.display = 'block';
-    } else {
-        qvImage.style.display = 'none';
-    }
+//     // Set image
+//     if (imagePath) {
+//         qvImage.src = imagePath;
+//         qvImage.style.display = 'block';
+//     } else {
+//         qvImage.style.display = 'none';
+//     }
 
-    // Set content
-    qvName.textContent = itemName;
-    qvCategory.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
-    qvDescription.textContent = description || 'No description available';
-    qvStock.textContent = `${stock} ${unit}`;
+//     // Set content
+//     qvName.textContent = itemName;
+//     qvCategory.innerHTML = `<i class="fas ${icon}"></i> ${categoryName}`;
+//     qvDescription.textContent = description || 'No description available';
+//     qvStock.textContent = `${stock} ${unit}`;
 
-    // Set stock badge
-    let badgeClass = '';
-    let badgeText = '';
-    if (stockStatus === 'in_stock') {
-        badgeClass = 'in_stock';
-        badgeText = 'In Stock';
-    } else if (stockStatus === 'low_stock') {
-        badgeClass = 'low_stock';
-        badgeText = 'Low Stock';
-    } else {
-        badgeClass = 'out_of_stock';
-        badgeText = 'Out of Stock';
-    }
-    qvStockBadge.className = `qv-stock-badge ${badgeClass}`;
-    qvStockBadge.textContent = badgeText;
+//     // Set stock badge
+//     let badgeClass = '';
+//     let badgeText = '';
+//     if (stockStatus === 'in_stock') {
+//         badgeClass = 'in_stock';
+//         badgeText = 'In Stock';
+//     } else if (stockStatus === 'low_stock') {
+//         badgeClass = 'low_stock';
+//         badgeText = 'Low Stock';
+//     } else {
+//         badgeClass = 'out_of_stock';
+//         badgeText = 'Out of Stock';
+//     }
+//     qvStockBadge.className = `qv-stock-badge ${badgeClass}`;
+//     qvStockBadge.textContent = badgeText;
 
-    // Show modal
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
+//     // Show modal
+//     modal.style.display = 'flex';
+//     document.body.style.overflow = 'hidden';
 
-function closeQuickView(event) {
-    if (event) {
-        event.stopPropagation();
-    }
+//     return false;
+// }
 
-    const modal = document.getElementById('quickViewModal');
-    if (!modal) return;
+// function closeQuickView(event) {
+//     if (event) {
+//         event.stopPropagation();
+//     }
 
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-}
+//     const modal = document.getElementById('quickViewModal');
+//     if (!modal) return;
+
+//     modal.style.display = 'none';
+//     document.body.style.overflow = '';
+//     return false;
+// }
 
 // Export quick view functions
 window.showQuickView = showQuickView;
@@ -1092,6 +1320,128 @@ function changePage(direction) {
 
     updatePagination();
 }
+// ============================================
+// PICKUP DATE FIELD - COMPLETE FIX
+// ============================================
+
+function initPickupDateField() {
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    const displayDiv = document.getElementById('pickup-date-display');
+    const displayText = document.getElementById('pickup-date-text');
+
+    if (!pickupInput) return;
+
+    // ✅ Set min/max dates (1-30 days from today)
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 1); // 1 day from today
+    
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30); // 30 days from today
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    // ============================================
+    // DISABLE WEEKENDS IN HTML5 CALENDAR
+    // ============================================
+    pickupInput.addEventListener('click', function() {
+        // This is a visual hint - actual validation happens on change
+        console.log('Calendar opened - weekends will be disabled');
+    });
+
+    // ============================================
+    // VALIDATE ON DATE CHANGE
+    // ============================================
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            // User cleared the date
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 6=Saturday
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        // ✅ CHECK IF WEEKEND (0 = Sunday, 6 = Saturday)
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = ''; // Clear invalid selection
+            displayDiv.style.display = 'none';
+            
+            // Show user-friendly warning
+            toast.warning(
+                `${dayName}s are closed. Please select a weekday (Monday-Friday).`,
+                {
+                    title: 'Weekend Not Available',
+                    duration: 4000
+                }
+            );
+            return;
+        }
+
+        // ✅ VALID WEEKDAY - SHOW CONFIRMATION
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+    });
+
+    // ============================================
+    // VALIDATE ON BLUR (When user leaves the field)
+    // ============================================
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            
+            toast.warning(
+                'Weekends are not available for pickup. Please select a weekday.',
+                {
+                    title: '❌ Invalid Selection',
+                    duration: 5000
+                }
+            );
+        }
+    });
+}
+
+// ============================================
+// CALL ON PAGE LOAD
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    initPickupDateField();
+});
+function disableWeekendsInDatePicker() {
+    const pickupInput = document.getElementById('seedlings-pickup_date');
+    
+    pickupInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const day = selectedDate.getDay();
+        
+        // 0 = Sunday, 6 = Saturday
+        if (day === 0 || day === 6) {
+            toast.warning('Saturdays and Sundays are closed. Please select a weekday.', {
+                title: 'Weekend Not Available'
+            });
+            this.value = '';
+            return;
+        }
+    });
+}
 
 // searchItems already calls updatePagination internally
 
@@ -1141,5 +1491,6 @@ window.changePage = changePage;
 window.updatePagination = updatePagination;
 window.initCategoryTabs = initCategoryTabs;
 window.applyFilters = applyFilters;
+window.showPickupDateField = showPickupDateField;
 
 console.log('Modern Seedlings module loaded successfully');

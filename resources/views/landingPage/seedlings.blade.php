@@ -53,7 +53,7 @@
                 <i class="fas fa-shopping-cart"></i> <span id="filter-count">0</span>
             </button>
             <button type="button" class="filter-clear-btn" onclick="clearAllSelections()">
-                <i class="fas fa-times"></i> Clear All
+                <i></i> Clear All
             </button>
         </div>
     </div>
@@ -127,9 +127,8 @@
                             @endif
                         </div>
 
-                        <!-- Item Image -->
-                        <div class="seedlings-item-image"
-                            onclick="showQuickView('{{ $item->id }}', '{{ addslashes($item->name) }}', '{{ addslashes($category->display_name) }}', '{{ addslashes($item->description ?? '') }}', '{{ $item->current_supply }}', '{{ $item->unit }}', '{{ $item->stock_status }}', '{{ $category->icon ?? 'fa-leaf' }}', '{{ $item->image_path ? Storage::url($item->image_path) : '' }}')">
+                      <!-- Item Image -->
+                        <div class="seedlings-item-image">
                             @if ($item->image_path)
                                 <img src="{{ Storage::url($item->image_path) }}" alt="{{ $item->name }}">
                             @else
@@ -137,9 +136,6 @@
                                     <i class="fas {{ $category->icon ?? 'fa-leaf' }} fa-3x"></i>
                                 </div>
                             @endif
-                            <div class="seedlings-quick-view-overlay">
-                                <i class="fas fa-eye"></i> Quick View
-                            </div>
                         </div>
 
                         <!-- Item Info -->
@@ -177,8 +173,8 @@
                                 </button>
                                 <input type="number" id="qty-{{ $item->id }}"
                                     name="quantity_{{ $item->id }}" min="{{ $item->min_quantity ?? 1 }}"
-                                    max="{{ min($item->max_quantity ?? 999, $item->current_supply) }}"
-                                    value="{{ $item->min_quantity ?? 1 }}" class="qty-input"
+                                    max="{{ $item->current_supply }}"
+                                    value="1" class="qty-input"
                                     onchange="updateQuantity('{{ $item->id }}')">
                                 <button type="button" class="qty-btn"
                                     onclick="incrementQty('{{ $item->id }}')">
@@ -318,51 +314,72 @@
                 <input type="tel" id="seedlings-mobile" name="mobile" placeholder="Example: 09123456789"
                     pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
+                <span class="validation-warning" id="seedlings-mobile-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Contact number must be in format 09XXXXXXXXX (11 digits)</span>
             </div>
 
             <div class="seedlings-form-group">
                 <label for="seedlings-barangay">Barangay <span class="required-asterisk">*</span></label>
                 <select id="seedlings-barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
-                    <option value="Bagong Silang">Bagong Silang</option>
-                    <option value="Calendola">Calendola</option>
-                    <option value="Chrysanthemum">Chrysanthemum</option>
-                    <option value="Cuyab">Cuyab</option>
-                    <option value="Estrella">Estrella</option>
-                    <option value="Fatima">Fatima</option>
-                    <option value="G.S.I.S.">G.S.I.S.</option>
-                    <option value="Landayan">Landayan</option>
-                    <option value="Laram">Laram</option>
-                    <option value="Magsaysay">Magsaysay</option>
-                    <option value="Maharlika">Maharlika</option>
-                    <option value="Narra">Narra</option>
-                    <option value="Nueva">Nueva</option>
-                    <option value="Pacita 1">Pacita 1</option>
-                    <option value="Pacita 2">Pacita 2</option>
-                    <option value="Poblacion">Poblacion</option>
-                    <option value="Rosario">Rosario</option>
-                    <option value="Riverside">Riverside</option>
-                    <option value="Sampaguita Village">Sampaguita Village</option>
-                    <option value="San Antonio">San Antonio</option>
-                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                    <option value="San Roque">San Roque</option>
-                    <option value="San Vicente">San Vicente</option>
-                    <option value="United Bayanihan">United Bayanihan</option>
-                    <option value="United Better Living">United Better Living</option>
+                            <option value="Bagong Silang">Bagong Silang</option>
+                            <option value="Calendola">Calendola</option>
+                            <option value="Chrysanthemum">Chrysanthemum</option>
+                            <option value="Cuyab">Cuyab</option>
+                            <option value="Estrella">Estrella</option>
+                            <option value="Fatima">Fatima</option>
+                            <option value="G.S.I.S.">G.S.I.S.</option>
+                            <option value="Landayan">Landayan</option>
+                            <option value="Langgam">Langgam</option>
+                            <option value="Laram">Laram</option>
+                            <option value="Magsaysay">Magsaysay</option>
+                            <option value="Maharlika">Maharlika</option>
+                            <option value="Narra">Narra</option>
+                            <option value="Nueva">Nueva</option>
+                            <option value="Pacita 1">Pacita 1</option>
+                            <option value="Pacita 2">Pacita 2</option>
+                            <option value="Poblacion">Poblacion</option>
+                            <option value="Riverside">Riverside</option>
+                            <option value="Rosario">Rosario</option>
+                            <option value="Sampaguita Village">Sampaguita Village</option>
+                            <option value="San Antonio">San Antonio</option>
+                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                            <option value="San Roque">San Roque</option>
+                            <option value="San Vicente">San Vicente</option>
+                            <option value="Santo Niño">Santo Niño</option> 
+                            <option value="United Bayanihan">United Bayanihan</option>
+                            <option value="United Better Living">United Better Living</option>
                 </select>
             </div>
 
-            <div class="seedlings-form-group">
-                <label for="address">Complete Address <span class="required-asterisk">*</span></label>
-                <input type="text" id="address" name="address" placeholder="Example: 123 Main Street" required>
-                <small>Include house number, street, subdivision if applicable. This helps us locate your area for
-                    distribution.</small>
+            <div class="seedlings-form-group" id="pickup-date-section">
+                <label for="seedlings-pickup_date">
+                    <i class="fas fa-calendar-check"></i> Pickup Date 
+                    <span class="required-asterisk">*</span>
+                </label>
+                
+                <!-- INFO BOX (Always visible) -->
+                <div class="pickup-info-box" style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
+                    <i class="fas fa-info-circle" style="color: #40916c; margin-right: 8px;"></i>
+                    <strong>Weekdays only (Mon-Fri)</strong> • Valid for 30 days from approval
+                </div>
+
+                <!-- CALENDAR INPUT -->
+                <input 
+                    type="date" 
+                    id="seedlings-pickup_date" 
+                    name="pickup_date"
+                    required>
+
+                <!-- SELECTED DATE DISPLAY (After selection) -->
+                <div id="pickup-date-display" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                    <strong>Selected:</strong> <span id="pickup-date-text"></span>
+                </div>
             </div>
 
             <div class="seedlings-form-group" id="supporting-docs-field">
-                <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
-                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png"
-                    required>
+                <label for="seedlings-docs">Supporting Documents (Optional)</label>
+                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png">
                 <small>Upload Government ID, Barangay Certificate, or proof of planting area (PDF, JPG, PNG - Max 10MB).
                     Photos of your farm or planting area are very helpful.</small>
             </div>
@@ -411,7 +428,7 @@
         </ul>
 
         <h4>Distribution Information:</h4>
-        <p>Seedlings will be distributed at the City Agriculture Office. You will receive an SMS notification once your request is approved.</p>
+        <p>You may pick up the requested supplies at the City Agriculture Office. You will receive an SMS notification once your request is approved.</p>
     </div>
 
     <div id="seedlings-summary-tab" class="seedlings-tab-content" style="display: none;">

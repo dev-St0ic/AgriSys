@@ -2,11 +2,11 @@
 
 @extends('layouts.app')
 
-@section('title', 'Seedling Requests - AgriSys Admin')
+@section('title', 'Supply Requests - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
         <i class="fas fa-seedling text-primary me-2"></i>
-        <span class="text-primary fw-bold">Seedling Requests</span>
+        <span class="text-primary fw-bold">Supply Requests</span>
     </div>
 @endsection
 
@@ -108,12 +108,33 @@
                         <div class="col-md-2">
                             <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Barangay</option>
-                                @foreach ($barangays as $barangay)
-                                    <option value="{{ $barangay }}"
-                                        {{ request('barangay') == $barangay ? 'selected' : '' }}>
-                                        {{ $barangay }}
-                                    </option>
-                                @endforeach
+                                <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
+                                <option value="Calendola" {{ request('barangay') == 'Calendola' ? 'selected' : '' }}>Calendola</option>
+                                <option value="Chrysanthemum" {{ request('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
+                                <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
+                                <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella</option>
+                                <option value="Fatima" {{ request('barangay') == 'Fatima' ? 'selected' : '' }}>Fatima</option>
+                                <option value="G.S.I.S." {{ request('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.</option>
+                                <option value="Landayan" {{ request('barangay') == 'Landayan' ? 'selected' : '' }}>Landayan</option>
+                                <option value="Langgam" {{ request('barangay') == 'Langgam' ? 'selected' : '' }}>Langgam</option>
+                                <option value="Laram" {{ request('barangay') == 'Laram' ? 'selected' : '' }}>Laram</option>
+                                <option value="Magsaysay" {{ request('barangay') == 'Magsaysay' ? 'selected' : '' }}>Magsaysay</option>
+                                <option value="Maharlika" {{ request('barangay') == 'Maharlika' ? 'selected' : '' }}>Maharlika</option>
+                                <option value="Narra" {{ request('barangay') == 'Narra' ? 'selected' : '' }}>Narra</option>
+                                <option value="Nueva" {{ request('barangay') == 'Nueva' ? 'selected' : '' }}>Nueva</option>
+                                <option value="Pacita 1" {{ request('barangay') == 'Pacita 1' ? 'selected' : '' }}>Pacita 1</option>
+                                <option value="Pacita 2" {{ request('barangay') == 'Pacita 2' ? 'selected' : '' }}>Pacita 2</option>
+                                <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
+                                <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>Riverside</option>
+                                <option value="Rosario" {{ request('barangay') == 'Rosario' ? 'selected' : '' }}>Rosario</option>
+                                <option value="Sampaguita Village" {{ request('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village</option>
+                                <option value="San Antonio" {{ request('barangay') == 'San Antonio' ? 'selected' : '' }}>San Antonio</option>
+                                <option value="San Lorenzo Ruiz" {{ request('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz</option>
+                                <option value="San Roque" {{ request('barangay') == 'San Roque' ? 'selected' : '' }}>San Roque</option>
+                                <option value="San Vicente" {{ request('barangay') == 'San Vicente' ? 'selected' : '' }}>San Vicente</option>
+                                <option value="Santo Niño" {{ request('barangay') == 'Santo Niño' ? 'selected' : '' }}>Santo Niño</option>
+                                <option value="United Bayanihan" {{ request('barangay') == 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan</option>
+                                <option value="United Better Living" {{ request('barangay') == 'United Better Living' ? 'selected' : '' }}>United Better Living</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -148,7 +169,7 @@
                     <div></div>
                     <div class="text-center flex-fill">
                         <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-seedling me-2"></i>Seedling Requests
+                            <i class="fas fa-seedling me-2"></i>Supply Requests
                         </h6>
                     </div>
                     <div class="d-flex gap-2">
@@ -172,6 +193,7 @@
                                     <th class="px-3 py-3 fw-medium text-white border-end">Barangay</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Requested Items</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Status</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end text-center">Pickup Date</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Documents</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Actions</th>
                                 </tr>
@@ -306,12 +328,44 @@
                                                 {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                             </span>
                                         </td>
+                                        <!--  NEW: Pickup Date Column -->
+                                        <td class="px-3 py-3 border-end text-center">
+                                            @if($request->pickup_date)
+                                                <div class="pickup-date-cell">
+                                                    <small class="d-block fw-semibold">
+                                                        {{ $request->pickup_date->format('M d, Y') }}
+                                                    </small>
+                                                    <small class="d-block text-muted">
+                                                        {{ $request->pickup_date->format('g:i A') }}
+                                                    </small>
+                                                    
+                                                    @if($request->pickup_date->isPast())
+                                                        <span class="badge bg-danger badge-sm mt-2">
+                                                            <i class="fas fa-times-circle me-1"></i>Expired
+                                                        </span>
+                                                    @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                                                        <span class="badge bg-warning text-dark badge-sm mt-2">
+                                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                                            {{ now()->diffInDays($request->pickup_expired_at) }}d left
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-success badge-sm mt-2">
+                                                            <i class="fas fa-check-circle me-1"></i>Active
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-muted text-center d-block">
+                                                    <i class="fas fa-minus me-1"></i>Not set
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td class="px-3 py-3 text-center">
                                             <div class="seedling-table-documents">
                                                 @if ($request->hasDocuments())
                                                     <div class="seedling-document-previews">
                                                         <button type="button" class="seedling-mini-doc"
-                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')"
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Supply Request #{{ $request->request_number }} - Supporting Document')"
                                                             title="Supporting Document">
                                                             <div class="seedling-mini-doc-icon">
                                                                 <i class="fas fa-file-alt text-primary"></i>
@@ -319,7 +373,7 @@
                                                         </button>
                                                     </div>
                                                     <button type="button" class="seedling-document-summary"
-                                                        onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')"
+                                                        onclick="viewDocument('{{ $request->document_path }}', 'Supply Request #{{ $request->request_number }} - Supporting Document')"
                                                         style="background: none; border: none; padding: 0; cursor: pointer;">
                                                         <small class="text-muted">1 document</small>
                                                     </button>
@@ -392,7 +446,7 @@
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title w-100 text-center">
                                     <i></i>
-                                    Seedling Request Details - {{ $request->request_number }}
+                                    Supply Request Details - {{ $request->request_number }}
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -443,10 +497,6 @@
                                                     <div class="col-12">
                                                         <strong>Barangay:</strong>
                                                         <span>{{ $request->barangay }}</span>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <strong>Address:</strong>
-                                                        <span>{{ $request->address }}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -506,28 +556,62 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Additional Information Card -->
+                                    <!-- ✅ NEW: Pickup Date Card -->
                                     <div class="col-12">
-                                        <div class="card border-secondary">
-                                            <div class="card-header bg-secondary text-white">
-                                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional
-                                                    Information</h6>
+                                        <div class="card border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Pickup Information</h6>
                                             </div>
                                             <div class="card-body">
                                                 <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <strong>Planting Location:</strong>
-                                                        <p class="mb-0">
-                                                            {{ $request->planting_location ?? 'Not provided' }}
-                                                        </p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <strong>Purpose:</strong>
-                                                        <p class="mb-0">
-                                                            {{ $request->purpose ?? 'Not provided' }}
-                                                        </p>
-                                                    </div>
+                                                    @if($request->pickup_date)
+                                                        <div class="col-md-6">
+                                                            <strong>Pickup Date:</strong>
+                                                            <p class="mb-0">
+                                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                                {{ $request->pickup_date->format('F d, Y') }}
+                                                            </p>
+                                                            <small class="text-muted">
+                                                                ({{ $request->pickup_date->diffForHumans() }})
+                                                            </small>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong>Pickup Status:</strong>
+                                                            <p class="mb-0">
+                                                                @if($request->pickup_date && $request->pickup_date->isPast())
+                                                                    <span class="badge bg-danger">
+                                                                        <i class="fas fa-times-circle me-1"></i>Expired
+                                                                    </span>
+                                                                @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                                                                    <span class="badge bg-warning text-dark">
+                                                                        <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
+                                                                    </span>
+                                                                @else
+                                                                    <span class="badge bg-success">
+                                                                        <i class="fas fa-check-circle me-1"></i>Active
+                                                                    </span>
+                                                                @endif
+                                                            </p>
+                                                        </div>
+                                                        @if($request->pickup_expired_at)
+                                                            <div class="col-12">
+                                                                <strong>Expiration Date:</strong>
+                                                                <p class="mb-0">
+                                                                    <i class="fas fa-clock me-1"></i>
+                                                                    {{ $request->pickup_expired_at->format('F d, Y g:i A') }}
+                                                                </p>
+                                                                <small class="text-muted">
+                                                                    Expires in {{ now()->diffInDays($request->pickup_expired_at) }} days
+                                                                </small>
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        <div class="col-12">
+                                                            <p class="text-muted mb-0">
+                                                                <i class="fas fa-info-circle me-1"></i>No pickup date set
+                                                            </p>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -538,8 +622,7 @@
                                         <div class="card border-primary">
                                             <div class="card-header bg-light">
                                                 <h6 class="mb-0 text-dark">
-                                                    <i class="fas fa-seedling me-2 text-primary"></i>
-                                                    <strong>Requested Items by Category</strong>
+                                                  <strong>Requested Items by Category</strong>
                                                 </h6>
                                             </div>
                                             <div class="card-body">
@@ -588,11 +671,11 @@
 
                                                             @if ($pendingItems->count() > 0)
                                                                 <div class="mb-2">
-                                                                    <small class="text-warning fw-semibold">⏳
+                                                                    <small class="text-warning fw-semibold">
                                                                         Pending:</small>
                                                                     <div class="d-flex flex-wrap gap-2 mt-1">
                                                                         @foreach ($pendingItems as $item)
-                                                                            <span class="badge bg-warning text-dark">
+                                                                            <span class="badge bg-warning text-white">
                                                                                 {{ $item->item_name }}
                                                                                 <strong>({{ $item->requested_quantity }})</strong>
                                                                             </span>
@@ -642,7 +725,7 @@
                                                         <span class="badge bg-primary mb-3">Uploaded</span>
                                                         <br>
                                                         <button class="btn btn-sm btn-outline-primary"
-                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Supply Request #{{ $request->request_number }} - Supporting Document')">
                                                             <i class="fas fa-eye me-1"></i>View Document
                                                         </button>
                                                     </div>
@@ -658,20 +741,23 @@
                                         </div>
                                     </div>
 
-                                    <!-- Remarks Card (if exists) -->
-                                    @if ($request->remarks)
-                                        <div class="col-12">
-                                            <div class="card border-info">
-                                                <div class="card-header bg-info text-white">
-                                                    <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin
-                                                        Remarks</h6>
-                                                </div>
-                                                <div class="card-body">
+                                    <!-- Remarks Card - Always Show -->
+                                    <div class="col-12">
+                                        <div class="card border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                @if ($request->remarks && !empty(trim($request->remarks)))
                                                     <p class="mb-0">{{ $request->remarks }}</p>
-                                                </div>
+                                                @else
+                                                    <p class="mb-0 text-muted">
+                                                        <i class="fas fa-minus-circle me-1"></i>No remarks added
+                                                    </p>
+                                                @endif
                                             </div>
                                         </div>
-                                    @endif
+                                    </div>
 
                                 </div>
                             </div>
@@ -792,7 +878,7 @@
                                                         onchange="checkForEditChanges({{ $request->id }})"
                                                         oninput="checkForEditChanges({{ $request->id }})">
                                                     <small class="text-muted d-block mt-2">
-                                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                                     </small>
                                                 </div>
                                                 <div class="col-md-6 mb-3">
@@ -829,67 +915,89 @@
                                                         name="barangay" required
                                                         onchange="checkForEditChanges({{ $request->id }})">
                                                         <option value="">Select Barangay</option>
-                                                        @foreach ($barangays as $barangay)
-                                                            <option value="{{ $barangay }}"
-                                                                {{ $request->barangay === $barangay ? 'selected' : '' }}>
-                                                                {{ $barangay }}
-                                                            </option>
-                                                        @endforeach
+                                                        <option value="Bagong Silang" {{ $request->barangay === 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
+                                                        <option value="Calendola" {{ $request->barangay === 'Calendola' ? 'selected' : '' }}>Calendola</option>
+                                                        <option value="Chrysanthemum" {{ $request->barangay === 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
+                                                        <option value="Cuyab" {{ $request->barangay === 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
+                                                        <option value="Estrella" {{ $request->barangay === 'Estrella' ? 'selected' : '' }}>Estrella</option>
+                                                        <option value="Fatima" {{ $request->barangay === 'Fatima' ? 'selected' : '' }}>Fatima</option>
+                                                        <option value="G.S.I.S." {{ $request->barangay === 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.</option>
+                                                        <option value="Landayan" {{ $request->barangay === 'Landayan' ? 'selected' : '' }}>Landayan</option>
+                                                        <option value="Langgam" {{ $request->barangay === 'Langgam' ? 'selected' : '' }}>Langgam</option>
+                                                        <option value="Laram" {{ $request->barangay === 'Laram' ? 'selected' : '' }}>Laram</option>
+                                                        <option value="Magsaysay" {{ $request->barangay === 'Magsaysay' ? 'selected' : '' }}>Magsaysay</option>
+                                                        <option value="Maharlika" {{ $request->barangay === 'Maharlika' ? 'selected' : '' }}>Maharlika</option>
+                                                        <option value="Narra" {{ $request->barangay === 'Narra' ? 'selected' : '' }}>Narra</option>
+                                                        <option value="Nueva" {{ $request->barangay === 'Nueva' ? 'selected' : '' }}>Nueva</option>
+                                                        <option value="Pacita 1" {{ $request->barangay === 'Pacita 1' ? 'selected' : '' }}>Pacita 1</option>
+                                                        <option value="Pacita 2" {{ $request->barangay === 'Pacita 2' ? 'selected' : '' }}>Pacita 2</option>
+                                                        <option value="Poblacion" {{ $request->barangay === 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
+                                                        <option value="Riverside" {{ $request->barangay === 'Riverside' ? 'selected' : '' }}>Riverside</option>
+                                                        <option value="Rosario" {{ $request->barangay === 'Rosario' ? 'selected' : '' }}>Rosario</option>
+                                                        <option value="Sampaguita Village" {{ $request->barangay === 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village</option>
+                                                        <option value="San Antonio" {{ $request->barangay === 'San Antonio' ? 'selected' : '' }}>San Antonio</option>
+                                                        <option value="San Lorenzo Ruiz" {{ $request->barangay === 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz</option>
+                                                        <option value="San Roque" {{ $request->barangay === 'San Roque' ? 'selected' : '' }}>San Roque</option>
+                                                        <option value="San Vicente" {{ $request->barangay === 'San Vicente' ? 'selected' : '' }}>San Vicente</option>
+                                                        <option value="Santo Niño" {{ $request->barangay === 'Santo Niño' ? 'selected' : '' }}>Santo Niño</option>
+                                                        <option value="United Bayanihan" {{ $request->barangay === 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan</option>
+                                                        <option value="United Better Living" {{ $request->barangay === 'United Better Living' ? 'selected' : '' }}>United Better Living</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_address_{{ $request->id }}"
-                                                        class="form-label fw-semibold">
-                                                        Address <span class="text-danger">*</span>
-                                                    </label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_address_{{ $request->id }}" name="address"
-                                                        value="{{ $request->address }}" required maxlength="500"
-                                                        placeholder="Full address"
-                                                        onchange="checkForEditChanges({{ $request->id }})"
-                                                        oninput="checkForEditChanges({{ $request->id }})">
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Additional Information Card -->
-                                    <div class="card mb-3 border-0 bg-light">
-                                        <div class="card-header bg-white border-0 pb-0">
-                                            <h6 class="mb-0 fw-semibold text-primary">
-                                                <i class="fas fa-info-circle me-2"></i>Additional Information
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="edit_planting_location_{{ $request->id }}"
-                                                        class="form-label fw-semibold">
-                                                        Planting Location
-                                                    </label>
-                                                    <input type="text" class="form-control"
-                                                        id="edit_planting_location_{{ $request->id }}"
-                                                        name="planting_location"
-                                                        value="{{ $request->planting_location }}" maxlength="500"
-                                                        placeholder="Where will the seedlings be planted?"
-                                                        onchange="checkForEditChanges({{ $request->id }})"
-                                                        oninput="checkForEditChanges({{ $request->id }})">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="edit_purpose_{{ $request->id }}"
-                                                    class="form-label fw-semibold">
-                                                    Purpose
-                                                </label>
-                                                <textarea class="form-control" id="edit_purpose_{{ $request->id }}" name="purpose" rows="3"
-                                                    maxlength="1000" placeholder="Why are you requesting these seedlings?"
-                                                    onchange="checkForEditChanges({{ $request->id }})" oninput="checkForEditChanges({{ $request->id }})">{{ $request->purpose }}</textarea>
-                                                <small class="text-muted d-block mt-2">
-                                                    <i class="fas fa-info-circle me-1"></i>Maximum 1000 characters
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
+<!-- ✅ NEW: Pickup Date Section in Edit Modal - EDITABLE -->
+<div class="card border-0 bg-light mb-3">
+    <div class="card-header bg-white border-0 pb-0">
+        <h6 class="mb-0 fw-semibold text-primary">
+            <i class="fas fa-calendar-check me-2"></i>Pickup Date
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="edit_seedling_pickup_date_{{ $request->id }}" class="form-label fw-semibold">
+                    Set/Update Pickup Date
+                </label>
+                <input 
+                    type="date" 
+                    id="edit_seedling_pickup_date_{{ $request->id }}" 
+                    name="pickup_date"
+                    class="form-control"
+                    value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
+                    onchange="checkForEditChanges({{ $request->id }})">
+                
+                <div id="edit_pickup_date_display_{{ $request->id }}" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                    <strong>Selected:</strong> <span id="edit_pickup_date_text_{{ $request->id }}"></span>
+                </div>
+            </div>
+            @if($request->pickup_date)
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Current Status</label>
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        {{ $request->pickup_date->format('F d, Y') }}
+                        
+                        @if($request->pickup_date->isPast())
+                            <span class="badge bg-danger float-end">
+                                <i class="fas fa-exclamation-circle me-1"></i>Expired
+                            </span>
+                        @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                            <span class="badge bg-warning float-end text-dark">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
+                            </span>
+                        @else
+                            <span class="badge bg-success float-end">
+                                <i class="fas fa-check-circle me-1"></i>Active
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
 
                                     <!-- Supporting Document Card EDIT MODAL-->
                                     <div class="card mb-3 border-0 bg-light">
@@ -1187,6 +1295,60 @@
                                         </div>
                                     </div>
 
+                                    <!-- ✅ NEW: Pickup Date Section in Edit Modal -->
+@if($request->status === 'approved' || $request->status === 'partially_approved')
+    <div class="card border-0 bg-light mb-3">
+        <div class="card-header bg-white border-0 pb-0">
+            <h6 class="mb-0 fw-semibold text-primary">
+                <i class="fas fa-calendar-check me-2"></i>Pickup Date
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="edit_seedling_pickup_date_{{ $request->id }}" class="form-label fw-semibold">
+                        Set/Update Pickup Date
+                    </label>
+                    <input 
+                        type="date" 
+                        id="edit_seedling_pickup_date_{{ $request->id }}" 
+                        name="pickup_date"
+                        class="form-control"
+                        value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
+                        onchange="checkForEditChanges({{ $request->id }})">
+                    
+                    <div id="edit_pickup_date_display_{{ $request->id }}" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                        <strong>Selected:</strong> <span id="edit_pickup_date_text_{{ $request->id }}"></span>
+                    </div>
+                </div>
+                @if($request->pickup_date)
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Current Status</label>
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            {{ $request->pickup_date->format('F d, Y') }}
+                            
+                            @if($request->pickup_date->isPast())
+                                <span class="badge bg-danger float-end">
+                                    <i class="fas fa-exclamation-circle me-1"></i>Expired
+                                </span>
+                            @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                                <span class="badge bg-warning float-end text-dark">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
+                                </span>
+                            @else
+                                <span class="badge bg-success float-end">
+                                    <i class="fas fa-check-circle me-1"></i>Active
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+@endif
+
                                     <!-- Info Alert -->
                                     <div class="alert alert-info border-left-info mb-0">
                                         <i class="fas fa-lightbulb me-2"></i>
@@ -1211,8 +1373,65 @@
     </div>
     </div>
     </div>
+   @if ($requests->hasPages())
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm">
+                    {{-- Previous Page Link --}}
+                    @if ($requests->onFirstPage())
+                        <li class="page-item disabled">
+                            <span class="page-link">Back</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
+                        </li>
+                    @endif
 
-    <!-- Add Seedling Request Modal - IMPROVED DESIGN -->
+                    {{-- Pagination Elements --}}
+                    @php
+                        $currentPage = $requests->currentPage();
+                        $lastPage = $requests->lastPage();
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($lastPage, $currentPage + 2);
+
+                        if ($endPage - $startPage < 4) {
+                            if ($startPage == 1) {
+                                $endPage = min($lastPage, $startPage + 4);
+                            } else {
+                                $startPage = max(1, $endPage - 4);
+                            }
+                        }
+                    @endphp
+
+                    @for ($page = $startPage; $page <= $endPage; $page++)
+                        @if ($page == $currentPage)
+                            <li class="page-item active">
+                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endfor
+
+                    {{-- Next Page Link --}}
+                    @if ($requests->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
+                        </li>
+                    @else
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+        </div>
+    @endif
+
+    <!-- Add Supply Request Modal - IMPROVED DESIGN -->
     <div class="modal fade" id="addSeedlingModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -1278,7 +1497,7 @@
                                         <input type="tel" class="form-control" id="seedling_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX 
                                         </small>
                                     </div>
                                 </div>
@@ -1300,15 +1519,34 @@
                                         </label>
                                         <select class="form-select" id="seedling_barangay" required>
                                             <option value="">Select Barangay</option>
-                                            <!-- Barangays will be populated from server data -->
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
                                         </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="seedling_address" class="form-label fw-semibold">
-                                            Address <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="seedling_address" required
-                                            maxlength="500" placeholder="Full address">
                                     </div>
                                 </div>
                             </div>
@@ -1336,6 +1574,39 @@
                                 </p>
                             </div>
                         </div>
+
+                        <!-- Pickup Date Card in Add Modal -->
+<div class="card mb-3 border-0 bg-light">
+    <div class="card-header bg-white border-0 pb-0">
+        <h6 class="mb-0 fw-semibold text-primary">
+            <i class="fas fa-calendar-check me-2"></i>Date
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="seedlings-form-group">
+            <label for="seedling_pickup_date_add">
+                <i class="fas fa-calendar-check"></i> Pickup Date 
+                <span class="text-danger">*</span>
+            </label>
+            
+            <div class="pickup-info-box" style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
+                <i class="fas fa-info-circle" style="color: #40916c; margin-right: 8px;"></i>
+                <strong>Weekdays only (Mon-Fri)</strong> • Valid for 30 days from approval
+            </div>
+
+            <input 
+                type="date" 
+                id="seedling_pickup_date_add" 
+                name="pickup_date"
+                class="form-control"
+                required>
+
+            <div id="seedling_pickup_date_display_add" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                <strong>Selected:</strong> <span id="seedling_pickup_date_text_add"></span>
+            </div>
+        </div>
+    </div>
+</div>
 
                         <!-- Supporting Document Card -->
                         <div class="card mb-3 border-0 bg-light">
@@ -1372,24 +1643,6 @@
                                     <i class="fas fa-pencil-alt me-2"></i>Additional Information
                                 </h6>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="seedling_planting_location" class="form-label fw-semibold">
-                                            Planting Location
-                                        </label>
-                                        <input type="text" class="form-control" id="seedling_planting_location"
-                                            maxlength="500" placeholder="Where will the seedlings be planted?">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="seedling_purpose" class="form-label fw-semibold">
-                                        Purpose
-                                    </label>
-                                    <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000"
-                                        placeholder="Why are you requesting these seedlings?"></textarea>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Request Status Card -->
@@ -1416,8 +1669,17 @@
                                     <label for="seedling_remarks" class="form-label fw-semibold">
                                         Remarks (Optional)
                                     </label>
-                                    <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500"
-                                        placeholder="Any notes or comments..."></textarea>
+                                    <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="1000"
+                                            placeholder="Any notes or comments..."
+                                            oninput="updateAddSeedlingRemarksCounter()"></textarea>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Provide context for this request
+                                            </small>
+                                            <small class="text-muted" id="addRemarksCounter">
+                                                <span id="addCharCount">0</span>/1000
+                                            </small>
                                 </div>
                             </div>
                         </div>
@@ -1435,109 +1697,55 @@
         </div>
     </div>
 
-    <!-- DELETE SEEDLING REQUEST MODAL -->
-    <div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Seedling Request</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+  <!-- DELETE SUPPLY REQUEST MODAL -->
+<div class="modal fade" id="deleteSeedlingModal" tabindex="-1" aria-labelledby="deleteSeedlingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title w-100 text-center" id="deleteSeedlingModalLabel">
+                    <i class="fas fa-exclamation-circle me-2"></i>Permanently Delete Supply Request
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_seedling_name">Request</strong> will:</p>
                 </div>
-                <div class="modal-body">
-                    <div class="alert alert-danger" role="alert">
-                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong
-                                id="delete_seedling_name"></strong> will:</p>
-                    </div>
-                    <ul class="mb-0">
-                        <li>Remove the seedling request from the database</li>
-                        <li>Delete all associated documents and files</li>
-                        <li>Delete all request history and logs</li>
-                        <li>Return approved supplies back to inventory</li>
-                        <li>Cannot be recovered</li>
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()"
-                        id="confirm_delete_seedling_btn">
-                        <span class="btn-text">Yes, Delete Permanently</span>
-                        <span class="btn-loader" style="display: none;"><span
-                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
-                    </button>
-                </div>
+                <ul class="mb-0" style="line-height: 1.8;">
+                    <li>Remove the supply request from the database</li>
+                    <li>Delete all associated documents and files</li>
+                    <li>Delete all request history and logs</li>
+                    <li>Return approved supplies back to inventory</li>
+                    <li><strong>Cannot be recovered</strong></li>
+                </ul>
+            </div>
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()" id="confirm_delete_seedling_btn">
+                    <span class="btn-text">
+                        <i class="fas fa-trash me-1"></i>Yes, Delete Permanently
+                    </span>
+                    <span class="btn-loader" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
+                    </span>
+                </button>
             </div>
         </div>
     </div>
-
-    <!-- Pagination -->
-    @if ($requests->hasPages())
-        <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm">
-                    {{-- Previous Page Link --}}
-                    @if ($requests->onFirstPage())
-                        <li class="page-item disabled">
-                            <span class="page-link">Back</span>
-                        </li>
-                    @else
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
-                        </li>
-                    @endif
-
-                    {{-- Pagination Elements --}}
-                    @php
-                        $currentPage = $requests->currentPage();
-                        $lastPage = $requests->lastPage();
-                        $startPage = max(1, $currentPage - 2);
-                        $endPage = min($lastPage, $currentPage + 2);
-
-                        if ($endPage - $startPage < 4) {
-                            if ($startPage == 1) {
-                                $endPage = min($lastPage, $startPage + 4);
-                            } else {
-                                $startPage = max(1, $endPage - 4);
-                            }
-                        }
-                    @endphp
-
-                    @for ($page = $startPage; $page <= $endPage; $page++)
-                        @if ($page == $currentPage)
-                            <li class="page-item active">
-                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
-                            </li>
-                        @endif
-                    @endfor
-
-                    {{-- Next Page Link --}}
-                    @if ($requests->hasMorePages())
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
-                        </li>
-                    @else
-                        <li class="page-item disabled">
-                            <span class="page-link">Next</span>
-                        </li>
-                    @endif
-                </ul>
-            </nav>
-        </div>
-    @endif
-@else
+</div>
+  
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No seedling requests found</h5>
+            <h5 class="text-muted">No supply requests found</h5>
             <p class="text-muted">
                 @if (request('search') || request('status'))
                     No requests match your search criteria.
                 @else
-                    There are no seedling requests yet.
+                    There are no supply requests yet.
                 @endif
             </p>
             @if (request('search') || request('status'))
@@ -2166,7 +2374,7 @@
         }
 
         [id^="viewModal"] .modal-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%)!important;
             border-bottom: 2px solid #0b5ed7;
             padding: 1.5rem;
         }
@@ -2233,9 +2441,19 @@
         }
 
         [id^="viewModal"] .card-header.bg-light {
-            background: #f8f9fa !important;
-            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #e7f3ff 0%, #d4e8ff 100%) !important;
             font-weight: 600;
+            color: #0d6efd !important;
+        }
+
+        [id^="viewModal"] .card-header.bg-light h6 {
+            color: #0d6efd !important;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        [id^="viewModal"] .card-header.bg-light i {
+            color: #0d6efd !important;
         }
 
         [id^="viewModal"] .card-body {
@@ -2285,6 +2503,31 @@
             letter-spacing: 0.5px;
             display: inline-block;
             margin-top: 0.25rem;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge.bg-success {
+            background-color: #198754 !important;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge.bg-warning {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
+
+        [id^="viewModal"] .badge.bg-danger {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge.bg-secondary {
+            background-color: #6c757d !important;
+            color: white !important;
+        }
+
+        [id^="viewModal"] .badge strong {
+            color: white !important;
         }
 
         /* Responsive Adjustments */
@@ -2541,6 +2784,65 @@
         #deleteSeedlingModal .modal-backdrop {
             opacity: 0.5;
         }
+        /* Pickup Date Column Styling */
+.pickup-date-cell {
+    padding: 0.5rem 0;
+}
+
+.pickup-date-cell small {
+    line-height: 1.4;
+}
+
+.pickup-date-cell .badge-sm {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pickup-date-cell {
+        font-size: 0.85rem;
+    }
+    
+    .pickup-date-cell .badge-sm {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+/* Force white text on warning badges in modals */
+[id^="viewModal"] .badge.bg-warning {
+    color: white !important;
+    background-color: #ffc107 !important;
+}
+
+[id^="viewModal"] .badge.bg-warning strong {
+    color: white !important;
+}
+/* FIX DELETE MODAL Z-INDEX ISSUES */
+#deleteSeedlingModal {
+    z-index: 1050 !important;
+}
+
+#deleteSeedlingModal .modal-backdrop {
+    z-index: 1040 !important;
+    opacity: 0.5 !important;
+}
+
+#deleteSeedlingModal .modal-dialog {
+    z-index: 1051 !important;
+}
+
+#deleteSeedlingModal .modal-content {
+    z-index: 1052 !important;
+}
+
+/* Ensure body doesn't have overflow issues */
+body.modal-open {
+    overflow: hidden !important;
+    padding-right: 0 !important;
+}
     </style>
 
     <script>
@@ -2983,7 +3285,7 @@
             <p class="mb-3" style="margin: 0; font-size: 0.95rem; color: #333; line-height: 1.5; white-space: pre-wrap;">${message}</p>
             <div class="d-flex gap-2 justify-content-end">
                 <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
-                    <i class="fas fa-times me-1"></i>Cancel
+                    <i></i>Cancel
                 </button>
                 <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
                     <i class="fas fa-check me-1"></i>Confirm
@@ -3036,57 +3338,57 @@
             return metaTag ? metaTag.getAttribute('content') : '';
         }
 
-        // Delete seedling request with confirmation toast
-        function deleteSeedlingRequest(id, requestNumber) {
-            showConfirmationToast(
-                'Delete Seedling Request',
-                `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
-                () => proceedWithSeedlingDelete(id, requestNumber)
-            );
-        }
+        // // Delete supply request with confirmation toast
+        // function deleteSeedlingRequest(id, requestNumber) {
+        //     showConfirmationToast(
+        //         'Delete Supply Request',
+        //         `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
+        //         () => proceedWithSeedlingDelete(id, requestNumber)
+        //     );
+        // }
 
-        // Proceed with seedling request deletion
-        function proceedWithSeedlingDelete(id, requestNumber) {
-            fetch(`/admin/seedlings/requests/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message || 'Seedling request deleted successfully');
+        // // Proceed with supply request deletion
+        // function proceedWithSeedlingDelete(id, requestNumber) {
+        //     fetch(`/admin/seedlings/requests/${id}`, {
+        //             method: 'DELETE',
+        //             headers: {
+        //                 'X-CSRF-TOKEN': getCSRFToken(),
+        //                 'Accept': 'application/json',
+        //                 'Content-Type': 'application/json'
+        //             }
+        //         })
+        //         .then(response => {
+        //             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        //             return response.json();
+        //         })
+        //         .then(data => {
+        //             if (data.success) {
+        //                 showToast('success', data.message || 'Supply request deleted successfully');
 
-                        const row = document.querySelector(`tr[data-request-id="${id}"]`);
-                        if (row) {
-                            row.style.transition = 'opacity 0.3s ease';
-                            row.style.opacity = '0';
-                            setTimeout(() => {
-                                row.remove();
+        //                 const row = document.querySelector(`tr[data-request-id="${id}"]`);
+        //                 if (row) {
+        //                     row.style.transition = 'opacity 0.3s ease';
+        //                     row.style.opacity = '0';
+        //                     setTimeout(() => {
+        //                         row.remove();
 
-                                const tbody = document.querySelector('table tbody');
-                                if (tbody && tbody.children.length === 0) {
-                                    setTimeout(() => window.location.reload(), 1500);
-                                }
-                            }, 300);
-                        } else {
-                            setTimeout(() => window.location.reload(), 1500);
-                        }
-                    } else {
-                        throw new Error(data.message || 'Failed to delete seedling request');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to delete seedling request: ' + error.message);
-                });
-        }
+        //                         const tbody = document.querySelector('table tbody');
+        //                         if (tbody && tbody.children.length === 0) {
+        //                             setTimeout(() => window.location.reload(), 1500);
+        //                         }
+        //                     }, 300);
+        //                 } else {
+        //                     setTimeout(() => window.location.reload(), 1500);
+        //                 }
+        //             } else {
+        //                 throw new Error(data.message || 'Failed to delete supply request');
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error:', error);
+        //             showToast('error', 'Failed to delete supply request: ' + error.message);
+        //         });
+        // }
 
         // Initialize the update modal with original values
         function initializeSeedlingUpdateModal(requestId) {
@@ -3131,6 +3433,7 @@
                 submitButton.disabled = false;
                 submitButton.dataset.hasChanges = 'false';
             }
+            initializePickupDateEditModal(requestId);
         }
 
 
@@ -3515,8 +3818,7 @@
             document.getElementById('addSeedlingForm').reset();
             seedlingItemCounter = 0;
 
-            // Populate barangays
-            populateSeedlingBarangays();
+            
 
             // Add one empty item row
             addSeedlingItemRow();
@@ -3533,32 +3835,35 @@
             }
 
             modal.show();
+            setTimeout(() => {
+                initializePickupDateAddModal();
+            }, 100);
         }
 
-        // Populate barangays dropdown
-        function populateSeedlingBarangays() {
-            const barangaySelect = document.getElementById('seedling_barangay');
+        // // Populate barangays dropdown
+        // function populateSeedlingBarangays() {
+        //     const barangaySelect = document.getElementById('seedling_barangay');
 
-            // Get barangays from the page's data (if available)
-            const barangayElements = document.querySelectorAll('option[value*=""]');
+        //     // Get barangays from the page's data (if available)
+        //     const barangayElements = document.querySelectorAll('option[value*=""]');
 
-            // If barangays are already populated, return
-            if (barangaySelect.querySelectorAll('option').length > 1) {
-                return;
-            }
+        //     // If barangays are already populated, return
+        //     if (barangaySelect.querySelectorAll('option').length > 1) {
+        //         return;
+        //     }
 
-            // Fetch barangays from server or use hardcoded list
-            const barangays = @json($barangays ?? collect());
+        //     // Fetch barangays from server or use hardcoded list
+        //     const barangays = @json($barangays ?? collect());
 
-            if (barangays && barangays.length > 0) {
-                barangays.forEach(barangay => {
-                    const option = document.createElement('option');
-                    option.value = barangay;
-                    option.textContent = barangay;
-                    barangaySelect.appendChild(option);
-                });
-            }
-        }
+        //     if (barangays && barangays.length > 0) {
+        //         barangays.forEach(barangay => {
+        //             const option = document.createElement('option');
+        //             option.value = barangay;
+        //             option.textContent = barangay;
+        //             barangaySelect.appendChild(option);
+        //         });
+        //     }
+        // }
 
         // Add item row
         function addSeedlingItemRow() {
@@ -3649,16 +3954,16 @@
                 return;
             }
 
-            const phoneRegex = /^(\+639|09)\d{9}$/;
+            // const phoneRegex = /^(\+639|09)\d{9}$/;
 
-            if (!phoneRegex.test(contactNumber.trim())) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
+            // if (!phoneRegex.test(contactNumber.trim())) {
+            //     input.classList.add('is-invalid');
+            //     const errorDiv = document.createElement('div');
+            //     errorDiv.className = 'invalid-feedback d-block';
+            //     errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            //     input.parentNode.appendChild(errorDiv);
+            //     return false;
+            // }
 
             input.classList.add('is-valid');
             return true;
@@ -3762,10 +4067,6 @@
                 {
                     id: 'seedling_barangay',
                     label: 'Barangay'
-                },
-                {
-                    id: 'seedling_address',
-                    label: 'Address'
                 }
             ];
 
@@ -3816,99 +4117,127 @@
 
             return isValid;
         }
-
+function validateAddSeedlingPickupDate() {
+    const pickupDateInput = document.getElementById('seedling_pickup_date_add');
+    
+    if (!pickupDateInput.value || pickupDateInput.value.trim() === '') {
+        showToast('error', 'Pickup date is required');
+        pickupDateInput.classList.add('is-invalid');
+        return false;
+    }
+    
+    pickupDateInput.classList.remove('is-invalid');
+    return true;
+}
         // Submit add seedling form
-        function submitAddSeedling() {
-            if (!validateSeedlingForm()) {
-                showToast('error', 'Please fix all validation errors before submitting');
-                return;
-            }
+       function submitAddSeedling() {
+         // VALIDATE PICKUP DATE FIRST
+    if (!validateAddSeedlingPickupDate()) {
+        return false;
+    }
+    // CHECK FOR VALIDATION ERRORS FIRST
+    const invalidFields = document.querySelectorAll('#addSeedlingModal .is-invalid');
+    const visibleWarnings = Array.from(document.querySelectorAll('#addSeedlingModal [id$="-warning"]'))
+        .filter(warning => warning.style.display !== 'none');
 
-            // Prepare form data
-            const formData = new FormData();
+    if (invalidFields.length > 0 || visibleWarnings.length > 0) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        return false;
+    }
+    
+    if (!validateSeedlingForm()) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        return;
+    }
 
-            formData.append('first_name', document.getElementById('seedling_first_name').value.trim());
-            formData.append('middle_name', document.getElementById('seedling_middle_name').value.trim());
-            formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
-            formData.append('extension_name', document.getElementById('seedling_extension').value);
-            formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
-            formData.append('barangay', document.getElementById('seedling_barangay').value);
-            formData.append('address', document.getElementById('seedling_address').value.trim());
-            formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
-            formData.append('purpose', document.getElementById('seedling_purpose').value.trim());
-            formData.append('status', document.getElementById('seedling_status').value);
-            formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
+    // Prepare form data
+    const formData = new FormData();
 
-            // Add items
-            const items = document.querySelectorAll('.seedling-item-row');
-            items.forEach((item, index) => {
-                const categorySelect = item.querySelector('.seedling-category-select');
-                const quantityInput = item.querySelector('.seedling-quantity');
+    formData.append('first_name', document.getElementById('seedling_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('seedling_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
+    formData.append('extension_name', document.getElementById('seedling_extension').value);
+    formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
+    formData.append('barangay', document.getElementById('seedling_barangay').value);
+    formData.append('status', document.getElementById('seedling_status').value);
+    formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
+    
+    // ✅ ADD PICKUP DATE
+    const pickupDateInput = document.getElementById('seedling_pickup_date_add');
+    if (pickupDateInput && pickupDateInput.value) {
+        formData.append('pickup_date', pickupDateInput.value);
+    }
 
-                formData.append(`items[${index}][category_item_id]`, categorySelect.value);
-                formData.append(`items[${index}][quantity]`, quantityInput.value);
-            });
+    // Add items
+    const items = document.querySelectorAll('.seedling-item-row');
+    items.forEach((item, index) => {
+        const categorySelect = item.querySelector('.seedling-category-select');
+        const quantityInput = item.querySelector('.seedling-quantity');
 
-            // Add document if uploaded
-            const docInput = document.getElementById('seedling_supporting_document');
-            if (docInput.files && docInput.files[0]) {
-                formData.append('document', docInput.files[0]);
-            }
+        formData.append(`items[${index}][category_item_id]`, categorySelect.value);
+        formData.append(`items[${index}][quantity]`, quantityInput.value);
+    });
 
-            // Find submit button
-            const submitBtn = document.querySelector('#addSeedlingModal .btn-primary');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
-            submitBtn.disabled = true;
+    // Add document if uploaded
+    const docInput = document.getElementById('seedling_supporting_document');
+    if (docInput.files && docInput.files[0]) {
+        formData.append('document', docInput.files[0]);
+    }
 
-            // Submit to backend
-            fetch('/admin/seedlings/requests', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
-                        modal.hide();
+    // Find submit button
+    const submitBtn = document.querySelector('#addSeedlingModal .btn-primary');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+    submitBtn.disabled = true;
 
-                        showToast('success', data.message || 'Seedling request created successfully');
+    // Submit to backend
+    fetch('/admin/seedlings/requests', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
+                modal.hide();
 
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        if (data.errors) {
-                            Object.keys(data.errors).forEach(field => {
-                                const input = document.getElementById('seedling_' + field);
-                                if (input) {
-                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                                    if (feedback) feedback.remove();
+                showToast('success', data.message || 'Supply request created successfully');
 
-                                    input.classList.add('is-invalid');
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.className = 'invalid-feedback d-block';
-                                    errorDiv.textContent = data.errors[field][0];
-                                    input.parentNode.appendChild(errorDiv);
-                                }
-                            });
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(field => {
+                        const input = document.getElementById('seedling_' + field);
+                        if (input) {
+                            const feedback = input.parentNode.querySelector('.invalid-feedback');
+                            if (feedback) feedback.remove();
+
+                            input.classList.add('is-invalid');
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback d-block';
+                            errorDiv.textContent = data.errors[field][0];
+                            input.parentNode.appendChild(errorDiv);
                         }
-                        showToast('error', data.message || 'Failed to create seedling request');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'An error occurred while creating the request');
-                })
-                .finally(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
-        }
+                    });
+                }
+                showToast('error', data.message || 'Failed to create supply request');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'An error occurred while creating the request');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+}
 
         // Add event listeners for real-time validation
         document.getElementById('seedling_contact_number')?.addEventListener('input', function() {
@@ -3945,11 +4274,12 @@
             originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
             originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
             originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
-            originalData.address = document.getElementById('edit_address_' + requestId).value;
-            originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
-            originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
+            // ✅ STORE ORIGINAL PICKUP DATE
+            const pickupDateInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+            const originalPickupDate = pickupDateInput ? pickupDateInput.value : '';
             // Store in form data attribute
             form.dataset.originalData = JSON.stringify(originalData);
+            form.dataset.originalPickupDate = originalPickupDate;  
             form.dataset.hasOriginalDocument = hasDocument ? 'true' : 'false';
             form.dataset.originalDocumentPath = documentPath || '';
 
@@ -3975,65 +4305,92 @@
                 submitBtn.disabled = false;
                 submitBtn.dataset.hasChanges = 'false';
             }
+            initializeEditModalValidation(requestId);
         }
 
 
         // Check for changes in edit form
-        function checkForEditChanges(requestId) {
-            const form = document.getElementById('editForm' + requestId);
-            const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+       function checkForEditChanges(requestId) {
+    const form = document.getElementById('editForm' + requestId);
+    const submitBtn = document.getElementById('editSubmitBtn' + requestId);
 
-            if (!form || !submitBtn) return;
+    if (!form || !submitBtn) return;
 
-            const originalData = JSON.parse(form.dataset.originalData || '{}');
-            let hasChanges = false;
-            let changedFields = [];
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let hasChanges = false;
+    let changedFields = [];
 
-            // Check all form fields
-            const fields = [
-                'first_name', 'middle_name', 'last_name', 'extension_name',
-                'contact_number', 'barangay', 'address',
-                'planting_location', 'purpose'
-            ];
+    // Check all form fields
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'extension_name',
+        'contact_number', 'barangay'
+    ];
 
-            fields.forEach(field => {
-                const input = form.querySelector(`[name="${field}"]`);
-                if (input && input.value !== originalData[field]) {
-                    hasChanges = true;
-                    changedFields.push(field);
-                    input.classList.add('form-changed');
-                } else if (input) {
-                    input.classList.remove('form-changed');
-                }
-            });
-
-            // Check file input - ONLY if a NEW file was selected
-            const fileInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                hasChanges = true;
-                changedFields.push('supporting_document');
-                console.log('New file selected:', fileInput.files[0].name);
-            }
-
-            // Update button state
-            if (hasChanges) {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'true';
-                submitBtn.dataset.changedFields = JSON.stringify(changedFields);
-            } else {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-                submitBtn.dataset.hasChanges = 'false';
-            }
+    fields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && input.value !== originalData[field]) {
+            hasChanges = true;
+            changedFields.push(field);
+            input.classList.add('form-changed');
+        } else if (input) {
+            input.classList.remove('form-changed');
         }
+    });
+
+    // ✅ ADD PICKUP DATE CHANGE DETECTION
+    const pickupDateInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+    if (pickupDateInput) {
+        const originalPickupDate = form.dataset.originalPickupDate || '';
+        const currentPickupDate = pickupDateInput.value || '';
+        
+        if (currentPickupDate !== originalPickupDate) {
+            hasChanges = true;
+            changedFields.push('pickup_date');
+            pickupDateInput.classList.add('form-changed');
+        } else {
+            pickupDateInput.classList.remove('form-changed');
+        }
+    }
+
+    // Check file input - ONLY if a NEW file was selected
+    const fileInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
+    if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        hasChanges = true;
+        changedFields.push('supporting_document');
+        console.log('New file selected:', fileInput.files[0].name);
+    }
+
+    // Update button state
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+        submitBtn.dataset.changedFields = JSON.stringify(changedFields);
+    } else {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
+}
 
         // Handle edit form submission with changes summary
         function handleEditSeedlingSubmit(requestId) {
             const form = document.getElementById('editForm' + requestId);
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+            const modal = document.getElementById('editSeedlingModal' + requestId); 
+         
+
+            // CHECK FOR VALIDATION ERRORS FIRST
+            const invalidFields = modal.querySelectorAll('.is-invalid');
+            const visibleWarnings = Array.from(modal.querySelectorAll('[id$="-warning"]'))
+                .filter(warning => warning.style.display !== 'none');
+
+            if (invalidFields.length > 0 || visibleWarnings.length > 0) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return false;
+            }
 
             if (!form) {
                 console.error('Form not found:', 'editForm' + requestId);
@@ -4060,9 +4417,6 @@
                 'extension_name': 'Extension',
                 'contact_number': 'Contact Number',
                 'barangay': 'Barangay',
-                'address': 'Address',
-                'planting_location': 'Planting Location',
-                'purpose': 'Purpose',
                 'supporting_document': 'Supporting Document'
             };
 
@@ -4102,10 +4456,6 @@
                 {
                     id: 'edit_barangay_' + requestId,
                     label: 'Barangay'
-                },
-                {
-                    id: 'edit_address_' + requestId,
-                    label: 'Address'
                 }
             ];
 
@@ -4145,7 +4495,7 @@
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -4635,142 +4985,651 @@
             }
         }
 
-        // delete modal
+  // =============================================
+// DELETE MODAL - SEEDLING REQUESTS - FIXED
+// =============================================
 
-        // Global variable to track current delete ID
-        let currentDeleteSeedlingId = null;
+// Global variable to track current delete ID
+// DELETE MODAL - SIMPLE FIX
+let currentDeleteSeedlingId = null;
 
-        /**
-         * Updated deleteSeedlingRequest function to use modal
-         */
-        function deleteSeedlingRequest(id, requestNumber) {
-            try {
-                // Set the global variable
-                currentDeleteSeedlingId = id;
+function deleteSeedlingRequest(id, requestNumber) {
+    currentDeleteSeedlingId = id;
+    document.getElementById('delete_seedling_name').textContent = requestNumber;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteSeedlingModal'));
+    modal.show();
+}
 
-                // Update modal with request number
-                document.getElementById('delete_seedling_name').textContent = requestNumber;
+function confirmPermanentDeleteSeedling() {
+    if (!currentDeleteSeedlingId) {
+        showToast('error', 'Request ID not found');
+        return;
+    }
 
-                // Show the delete modal
-                new bootstrap.Modal(document.getElementById('deleteSeedlingModal')).show();
-            } catch (error) {
-                console.error('Error preparing delete dialog:', error);
-                showToast('error', 'Failed to prepare delete dialog');
-            }
+    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+    const btnText = deleteBtn.querySelector('.btn-text');
+    const btnLoader = deleteBtn.querySelector('.btn-loader');
+    
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline';
+    deleteBtn.disabled = true;
+
+    fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json'
         }
-
-        /**
-         * Confirm permanent delete for seedling request
-         */
-        async function confirmPermanentDeleteSeedling() {
-            if (!currentDeleteSeedlingId) {
-                showToast('error', 'Request ID not found');
-                return;
-            }
-
-            try {
-                // Show loading state
-                const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-                deleteBtn.querySelector('.btn-text').style.display = 'none';
-                deleteBtn.querySelector('.btn-loader').style.display = 'inline';
-                deleteBtn.disabled = true;
-
-                const response = await fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to delete request');
-                }
-
-                // Close modal
-                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
-                if (deleteModal) {
-                    deleteModal.hide();
-                }
-
-                // Show success message
-                showToast('success', data.message || 'Seedling request deleted successfully');
-
-                // Remove the row with animation
-                const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
-                if (row) {
-                    row.style.transition = 'opacity 0.3s ease';
-                    row.style.opacity = '0';
-                    setTimeout(() => row.remove(), 300);
-                }
-
-                // Reload page to refresh statistics
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
+            modal.hide();
+            
+            showToast('success', 'Deleted successfully');
+            
+            const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
+            if (row) {
+                row.style.opacity = '0';
+                row.style.transition = 'opacity 0.3s';
                 setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-
-                // Reset for next use
-                currentDeleteSeedlingId = null;
-
-            } catch (error) {
-                console.error('Error deleting request:', error);
-
-                // Close modal first
-                const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
-                if (deleteModal) {
-                    deleteModal.hide();
-                }
-
-                // Show error
-                showToast('error', 'Error deleting request: ' + error.message);
-
-            } finally {
-                // Reset button state
-                const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-                deleteBtn.querySelector('.btn-text').style.display = 'inline';
-                deleteBtn.querySelector('.btn-loader').style.display = 'none';
-                deleteBtn.disabled = false;
+                    row.remove();
+                    if (document.querySelector('table tbody').children.length === 0) {
+                        window.location.reload();
+                    }
+                }, 300);
             }
+        } else {
+            showToast('error', data.message || 'Delete failed');
+            btnText.style.display = 'inline';
+            btnLoader.style.display = 'none';
+            deleteBtn.disabled = false;
         }
+    })
+    .catch(err => {
+        showToast('error', 'Error: ' + err.message);
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+        deleteBtn.disabled = false;
+    });
+}
 
-        /**
-         * Clean up modal on close
-         */
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteSeedlingModal = document.getElementById('deleteSeedlingModal');
-            if (deleteSeedlingModal) {
-                deleteSeedlingModal.addEventListener('hidden.bs.modal', function() {
-                    // Reset button state
-                    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-                    deleteBtn.querySelector('.btn-text').style.display = 'inline';
-                    deleteBtn.querySelector('.btn-loader').style.display = 'none';
-                    deleteBtn.disabled = false;
+/**
+ * Confirm permanent delete for supply request
+ */
+async function confirmPermanentDeleteSeedling() {
+    if (!currentDeleteSeedlingId) {
+        showToast('error', 'Request ID not found');
+        return;
+    }
 
-                    // Remove any lingering backdrops
-                    const backdrops = document.querySelectorAll('.modal-backdrop');
-                    backdrops.forEach(backdrop => backdrop.remove());
+    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+    if (!deleteBtn) {
+        showToast('error', 'Delete button not found');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const btnText = deleteBtn.querySelector('.btn-text');
+        const btnLoader = deleteBtn.querySelector('.btn-loader');
+        
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoader) btnLoader.style.display = 'inline';
+        deleteBtn.disabled = true;
 
-                    // Remove modal-open class from body
-                    document.body.classList.remove('modal-open');
-
-                    // Reset body overflow
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-
-                    // Reset global variable
-                    currentDeleteSeedlingId = null;
-
-                    console.log('Delete Seedling modal cleaned up');
-                });
+        const response = await fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
         });
 
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to delete request');
+        }
+
+        // Close modal
+        const modalElement = document.getElementById('deleteSeedlingModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+
+        showToast('success', data.message || 'Supply request deleted successfully');
+
+        // Remove row from table with animation
+        const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
+        if (row) {
+            row.style.transition = 'opacity 0.3s ease';
+            row.style.opacity = '0';
+            setTimeout(() => {
+                row.remove();
+                // Check if table is now empty
+                const tbody = document.querySelector('table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    window.location.reload();
+                }
+            }, 300);
+        } else {
+            // Row not found, reload page
+            setTimeout(() => window.location.reload(), 1500);
+        }
+
+        currentDeleteSeedlingId = null;
+
+    } catch (error) {
+        console.error('Error deleting request:', error);
+        showToast('error', 'Error deleting request: ' + error.message);
+
+        // Restore button state
+        const btnText = deleteBtn.querySelector('.btn-text');
+        const btnLoader = deleteBtn.querySelector('.btn-loader');
+        
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoader) btnLoader.style.display = 'none';
+        deleteBtn.disabled = false;
+    }
+}
+
+// Clean up modal on close
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteSeedlingModal = document.getElementById('deleteSeedlingModal');
+    if (deleteSeedlingModal) {
+        deleteSeedlingModal.addEventListener('hidden.bs.modal', function() {
+            // Reset button state
+            const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+            if (deleteBtn) {
+                const btnText = deleteBtn.querySelector('.btn-text');
+                const btnLoader = deleteBtn.querySelector('.btn-loader');
+                
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoader) btnLoader.style.display = 'none';
+                deleteBtn.disabled = false;
+            }
+
+            // Clean up backdrops and body styling
+            setTimeout(() => {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }, 100);
+
+            currentDeleteSeedlingId = null;
+        });
+    }
+});
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeEditFormListeners();
         });
+
+        // =============================================
+// REAL-TIME VALIDATION FOR ADD SEEDLING MODAL
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Real-time validation for ADD modal name fields
+    const addNameFields = [
+        {
+            id: 'seedling_first_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'seedling_middle_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'seedling_last_name',
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        }
+    ];
+
+    // Setup ADD modal validations
+    addNameFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        
+        if (input) {
+            // Create warning message element if it doesn't exist
+            let warning = document.getElementById(field.id + '-warning');
+            if (!warning) {
+                warning = document.createElement('span');
+                warning.id = field.id + '-warning';
+                warning.className = 'validation-warning';
+                warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                warning.textContent = field.message;
+                input.parentNode.appendChild(warning);
+            }
+
+            // Real-time input validation
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value)) {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            // Validation on blur
+            input.addEventListener('blur', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value) && value !== '') {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+
+    // Real-time validation for ADD modal contact number
+    const addContactInput = document.getElementById('seedling_contact_number');
+    if (addContactInput) {
+        let contactWarning = document.getElementById('seedling_contact_number-warning');
+        if (!contactWarning) {
+            contactWarning = document.createElement('span');
+            contactWarning.id = 'seedling_contact_number-warning';
+            contactWarning.className = 'validation-warning';
+            contactWarning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+            contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+            addContactInput.parentNode.appendChild(contactWarning);
+        }
+
+        addContactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                contactWarning.style.display = 'block';
+                addContactInput.style.borderColor = '#ff6b6b';
+                addContactInput.classList.add('is-invalid');
+            } else {
+                contactWarning.style.display = 'none';
+                addContactInput.style.borderColor = '';
+                addContactInput.classList.remove('is-invalid');
+            }
+        });
+
+        // addContactInput.addEventListener('blur', function(e) {
+        //     const value = e.target.value;
+        //     const phonePattern = /^09\d{9}$/;
+
+        //     if (value !== '' && !phonePattern.test(value)) {
+        //         contactWarning.style.display = 'block';
+        //         addContactInput.style.borderColor = '#ff6b6b';
+        //         addContactInput.classList.add('is-invalid');
+        //     }
+        // });
+    }
+});
+
+// =============================================
+// REAL-TIME VALIDATION FOR EDIT MODALS
+// =============================================
+
+function initializeEditModalValidation(requestId) {
+    // Real-time validation for EDIT modal name fields
+    const editNameFields = [
+        {
+            id: 'edit_first_name_' + requestId,
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'edit_middle_name_' + requestId,
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        },
+        {
+            id: 'edit_last_name_' + requestId,
+            pattern: /^[a-zA-Z\s\'-]*$/,
+            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+        }
+    ];
+
+    editNameFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        
+        if (input) {
+            // Create warning message element if it doesn't exist
+            let warning = document.getElementById(field.id + '-warning');
+            if (!warning) {
+                warning = document.createElement('span');
+                warning.id = field.id + '-warning';
+                warning.className = 'validation-warning';
+                warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                warning.textContent = field.message;
+                input.parentNode.appendChild(warning);
+            }
+
+            // Real-time input validation
+            input.addEventListener('input', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value)) {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            // Validation on blur
+            input.addEventListener('blur', function(e) {
+                const value = e.target.value;
+
+                if (!field.pattern.test(value) && value !== '') {
+                    warning.style.display = 'block';
+                    input.style.borderColor = '#ff6b6b';
+                    input.classList.add('is-invalid');
+                } else {
+                    warning.style.display = 'none';
+                    input.style.borderColor = '';
+                    input.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+
+    // Real-time validation for EDIT modal contact number
+    const editContactInput = document.getElementById('edit_contact_number_' + requestId);
+    if (editContactInput) {
+        let contactWarning = document.getElementById('edit_contact_number_' + requestId + '-warning');
+        if (!contactWarning) {
+            contactWarning = document.createElement('span');
+            contactWarning.id = 'edit_contact_number_' + requestId + '-warning';
+            contactWarning.className = 'validation-warning';
+            contactWarning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+            contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+            editContactInput.parentNode.appendChild(contactWarning);
+        }
+
+        editContactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const phonePattern = /^09\d{9}$/;
+
+            if (value !== '' && !phonePattern.test(value)) {
+                contactWarning.style.display = 'block';
+                editContactInput.style.borderColor = '#ff6b6b';
+                editContactInput.classList.add('is-invalid');
+            } else {
+                contactWarning.style.display = 'none';
+                editContactInput.style.borderColor = '';
+                editContactInput.classList.remove('is-invalid');
+            }
+        });
+
+        // editContactInput.addEventListener('blur', function(e) {
+        //     const value = e.target.value;
+        //     const phonePattern = /^09\d{9}$/;
+
+        //     if (value !== '' && !phonePattern.test(value)) {
+        //         contactWarning.style.display = 'block';
+        //         editContactInput.style.borderColor = '#ff6b6b';
+        //         editContactInput.classList.add('is-invalid');
+        //     }
+        // });
+    }
+}
+// =============================================
+// PICKUP DATE FIELD - EDIT MODAL
+// =============================================
+
+function initializePickupDateEditModal(requestId) {
+    const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+    const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
+    const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
+
+    if (!pickupInput) return;
+
+    // Set min/max dates
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 1);
+    
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    // Validate on change
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+            return;
+        }
+
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+        checkForEditChanges(requestId);
+    });
+
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+        }
+    });
+}
+
+// =============================================
+// PICKUP DATE FIELD - ADD MODAL
+// =============================================
+
+function initializePickupDateAddModal() {
+    const pickupInput = document.getElementById('seedling_pickup_date_add');
+    const displayDiv = document.getElementById('seedling_pickup_date_display_add');
+    const displayText = document.getElementById('seedling_pickup_date_text_add');
+
+    if (!pickupInput) return;
+
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 1);
+    
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+            return;
+        }
+
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+    });
+
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+        }
+    });
+    pickupInput.addEventListener('blur', function() {
+    if (!this.value) {
+        this.classList.add('is-invalid');
+        displayDiv.style.display = 'none';
+    } else {
+        this.classList.remove('is-invalid');
+    }
+
+    const selectedDate = new Date(this.value + 'T00:00:00');
+    const dayOfWeek = selectedDate.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+        this.value = '';
+        this.classList.add('is-invalid');
+        displayDiv.style.display = 'none';
+        showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+    }
+});
+}
+// Update remarks character counter for add modal
+function updateAddSeedlingRemarksCounter() {
+    const textarea = document.getElementById('seedling_remarks');
+    const charCount = document.getElementById('addCharCount');
+
+    if (textarea && charCount) {
+        charCount.textContent = textarea.value.length;
+
+        // Change color based on length
+        if (textarea.value.length > 900) {
+            document.getElementById('addRemarksCounter').classList.add('text-warning');
+            document.getElementById('addRemarksCounter').classList.remove('text-muted');
+        } else {
+            document.getElementById('addRemarksCounter').classList.remove('text-warning');
+            document.getElementById('addRemarksCounter').classList.add('text-muted');
+        }
+    }
+
+}
+// Initialize pickup date field in edit modal (add to existing initializePickupDateEditModal function or create new)
+function initializePickupDateEditModal(requestId) {
+    const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+    const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
+    const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
+
+    if (!pickupInput) return;
+
+    // Set min/max dates
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 1);
+    
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    
+    pickupInput.min = formatDate(minDate);
+    pickupInput.max = formatDate(maxDate);
+
+    // Validate on change
+    pickupInput.addEventListener('change', function() {
+        if (!this.value) {
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const fullDate = selectedDate.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+            return;
+        }
+
+        displayText.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+        `;
+        displayDiv.style.display = 'block';
+        checkForEditChanges(requestId);
+    });
+
+    pickupInput.addEventListener('blur', function() {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            this.value = '';
+            displayDiv.style.display = 'none';
+            showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+        }
+    });
+}
     </script>
 @endsection

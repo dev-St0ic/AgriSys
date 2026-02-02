@@ -20,17 +20,16 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('extension_name')->nullable();
             $table->string('contact_number')->nullable();
-            $table->text('address')->nullable();
             $table->string('barangay')->nullable();
-            $table->text('planting_location')->nullable();
-            $table->text('purpose')->nullable();
 
             // Quantities
             $table->integer('total_quantity')->default(0);
             $table->integer('approved_quantity')->nullable();
 
             // Dates
-            $table->date('preferred_delivery_date')->nullable();
+            $table->timestamp('pickup_date')->nullable()->comment('Date when applicant must pickup their approved request');
+            $table->timestamp('pickup_expired_at')->nullable()->comment('When pickup date expires (30 days from approval)');
+            $table->boolean('pickup_reminder_sent')->default(false);
 
             // Document
             $table->string('document_path')->nullable();

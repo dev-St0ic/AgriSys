@@ -44,10 +44,30 @@
     display: flex;
     gap: 10px;
     margin-bottom: 30px;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 0 20px;
-    transition: max-height 0.3s ease;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 20px 15px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.seedlings-category-tabs::-webkit-scrollbar {
+    height: 6px;
+}
+
+.seedlings-category-tabs::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.seedlings-category-tabs::-webkit-scrollbar-thumb {
+    background: #40916c;
+    border-radius: 10px;
+}
+
+.seedlings-category-tabs::-webkit-scrollbar-thumb:hover {
+    background: #2d6a4f;
 }
 
 .seedlings-category-tab {
@@ -63,6 +83,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .seedlings-category-tab:hover {
@@ -77,18 +99,19 @@
     border-color: #40916c;
     box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
 }
-
-/* --- Category Show More/Less Styles --- */
+/* --- Category Show More/Less Styles ---*/
 .seedlings-category-tab.category-tab-hidden {
     display: none !important;
-}
-
+} 
+ 
 .seedlings-category-tab.category-toggle-btn {
     background: #f8f9fa;
     border: 2px solid #40916c;
     color: #40916c;
     font-weight: 700;
     transition: all 0.3s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .seedlings-category-tab.category-toggle-btn:hover {
@@ -100,7 +123,7 @@
 
 .seedlings-category-tab.category-toggle-btn i {
     transition: transform 0.3s ease;
-}
+} 
 
 /* --- Filter Bar --- */
 .seedlings-filter-bar {
@@ -829,6 +852,7 @@
     flex-direction: column;
     height: auto;
     align-self: start;
+    height: 100%;
 }
 
 .seedlings-item-card:hover {
@@ -871,13 +895,14 @@
 /* --- Item Image --- */
 .seedlings-item-image {
     width: 100%;
-    height: 220px;
+    height: 200px;
     overflow: hidden;
     background: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    flex-shrink: 0;
 }
 
 .seedlings-item-image img {
@@ -899,6 +924,7 @@
     justify-content: center;
     background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
     color: #40916c;
+    flex-shrink: 0;
 }
 
 /* --- Item Info --- */
@@ -1502,7 +1528,7 @@ section.application-section small {
     }
 
     /* Always show quick view overlay on touch devices */
-    .seedlings-quick-view-overlay {
+    /* .seedlings-quick-view-overlay {
         opacity: 1;
         top: auto;
         left: 50%;
@@ -1520,7 +1546,7 @@ section.application-section small {
 
     .seedlings-item-image:active .seedlings-quick-view-overlay {
         opacity: 1;
-    }
+    } */
 
     /* Better button feedback */
     .seedlings-proceed-btn:active,
@@ -1775,7 +1801,7 @@ section.application-section small {
         margin-bottom: 6px;
         color: #6b7280;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -2059,7 +2085,6 @@ section.application-section small {
         padding: 12px 20px;
         font-size: 0.9rem;
     }
-}
 
     .seedlings-item-image {
         height: 180px;
@@ -2162,7 +2187,7 @@ section.application-section small {
         font-size: 0.7rem;
         line-height: 1.25;
         margin-bottom: 5px;
-        -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -2316,17 +2341,17 @@ section.application-section small {
         padding: 2px 3px;
         gap: 3px;
         max-width: 95px;
-    }
-        width: 46px;
+           width: 46px;
         height: 36px;
         font-size: 0.9rem;
     }
+
 
     .seedlings-quantity-input {
         padding: 3px 5px;
         gap: 5px;
     }
-}
+
 
 /* --- Hidden Items --- */
 .seedlings-item-card.hidden {
@@ -2353,14 +2378,14 @@ section.application-section small {
     cursor: pointer;
 }
 
-.seedlings-item-image:hover .seedlings-quick-view-overlay {
+/* .seedlings-item-image:hover .seedlings-quick-view-overlay {
     opacity: 1;
-}
+} */
 
-.seedlings-item-image {
+/* .seedlings-item-image {
     position: relative;
     cursor: pointer;
-}
+} */
 
 /* --- Quick View Modal --- */
 .seedlings-quick-view-modal {
@@ -2517,6 +2542,7 @@ section.application-section small {
         transform: translateY(0);
         opacity: 1;
     }
+}
 }
 
 /* Mobile Quick View */

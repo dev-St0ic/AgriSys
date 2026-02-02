@@ -930,7 +930,7 @@
                                         href="{{ route('admin.seedlings.requests') }}" data-tooltip="Seedling Requests"
                                         aria-label="Seedling Requests" role="menuitem">
                                         <i class="fas fa-seedling" aria-hidden="true"></i>
-                                        <span class="nav-link-text">Seedling Requests</span>
+                                        <span class="nav-link-text">Supplies Requests</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">

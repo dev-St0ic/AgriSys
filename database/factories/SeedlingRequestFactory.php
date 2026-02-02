@@ -119,14 +119,7 @@ class SeedlingRequestFactory extends Factory
             'last_name' => $lastName,
             'extension_name' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => $this->faker->phoneNumber,
-            'address' => $this->faker->streetAddress,
             'barangay' => $this->faker->randomElement($barangays),
-            'planting_location' => $this->faker->optional(0.8)->address,
-            'purpose' => $this->faker->optional(0.9)->randomElement([
-                'Backyard gardening', 'Community garden project', 'School garden',
-                'Livelihood project', 'Food security', 'Educational purposes',
-                'Urban farming', 'Aquaponics project', 'Landscape beautification', 'Fish farming'
-            ]),
             'seedling_type' => $this->formatSeedlingTypes($selectedSeeds, $selectedSeedlings, $selectedFruits, $selectedOrnamentals, $selectedFingerlings, $selectedFertilizers),
 
             // Store items - Laravel will cast to JSON automatically
@@ -139,7 +132,6 @@ class SeedlingRequestFactory extends Factory
 
             'requested_quantity' => $totalQuantity,
             'total_quantity' => $totalQuantity,
-            'preferred_delivery_date' => $this->faker->optional(0.8)->dateTimeBetween('now', '+30 days'),
             'document_path' => $this->faker->optional(0.3)->filePath(),
 
             // Status fields - default values
@@ -172,6 +164,9 @@ class SeedlingRequestFactory extends Factory
             'approved_quantity' => null,
             'approved_at' => null,
             'rejected_at' => null,
+            'pickup_date' => $this->faker->optional(0.7)->dateTimeBetween('now', '+30 days'),
+            'pickup_expired_at' => null, // Will be set when pickup_date is set
+            'pickup_reminder_sent' => false,
         ];
     }
 

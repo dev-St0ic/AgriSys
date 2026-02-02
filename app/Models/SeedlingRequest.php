@@ -22,13 +22,12 @@ class SeedlingRequest extends Model
         'last_name',
         'extension_name',
         'contact_number',
-        'address',
         'barangay',
-        'planting_location',
-        'purpose',
         'total_quantity',
         'approved_quantity',
-        'preferred_delivery_date',
+        'pickup_date',
+        'pickup_expired_at',
+        'pickup_reminder_sent',
         'document_path',
         'status',
         'reviewed_by',
@@ -42,10 +41,51 @@ class SeedlingRequest extends Model
         'reviewed_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
-        'preferred_delivery_date' => 'date',
         'total_quantity' => 'integer',
-        'approved_quantity' => 'integer'
+        'approved_quantity' => 'integer',
+        'pickup_date' => 'datetime',
+        'pickup_expired_at' => 'datetime',
+        'pickup_reminder_sent' => 'boolean'
     ];
+
+    /**
+     * Set default pickup date (30 days from approval)
+     */
+    public function setDefaultPickupDate(): void
+    {
+        if (!$this->pickup_date && $this->status === 'approved') {
+            $this->pickup_date = now()->addDays(30);
+            $this->pickup_expired_at = $this->pickup_date->copy()->addDays(1);
+            $this->save();
+        }
+    }
+
+    /**
+     * Check if pickup date has expired
+     */
+    public function isPickupExpired(): bool
+    {
+        return $this->pickup_expired_at && now()->isAfter($this->pickup_expired_at);
+    }
+
+    /**
+     * Get pickup deadline display
+     */
+    public function getPickupDeadlineAttribute(): ?string
+    {
+        if (!$this->pickup_date) return null;
+        return $this->pickup_date->format('F d, Y');
+    }
+
+    /**
+     * Get days remaining for pickup
+     */
+    public function getDaysUntilPickupAttribute(): ?int
+    {
+        if (!$this->pickup_date || $this->isPickupExpired()) return null;
+        return now()->diffInDays($this->pickup_date, false);
+    }
+
 
     /**
      * Get all request items
@@ -327,4 +367,21 @@ class SeedlingRequest extends Model
     {
         return 'Seedling Request';
     }
+    public function getDaysUntilPickupExpireAttribute()
+{
+    if (!$this->pickup_expired_at) {
+        return null;
+    }
+    
+    return now()->diffInDays($this->pickup_expired_at);
+}
+
+public function getIsPickupExpiredAttribute()
+{
+    if (!$this->pickup_date) {
+        return false;
+    }
+    
+    return $this->pickup_date->isPast();
+}
 }
