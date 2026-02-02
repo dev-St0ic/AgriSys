@@ -4063,9 +4063,24 @@
 
             return isValid;
         }
-
+function validateAddSeedlingPickupDate() {
+    const pickupDateInput = document.getElementById('seedling_pickup_date_add');
+    
+    if (!pickupDateInput.value || pickupDateInput.value.trim() === '') {
+        showToast('error', 'Pickup date is required');
+        pickupDateInput.classList.add('is-invalid');
+        return false;
+    }
+    
+    pickupDateInput.classList.remove('is-invalid');
+    return true;
+}
         // Submit add seedling form
        function submitAddSeedling() {
+         // VALIDATE PICKUP DATE FIRST
+    if (!validateAddSeedlingPickupDate()) {
+        return false;
+    }
     // CHECK FOR VALIDATION ERRORS FIRST
     const invalidFields = document.querySelectorAll('#addSeedlingModal .is-invalid');
     const visibleWarnings = Array.from(document.querySelectorAll('#addSeedlingModal [id$="-warning"]'))
@@ -5391,6 +5406,24 @@ function initializePickupDateAddModal() {
             showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
         }
     });
+    pickupInput.addEventListener('blur', function() {
+    if (!this.value) {
+        this.classList.add('is-invalid');
+        displayDiv.style.display = 'none';
+    } else {
+        this.classList.remove('is-invalid');
+    }
+
+    const selectedDate = new Date(this.value + 'T00:00:00');
+    const dayOfWeek = selectedDate.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+        this.value = '';
+        this.classList.add('is-invalid');
+        displayDiv.style.display = 'none';
+        showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+    }
+});
 }
 // Update remarks character counter for add modal
 function updateAddSeedlingRemarksCounter() {
