@@ -7,6 +7,8 @@ use App\Models\CategoryItem;
 use App\Models\SeedlingRequestItem;
 use App\Models\TrainingApplication;
 use App\Models\RsbsaApplication;
+use App\Models\FishrApplication;
+use App\Models\BoatrApplication;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -967,6 +969,388 @@ class DSSDataService
                 round($applications->min(function($app) {
                     return $app->created_at->diffInHours($app->reviewed_at);
                 }), 2) . ' hours' : 'N/A',
+        ];
+    }
+
+    /**
+     * ================================================================
+     * FISHR DATA COLLECTION
+     * ================================================================
+     */
+    public function collectFishrData(string $month = null, string $year = null): array
+    {
+        set_time_limit(300);
+
+        $month = $month ?? now()->format('m');
+        $year = $year ?? now()->format('Y');
+
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        $cacheKey = "dss_fishr_data_{$year}_{$month}";
+
+        return Cache::remember($cacheKey, 1800, function () use ($startDate, $endDate) {
+            return [
+                'period' => [
+                    'month' => $startDate->format('F Y'),
+                    'start_date' => $startDate->format('Y-m-d'),
+                    'end_date' => $endDate->format('Y-m-d'),
+                ],
+                'fishr_stats' => $this->getFishrStats($startDate, $endDate),
+                'fishr_by_livelihood' => $this->getFishrByLivelihood($startDate, $endDate),
+                'fishr_by_barangay' => $this->getFishrByBarangay($startDate, $endDate),
+                'fishr_demographics' => $this->getFishrDemographics($startDate, $endDate),
+                'fishr_approval_analysis' => $this->getFishrApprovalAnalysis($startDate, $endDate),
+                'fishr_trends' => $this->getFishrTrends($startDate, $endDate),
+            ];
+        });
+    }
+
+    private function getFishrStats(Carbon $startDate, Carbon $endDate): array
+    {
+        $stats = FishrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('
+                COUNT(*) as total_applications,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected,
+                SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN fishr_number IS NOT NULL THEN 1 ELSE 0 END) as with_fishr_number
+            ')
+            ->first();
+
+        return [
+            'total_applications' => $stats->total_applications ?? 0,
+            'approved' => $stats->approved ?? 0,
+            'rejected' => $stats->rejected ?? 0,
+            'pending' => $stats->pending ?? 0,
+            'with_fishr_number' => $stats->with_fishr_number ?? 0,
+            'approval_rate' => $stats->total_applications > 0 ?
+                round(($stats->approved / $stats->total_applications) * 100, 2) : 0,
+            'rejection_rate' => $stats->total_applications > 0 ?
+                round(($stats->rejected / $stats->total_applications) * 100, 2) : 0,
+        ];
+    }
+
+    private function getFishrByLivelihood(Carbon $startDate, Carbon $endDate): array
+    {
+        $byLivelihood = FishrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('main_livelihood')
+            ->selectRaw('
+                COUNT(*) as count,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved_count
+            ')
+            ->groupBy('main_livelihood')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'livelihood' => $item->main_livelihood ?? 'Not Specified',
+                    'total' => $item->count,
+                    'approved' => $item->approved_count,
+                    'approval_rate' => $item->count > 0 ? round(($item->approved_count / $item->count) * 100, 2) : 0,
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byLivelihood,
+            'most_common' => collect($byLivelihood)->sortByDesc('total')->take(3)->values()->toArray(),
+            'total_livelihood_types' => count($byLivelihood),
+        ];
+    }
+
+    private function getFishrByBarangay(Carbon $startDate, Carbon $endDate): array
+    {
+        $byBarangay = FishrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('barangay')
+            ->selectRaw('
+                COUNT(*) as count,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved
+            ')
+            ->groupBy('barangay')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'barangay' => $item->barangay ?? 'Unknown',
+                    'applications' => $item->count,
+                    'approved' => $item->approved,
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byBarangay,
+            'top_barangays' => array_slice($byBarangay, 0, 5),
+            'total_barangays_covered' => count($byBarangay),
+        ];
+    }
+
+    private function getFishrDemographics(Carbon $startDate, Carbon $endDate): array
+    {
+        $demographics = FishrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('
+                SUM(CASE WHEN sex = "male" THEN 1 ELSE 0 END) as male_count,
+                SUM(CASE WHEN sex = "female" THEN 1 ELSE 0 END) as female_count,
+                COUNT(*) as total
+            ')
+            ->first();
+
+        return [
+            'male_count' => $demographics->male_count ?? 0,
+            'female_count' => $demographics->female_count ?? 0,
+            'total' => $demographics->total ?? 0,
+            'male_percentage' => $demographics->total > 0 ?
+                round(($demographics->male_count / $demographics->total) * 100, 2) : 0,
+            'female_percentage' => $demographics->total > 0 ?
+                round(($demographics->female_count / $demographics->total) * 100, 2) : 0,
+        ];
+    }
+
+    private function getFishrApprovalAnalysis(Carbon $startDate, Carbon $endDate): array
+    {
+        $applications = FishrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->whereNotNull('status_updated_at')
+            ->get();
+
+        return [
+            'average_processing_time' => $applications->isNotEmpty() ?
+                round($applications->avg(function($app) {
+                    return $app->created_at->diffInHours($app->status_updated_at);
+                }), 2) . ' hours' : '0 hours',
+            'total_processed' => $applications->count(),
+            'fastest_processing' => $applications->isNotEmpty() ?
+                round($applications->min(function($app) {
+                    return $app->created_at->diffInHours($app->status_updated_at);
+                }), 2) . ' hours' : 'N/A',
+            'slowest_processing' => $applications->isNotEmpty() ?
+                round($applications->max(function($app) {
+                    return $app->created_at->diffInHours($app->status_updated_at);
+                }), 2) . ' hours' : 'N/A',
+        ];
+    }
+
+    private function getFishrTrends(Carbon $startDate, Carbon $endDate): array
+    {
+        $prevStartDate = $startDate->copy()->subMonth();
+        $prevEndDate = $endDate->copy()->subMonth();
+
+        $currentCount = FishrApplication::whereBetween('created_at', [$startDate, $endDate])->count();
+        $previousCount = FishrApplication::whereBetween('created_at', [$prevStartDate, $prevEndDate])->count();
+
+        $change = $previousCount > 0 ? round((($currentCount - $previousCount) / $previousCount) * 100, 2) : 0;
+
+        return [
+            'current_month_total' => $currentCount,
+            'previous_month_total' => $previousCount,
+            'change_percentage' => $change,
+            'trend' => $change > 0 ? 'increasing' : ($change < 0 ? 'decreasing' : 'stable'),
+        ];
+    }
+
+    /**
+     * ================================================================
+     * BOATR DATA COLLECTION
+     * ================================================================
+     */
+    public function collectBoatrData(string $month = null, string $year = null): array
+    {
+        set_time_limit(300);
+
+        $month = $month ?? now()->format('m');
+        $year = $year ?? now()->format('Y');
+
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        $cacheKey = "dss_boatr_data_{$year}_{$month}";
+
+        return Cache::remember($cacheKey, 1800, function () use ($startDate, $endDate) {
+            return [
+                'period' => [
+                    'month' => $startDate->format('F Y'),
+                    'start_date' => $startDate->format('Y-m-d'),
+                    'end_date' => $endDate->format('Y-m-d'),
+                ],
+                'boatr_stats' => $this->getBoatrStats($startDate, $endDate),
+                'boatr_by_boat_type' => $this->getBoatrByBoatType($startDate, $endDate),
+                'boatr_by_barangay' => $this->getBoatrByBarangay($startDate, $endDate),
+                'boatr_engine_analysis' => $this->getBoatrEngineAnalysis($startDate, $endDate),
+                'boatr_inspection_analysis' => $this->getBoatrInspectionAnalysis($startDate, $endDate),
+                'boatr_approval_analysis' => $this->getBoatrApprovalAnalysis($startDate, $endDate),
+                'boatr_trends' => $this->getBoatrTrends($startDate, $endDate),
+            ];
+        });
+    }
+
+    private function getBoatrStats(Carbon $startDate, Carbon $endDate): array
+    {
+        $stats = BoatrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('
+                COUNT(*) as total_applications,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected,
+                SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN inspection_completed = 1 THEN 1 ELSE 0 END) as inspections_completed,
+                AVG(boat_length) as avg_boat_length,
+                AVG(engine_horsepower) as avg_horsepower
+            ')
+            ->first();
+
+        return [
+            'total_applications' => $stats->total_applications ?? 0,
+            'approved' => $stats->approved ?? 0,
+            'rejected' => $stats->rejected ?? 0,
+            'pending' => $stats->pending ?? 0,
+            'inspections_completed' => $stats->inspections_completed ?? 0,
+            'approval_rate' => $stats->total_applications > 0 ?
+                round(($stats->approved / $stats->total_applications) * 100, 2) : 0,
+            'inspection_rate' => $stats->total_applications > 0 ?
+                round(($stats->inspections_completed / $stats->total_applications) * 100, 2) : 0,
+            'avg_boat_length' => round($stats->avg_boat_length ?? 0, 2) . ' meters',
+            'avg_horsepower' => round($stats->avg_horsepower ?? 0, 2) . ' HP',
+        ];
+    }
+
+    private function getBoatrByBoatType(Carbon $startDate, Carbon $endDate): array
+    {
+        $byBoatType = BoatrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('boat_type')
+            ->selectRaw('
+                COUNT(*) as count,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved_count,
+                AVG(boat_length) as avg_length,
+                AVG(engine_horsepower) as avg_hp
+            ')
+            ->groupBy('boat_type')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'boat_type' => $item->boat_type ?? 'Not Specified',
+                    'total' => $item->count,
+                    'approved' => $item->approved_count,
+                    'approval_rate' => $item->count > 0 ? round(($item->approved_count / $item->count) * 100, 2) : 0,
+                    'avg_length' => round($item->avg_length ?? 0, 2),
+                    'avg_horsepower' => round($item->avg_hp ?? 0, 2),
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byBoatType,
+            'most_common' => collect($byBoatType)->sortByDesc('total')->take(3)->values()->toArray(),
+            'total_boat_types' => count($byBoatType),
+        ];
+    }
+
+    private function getBoatrByBarangay(Carbon $startDate, Carbon $endDate): array
+    {
+        $byBarangay = BoatrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('barangay')
+            ->selectRaw('
+                COUNT(*) as count,
+                SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved
+            ')
+            ->groupBy('barangay')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'barangay' => $item->barangay ?? 'Unknown',
+                    'applications' => $item->count,
+                    'approved' => $item->approved,
+                ];
+            })
+            ->toArray();
+
+        return [
+            'distribution' => $byBarangay,
+            'top_barangays' => array_slice($byBarangay, 0, 5),
+            'total_barangays_covered' => count($byBarangay),
+        ];
+    }
+
+    private function getBoatrEngineAnalysis(Carbon $startDate, Carbon $endDate): array
+    {
+        $engineTypes = BoatrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->select('engine_type')
+            ->selectRaw('COUNT(*) as count, AVG(engine_horsepower) as avg_hp')
+            ->groupBy('engine_type')
+            ->orderByDesc('count')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'type' => $item->engine_type ?? 'Not Specified',
+                    'count' => $item->count,
+                    'avg_horsepower' => round($item->avg_hp ?? 0, 2),
+                ];
+            })
+            ->toArray();
+
+        return [
+            'engine_types' => $engineTypes,
+            'most_common_engine' => $engineTypes[0] ?? null,
+        ];
+    }
+
+    private function getBoatrInspectionAnalysis(Carbon $startDate, Carbon $endDate): array
+    {
+        $inspectionStats = BoatrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('
+                SUM(CASE WHEN inspection_completed = 1 THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN inspection_completed = 0 OR inspection_completed IS NULL THEN 1 ELSE 0 END) as pending,
+                COUNT(*) as total
+            ')
+            ->first();
+
+        return [
+            'inspections_completed' => $inspectionStats->completed ?? 0,
+            'inspections_pending' => $inspectionStats->pending ?? 0,
+            'total_applications' => $inspectionStats->total ?? 0,
+            'completion_rate' => $inspectionStats->total > 0 ?
+                round(($inspectionStats->completed / $inspectionStats->total) * 100, 2) : 0,
+        ];
+    }
+
+    private function getBoatrApprovalAnalysis(Carbon $startDate, Carbon $endDate): array
+    {
+        $applications = BoatrApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->whereNotNull('reviewed_at')
+            ->get();
+
+        return [
+            'average_processing_time' => $applications->isNotEmpty() ?
+                round($applications->avg(function($app) {
+                    return $app->created_at->diffInHours($app->reviewed_at);
+                }), 2) . ' hours' : '0 hours',
+            'total_processed' => $applications->count(),
+            'fastest_processing' => $applications->isNotEmpty() ?
+                round($applications->min(function($app) {
+                    return $app->created_at->diffInHours($app->reviewed_at);
+                }), 2) . ' hours' : 'N/A',
+            'slowest_processing' => $applications->isNotEmpty() ?
+                round($applications->max(function($app) {
+                    return $app->created_at->diffInHours($app->reviewed_at);
+                }), 2) . ' hours' : 'N/A',
+        ];
+    }
+
+    private function getBoatrTrends(Carbon $startDate, Carbon $endDate): array
+    {
+        $prevStartDate = $startDate->copy()->subMonth();
+        $prevEndDate = $endDate->copy()->subMonth();
+
+        $currentCount = BoatrApplication::whereBetween('created_at', [$startDate, $endDate])->count();
+        $previousCount = BoatrApplication::whereBetween('created_at', [$prevStartDate, $prevEndDate])->count();
+
+        $change = $previousCount > 0 ? round((($currentCount - $previousCount) / $previousCount) * 100, 2) : 0;
+
+        return [
+            'current_month_total' => $currentCount,
+            'previous_month_total' => $previousCount,
+            'change_percentage' => $change,
+            'trend' => $change > 0 ? 'increasing' : ($change < 0 ? 'decreasing' : 'stable'),
         ];
     }
 }

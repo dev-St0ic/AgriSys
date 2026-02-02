@@ -73,6 +73,14 @@ class DSSController extends Controller
                 $data = $this->dataService->collectRsbsaData($month, $year);
                 $report = $this->reportService->generateRsbsaReport($data);
                 $viewPartial = 'admin.dss.partials.rsbsa-content';
+            } elseif ($service === 'fishr') {
+                $data = $this->dataService->collectFishrData($month, $year);
+                $report = $this->reportService->generateFishrReport($data);
+                $viewPartial = 'admin.dss.partials.fishr-content';
+            } elseif ($service === 'boatr') {
+                $data = $this->dataService->collectBoatrData($month, $year);
+                $report = $this->reportService->generateBoatrReport($data);
+                $viewPartial = 'admin.dss.partials.boatr-content';
             } else {
                 // Comprehensive report (default)
                 $data = $this->dataService->collectMonthlyData($month, $year);
@@ -122,6 +130,16 @@ class DSSController extends Controller
                 $report = $this->reportService->generateRsbsaReport($data);
                 $view = 'admin.dss.pdf-rsbsa';
                 $filename = 'RSBSA_DSS_Report_';
+            } elseif ($service === 'fishr') {
+                $data = $this->dataService->collectFishrData($month, $year);
+                $report = $this->reportService->generateFishrReport($data);
+                $view = 'admin.dss.pdf-fishr';
+                $filename = 'FISHR_DSS_Report_';
+            } elseif ($service === 'boatr') {
+                $data = $this->dataService->collectBoatrData($month, $year);
+                $report = $this->reportService->generateBoatrReport($data);
+                $view = 'admin.dss.pdf-boatr';
+                $filename = 'BOATR_DSS_Report_';
             } else {
                 $data = $this->dataService->collectMonthlyData($month, $year);
                 $report = $this->reportService->generateReport($data);
@@ -171,6 +189,14 @@ class DSSController extends Controller
                 $data = $this->dataService->collectRsbsaData($month, $year);
                 $report = $this->reportService->generateRsbsaReport($data);
                 $filename = 'RSBSA_DSS_Report_';
+            } elseif ($service === 'fishr') {
+                $data = $this->dataService->collectFishrData($month, $year);
+                $report = $this->reportService->generateFishrReport($data);
+                $filename = 'FISHR_DSS_Report_';
+            } elseif ($service === 'boatr') {
+                $data = $this->dataService->collectBoatrData($month, $year);
+                $report = $this->reportService->generateBoatrReport($data);
+                $filename = 'BOATR_DSS_Report_';
             } else {
                 $data = $this->dataService->collectMonthlyData($month, $year);
                 $report = $this->reportService->generateReport($data);
@@ -217,6 +243,16 @@ class DSSController extends Controller
                 cache()->forget($cacheKey);
                 $data = $this->dataService->collectRsbsaData($month, $year);
                 $report = $this->reportService->generateRsbsaReport($data);
+            } elseif ($service === 'fishr') {
+                $cacheKey = 'dss_fishr_data_' . $year . '_' . $month;
+                cache()->forget($cacheKey);
+                $data = $this->dataService->collectFishrData($month, $year);
+                $report = $this->reportService->generateFishrReport($data);
+            } elseif ($service === 'boatr') {
+                $cacheKey = 'dss_boatr_data_' . $year . '_' . $month;
+                cache()->forget($cacheKey);
+                $data = $this->dataService->collectBoatrData($month, $year);
+                $report = $this->reportService->generateBoatrReport($data);
             } else {
                 $cacheKey = 'dss_report_' . md5(serialize([$month, $year]));
                 cache()->forget($cacheKey);
@@ -347,5 +383,39 @@ class DSSController extends Controller
         }
 
         return response()->json($periods);
+    }
+
+    /**
+     * Get latest report metadata for a specific service
+     */
+    public static function getLatestReportMetadata(string $service)
+    {
+        try {
+            $cacheKey = "dss_report_{$service}_" . now()->format('Y_m');
+
+            if (\Cache::has($cacheKey)) {
+                $cachedData = \Cache::get($cacheKey);
+
+                return [
+                    'exists' => true,
+                    'generated_at' => $cachedData['generated_at'] ?? now()->format('Y-m-d H:i:s'),
+                    'source' => $cachedData['report']['source'] ?? 'Not Available',
+                    'period_start' => now()->startOfMonth()->format('Y-m-d'),
+                    'period_end' => now()->endOfMonth()->format('Y-m-d'),
+                    'period_label' => now()->format('F Y')
+                ];
+            }
+
+            return [
+                'exists' => false,
+                'message' => 'No report generated yet for this period'
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'exists' => false,
+                'message' => 'Unable to fetch report metadata'
+            ];
+        }
     }
 }
