@@ -675,7 +675,7 @@
                                                                         Pending:</small>
                                                                     <div class="d-flex flex-wrap gap-2 mt-1">
                                                                         @foreach ($pendingItems as $item)
-                                                                            <span class="badge bg-warning text-dark">
+                                                                            <span class="badge bg-warning text-white">
                                                                                 {{ $item->item_name }}
                                                                                 <strong>({{ $item->requested_quantity }})</strong>
                                                                             </span>
@@ -1697,40 +1697,45 @@
         </div>
     </div>
 
-    <!-- DELETE SUpply REQUEST MODAL -->
-    <div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Supply Request</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+  <!-- DELETE SUPPLY REQUEST MODAL -->
+<div class="modal fade" id="deleteSeedlingModal" tabindex="-1" aria-labelledby="deleteSeedlingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title w-100 text-center" id="deleteSeedlingModalLabel">
+                    <i class="fas fa-exclamation-circle me-2"></i>Permanently Delete Supply Request
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_seedling_name">Request</strong> will:</p>
                 </div>
-                <div class="modal-body">
-                    <div class="alert alert-danger" role="alert">
-                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong
-                                id="delete_seedling_name"></strong> will:</p>
-                    </div>
-                    <ul class="mb-0">
-                        <li>Remove the supply request from the database</li>
-                        <li>Delete all associated documents and files</li>
-                        <li>Delete all request history and logs</li>
-                        <li>Return approved supplies back to inventory</li>
-                        <li>Cannot be recovered</li>
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()"
-                        id="confirm_delete_seedling_btn">
-                        <span class="btn-text">Yes, Delete Permanently</span>
-                        <span class="btn-loader" style="display: none;"><span
-                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
-                    </button>
-                </div>
+                <ul class="mb-0" style="line-height: 1.8;">
+                    <li>Remove the supply request from the database</li>
+                    <li>Delete all associated documents and files</li>
+                    <li>Delete all request history and logs</li>
+                    <li>Return approved supplies back to inventory</li>
+                    <li><strong>Cannot be recovered</strong></li>
+                </ul>
+            </div>
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()" id="confirm_delete_seedling_btn">
+                    <span class="btn-text">
+                        <i class="fas fa-trash me-1"></i>Yes, Delete Permanently
+                    </span>
+                    <span class="btn-loader" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
+                    </span>
+                </button>
             </div>
         </div>
     </div>
+</div>
   
     <div class="card">
         <div class="card-body text-center py-5">
@@ -2805,23 +2810,38 @@
         padding: 0.2rem 0.4rem;
     }
 }
-#deleteSeedlingModal .modal {
-    z-index: 1060 !important;
+
+/* Force white text on warning badges in modals */
+[id^="viewModal"] .badge.bg-warning {
+    color: white !important;
+    background-color: #ffc107 !important;
+}
+
+[id^="viewModal"] .badge.bg-warning strong {
+    color: white !important;
+}
+/* FIX DELETE MODAL Z-INDEX ISSUES */
+#deleteSeedlingModal {
+    z-index: 1050 !important;
 }
 
 #deleteSeedlingModal .modal-backdrop {
-    z-index: 1050 !important;
+    z-index: 1040 !important;
     opacity: 0.5 !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+#deleteSeedlingModal .modal-dialog {
+    z-index: 1051 !important;
 }
 
 #deleteSeedlingModal .modal-content {
-    z-index: 1061 !important;
-    position: relative;
+    z-index: 1052 !important;
 }
 
-#deleteSeedlingModal .modal-header {
-    z-index: 1062 !important;
+/* Ensure body doesn't have overflow issues */
+body.modal-open {
+    overflow: hidden !important;
+    padding-right: 0 !important;
 }
     </style>
 
@@ -3265,7 +3285,7 @@
             <p class="mb-3" style="margin: 0; font-size: 0.95rem; color: #333; line-height: 1.5; white-space: pre-wrap;">${message}</p>
             <div class="d-flex gap-2 justify-content-end">
                 <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
-                    <i class="fas fa-times me-1"></i>Cancel
+                    <i></i>Cancel
                 </button>
                 <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
                     <i class="fas fa-check me-1"></i>Confirm
@@ -3318,57 +3338,57 @@
             return metaTag ? metaTag.getAttribute('content') : '';
         }
 
-        // Delete supply request with confirmation toast
-        function deleteSeedlingRequest(id, requestNumber) {
-            showConfirmationToast(
-                'Delete Supply Request',
-                `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
-                () => proceedWithSeedlingDelete(id, requestNumber)
-            );
-        }
+        // // Delete supply request with confirmation toast
+        // function deleteSeedlingRequest(id, requestNumber) {
+        //     showConfirmationToast(
+        //         'Delete Supply Request',
+        //         `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
+        //         () => proceedWithSeedlingDelete(id, requestNumber)
+        //     );
+        // }
 
-        // Proceed with supply request deletion
-        function proceedWithSeedlingDelete(id, requestNumber) {
-            fetch(`/admin/seedlings/requests/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message || 'Supply request deleted successfully');
+        // // Proceed with supply request deletion
+        // function proceedWithSeedlingDelete(id, requestNumber) {
+        //     fetch(`/admin/seedlings/requests/${id}`, {
+        //             method: 'DELETE',
+        //             headers: {
+        //                 'X-CSRF-TOKEN': getCSRFToken(),
+        //                 'Accept': 'application/json',
+        //                 'Content-Type': 'application/json'
+        //             }
+        //         })
+        //         .then(response => {
+        //             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        //             return response.json();
+        //         })
+        //         .then(data => {
+        //             if (data.success) {
+        //                 showToast('success', data.message || 'Supply request deleted successfully');
 
-                        const row = document.querySelector(`tr[data-request-id="${id}"]`);
-                        if (row) {
-                            row.style.transition = 'opacity 0.3s ease';
-                            row.style.opacity = '0';
-                            setTimeout(() => {
-                                row.remove();
+        //                 const row = document.querySelector(`tr[data-request-id="${id}"]`);
+        //                 if (row) {
+        //                     row.style.transition = 'opacity 0.3s ease';
+        //                     row.style.opacity = '0';
+        //                     setTimeout(() => {
+        //                         row.remove();
 
-                                const tbody = document.querySelector('table tbody');
-                                if (tbody && tbody.children.length === 0) {
-                                    setTimeout(() => window.location.reload(), 1500);
-                                }
-                            }, 300);
-                        } else {
-                            setTimeout(() => window.location.reload(), 1500);
-                        }
-                    } else {
-                        throw new Error(data.message || 'Failed to delete supply request');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to delete supply request: ' + error.message);
-                });
-        }
+        //                         const tbody = document.querySelector('table tbody');
+        //                         if (tbody && tbody.children.length === 0) {
+        //                             setTimeout(() => window.location.reload(), 1500);
+        //                         }
+        //                     }, 300);
+        //                 } else {
+        //                     setTimeout(() => window.location.reload(), 1500);
+        //                 }
+        //             } else {
+        //                 throw new Error(data.message || 'Failed to delete supply request');
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error:', error);
+        //             showToast('error', 'Failed to delete supply request: ' + error.message);
+        //         });
+        // }
 
         // Initialize the update modal with original values
         function initializeSeedlingUpdateModal(requestId) {
@@ -4965,31 +4985,78 @@ function validateAddSeedlingPickupDate() {
             }
         }
 
-        // delete modal
+  // =============================================
+// DELETE MODAL - SEEDLING REQUESTS - FIXED
+// =============================================
 
-        // Global variable to track current delete ID
-        let currentDeleteSeedlingId = null;
+// Global variable to track current delete ID
+// DELETE MODAL - SIMPLE FIX
+let currentDeleteSeedlingId = null;
 
-        /**
-         * Updated deleteSeedlingRequest function to use modal
-         */
-        function deleteSeedlingRequest(id, requestNumber) {
-            try {
-                // Set the global variable
-                currentDeleteSeedlingId = id;
+function deleteSeedlingRequest(id, requestNumber) {
+    currentDeleteSeedlingId = id;
+    document.getElementById('delete_seedling_name').textContent = requestNumber;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteSeedlingModal'));
+    modal.show();
+}
 
-                // Update modal with request number
-                document.getElementById('delete_seedling_name').textContent = requestNumber;
+function confirmPermanentDeleteSeedling() {
+    if (!currentDeleteSeedlingId) {
+        showToast('error', 'Request ID not found');
+        return;
+    }
 
-                // Show the delete modal
-                new bootstrap.Modal(document.getElementById('deleteSeedlingModal')).show();
-            } catch (error) {
-                console.error('Error preparing delete dialog:', error);
-                showToast('error', 'Failed to prepare delete dialog');
-            }
+    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+    const btnText = deleteBtn.querySelector('.btn-text');
+    const btnLoader = deleteBtn.querySelector('.btn-loader');
+    
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline';
+    deleteBtn.disabled = true;
+
+    fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json'
         }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
+            modal.hide();
+            
+            showToast('success', 'Deleted successfully');
+            
+            const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
+            if (row) {
+                row.style.opacity = '0';
+                row.style.transition = 'opacity 0.3s';
+                setTimeout(() => {
+                    row.remove();
+                    if (document.querySelector('table tbody').children.length === 0) {
+                        window.location.reload();
+                    }
+                }, 300);
+            }
+        } else {
+            showToast('error', data.message || 'Delete failed');
+            btnText.style.display = 'inline';
+            btnLoader.style.display = 'none';
+            deleteBtn.disabled = false;
+        }
+    })
+    .catch(err => {
+        showToast('error', 'Error: ' + err.message);
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+        deleteBtn.disabled = false;
+    });
+}
 
-      /**
+/**
  * Confirm permanent delete for supply request
  */
 async function confirmPermanentDeleteSeedling() {
@@ -4998,13 +5065,19 @@ async function confirmPermanentDeleteSeedling() {
         return;
     }
 
+    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+    if (!deleteBtn) {
+        showToast('error', 'Delete button not found');
+        return;
+    }
+    
     try {
         // Show loading state
-        const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-        const deleteModalElement = document.getElementById('deleteSeedlingModal');  // ✅ Changed name to avoid conflict
+        const btnText = deleteBtn.querySelector('.btn-text');
+        const btnLoader = deleteBtn.querySelector('.btn-loader');
         
-        deleteBtn.querySelector('.btn-text').style.display = 'none';
-        deleteBtn.querySelector('.btn-loader').style.display = 'inline';
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoader) btnLoader.style.display = 'inline';
         deleteBtn.disabled = true;
 
         const response = await fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
@@ -5023,82 +5096,76 @@ async function confirmPermanentDeleteSeedling() {
         }
 
         // Close modal
-        const deleteModal = bootstrap.Modal.getInstance(deleteModalElement);
-        if (deleteModal) {
-            deleteModal.hide();
+        const modalElement = document.getElementById('deleteSeedlingModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
         }
 
-        // Show success message
         showToast('success', data.message || 'Supply request deleted successfully');
 
-        // Remove the row with animation
+        // Remove row from table with animation
         const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
         if (row) {
             row.style.transition = 'opacity 0.3s ease';
             row.style.opacity = '0';
-            setTimeout(() => row.remove(), 300);
+            setTimeout(() => {
+                row.remove();
+                // Check if table is now empty
+                const tbody = document.querySelector('table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    window.location.reload();
+                }
+            }, 300);
+        } else {
+            // Row not found, reload page
+            setTimeout(() => window.location.reload(), 1500);
         }
 
-        // Reload page to refresh statistics
-        setTimeout(() => {
-            window.location.reload();
-        }, 1500);
-
-        // Reset for next use
         currentDeleteSeedlingId = null;
 
     } catch (error) {
         console.error('Error deleting request:', error);
-
-        // Close modal first
-        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
-        if (deleteModal) {
-            deleteModal.hide();
-        }
-
-        // Show error
         showToast('error', 'Error deleting request: ' + error.message);
 
-    } finally {
-        // Reset button state
-        const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-        deleteBtn.querySelector('.btn-text').style.display = 'inline';
-        deleteBtn.querySelector('.btn-loader').style.display = 'none';
+        // Restore button state
+        const btnText = deleteBtn.querySelector('.btn-text');
+        const btnLoader = deleteBtn.querySelector('.btn-loader');
+        
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoader) btnLoader.style.display = 'none';
         deleteBtn.disabled = false;
     }
 }
-        /**
-         * Clean up modal on close
-         */
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteSeedlingModal = document.getElementById('deleteSeedlingModal');
-            if (deleteSeedlingModal) {
-                deleteSeedlingModal.addEventListener('hidden.bs.modal', function() {
-                    // Reset button state
-                    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-                    deleteBtn.querySelector('.btn-text').style.display = 'inline';
-                    deleteBtn.querySelector('.btn-loader').style.display = 'none';
-                    deleteBtn.disabled = false;
 
-                    // Remove any lingering backdrops
-                    const backdrops = document.querySelectorAll('.modal-backdrop');
-                    backdrops.forEach(backdrop => backdrop.remove());
-
-                    // Remove modal-open class from body
-                    document.body.classList.remove('modal-open');
-
-                    // Reset body overflow
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-
-                    // Reset global variable
-                    currentDeleteSeedlingId = null;
-
-                    console.log('Delete Seedling modal cleaned up');
-                });
+// Clean up modal on close
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteSeedlingModal = document.getElementById('deleteSeedlingModal');
+    if (deleteSeedlingModal) {
+        deleteSeedlingModal.addEventListener('hidden.bs.modal', function() {
+            // Reset button state
+            const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+            if (deleteBtn) {
+                const btnText = deleteBtn.querySelector('.btn-text');
+                const btnLoader = deleteBtn.querySelector('.btn-loader');
+                
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoader) btnLoader.style.display = 'none';
+                deleteBtn.disabled = false;
             }
-        });
 
+            // Clean up backdrops and body styling
+            setTimeout(() => {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }, 100);
+
+            currentDeleteSeedlingId = null;
+        });
+    }
+});
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeEditFormListeners();
