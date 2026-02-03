@@ -393,7 +393,7 @@ async function validateFishRNumber(event) {
 //     }
 // }
 /**
- * Enhanced FishR validation - 1:1 relationship
+ * Enhanced FishR validation - 1:1 relationship with confidentiality
  */
 async function validateFishRNumberSilent(fishRInput) {
     const number = fishRInput.value.trim();
@@ -405,10 +405,26 @@ async function validateFishRNumberSilent(fishRInput) {
         fishRInput.style.backgroundColor = '#fffbf0';
         showValidationMessage(fishRInput, 'Validating FishR registration...', 'warning');
 
-        const response = await fetch(`/admin/boatr/validate-fishr/${encodeURIComponent(number)}`);
+        const response = await fetch(`/validate-fishr/${encodeURIComponent(number)}`);
+        
+        // Handle 401 (not authenticated)
+        if (response.status === 401) {
+            showValidationMessage(
+                fishRInput, 
+                'Please log in to validate FishR number', 
+                'error'
+            );
+            fishRInput.dataset.validated = 'false';
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
-        if (data.valid && data.approved && !data.already_used && !data.name_mismatch) {
+        if (data.valid && data.approved && !data.already_used) {
             // ✅ ALL CHECKS PASSED
             fishRInput.style.borderColor = '#28a745';
             fishRInput.style.backgroundColor = '#f8fff8';
@@ -416,7 +432,6 @@ async function validateFishRNumberSilent(fishRInput) {
             fishRInput.dataset.validated = 'true';
             fishRInput.dataset.fishrData = JSON.stringify({
                 fishr_app_id: data.fishr_app_id,
-                fisher_name: data.fisher_name,
                 first_name: data.first_name,
                 last_name: data.last_name,
                 registration_number: data.registration_number
@@ -424,52 +439,48 @@ async function validateFishRNumberSilent(fishRInput) {
 
             showValidationMessage(
                 fishRInput, 
-                `✓ Valid & Ready: ${data.fisher_name}`, 
+                'Valid FishR number found', 
                 'success'
             );
 
             autofillBoatrNameFromFishR(data);
 
         } else if (!data.approved) {
-            // ❌ NOT APPROVED
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
                 fishRInput, 
-                `❌ ${data.message}`, 
+                'FishR number is not yet approved', 
                 'error'
             );
             fishRInput.dataset.validated = 'false';
 
         } else if (data.already_used) {
-            // ❌ ALREADY USED FOR ANOTHER BOAT
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
                 fishRInput, 
-                `❌ Already Used: ${data.message}`, 
+                'This FishR number has already been registered for a boat', 
                 'error'
             );
             fishRInput.dataset.validated = 'false';
 
         } else if (data.name_mismatch) {
-            // ❌ NAME DOESN'T MATCH
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
                 fishRInput, 
-                `❌ Name Mismatch: ${data.message}`, 
+                'Your name does not match this FishR number', 
                 'error'
             );
             fishRInput.dataset.validated = 'false';
 
         } else {
-            // ❌ NOT FOUND
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
                 fishRInput, 
-                `❌ ${data.message}`, 
+                'FishR number not found', 
                 'error'
             );
             fishRInput.dataset.validated = 'false';
@@ -487,7 +498,6 @@ async function validateFishRNumberSilent(fishRInput) {
         fishRInput.dataset.validated = 'error';
     }
 }
-
 /**
  * Auto-fill BoatR name fields from validated FishR data
  */

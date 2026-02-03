@@ -1374,9 +1374,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="edit-barangay">Barangay *</label>
+                            <label for="edit-barangay">Barangay</label>
                             <select id="edit-barangay" name="barangay" required>
-                                <option value="">Select Barangay</option>
+                              
                                  <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
                                             <option value="Calendola">Calendola</option>

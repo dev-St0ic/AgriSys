@@ -889,7 +889,7 @@ public function submitBoatR(Request $request)
             $validated['engine_horsepower'] = null;
         }
 
-  // ✅ VALIDATE FISHR - 1:1 RELATIONSHIP
+  
 try {
     $fishrRegistration = \App\Models\FishrApplication::where('registration_number', $validated['fishr_number'])
         ->where('status', 'approved')
