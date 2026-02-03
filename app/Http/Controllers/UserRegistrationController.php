@@ -1247,8 +1247,9 @@ class UserRegistrationController extends Controller
         }
     }
 
-    /**
-     * Delete registration
+   /**
+     * UPDATED: Move registration to recycle bin instead of permanent deletion
+     * 
      */
     public function destroy($id)
     {
@@ -1268,18 +1269,47 @@ class UserRegistrationController extends Controller
             ], 404);
         }
 
-        $registration->delete();
+        try {
+            $username = $registration->username;
+            $registrationId = $registration->id;
 
-        // Log activity
-        $this->logActivity('deleted', 'UserRegistration', $id, [
-            'username' => $registration->username
-        ]);
+            // Move to recycle bin instead of permanent deletion
+            \App\Services\RecycleBinService::softDelete(
+                $registration,
+                'Deleted from User Registrations'
+            );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration deleted successfully'
-        ]);
+            // Log activity
+            $this->logActivity('deleted', 'UserRegistration', $registrationId, [
+                'username' => $username,
+                'action' => 'moved_to_recycle_bin'
+            ]);
+
+            Log::info('User registration moved to recycle bin', [
+                'registration_id' => $registrationId,
+                'username' => $username,
+                'deleted_by' => auth()->user()->name ?? 'Admin'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Registration for {$username} has been moved to recycle bin"
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error moving user registration to recycle bin', [
+                'registration_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting registration: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
 
     /**
      * Get statistics for admin dashboard

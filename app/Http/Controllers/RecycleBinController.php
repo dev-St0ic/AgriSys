@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RecycleBin;
+use App\Models\UserRegistration;
 use App\Services\RecycleBinService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +26,7 @@ class RecycleBinController extends Controller
                     'rsbsa' => 'App\Models\RsbsaApplication',
                     'seedlings' => 'App\Models\SeedlingRequest',
                     'training' => 'App\Models\TrainingApplication',
+                    'user_registration' => 'App\Models\UserRegistration', // NEW
                 ];
 
                 if (isset($typeMap[$request->type])) {
@@ -119,107 +121,145 @@ class RecycleBinController extends Controller
         }
     }
 
-public static function restore($item): bool
-{
-    try {
-        $modelClass = $item->model_type;
-        
-        // Handle FishR - uses soft delete
-        if ($modelClass === 'App\Models\FishrApplication') {
-            $restored = FishrApplication::withTrashed()
-                ->find($item->model_id);
+    /**
+     * UPDATED: Restore item from recycle bin
+     * Now handles UserRegistration with soft delete
+     */
+    public static function restore($item): bool
+    {
+        try {
+            $modelClass = $item->model_type;
             
-            if ($restored) {
-                $restored->restore();
+            // Handle FishR - uses soft delete
+            if ($modelClass === 'App\Models\FishrApplication') {
+                $restored = \App\Models\FishrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
             }
-        }
-        // Handle Training - uses soft delete (NEW)
-        elseif ($modelClass === 'App\Models\TrainingApplication') {
-            $restored = TrainingApplication::withTrashed()
-                ->find($item->model_id);
-            
-            if ($restored) {
-                $restored->restore();
+            // Handle Training - uses soft delete
+            elseif ($modelClass === 'App\Models\TrainingApplication') {
+                $restored = \App\Models\TrainingApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
             }
-        }
-        // Handle Seedling Request - uses soft delete
-        elseif ($modelClass === 'App\Models\SeedlingRequest') {
-            $restored = SeedlingRequest::withTrashed()
-                ->find($item->model_id);
-            
-            if ($restored) {
-                $restored->restore();
+            // Handle Seedling Request - uses soft delete
+            elseif ($modelClass === 'App\Models\SeedlingRequest') {
+                $restored = \App\Models\SeedlingRequest::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
             }
-        }
-        // Handle others - recreates from stored data
-        else {
-            $model = new $modelClass();
-            $model->id = $item->model_id;
-            foreach ($item->data as $key => $value) {
-                $model->$key = $value;
+            // NEW: Handle UserRegistration - uses soft delete
+            elseif ($modelClass === 'App\Models\UserRegistration') {
+                $restored = UserRegistration::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
             }
-            $model->save();
-        }
+            // Handle others - recreates from stored data
+            else {
+                $model = new $modelClass();
+                $model->id = $item->model_id;
+                foreach ($item->data as $key => $value) {
+                    $model->$key = $value;
+                }
+                $model->save();
+            }
 
-        // Mark as restored in recycle bin
-        $item->update([
-            'restored_at' => now(),
-            'restored_by' => auth()->id(),
-        ]);
+            // Mark as restored in recycle bin
+            $item->update([
+                'restored_at' => now(),
+                'restored_by' => auth()->id(),
+            ]);
 
-        return true;
-    } catch (\Exception $e) {
-        \Log::error('Error restoring item from recycle bin', [
-            'model_type' => $item->model_type,
-            'model_id' => $item->model_id,
-            'error' => $e->getMessage()
-        ]);
-        return false;
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Error restoring item from recycle bin', [
+                'model_type' => $item->model_type,
+                'model_id' => $item->model_id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
-}
-
 
     /**
-     * Permanently delete item from recycle bin
+     * UPDATED: Permanently delete item from recycle bin
+     * Now handles UserRegistration force delete
      */
-   public static function permanentlyDelete($item): bool
-{
-    try {
-        $modelClass = $item->model_type;
-        
-        if ($modelClass === 'App\Models\FishrApplication') {
-            FishrApplication::withTrashed()
-                ->where('id', $item->model_id)
-                ->forceDelete();
-        }
-        elseif ($modelClass === 'App\Models\TrainingApplication') {
-            // Delete document if exists
-            if ($item->data['document_path'] ?? null) {
-                \Storage::disk('public')->delete($item->data['document_path']);
-            }
+    public static function permanentlyDelete($item): bool
+    {
+        try {
+            $modelClass = $item->model_type;
             
-            TrainingApplication::withTrashed()
-                ->where('id', $item->model_id)
-                ->forceDelete();
-        }
-        elseif ($modelClass === 'App\Models\SeedlingRequest') {
-            SeedlingRequest::withTrashed()
-                ->where('id', $item->model_id)
-                ->forceDelete();
-        }
+            if ($modelClass === 'App\Models\FishrApplication') {
+                \App\Models\FishrApplication::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
+            elseif ($modelClass === 'App\Models\TrainingApplication') {
+                // Delete document if exists
+                if ($item->data['document_path'] ?? null) {
+                    \Storage::disk('public')->delete($item->data['document_path']);
+                }
+                
+                \App\Models\TrainingApplication::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
+            elseif ($modelClass === 'App\Models\SeedlingRequest') {
+                \App\Models\SeedlingRequest::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
+            // NEW: Handle UserRegistration - delete documents and force delete
+            elseif ($modelClass === 'App\Models\UserRegistration') {
+                // Delete uploaded documents if they exist
+                if ($item->data['id_front_path'] ?? null) {
+                    \Storage::disk('public')->delete($item->data['id_front_path']);
+                }
+                
+                if ($item->data['id_back_path'] ?? null) {
+                    \Storage::disk('public')->delete($item->data['id_back_path']);
+                }
+                
+                if ($item->data['location_document_path'] ?? null) {
+                    \Storage::disk('public')->delete($item->data['location_document_path']);
+                }
+                
+                if ($item->data['profile_image_url'] ?? null) {
+                    \Storage::disk('public')->delete($item->data['profile_image_url']);
+                }
+                
+                // Force delete the registration record
+                UserRegistration::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
 
-        $item->forceDelete();
+            $item->forceDelete();
 
-        return true;
-    } catch (\Exception $e) {
-        \Log::error('Error permanently deleting item from recycle bin', [
-            'model_type' => $item->model_type,
-            'model_id' => $item->model_id,
-            'error' => $e->getMessage()
-        ]);
-        return false;
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Error permanently deleting item from recycle bin', [
+                'model_type' => $item->model_type,
+                'model_id' => $item->model_id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
-}
+
     /**
      * Bulk restore items
      */
@@ -338,6 +378,4 @@ public static function restore($item): bool
             ], 500);
         }
     }
-
-    
 }

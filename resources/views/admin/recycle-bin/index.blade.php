@@ -74,6 +74,7 @@
                     <div class="col-md-2">
                         <select name="type" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Types</option>
+                            <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>User Registration</option>
                             <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>FishR</option>
                             <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR</option>
                             <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA</option>
