@@ -194,6 +194,7 @@
                                     <th class="px-3 py-3 fw-medium text-white border-end">Requested Items</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Status</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end text-center">Pickup Date</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end text-center">Claimed</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Documents</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Actions</th>
                                 </tr>
@@ -361,6 +362,27 @@
         <span class="text-muted text-center d-block">
             <i class="fas fa-minus me-1"></i>Not set
         </span>
+    @endif
+</td>
+<td class="px-3 py-3 border-end text-center">
+    @if($request->claimed_at)
+        <div class="claimed-status">
+            <small class="d-block fw-semibold text-success">
+                <i class="fas fa-check-circle me-1"></i>Claimed
+            </small>
+            <small class="text-muted">
+                {{ $request->claimed_at->format('M d, Y') }}
+            </small>
+        </div>
+    @elseif(in_array($request->status, ['approved', 'partially_approved']))
+        <div class="claimed-actions">
+            <button type="button" class="btn btn-sm btn-outline-success" 
+                onclick="markAsClaimed({{ $request->id }}, '{{ $request->request_number }}')">
+                <i class="fas fa-check me-1"></i>Mark Claimed
+            </button>
+        </div>
+    @else
+        <span class="text-muted">—</span>
     @endif
 </td>
                                         <td class="px-3 py-3 text-center">
@@ -5598,5 +5620,38 @@ function updateAddSeedlingRemarksCounter() {
 //         }
 //     });
 // }
+function markAsClaimed(requestId, requestNumber) {
+    showConfirmationToast(
+        'Mark as Claimed',
+        `Mark request ${requestNumber} as claimed by the applicant?`,
+        () => proceedMarkAsClaimed(requestId, requestNumber)
+    );
+}
+
+function proceedMarkAsClaimed(requestId, requestNumber) {
+    const csrfToken = getCSRFToken();
+
+    fetch(`/admin/seedlings/requests/${requestId}/mark-claimed`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', data.message);
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showToast('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Failed to mark as claimed');
+    });
+}
     </script>
 @endsection

@@ -313,6 +313,10 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::post('/requests', [SeedlingRequestController::class, 'store'])->name('store');
     // Route::get('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
 
+    // In your admin routes group
+    Route::patch('/requests/{seedlingRequest}/mark-claimed', 
+        [SeedlingRequestController::class, 'markAsClaimed'])
+        ->name('mark-claimed');
     // export csv
     Route::get('/requests/export', [SeedlingRequestController::class, 'export'])->name('export');
 

@@ -895,4 +895,52 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         }
     }
 
+    /**
+     * Mark request as claimed by applicant
+     */
+    public function markAsClaimed(SeedlingRequest $seedlingRequest)
+    {
+        try {
+            // Check if request can be claimed
+            if (!$seedlingRequest->canBeClaimed()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This request cannot be marked as claimed.'
+                ], 400);
+            }
+
+            // Mark as claimed
+            $seedlingRequest->markAsClaimed();
+
+            // Log activity
+            $this->logActivity('marked_claimed', 'SeedlingRequest', $seedlingRequest->id, [
+                'request_number' => $seedlingRequest->request_number,
+                'marked_by' => auth()->user()->name,
+                'claimed_at' => $seedlingRequest->claimed_at->format('M d, Y g:i A')
+            ]);
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Request {$seedlingRequest->request_number} marked as claimed successfully!",
+                    'claimed_at' => $seedlingRequest->claimed_at->format('M d, Y g:i A')
+                ]);
+            }
+
+            return redirect()->back()->with('success', "Request marked as claimed successfully!");
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to mark request as claimed: ' . $e->getMessage());
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to mark as claimed: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to mark as claimed: ' . $e->getMessage());
+        }
+    }
+
 }
