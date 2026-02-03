@@ -23,6 +23,7 @@ class RecycleBinController extends Controller
                     'fishr' => 'App\Models\FishrApplication',
                     'boatr' => 'App\Models\BoatrApplication',
                     'rsbsa' => 'App\Models\RsbsaApplication',
+                    'seedlings' => 'App\Models\SeedlingRequest',
                 ];
 
                 if (isset($typeMap[$request->type])) {
@@ -117,38 +118,51 @@ class RecycleBinController extends Controller
         }
     }
 
-    /**
-     * Restore item from recycle bin
-     */
-    public function restore($id)
-    {
-        try {
-            $item = RecycleBin::findOrFail($id);
-
-            if (RecycleBinService::restore($item)) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "{$item->item_name} has been restored successfully"
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to restore item'
-                ], 400);
+public function restore(): bool
+{
+    try {
+        $modelClass = $this->model_type;
+        
+        if ($modelClass === 'App\Models\FishrApplication') {
+            $restored = FishrApplication::withTrashed()
+                ->find($this->model_id);
+            
+            if ($restored) {
+                $restored->restore();
             }
-
-        } catch (\Exception $e) {
-            Log::error('Error restoring item', [
-                'id' => $id,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error restoring item: ' . $e->getMessage()
-            ], 500);
+        } 
+        elseif ($modelClass === 'App\Models\SeedlingRequest') {
+            $restored = SeedlingRequest::withTrashed()
+                ->find($this->model_id);
+            
+            if ($restored) {
+                $restored->restore();
+            }
         }
+        else {
+            $model = new $modelClass();
+            $model->id = $this->model_id;
+            foreach ($this->data as $key => $value) {
+                $model->$key = $value;
+            }
+            $model->save();
+        }
+
+        $this->update([
+            'restored_at' => now(),
+            'restored_by' => auth()->id(),
+        ]);
+
+        return true;
+    } catch (\Exception $e) {
+        \Log::error('Error restoring item from recycle bin', [
+            'model_type' => $this->model_type,
+            'model_id' => $this->model_id,
+            'error' => $e->getMessage()
+        ]);
+        return false;
     }
+}
 
     /**
      * Permanently delete item from recycle bin
@@ -302,4 +316,6 @@ class RecycleBinController extends Controller
             ], 500);
         }
     }
+
+    
 }

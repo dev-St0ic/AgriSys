@@ -77,6 +77,7 @@
                             <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>FishR</option>
                             <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR</option>
                             <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA</option>
+                             <option value="seedling" {{ request('type') == 'seedling' ? 'selected' : '' }}>Supplies Request</option>
                         </select>
                     </div>
                     <div class="col-md-2">

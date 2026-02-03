@@ -1136,94 +1136,68 @@ private function getChangedFields($original, $updated)
             abort(500, 'Error downloading document: ' . $e->getMessage());
         }
     }
+/**
+ * Delete registration - FIXED & ENHANCED WITH RECYCLE BIN
+ */
+public function destroy(Request $request, $id)
+{
+    try {
+        $registration = BoatrApplication::findOrFail($id);
+        $applicationNumber = $registration->application_number;
 
-    /**
-     * Delete registration - FIXED & ENHANCED
-     */
-    public function destroy(Request $request, $id)
-    {
-        try {
-            $registration = BoatrApplication::findOrFail($id);
-            $applicationNumber = $registration->application_number;
+        // Move to recycle bin instead of permanent deletion
+        \App\Services\RecycleBinService::softDelete(
+            $registration,
+            'Deleted from BoatR registrations'
+        );
 
-            // Delete user document if exists
-            if ($registration->hasUserDocument() && $registration->user_document_path) {
-                if (Storage::disk('public')->exists($registration->user_document_path)) {
-                    Storage::disk('public')->delete($registration->user_document_path);
-                }
-            }
+        // Send admin notification
+        NotificationService::boatrApplicationDeleted(
+            $applicationNumber,
+            $registration->full_name
+        );
 
-            // Delete inspection documents if they exist
-            if ($registration->inspection_documents) {
-                foreach ($registration->inspection_documents as $document) {
-                    if (isset($document['path']) && Storage::disk('public')->exists($document['path'])) {
-                        Storage::disk('public')->delete($document['path']);
-                    }
-                }
-            }
+        $this->logActivity('deleted', 'BoatrApplication', $id, [
+            'application_number' => $applicationNumber,
+            'action' => 'moved_to_recycle_bin'
+        ]);
 
-            // Delete all associated annexes - FIXED: Get the collection first
-            $annexes = $registration->annexes; // This returns a collection
+        Log::info('BoatR registration moved to recycle bin', [
+            'registration_id' => $id,
+            'application_number' => $applicationNumber,
+            'deleted_by' => auth()->user()->name ?? 'System'
+        ]);
 
-            if ($annexes->isNotEmpty()) {
-                foreach ($annexes as $annex) {
-                    if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
-                        Storage::disk('public')->delete($annex->file_path);
-                    }
-                    $annex->delete();
-                }
-            }
+        $message = "Application {$applicationNumber} has been moved to recycle bin";
 
-            // Delete the registration
-            $registration->delete();
-
-            Log::info('BoatR registration deleted', [
-                'registration_id' => $id,
-                'application_number' => $applicationNumber,
-                'deleted_by' => auth()->user()->name ?? 'System'
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message
             ]);
-
-            // Log activity
-            $this->logActivity('deleted', 'BoatrApplication', $id, [
-                'application_number' => $applicationNumber
-            ]);
-
-            // ✅ Send admin notification for deletion
-            NotificationService::boatrApplicationDeleted(
-                $applicationNumber,
-                $registration->full_name
-            );
-
-            $message = "Application {$applicationNumber} has been deleted successfully";
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message
-                ]);
-            }
-
-            return redirect()->route('admin.boatr.requests')->with('success', $message);
-
-        } catch (\Exception $e) {
-            Log::error('Error deleting BoatR registration', [
-                'registration_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            $errorMessage = 'Error deleting registration: ' . $e->getMessage();
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
         }
+
+        return redirect()->route('admin.boatr.requests')->with('success', $message);
+
+    } catch (\Exception $e) {
+        Log::error('Error moving BoatR registration to recycle bin', [
+            'registration_id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        $errorMessage = 'Error deleting registration: ' . $e->getMessage();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', $errorMessage);
     }
+}
 
     /**
      * Export registrations to CSV

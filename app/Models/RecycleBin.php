@@ -187,33 +187,33 @@ class RecycleBin extends Model
         }
     }
 
-    /**
-     * Permanently delete the item
-     */
-    public function permanentlyDelete(): bool
-    {
-        try {
-            // If item still exists, hard delete it
-            $modelClass = $this->model_type;
-            if ($modelClass === 'App\Models\FishrApplication') {
-                FishrApplication::withTrashed()
-                    ->where('id', $this->model_id)
-                    ->forceDelete();
-            }
-
-            // Delete the recycle bin entry
-            $this->forceDelete();
-
-            return true;
-        } catch (\Exception $e) {
-            \Log::error('Error permanently deleting item from recycle bin', [
-                'model_type' => $this->model_type,
-                'model_id' => $this->model_id,
-                'error' => $e->getMessage()
-            ]);
-            return false;
+ public function permanentlyDelete(): bool
+{
+    try {
+        $modelClass = $this->model_type;
+        if ($modelClass === 'App\Models\FishrApplication') {
+            FishrApplication::withTrashed()
+                ->where('id', $this->model_id)
+                ->forceDelete();
+        } 
+        elseif ($modelClass === 'App\Models\SeedlingRequest') {
+            SeedlingRequest::withTrashed()
+                ->where('id', $this->model_id)
+                ->forceDelete();
         }
+
+        $this->forceDelete();
+
+        return true;
+    } catch (\Exception $e) {
+        \Log::error('Error permanently deleting item from recycle bin', [
+            'model_type' => $this->model_type,
+            'model_id' => $this->model_id,
+            'error' => $e->getMessage()
+        ]);
+        return false;
     }
+}
 
     /**
      * Get a human-readable type name
@@ -224,7 +224,16 @@ class RecycleBin extends Model
             'App\Models\FishrApplication' => 'FishR Registration',
             'App\Models\BoatrApplication' => 'BoatR Registration',
             'App\Models\RsbsaApplication' => 'RSBSA Application',
+            'App\Models\SeedlingRequest' => 'Seedling Request',
             default => 'Unknown Item'
         };
     }
+
+    /**
+     * Scope to get only Seedling Request items
+     */
+    public function scopeSeedlingRequest($query)
+    {
+        return $query->where('model_type', 'App\Models\SeedlingRequest');
+}
 }
