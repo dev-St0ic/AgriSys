@@ -111,8 +111,8 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-ship fa-2x text-primary"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-file-alt fa-2x text-primary"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ number_format($overview['total_applications']) }}</h2>
                     <h6 class="text-muted mb-2">Total Applications</h6>
@@ -126,7 +126,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
+                    <div class="metric-icon mb-3 mx-auto">
                         <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
@@ -139,11 +139,11 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-anchor fa-2x text-purple"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-ship fa-2x text-purple"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['unique_vessels'] }}</h2>
-                    <h6 class="text-muted mb-2">Registered Boat</h6>
+                    <h6 class="text-muted mb-2">Registered Vessels</h6>
                     <small class="text-muted">{{ $overview['unique_boat_types'] }} boat types</small>
                 </div>
             </div>
@@ -152,8 +152,8 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-clipboard-check fa-2x text-warning"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-clock fa-2x text-warning"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['inspection_completion_rate'] }}%</h2>
                     <h6 class="text-muted mb-2">Inspection Rate</h6>

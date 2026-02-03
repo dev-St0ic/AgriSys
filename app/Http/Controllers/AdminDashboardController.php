@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserRegistration;
 use App\Models\TrainingApplication;
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
@@ -40,6 +41,11 @@ class AdminDashboardController extends Controller
         // GEOGRAPHIC DISTRIBUTION
         $geographicDistribution = $this->getGeographicDistribution();
 
+        // USER REGISTRATION DATA with date range
+        $startMonth = request('start_month', now()->subMonths(5)->format('Y-m'));
+        $endMonth = request('end_month', now()->format('Y-m'));
+        $userRegistrationData = $this->getUserRegistrationData($startMonth, $endMonth);
+
         return view('admin.dashboard', compact(
             'user',
             'criticalAlerts',
@@ -47,7 +53,10 @@ class AdminDashboardController extends Controller
             'recentActivity',
             'supplyAlerts',
             'applicationStatus',
-            'geographicDistribution'
+            'geographicDistribution',
+            'userRegistrationData',
+            'startMonth',
+            'endMonth'
         ));
     }
 
@@ -139,8 +148,8 @@ class AdminDashboardController extends Controller
         // Total out-of-stock items
         $outOfStockItems = CategoryItem::outOfSupply()->count();
 
-        // Total active users
-        $totalUsers = User::where('role', 'user')->count();
+        // Total registered users from user_registration table
+        $totalUsers = UserRegistration::count();
 
         return [
             'total_pending' => $totalPending,
@@ -152,7 +161,7 @@ class AdminDashboardController extends Controller
     /**
      * Get recent activity with direct action links
      */
-    private function getRecentActivity(): array
+    private function getRecentActivity()
     {
         $activities = [];
 
@@ -211,8 +220,7 @@ class AdminDashboardController extends Controller
             ->merge($recentFishr)
             ->sortByDesc('created_at')
             ->take(8)
-            ->values()
-            ->toArray();
+            ->values();
 
         return $activities;
     }
@@ -224,7 +232,15 @@ class AdminDashboardController extends Controller
     {
         $alerts = [];
 
-        // Out of stock items
+        // Get total counts first
+        $totalOutOfStockCount = CategoryItem::outOfSupply()->count();
+        $totalLowStockCount = CategoryItem::whereNotNull('reorder_point')
+            ->whereColumn('current_supply', '<=', 'reorder_point')
+            ->where('current_supply', '>', 0)
+            ->count();
+        $totalItemsCount = CategoryItem::count();
+
+        // Out of stock items (top 5 for display)
         $outOfStock = CategoryItem::outOfSupply()
             ->with('category')
             ->orderBy('current_supply', 'asc')
@@ -240,7 +256,7 @@ class AdminDashboardController extends Controller
                 ];
             });
 
-        // Low stock items (critically low)
+        // Low stock items (critically low - top 5 for display)
         $lowStock = CategoryItem::whereNotNull('reorder_point')
             ->whereColumn('current_supply', '<=', 'reorder_point')
             ->where('current_supply', '>', 0)
@@ -262,7 +278,10 @@ class AdminDashboardController extends Controller
         return [
             'out_of_stock' => $outOfStock->toArray(),
             'low_stock' => $lowStock->toArray(),
-            'total_issues' => $outOfStock->count() + $lowStock->count()
+            'total_issues' => $totalOutOfStockCount + $totalLowStockCount,
+            'total_out_of_stock_count' => $totalOutOfStockCount,
+            'total_low_stock_count' => $totalLowStockCount,
+            'total_items_count' => $totalItemsCount
         ];
     }
 
@@ -392,5 +411,60 @@ class AdminDashboardController extends Controller
             'users' => $userDistribution->toArray(),
             'applications' => $applicationDistribution->values()->toArray()
         ];
+    }
+
+    /**
+     * Get user registration data based on date range (new registrations per month)
+     * @param string $startMonth - Start month in Y-m format (e.g., '2025-09')
+     * @param string $endMonth - End month in Y-m format (e.g., '2026-02')
+     */
+    private function getUserRegistrationData($startMonth, $endMonth): array
+    {
+        $monthlyData = [];
+
+        // First check if we have any user registrations at all
+        $totalRegistrations = UserRegistration::count();
+
+        if ($totalRegistrations === 0) {
+            // No registrations, return empty array (will trigger dummy data)
+            return [];
+        }
+
+        // Parse the start and end dates
+        try {
+            $startDate = Carbon::createFromFormat('Y-m', $startMonth)->startOfMonth();
+            $endDate = Carbon::createFromFormat('Y-m', $endMonth)->endOfMonth();
+        } catch (\Exception $e) {
+            // If invalid dates, default to last 6 months
+            $startDate = Carbon::now()->subMonths(5)->startOfMonth();
+            $endDate = Carbon::now()->endOfMonth();
+        }
+
+        // Ensure start is before end
+        if ($startDate->greaterThan($endDate)) {
+            $temp = $startDate;
+            $startDate = $endDate;
+            $endDate = $temp;
+        }
+
+        // Loop through each month in the range
+        $currentMonth = $startDate->copy();
+        while ($currentMonth->lessThanOrEqualTo($endDate)) {
+            $monthStart = $currentMonth->copy()->startOfMonth();
+            $monthEnd = $currentMonth->copy()->endOfMonth();
+
+            // Count user registrations in this specific month
+            $count = UserRegistration::whereBetween('created_at', [$monthStart, $monthEnd])
+                ->count();
+
+            $monthlyData[] = [
+                'month' => $currentMonth->format('M Y'),
+                'count' => $count
+            ];
+
+            $currentMonth->addMonth();
+        }
+
+        return $monthlyData;
     }
 }

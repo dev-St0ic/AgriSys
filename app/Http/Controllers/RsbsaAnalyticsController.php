@@ -20,50 +20,50 @@ class RsbsaAnalyticsController extends Controller
             // Date range filter with better defaults
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             // Base query with date range
             $baseQuery = RsbsaApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
             // 1. Overview Statistics
             $overview = $this->getOverviewStatistics(clone $baseQuery);
-            
+
             // 2. Application Status Analysis
             $statusAnalysis = $this->getStatusAnalysis(clone $baseQuery);
-            
+
             // 3. Monthly Trends
             $monthlyTrends = $this->getMonthlyTrends($startDate, $endDate);
-            
+
             // 4. Barangay Analysis
             $barangayAnalysis = $this->getBarangayAnalysis(clone $baseQuery);
-            
+
             // 5. Livelihood Analysis
             $livelihoodAnalysis = $this->getLivelihoodAnalysis(clone $baseQuery);
-            
+
             // 6. Gender Distribution Analysis
             $genderAnalysis = $this->getGenderAnalysis(clone $baseQuery);
-            
+
             // 7. Application Processing Time Analysis
             $processingTimeAnalysis = $this->getProcessingTimeAnalysis(clone $baseQuery);
-            
+
             // 8. Registration Patterns
             $registrationPatterns = $this->getRegistrationPatterns(clone $baseQuery);
-            
+
             // 9. Document Submission Analysis
             $documentAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
-            
+
             // 10. Monthly Performance Metrics
             $performanceMetrics = $this->getPerformanceMetrics(clone $baseQuery);
-            
+
             // 11. Commodity Analysis (specific to RSBSA)
             $commodityAnalysis = $this->getCommodityAnalysis(clone $baseQuery);
-            
+
             // 12. Land Area Analysis (specific to RSBSA)
             $landAreaAnalysis = $this->getLandAreaAnalysis(clone $baseQuery);
-            
+
             return view('admin.analytics.rsbsa', compact(
                 'overview',
                 'statusAnalysis',
@@ -87,7 +87,7 @@ class RsbsaAnalyticsController extends Controller
             return back()->with('error', 'Error loading RSBSA analytics data. Please try again.');
         }
     }
-    
+
     /**
      * Get overview statistics
      */
@@ -98,29 +98,29 @@ class RsbsaAnalyticsController extends Controller
             $approved = (clone $baseQuery)->where('status', 'approved')->count();
             $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
             $pending = (clone $baseQuery)->whereIn('status', ['pending', 'under_review'])->count();
-            
+
             // Count unique applicants safely
             $uniqueApplicants = (clone $baseQuery)
                 ->select(DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"))
                 ->distinct()
                 ->whereNotNull('first_name')
                 ->count();
-                
+
             // Count active barangays
             $activeBarangays = (clone $baseQuery)->whereNotNull('barangay')->distinct()->count('barangay');
-            
+
             // Count applications with documents
             $withDocuments = (clone $baseQuery)->whereNotNull('supporting_document_path')->where('supporting_document_path', '!=', '')->count();
-            
+
             // Count unique commodities
             $uniqueCommodities = (clone $baseQuery)->whereNotNull('commodity')->distinct()->count('commodity');
-            
+
             // Total land area
-            $totalLandArea = (clone $baseQuery)->whereNotNull('land_area')->sum('land_area');
-            
+            $totalLandArea = (clone $baseQuery)->whereNotNull('farmer_land_area')->sum('farmer_land_area');
+
             // Average land area
-            $avgLandArea = (clone $baseQuery)->whereNotNull('land_area')->avg('land_area');
-            
+            $avgLandArea = (clone $baseQuery)->whereNotNull('farmer_land_area')->avg('farmer_land_area');
+
             return [
                 'total_applications' => $total,
                 'approved_applications' => $approved,
@@ -140,7 +140,7 @@ class RsbsaAnalyticsController extends Controller
             return $this->getDefaultOverview();
         }
     }
-    
+
     /**
      * Get status analysis with trends
      */
@@ -151,25 +151,25 @@ class RsbsaAnalyticsController extends Controller
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray();
-                
+
             // Ensure all statuses are present with default values
             $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
-            
+
             // Combine pending and under_review for display
             $displayStatusCounts = [
                 'approved' => $statusCounts['approved'],
                 'rejected' => $statusCounts['rejected'],
                 'pending' => $statusCounts['pending'] + $statusCounts['under_review']
             ];
-                
+
             // Add percentage calculations
             $total = array_sum($displayStatusCounts);
             $statusPercentages = [];
             foreach ($displayStatusCounts as $status => $count) {
                 $statusPercentages[$status] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
             }
-            
+
             return [
                 'counts' => $displayStatusCounts,
                 'percentages' => $statusPercentages,
@@ -184,7 +184,7 @@ class RsbsaAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get monthly trends
      */
@@ -200,20 +200,20 @@ class RsbsaAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending'),
                     DB::raw('SUM(CASE WHEN supporting_document_path IS NOT NULL AND supporting_document_path != "" THEN 1 ELSE 0 END) as with_documents'),
                     DB::raw('COUNT(DISTINCT barangay) as unique_barangays'),
-                    DB::raw('SUM(COALESCE(land_area, 0)) as total_land_area'),
+                    DB::raw('SUM(COALESCE(farmer_land_area, 0)) as total_land_area'),
                     DB::raw('COUNT(DISTINCT commodity) as unique_commodities')
                 )
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
-                
+
             return $trends;
         } catch (\Exception $e) {
             Log::error('RSBSA Monthly Trends Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get barangay analysis
      */
@@ -228,7 +228,7 @@ class RsbsaAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending'),
                     DB::raw('COUNT(DISTINCT CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, ""))) as unique_applicants'),
                     DB::raw('SUM(CASE WHEN supporting_document_path IS NOT NULL AND supporting_document_path != "" THEN 1 ELSE 0 END) as with_documents'),
-                    DB::raw('SUM(COALESCE(land_area, 0)) as total_land_area'),
+                    DB::raw('SUM(COALESCE(farmer_land_area, 0)) as total_land_area'),
                     DB::raw('COUNT(DISTINCT commodity) as commodities_grown')
                 )
                 ->whereNotNull('barangay')
@@ -236,14 +236,14 @@ class RsbsaAnalyticsController extends Controller
                 ->groupBy('barangay')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $barangayStats;
         } catch (\Exception $e) {
             Log::error('RSBSA Barangay Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get livelihood analysis
      */
@@ -256,10 +256,10 @@ class RsbsaAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
                     DB::raw('COUNT(DISTINCT barangay) as barangays_served'),
-                    DB::raw('SUM(COALESCE(land_area, 0)) as total_land_area'),
-                    DB::raw('AVG(COALESCE(land_area, 0)) as avg_land_area'),
+                    DB::raw('SUM(COALESCE(farmer_land_area, 0)) as total_land_area'),
+                    DB::raw('AVG(COALESCE(farmer_land_area, 0)) as avg_land_area'),
                     DB::raw('COUNT(DISTINCT commodity) as commodities_grown'),
-                    DB::raw('AVG(CASE WHEN approved_at IS NOT NULL AND created_at IS NOT NULL 
+                    DB::raw('AVG(CASE WHEN approved_at IS NOT NULL AND created_at IS NOT NULL
                              THEN DATEDIFF(approved_at, created_at) END) as avg_processing_days')
                 )
                 ->whereNotNull('main_livelihood')
@@ -267,14 +267,14 @@ class RsbsaAnalyticsController extends Controller
                 ->groupBy('main_livelihood')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $livelihoodStats;
         } catch (\Exception $e) {
             Log::error('RSBSA Livelihood Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get gender distribution analysis
      */
@@ -287,21 +287,21 @@ class RsbsaAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
                     DB::raw('COUNT(DISTINCT barangay) as barangays_represented'),
-                    DB::raw('SUM(COALESCE(land_area, 0)) as total_land_area'),
-                    DB::raw('AVG(COALESCE(land_area, 0)) as avg_land_area')
+                    DB::raw('SUM(COALESCE(farmer_land_area, 0)) as total_land_area'),
+                    DB::raw('AVG(COALESCE(farmer_land_area, 0)) as avg_land_area')
                 )
                 ->whereNotNull('sex')
                 ->where('sex', '!=', '')
                 ->groupBy('sex')
                 ->get();
-                
+
             $total = $genderStats->sum('total_applications');
-            
+
             $genderPercentages = [];
             foreach ($genderStats as $stat) {
                 $genderPercentages[$stat->sex] = $total > 0 ? round(($stat->total_applications / $total) * 100, 2) : 0;
             }
-            
+
             return [
                 'stats' => $genderStats,
                 'percentages' => $genderPercentages,
@@ -316,7 +316,7 @@ class RsbsaAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get processing time analysis
      */
@@ -324,7 +324,7 @@ class RsbsaAnalyticsController extends Controller
     {
         try {
             $processedApplications = (clone $baseQuery)->whereNotNull('approved_at')->orWhereNotNull('rejected_at')->get();
-            
+
             $processingTimes = [];
             foreach ($processedApplications as $application) {
                 $processedAt = $application->approved_at ?? $application->rejected_at;
@@ -334,7 +334,7 @@ class RsbsaAnalyticsController extends Controller
                     $processingTimes[] = $processingTime;
                 }
             }
-            
+
             if (empty($processingTimes)) {
                 return [
                     'avg_processing_days' => 0,
@@ -344,13 +344,13 @@ class RsbsaAnalyticsController extends Controller
                     'median_processing_days' => 0
                 ];
             }
-            
+
             sort($processingTimes);
             $count = count($processingTimes);
-            $median = $count % 2 === 0 
-                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2 
+            $median = $count % 2 === 0
+                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2
                 : $processingTimes[floor($count/2)];
-            
+
             return [
                 'avg_processing_days' => round(array_sum($processingTimes) / count($processingTimes), 2),
                 'min_processing_days' => min($processingTimes),
@@ -369,7 +369,7 @@ class RsbsaAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get registration patterns (day of week, time patterns)
      */
@@ -384,7 +384,7 @@ class RsbsaAnalyticsController extends Controller
                 ->groupBy('day_name', 'day_number')
                 ->orderBy('day_number')
                 ->get();
-                
+
             $hourlyStats = (clone $baseQuery)->select(
                     DB::raw('HOUR(created_at) as hour'),
                     DB::raw('COUNT(*) as applications_count')
@@ -392,7 +392,7 @@ class RsbsaAnalyticsController extends Controller
                 ->groupBy('hour')
                 ->orderBy('hour')
                 ->get();
-                
+
             return [
                 'day_of_week' => $dayOfWeekStats,
                 'hourly' => $hourlyStats
@@ -405,7 +405,7 @@ class RsbsaAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get document submission analysis
      */
@@ -416,23 +416,23 @@ class RsbsaAnalyticsController extends Controller
             $withoutDocs = (clone $baseQuery)->where(function($q) {
                 $q->whereNull('supporting_document_path')->orWhere('supporting_document_path', '');
             })->count();
-            
+
             $total = $withDocs + $withoutDocs;
-            
+
             // Approval rates by document submission
             $approvalWithDocs = (clone $baseQuery)
                 ->whereNotNull('supporting_document_path')
                 ->where('supporting_document_path', '!=', '')
                 ->where('status', 'approved')
                 ->count();
-                
+
             $approvalWithoutDocs = (clone $baseQuery)
                 ->where(function($q) {
                     $q->whereNull('supporting_document_path')->orWhere('supporting_document_path', '');
                 })
                 ->where('status', 'approved')
                 ->count();
-            
+
             return [
                 'with_documents' => $withDocs,
                 'without_documents' => $withoutDocs,
@@ -453,7 +453,7 @@ class RsbsaAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get commodity analysis (specific to RSBSA)
      */
@@ -464,9 +464,9 @@ class RsbsaAnalyticsController extends Controller
                     'commodity',
                     DB::raw('COUNT(*) as total_applications'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
-                    DB::raw('COUNT(DISTINCT barangay) as barangays_served'),
-                    DB::raw('SUM(COALESCE(land_area, 0)) as total_land_area'),
-                    DB::raw('AVG(COALESCE(land_area, 0)) as avg_land_area'),
+                    DB::raw('COUNT(DISTINCT barangay) as unique_barangays'),
+                    DB::raw('SUM(COALESCE(farmer_land_area, 0)) as total_land_area'),
+                    DB::raw('AVG(COALESCE(farmer_land_area, 0)) as avg_land_area'),
                     DB::raw('COUNT(DISTINCT CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, ""))) as unique_farmers')
                 )
                 ->whereNotNull('commodity')
@@ -474,14 +474,14 @@ class RsbsaAnalyticsController extends Controller
                 ->groupBy('commodity')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $commodityStats;
         } catch (\Exception $e) {
             Log::error('RSBSA Commodity Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get land area analysis (specific to RSBSA)
      */
@@ -491,38 +491,38 @@ class RsbsaAnalyticsController extends Controller
             // Land area distribution ranges
             $landAreaRanges = (clone $baseQuery)
                 ->select(
-                    DB::raw('CASE 
-                        WHEN land_area <= 1 THEN "0-1 hectares"
-                        WHEN land_area <= 3 THEN "1-3 hectares" 
-                        WHEN land_area <= 5 THEN "3-5 hectares"
-                        WHEN land_area <= 10 THEN "5-10 hectares"
+                    DB::raw('CASE
+                        WHEN farmer_land_area <= 1 THEN "0-1 hectares"
+                        WHEN farmer_land_area <= 3 THEN "1-3 hectares"
+                        WHEN farmer_land_area <= 5 THEN "3-5 hectares"
+                        WHEN farmer_land_area <= 10 THEN "5-10 hectares"
                         ELSE "10+ hectares"
                         END as land_range'),
                     DB::raw('COUNT(*) as farmer_count'),
-                    DB::raw('SUM(land_area) as total_area'),
+                    DB::raw('SUM(farmer_land_area) as total_area'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved')
                 )
-                ->whereNotNull('land_area')
-                ->where('land_area', '>', 0)
+                ->whereNotNull('farmer_land_area')
+                ->where('farmer_land_area', '>', 0)
                 ->groupBy('land_range')
-                ->orderBy(DB::raw('MIN(land_area)'))
+                ->orderBy(DB::raw('MIN(farmer_land_area)'))
                 ->get();
-                
+
             // Top farmers by land area
             $topFarmers = (clone $baseQuery)
                 ->select(
                     DB::raw('CONCAT(first_name, " ", COALESCE(middle_name, ""), " ", last_name) as full_name'),
                     'barangay',
                     'commodity',
-                    'land_area',
+                    'farmer_land_area as land_area',
                     'status'
                 )
-                ->whereNotNull('land_area')
-                ->where('land_area', '>', 0)
-                ->orderBy('land_area', 'desc')
+                ->whereNotNull('farmer_land_area')
+                ->where('farmer_land_area', '>', 0)
+                ->orderBy('farmer_land_area', 'desc')
                 ->limit(10)
                 ->get();
-                
+
             return [
                 'land_ranges' => $landAreaRanges,
                 'top_farmers' => $topFarmers
@@ -535,7 +535,7 @@ class RsbsaAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get performance metrics
      */
@@ -543,28 +543,28 @@ class RsbsaAnalyticsController extends Controller
     {
         try {
             $metrics = [];
-            
+
             // Overall completion rate
             $total = (clone $baseQuery)->count();
             $completed = (clone $baseQuery)->whereIn('status', ['approved', 'rejected'])->count();
             $metrics['completion_rate'] = $total > 0 ? round(($completed / $total) * 100, 2) : 0;
-            
+
             // Average applications per day
             $dateRange = (clone $baseQuery)->selectRaw('DATEDIFF(MAX(created_at), MIN(created_at)) + 1 as days')->first();
             $totalDays = $dateRange ? $dateRange->days : 1;
             $metrics['avg_applications_per_day'] = round($total / max(1, $totalDays), 2);
-            
+
             // Quality score (based on document submission and approval rates)
             $overview = $this->getOverviewStatistics(clone $baseQuery);
             $docAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
             $metrics['quality_score'] = round(
-                ($overview['approval_rate'] * 0.6) + 
+                ($overview['approval_rate'] * 0.6) +
                 ($docAnalysis['submission_rate'] * 0.4), 2
             );
-            
+
             // Total agricultural impact (land area covered)
             $metrics['total_land_impact'] = $overview['total_land_area'];
-            
+
             return $metrics;
         } catch (\Exception $e) {
             Log::error('RSBSA Performance Metrics Error: ' . $e->getMessage());
@@ -576,7 +576,7 @@ class RsbsaAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Calculate approval rate
      */
@@ -584,7 +584,7 @@ class RsbsaAnalyticsController extends Controller
     {
         return $total > 0 ? round(($approved / $total) * 100, 2) : 0;
     }
-    
+
     /**
      * Get default overview when errors occur
      */
@@ -605,7 +605,7 @@ class RsbsaAnalyticsController extends Controller
             'avg_land_area' => 0
         ];
     }
-    
+
     /**
      * Export analytics data
      */
@@ -614,13 +614,13 @@ class RsbsaAnalyticsController extends Controller
         try {
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             $baseQuery = RsbsaApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
             $data = [
                 'export_info' => [
                     'generated_at' => now()->format('Y-m-d H:i:s'),
@@ -643,15 +643,15 @@ class RsbsaAnalyticsController extends Controller
                 'commodity_analysis' => $this->getCommodityAnalysis(clone $baseQuery)->toArray(),
                 'land_area_analysis' => $this->getLandAreaAnalysis(clone $baseQuery)
             ];
-            
+
             $filename = 'rsbsa-analytics-' . $startDate . '-to-' . $endDate . '.json';
-            
+
             // Log activity
             $this->logActivity('exported', 'RsbsaApplication', null, [
                 'format' => 'JSON',
                 'date_range' => ['start' => $startDate, 'end' => $endDate]
             ], 'Exported RSBSA analytics data from ' . $startDate . ' to ' . $endDate);
-            
+
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

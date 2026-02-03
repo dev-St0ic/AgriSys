@@ -235,26 +235,33 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    @foreach ($commodityAnalysis->take(5) as $index => $commodity)
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0 fw-semibold">{{ ucfirst($commodity->commodity) }}</h6>
-                                <span
-                                    class="badge bg-primary text-white rounded-pill px-3">{{ $commodity->total_applications }}</span>
+                    @if ($commodityAnalysis->isNotEmpty())
+                        @foreach ($commodityAnalysis->take(5) as $index => $commodity)
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0 fw-semibold">{{ ucfirst($commodity->commodity) }}</h6>
+                                    <span
+                                        class="badge bg-primary text-white rounded-pill px-3">{{ $commodity->total_applications }}</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 8px;">
+                                    <div class="progress-bar bg-primary"
+                                        style="width: {{ $commodityAnalysis->first()->total_applications > 0 ? ($commodity->total_applications / $commodityAnalysis->first()->total_applications) * 100 : 0 }}%"
+                                        role="progressbar"></div>
+                                </div>
+                                <div class="d-flex justify-content-between small text-muted">
+                                    <span>Approval:
+                                        {{ round(($commodity->approved / max(1, $commodity->total_applications)) * 100, 1) }}%</span>
+                                    <span>Avg: {{ round($commodity->total_land_area, 1) }}ha ×
+                                        {{ $commodity->unique_barangays }} barangays</span>
+                                </div>
                             </div>
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-primary"
-                                    style="width: {{ ($commodity->total_applications / $commodityAnalysis->first()->total_applications) * 100 }}%"
-                                    role="progressbar"></div>
-                            </div>
-                            <div class="d-flex justify-content-between small text-muted">
-                                <span>Approval:
-                                    {{ round(($commodity->approved / max(1, $commodity->total_applications)) * 100, 1) }}%</span>
-                                <span>Avg: {{ round($commodity->total_land_area, 1) }}ha ×
-                                    {{ $commodity->unique_barangays }} barangays</span>
-                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p>No commodity data available for the selected period</p>
                         </div>
-                    @endforeach
+                    @endif
                 </div>
             </div>
         </div> <!-- Main Livelihood Distribution -->
@@ -266,27 +273,34 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    @foreach ($livelihoodAnalysis->take(5) as $index => $livelihood)
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0 fw-semibold">{{ ucfirst($livelihood->main_livelihood) }}</h6>
-                                <span
-                                    class="badge bg-primary text-white rounded-pill px-3">{{ $livelihood->total_applications }}</span>
+                    @if ($livelihoodAnalysis->isNotEmpty())
+                        @foreach ($livelihoodAnalysis->take(5) as $index => $livelihood)
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0 fw-semibold">{{ ucfirst($livelihood->main_livelihood) }}</h6>
+                                    <span
+                                        class="badge bg-primary text-white rounded-pill px-3">{{ $livelihood->total_applications }}</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 8px;">
+                                    <div class="progress-bar bg-primary"
+                                        style="width: {{ $livelihoodAnalysis->first()->total_applications > 0 ? ($livelihood->total_applications / $livelihoodAnalysis->first()->total_applications) * 100 : 0 }}%"
+                                        role="progressbar"></div>
+                                </div>
+                                <div class="d-flex justify-content-between small text-muted">
+                                    <span>Approval:
+                                        {{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}%</span>
+                                    <span>Share:
+                                        {{ round(($livelihood->total_applications / max(1, $livelihoodAnalysis->sum('total_applications'))) * 100, 1) }}%
+                                        of total</span>
+                                </div>
                             </div>
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-primary"
-                                    style="width: {{ ($livelihood->total_applications / $livelihoodAnalysis->first()->total_applications) * 100 }}%"
-                                    role="progressbar"></div>
-                            </div>
-                            <div class="d-flex justify-content-between small text-muted">
-                                <span>Approval:
-                                    {{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}%</span>
-                                <span>Share:
-                                    {{ round(($livelihood->total_applications / $livelihoodAnalysis->sum('total_applications')) * 100, 1) }}%
-                                    of total</span>
-                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p>No livelihood data available for the selected period</p>
                         </div>
-                    @endforeach
+                    @endif
                 </div>
             </div>
         </div>
@@ -316,7 +330,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($barangayAnalysis->take(10) as $index => $barangay)
+                                @forelse ($barangayAnalysis->take(10) as $index => $barangay)
                                     <tr>
                                         <td>
                                             <div
@@ -351,7 +365,14 @@
                                             <span class="badge bg-info">{{ $barangay->commodities_grown }}</span>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">
+                                            <i class="fas fa-map-marker-alt fa-2x mb-2 d-block"></i>
+                                            No barangay data available for the selected period
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -390,6 +411,15 @@
                             if (!ctx) return;
 
                             const statusData = [{{ implode(',', $statusAnalysis['counts']) }}];
+                            const totalCount = statusData.reduce((a, b) => a + b, 0);
+
+                            @if ($statusAnalysis['total'] == 0)
+                                // Display message when no data available
+                                ctx.parentElement.innerHTML =
+                                    '<div class="text-center py-5"><i class="fas fa-chart-pie fa-3x text-muted mb-3"></i><p class="text-muted">No status data available</p></div>';
+                                return;
+                            @endif
+
                             const statusLabels = [
                                 @foreach ($statusAnalysis['counts'] as $status => $count)
                                     '{{ ucfirst(str_replace('_', ' ', $status)) }}',
@@ -569,6 +599,13 @@
                         function initializeTrendsChart() {
                             const ctx = document.getElementById('rsbsaTrendsChart');
                             if (!ctx) return;
+
+                            @if ($monthlyTrends->isEmpty())
+                                // Display message when no data available
+                                ctx.parentElement.innerHTML =
+                                    '<div class="text-center py-5"><i class="fas fa-chart-line fa-3x text-muted mb-3"></i><p class="text-muted">No trend data available for the selected period</p></div>';
+                                return;
+                            @endif
 
                             chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
                                 type: 'line',

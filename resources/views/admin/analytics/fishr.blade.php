@@ -111,13 +111,13 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-fish fa-2x text-primary"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-file-alt fa-2x text-primary"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ number_format($overview['total_applications']) }}</h2>
                     <h6 class="text-muted mb-2">Total Applications</h6>
                     <small class="text-success">
-                        <i class="fas fa-arrow-up me-1"></i>Active
+                        <i class="fas fa-users me-1"></i>{{ number_format($overview['unique_applicants']) }} fishermen
                     </small>
                 </div>
             </div>
@@ -126,7 +126,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
+                    <div class="metric-icon mb-3 mx-auto">
                         <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
@@ -139,8 +139,8 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-map-marker-alt fa-2x text-purple"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-map-marked-alt fa-2x text-purple"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['active_barangays'] }}</h2>
                     <h6 class="text-muted mb-2">Community Reach</h6>
@@ -152,7 +152,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
+                    <div class="metric-icon mb-3 mx-auto">
                         <i class="fas fa-file-alt fa-2x text-warning"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['document_submission_rate'] }}%</h2>
