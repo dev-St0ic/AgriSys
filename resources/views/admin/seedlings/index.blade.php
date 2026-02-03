@@ -329,37 +329,40 @@
                                             </span>
                                         </td>
                                         <!--  NEW: Pickup Date Column -->
-                                        <td class="px-3 py-3 border-end text-center">
-                                            @if($request->pickup_date)
-                                                <div class="pickup-date-cell">
-                                                    <small class="d-block fw-semibold">
-                                                        {{ $request->pickup_date->format('M d, Y') }}
-                                                    </small>
-                                                    <small class="d-block text-muted">
-                                                        {{ $request->pickup_date->format('g:i A') }}
-                                                    </small>
-                                                    
-                                                    @if($request->pickup_date->isPast())
-                                                        <span class="badge bg-danger badge-sm mt-2">
-                                                            <i class="fas fa-times-circle me-1"></i>Expired
-                                                        </span>
-                                                    @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
-                                                        <span class="badge bg-warning text-dark badge-sm mt-2">
-                                                            <i class="fas fa-exclamation-triangle me-1"></i>
-                                                            {{ now()->diffInDays($request->pickup_expired_at) }}d left
-                                                        </span>
-                                                    @else
-                                                        <span class="badge bg-success badge-sm mt-2">
-                                                            <i class="fas fa-check-circle me-1"></i>Active
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            @else
-                                                <span class="text-muted text-center d-block">
-                                                    <i class="fas fa-minus me-1"></i>Not set
-                                                </span>
-                                            @endif
-                                        </td>
+                                        
+<td class="px-3 py-3 border-end text-center">
+    @if($request->pickup_date)
+        <div class="pickup-date-cell">
+            <small class="d-block fw-semibold">
+                {{ \Carbon\Carbon::parse($request->pickup_date)->format('M d, Y') }}
+            </small>
+            
+            @php
+                $pickupDate = \Carbon\Carbon::parse($request->pickup_date);
+                $daysLeft = now()->diffInDays($pickupDate, false);
+            @endphp
+            
+            @if($pickupDate->isPast())
+                <span class="badge bg-danger badge-sm mt-2">
+                    <i class="fas fa-times-circle me-1"></i>Expired
+                </span>
+            @elseif($daysLeft > 0 && $daysLeft <= 3)
+                <span class="badge bg-warning text-dark badge-sm mt-2">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    {{ (int)$daysLeft }}d left
+                </span>
+            @else
+                <span class="badge bg-success badge-sm mt-2">
+                    <i class="fas fa-check-circle me-1"></i>Active
+                </span>
+            @endif
+        </div>
+    @else
+        <span class="text-muted text-center d-block">
+            <i class="fas fa-minus me-1"></i>Not set
+        </span>
+    @endif
+</td>
                                         <td class="px-3 py-3 text-center">
                                             <div class="seedling-table-documents">
                                                 @if ($request->hasDocuments())
@@ -558,64 +561,88 @@
                                     </div>
                                     <!-- ✅ NEW: Pickup Date Card -->
                                     <div class="col-12">
-                                        <div class="card border-info">
-                                            <div class="card-header bg-info text-white">
-                                                <h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Pickup Information</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    @if($request->pickup_date)
-                                                        <div class="col-md-6">
-                                                            <strong>Pickup Date:</strong>
-                                                            <p class="mb-0">
-                                                                <i class="fas fa-calendar-alt me-1"></i>
-                                                                {{ $request->pickup_date->format('F d, Y') }}
-                                                            </p>
-                                                            <small class="text-muted">
-                                                                ({{ $request->pickup_date->diffForHumans() }})
-                                                            </small>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <strong>Pickup Status:</strong>
-                                                            <p class="mb-0">
-                                                                @if($request->pickup_date && $request->pickup_date->isPast())
-                                                                    <span class="badge bg-danger">
-                                                                        <i class="fas fa-times-circle me-1"></i>Expired
-                                                                    </span>
-                                                                @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
-                                                                    <span class="badge bg-warning text-dark">
-                                                                        <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
-                                                                    </span>
-                                                                @else
-                                                                    <span class="badge bg-success">
-                                                                        <i class="fas fa-check-circle me-1"></i>Active
-                                                                    </span>
-                                                                @endif
-                                                            </p>
-                                                        </div>
-                                                        @if($request->pickup_expired_at)
-                                                            <div class="col-12">
-                                                                <strong>Expiration Date:</strong>
-                                                                <p class="mb-0">
-                                                                    <i class="fas fa-clock me-1"></i>
-                                                                    {{ $request->pickup_expired_at->format('F d, Y g:i A') }}
-                                                                </p>
-                                                                <small class="text-muted">
-                                                                    Expires in {{ now()->diffInDays($request->pickup_expired_at) }} days
-                                                                </small>
-                                                            </div>
-                                                        @endif
-                                                    @else
-                                                        <div class="col-12">
-                                                            <p class="text-muted mb-0">
-                                                                <i class="fas fa-info-circle me-1"></i>No pickup date set
-                                                            </p>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+    <div class="card border-info">
+        <div class="card-header bg-info text-white">
+            <h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Pickup Information</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                @php
+                    $viewPickupDate = null;
+                    if($request->pickup_date) {
+                        $viewPickupDate = \Carbon\Carbon::parse($request->pickup_date);
+                    }
+                @endphp
+                
+                @if($viewPickupDate)
+                    <div class="col-md-6">
+                        <strong>Pickup Date:</strong>
+                        <p class="mb-0">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ $viewPickupDate->format('F d, Y') }}
+                        </p>
+                        <small class="text-muted">
+                            ({{ $viewPickupDate->diffForHumans() }})
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Pickup Status:</strong>
+                        <p class="mb-0">
+                            @php
+                                $daysLeft = now()->diffInDays($viewPickupDate, false);
+                            @endphp
+                            
+                            @if($viewPickupDate->isFuture())
+                                @if($daysLeft > 0 && $daysLeft <= 3)
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Expiring Soon - {{ (int)$daysLeft }} day{{ $daysLeft !== 1 ? 's' : '' }} left
+                                    </span>
+                                @else
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>Active
+                                    </span>
+                                @endif
+                            @else
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle me-1"></i>Expired
+                                </span>
+                            @endif
+                        </p>
+                    </div>
+                    
+                    @if($request->pickup_expired_at && $viewPickupDate->isFuture())
+                        <div class="col-12">
+                            <strong>Expiration Deadline:</strong>
+                            <p class="mb-0">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ \Carbon\Carbon::parse($request->pickup_expired_at)->format('F d, Y') }}
+                            </p>
+                            <small class="text-muted">
+                                @php
+                                    $daysUntilExpiry = now()->diffInDays(\Carbon\Carbon::parse($request->pickup_expired_at), false);
+                                @endphp
+                                @if($daysUntilExpiry > 0)
+                                    Valid for {{ (int)$daysUntilExpiry }} more day{{ $daysUntilExpiry !== 1 ? 's' : '' }}
+                                @else
+                                    Expired
+                                @endif
+                            </small>
+                        </div>
+                    @endif
+                @else
+                    <div class="col-12">
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-info-circle me-1"></i>No pickup date set
+                        </p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
                                     <!-- Requested Items by Category Card -->
                                     <div class="col-12">
@@ -983,7 +1010,7 @@
                             <span class="badge bg-danger float-end">
                                 <i class="fas fa-exclamation-circle me-1"></i>Expired
                             </span>
-                        @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                       @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3 && now()->diffInDays($request->pickup_expired_at) > 0)
                             <span class="badge bg-warning float-end text-dark">
                                 <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
                             </span>
@@ -1365,7 +1392,7 @@
                                 <span class="badge bg-danger float-end">
                                     <i class="fas fa-exclamation-circle me-1"></i>Expired
                                 </span>
-                            @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3)
+                           @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3 && now()->diffInDays($request->pickup_expired_at) > 0)
                                 <span class="badge bg-warning float-end text-dark">
                                     <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
                                 </span>
