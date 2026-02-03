@@ -89,25 +89,10 @@ Route::get('/services/{service}', function ($service) {
     return redirect()->route('landing.page');
 })->name('services.show');
 
-// API Routes for validation
-Route::get('/api/validate-fishr/{number}', function($number) {
-    try {
-        $valid = \App\Models\FishrApplication::where('registration_number', $number)
-            ->where('status', 'approved')
-            ->exists();
-
-        return response()->json([
-            'valid' => $valid,
-            'message' => $valid ? 'Valid FishR registration' : 'Invalid or non-approved FishR registration'
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'valid' => false,
-            'message' => 'Error validating FishR number'
-        ], 500);
-    }
-})->name('api.validate-fishr');
-
+// validte 
+Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
+    ->where('fishrNumber', '.*')
+    ->name('validate.fishr');
         // ==============================================
         // ADMIN PROTECTED ROUTES
         // ==============================================
@@ -237,16 +222,15 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
 
-        // FishR Validation
-        Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
-        ->name('validate-fishr')
-        ->where('fishrNumber', '.*'); // Allow special characters like dashes
+        // // FishR Validation
+        // Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
+        // ->name('validate-fishr')
+        // ->where('fishrNumber', '.*'); // Allow special characters like dashes
     });
-    Route::middleware(['web'])->group(function () {
-    Route::get('/validate-fishr/{fishrNumber}', [\App\Http\Controllers\BoatRController::class, 'validateFishrNumber'])
-        ->where('fishrNumber', '.*')
-        ->name('validate.fishr');
-});
+   // ✅ FishR validation for BoatR form (AUTHENTICATED USERS ONLY)
+Route::middleware('auth')->get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
+    ->where('fishrNumber', '.*')
+    ->name('validate.fishr');
 
     // ==============================================
     // TRAINING REGISTRATIONS MANAGEMENT
