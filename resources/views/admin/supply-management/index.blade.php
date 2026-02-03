@@ -1331,7 +1331,7 @@
                     <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
+                            <i></i>Cancel
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
@@ -2379,6 +2379,8 @@
                 event.preventDefault();
             }
 
+            localStorage.setItem('lastViewedCategory', categoryId);
+
             // Update active tab button
             document.querySelectorAll('.category-tab-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -2790,50 +2792,56 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
 
-            // Check if we need to switch back to a category after reload
-            const pendingCategory = sessionStorage.getItem('pendingCategorySwitch');
-            if (pendingCategory) {
-                setTimeout(() => {
-                    switchCategory(pendingCategory);
-                    // Set active button
-                    document.querySelectorAll('.category-tab-btn').forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.category === pendingCategory) {
-                            btn.classList.add('active');
-                        }
-                    });
-                    sessionStorage.removeItem('pendingCategorySwitch');
-                }, 100);
-            }
-
-            const statusSelect = document.querySelector('select[name="status"]');
-            const stockStatusSelect = document.querySelector('select[name="stock_status"]');
-            const searchInput = document.getElementById('searchInput');
-
-            if (statusSelect) {
-                statusSelect.addEventListener('change', applyFiltersToActiveCategory);
-            }
-
-            if (stockStatusSelect) {
-                stockStatusSelect.addEventListener('change', applyFiltersToActiveCategory);
-            }
-
-            if (searchInput) {
-                searchInput.addEventListener('input', autoSearch);
-            }
-
-            // Apply initial filters
-            applyFiltersToActiveCategory();
-
-            // Initialize pagination for all individual categories
-            document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
-                const categoryId = container.id.replace('category-', '');
-                if (categoryId !== 'all') {
-                    const filteredRows = filteredRowsCache[categoryId] || [];
-                    displayPageItems(categoryId, 1, filteredRows);
+    // Check if we need to switch back to a category after reload
+    let pendingCategory = sessionStorage.getItem('pendingCategorySwitch');
+    
+    // If no pending category from an action, check localStorage for last viewed category
+    if (!pendingCategory) {
+        pendingCategory = localStorage.getItem('lastViewedCategory') || 'all';
+    }
+    
+    if (pendingCategory) {
+        setTimeout(() => {
+            switchCategory(pendingCategory);
+            // Set active button
+            document.querySelectorAll('.category-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === pendingCategory) {
+                    btn.classList.add('active');
                 }
             });
-        });
+            sessionStorage.removeItem('pendingCategorySwitch');
+        }, 100);
+    }
+
+    const statusSelect = document.querySelector('select[name="status"]');
+    const stockStatusSelect = document.querySelector('select[name="stock_status"]');
+    const searchInput = document.getElementById('searchInput');
+
+    if (statusSelect) {
+        statusSelect.addEventListener('change', applyFiltersToActiveCategory);
+    }
+
+    if (stockStatusSelect) {
+        stockStatusSelect.addEventListener('change', applyFiltersToActiveCategory);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', autoSearch);
+    }
+
+    // Apply initial filters
+    applyFiltersToActiveCategory();
+
+    // Initialize pagination for all individual categories
+    document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
+        const categoryId = container.id.replace('category-', '');
+        if (categoryId !== 'all') {
+            const filteredRows = filteredRowsCache[categoryId] || [];
+            displayPageItems(categoryId, 1, filteredRows);
+        }
+    });
+});
 
         // CRITICAL: Add event delegation for pagination links
         document.addEventListener('click', function(e) {
