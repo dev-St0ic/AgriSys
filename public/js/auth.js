@@ -86,45 +86,45 @@ function showSignUpForm() {
 function setButtonLoading(button, loadingText) {
     if (!button) return;
 
+    button.disabled = true;
+    button.style.pointerEvents = 'none';
+    button.style.opacity = '0.8';
+    
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
 
-    // Store original text if not already stored
-    if (!button.dataset.originalText) {
-        button.dataset.originalText = btnText ? btnText.textContent : button.textContent;
-    }
-
-    button.classList.add('loading');
-    button.disabled = true;
-
-    if (btnText && btnLoader) {
+    if (btnText) {
         btnText.textContent = loadingText;
-        btnText.style.display = 'inline';
-        btnLoader.style.display = 'none'; // Remove spinner, just show text
-    } else {
-        button.textContent = loadingText;
+        btnText.style.visibility = 'hidden';  // HIDE BUT KEEP SPACE
+    }
+    
+    if (btnLoader) {
+        btnLoader.style.display = 'inline-block';
+        btnLoader.textContent = loadingText;
     }
 }
 
 function resetButtonState(button) {
     if (!button) return;
 
+    button.disabled = false;
+    button.style.pointerEvents = 'auto';
+    button.style.opacity = '1';
+    
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
     const originalText = button.dataset.originalText;
 
-    button.classList.remove('loading');
-    button.disabled = false;
-
-    if (btnText && btnLoader) {
+    if (btnText) {
         btnText.textContent = originalText || 'Submit';
-        btnText.style.display = 'inline';
+        btnText.style.visibility = 'visible';  // SHOW AGAIN
+    }
+    
+    if (btnLoader) {
         btnLoader.style.display = 'none';
-    } else {
-        button.textContent = originalText || 'Submit';
+        btnLoader.textContent = '';
     }
 }
-
 function resetButtonStates() {
     // Reset all auth buttons
     const buttons = document.querySelectorAll('.auth-submit-btn, .verification-submit-btn');
