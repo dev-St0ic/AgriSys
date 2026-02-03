@@ -983,6 +983,17 @@
                                     </a>
                                 </li>
 
+                                <!-- Recycle Bin Menu Item -->
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.recycle-bin.index') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.recycle-bin.index') }}" data-tooltip="Recycle Bin"
+                                        aria-label="Recycle Bin" role="menuitem">
+                                        <i class="fas fa-trash-restore" aria-hidden="true"></i>
+                                        <span class="nav-link-text">Recycle Bin</span>
+                                    </a>
+                                </li>
+
+
                                 @if (auth()->user()->isSuperAdmin())
                                     <!-- Admin Section Separator -->
                                     <div class="nav-section-divider">

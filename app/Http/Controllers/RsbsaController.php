@@ -604,7 +604,7 @@ class RsbsaController extends Controller
     }
 
     /**
-     * Delete the specified RSBSA application
+     * Delete the specified RSBSA application - MOVED TO RECYCLE BIN
      */
     public function destroy(Request $request, $id)
     {
@@ -612,25 +612,30 @@ class RsbsaController extends Controller
             $application = RsbsaApplication::findOrFail($id);
             $applicationNumber = $application->application_number;
 
-            // Delete associated document if exists
-            if ($application->supporting_document_path && Storage::disk('public')->exists($application->supporting_document_path)) {
-                Storage::disk('public')->delete($application->supporting_document_path);
-            }
+            // Move to recycle bin instead of permanent deletion
+            \App\Services\RecycleBinService::softDelete(
+                $application,
+                'Deleted from RSBSA applications'
+            );
 
-            // Delete the application
-            $application->delete();
+            // Send admin notification
+            NotificationService::rsbsaApplicationDeleted(
+                $applicationNumber,
+                $application->full_name_with_extension
+            );
 
             $this->logActivity('deleted', 'RsbsaApplication', $id, [
-                'application_number' => $applicationNumber
+                'application_number' => $applicationNumber,
+                'action' => 'moved_to_recycle_bin'
             ]);
 
-            Log::info('RSBSA application deleted', [
+            Log::info('RSBSA application moved to recycle bin', [
                 'application_id' => $id,
                 'application_number' => $applicationNumber,
                 'deleted_by' => auth()->user()->name ?? 'System'
             ]);
 
-            $message = "Application {$applicationNumber} has been deleted successfully";
+            $message = "Application {$applicationNumber} has been moved to recycle bin";
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -642,9 +647,10 @@ class RsbsaController extends Controller
             return redirect()->route('admin.rsbsa.applications')->with('success', $message);
 
         } catch (\Exception $e) {
-            Log::error('Error deleting RSBSA application', [
+            Log::error('Error moving RSBSA application to recycle bin', [
                 'application_id' => $id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             $errorMessage = 'Error deleting application: ' . $e->getMessage();
@@ -659,6 +665,7 @@ class RsbsaController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
     }
+
 
     /**
      * Download supporting document

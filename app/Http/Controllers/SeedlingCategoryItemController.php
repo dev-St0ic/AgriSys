@@ -132,27 +132,48 @@ class SeedlingCategoryItemController extends Controller
         ]);
     }
 
-    public function destroyCategory(RequestCategory $category)
-    {
-        if ($category->items()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete category with existing items. Please delete all items first.'
-            ], 422);
-        }
-
-        $categoryName = $category->display_name;
-        $itemCount = $category->items()->count();
-        $category->delete();
-
-        // ✅ SEND NOTIFICATION
-        NotificationService::supplyManagementCategoryDeleted($categoryName, $itemCount);
-
+    /**
+ * Delete (move to recycle bin) a category
+ */
+public function destroyCategory(RequestCategory $category)
+{
+    if ($category->items()->count() > 0) {
         return response()->json([
-            'success' => true,
-            'message' => 'Category deleted successfully'
-        ]);
+            'success' => false,
+            'message' => 'Cannot delete category with existing items. Please delete all items first.'
+        ], 422);
     }
+
+    $categoryName = $category->display_name;
+    $categoryId = $category->id;
+
+    // Move to recycle bin instead of permanent delete
+    \App\Services\RecycleBinService::softDelete(
+        $category,
+        'Deleted from Supply Management Categories'
+    );
+
+    // Send notification
+    NotificationService::supplyManagementCategoryDeleted($categoryName, 0);
+
+    // Log activity
+    activity()
+        ->performedOn($category)
+        ->causedBy(auth()->user())
+        ->withProperties(['action' => 'moved_to_recycle_bin'])
+        ->log('deleted');
+
+    \Log::info('Supply category moved to recycle bin', [
+        'category_id' => $categoryId,
+        'category_name' => $categoryName,
+        'deleted_by' => auth()->user()->name
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => "Category '{$categoryName}' has been moved to recycle bin"
+    ]);
+}
 
     public function toggleCategoryStatus(RequestCategory $category)
     {
@@ -318,43 +339,64 @@ class SeedlingCategoryItemController extends Controller
         ]);
     }
 
-    public function destroyItem(CategoryItem $item)
-    {
-        if ($item->requestItems()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete item that has been used in requests'
-            ], 422);
-        }
-
-        $categoryId = $item->category_id;
-        $itemName = $item->name;
-        $categoryName = $item->category->display_name;
-
-        if ($item->image_path) {
-            Storage::disk('public')->delete($item->image_path);
-        }
-
-        $item->delete();
-
-        // ✅ SEND NOTIFICATION
-        NotificationService::supplyManagementItemDeleted($itemName, $categoryName);
-
-        // Check if category should be deactivated
-        $category = RequestCategory::find($categoryId);
-        if ($category && $category->is_active) {
-            $hasActiveItems = $category->items()->where('is_active', true)->exists();
-            if (!$hasActiveItems) {
-                $category->update(['is_active' => false]);
-            }
-        }
-
+    /**
+ * Delete (move to recycle bin) a category item
+ */
+public function destroyItem(CategoryItem $item)
+{
+    if ($item->requestItems()->count() > 0) {
         return response()->json([
-            'success' => true,
-            'message' => 'Item deleted successfully'
-        ]);
+            'success' => false,
+            'message' => 'Cannot delete item that has been used in requests'
+        ], 422);
     }
 
+    $categoryId = $item->category_id;
+    $itemName = $item->name;
+    $categoryName = $item->category->display_name;
+
+    // Delete image file if exists (since we're deleting the item)
+    if ($item->image_path) {
+        Storage::disk('public')->delete($item->image_path);
+    }
+
+    // Move to recycle bin instead of permanent delete
+    \App\Services\RecycleBinService::softDelete(
+        $item,
+        'Deleted from Supply Management - Category: ' . $categoryName
+    );
+
+    // Send notification
+    NotificationService::supplyManagementItemDeleted($itemName, $categoryName);
+
+    // Log activity
+    activity()
+        ->performedOn($item)
+        ->causedBy(auth()->user())
+        ->withProperties(['action' => 'moved_to_recycle_bin'])
+        ->log('deleted');
+
+    \Log::info('Supply item moved to recycle bin', [
+        'item_id' => $item->id,
+        'item_name' => $itemName,
+        'category' => $categoryName,
+        'deleted_by' => auth()->user()->name
+    ]);
+
+    // Check if category should be deactivated
+    $category = RequestCategory::find($categoryId);
+    if ($category && $category->is_active) {
+        $hasActiveItems = $category->items()->where('is_active', true)->exists();
+        if (!$hasActiveItems) {
+            $category->update(['is_active' => false]);
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => "Item '{$itemName}' has been moved to recycle bin"
+    ]);
+}
     public function toggleItemStatus(CategoryItem $item)
     {
         $newStatus = !$item->is_active;

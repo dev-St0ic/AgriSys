@@ -463,64 +463,63 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 }
             }
 
-            NotificationService::seedlingRequestDeleted($seedlingRequest);
-
-            // Delete the request
             $requestNumber = $seedlingRequest->request_number;
-            $seedlingRequest->delete();
+            $fullName = $seedlingRequest->first_name . ' ' . $seedlingRequest->last_name;
+
+            // Move to recycle bin instead of permanent deletion
+            \App\Services\RecycleBinService::softDelete(
+                $seedlingRequest,
+                'Deleted from seedling requests'
+            );
+
+            // Send admin notification
+            NotificationService::seedlingRequestDeleted($seedlingRequest);
 
             $this->logActivity('deleted', 'SeedlingRequest', $seedlingRequest->id, [
                 'request_number' => $requestNumber,
+                'action' => 'moved_to_recycle_bin',
                 'supplies_returned' => $approvedItems->count() > 0
             ]);
 
-            // Log the deletion
-            \Log::info('Supply request deleted', [
+            \Log::info('Supply request moved to recycle bin', [
                 'request_id' => $seedlingRequest->id,
                 'request_number' => $requestNumber,
                 'deleted_by' => auth()->user()->name ?? 'System',
                 'supplies_returned' => $approvedItems->count() > 0 ? 'Yes' : 'No'
             ]);
 
-            // For AJAX requests, return JSON
-            if (request()->expectsJson()) {
-                $message = "Request {$requestNumber} deleted successfully!";
-                if ($approvedItems->count() > 0) {
-                    $message .= " {$approvedItems->count()} approved item(s) supplies returned to inventory.";
-                }
+            $message = "Request {$requestNumber} has been moved to recycle bin";
+            if ($approvedItems->count() > 0) {
+                $message .= ". {$approvedItems->count()} approved item(s) supplies returned to inventory.";
+            }
 
+            if (request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message
                 ]);
             }
 
-            // For regular requests, redirect
-            $message = "Supply request {$requestNumber} deleted successfully!";
-            if ($approvedItems->count() > 0) {
-                $message .= " {$approvedItems->count()} approved item(s) supplies have been returned to inventory.";
-            }
-
             return redirect()->route('admin.seedlings.requests')
                 ->with('success', $message);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to delete supply request', [
+            \Log::error('Error moving supply request to recycle bin', [
                 'request_id' => $seedlingRequest->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
-            // For AJAX requests, return JSON error
+            $errorMessage = 'Error deleting request: ' . $e->getMessage();
+
             if (request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete request: ' . $e->getMessage()
+                    'message' => $errorMessage
                 ], 500);
             }
 
-            return redirect()->back()
-                ->with('error', 'Failed to delete request: ' . $e->getMessage());
+            return redirect()->back()->with('error', $errorMessage);
         }
     }
     

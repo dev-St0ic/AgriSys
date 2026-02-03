@@ -38,6 +38,8 @@ class SeedlingRequest extends Model
         'rejected_at'
     ];
 
+    protected $dates = ['deleted_at'];
+
     protected $casts = [
         'reviewed_at' => 'datetime',
         'approved_at' => 'datetime',

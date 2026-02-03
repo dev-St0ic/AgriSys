@@ -28,6 +28,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\SlideshowController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\RecycleBinController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -720,7 +721,22 @@ Route::get('/api/user/session-check', function (\Illuminate\Http\Request $reques
     ], 200);
 })->middleware('web')->name('api.user.session-check');
 
-
+// ==============================================
+// RECYCLE BIN MANAGEMENT
+// ==============================================
+Route::prefix('admin/recycle-bin')->name('admin.recycle-bin.')->middleware(['auth', 'admin'])->group(function () {
+    // Specific routes FIRST
+    Route::get('/stats', [RecycleBinController::class, 'stats'])->name('stats');
+    Route::post('/bulk/restore', [RecycleBinController::class, 'bulkRestore'])->name('bulk.restore');
+    Route::delete('/bulk/destroy', [RecycleBinController::class, 'bulkDestroy'])->name('bulk.destroy');
+    Route::post('/empty', [RecycleBinController::class, 'empty'])->name('empty');
+    
+    // Generic routes LAST
+    Route::get('/', [RecycleBinController::class, 'index'])->name('index');
+    Route::get('/{id}', [RecycleBinController::class, 'show'])->name('show');
+    Route::post('/{id}/restore', [RecycleBinController::class, 'restore'])->name('restore');
+    Route::delete('/{id}', [RecycleBinController::class, 'destroy'])->name('destroy');
+});
 /*
 |--------------------------------------------------------------------------
 | User Dashboard Routes (Protected by UserSession middleware)

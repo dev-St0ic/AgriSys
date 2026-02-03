@@ -31,6 +31,7 @@ return new class extends Migration
             $table->foreignId('last_supplied_by')->nullable()->constrained('users')->onDelete('set null');
             
             $table->timestamps();
+            $table->softDeletes();
             
             $table->index(['category_id', 'is_active']);
             $table->index('display_order');
