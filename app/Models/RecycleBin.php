@@ -236,4 +236,13 @@ class RecycleBin extends Model
     {
         return $query->where('model_type', 'App\Models\SeedlingRequest');
 }
+
+/**
+ * Scope to get only Training items
+ */
+public function scopeTraining($query)
+{
+    return $query->where('model_type', 'App\Models\TrainingApplication');
+}
+
 }

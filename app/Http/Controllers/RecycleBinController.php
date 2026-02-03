@@ -24,6 +24,7 @@ class RecycleBinController extends Controller
                     'boatr' => 'App\Models\BoatrApplication',
                     'rsbsa' => 'App\Models\RsbsaApplication',
                     'seedlings' => 'App\Models\SeedlingRequest',
+                    'training' => 'App\Models\TrainingApplication',
                 ];
 
                 if (isset($typeMap[$request->type])) {
@@ -118,37 +119,50 @@ class RecycleBinController extends Controller
         }
     }
 
-public function restore(): bool
+public static function restore($item): bool
 {
     try {
-        $modelClass = $this->model_type;
+        $modelClass = $item->model_type;
         
+        // Handle FishR - uses soft delete
         if ($modelClass === 'App\Models\FishrApplication') {
             $restored = FishrApplication::withTrashed()
-                ->find($this->model_id);
-            
-            if ($restored) {
-                $restored->restore();
-            }
-        } 
-        elseif ($modelClass === 'App\Models\SeedlingRequest') {
-            $restored = SeedlingRequest::withTrashed()
-                ->find($this->model_id);
+                ->find($item->model_id);
             
             if ($restored) {
                 $restored->restore();
             }
         }
+        // Handle Training - uses soft delete (NEW)
+        elseif ($modelClass === 'App\Models\TrainingApplication') {
+            $restored = TrainingApplication::withTrashed()
+                ->find($item->model_id);
+            
+            if ($restored) {
+                $restored->restore();
+            }
+        }
+        // Handle Seedling Request - uses soft delete
+        elseif ($modelClass === 'App\Models\SeedlingRequest') {
+            $restored = SeedlingRequest::withTrashed()
+                ->find($item->model_id);
+            
+            if ($restored) {
+                $restored->restore();
+            }
+        }
+        // Handle others - recreates from stored data
         else {
             $model = new $modelClass();
-            $model->id = $this->model_id;
-            foreach ($this->data as $key => $value) {
+            $model->id = $item->model_id;
+            foreach ($item->data as $key => $value) {
                 $model->$key = $value;
             }
             $model->save();
         }
 
-        $this->update([
+        // Mark as restored in recycle bin
+        $item->update([
             'restored_at' => now(),
             'restored_by' => auth()->id(),
         ]);
@@ -156,48 +170,56 @@ public function restore(): bool
         return true;
     } catch (\Exception $e) {
         \Log::error('Error restoring item from recycle bin', [
-            'model_type' => $this->model_type,
-            'model_id' => $this->model_id,
+            'model_type' => $item->model_type,
+            'model_id' => $item->model_id,
             'error' => $e->getMessage()
         ]);
         return false;
     }
 }
 
+
     /**
      * Permanently delete item from recycle bin
      */
-    public function destroy($id)
-    {
-        try {
-            $item = RecycleBin::findOrFail($id);
-            $itemName = $item->item_name;
-
-            if (RecycleBinService::permanentlyDelete($item)) {
-                return response()->json([
-                    'success' => true,
-                    'message' => "{$itemName} has been permanently deleted"
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to delete item'
-                ], 400);
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Error permanently deleting item', [
-                'id' => $id,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting item: ' . $e->getMessage()
-            ], 500);
+   public static function permanentlyDelete($item): bool
+{
+    try {
+        $modelClass = $item->model_type;
+        
+        if ($modelClass === 'App\Models\FishrApplication') {
+            FishrApplication::withTrashed()
+                ->where('id', $item->model_id)
+                ->forceDelete();
         }
-    }
+        elseif ($modelClass === 'App\Models\TrainingApplication') {
+            // Delete document if exists
+            if ($item->data['document_path'] ?? null) {
+                \Storage::disk('public')->delete($item->data['document_path']);
+            }
+            
+            TrainingApplication::withTrashed()
+                ->where('id', $item->model_id)
+                ->forceDelete();
+        }
+        elseif ($modelClass === 'App\Models\SeedlingRequest') {
+            SeedlingRequest::withTrashed()
+                ->where('id', $item->model_id)
+                ->forceDelete();
+        }
 
+        $item->forceDelete();
+
+        return true;
+    } catch (\Exception $e) {
+        \Log::error('Error permanently deleting item from recycle bin', [
+            'model_type' => $item->model_type,
+            'model_id' => $item->model_id,
+            'error' => $e->getMessage()
+        ]);
+        return false;
+    }
+}
     /**
      * Bulk restore items
      */

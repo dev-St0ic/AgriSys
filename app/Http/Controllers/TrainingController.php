@@ -436,59 +436,59 @@ public function updateStatus(Request $request, $id)
     }
 }
 
-    /**
-     * Delete a training application
-     */
-    public function destroy($id)
-    {
-        try {
-            $training = TrainingApplication::findOrFail($id);
-            $applicationNumber = $training->application_number;
-            $fullName = $training->full_name;
+ /**
+ * Move the specified training application to recycle bin
+ * 
+ * UPDATED: Changed from permanent deletion to moving to recycle bin
+ * 
+ */
+public function destroy($id)
+{
+    try {
+        $training = TrainingApplication::findOrFail($id);
+        $applicationNumber = $training->application_number;
+        $fullName = $training->full_name;
 
-            // CHANGED: Delete single document if exists
-            if ($training->hasDocument()) {
-                if (Storage::disk('public')->exists($training->document_path)) {
-                    Storage::disk('public')->delete($training->document_path);
-                }
-            }
+        // Move to recycle bin instead of permanent deletion
+        \App\Services\RecycleBinService::softDelete(
+            $training,
+            'Deleted from Training applications'
+        );
 
-            // Delete the training application
-            $training->delete();
+        // Send admin notification about deletion
+        NotificationService::trainingApplicationDeleted($applicationNumber, $fullName);
 
-            $this->logActivity('deleted', 'TrainingApplication', $id, [
-                'application_number' => $applicationNumber
-            ]);
+        $this->logActivity('deleted', 'TrainingApplication', $id, [
+            'application_number' => $applicationNumber,
+            'action' => 'moved_to_recycle_bin'
+        ]);
 
-            // Send admin notification about deletion
-            NotificationService::trainingApplicationDeleted($applicationNumber, $fullName);
+        Log::info('Training application moved to recycle bin', [
+            'application_id' => $id,
+            'application_number' => $applicationNumber,
+            'deleted_by' => auth()->user()->name ?? 'System'
+        ]);
 
-            Log::info('Training application deleted', [
-                'application_id' => $id,
-                'application_number' => $applicationNumber,
-                'deleted_by' => auth()->user()->name ?? 'System'
-            ]);
+        $message = "Application {$applicationNumber} has been moved to recycle bin";
 
-            $message = "Application {$applicationNumber} has been deleted successfully";
+        return response()->json([
+            'success' => true,
+            'message' => $message
+        ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => $message
-            ]);
+    } catch (\Exception $e) {
+        Log::error('Error moving training application to recycle bin', [
+            'application_id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
 
-        } catch (\Exception $e) {
-            Log::error('Error deleting training application', [
-                'application_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting application: ' . $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Error deleting application: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Export training applications to CSV
