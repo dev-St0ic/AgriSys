@@ -914,7 +914,7 @@
                                         href="{{ route('admin.registrations.index') }}" data-tooltip="User Registrations"
                                         aria-label="User Registrations" role="menuitem">
                                         <i class="fas fa-user-edit" aria-hidden="true"></i>
-                                        <span class="nav-link-text">User Registration</span>
+                                        <span class="nav-link-text">User Registrations</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">

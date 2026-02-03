@@ -473,21 +473,32 @@
                     <div class="profile-content">
                         <!-- Profile Header -->
                         @php $status = strtolower($user['status'] ?? 'active'); @endphp
-                        <div class="profile-header">
+                       <div class="profile-header">
                             <div class="profile-avatar-large">
                                 {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
                             </div>
                             <div class="profile-header-info">
                                 <h4>{{ $user['name'] ?? $user['username'] }}</h4>
                                 <div class="profile-status-badge status-{{ $status }}">
-                                    {{ ucfirst($user['status'] ?? 'Active') }}
+                                    @php
+                                        $statusLower = strtolower($user['status'] ?? 'active');
+                                        if ($statusLower === 'approved' || $statusLower === 'verified') {
+                                            echo 'Verified';
+                                        } elseif (in_array($statusLower, ['pending', 'pending_verification'])) {
+                                            echo 'Under Review';
+                                        } elseif ($statusLower === 'rejected') {
+                                            echo 'Verification Failed';
+                                        } else {
+                                            echo ucfirst($user['status'] ?? 'Active');
+                                        }
+                                    @endphp
                                 </div>
                             </div>
                         </div>
 
                         <!-- Profile Information -->
                         <div class="profile-info-grid">
-                            <div class="profile-info-card">
+                           <div class="profile-info-card">
                                 <h5>Account Information</h5>
                                 <div class="info-row">
                                     <span class="info-label">Username:</span>
@@ -496,8 +507,20 @@
 
                                 <div class="info-row">
                                     <span class="info-label">Account Status:</span>
-                                    <span
-                                        class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
+                                    <span class="info-value status-text">
+                                        @php
+                                            $statusLower = strtolower($user['status'] ?? 'active');
+                                            if ($statusLower === 'approved' || $statusLower === 'verified') {
+                                                echo 'Verified';
+                                            } elseif (in_array($statusLower, ['pending', 'pending_verification'])) {
+                                                echo 'Under Review';
+                                            } elseif ($statusLower === 'rejected') {
+                                                echo 'Verification Failed';
+                                            } else {
+                                                echo ucfirst($user['status'] ?? 'Active');
+                                            }
+                                        @endphp
+                                    </span>
                                 </div>
                             </div>
 
@@ -756,6 +779,7 @@
                                             <option value="">Select Sex</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
+                                            <option value="Preferred not to say">Preferred not to say</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -787,34 +811,34 @@
                                 <div class="form-group">
                                     <label for="barangay">Barangay</label>
                                     <select id="barangay" name="barangay" required>
-                                        <option value="" disabled selected>Select Barangay</option>
-                                        <option value="Bagong Silang">Bagong Silang</option>
-                                        <option value="Cuyab">Cuyab</option>
-                                        <option value="Estrella">Estrella</option>
-                                        <option value="G.S.I.S.">G.S.I.S.</option>
-                                        <option value="Landayan">Landayan</option>
-                                        <option value="Langgam">Langgam</option>
-                                        <option value="Laram">Laram</option>
-                                        <option value="Magsaysay">Magsaysay</option>
-                                        <option value="Nueva">Nueva</option>
-                                        <option value="Poblacion">Poblacion</option>
-                                        <option value="Riverside">Riverside</option>
-                                        <option value="San Antonio">San Antonio</option>
-                                        <option value="San Roque">San Roque</option>
-                                        <option value="San Vicente">San Vicente</option>
-                                        <option value="Santo Niño">Santo Niño</option>
-                                        <option value="United Bayanihan">United Bayanihan</option>
-                                        <option value="United Better Living">United Better Living</option>
-                                        <option value="Sampaguita Village">Sampaguita Village</option>
-                                        <option value="Calendola">Calendola</option>
-                                        <option value="Narra">Narra</option>
-                                        <option value="Chrysanthemum">Chrysanthemum</option>
-                                        <option value="Fatima">Fatima</option>
-                                        <option value="Maharlika">Maharlika</option>
-                                        <option value="Pacita 1">Pacita 1</option>
-                                        <option value="Pacita 2">Pacita 2</option>
-                                        <option value="Rosario">Rosario</option>
-                                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                         <option value="">Select Barangay</option>
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
                                     </select>
                                 </div>
 
@@ -865,7 +889,7 @@
                                     <h5>Required Documents</h5>
                                 </div>
                                 <p class="section-description">Please upload clear, high-quality images of the required
-                                    documents. Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+                                    documents. Supported formats: JPG, PNG, PDF (Max 10MB)</p>
 
                                 <div class="form-row">
                                     <div class="form-group file-upload-group">
@@ -928,9 +952,9 @@
                                     <div id="locationProofPreview" class="image-preview" style="display: none;">
                                     </div>
                                     <div class="form-text">
-                                        <strong>For farmers:</strong> Photo of your farm or agricultural land<br>
-                                        <strong>For fisherfolk:</strong> Photo of fishing area or boat<br>
-                                        <strong>For others:</strong> Relevant business permit or location proof
+                                        <strong>Farmers:</strong> Photo of your farm or agricultural land<br>
+                                        <strong>Fisherfolk:</strong> Photo of fishing area or boat<br>
+                                        <strong>Others:</strong> Any document or photo that proves your livelihood or business
                                     </div>
                                 </div>
                             </div>
@@ -1301,7 +1325,7 @@
                         <!-- Username Field - Editable once -->
                         <div class="form-group">
                             <div class="username-field-wrapper">
-                                <label for="edit-username">Username *</label>
+                                <label for="edit-username">Username</label>
                                 <div class="username-input-container">
                                     <input type="text" id="edit-username" name="username"
                                         placeholder="Enter your username" minlength="3" maxlength="50"
@@ -1329,7 +1353,7 @@
                         <h5>Contact Information</h5>
 
                         <div class="form-group">
-                            <label for="edit-contact-number">Contact Number *</label>
+                            <label for="edit-contact-number">Contact Number</label>
                             <input type="tel" id="edit-contact-number" name="contact_number"
                                 placeholder="09XXXXXXXXX or +639XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                                 maxlength="20">
@@ -1342,7 +1366,7 @@
                         <h5>Address Information</h5>
 
                         <div class="form-group">
-                            <label for="edit-complete-address">Complete Address *</label>
+                            <label for="edit-complete-address">Complete Address</label>
                             <textarea id="edit-complete-address" name="complete_address"
                                 placeholder="Enter your complete address (House No., Street, Subdivision, etc.)" rows="3"
                                 maxlength="500"></textarea>
@@ -1353,33 +1377,34 @@
                             <label for="edit-barangay">Barangay *</label>
                             <select id="edit-barangay" name="barangay" required>
                                 <option value="">Select Barangay</option>
-                                <option value="Bagong Silang">Bagong Silang</option>
-                                <option value="Calendola">Calendola</option>
-                                <option value="Chrysanthemum">Chrysanthemum</option>
-                                <option value="Cuyab">Cuyab</option>
-                                <option value="Estrella">Estrella</option>
-                                <option value="Fatima">Fatima</option>
-                                <option value="G.S.I.S.">G.S.I.S.</option>
-                                <option value="Landayan">Landayan</option>
-                                <option value="Langgam">Langgam</option>
-                                <option value="Laram">Laram</option>
-                                <option value="Magsaysay">Magsaysay</option>
-                                <option value="Maharlika">Maharlika</option>
-                                <option value="Narra">Narra</option>
-                                <option value="Nueva">Nueva</option>
-                                <option value="Pacita 1">Pacita 1</option>
-                                <option value="Pacita 2">Pacita 2</option>
-                                <option value="Poblacion">Poblacion</option>
-                                <option value="Riverside">Riverside</option>
-                                <option value="Rosario">Rosario</option>
-                                <option value="Sampaguita Village">Sampaguita Village</option>
-                                <option value="San Antonio">San Antonio</option>
-                                <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                                <option value="San Roque">San Roque</option>
-                                <option value="San Vicente">San Vicente</option>
-                                <option value="Santo Niño">Santo Niño</option>
-                                <option value="United Bayanihan">United Bayanihan</option>
-                                <option value="United Better Living">United Better Living</option>
+                                 <option value="">Select Barangay</option>
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
                             </select>
                         </div>
                     </div>

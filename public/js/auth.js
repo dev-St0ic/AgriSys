@@ -86,45 +86,45 @@ function showSignUpForm() {
 function setButtonLoading(button, loadingText) {
     if (!button) return;
 
+    button.disabled = true;
+    button.style.pointerEvents = 'none';
+    button.style.opacity = '0.8';
+    
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
 
-    // Store original text if not already stored
-    if (!button.dataset.originalText) {
-        button.dataset.originalText = btnText ? btnText.textContent : button.textContent;
-    }
-
-    button.classList.add('loading');
-    button.disabled = true;
-
-    if (btnText && btnLoader) {
+    if (btnText) {
         btnText.textContent = loadingText;
-        btnText.style.display = 'inline';
-        btnLoader.style.display = 'none'; // Remove spinner, just show text
-    } else {
-        button.textContent = loadingText;
+        btnText.style.visibility = 'hidden';  // HIDE BUT KEEP SPACE
+    }
+    
+    if (btnLoader) {
+        btnLoader.style.display = 'inline-block';
+        btnLoader.textContent = loadingText;
     }
 }
 
 function resetButtonState(button) {
     if (!button) return;
 
+    button.disabled = false;
+    button.style.pointerEvents = 'auto';
+    button.style.opacity = '1';
+    
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
     const originalText = button.dataset.originalText;
 
-    button.classList.remove('loading');
-    button.disabled = false;
-
-    if (btnText && btnLoader) {
+    if (btnText) {
         btnText.textContent = originalText || 'Submit';
-        btnText.style.display = 'inline';
+        btnText.style.visibility = 'visible';  // SHOW AGAIN
+    }
+    
+    if (btnLoader) {
         btnLoader.style.display = 'none';
-    } else {
-        button.textContent = originalText || 'Submit';
+        btnLoader.textContent = '';
     }
 }
-
 function resetButtonStates() {
     // Reset all auth buttons
     const buttons = document.querySelectorAll('.auth-submit-btn, .verification-submit-btn');
@@ -823,8 +823,21 @@ function handleChangePasswordSubmit(event) {
         return false;
     }
 
-    // Set button to loading state
-    setButtonLoading(submitBtn, 'Changing Password...');
+    // Set button to loading state - CLEAR TEXT, SHOW LOADER
+    submitBtn.disabled = true;
+    submitBtn.style.pointerEvents = 'none';
+    
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+    
+    if (btnText) {
+        btnText.textContent = '';  // CLEAR TEXT
+        btnText.style.visibility = 'hidden';
+    }
+    if (btnLoader) {
+        btnLoader.style.display = 'inline-block';
+        btnLoader.innerHTML = '<span style="display: inline-block; width: 16px; height: 16px; border: 3px solid #ffffff; border-top: 3px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>';
+    }
 
     // Get CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -854,7 +867,15 @@ function handleChangePasswordSubmit(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            setButtonLoading(submitBtn, 'Password Changed!');
+            // Show success message
+            if (btnText) {
+                btnText.textContent = 'Password Changed!';
+                btnText.style.visibility = 'visible';
+            }
+            if (btnLoader) {
+                btnLoader.style.display = 'none';
+            }
+            
             showNotification('success', data.message || 'Password changed successfully!');
 
             form.reset();
@@ -887,13 +908,33 @@ function handleChangePasswordSubmit(event) {
             }
 
             showNotification('error', errorMessage);
-            resetButtonState(submitBtn);
+            
+            // Reset button on error
+            submitBtn.disabled = false;
+            submitBtn.style.pointerEvents = 'auto';
+            if (btnText) {
+                btnText.textContent = 'Change Password';
+                btnText.style.visibility = 'visible';
+            }
+            if (btnLoader) {
+                btnLoader.style.display = 'none';
+            }
         }
     })
     .catch(error => {
         console.error('Network error:', error);
         showNotification('error', 'Network error. Please check your connection and try again.');
-        resetButtonState(submitBtn);
+        
+        // Reset button on error
+        submitBtn.disabled = false;
+        submitBtn.style.pointerEvents = 'auto';
+        if (btnText) {
+            btnText.textContent = 'Change Password';
+            btnText.style.visibility = 'visible';
+        }
+        if (btnLoader) {
+            btnLoader.style.display = 'none';
+        }
     });
 
     return false;
@@ -983,7 +1024,7 @@ function handleVerificationSubmit(event) {
         { name: 'lastName', label: 'Last Name' },
         { name: 'sex', label: 'Sex' },
         { name: 'role', label: 'Sector' },
-        { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
+        { name: 'dateOfBirth', label: 'Date of Birth' },
         { name: 'barangay', label: 'Barangay' },
         { name: 'completeAddress', label: 'Complete Address' },
         { name: 'emergencyContactName', label: 'Emergency Contact Name' },
@@ -1052,8 +1093,21 @@ function handleVerificationSubmit(event) {
         return false;
     }
 
-    // Set button to loading state
-    setButtonLoading(submitBtn, 'Submitting Verification...');
+    // Set button to loading state - CLEAR TEXT, SHOW LOADER
+    submitBtn.disabled = true;
+    submitBtn.style.pointerEvents = 'none';
+    
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+    
+    if (btnText) {
+        btnText.textContent = '';  // CLEAR TEXT
+        btnText.style.visibility = 'hidden';
+    }
+    if (btnLoader) {
+        btnLoader.style.display = 'inline-block';
+        btnLoader.innerHTML = '<span style="display: inline-block; width: 16px; height: 16px; border: 3px solid #ffffff; border-top: 3px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>';
+    }
 
     // Create FormData for file upload - EXACTLY as backend expects
     const formData = new FormData();
@@ -1070,8 +1124,8 @@ function handleVerificationSubmit(event) {
     formData.append('completeAddress', form.querySelector('[name="completeAddress"]').value.trim());
 
     // Add emergency contact fields
-formData.append('emergencyContactName', form.querySelector('[name="emergencyContactName"]').value.trim());
-formData.append('emergencyContactPhone', form.querySelector('[name="emergencyContactPhone"]').value.trim());
+    formData.append('emergencyContactName', form.querySelector('[name="emergencyContactName"]').value.trim());
+    formData.append('emergencyContactPhone', form.querySelector('[name="emergencyContactPhone"]').value.trim());
 
     // Add file uploads - EXACT names expected by backend
     const idFrontFile = form.querySelector('[name="idFront"]').files[0];
@@ -1095,7 +1149,6 @@ formData.append('emergencyContactPhone', form.querySelector('[name="emergencyCon
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
-            // Note: Don't set Content-Type header for FormData, browser sets it automatically with boundary
         }
     })
     .then(response => {
@@ -1106,6 +1159,15 @@ formData.append('emergencyContactPhone', form.querySelector('[name="emergencyCon
         console.log('Server response:', data);
 
         if (data.success) {
+            // Show success message
+            if (btnText) {
+                btnText.textContent = 'Verification Submitted!';
+                btnText.style.visibility = 'visible';
+            }
+            if (btnLoader) {
+                btnLoader.style.display = 'none';
+            }
+
             // Update local user status so UI stays consistent
             if (window.userData) {
                 window.userData.status = 'pending';
@@ -1134,13 +1196,33 @@ formData.append('emergencyContactPhone', form.querySelector('[name="emergencyCon
              }
 
              showNotification('error', errorMessage);
-             resetButtonState(submitBtn);
+             
+             // Reset button on error
+             submitBtn.disabled = false;
+             submitBtn.style.pointerEvents = 'auto';
+             if (btnText) {
+                 btnText.textContent = 'Submit for Verification';
+                 btnText.style.visibility = 'visible';
+             }
+             if (btnLoader) {
+                 btnLoader.style.display = 'none';
+             }
          }
      })
     .catch(error => {
         console.error('Verification error:', error);
         showNotification('error', 'Network error. Please check your connection and try again.');
-        resetButtonState(submitBtn);
+        
+        // Reset button on error
+        submitBtn.disabled = false;
+        submitBtn.style.pointerEvents = 'auto';
+        if (btnText) {
+            btnText.textContent = 'Submit for Verification';
+            btnText.style.visibility = 'visible';
+        }
+        if (btnLoader) {
+            btnLoader.style.display = 'none';
+        }
     });
 
     return false;
@@ -1282,6 +1364,25 @@ function populateEditForm(user) {
     });
 }
 
+// VALIDATION FUNCTION FOR FULL NAME
+function validateFullName(firstName, lastName) {
+    const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,50}$/;
+    
+    if (!firstName || !firstName.trim()) {
+        return { valid: false, error: 'First name is required' };
+    }
+    if (!lastName || !lastName.trim()) {
+        return { valid: false, error: 'Last name is required' };
+    }
+    if (!nameRegex.test(firstName.trim())) {
+        return { valid: false, error: 'First name contains invalid characters' };
+    }
+    if (!nameRegex.test(lastName.trim())) {
+        return { valid: false, error: 'Last name contains invalid characters' };
+    }
+    
+    return { valid: true };
+}
 
 /**
  * Handle edit profile form submission

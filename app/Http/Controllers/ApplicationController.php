@@ -695,7 +695,7 @@ public function submitRsbsa(Request $request)
             'commodity' => 'nullable|string|max:1000',
             
             // Document
-            'supporting_docs' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'supporting_docs' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ], [
             'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
             'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
@@ -1056,7 +1056,7 @@ try {
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'barangay' => 'required|string|max:255',
                 'training_type' => 'required|string',
-                'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120'
+                'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
             ], [
                 'first_name.required' => 'First name is required',
                 'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
@@ -1070,7 +1070,7 @@ try {
                 'barangay.required' => 'Barangay is required',
                 'training_type.required' => 'Please select a training program',
                 'documents.*.mimes' => 'Documents must be PDF, JPG, JPEG, or PNG files',
-                'documents.*.max' => 'Documents must not exceed 5MB'
+                'documents.*.max' => 'Documents must not exceed 10MB'
             ]);
 
             // Generate unique application number

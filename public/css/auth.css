@@ -769,6 +769,7 @@ input.is-invalid {
 .auth-submit-btn {
     width: 100%;
     padding: 14px;
+    min-height: 48px;
     background: linear-gradient(135deg, #0A6953, #2d6a4f);
     color: white;
     border: none;
@@ -778,32 +779,10 @@ input.is-invalid {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    margin-top: 10px;
-    min-height: 48px;  /* Set fixed height */
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-/* Text span - always takes full width */
-.btn-text {
-    display: block;
-    width: 100%;
-}
-
-/* Loader span - absolutely positioned over text */
-.btn-loader {
-    position: absolute;
-    display: none;
-}
-
-.auth-submit-btn.loading .btn-text {
-    visibility: hidden;  /* Keep space but hide */
-}
-
-.auth-submit-btn.loading .btn-loader {
-    display: inline-block !important;
-    visibility: visible;
+    text-align: center;
 }
 
 .auth-submit-btn:hover {
@@ -811,25 +790,21 @@ input.is-invalid {
     box-shadow: 0 8px 25px rgba(10, 105, 83, 0.3);
 }
 
-.auth-submit-btn:active {
-    transform: translateY(0);
-}
-
-.auth-submit-btn.loading {
-    pointer-events: none;
+.auth-submit-btn:disabled {
     opacity: 0.8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
-.auth-submit-btn.loading .btn-text {
-    opacity: 0;
+.auth-submit-btn .btn-text {
+    display: block;
+    text-align: center;
 }
 
-.auth-submit-btn.loading .btn-loader {
-    display: inline-block !important;
+.auth-submit-btn .btn-loader {
+    display: none;
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }
 
 /* Divider */
