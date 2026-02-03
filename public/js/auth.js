@@ -823,8 +823,21 @@ function handleChangePasswordSubmit(event) {
         return false;
     }
 
-    // Set button to loading state
-    setButtonLoading(submitBtn, 'Changing Password...');
+    // Set button to loading state - CLEAR TEXT, SHOW LOADER
+    submitBtn.disabled = true;
+    submitBtn.style.pointerEvents = 'none';
+    
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+    
+    if (btnText) {
+        btnText.textContent = '';  // CLEAR TEXT
+        btnText.style.visibility = 'hidden';
+    }
+    if (btnLoader) {
+        btnLoader.style.display = 'inline-block';
+        btnLoader.innerHTML = '<span style="display: inline-block; width: 16px; height: 16px; border: 3px solid #ffffff; border-top: 3px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>';
+    }
 
     // Get CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -854,7 +867,15 @@ function handleChangePasswordSubmit(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            setButtonLoading(submitBtn, 'Password Changed!');
+            // Show success message
+            if (btnText) {
+                btnText.textContent = 'Password Changed!';
+                btnText.style.visibility = 'visible';
+            }
+            if (btnLoader) {
+                btnLoader.style.display = 'none';
+            }
+            
             showNotification('success', data.message || 'Password changed successfully!');
 
             form.reset();
@@ -887,13 +908,33 @@ function handleChangePasswordSubmit(event) {
             }
 
             showNotification('error', errorMessage);
-            resetButtonState(submitBtn);
+            
+            // Reset button on error
+            submitBtn.disabled = false;
+            submitBtn.style.pointerEvents = 'auto';
+            if (btnText) {
+                btnText.textContent = 'Change Password';
+                btnText.style.visibility = 'visible';
+            }
+            if (btnLoader) {
+                btnLoader.style.display = 'none';
+            }
         }
     })
     .catch(error => {
         console.error('Network error:', error);
         showNotification('error', 'Network error. Please check your connection and try again.');
-        resetButtonState(submitBtn);
+        
+        // Reset button on error
+        submitBtn.disabled = false;
+        submitBtn.style.pointerEvents = 'auto';
+        if (btnText) {
+            btnText.textContent = 'Change Password';
+            btnText.style.visibility = 'visible';
+        }
+        if (btnLoader) {
+            btnLoader.style.display = 'none';
+        }
     });
 
     return false;
