@@ -513,71 +513,123 @@ class FishRController extends Controller
         return $number;
     }
 
+    // /**
+    //  * Remove the specified FishR registration from storage
+    //  */
+    // public function destroy($id)
+    // {
+    //     try {
+    //         $registration = FishrApplication::findOrFail($id);
+    //         $registrationNumber = $registration->registration_number;
+
+    //         // Delete associated document if exists
+    //         if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
+    //             Storage::disk('public')->delete($registration->document_path);
+    //         }
+
+    //         // Delete all associated annexes
+    //         $annexes = $registration->annexes;
+
+    //         if ($annexes->isNotEmpty()) {
+    //             foreach ($annexes as $annex) {
+    //                 if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+    //                     Storage::disk('public')->delete($annex->file_path);
+    //                 }
+    //                 $annex->delete();
+    //             }
+    //         }
+
+    //         // Delete the registration
+    //         $registration->delete();
+
+    //         // Send admin notification
+    //         \App\Services\NotificationService::fishrApplicationDeleted(
+    //             $registrationNumber,
+    //             $registration->full_name
+    //         );
+
+    //         $this->logActivity('deleted', 'FishrApplication', $id, [
+    //             'registration_number' => $registrationNumber
+    //         ]);
+
+    //         Log::info('FishR registration deleted', [
+    //             'registration_id' => $id,
+    //             'registration_number' => $registrationNumber,
+    //             'deleted_by' => auth()->user()->name ?? 'System'
+    //         ]);
+
+    //         $message = "Registration {$registrationNumber} has been deleted successfully";
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => $message
+    //         ]);
+
+    //     } catch (\Exception $e) {
+    //         Log::error('Error deleting FishR registration', [
+    //             'registration_id' => $id,
+    //             'error' => $e->getMessage(),
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Error deleting registration: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
     /**
-     * Remove the specified FishR registration from storage
-     */
-    public function destroy($id)
-    {
-        try {
-            $registration = FishrApplication::findOrFail($id);
-            $registrationNumber = $registration->registration_number;
+ * Move the specified FishR registration to recycle bin
+ */
+public function destroy($id)
+{
+    try {
+        $registration = FishrApplication::findOrFail($id);
+        $registrationNumber = $registration->registration_number;
 
-            // Delete associated document if exists
-            if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
-                Storage::disk('public')->delete($registration->document_path);
-            }
+        // Move to recycle bin instead of permanent deletion
+        \App\Services\RecycleBinService::softDelete(
+            $registration,
+            'Deleted from FishR registrations'
+        );
 
-            // Delete all associated annexes
-            $annexes = $registration->annexes;
+        // Send admin notification
+        \App\Services\NotificationService::fishrApplicationDeleted(
+            $registrationNumber,
+            $registration->full_name
+        );
 
-            if ($annexes->isNotEmpty()) {
-                foreach ($annexes as $annex) {
-                    if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
-                        Storage::disk('public')->delete($annex->file_path);
-                    }
-                    $annex->delete();
-                }
-            }
+        $this->logActivity('deleted', 'FishrApplication', $id, [
+            'registration_number' => $registrationNumber,
+            'action' => 'moved_to_recycle_bin'
+        ]);
 
-            // Delete the registration
-            $registration->delete();
+        Log::info('FishR registration moved to recycle bin', [
+            'registration_id' => $id,
+            'registration_number' => $registrationNumber,
+            'deleted_by' => auth()->user()->name ?? 'System'
+        ]);
 
-            // Send admin notification
-            \App\Services\NotificationService::fishrApplicationDeleted(
-                $registrationNumber,
-                $registration->full_name
-            );
+        $message = "Registration {$registrationNumber} has been moved to recycle bin";
 
-            $this->logActivity('deleted', 'FishrApplication', $id, [
-                'registration_number' => $registrationNumber
-            ]);
+        return response()->json([
+            'success' => true,
+            'message' => $message
+        ]);
 
-            Log::info('FishR registration deleted', [
-                'registration_id' => $id,
-                'registration_number' => $registrationNumber,
-                'deleted_by' => auth()->user()->name ?? 'System'
-            ]);
+    } catch (\Exception $e) {
+        Log::error('Error moving FishR registration to recycle bin', [
+            'registration_id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
 
-            $message = "Registration {$registrationNumber} has been deleted successfully";
-
-            return response()->json([
-                'success' => true,
-                'message' => $message
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error deleting FishR registration', [
-                'registration_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting registration: ' . $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Error deleting registration: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Download supporting document
