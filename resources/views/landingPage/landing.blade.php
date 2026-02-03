@@ -473,21 +473,32 @@
                     <div class="profile-content">
                         <!-- Profile Header -->
                         @php $status = strtolower($user['status'] ?? 'active'); @endphp
-                        <div class="profile-header">
+                       <div class="profile-header">
                             <div class="profile-avatar-large">
                                 {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
                             </div>
                             <div class="profile-header-info">
                                 <h4>{{ $user['name'] ?? $user['username'] }}</h4>
                                 <div class="profile-status-badge status-{{ $status }}">
-                                    {{ ucfirst($user['status'] ?? 'Active') }}
+                                    @php
+                                        $statusLower = strtolower($user['status'] ?? 'active');
+                                        if ($statusLower === 'approved' || $statusLower === 'verified') {
+                                            echo 'Verified';
+                                        } elseif (in_array($statusLower, ['pending', 'pending_verification'])) {
+                                            echo 'Under Review';
+                                        } elseif ($statusLower === 'rejected') {
+                                            echo 'Verification Failed';
+                                        } else {
+                                            echo ucfirst($user['status'] ?? 'Active');
+                                        }
+                                    @endphp
                                 </div>
                             </div>
                         </div>
 
                         <!-- Profile Information -->
                         <div class="profile-info-grid">
-                            <div class="profile-info-card">
+                           <div class="profile-info-card">
                                 <h5>Account Information</h5>
                                 <div class="info-row">
                                     <span class="info-label">Username:</span>
@@ -496,8 +507,20 @@
 
                                 <div class="info-row">
                                     <span class="info-label">Account Status:</span>
-                                    <span
-                                        class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
+                                    <span class="info-value status-text">
+                                        @php
+                                            $statusLower = strtolower($user['status'] ?? 'active');
+                                            if ($statusLower === 'approved' || $statusLower === 'verified') {
+                                                echo 'Verified';
+                                            } elseif (in_array($statusLower, ['pending', 'pending_verification'])) {
+                                                echo 'Under Review';
+                                            } elseif ($statusLower === 'rejected') {
+                                                echo 'Verification Failed';
+                                            } else {
+                                                echo ucfirst($user['status'] ?? 'Active');
+                                            }
+                                        @endphp
+                                    </span>
                                 </div>
                             </div>
 
