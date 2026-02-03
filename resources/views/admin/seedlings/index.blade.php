@@ -1099,59 +1099,34 @@
                         </div>
                     </div>
                 </div>
-                <!-- DELETE SEEDLING MODAL -->
-<div class="modal fade" id="deleteSeedlingModal" tabindex="-1" role="dialog" aria-labelledby="deleteSeedlingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content border-0 shadow-lg">
-            <!-- Header -->
-            <div class="modal-header bg-danger text-white border-0 py-4">
-                <h5 class="modal-title fw-bold" id="deleteSeedlingModalLabel" style="font-size: 1.3rem;">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Supply Request
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+         <!-- DELETE SEEDLING MODAL - FISHR DESIGN (CONSISTENT) -->
+<div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title w-100 text-center">Permanently Delete Supply Request</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-
-            <!-- Body -->
-            <div class="modal-body py-4">
-                <div class="alert alert-danger mb-3" role="alert">
-                    <strong class="d-block mb-2">
-                        <i class="fas fa-exclamation-circle me-2"></i>Warning: Permanent Deletion
-                    </strong>
-                    <p class="mb-0">This action <strong>cannot be undone</strong>. You are about to permanently delete:</p>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_seedling_name"></strong> will:</p>
                 </div>
-
-                <div class="bg-light p-3 rounded mb-3 border-start border-4 border-danger">
-                    <strong class="text-danger" id="delete_seedling_name">Request #</strong>
-                </div>
-
-                <p class="text-muted mb-3 small">Deleting this request will:</p>
-                <ul class="list-unstyled ms-3 text-muted small">
-                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Remove the request from database</li>
-                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Delete all associated documents</li>
-                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Clear all request history</li>
-                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Return approved items to inventory</li>
+                <ul class="mb-0">
+                    <li>Remove the supply request from the database</li>
+                    <li>Delete all associated documents and files</li>
+                    <li>Delete all request items and history</li>
+                    <li>Clear all logs and records</li>
+                    <li>Cannot be recovered</li>
                 </ul>
-
-                <div class="alert alert-warning mt-4 mb-0">
-                    <small>
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>This cannot be reversed.</strong> Please double-check before confirming.
-                    </small>
-                </div>
             </div>
-
-            <!-- Footer -->
-            <div class="modal-footer bg-light border-top py-3">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>Cancel
-                </button>
-                <button type="button" class="btn btn-danger" id="confirm_delete_seedling_btn" onclick="confirmPermanentDeleteSeedling()">
-                    <span class="btn-text">
-                        <i class="fas fa-trash me-2"></i>Yes, Delete Permanently
-                    </span>
-                    <span class="btn-loader" style="display: none;">
-                        <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
-                    </span>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()"
+                    id="confirm_delete_seedling_btn">
+                    <span class="btn-text">Yes, Delete Permanently</span>
+                    <span class="btn-loader" style="display: none;"><span
+                            class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                 </button>
             </div>
         </div>
