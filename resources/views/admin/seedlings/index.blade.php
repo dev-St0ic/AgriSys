@@ -1099,6 +1099,64 @@
                         </div>
                     </div>
                 </div>
+                <!-- DELETE SEEDLING MODAL -->
+<div class="modal fade" id="deleteSeedlingModal" tabindex="-1" role="dialog" aria-labelledby="deleteSeedlingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Header -->
+            <div class="modal-header bg-danger text-white border-0 py-4">
+                <h5 class="modal-title fw-bold" id="deleteSeedlingModalLabel" style="font-size: 1.3rem;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Supply Request
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body py-4">
+                <div class="alert alert-danger mb-3" role="alert">
+                    <strong class="d-block mb-2">
+                        <i class="fas fa-exclamation-circle me-2"></i>Warning: Permanent Deletion
+                    </strong>
+                    <p class="mb-0">This action <strong>cannot be undone</strong>. You are about to permanently delete:</p>
+                </div>
+
+                <div class="bg-light p-3 rounded mb-3 border-start border-4 border-danger">
+                    <strong class="text-danger" id="delete_seedling_name">Request #</strong>
+                </div>
+
+                <p class="text-muted mb-3 small">Deleting this request will:</p>
+                <ul class="list-unstyled ms-3 text-muted small">
+                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Remove the request from database</li>
+                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Delete all associated documents</li>
+                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Clear all request history</li>
+                    <li class="mb-2"><i class="fas fa-trash me-2 text-danger"></i>Return approved items to inventory</li>
+                </ul>
+
+                <div class="alert alert-warning mt-4 mb-0">
+                    <small>
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>This cannot be reversed.</strong> Please double-check before confirming.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer bg-light border-top py-3">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirm_delete_seedling_btn" onclick="confirmPermanentDeleteSeedling()">
+                    <span class="btn-text">
+                        <i class="fas fa-trash me-2"></i>Yes, Delete Permanently
+                    </span>
+                    <span class="btn-loader" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- UPDATED: Change Status Modal -->
                 <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">
@@ -1373,6 +1431,27 @@
     </div>
     </div>
     </div>
+    @else
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No supply requests found</h5>
+            <p class="text-muted">
+                @if (request('search') || request('status'))
+                    No requests match your search criteria.
+                @else
+                    There are no supply requests yet.
+                @endif
+            </p>
+            @if (request('search') || request('status'))
+                <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            @endif
+        </div>
+    </div>
+    @endif
+
    @if ($requests->hasPages())
         <div class="d-flex justify-content-center mt-4">
             <nav aria-label="Page navigation">
@@ -1697,66 +1776,8 @@
         </div>
     </div>
 
-  <!-- DELETE SUPPLY REQUEST MODAL -->
-<div class="modal fade" id="deleteSeedlingModal" tabindex="-1" aria-labelledby="deleteSeedlingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title w-100 text-center" id="deleteSeedlingModalLabel">
-                    <i class="fas fa-exclamation-circle me-2"></i>Permanently Delete Supply Request
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger" role="alert">
-                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_seedling_name">Request</strong> will:</p>
-                </div>
-                <ul class="mb-0" style="line-height: 1.8;">
-                    <li>Remove the supply request from the database</li>
-                    <li>Delete all associated documents and files</li>
-                    <li>Delete all request history and logs</li>
-                    <li>Return approved supplies back to inventory</li>
-                    <li><strong>Cannot be recovered</strong></li>
-                </ul>
-            </div>
-            <div class="modal-footer bg-light border-top">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Cancel
-                </button>
-                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()" id="confirm_delete_seedling_btn">
-                    <span class="btn-text">
-                        <i class="fas fa-trash me-1"></i>Yes, Delete Permanently
-                    </span>
-                    <span class="btn-loader" style="display: none;">
-                        <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
-                    </span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-  
-    <div class="card">
-        <div class="card-body text-center py-5">
-            <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No supply requests found</h5>
-            <p class="text-muted">
-                @if (request('search') || request('status'))
-                    No requests match your search criteria.
-                @else
-                    There are no supply requests yet.
-                @endif
-            </p>
-            @if (request('search') || request('status'))
-                <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-times"></i> Clear Filters
-                </a>
-            @endif
-        </div>
-    </div>
-    @endif
 
+    
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
@@ -2820,28 +2841,23 @@
 [id^="viewModal"] .badge.bg-warning strong {
     color: white !important;
 }
-/* FIX DELETE MODAL Z-INDEX ISSUES */
-#deleteSeedlingModal {
+/* Fix modal z-index stacking */
+.modal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
     z-index: 1050 !important;
 }
 
-#deleteSeedlingModal .modal-backdrop {
-    z-index: 1040 !important;
-    opacity: 0.5 !important;
+/* Ensure modal is visible when shown */
+.modal.show {
+    display: flex !important;
+    z-index: 1060 !important;
 }
 
-#deleteSeedlingModal .modal-dialog {
-    z-index: 1051 !important;
-}
-
-#deleteSeedlingModal .modal-content {
-    z-index: 1052 !important;
-}
-
-/* Ensure body doesn't have overflow issues */
-body.modal-open {
-    overflow: hidden !important;
-    padding-right: 0 !important;
+.modal.show .modal-dialog {
+    z-index: 1060 !important;
 }
     </style>
 
@@ -3389,7 +3405,125 @@ body.modal-open {
         //             showToast('error', 'Failed to delete supply request: ' + error.message);
         //         });
         // }
+// Delete
+// Global delete tracking
+let currentDeleteSeedlingId = null;
 
+function deleteSeedlingRequest(id, requestNumber) {
+    currentDeleteSeedlingId = id;
+    
+    // Update modal content
+    const nameElement = document.getElementById('delete_seedling_name');
+    if (nameElement) {
+        nameElement.textContent = `Supply Request #${requestNumber}`;
+    }
+    
+    // Get modal element
+    const modalElement = document.getElementById('deleteSeedlingModal');
+    if (!modalElement) {
+        console.error('Delete modal not found');
+        showToast('error', 'Modal not found');
+        return;
+    }
+    
+    // Create new modal instance
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static',
+        keyboard: false
+    });
+    
+    // Show modal
+    modal.show();
+    
+    // Reset button state
+    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+    if (deleteBtn) {
+        deleteBtn.dataset.isDeleting = 'false';
+        deleteBtn.disabled = false;
+        const btnText = deleteBtn.querySelector('.btn-text');
+        const btnLoader = deleteBtn.querySelector('.btn-loader');
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoader) btnLoader.style.display = 'none';
+    }
+}
+
+function confirmPermanentDeleteSeedling() {
+    if (!currentDeleteSeedlingId) {
+        showToast('error', 'Request ID not found');
+        return;
+    }
+
+    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+    const btnText = deleteBtn.querySelector('.btn-text');
+    const btnLoader = deleteBtn.querySelector('.btn-loader');
+
+    // Prevent double-click
+    if (deleteBtn.dataset.isDeleting === 'true') return;
+    deleteBtn.dataset.isDeleting = 'true';
+
+    // Show loading state
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline';
+    deleteBtn.disabled = true;
+
+    // Make DELETE request
+    fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide modal
+        const modalElement = document.getElementById('deleteSeedlingModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+
+        // Clean up after modal closes
+        setTimeout(() => {
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+        }, 300);
+
+        // Show success message
+        showToast('success', data.message || 'Request deleted successfully');
+        
+        // Reload page
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    })
+    .catch(error => {
+        console.error('Delete error:', error);
+        showToast('error', error.message || 'Failed to delete request');
+        
+        // Reset button
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+        deleteBtn.disabled = false;
+        deleteBtn.dataset.isDeleting = 'false';
+    });
+}
+
+// Cleanup on modal hide
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = document.getElementById('deleteSeedlingModal');
+    if (deleteModal) {
+        deleteModal.addEventListener('hidden.bs.modal', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+            }, 100);
+        });
+    }
+});
         // Initialize the update modal with original values
         function initializeSeedlingUpdateModal(requestId) {
             const form = document.getElementById('updateForm' + requestId);
@@ -3995,58 +4129,68 @@ body.modal-open {
 
         // Document preview
         function previewSeedlingDocument(inputId, previewId) {
-            const input = document.getElementById(inputId);
-            const preview = document.getElementById(previewId);
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword'];
 
-            if (!input.files || !input.files[0]) {
-                if (preview) {
-                    preview.innerHTML = '';
-                    preview.style.display = 'none';
-                }
-                return;
-            }
-
-            const file = input.files[0];
-
-            if (file.size > 10 * 1024 * 1024) {
-                showToast('error', 'File size must not exceed 10MB');
-                input.value = '';
-                if (preview) {
-                    preview.innerHTML = '';
-                    preview.style.display = 'none';
-                }
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                if (preview) {
-                    if (file.type.startsWith('image/')) {
-                        preview.innerHTML = `
-                    <div class="document-preview-item">
-                        <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <p style="margin-top: 8px; font-size: 12px; color: #666;">
-                            <i class="fas fa-file-image me-1"></i>${file.name}
-                        </p>
-                    </div>
-                `;
-                    } else {
-                        preview.innerHTML = `
-                    <div class="document-preview-item">
-                        <div class="text-center p-3 border rounded">
-                            <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
-                            <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
-                        </div>
-                    </div>
-                `;
-                    }
-                    preview.style.display = 'block';
-                }
-            };
-
-            reader.readAsDataURL(file);
+    if (!input.files || !input.files[0]) {
+        if (preview) {
+            preview.innerHTML = '';
+            preview.style.display = 'none';
         }
+        return;
+    }
+
+    const file = input.files[0];
+
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('error', 'File size must not exceed 10MB');
+        input.value = '';
+        if (preview) {
+            preview.innerHTML = '';
+            preview.style.display = 'none';
+        }
+        return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+        showToast('error', 'File type not supported');
+        input.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        if (preview) {
+            const iconClass = file.type.startsWith('image/') ? 'fa-file-image' : 'fa-file-pdf';
+            const iconColor = file.type.startsWith('image/') ? '' : 'text-danger';
+            
+            preview.innerHTML = file.type.startsWith('image/') 
+                ? `<div class="document-preview-item">
+                    <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                        <i class="fas fa-file-image me-1"></i>${file.name}
+                    </p>
+                </div>`
+                : `<div class="document-preview-item">
+                    <div class="text-center p-3 border rounded">
+                        <i class="fas ${iconClass} fa-3x ${iconColor} mb-2"></i>
+                        <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
+                    </div>
+                </div>`;
+            
+            preview.style.display = 'block';
+        }
+    };
+
+    reader.onerror = function() {
+        showToast('error', 'Failed to read file');
+        input.value = '';
+    };
+
+    reader.readAsDataURL(file);
+}
 
         // Validate seedling form
         function validateSeedlingForm() {
@@ -4985,187 +5129,8 @@ function validateAddSeedlingPickupDate() {
             }
         }
 
-  // =============================================
-// DELETE MODAL - SEEDLING REQUESTS - FIXED
-// =============================================
+ 
 
-// Global variable to track current delete ID
-// DELETE MODAL - SIMPLE FIX
-let currentDeleteSeedlingId = null;
-
-function deleteSeedlingRequest(id, requestNumber) {
-    currentDeleteSeedlingId = id;
-    document.getElementById('delete_seedling_name').textContent = requestNumber;
-    
-    const modal = new bootstrap.Modal(document.getElementById('deleteSeedlingModal'));
-    modal.show();
-}
-
-function confirmPermanentDeleteSeedling() {
-    if (!currentDeleteSeedlingId) {
-        showToast('error', 'Request ID not found');
-        return;
-    }
-
-    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-    const btnText = deleteBtn.querySelector('.btn-text');
-    const btnLoader = deleteBtn.querySelector('.btn-loader');
-    
-    btnText.style.display = 'none';
-    btnLoader.style.display = 'inline';
-    deleteBtn.disabled = true;
-
-    fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteSeedlingModal'));
-            modal.hide();
-            
-            showToast('success', 'Deleted successfully');
-            
-            const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
-            if (row) {
-                row.style.opacity = '0';
-                row.style.transition = 'opacity 0.3s';
-                setTimeout(() => {
-                    row.remove();
-                    if (document.querySelector('table tbody').children.length === 0) {
-                        window.location.reload();
-                    }
-                }, 300);
-            }
-        } else {
-            showToast('error', data.message || 'Delete failed');
-            btnText.style.display = 'inline';
-            btnLoader.style.display = 'none';
-            deleteBtn.disabled = false;
-        }
-    })
-    .catch(err => {
-        showToast('error', 'Error: ' + err.message);
-        btnText.style.display = 'inline';
-        btnLoader.style.display = 'none';
-        deleteBtn.disabled = false;
-    });
-}
-
-/**
- * Confirm permanent delete for supply request
- */
-async function confirmPermanentDeleteSeedling() {
-    if (!currentDeleteSeedlingId) {
-        showToast('error', 'Request ID not found');
-        return;
-    }
-
-    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-    if (!deleteBtn) {
-        showToast('error', 'Delete button not found');
-        return;
-    }
-    
-    try {
-        // Show loading state
-        const btnText = deleteBtn.querySelector('.btn-text');
-        const btnLoader = deleteBtn.querySelector('.btn-loader');
-        
-        if (btnText) btnText.style.display = 'none';
-        if (btnLoader) btnLoader.style.display = 'inline';
-        deleteBtn.disabled = true;
-
-        const response = await fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': getCSRFToken(),
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Failed to delete request');
-        }
-
-        // Close modal
-        const modalElement = document.getElementById('deleteSeedlingModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-        if (modalInstance) {
-            modalInstance.hide();
-        }
-
-        showToast('success', data.message || 'Supply request deleted successfully');
-
-        // Remove row from table with animation
-        const row = document.querySelector(`tr[data-request-id="${currentDeleteSeedlingId}"]`);
-        if (row) {
-            row.style.transition = 'opacity 0.3s ease';
-            row.style.opacity = '0';
-            setTimeout(() => {
-                row.remove();
-                // Check if table is now empty
-                const tbody = document.querySelector('table tbody');
-                if (tbody && tbody.children.length === 0) {
-                    window.location.reload();
-                }
-            }, 300);
-        } else {
-            // Row not found, reload page
-            setTimeout(() => window.location.reload(), 1500);
-        }
-
-        currentDeleteSeedlingId = null;
-
-    } catch (error) {
-        console.error('Error deleting request:', error);
-        showToast('error', 'Error deleting request: ' + error.message);
-
-        // Restore button state
-        const btnText = deleteBtn.querySelector('.btn-text');
-        const btnLoader = deleteBtn.querySelector('.btn-loader');
-        
-        if (btnText) btnText.style.display = 'inline';
-        if (btnLoader) btnLoader.style.display = 'none';
-        deleteBtn.disabled = false;
-    }
-}
-
-// Clean up modal on close
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteSeedlingModal = document.getElementById('deleteSeedlingModal');
-    if (deleteSeedlingModal) {
-        deleteSeedlingModal.addEventListener('hidden.bs.modal', function() {
-            // Reset button state
-            const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-            if (deleteBtn) {
-                const btnText = deleteBtn.querySelector('.btn-text');
-                const btnLoader = deleteBtn.querySelector('.btn-loader');
-                
-                if (btnText) btnText.style.display = 'inline';
-                if (btnLoader) btnLoader.style.display = 'none';
-                deleteBtn.disabled = false;
-            }
-
-            // Clean up backdrops and body styling
-            setTimeout(() => {
-                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            }, 100);
-
-            currentDeleteSeedlingId = null;
-        });
-    }
-});
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeEditFormListeners();
@@ -5566,70 +5531,70 @@ function updateAddSeedlingRemarksCounter() {
     }
 
 }
-// Initialize pickup date field in edit modal (add to existing initializePickupDateEditModal function or create new)
-function initializePickupDateEditModal(requestId) {
-    const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
-    const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
-    const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
+// // Initialize pickup date field in edit modal (add to existing initializePickupDateEditModal function or create new)
+// function initializePickupDateEditModal(requestId) {
+//     const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+//     const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
+//     const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
 
-    if (!pickupInput) return;
+//     if (!pickupInput) return;
 
-    // Set min/max dates
-    const today = new Date();
-    const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 1);
+//     // Set min/max dates
+//     const today = new Date();
+//     const minDate = new Date(today);
+//     minDate.setDate(minDate.getDate() + 1);
     
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 30);
+//     const maxDate = new Date(today);
+//     maxDate.setDate(maxDate.getDate() + 30);
 
-    const formatDate = (date) => date.toISOString().split('T')[0];
+//     const formatDate = (date) => date.toISOString().split('T')[0];
     
-    pickupInput.min = formatDate(minDate);
-    pickupInput.max = formatDate(maxDate);
+//     pickupInput.min = formatDate(minDate);
+//     pickupInput.max = formatDate(maxDate);
 
-    // Validate on change
-    pickupInput.addEventListener('change', function() {
-        if (!this.value) {
-            displayDiv.style.display = 'none';
-            return;
-        }
+//     // Validate on change
+//     pickupInput.addEventListener('change', function() {
+//         if (!this.value) {
+//             displayDiv.style.display = 'none';
+//             return;
+//         }
 
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
-        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-        const fullDate = selectedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
+//         const selectedDate = new Date(this.value + 'T00:00:00');
+//         const dayOfWeek = selectedDate.getDay();
+//         const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+//         const fullDate = selectedDate.toLocaleDateString('en-US', { 
+//             year: 'numeric', 
+//             month: 'long', 
+//             day: 'numeric' 
+//         });
 
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = '';
-            displayDiv.style.display = 'none';
-            showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
-            return;
-        }
+//         if (dayOfWeek === 0 || dayOfWeek === 6) {
+//             this.value = '';
+//             displayDiv.style.display = 'none';
+//             showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+//             return;
+//         }
 
-        displayText.innerHTML = `
-            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
-            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
-        `;
-        displayDiv.style.display = 'block';
-        checkForEditChanges(requestId);
-    });
+//         displayText.innerHTML = `
+//             <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+//             <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+//         `;
+//         displayDiv.style.display = 'block';
+//         checkForEditChanges(requestId);
+//     });
 
-    pickupInput.addEventListener('blur', function() {
-        if (!this.value) return;
+//     pickupInput.addEventListener('blur', function() {
+//         if (!this.value) return;
 
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
+//         const selectedDate = new Date(this.value + 'T00:00:00');
+//         const dayOfWeek = selectedDate.getDay();
 
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = '';
-            displayDiv.style.display = 'none';
-            showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
-        }
-    });
-}
+//         if (dayOfWeek === 0 || dayOfWeek === 6) {
+//             this.value = '';
+//             displayDiv.style.display = 'none';
+//             showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+//         }
+//     });
+// }
     </script>
 @endsection
