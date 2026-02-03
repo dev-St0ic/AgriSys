@@ -623,29 +623,29 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 $item->save();
                 $approvedCount++;
 
-                // ✅ SUPPLY DEDUCTION + STOCK NOTIFICATIONS
-                if (!$wasApproved && $item->categoryItem) {
-                    $success = $item->categoryItem->distributeSupply(
-                        $item->requested_quantity,
-                        auth()->id(),
-                        "Distributed for approved request #{$seedlingRequest->request_number} - {$seedlingRequest->full_name}",
-                        'SeedlingRequest',
-                        $seedlingRequest->id
-                    );
+                // // ✅ SUPPLY DEDUCTION + STOCK NOTIFICATIONS
+                // if (!$wasApproved && $item->categoryItem) {
+                //     $success = $item->categoryItem->distributeSupply(
+                //         $item->requested_quantity,
+                //         auth()->id(),
+                //         "Distributed for approved request #{$seedlingRequest->request_number} - {$seedlingRequest->full_name}",
+                //         'SeedlingRequest',
+                //         $seedlingRequest->id
+                //     );
 
-                    if (!$success) {
-                        throw new \Exception("Failed to distribute supply for {$item->item_name}");
-                    }
+                //     if (!$success) {
+                //         throw new \Exception("Failed to distribute supply for {$item->item_name}");
+                //     }
 
-                    // ✅ CHECK STOCK LEVELS AFTER DISTRIBUTION
-                    $item->categoryItem->refresh();
-                    if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
-                        NotificationService::seedlingStockLow($item->categoryItem);
-                    }
-                    if ($item->categoryItem->current_supply <= 0) {
-                        NotificationService::seedlingStockOut($item->categoryItem);
-                    }
-                }
+                //     // ✅ CHECK STOCK LEVELS AFTER DISTRIBUTION
+                //     $item->categoryItem->refresh();
+                //     if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
+                //         NotificationService::seedlingStockLow($item->categoryItem);
+                //     }
+                //     if ($item->categoryItem->current_supply <= 0) {
+                //         NotificationService::seedlingStockOut($item->categoryItem);
+                //     }
+                // }
 
             } elseif ($status === 'rejected') {
                 $item->status = 'rejected';
@@ -894,5 +894,110 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 ->with('error', 'Failed to export data: ' . $e->getMessage());
         }
     }
+/**
+ * Mark request as claimed by applicant - DEDUCTS SUPPLIES HERE
+ */
+public function markAsClaimed(SeedlingRequest $seedlingRequest)
+{
+    try {
+        // Check if request can be claimed (must be approved or partially approved)
+        if (!in_array($seedlingRequest->status, ['approved', 'partially_approved'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only approved requests can be marked as claimed.'
+            ], 400);
+        }
+
+        // Check if already claimed
+        if ($seedlingRequest->claimed_at) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This request has already been claimed.'
+            ], 400);
+        }
+
+        \DB::beginTransaction();
+
+        // ✅ DEDUCT SUPPLIES ONLY WHEN CLAIMED
+        $totalDeducted = 0;
+        foreach ($seedlingRequest->items()->where('status', 'approved')->get() as $item) {
+            if ($item->categoryItem && $item->approved_quantity > 0) {
+                $success = $item->categoryItem->distributeSupply(
+                    $item->approved_quantity,
+                    auth()->id(),
+                    "Distributed for claimed request #{$seedlingRequest->request_number} - {$seedlingRequest->full_name}",
+                    'SeedlingRequest',
+                    $seedlingRequest->id
+                );
+
+                if (!$success) {
+                    throw new \Exception("Failed to distribute supply for {$item->item_name}");
+                }
+
+                $totalDeducted += $item->approved_quantity;
+
+                // Check stock levels after distribution
+                $item->categoryItem->refresh();
+                if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
+                    NotificationService::seedlingStockLow($item->categoryItem);
+                }
+                if ($item->categoryItem->current_supply <= 0) {
+                    NotificationService::seedlingStockOut($item->categoryItem);
+                }
+            }
+        }
+
+        // ✅ MARK AS CLAIMED - Keep original status, just add claimed timestamp
+        $seedlingRequest->update([
+            'claimed_at' => now()
+        ]);
+
+        // Log activity
+        $this->logActivity('marked_claimed', 'SeedlingRequest', $seedlingRequest->id, [
+            'request_number' => $seedlingRequest->request_number,
+            'marked_by' => auth()->user()->name,
+            'claimed_at' => $seedlingRequest->claimed_at->format('M d, Y g:i A'),
+            'supplies_deducted' => $totalDeducted,
+            'original_status' => $seedlingRequest->status
+        ]);
+
+        \Log::info('Supply request marked as claimed', [
+            'request_id' => $seedlingRequest->id,
+            'request_number' => $seedlingRequest->request_number,
+            'claimed_by' => auth()->user()->name,
+            'total_items_deducted' => $totalDeducted,
+            'claimed_at' => now()
+        ]);
+
+        \DB::commit();
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Request {$seedlingRequest->request_number} marked as claimed! {$totalDeducted} items deducted from inventory.",
+                'claimed_at' => $seedlingRequest->claimed_at->format('M d, Y g:i A'),
+                'status' => $seedlingRequest->status
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Request {$seedlingRequest->request_number} marked as claimed! Supplies deducted from inventory.");
+
+    } catch (\Exception $e) {
+        \DB::rollback();
+        \Log::error('Failed to mark request as claimed: ' . $e->getMessage(), [
+            'request_id' => $seedlingRequest->id,
+            'error_trace' => $e->getTraceAsString()
+        ]);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark as claimed: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'Failed to mark as claimed: ' . $e->getMessage());
+    }
+}
 
 }

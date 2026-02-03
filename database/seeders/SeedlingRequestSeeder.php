@@ -155,6 +155,12 @@ class SeedlingRequestSeeder extends Seeder
                     'pickup_date' => $pickupDate,
                     'pickup_expired_at' => $pickupExpiredAt,
                 ]);
+
+                //  Randomly mark some as claimed (70% chance)
+                if (rand(1, 100) <= 70) {
+                    $claimedDate = $pickupDate->copy()->addDays(rand(0, 5)); // Claimed within 5 days
+                    $request->update(['claimed_at' => $claimedDate]);
+                }
             }
 
             // Add items to request
@@ -342,4 +348,50 @@ class SeedlingRequestSeeder extends Seeder
             }
         }
     }
+    /**
+ * Create some test data with claimed requests for current month
+ */
+public function createCurrentMonthWithClaimedData($categories): void
+{
+    $users = User::all();
+    $userRegistrations = UserRegistration::all();
+
+    // Create 5 recently claimed requests
+    for ($i = 0; $i < 5; $i++) {
+        $createdDate = Carbon::now()->subDays(rand(5, 15));
+        $approvalDate = $createdDate->copy()->addDays(2);
+        $pickupDate = $approvalDate->copy()->addDays(rand(3, 7));
+        $claimedDate = $pickupDate->copy()->addDays(rand(0, 3));
+
+        $request = SeedlingRequest::create([
+            'user_id' => $userRegistrations->random()->id,
+            'request_number' => SeedlingRequest::generateRequestNumber(),
+            'first_name' => fake()->firstName(),
+            'middle_name' => rand(0, 1) ? fake()->firstName() : null,
+            'last_name' => fake()->lastName(),
+            'extension_name' => null,
+            'contact_number' => '09' . rand(100000000, 999999999),
+            'barangay' => $this->getRandomBarangay(),
+            'total_quantity' => 0,
+            'approved_quantity' => null,
+            'status' => 'approved',
+            'reviewed_by' => $users->random()->id,
+            'reviewed_at' => $approvalDate,
+            'remarks' => 'Request approved and claimed.',
+            'approved_at' => $approvalDate,
+            'pickup_date' => $pickupDate,
+            'pickup_expired_at' => $pickupDate->copy()->addDays(1)->endOfDay(),
+            'claimed_at' => $claimedDate, // ✅ Set claimed date
+            'created_at' => $createdDate,
+            'updated_at' => $claimedDate,
+        ]);
+
+        $this->addItemsToRequest($request, $categories, 'approved', $userRegistrations->random()->id);
+        
+        $totalQty = $request->items()->sum('requested_quantity');
+        $request->update(['total_quantity' => $totalQty]);
+        
+        $this->deductSuppliesFromRequest($request, $users->random()->id);
+    }
+}
 }

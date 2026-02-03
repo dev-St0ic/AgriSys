@@ -7,6 +7,7 @@ use App\Models\SeedlingRequest;
 use App\Models\User;
 use App\Models\UserRegistration;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SeedlingRequest>
@@ -166,9 +167,45 @@ class SeedlingRequestFactory extends Factory
             'rejected_at' => null,
             'pickup_date' => $this->faker->optional(0.7)->dateTimeBetween('now', '+30 days'),
             'pickup_expired_at' => null, // Will be set when pickup_date is set
+            'claimed_at' => null,
             'pickup_reminder_sent' => false,
         ];
     }
+    /**
+ * Mark request as claimed
+ */
+public function claimed(): static
+{
+    return $this->state(function (array $attributes) {
+        // Only can claim if approved or partially approved with a pickup date
+        if (!in_array($attributes['status'], ['approved', 'partially_approved']) || !$attributes['pickup_date']) {
+            return $attributes;
+        }
+
+        return [
+            'claimed_at' => $this->faker->dateTimeBetween(
+                $attributes['pickup_date'],
+                Carbon::parse($attributes['pickup_date'])->addDays(30)
+            ),
+        ];
+    });
+}
+
+/**
+ * Create an approved request that's been claimed
+ */
+public function approvedAndClaimed(): static
+{
+    return $this->approved()->claimed();
+}
+
+/**
+ * Create a partially approved request that's been claimed
+ */
+public function partiallyApprovedAndClaimed(): static
+{
+    return $this->partiallyApproved()->claimed();
+}
 
     private function formatSeedlingTypes($seeds, $seedlings, $fruits, $ornamentals, $fingerlings, $fertilizers): string
     {

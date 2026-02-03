@@ -28,6 +28,7 @@ class SeedlingRequest extends Model
         'pickup_date',
         'pickup_expired_at',
         'pickup_reminder_sent',
+        'claimed_at', 
         'document_path',
         'status',
         'reviewed_by',
@@ -41,6 +42,7 @@ class SeedlingRequest extends Model
         'reviewed_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
+        'claimed_at' => 'datetime',
         'total_quantity' => 'integer',
         'approved_quantity' => 'integer',
         'pickup_date' => 'datetime',
@@ -125,6 +127,49 @@ class SeedlingRequest extends Model
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name . ' ' . ($this->middle_name ? $this->middle_name . ' ' : '') . $this->last_name);
+    }
+
+    /**
+     * Check if request can be marked as claimed
+     */
+    public function canBeClaimed(): bool
+    {
+        // Can only claim if approved or partially approved
+        if (!in_array($this->status, ['approved', 'partially_approved'])) {
+            return false;
+        }
+        
+        // Must have a pickup_date
+        if (!$this->pickup_date) {
+            return false;
+        }
+        
+        // Cannot claim if already claimed
+        if ($this->claimed_at) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * Mark request as claimed
+     */
+    public function markAsClaimed(): bool
+    {
+        if (!$this->canBeClaimed()) {
+            return false;
+        }
+        
+        return $this->update(['claimed_at' => now()]);
+    }
+
+    /**
+     * Get claimed status
+     */
+    public function getIsClaimedAttribute(): bool
+    {
+        return $this->claimed_at !== null;
     }
 
     /**

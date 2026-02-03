@@ -30,6 +30,7 @@ return new class extends Migration
             $table->timestamp('pickup_date')->nullable()->comment('Date when applicant must pickup their approved request');
             $table->timestamp('pickup_expired_at')->nullable()->comment('When pickup date expires (30 days from approval)');
             $table->boolean('pickup_reminder_sent')->default(false);
+            $table->timestamp('claimed_at')->nullable()->comment('When admin marks the request as claimed by the applicant');
 
             // Document
             $table->string('document_path')->nullable();
