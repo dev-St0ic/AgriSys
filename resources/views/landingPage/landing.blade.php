@@ -1325,7 +1325,7 @@
                         <!-- Username Field - Editable once -->
                         <div class="form-group">
                             <div class="username-field-wrapper">
-                                <label for="edit-username">Username *</label>
+                                <label for="edit-username">Username</label>
                                 <div class="username-input-container">
                                     <input type="text" id="edit-username" name="username"
                                         placeholder="Enter your username" minlength="3" maxlength="50"
@@ -1353,7 +1353,7 @@
                         <h5>Contact Information</h5>
 
                         <div class="form-group">
-                            <label for="edit-contact-number">Contact Number *</label>
+                            <label for="edit-contact-number">Contact Number</label>
                             <input type="tel" id="edit-contact-number" name="contact_number"
                                 placeholder="09XXXXXXXXX or +639XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                                 maxlength="20">
@@ -1366,7 +1366,7 @@
                         <h5>Address Information</h5>
 
                         <div class="form-group">
-                            <label for="edit-complete-address">Complete Address *</label>
+                            <label for="edit-complete-address">Complete Address</label>
                             <textarea id="edit-complete-address" name="complete_address"
                                 placeholder="Enter your complete address (House No., Street, Subdivision, etc.)" rows="3"
                                 maxlength="500"></textarea>

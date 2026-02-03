@@ -317,7 +317,7 @@
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="showEditUserModal({{ $registration->id }})">
-                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit
+                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit Information
                                                     </a>
                                                 </li>
                                                 <li>
@@ -326,7 +326,7 @@
                                                 <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                         onclick="deleteRegistration({{ $registration->id }})">
-                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                        <i class="fas fa-trash me-2"></i>Delete User
                                                     </a>
                                                 </li>
                                             </ul>

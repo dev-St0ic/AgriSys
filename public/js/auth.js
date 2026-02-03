@@ -1364,6 +1364,25 @@ function populateEditForm(user) {
     });
 }
 
+// VALIDATION FUNCTION FOR FULL NAME
+function validateFullName(firstName, lastName) {
+    const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,50}$/;
+    
+    if (!firstName || !firstName.trim()) {
+        return { valid: false, error: 'First name is required' };
+    }
+    if (!lastName || !lastName.trim()) {
+        return { valid: false, error: 'Last name is required' };
+    }
+    if (!nameRegex.test(firstName.trim())) {
+        return { valid: false, error: 'First name contains invalid characters' };
+    }
+    if (!nameRegex.test(lastName.trim())) {
+        return { valid: false, error: 'Last name contains invalid characters' };
+    }
+    
+    return { valid: true };
+}
 
 /**
  * Handle edit profile form submission
