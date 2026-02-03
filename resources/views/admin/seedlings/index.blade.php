@@ -374,6 +374,10 @@
                 {{ $request->claimed_at->format('M d, Y') }}
             </small>
         </div>
+    @elseif($request->pickup_date && $request->pickup_date->isPast())
+        <span class="badge bg-danger">
+            <i class="fas fa-times-circle me-1"></i>Expired - Not Claimed
+        </span>
     @elseif(in_array($request->status, ['approved', 'partially_approved']))
         <div class="claimed-actions">
             <button type="button" class="btn btn-sm btn-outline-success" 
@@ -4278,10 +4282,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            if (!itemsValid) {
-                showToast('error', 'Please add at least one valid item');
-                isValid = false;
-            }
+            // if (!itemsValid) {
+            //     showToast('error', 'Please add at least one valid item');
+            //     isValid = false;
+            // }
 
             return isValid;
         }
@@ -4297,26 +4301,25 @@ function validateAddSeedlingPickupDate() {
     pickupDateInput.classList.remove('is-invalid');
     return true;
 }
-        // Submit add seedling form
-       function submitAddSeedling() {
-         // VALIDATE PICKUP DATE FIRST
-    if (!validateAddSeedlingPickupDate()) {
+    // Submit add seedling form
+function submitAddSeedling() {
+    // VALIDATE PICKUP DATE FIRST
+    const pickupDateInput = document.getElementById('seedling_pickup_date_add');
+    if (!pickupDateInput.value || pickupDateInput.value.trim() === '') {
+        showToast('error', 'Pickup date is required');
+        pickupDateInput.classList.add('is-invalid');
         return false;
     }
-    // CHECK FOR VALIDATION ERRORS FIRST
-    const invalidFields = document.querySelectorAll('#addSeedlingModal .is-invalid');
-    const visibleWarnings = Array.from(document.querySelectorAll('#addSeedlingModal [id$="-warning"]'))
-        .filter(warning => warning.style.display !== 'none');
+    pickupDateInput.classList.remove('is-invalid');
 
-    if (invalidFields.length > 0 || visibleWarnings.length > 0) {
-        showToast('error', 'Please fix all validation errors before submitting');
-        return false;
-    }
-    
+    // VALIDATE OTHER FIELDS
     if (!validateSeedlingForm()) {
         showToast('error', 'Please fix all validation errors before submitting');
         return;
     }
+
+    // Remove red border from pickup date
+    pickupDateInput.classList.remove('is-invalid');
 
     // Prepare form data
     const formData = new FormData();
@@ -4329,12 +4332,7 @@ function validateAddSeedlingPickupDate() {
     formData.append('barangay', document.getElementById('seedling_barangay').value);
     formData.append('status', document.getElementById('seedling_status').value);
     formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
-    
-    // ✅ ADD PICKUP DATE
-    const pickupDateInput = document.getElementById('seedling_pickup_date_add');
-    if (pickupDateInput && pickupDateInput.value) {
-        formData.append('pickup_date', pickupDateInput.value);
-    }
+    formData.append('pickup_date', pickupDateInput.value);
 
     // Add items
     const items = document.querySelectorAll('.seedling-item-row');
