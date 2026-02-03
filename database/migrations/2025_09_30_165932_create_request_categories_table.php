@@ -16,7 +16,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('display_order')->default(0); // Changed from sort_order
             $table->boolean('is_active')->default(true);
+            
             $table->timestamps();
+            $table->softDeletes();
             
             $table->index('display_order');
             $table->index('is_active');

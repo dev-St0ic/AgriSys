@@ -27,6 +27,8 @@ class RecycleBinController extends Controller
                     'seedlings' => 'App\Models\SeedlingRequest',
                     'training' => 'App\Models\TrainingApplication',
                     'user_registration' => 'App\Models\UserRegistration', // NEW
+                     'category_item' => 'App\Models\CategoryItem',
+                'request_category' => 'App\Models\RequestCategory',
                 ];
 
                 if (isset($typeMap[$request->type])) {
@@ -125,73 +127,70 @@ class RecycleBinController extends Controller
      * UPDATED: Restore item from recycle bin
      * Now handles UserRegistration with soft delete
      */
-    public static function restore($item): bool
-    {
-        try {
-            $modelClass = $item->model_type;
+    public function restore(): bool
+{
+    try {
+        $modelClass = $this->model_type;
+        
+        if ($modelClass === 'App\Models\FishrApplication') {
+            $restored = FishrApplication::withTrashed()
+                ->find($this->model_id);
             
-            // Handle FishR - uses soft delete
-            if ($modelClass === 'App\Models\FishrApplication') {
-                $restored = \App\Models\FishrApplication::withTrashed()
-                    ->find($item->model_id);
-                
-                if ($restored) {
-                    $restored->restore();
-                }
+            if ($restored) {
+                $restored->restore();
             }
-            // Handle Training - uses soft delete
-            elseif ($modelClass === 'App\Models\TrainingApplication') {
-                $restored = \App\Models\TrainingApplication::withTrashed()
-                    ->find($item->model_id);
-                
-                if ($restored) {
-                    $restored->restore();
-                }
+        } 
+        elseif ($modelClass === 'App\Models\SeedlingRequest') {
+            $restored = SeedlingRequest::withTrashed()
+                ->find($this->model_id);
+            
+            if ($restored) {
+                $restored->restore();
             }
-            // Handle Seedling Request - uses soft delete
-            elseif ($modelClass === 'App\Models\SeedlingRequest') {
-                $restored = \App\Models\SeedlingRequest::withTrashed()
-                    ->find($item->model_id);
-                
-                if ($restored) {
-                    $restored->restore();
-                }
-            }
-            // NEW: Handle UserRegistration - uses soft delete
-            elseif ($modelClass === 'App\Models\UserRegistration') {
-                $restored = UserRegistration::withTrashed()
-                    ->find($item->model_id);
-                
-                if ($restored) {
-                    $restored->restore();
-                }
-            }
-            // Handle others - recreates from stored data
-            else {
-                $model = new $modelClass();
-                $model->id = $item->model_id;
-                foreach ($item->data as $key => $value) {
-                    $model->$key = $value;
-                }
-                $model->save();
-            }
-
-            // Mark as restored in recycle bin
-            $item->update([
-                'restored_at' => now(),
-                'restored_by' => auth()->id(),
-            ]);
-
-            return true;
-        } catch (\Exception $e) {
-            \Log::error('Error restoring item from recycle bin', [
-                'model_type' => $item->model_type,
-                'model_id' => $item->model_id,
-                'error' => $e->getMessage()
-            ]);
-            return false;
         }
+        elseif ($modelClass === 'App\Models\CategoryItem') {
+            // ADD THIS BLOCK
+            $restored = CategoryItem::withTrashed()
+                ->find($this->model_id);
+            
+            if ($restored) {
+                $restored->restore();
+            }
+        }
+        elseif ($modelClass === 'App\Models\RequestCategory') {
+            // ADD THIS BLOCK
+            $restored = RequestCategory::withTrashed()
+                ->find($this->model_id);
+            
+            if ($restored) {
+                $restored->restore();
+            }
+        }
+        else {
+            // Recreate from stored data
+            $model = new $modelClass();
+            $model->id = $this->model_id;
+            foreach ($this->data as $key => $value) {
+                $model->$key = $value;
+            }
+            $model->save();
+        }
+
+        $this->update([
+            'restored_at' => now(),
+            'restored_by' => auth()->id(),
+        ]);
+
+        return true;
+    } catch (\Exception $e) {
+        \Log::error('Error restoring item from recycle bin', [
+            'model_type' => $this->model_type,
+            'model_id' => $this->model_id,
+            'error' => $e->getMessage()
+        ]);
+        return false;
     }
+}
 
     /**
      * UPDATED: Permanently delete item from recycle bin
@@ -246,6 +245,18 @@ class RecycleBinController extends Controller
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
+                elseif ($modelClass === 'App\Models\CategoryItem') {
+            // ADD THIS BLOCK
+            CategoryItem::withTrashed()
+                ->where('id', $this->model_id)
+                ->forceDelete();
+        }
+        elseif ($modelClass === 'App\Models\RequestCategory') {
+            // ADD THIS BLOCK
+            RequestCategory::withTrashed()
+                ->where('id', $this->model_id)
+                ->forceDelete();
+        }
 
             $item->forceDelete();
 

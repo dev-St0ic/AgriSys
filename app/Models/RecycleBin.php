@@ -216,18 +216,20 @@ class RecycleBin extends Model
 }
 
     /**
-     * Get a human-readable type name
-     */
-    public function getTypeNameAttribute(): string
-    {
-        return match ($this->model_type) {
-            'App\Models\FishrApplication' => 'FishR Registration',
-            'App\Models\BoatrApplication' => 'BoatR Registration',
-            'App\Models\RsbsaApplication' => 'RSBSA Application',
-            'App\Models\SeedlingRequest' => 'Seedling Request',
-            default => 'Unknown Item'
-        };
-    }
+ * Get a human-readable type name
+ */
+public function getTypeNameAttribute(): string
+{
+    return match ($this->model_type) {
+        'App\Models\FishrApplication' => 'FishR Registration',
+        'App\Models\BoatrApplication' => 'BoatR Registration',
+        'App\Models\RsbsaApplication' => 'RSBSA Application',
+        'App\Models\SeedlingRequest' => 'Seedling Request',
+        'App\Models\CategoryItem' => 'Supply Item',           
+        'App\Models\RequestCategory' => 'Supply Category',   
+        default => 'Unknown Item'
+    };
+}
 
     /**
      * Scope to get only Seedling Request items
@@ -243,6 +245,22 @@ class RecycleBin extends Model
 public function scopeTraining($query)
 {
     return $query->where('model_type', 'App\Models\TrainingApplication');
+}
+
+/**
+ * Scope to get only CategoryItem items
+ */
+public function scopeCategoryItem($query)
+{
+    return $query->where('model_type', 'App\Models\CategoryItem');
+}
+
+/**
+ * Scope to get only RequestCategory items
+ */
+public function scopeRequestCategory($query)
+{
+    return $query->where('model_type', 'App\Models\RequestCategory');
 }
 
 }
