@@ -101,7 +101,7 @@ function updateApplicationStatistics(applications) {
 
 /**
  * Render applications in modal
- * Updated: Removed category badge, reduced redundancy
+ * Updated: Removed category badge, reduced redundancy, removed remarks
  */
 function renderApplicationsInModal(applications) {
     const grid = document.getElementById('applications-modal-grid');
@@ -155,14 +155,6 @@ function renderApplicationsInModal(applications) {
                                     <span class="info-value">${app.livelihood}</span>
                                 </div>
                             ` : ''}
-                        </div>
-                    ` : ''}
-
-
-                    ${app.remarks ? `
-                        <div class="remarks">
-                            <div class="remarks-label">Remarks</div>
-                            <div class="remarks-text">${app.remarks}</div>
                         </div>
                     ` : ''}
                 </div>
