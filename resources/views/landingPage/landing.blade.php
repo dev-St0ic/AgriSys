@@ -866,7 +866,7 @@
                                     <h5>Required Documents</h5>
                                 </div>
                                 <p class="section-description">Please upload clear, high-quality images of the required
-                                    documents. Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+                                    documents. Supported formats: JPG, PNG, PDF (Max 10MB)</p>
 
                                 <div class="form-row">
                                     <div class="form-group file-upload-group">

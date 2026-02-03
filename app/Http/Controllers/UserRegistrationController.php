@@ -347,9 +347,9 @@ class UserRegistrationController extends Controller
                 'max:11',
                 'regex:/^09\d{9}$/'
             ],
-            'idFront' => 'required|file|image|max:5120',
-            'idBack' => 'required|file|image|max:5120',
-            'locationProof' => 'required|file|image|max:5120',
+            'idFront' => 'required|file|image|max:10240',
+            'idBack' => 'required|file|image|max:10240',
+            'locationProof' => 'required|file|image|max:10240',
         ]);
 
         if ($validator->fails()) {
