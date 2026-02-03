@@ -112,12 +112,12 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-users fa-2x text-primary"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-file-alt fa-2x text-primary"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ number_format($overview['total_registrations']) }}</h2>
                     <h6 class="text-muted mb-2">Total Registrations</h6>
-                    <small class="text-muted">
+                    <small class="text-success">
                         <i class="fas fa-map-marker-alt me-1"></i>{{ $overview['active_barangays'] }} barangays
                     </small>
                 </div>
@@ -127,7 +127,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
+                    <div class="metric-icon mb-3 mx-auto">
                         <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
@@ -140,8 +140,8 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-envelope-circle-check fa-2x text-info"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-envelope fa-2x text-purple"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['email_verification_rate'] }}%</h2>
                     <h6 class="text-muted mb-2">Email Verification</h6>
@@ -153,8 +153,8 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-file-circle-check fa-2x text-warning"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-clock fa-2x text-warning"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['document_completion_rate'] }}%</h2>
                     <h6 class="text-muted mb-2">Document Completion</h6>

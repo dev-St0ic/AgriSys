@@ -3,10 +3,6 @@
 @section('title', 'Admin Dashboard - AgriSys')
 @section('page-title', 'Dashboard')
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
-@endpush
-
 @section('content')
     <div class="farmvista-dashboard">
         <!-- Header Section with Welcome -->
@@ -23,13 +19,13 @@
 
                 <!-- Key Metrics Cards Row -->
                 <div class="metrics-row">
-                    <!-- Active Users Card -->
+                    <!-- Total Users Card -->
                     <div class="metric-card-modern">
                         <div class="metric-icon-wrapper green">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="metric-info">
-                            <div class="metric-label">Active Users</div>
+                            <div class="metric-label">Total Users</div>
                             <div class="metric-value-large">{{ number_format($keyMetrics['total_users'] ?? 0) }}</div>
                             <div class="metric-trend positive">
                                 <i class="fas fa-arrow-up"></i> +2% from last month
@@ -92,12 +88,17 @@
                                 <span class="legend-dot blue"></span> Present
                             </div>
                         </div>
-                        <div class="chart-filters">
-                            <select class="time-filter-select">
-                                <option>Last 6 Months</option>
-                                <option>Last 12 Months</option>
-                                <option>This Year</option>
-                            </select>
+                        <div class="chart-filters" style="display: flex; align-items: center; gap: 8px;">
+                            <label style="font-size: 12px; color: #666; margin: 0;">From:</label>
+                            <input type="month" class="time-filter-input" id="startMonth"
+                                value="{{ $startMonth ?? now()->subMonths(5)->format('Y-m') }}"
+                                style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                            <label style="font-size: 12px; color: #666; margin: 0;">To:</label>
+                            <input type="month" class="time-filter-input" id="endMonth"
+                                value="{{ $endMonth ?? now()->format('Y-m') }}"
+                                style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+                            <button onclick="updateUserRegistrationChart()"
+                                style="padding: 4px 12px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Apply</button>
                         </div>
                     </div>
                     <div class="chart-container-area">
@@ -157,18 +158,17 @@
                             <h4 class="service-name">Supply Management</h4>
                             <div class="service-stats">
                                 <div class="stat-item">
-                                    <div class="stat-value warning">{{ $supplyAlerts['total_issues'] ?? 0 }}</div>
-                                    <div class="stat-label">Low Stock</div>
+                                    <div class="stat-value warning">{{ $supplyAlerts['total_low_stock_count'] ?? 0 }}</div>
+                                    <div class="stat-label">Low Supply</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value success">
-                                        {{ count($supplyAlerts['out_of_stock'] ?? []) + count($supplyAlerts['low_stock'] ?? []) }}
-                                    </div>
+                                    <div class="stat-value success">{{ $supplyAlerts['total_items_count'] ?? 0 }}</div>
                                     <div class="stat-label">Total Items</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value danger">{{ $keyMetrics['out_of_stock_items'] ?? 0 }}</div>
-                                    <div class="stat-label">Out of Stock</div>
+                                    <div class="stat-value danger">{{ $supplyAlerts['total_out_of_stock_count'] ?? 0 }}
+                                    </div>
+                                    <div class="stat-label">Out of Supply</div>
                                 </div>
                             </div>
                             <a href="{{ route('admin.seedlings.supply-management.index') }}" class="service-action-link">
@@ -272,21 +272,46 @@
                 <!-- Service Summary Donut Chart -->
                 <div class="summary-card-farmvista">
                     <div class="card-header-compact">
-                        <h3 class="card-title-compact">Service Summary</h3>
+                        <h3 class="card-title-compact">Services Summary</h3>
                     </div>
                     <div class="donut-chart-wrapper">
                         <canvas id="serviceSummaryChart"></canvas>
                     </div>
                     <div class="chart-legend-list">
                         @php
-                            $colors = ['#4CAF50', '#FFC107', '#2196F3', '#E91E63', '#9C27B0'];
+                            $serviceColors = ['#4CAF50', '#FFC107', '#2196F3', '#E91E63', '#9C27B0'];
+                            $services = $applicationStatus ?? [];
+                            $totalRequests = collect($services)->sum(function ($s) {
+                                return $s['pending'] + $s['approved'];
+                            });
+
+                            // If no data, use dummy data
+                            if (empty($services) || $totalRequests === 0) {
+                                $services = [
+                                    ['name' => 'RSBSA', 'pending' => 15, 'approved' => 30],
+                                    ['name' => 'Seedling', 'pending' => 10, 'approved' => 22],
+                                    ['name' => 'FishR', 'pending' => 8, 'approved' => 20],
+                                    ['name' => 'BoatR', 'pending' => 5, 'approved' => 10],
+                                    ['name' => 'Training', 'pending' => 7, 'approved' => 13],
+                                ];
+                                $totalRequests = collect($services)->sum(function ($s) {
+                                    return $s['pending'] + $s['approved'];
+                                });
+                            }
+
                             $index = 0;
                         @endphp
-                        @foreach ($applicationStatus ?? [] as $service)
+                        @foreach ($services as $service)
+                            @php
+                                $count = $service['pending'] + $service['approved'];
+                                $percentage = $totalRequests > 0 ? round(($count / $totalRequests) * 100, 1) : 0;
+                            @endphp
                             <div class="legend-item-row">
-                                <span class="legend-color-box" style="background: {{ $colors[$index % 5] }}"></span>
+                                <span class="legend-color-box"
+                                    style="background: {{ $serviceColors[$index % 5] }}"></span>
                                 <span class="legend-text">{{ $service['name'] }}</span>
-                                <span class="legend-value">{{ $service['pending'] + $service['approved'] }}</span>
+                                <span class="legend-badge">{{ $count }}</span>
+                                <span class="legend-percentage">{{ $percentage }}%</span>
                             </div>
                             @php $index++; @endphp
                         @endforeach
@@ -344,228 +369,427 @@
     </div>
 
     <!-- Load Chart.js before our scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- Chart Scripts -->
     <script>
+        // Global function to update User Registration Chart based on date range
+        function updateUserRegistrationChart() {
+            const startMonth = document.getElementById('startMonth').value;
+            const endMonth = document.getElementById('endMonth').value;
+
+            if (!startMonth || !endMonth) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            if (startMonth > endMonth) {
+                alert('Start date must be before end date');
+                return;
+            }
+
+            console.log('Updating chart with range:', startMonth, 'to', endMonth);
+            const url = new URL(window.location.href);
+            url.searchParams.set('start_month', startMonth);
+            url.searchParams.set('end_month', endMonth);
+            window.location.href = url.toString();
+        }
+
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js library failed to load!');
+        } else {
+            console.log('Chart.js version:', Chart.version);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard charts initializing...');
 
             // User Registration Bar Chart
             const userRegistrationCtx = document.getElementById('userRegistrationChart');
             if (userRegistrationCtx) {
-                // Get current month and calculate last 6 months
-                const months = [];
-                const currentDate = new Date();
-                for (let i = 5; i >= 0; i--) {
-                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-                    months.push(date.toLocaleDateString('en-US', {
-                        month: 'short',
-                        year: 'numeric'
-                    }));
-                }
+                try {
+                    console.log('Creating User Registration Chart...');
+                    @php
+                        $registrationLabels = collect($userRegistrationData ?? [])->pluck('month');
+                        $registrationCounts = collect($userRegistrationData ?? [])->pluck('count');
 
-                new Chart(userRegistrationCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: months,
-                        datasets: [{
-                            label: 'New Users',
-                            data: [45, 62, 58, 71, 83, 95],
-                            backgroundColor: '#4CAF50',
-                            borderRadius: 8,
-                            barThickness: 40
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
+                        // If no data, use dummy data for demonstration
+                        if ($registrationLabels->isEmpty()) {
+                            $currentDate = \Carbon\Carbon::now();
+                            $registrationLabels = collect();
+                            $registrationCounts = collect();
+
+                            for ($i = 5; $i >= 0; $i--) {
+                                $date = $currentDate->copy()->subMonths($i);
+                                $registrationLabels->push($date->format('M Y'));
+                                $registrationCounts->push(rand(45, 95)); // Dummy data
+                            }
+                        }
+                    @endphp
+
+                    // Debug: Check what data we received from backend
+                    console.log('Raw userRegistrationData from backend:', @json($userRegistrationData ?? []));
+
+                    const registrationLabels = {!! json_encode($registrationLabels) !!};
+                    const registrationCounts = {!! json_encode($registrationCounts) !!};
+                    console.log('Registration labels:', registrationLabels);
+                    console.log('Registration counts:', registrationCounts);
+
+                    const userRegistrationChart = new Chart(userRegistrationCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: registrationLabels,
+                            datasets: [{
+                                label: 'New Users',
+                                data: registrationCounts,
+                                backgroundColor: '#4CAF50',
+                                borderRadius: 8,
+                                barThickness: 40
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: '#ffffff',
+                                    titleColor: '#000000',
+                                    bodyColor: '#666666',
+                                    borderColor: '#e0e0e0',
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    displayColors: false,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.parsed.y + ' users';
+                                        }
+                                    }
+                                }
                             },
-                            tooltip: {
-                                backgroundColor: '#ffffff',
-                                titleColor: '#000000',
-                                bodyColor: '#666666',
-                                borderColor: '#e0e0e0',
-                                borderWidth: 1,
-                                padding: 10,
-                                displayColors: false,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.parsed.y + ' users';
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: '#f5f5f5'
+                                    },
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + ' users';
+                                        },
+                                        precision: 0
+                                    },
+                                    suggestedMax: Math.max(10, Math.max(...registrationCounts) + 5)
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
                                     }
                                 }
                             }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: '#f5f5f5'
-                                },
-                                ticks: {
-                                    callback: function(value) {
-                                        return value + ' users';
-                                    },
-                                    stepSize: 20
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
                         }
-                    }
-                });
+                    });
+                    console.log('User Registration Chart created successfully');
+                } catch (error) {
+                    console.error('Error creating User Registration Chart:', error);
+                }
+            } else {
+                console.error('User Registration Chart canvas not found');
             }
 
             // Service Summary Donut Chart
             const serviceSummaryCtx = document.getElementById('serviceSummaryChart');
             if (serviceSummaryCtx) {
-                @php
-                    $serviceData = collect($applicationStatus ?? [])
-                        ->map(function ($service) {
-                            return $service['pending'] + $service['approved'];
-                        })
-                        ->values();
-                @endphp
-                new Chart(serviceSummaryCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: {!! json_encode(
-                            collect($applicationStatus ?? [])->pluck('name')->values(),
-                        ) !!},
-                        datasets: [{
-                            data: {!! json_encode($serviceData) !!},
-                            backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#E91E63',
-                                '#9C27B0'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        cutout: '70%',
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: '#ffffff',
-                                titleColor: '#000000',
-                                bodyColor: '#666666',
-                                borderColor: '#e0e0e0',
-                                borderWidth: 1
-                            }
+                try {
+                    @php
+                        $serviceData = collect($applicationStatus ?? [])
+                            ->map(function ($service) {
+                                return $service['pending'] + $service['approved'];
+                            })
+                            ->values();
+
+                        $serviceLabels = collect($applicationStatus ?? [])
+                            ->pluck('name')
+                            ->values();
+                        $totalServiceRequests = $serviceData->sum();
+
+                        // If no data, use dummy data
+                        if ($serviceLabels->isEmpty() || $totalServiceRequests === 0) {
+                            $serviceLabels = collect(['RSBSA', 'Seedling', 'FishR', 'BoatR', 'Training']);
+                            $serviceData = collect([45, 32, 28, 15, 20]);
+                            $totalServiceRequests = $serviceData->sum();
                         }
-                    }
-                });
+                    @endphp
+                    console.log('Creating Service Summary Chart...');
+
+                    const serviceLabels = {!! json_encode($serviceLabels) !!};
+                    const serviceData = {!! json_encode($serviceData) !!};
+                    const totalServiceRequests = {{ $totalServiceRequests }};
+
+                    console.log('Service labels:', serviceLabels);
+                    console.log('Service data:', serviceData);
+                    console.log('Total requests:', totalServiceRequests);
+
+                    const serviceSummaryChart = new Chart(serviceSummaryCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: serviceLabels,
+                            datasets: [{
+                                data: serviceData,
+                                backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#E91E63',
+                                    '#9C27B0'
+                                ],
+                                borderWidth: 3,
+                                borderColor: '#ffffff',
+                                cutout: '65%',
+                                spacing: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12,
+                                    cornerRadius: 8,
+                                    titleFont: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    },
+                                    bodyFont: {
+                                        size: 13
+                                    },
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed;
+                                            const total = context.dataset.data.reduce((a, b) => a + b,
+                                                0);
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                                },
+                                datalabels: false
+                            },
+                            animation: {
+                                animateRotate: true,
+                                duration: 1000
+                            }
+                        },
+                        plugins: [{
+                            id: 'centerText',
+                            beforeDraw: function(chart) {
+                                const ctx = chart.ctx;
+                                const chartArea = chart.chartArea;
+                                const centerX = (chartArea.left + chartArea.right) / 2;
+                                const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                                const total = chart.data.datasets[0].data.reduce((a, b) => a +
+                                    b, 0);
+
+                                // Draw center text
+                                ctx.save();
+                                ctx.font = 'bold 24px Inter';
+                                ctx.fillStyle = '#1f2937';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
+
+                                ctx.font = '14px Inter';
+                                ctx.fillStyle = '#64748b';
+                                ctx.fillText('Total Requests', centerX, centerY + 15);
+                                ctx.restore();
+                            },
+                            afterDraw: function(chart) {
+                                const ctx = chart.ctx;
+                                const meta = chart.getDatasetMeta(0);
+                                const total = chart.data.datasets[0].data.reduce((a, b) => a +
+                                    b, 0);
+
+                                ctx.save();
+                                ctx.font = 'bold 14px Inter, sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+
+                                chart.data.datasets[0].data.forEach((value, index) => {
+                                    if (value > 0) {
+                                        const percentage = ((value / total) * 100)
+                                            .toFixed(1);
+
+                                        // Only show percentage if slice is large enough
+                                        if (percentage > 5) {
+                                            const element = meta.data[index];
+
+                                            // Calculate the middle angle of the segment
+                                            const startAngle = element.startAngle;
+                                            const endAngle = element.endAngle;
+                                            const midAngle = (startAngle + endAngle) /
+                                                2;
+
+                                            // Calculate position based on the segment's center point
+                                            const chartArea = chart.chartArea;
+                                            const centerX = (chartArea.left + chartArea
+                                                .right) / 2;
+                                            const centerY = (chartArea.top + chartArea
+                                                .bottom) / 2;
+
+                                            // Position the text at 70% of the radius from center
+                                            const radius = (element.outerRadius -
+                                                    element.innerRadius) * 0.7 + element
+                                                .innerRadius;
+                                            const x = centerX + Math.cos(midAngle) *
+                                                radius;
+                                            const y = centerY + Math.sin(midAngle) *
+                                                radius;
+
+                                            const text = `${percentage}%`;
+
+                                            ctx.fillStyle = '#ffffff';
+                                            ctx.strokeStyle = '#000000';
+                                            ctx.lineWidth = 3;
+                                            ctx.textAlign = 'center';
+                                            ctx.textBaseline = 'middle';
+                                            ctx.strokeText(text, x, y);
+                                            ctx.fillText(text, x, y);
+                                        }
+                                    }
+                                });
+
+                                ctx.restore();
+                            }
+                        }]
+                    });
+                    console.log('Service Summary Chart created successfully');
+                } catch (error) {
+                    console.error('Error creating Service Summary Chart:', error);
+                }
+            } else {
+                console.error('Service Summary Chart canvas not found');
             }
 
             // Geographic Distribution Bar Chart
             const geoDistributionCtx = document.getElementById('geographicDistributionChart');
             if (geoDistributionCtx) {
-                @php
-                    $usersData = collect($geographicDistribution['users'] ?? []);
-                    $applicationsData = collect($geographicDistribution['applications'] ?? []);
-                    $userLabels = $usersData->pluck('barangay')->toArray();
-                    $userCounts = $usersData->pluck('count')->toArray();
-                    $appLabels = $applicationsData->pluck('barangay')->toArray();
-                    $appCounts = $applicationsData->pluck('count')->toArray();
-                @endphp
+                try {
+                    @php
+                        $usersData = collect($geographicDistribution['users'] ?? []);
+                        $applicationsData = collect($geographicDistribution['applications'] ?? []);
+                        $userLabels = $usersData->pluck('barangay')->toArray();
+                        $userCounts = $usersData->pluck('count')->toArray();
+                        $appLabels = $applicationsData->pluck('barangay')->toArray();
+                        $appCounts = $applicationsData->pluck('count')->toArray();
+                    @endphp
 
-                const geoData = {
-                    users: {
-                        labels: {!! json_encode($userLabels) !!},
-                        data: {!! json_encode($userCounts) !!}
-                    },
-                    applications: {
-                        labels: {!! json_encode($appLabels) !!},
-                        data: {!! json_encode($appCounts) !!}
-                    }
-                };
-
-                let currentGeoView = 'users';
-
-                const geoChart = new Chart(geoDistributionCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: geoData.users.labels,
-                        datasets: [{
-                            label: 'Registered Users',
-                            data: geoData.users.data,
-                            backgroundColor: '#4CAF50',
-                            borderRadius: 6,
-                            barThickness: 25
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: '#ffffff',
-                                titleColor: '#000000',
-                                bodyColor: '#666666',
-                                borderColor: '#e0e0e0',
-                                borderWidth: 1,
-                                padding: 8,
-                                displayColors: false,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.parsed.x + (currentGeoView === 'users' ?
-                                            ' users' : ' applications');
-                                    }
-                                }
-                            }
+                    console.log('Creating Geographic Distribution Chart...');
+                    const geoData = {
+                        users: {
+                            labels: {!! json_encode($userLabels) !!},
+                            data: {!! json_encode($userCounts) !!}
                         },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: '#f5f5f5'
-                                },
-                                ticks: {
-                                    stepSize: 1,
-                                    font: {
-                                        size: 10
-                                    }
-                                }
-                            },
-                            y: {
-                                grid: {
+                        applications: {
+                            labels: {!! json_encode($appLabels) !!},
+                            data: {!! json_encode($appCounts) !!}
+                        }
+                    };
+
+                    console.log('Geographic data:', geoData);
+                    let currentGeoView = 'users';
+                    const geoChart = new Chart(geoDistributionCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: geoData.users.labels,
+                            datasets: [{
+                                label: 'Registered Users',
+                                data: geoData.users.data,
+                                backgroundColor: '#4CAF50',
+                                borderRadius: 6,
+                                barThickness: 25
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            plugins: {
+                                legend: {
                                     display: false
                                 },
-                                ticks: {
-                                    font: {
-                                        size: 11
+                                tooltip: {
+                                    backgroundColor: '#ffffff',
+                                    titleColor: '#000000',
+                                    bodyColor: '#666666',
+                                    borderColor: '#e0e0e0',
+                                    borderWidth: 1,
+                                    padding: 8,
+                                    displayColors: false,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.parsed.x + (currentGeoView === 'users' ?
+                                                ' users' : ' applications');
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: '#f5f5f5'
+                                    },
+                                    ticks: {
+                                        stepSize: 1,
+                                        font: {
+                                            size: 10
+                                        }
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        }
                                     }
                                 }
                             }
                         }
+                    });
+
+                    console.log('Geographic Distribution Chart created successfully');
+
+                    // Filter change handler
+                    const geoFilter = document.getElementById('geoDistributionFilter');
+                    if (geoFilter) {
+                        geoFilter.addEventListener('change', function(e) {
+                            currentGeoView = e.target.value;
+                            const isUsers = currentGeoView === 'users';
+
+                            geoChart.data.labels = geoData[currentGeoView].labels;
+                            geoChart.data.datasets[0].data = geoData[currentGeoView].data;
+                            geoChart.data.datasets[0].label = isUsers ? 'Registered Users' :
+                                'Total Applications';
+                            geoChart.data.datasets[0].backgroundColor = isUsers ? '#4CAF50' : '#2196F3';
+                            geoChart.update();
+                        });
                     }
-                });
-
-                // Filter change handler
-                document.getElementById('geoDistributionFilter').addEventListener('change', function(e) {
-                    currentGeoView = e.target.value;
-                    const isUsers = currentGeoView === 'users';
-
-                    geoChart.data.labels = geoData[currentGeoView].labels;
-                    geoChart.data.datasets[0].data = geoData[currentGeoView].data;
-                    geoChart.data.datasets[0].label = isUsers ? 'Registered Users' : 'Total Applications';
-                    geoChart.data.datasets[0].backgroundColor = isUsers ? '#4CAF50' : '#2196F3';
-                    geoChart.update();
-                });
+                } catch (error) {
+                    console.error('Error creating Geographic Distribution Chart:', error);
+                }
+            } else {
+                console.error('Geographic Distribution Chart canvas not found');
             }
 
+            console.log('All dashboard charts initialized');
         });
 
         // Weather Widget - Separate from DOMContentLoaded to ensure it runs
@@ -749,6 +973,12 @@
             padding: 2rem;
             background: #f5f7fa;
             min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Adjust padding when sidebar is collapsed for better use of space */
+        html.sidebar-collapsed-state .farmvista-dashboard {
+            padding: 2rem 3rem;
         }
 
         /* Welcome Header */
@@ -820,8 +1050,22 @@
         /* Main Grid Layout */
         .dashboard-main-grid {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: minmax(0, 1fr) 380px;
             gap: 2rem;
+            transition: grid-template-columns 0.3s ease, gap 0.3s ease;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        /* Ensure proper layout in both states */
+        .dashboard-left-section {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .dashboard-right-section {
+            width: 380px;
+            flex-shrink: 0;
         }
 
         /* Metrics Row */
@@ -1406,7 +1650,7 @@
         .legend-item-row {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
             font-size: 0.85rem;
         }
 
@@ -1422,9 +1666,33 @@
             color: #666;
         }
 
+        .legend-badge {
+            background: #f3f4f6;
+            color: #1f2937;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .legend-percentage {
+            color: #6b7280;
+            font-weight: 500;
+            min-width: 45px;
+            text-align: right;
+        }
+
         .legend-value {
             font-weight: 600;
             color: #333;
+        }
+
+        .card-subtitle-compact {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
         }
 
         /* Gauge Chart */
@@ -1580,7 +1848,11 @@
         /* Responsive Design */
         @media (max-width: 1400px) {
             .dashboard-main-grid {
-                grid-template-columns: 1fr 320px;
+                grid-template-columns: minmax(0, 1fr) 320px;
+            }
+
+            .dashboard-right-section {
+                width: 320px;
             }
         }
 

@@ -111,12 +111,14 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-file-alt fa-2x text-primary"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ number_format($overview['total_applications']) }}</h2>
                     <h6 class="text-muted mb-2">Total Applications</h6>
-                    <small class="text-muted">All time registrations</small>
+                    <small class="text-success">
+                        <i class="fas fa-users me-1"></i>{{ number_format($overview['unique_applicants']) }} trainees
+                    </small>
                 </div>
             </div>
         </div>
@@ -124,7 +126,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
+                    <div class="metric-icon mb-3 mx-auto">
                         <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
@@ -137,8 +139,8 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-book fa-2x text-info"></i>
+                    <div class="metric-icon mb-3 mx-auto">
+                        <i class="fas fa-graduation-cap fa-2x text-purple"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $overview['unique_training_types'] }}</h2>
                     <h6 class="text-muted mb-2">Training Programs</h6>
@@ -150,7 +152,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
+                    <div class="metric-icon mb-3 mx-auto">
                         <i class="fas fa-clock fa-2x text-warning"></i>
                     </div>
                     <h2 class="text-dark mb-1">{{ $processingTimeAnalysis['avg_processing_days'] }}d</h2>
