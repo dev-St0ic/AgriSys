@@ -929,9 +929,9 @@
                                     <div id="locationProofPreview" class="image-preview" style="display: none;">
                                     </div>
                                     <div class="form-text">
-                                        <strong>For farmers:</strong> Photo of your farm or agricultural land<br>
-                                        <strong>For fisherfolk:</strong> Photo of fishing area or boat<br>
-                                        <strong>For others:</strong> Relevant business permit or location proof
+                                        <strong>Farmers:</strong> Photo of your farm or agricultural land<br>
+                                        <strong>Fisherfolk:</strong> Photo of fishing area or boat<br>
+                                        <strong>Others:</strong> Any document or photo that proves your livelihood or business
                                     </div>
                                 </div>
                             </div>

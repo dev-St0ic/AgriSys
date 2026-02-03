@@ -467,14 +467,14 @@ class UserRegistrationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Verification submitted successfully! Your account will be reviewed within 2-3 business days.',
+                'message' => 'Profile submitted successfully! Your account will be reviewed within 1–3 business days.',
             ]);
 
         } catch (\Exception $e) {
             \Log::error('Verification submission failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Unable to submit verification. Please try again',
+                'message' => 'Unable to submit profile. Please try again',
             ], 500);
         }
     }
@@ -779,20 +779,20 @@ class UserRegistrationController extends Controller
             'emergency_contact_name' => 'required|string|max:100',
             'emergency_contact_phone' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'status' => 'required|in:unverified,pending,approved',
-            'id_front' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
-            'id_back' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
-            'location_proof' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
+            'id_front' => 'required|file|image|mimes:jpeg,png,jpg|max:10240',
+            'id_back' => 'required|file|image|mimes:jpeg,png,jpg|max:10240',
+            'location_proof' => 'required|file|image|mimes:jpeg,png,jpg|max:10240',
         ], [
             'username.regex' => 'Username can only contain letters, numbers, and underscores',
             'username.unique' => 'This username is already taken',
             'contact_number.regex' => 'Please enter a valid Philippine mobile number',
             'emergency_contact_phone.regex' => 'Please enter a valid Philippine mobile number',
             'id_front.image' => 'ID front must be an image file',
-            'id_front.max' => 'ID front image must be less than 5MB',
+            'id_front.max' => 'ID front image must be less than 10MB',
             'id_back.image' => 'ID back must be an image file',
-            'id_back.max' => 'ID back image must be less than 5MB',
+            'id_back.max' => 'ID back image must be less than 10MB',
             'location_proof.image' => 'Location proof must be an image file',
-            'location_proof.max' => 'Location proof image must be less than 5MB',
+            'location_proof.max' => 'Location proof image must be less than 10MB',
         ]);
 
         if ($validator->fails()) {
@@ -963,9 +963,9 @@ class UserRegistrationController extends Controller
                 'regex:/^09\d{9}$/'
             ],
             // FILE UPLOADS - NOW PROPERLY HANDLED
-            'id_front' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
-            'id_back' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
-            'location_proof' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+            'id_front' => 'nullable|file|image|mimes:jpeg,png,jpg|max:10240',
+            'id_back' => 'nullable|file|image|mimes:jpeg,png,jpg|max:10240',
+            'location_proof' => 'nullable|file|image|mimes:jpeg,png,jpg|max:10240',
         ]);
 
         if ($validator->fails()) {

@@ -1024,7 +1024,7 @@ function handleVerificationSubmit(event) {
         { name: 'lastName', label: 'Last Name' },
         { name: 'sex', label: 'Sex' },
         { name: 'role', label: 'Sector' },
-        { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
+        { name: 'dateOfBirth', label: 'Date of Birth' },
         { name: 'barangay', label: 'Barangay' },
         { name: 'completeAddress', label: 'Complete Address' },
         { name: 'emergencyContactName', label: 'Emergency Contact Name' },
@@ -1093,8 +1093,21 @@ function handleVerificationSubmit(event) {
         return false;
     }
 
-    // Set button to loading state
-    setButtonLoading(submitBtn, 'Submitting Verification...');
+    // Set button to loading state - CLEAR TEXT, SHOW LOADER
+    submitBtn.disabled = true;
+    submitBtn.style.pointerEvents = 'none';
+    
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+    
+    if (btnText) {
+        btnText.textContent = '';  // CLEAR TEXT
+        btnText.style.visibility = 'hidden';
+    }
+    if (btnLoader) {
+        btnLoader.style.display = 'inline-block';
+        btnLoader.innerHTML = '<span style="display: inline-block; width: 16px; height: 16px; border: 3px solid #ffffff; border-top: 3px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>';
+    }
 
     // Create FormData for file upload - EXACTLY as backend expects
     const formData = new FormData();
@@ -1111,8 +1124,8 @@ function handleVerificationSubmit(event) {
     formData.append('completeAddress', form.querySelector('[name="completeAddress"]').value.trim());
 
     // Add emergency contact fields
-formData.append('emergencyContactName', form.querySelector('[name="emergencyContactName"]').value.trim());
-formData.append('emergencyContactPhone', form.querySelector('[name="emergencyContactPhone"]').value.trim());
+    formData.append('emergencyContactName', form.querySelector('[name="emergencyContactName"]').value.trim());
+    formData.append('emergencyContactPhone', form.querySelector('[name="emergencyContactPhone"]').value.trim());
 
     // Add file uploads - EXACT names expected by backend
     const idFrontFile = form.querySelector('[name="idFront"]').files[0];
@@ -1136,7 +1149,6 @@ formData.append('emergencyContactPhone', form.querySelector('[name="emergencyCon
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
-            // Note: Don't set Content-Type header for FormData, browser sets it automatically with boundary
         }
     })
     .then(response => {
@@ -1147,6 +1159,15 @@ formData.append('emergencyContactPhone', form.querySelector('[name="emergencyCon
         console.log('Server response:', data);
 
         if (data.success) {
+            // Show success message
+            if (btnText) {
+                btnText.textContent = 'Verification Submitted!';
+                btnText.style.visibility = 'visible';
+            }
+            if (btnLoader) {
+                btnLoader.style.display = 'none';
+            }
+
             // Update local user status so UI stays consistent
             if (window.userData) {
                 window.userData.status = 'pending';
@@ -1175,13 +1196,33 @@ formData.append('emergencyContactPhone', form.querySelector('[name="emergencyCon
              }
 
              showNotification('error', errorMessage);
-             resetButtonState(submitBtn);
+             
+             // Reset button on error
+             submitBtn.disabled = false;
+             submitBtn.style.pointerEvents = 'auto';
+             if (btnText) {
+                 btnText.textContent = 'Submit for Verification';
+                 btnText.style.visibility = 'visible';
+             }
+             if (btnLoader) {
+                 btnLoader.style.display = 'none';
+             }
          }
      })
     .catch(error => {
         console.error('Verification error:', error);
         showNotification('error', 'Network error. Please check your connection and try again.');
-        resetButtonState(submitBtn);
+        
+        // Reset button on error
+        submitBtn.disabled = false;
+        submitBtn.style.pointerEvents = 'auto';
+        if (btnText) {
+            btnText.textContent = 'Submit for Verification';
+            btnText.style.visibility = 'visible';
+        }
+        if (btnLoader) {
+            btnLoader.style.display = 'none';
+        }
     });
 
     return false;
