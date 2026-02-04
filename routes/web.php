@@ -728,8 +728,6 @@ Route::prefix('admin/recycle-bin')->name('admin.recycle-bin.')->middleware(['aut
     // Specific routes FIRST
     Route::get('/stats', [RecycleBinController::class, 'stats'])->name('stats');
     Route::post('/bulk/restore', [RecycleBinController::class, 'bulkRestore'])->name('bulk.restore');
-    Route::delete('/bulk/destroy', [RecycleBinController::class, 'bulkDestroy'])->name('bulk.destroy');
-    Route::post('/empty', [RecycleBinController::class, 'empty'])->name('empty');
     
     // Generic routes LAST
     Route::get('/', [RecycleBinController::class, 'index'])->name('index');
