@@ -496,7 +496,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             $message = "Request {$requestNumber} has been moved to recycle bin";
 
             if ($seedlingRequest->claimed_at) {
-                $message .= " - ⚠️ Request was already claimed, no supplies returned.";
+                $message .= " - Request was already claimed, no supplies returned.";
             } elseif ($approvedItems->count() > 0) {
                 $message .= " - {$approvedItems->count()} approved item(s) supplies returned to inventory.";
             }
