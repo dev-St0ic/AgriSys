@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\RecycleBin;
 use App\Models\FishrApplication;
 use App\Models\FishrAnnex;
+use App\Models\BoatrApplication;  
+use App\Models\BoatrAnnex;         
+use App\Models\RsbsaApplication;  
 use App\Models\SeedlingRequest;
 use App\Models\CategoryItem;
 use App\Models\RequestCategory;
@@ -122,13 +125,18 @@ class RecycleBinService
                 }
             }
             
-            // Handle BoatrApplication with soft delete
+            // Handle BoatrApplication with soft delete and its annexes
             elseif ($modelClass === 'App\Models\BoatrApplication') {
-                $restored = \App\Models\BoatrApplication::withTrashed()
+                $restored = BoatrApplication::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
+                    
+                    // Restore all soft-deleted annexes
+                    if (method_exists($restored, 'annexes')) {
+                        $restored->annexes()->withTrashed()->restore();
+                    }
                 }
             }
 
@@ -144,8 +152,8 @@ class RecycleBinService
             
             // Handle RsbsaApplication with soft delete
             elseif ($modelClass === 'App\Models\RsbsaApplication') {
-                $restored = \App\Models\RsbsaApplication::withTrashed()
-                    ->find($item->model_id);
+            $restored = RsbsaApplication::withTrashed()
+                ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
@@ -312,11 +320,29 @@ class RecycleBinService
                     ->forceDelete();
             }
             
-            // Handle BoatrApplication
+            // Handle BoatrApplication - delete annexes, documents, then application
             elseif ($modelClass === 'App\Models\BoatrApplication') {
-                \App\Models\BoatrApplication::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
+                $registration = BoatrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($registration) {
+                    // Delete all annexes
+                    $annexes = $registration->annexes()->withTrashed()->get();
+                    foreach ($annexes as $annex) {
+                        if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                            Storage::disk('public')->delete($annex->file_path);
+                        }
+                        $annex->forceDelete();
+                    }
+                    
+                    // Delete main document
+                    if ($registration->user_document_path && Storage::disk('public')->exists($registration->user_document_path)) {
+                        Storage::disk('public')->delete($registration->user_document_path);
+                    }
+                    
+                    // Force delete registration
+                    $registration->forceDelete();
+                }
             }
 
              // Handle BoatrAnnex - delete file then annex
