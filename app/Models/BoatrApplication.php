@@ -190,6 +190,15 @@ class BoatrApplication extends Model
         return $this->hasMany(BoatrAnnex::class, 'boatr_application_id');
     }
 
+    /**
+     * Relationship: BoatR application belongs to a FishR application
+     * Multiple boats can belong to one fisher
+     */
+    public function fishrApplication()
+    {
+        return $this->belongsTo(FishrApplication::class, 'fishr_application_id');
+    }
+
     // ==============================================
     // DOCUMENT MANAGEMENT METHODS - FIXED AND ENHANCED
     // ==============================================

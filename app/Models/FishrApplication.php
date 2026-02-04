@@ -21,35 +21,35 @@ class FishrApplication extends Model
         'last_name',
         'name_extension',
         'sex',
-        
+
         // Contact Information
         'barangay',
         'barangay_id',
         'contact_number',
-        
+
         // Main Livelihood
         'main_livelihood',
         'livelihood_description',
         'other_livelihood',
-        
+
         // Secondary Livelihood (NEW)
         'secondary_livelihood',
         'other_secondary_livelihood',
-        
+
         // Supporting Documents
         'document_path',
-        
+
         // Status Management
         'status',
         'remarks',
         'status_updated_at',
         'updated_by',
-        
+
         // FishR Number
         'fishr_number',
         'fishr_number_assigned_at',
         'fishr_number_assigned_by',
-        
+
         // Registration
         'registration_number',
         'user_id',
@@ -99,6 +99,15 @@ class FishrApplication extends Model
     }
 
     /**
+     * Get all BoatR applications linked to this FishR
+     * One FishR can have multiple boats
+     */
+    public function boatrApplications(): HasMany
+    {
+        return $this->hasMany(BoatrApplication::class, 'fishr_application_id', 'id');
+    }
+
+    /**
      * BOOT: When FishR is deleted, cascade delete to annexes
      */
     protected static function boot()
@@ -130,15 +139,15 @@ class FishrApplication extends Model
     public function getFullNameAttribute(): string
     {
         $name = "{$this->first_name} {$this->last_name}";
-        
+
         if ($this->middle_name) {
             $name = "{$this->first_name} {$this->middle_name} {$this->last_name}";
         }
-        
+
         if ($this->name_extension) {
             $name .= " {$this->name_extension}";
         }
-        
+
         return trim($name);
     }
 

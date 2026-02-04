@@ -1,91 +1,256 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('title', 'Admin Login - AgriSys')
 
-@section('content')
-    <div class="container">
-        <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
-            <div class="col-md-6 col-lg-4">
-                <div class="card shadow-lg">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-seedling text-primary fa-3x mb-3"></i>
-                            <h3 class="card-title text-primary">AgriSys Admin</h3>
-                            <p class="text-muted">Sign in to your account</p>
-                        </div>
-
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label">
-                                    <i class="fas fa-user me-2"></i>Username
-                                </label>
-                                <input type="text" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email') }}" required autofocus>
-                                @error('email')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="password" class="form-label">
-                                    <i class="fas fa-lock me-2"></i>Password
-                                </label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                    id="password" name="password" required>
-                                @error('password')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="text-center mt-3">
-                    <small class="text-muted">
-                        © {{ date('Y') }} AgriSys. All rights reserved.
-                    </small>
-                </div>
-            </div>
-        </div>
-    </div>
-
+@section('styles')
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .card {
-            border-radius: 1rem;
-            border: none;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: url('{{ asset('images/logos/sanpedrobg.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-image {
+            display: none;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 40px 50px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-wrapper {
+            width: 100%;
+        }
+
+        .login-header {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .login-header i {
+            display: none;
+        }
+
+        .login-header h2 {
+            color: #ffffff;
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin-bottom: 5px;
+        }
+
+        .login-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: none;
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
         }
 
         .form-control {
-            border-radius: 0.5rem;
-            border: 2px solid #e9ecef;
-            padding: 0.75rem 1rem;
+            width: 100%;
+            padding: 12px 15px 12px 30px;
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: #ffffff !important;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .form-control:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            outline: none;
+            border-bottom-color: rgba(255, 255, 255, 0.8);
+            background: transparent;
+            box-shadow: none;
+            color: #ffffff !important;
         }
 
-        .btn-primary {
-            border-radius: 0.5rem;
-            padding: 0.75rem;
+        .form-control:-webkit-autofill,
+        .form-control:-webkit-autofill:hover,
+        .form-control:-webkit-autofill:focus {
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0) inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .form-control.is-invalid {
+            border-bottom-color: #fc8181;
+        }
+
+        .invalid-feedback {
+            color: #fc8181;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+        }
+
+        .remember-me input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
             font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .btn-login:hover {
+            background: #38a169;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 968px) {
+            .login-form {
+                max-width: 100%;
+                padding: 40px 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-form {
+                padding: 30px 20px;
+            }
+
+            .login-header h2 {
+                font-size: 1.8rem;
+            }
         }
     </style>
+@endsection
+
+@section('content')
+    <div class="login-container">
+        <div class="login-image"></div>
+
+        <div class="login-form">
+            <div class="form-wrapper">
+                <div class="login-header">
+                    <h2>Welcome!</h2>
+                    <p>Today will be great</p>
+                </div>
+
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+
+                    <div class="form-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" class="form-control @error('email') is-invalid @enderror" id="email"
+                            name="email" value="{{ old('email') }}" placeholder="Username" required autofocus>
+                        @error('email')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
+                            name="password" placeholder="Password" required>
+                        @error('password')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        Login
+                    </button>
+
+                    <div class="footer-text">
+                        © {{ date('Y') }} AgriSys. All rights reserved.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection

@@ -514,7 +514,7 @@ public function submitSeedlings(Request $request)
             'document_path' => $documentPath,
             'status' => 'pending',
             'pickup_date' => $validated['pickup_date'] ?? null,
-            'pickup_expired_at' => $validated['pickup_date'] 
+            'pickup_expired_at' => $validated['pickup_date']
                 ? \Carbon\Carbon::parse($validated['pickup_date'])->addDays(1)->endOfDay()
                 : null,
             'pickup_reminder_sent' => false
@@ -659,15 +659,15 @@ public function submitRsbsa(Request $request)
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]*$/'],
             'sex' => 'required|in:Male,Female,Preferred not to say',
-            
+
             // Contact & location
             'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:255',
             'address' => 'required|string|max:500',  // ✅ NOW VALIDATED
-            
+
             // Main livelihood
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
-            
+
             // Farmer-specific
             'farmer_crops' => 'nullable|required_if:main_livelihood,Farmer|string|max:100',
             'farmer_other_crops' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
@@ -677,23 +677,23 @@ public function submitRsbsa(Request $request)
             'farmer_land_ownership' => 'nullable|required_if:main_livelihood,Farmer|in:Owner,Tenant,Lessee',
             'farmer_special_status' => 'nullable|in:Ancestral Domain,Agrarian Reform Beneficiary,None',
             'farm_location' => 'nullable|required_if:main_livelihood,Farmer|string|max:500|regex:/^[a-zA-Z0-9\s,\'-]*$/',
-            
+
             // Farmworker-specific
             'farmworker_type' => 'nullable|required_if:main_livelihood,Farmworker/Laborer|string|max:100',
             'farmworker_other_type' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
-            
+
             // Fisherfolk-specific
             'fisherfolk_activity' => 'nullable|required_if:main_livelihood,Fisherfolk|string|max:100',
             'fisherfolk_other_activity' => 'nullable|string|max:100|regex:/^[a-zA-Z\s,\'-]*$/',
-            
+
             // Agri-youth-specific
             'agriyouth_farming_household' => 'nullable|required_if:main_livelihood,Agri-youth|in:Yes,No',
             'agriyouth_training' => 'nullable|required_if:main_livelihood,Agri-youth|string|max:100',
             'agriyouth_participation' => 'nullable|required_if:main_livelihood,Agri-youth|in:Participated,Not Participated',
-            
+
             // General
             'commodity' => 'nullable|string|max:1000',
-            
+
             // Document
             'supporting_docs' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ], [
@@ -727,22 +727,22 @@ public function submitRsbsa(Request $request)
         $applicationData = [
             'user_id' => $userId,
             'application_number' => $applicationNumber,
-            
+
             // Basic info
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'] ?? null,
             'last_name' => $validated['last_name'],
             'name_extension' => $validated['name_extension'] ?? null,
             'sex' => $validated['sex'],
-            
+
             // Contact & location
             'contact_number' => $normalizedMobile,
             'barangay' => $validated['barangay'],
             'address' => $validated['address'],  // ✅ NOW SAVED
-            
+
             // Main livelihood
             'main_livelihood' => $validated['main_livelihood'],
-            
+
             // Farmer-specific
             'farmer_crops' => $validated['farmer_crops'] ?? null,
             'farmer_other_crops' => $validated['farmer_other_crops'] ?? null,
@@ -752,24 +752,24 @@ public function submitRsbsa(Request $request)
             'farmer_land_ownership' => $validated['farmer_land_ownership'] ?? null,
             'farmer_special_status' => $validated['farmer_special_status'] ?? null,
             'farm_location' => $validated['farm_location'] ?? null,
-            
+
             // Farmworker-specific
             'farmworker_type' => $validated['farmworker_type'] ?? null,
             'farmworker_other_type' => $validated['farmworker_other_type'] ?? null,
-            
+
             // Fisherfolk-specific
             'fisherfolk_activity' => $validated['fisherfolk_activity'] ?? null,
             'fisherfolk_other_activity' => $validated['fisherfolk_other_activity'] ?? null,
-            
+
             // Agri-youth-specific
             'agriyouth_farming_household' => $validated['agriyouth_farming_household'] ?? null,
             'agriyouth_training' => $validated['agriyouth_training'] ?? null,
             'agriyouth_participation' => $validated['agriyouth_participation'] ?? null,
-            
+
             // General
             'commodity' => $validated['commodity'] ?? null,
             'supporting_document_path' => $documentPath,
-            
+
             // Status
             'status' => 'pending'
         ];
@@ -850,7 +850,7 @@ public function submitRsbsa(Request $request)
      * Submit Boat Registration request - COMPLETE WORKING VERSION
      */
 public function submitBoatR(Request $request)
-{   
+{
     try {
         $userId = session('user.id');
         if (!$userId) {
@@ -882,14 +882,14 @@ public function submitBoatR(Request $request)
         ]);
 
         $applicationNumber = $this->generateUniqueApplicationNumber();
-        
+
         // Only set engine fields if motorized
         if ($validated['boat_classification'] === 'Non-motorized') {
             $validated['engine_type'] = null;
             $validated['engine_horsepower'] = null;
         }
 
-  
+
 try {
     $fishrRegistration = \App\Models\FishrApplication::where('registration_number', $validated['fishr_number'])
         ->where('status', 'approved')
@@ -902,19 +902,8 @@ try {
         ], 422);
     }
 
-    // Check if this FishR is already used for BoatR (1:1 relationship)
-    $boatrExists = BoatrApplication::where('fishr_number', $validated['fishr_number'])->first();
-    if ($boatrExists) {
-        Log::warning('FishR already used for BoatR', [
-            'fishr_number' => $validated['fishr_number'],
-            'existing_boatr_id' => $boatrExists->id
-        ]);
-
-        return response()->json([
-            'success' => false,
-            'message' => 'This FishR has already been registered for a boat registration. Each FishR can only be used once.'
-        ], 422);
-    }
+    // UPDATED: Allow multiple boats per FishR (removed 1:1 relationship check)
+    // One fisher can now register multiple boats
 
     // Check name match
     if (
@@ -934,7 +923,7 @@ try {
 
 } catch (\Exception $e) {
     Log::error('FishR validation error: ' . $e->getMessage());
-    
+
     return response()->json([
         'success' => false,
         'message' => 'Error validating FishR registration'
