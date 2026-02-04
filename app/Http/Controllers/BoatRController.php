@@ -1523,8 +1523,8 @@ public function destroy(Request $request, $id)
         }
     }
 
-    /**
-     * Delete an annex
+   /**
+     * Delete an annex - moves to recycle bin
      */
     public function deleteAnnex($id, $annexId)
     {
@@ -1532,27 +1532,26 @@ public function destroy(Request $request, $id)
             $registration = BoatrApplication::findOrFail($id);
             $annex = $registration->annexes()->findOrFail($annexId);
 
-            // Delete the file and database record
-            $deleted = $annex->deleteWithFile();
+            // Move to recycle bin instead of permanent delete
+            \App\Services\RecycleBinService::softDelete(
+                $annex,
+                'Deleted from BoatR annexes'
+            );
 
-            if ($deleted) {
-                Log::info('Annex deleted successfully', [
-                    'registration_id' => $id,
-                    'annex_id' => $annexId,
-                    'title' => $annex->title,
-                    'deleted_by' => auth()->id()
-                ]);
+            Log::info('BoatR annex moved to recycle bin', [
+                'registration_id' => $id,
+                'annex_id' => $annexId,
+                'title' => $annex->title,
+                'deleted_by' => auth()->id()
+            ]);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Annex deleted successfully'
-                ]);
-            } else {
-                throw new \Exception('Failed to delete annex');
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Annex moved to recycle bin'
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Error deleting annex', [
+            Log::error('Error deleting BoatR annex', [
                 'id' => $id,
                 'annex_id' => $annexId,
                 'error' => $e->getMessage(),

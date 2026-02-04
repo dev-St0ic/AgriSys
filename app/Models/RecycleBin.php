@@ -222,11 +222,15 @@ public function getTypeNameAttribute(): string
 {
     return match ($this->model_type) {
         'App\Models\FishrApplication' => 'FishR Registration',
+        'App\Models\FishrAnnex' => 'FishR Annex',
+        'App\Models\BoatrAnnex' => 'BoatR Annex',
         'App\Models\BoatrApplication' => 'BoatR Registration',
         'App\Models\RsbsaApplication' => 'RSBSA Application',
-        'App\Models\SeedlingRequest' => 'Seedling Request',
+        'App\Models\SeedlingRequest' => 'Supply Request',
         'App\Models\CategoryItem' => 'Supply Item',           
         'App\Models\RequestCategory' => 'Supply Category',   
+        'App\Models\TrainingApplication' => 'Training Request',
+        'App\Models\UserRegistration' => 'User Registration',
         default => 'Unknown Item'
     };
 }
@@ -262,5 +266,14 @@ public function scopeRequestCategory($query)
 {
     return $query->where('model_type', 'App\Models\RequestCategory');
 }
+
+    /**
+     * Scope to get only BoatR Annex items
+     */
+    public function scopeBoatrAnnex($query)
+    {
+        return $query->where('model_type', 'App\Models\BoatrAnnex');
+    }
+
 
 }

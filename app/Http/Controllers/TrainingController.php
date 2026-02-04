@@ -469,7 +469,7 @@ public function destroy($id)
             'deleted_by' => auth()->user()->name ?? 'System'
         ]);
 
-        $message = "Application {$applicationNumber} has been moved to recycle bin";
+        $message = "Request {$applicationNumber} has been moved to recycle bin";
 
         return response()->json([
             'success' => true,

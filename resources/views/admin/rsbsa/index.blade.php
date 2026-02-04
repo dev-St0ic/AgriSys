@@ -350,7 +350,7 @@
                                                 <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                         onclick="deleteApplication({{ $application->id }})">
-                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                        <i class="fas fa-trash me-2"></i>Delete Registration
                                                     </a>
                                                 </li>
                                             </ul>
@@ -1010,27 +1010,27 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete RSBSA Registration</h5>
+                    <h5 class="modal-title w-100 text-center">Move RSBSA Registration to Recycle Bin</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong
-                                id="delete_rsbsa_name"></strong> will:</p>
+                        <p class="mb-0">Are you sure you want to delete this RSBSA Registration? <strong
+                                id="delete_rsbsa_name"></strong> will be moved to the Recycle Bin.</p>
                     </div>
                     <ul class="mb-0">
-                        <li>Remove the RSBSA registration from the database</li>
-                        <li>Delete all associated documents and files</li>
-                        <li>Delete all registration history and logs</li>
-                        <li>Cannot be recovered</li>
+                        <li>Remove the rsbsa registration from active records</li>
+                        <li>Hide it from users and administrators</li>
+                        <li>Keep all documents and attachments</li>
+                        <li><strong>Can be restored from the Recycle Bin</strong></li>
                     </ul>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteRsbsa()"
                         id="confirm_delete_rsbsa_btn">
-                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-text">Move to Recycle Bin</span>
                         <span class="btn-loader" style="display: none;"><span
                                 class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>

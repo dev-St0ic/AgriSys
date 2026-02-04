@@ -19,7 +19,7 @@
                         <i class="fas fa-ship text-primary"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $totalRegistrations }}</div>
-                    <div class="stat-label text-primary">Total Applications</div>
+                    <div class="stat-label text-primary">Total Registrations</div>
                 </div>
             </div>
         </div>
@@ -174,7 +174,7 @@
             <div></div>
             <div class="text-center flex-fill">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-ship me-2"></i>BoatR Applications
+                    <i class="fas fa-ship me-2"></i>BoatR Registrations
                 </h6>
             </div>
             <div class="d-flex gap-2">
@@ -331,7 +331,7 @@
                                                 <li>
                                                     <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                         onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->application_number }}')">
-                                                        <i class="fas fa-trash me-2"></i>Delete Application
+                                                        <i class="fas fa-trash me-2"></i>Delete Registration
                                                     </a>
                                                 </li>
                                             </ul>
@@ -1407,7 +1407,7 @@
 
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Close
+                        <i></i>Close
                     </button>
                 </div>
             </div>
@@ -1521,7 +1521,7 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title w-100 text-center">
-                    <i></i>Edit BoatR Application - <span id="editBoatrNumber"></span>
+                    <i></i>Edit BoatR Registration - <span id="editBoatrNumber"></span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -1930,27 +1930,26 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title w-100 text-center">Permanently Delete BoatR Registration</h5>
+                <h5 class="modal-title w-100 text-center">Move BoatR Registration to Recycle Bin</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-danger" role="alert">
                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_boatr_name"></strong> will:</p>
+                    <p class="mb-0">Are you sure you want to delete this BoatR registration? <strong id="delete_boatr_name"></strong> will be moved to the Recycle Bin.</p>
                 </div>
                 <ul class="mb-0">
-                    <li>Remove the BoatR application from the database</li>
-                    <li>Delete all associated documents and files</li>
-                    <li>Delete all annexes and attachments</li>
-                    <li>Delete all application history and logs</li>
-                    <li>Cannot be recovered</li>
+                    <li>Remove the registration from active records</li>
+                    <li>Hide it from users and administrators</li>
+                    <li>Keep all documents, annexes, and attachments</li>
+                    <li><strong>Can be restored from the Recycle Bin</strong></li>
                 </ul>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteBoatr()"
                     id="confirm_delete_boatr_btn">
-                    <span class="btn-text">Yes, Delete Permanently</span>
+                    <span class="btn-text">Move to Recycle Bin</span>
                     <span class="btn-loader" style="display: none;"><span
                             class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                 </button>
@@ -3135,7 +3134,7 @@
                 padding: 10px;
             }
         }
-/* BoatR Application Details Modal - Enhanced Card-Based Styling */
+/* BoatR Registration Details Modal - Enhanced Card-Based Styling */
 #registrationModal .modal-content {
     border: none;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -5729,7 +5728,7 @@ function confirmPermanentDeleteBoatr() {
         function deleteBoatrAnnex(registrationId, annexId) {
             showConfirmationToast(
                 'Delete Annex',
-                `Are you sure you want to delete this annex?\n\nThis action cannot be undone.`,
+                `Are you sure you want to delete this annex?\n\nPlease confirm to continue.`,
                 () => proceedWithBoatrAnnexDelete(registrationId, annexId)
             );
         }
@@ -6453,7 +6452,7 @@ console.log('Boat Classification:', boatClassificationVal);
             }
 
             // Show success message
-            showToast('success', data.message || 'BoatR application created successfully');
+            showToast('success', data.message || 'BoatR registration created successfully');
 
             console.log('Success! Reloading page in 2 seconds...');
 
@@ -6488,7 +6487,7 @@ console.log('Boat Classification:', boatClassificationVal);
                     }
                 });
             }
-            showToast('error', data.message || 'Failed to create BoatR application');
+            showToast('error', data.message || 'Failed to create BoatR registration');
             
             // Reset button
             submitBtn.innerHTML = originalText;
@@ -8310,7 +8309,7 @@ function updateEditBoatrInspectionCounter() {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal'));
                         if (modal) modal.hide();
 
-                        showToast('success', data.message || 'BoatR application updated successfully');
+                        showToast('success', data.message || 'BoatR registration updated successfully');
                         setTimeout(() => window.location.reload(), 1500);
                     } else {
                         throw new Error(data.message || 'Failed to update');
@@ -8575,8 +8574,8 @@ function handleEditBoatrSubmit() {
 
     // Build confirmation message
     const changesText = changedFields.length > 0 
-        ? `Update this BoatR application with the following changes?\n\n• ${changedFields.join('\n• ')}`
-        : 'Update this BoatR application?';
+        ? `Update this BoatR registration with the following changes?\n\n• ${changedFields.join('\n• ')}`
+        : 'Update this BoatR registration?';
 
     // Show confirmation with only changed fields
     showConfirmationToast(
@@ -8831,7 +8830,7 @@ function validateEditBoatrForm() {
                             registrationId));
                         if (modal) modal.hide();
 
-                        showToast('success', data.message || 'BoatR application updated successfully');
+                        showToast('success', data.message || 'BoatR registration updated successfully');
                         setTimeout(() => window.location.reload(), 1500);
                     } else {
                         throw new Error(data.message || 'Failed to update');

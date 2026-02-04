@@ -16,7 +16,7 @@ class BoatrApplication extends Model
     use HasFactory, SoftDeletes, SendsApplicationSms, LogsActivity;
 
     protected $fillable = [
-        'user_id', // Foreign key to user_registration table
+        'user_id',
         'application_number',
         'first_name',
         'middle_name',
@@ -25,24 +25,22 @@ class BoatrApplication extends Model
         'contact_number',
         'barangay',
         'fishr_number',
+        'fishr_application_id',
         'vessel_name',
         'boat_type',
         'boat_classification',
         'boat_length',
         'boat_width',
         'boat_depth',
+        'boat_dimensions',
         'engine_type',
         'engine_horsepower',
         'primary_fishing_gear',
-
-        // UPDATED: Single User Document
         'user_document_path',
         'user_document_name',
         'user_document_type',
         'user_document_size',
         'user_document_uploaded_at',
-
-        // Multiple Inspection Documents
         'inspection_documents',
         'inspection_completed',
         'inspection_date',
@@ -51,8 +49,6 @@ class BoatrApplication extends Model
         'documents_verified',
         'documents_verified_at',
         'document_verification_notes',
-
-        // Status and workflow
         'status',
         'remarks',
         'reviewed_at',
@@ -60,8 +56,11 @@ class BoatrApplication extends Model
         'status_history',
         'inspection_scheduled_at',
         'approved_at',
-        'rejected_at'
+        'rejected_at',
+        'full_name'
     ];
+
+    protected $dates = ['deleted_at'];
 
     protected $casts = [
         'inspection_date' => 'datetime',
@@ -73,20 +72,40 @@ class BoatrApplication extends Model
         'user_document_uploaded_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-
         'inspection_completed' => 'boolean',
         'documents_verified' => 'boolean',
-
         'boat_length' => 'decimal:2',
         'boat_width' => 'decimal:2',
         'boat_depth' => 'decimal:2',
         'engine_horsepower' => 'integer',
         'user_document_size' => 'integer',
-
-        // JSON fields
         'inspection_documents' => 'array',
         'status_history' => 'array'
     ];
+
+    /**
+     * BOOT: When BoatR is deleted, cascade delete to annexes
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // When BoatR is soft-deleted, soft-delete all its annexes
+        static::deleting(function ($model) {
+            if ($model->isForceDeleting()) {
+                // Force delete annexes too
+                $model->annexes()->forceDelete();
+            } else {
+                // Soft delete annexes
+                $model->annexes()->delete();
+            }
+        });
+
+        // When BoatR is restored, restore all its annexes
+        static::restored(function ($model) {
+            $model->annexes()->withTrashed()->restore();
+        });
+    }
 
     /**
      * Get the full name attribute
@@ -161,6 +180,14 @@ class BoatrApplication extends Model
     public function inspector()
     {
         return $this->belongsTo(User::class, 'inspected_by');
+    }
+
+    /**
+     * Get the annexes for the application
+     */
+    public function annexes()
+    {
+        return $this->hasMany(BoatrAnnex::class, 'boatr_application_id');
     }
 
     // ==============================================
@@ -442,39 +469,6 @@ class BoatrApplication extends Model
         return $query;
     }
 
-    /**
-     * Scope for status
-     */
-    public function scopeStatus($query, $status)
-    {
-        if ($status) {
-            return $query->where('status', $status);
-        }
-        return $query;
-    }
-
-    /**
-     * Scope for boat type
-     */
-    public function scopeBoatType($query, $boatType)
-    {
-        if ($boatType) {
-            return $query->where('boat_type', $boatType);
-        }
-        return $query;
-    }
-
-    /**
-     * Scope for fishing gear
-     */
-    public function scopeFishingGear($query, $gear)
-    {
-        if ($gear) {
-            return $query->where('primary_fishing_gear', $gear);
-        }
-        return $query;
-    }
-
     // ==============================================
     // STATIC METHODS
     // ==============================================
@@ -522,14 +516,6 @@ class BoatrApplication extends Model
             'approved' => 'Approved',
             'rejected' => 'Rejected'
         ];
-    }
-
-    /**
-     * Get the annexes for the application
-     */
-    public function annexes()
-    {
-        return $this->hasMany(BoatrAnnex::class, 'boatr_application_id');
     }
 
     /**

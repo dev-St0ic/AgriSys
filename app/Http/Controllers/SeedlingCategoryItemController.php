@@ -339,28 +339,22 @@ public function destroyCategory(RequestCategory $category)
         ]);
     }
 
-    /**
- * Delete (move to recycle bin) a category item
- */
+ // ✅ REPLACE WITH THIS:
 public function destroyItem(CategoryItem $item)
 {
-    if ($item->requestItems()->count() > 0) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Cannot delete item that has been used in requests'
-        ], 422);
-    }
-
+    // Check if used but DON'T BLOCK - just warn
+    $usedInRequests = $item->requestItems()->count();
+    
     $categoryId = $item->category_id;
     $itemName = $item->name;
     $categoryName = $item->category->display_name;
 
-    // Delete image file if exists (since we're deleting the item)
+    // Delete image file if exists
     if ($item->image_path) {
         Storage::disk('public')->delete($item->image_path);
     }
 
-    // Move to recycle bin instead of permanent delete
+    // Move to recycle bin (even if used!)
     \App\Services\RecycleBinService::softDelete(
         $item,
         'Deleted from Supply Management - Category: ' . $categoryName
@@ -373,13 +367,13 @@ public function destroyItem(CategoryItem $item)
     activity()
         ->performedOn($item)
         ->causedBy(auth()->user())
-        ->withProperties(['action' => 'moved_to_recycle_bin'])
+        ->withProperties(['action' => 'moved_to_recycle_bin', 'was_used_in' => $usedInRequests])
         ->log('deleted');
 
     \Log::info('Supply item moved to recycle bin', [
         'item_id' => $item->id,
         'item_name' => $itemName,
-        'category' => $categoryName,
+        'was_used_in' => $usedInRequests . ' requests',
         'deleted_by' => auth()->user()->name
     ]);
 
@@ -392,9 +386,17 @@ public function destroyItem(CategoryItem $item)
         }
     }
 
+    // Build message
+    $message = "Item '{$itemName}' has been moved to recycle bin";
+    if ($usedInRequests > 0) {
+        $message .= " (was used in $usedInRequests request(s))";
+    }
+    $message .= " and can be restored if needed.";
+
     return response()->json([
         'success' => true,
-        'message' => "Item '{$itemName}' has been moved to recycle bin"
+        'message' => $message,
+        'warning' => $usedInRequests > 0 ? "This item was referenced in $usedInRequests requests" : null
     ]);
 }
     public function toggleItemStatus(CategoryItem $item)

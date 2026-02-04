@@ -450,7 +450,6 @@
                                             <th style="width: 150px;">Description</th>
                                             <th style="width: 100px;" class="text-center">Unit</th>
                                             <th style="width: 120px;" class="text-center">Current Supply</th>
-                                            <th style="width: 100px;" class="text-center">Min/Max</th>
                                             <th style="width: 100px;" class="text-center">Status</th>
                                             <th style="width: 200px;" class="text-center">Actions</th>
                                         </tr>
@@ -502,7 +501,7 @@
                                                             {{ $item->reorder_point }}</small>
                                                     @endif
                                                 </td>
-                                                <td class="text-center">
+                                                <!-- <td class="text-center">
                                                     <small class="text-muted">
                                                         @if ($item->min_quantity)
                                                             Min: {{ $item->min_quantity }}
@@ -517,7 +516,7 @@
                                                             -
                                                         @endif
                                                     </small>
-                                                </td>
+                                                </td> -->
                                                 <td class="text-center">
                                                     <span
                                                         class="badge bg-{{ $item->is_active ? 'success' : 'secondary' }}">
@@ -3071,6 +3070,38 @@
                 });
             }
         });
+// When user clicks delete item button - FIXED: Uses confirmation toast
+function deleteItem(itemId, itemName, usedInCount) {
+    let warningMessage = ``;
+    
+    // Add warning if it's been used
+    if (usedInCount > 0) {
+        warningMessage = `This item has been used in ${usedInCount} request(s).\n\nYou can restore it from the recycle bin if needed.`;
+    }
+    
+    showConfirmationToast(
+        'Delete Item',
+        `Are you sure you want to delete this item"?\n\n${warningMessage}`,
+        () => proceedDeleteItem(itemId)
+    );
+}
+
+// Handle item deletion after confirmation
+async function proceedDeleteItem(itemId) {
+    try {
+        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        showSuccess(data.message);
+    } catch (error) {
+        showError(error.message);
+    }
+}
     </script>
 
     <style>

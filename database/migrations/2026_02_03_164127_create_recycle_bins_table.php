@@ -55,6 +55,10 @@ return new class extends Migration
             $table->index('deleted_at');
             $table->index('expires_at');
             $table->index('restored_at');
+
+            // archived
+            $table->boolean('is_archived')->default(false);
+            $table->timestamp('archived_at')->nullable();
         });
     }
 

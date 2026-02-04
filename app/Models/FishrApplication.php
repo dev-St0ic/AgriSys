@@ -55,6 +55,8 @@ class FishrApplication extends Model
         'user_id',
     ];
 
+    protected $dates = ['deleted_at'];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -94,6 +96,30 @@ class FishrApplication extends Model
     public function annexes(): HasMany
     {
         return $this->hasMany(FishrAnnex::class, 'fishr_application_id', 'id');
+    }
+
+    /**
+     * BOOT: When FishR is deleted, cascade delete to annexes
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // When FishR is soft-deleted, soft-delete all its annexes
+        static::deleting(function ($model) {
+            if ($model->isForceDeleting()) {
+                // Force delete annexes too
+                $model->annexes()->forceDelete();
+            } else {
+                // Soft delete annexes
+                $model->annexes()->delete();
+            }
+        });
+
+        // When FishR is restored, restore all its annexes
+        static::restored(function ($model) {
+            $model->annexes()->withTrashed()->restore();
+        });
     }
 
     // ===== ACCESSORS & MUTATORS =====

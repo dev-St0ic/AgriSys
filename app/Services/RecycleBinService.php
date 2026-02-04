@@ -4,45 +4,212 @@ namespace App\Services;
 
 use App\Models\RecycleBin;
 use App\Models\FishrApplication;
+use App\Models\FishrAnnex;
+use App\Models\BoatrApplication;  
+use App\Models\BoatrAnnex;         
+use App\Models\RsbsaApplication;  
+use App\Models\SeedlingRequest;
+use App\Models\CategoryItem;
+use App\Models\RequestCategory;
+use App\Models\ItemSupplyLog; 
+use App\Models\TrainingApplication;
+use App\Models\UserRegistration;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class RecycleBinService
 {
     /**
-     * Move an item to recycle bin instead of permanently deleting
+     * Soft delete model - move to recycle bin
      */
     public static function softDelete($model, $reason = null)
     {
         try {
+            // Get the model class name
             $modelClass = get_class($model);
             
-            // Store item in recycle bin
+            // Create recycle bin entry with timestamps
             RecycleBin::create([
                 'model_type' => $modelClass,
                 'model_id' => $model->id,
+                'item_name' => $model->full_name ?? $model->name ?? $model->title ?? 'Unknown Item',
+                'reason' => $reason,
                 'data' => $model->toArray(),
                 'deleted_by' => auth()->id(),
-                'reason' => $reason,
-                'item_name' => $model->full_name ?? $model->name ?? "Item #{$model->id}",
                 'deleted_at' => now(),
                 'expires_at' => now()->addDays(30), // Auto-delete after 30 days
             ]);
 
-            // Soft delete the actual model if it supports it
-            if (method_exists($model, 'delete')) {
-                $model->delete();
+            // Soft delete the model
+            $model->delete();
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error in RecycleBinService::softDelete', [
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * FIXED: Restore item from recycle bin
+     * Comprehensive handling for all model types
+     */
+    public static function restore($item)
+    {
+        try {
+            $modelClass = $item->model_type;
+            
+            // Handle FishrApplication with soft delete and its annexes
+            if ($modelClass === 'App\Models\FishrApplication') {
+                $restored = FishrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                    
+                    // Restore all soft-deleted annexes
+                    if (method_exists($restored, 'annexes')) {
+                        $restored->annexes()->withTrashed()->restore();
+                    }
+                }
+            }
+            
+            // Handle FishrAnnex with soft delete
+            elseif ($modelClass === 'App\Models\FishrAnnex') {
+                $restored = FishrAnnex::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Handle SeedlingRequest with soft delete
+            elseif ($modelClass === 'App\Models\SeedlingRequest') {
+                $restored = SeedlingRequest::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    // Restore the main request
+                    $restored->restore();
+                    
+                    // ✅ ALSO RESTORE all associated items
+                    $restored->items()->withTrashed()->restore();
+                }
+            }
+            
+            // Handle CategoryItem with soft delete
+            elseif ($modelClass === 'App\Models\CategoryItem') {
+                $restored = CategoryItem::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Handle RequestCategory with soft delete - restore items too
+            elseif ($modelClass === 'App\Models\RequestCategory') {
+                $restored = RequestCategory::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                    
+                    // ✅ ALSO RESTORE all soft-deleted items in this category
+                    if (method_exists($restored, 'items')) {
+                        $restored->items()->withTrashed()->restore();
+                    }
+                }
+            }
+            
+            // Handle UserRegistration with soft delete
+            elseif ($modelClass === 'App\Models\UserRegistration') {
+                $restored = UserRegistration::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Handle BoatrApplication with soft delete and its annexes
+            elseif ($modelClass === 'App\Models\BoatrApplication') {
+                $restored = BoatrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                    
+                    // Restore all soft-deleted annexes
+                    if (method_exists($restored, 'annexes')) {
+                        $restored->annexes()->withTrashed()->restore();
+                    }
+                }
             }
 
-            Log::info('Item moved to recycle bin', [
-                'model_type' => $modelClass,
-                'model_id' => $model->id,
-                'deleted_by' => auth()->id()
+            // Handle BoatrAnnex with soft delete
+            elseif ($modelClass === 'App\Models\BoatrAnnex') {
+                $restored = BoatrAnnex::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Handle RsbsaApplication with soft delete
+            elseif ($modelClass === 'App\Models\RsbsaApplication') {
+            $restored = RsbsaApplication::withTrashed()
+                ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Handle TrainingApplication with soft delete
+            elseif ($modelClass === 'App\Models\TrainingApplication') {
+                $restored = TrainingApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Fallback: Try to recreate from stored data
+            else {
+                try {
+                    $model = new $modelClass();
+                    $model->id = $item->model_id;
+                    foreach ($item->data as $key => $value) {
+                        $model->$key = $value;
+                    }
+                    $model->save();
+                } catch (\Exception $fallbackError) {
+                    Log::warning('Could not restore model using fallback method', [
+                        'model_type' => $modelClass,
+                        'model_id' => $item->model_id,
+                        'error' => $fallbackError->getMessage()
+                    ]);
+                    return false;
+                }
+            }
+
+            // Mark as restored in recycle bin
+            $item->update([
+                'restored_at' => now(),
+                'restored_by' => auth()->id(),
             ]);
 
             return true;
         } catch (\Exception $e) {
-            Log::error('Error moving item to recycle bin', [
+            Log::error('Error in RecycleBinService::restore', [
+                'model_type' => $item->model_type,
+                'model_id' => $item->model_id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -51,86 +218,273 @@ class RecycleBinService
     }
 
     /**
-     * Restore an item from recycle bin
+     * FIXED: Permanently delete item from recycle bin
+     * Comprehensive handling for all model types with file cleanup
      */
-    public static function restore(RecycleBin $recycleBin)
+    public static function permanentlyDelete($item)
     {
         try {
-            if ($recycleBin->restore()) {
-                Log::info('Item restored from recycle bin', [
-                    'model_type' => $recycleBin->model_type,
-                    'model_id' => $recycleBin->model_id,
-                    'restored_by' => auth()->id()
-                ]);
-                return true;
-            }
-            return false;
-        } catch (\Exception $e) {
-            Log::error('Error restoring item from recycle bin', [
-                'error' => $e->getMessage()
-            ]);
-            return false;
-        }
-    }
-
-    /**
-     * Permanently delete an item from recycle bin
-     */
-    public static function permanentlyDelete(RecycleBin $recycleBin)
-    {
-        try {
-            if ($recycleBin->permanentlyDelete()) {
-                Log::info('Item permanently deleted from recycle bin', [
-                    'model_type' => $recycleBin->model_type,
-                    'model_id' => $recycleBin->model_id,
-                ]);
-                return true;
-            }
-            return false;
-        } catch (\Exception $e) {
-            Log::error('Error permanently deleting item from recycle bin', [
-                'error' => $e->getMessage()
-            ]);
-            return false;
-        }
-    }
-
-    /**
-     * Empty recycle bin (delete expired items)
-     */
-    public static function emptyExpired()
-    {
-        try {
-            $expired = RecycleBin::expired()->get();
+            $modelClass = $item->model_type;
             
-            foreach ($expired as $item) {
-                $item->permanentlyDelete();
+            // Handle FishrApplication - delete annexes, documents, then application
+            if ($modelClass === 'App\Models\FishrApplication') {
+                $registration = FishrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($registration) {
+                    // Delete all annexes
+                    $annexes = $registration->annexes()->withTrashed()->get();
+                    foreach ($annexes as $annex) {
+                        if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                            Storage::disk('public')->delete($annex->file_path);
+                        }
+                        $annex->forceDelete();
+                    }
+                    
+                    // Delete main document
+                    if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
+                        Storage::disk('public')->delete($registration->document_path);
+                    }
+                    
+                    // Force delete registration
+                    $registration->forceDelete();
+                }
+            }
+            
+            // Handle FishrAnnex - delete file then annex
+            elseif ($modelClass === 'App\Models\FishrAnnex') {
+                $annex = FishrAnnex::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($annex) {
+                    // Delete file
+                    if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                        Storage::disk('public')->delete($annex->file_path);
+                    }
+                    
+                    // Force delete annex
+                    $annex->forceDelete();
+                }
+            }
+            
+            // Handle TrainingApplication - delete document then application
+            elseif ($modelClass === 'App\Models\TrainingApplication') {
+                if ($item->data['document_path'] ?? null) {
+                    if (Storage::disk('public')->exists($item->data['document_path'])) {
+                        Storage::disk('public')->delete($item->data['document_path']);
+                    }
+                }
+                
+                TrainingApplication::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
+            
+            // NEW CODE (Fixed to delete items too) seedling reuqwt
+            elseif ($modelClass === 'App\Models\SeedlingRequest') {
+                $request = SeedlingRequest::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($request) {
+                    // ✅ Force delete all associated items first
+                    $request->items()->withTrashed()->forceDelete();
+                    
+                    // ✅ Then force delete the request
+                    $request->forceDelete();
+                }
+            }
+            
+            // Handle UserRegistration - delete documents then user registration
+            elseif ($modelClass === 'App\Models\UserRegistration') {
+                // Delete uploaded documents
+                if ($item->data['id_front_path'] ?? null) {
+                    if (Storage::disk('public')->exists($item->data['id_front_path'])) {
+                        Storage::disk('public')->delete($item->data['id_front_path']);
+                    }
+                }
+                if ($item->data['id_back_path'] ?? null) {
+                    if (Storage::disk('public')->exists($item->data['id_back_path'])) {
+                        Storage::disk('public')->delete($item->data['id_back_path']);
+                    }
+                }
+                if ($item->data['location_document_path'] ?? null) {
+                    if (Storage::disk('public')->exists($item->data['location_document_path'])) {
+                        Storage::disk('public')->delete($item->data['location_document_path']);
+                    }
+                }
+                if ($item->data['profile_image_url'] ?? null) {
+                    if (Storage::disk('public')->exists($item->data['profile_image_url'])) {
+                        Storage::disk('public')->delete($item->data['profile_image_url']);
+                    }
+                }
+                
+                UserRegistration::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
+        
+            // Handle CategoryItem - delete supply logs first
+            elseif ($modelClass === 'App\Models\CategoryItem') {
+                $categoryItem = CategoryItem::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($categoryItem) {
+                    // ✅ Delete all supply logs for this item
+                    ItemSupplyLog::where('category_item_id', $categoryItem->id)
+                        ->forceDelete();
+                    
+                    // ✅ Delete image file if exists
+                    if ($categoryItem->image_path && Storage::disk('public')->exists($categoryItem->image_path)) {
+                        Storage::disk('public')->delete($categoryItem->image_path);
+                    }
+                    
+                    // Force delete the item
+                    $categoryItem->forceDelete();
+                }
+            }
+            
+            // Handle RequestCategory - delete items and their supply logs first
+            elseif ($modelClass === 'App\Models\RequestCategory') {
+                $category = RequestCategory::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($category) {
+                    // ✅ Get all items in this category (including soft-deleted)
+                    $items = CategoryItem::withTrashed()
+                        ->where('category_id', $category->id)
+                        ->get();
+                    
+                    // ✅ For each item, delete supply logs and images
+                    foreach ($items as $categoryItem) {
+                        // Delete supply logs
+                        ItemSupplyLog::where('category_item_id', $categoryItem->id)
+                            ->forceDelete();
+                        
+                        // Delete image file
+                        if ($categoryItem->image_path && Storage::disk('public')->exists($categoryItem->image_path)) {
+                            Storage::disk('public')->delete($categoryItem->image_path);
+                        }
+                        
+                        // Force delete the item
+                        $categoryItem->forceDelete();
+                    }
+                    
+                    // Finally, force delete the category
+                    $category->forceDelete();
+                }
+            }
+            
+            // Handle BoatrApplication - delete annexes, documents, then application
+            elseif ($modelClass === 'App\Models\BoatrApplication') {
+                $registration = BoatrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($registration) {
+                    // Delete all annexes
+                    $annexes = $registration->annexes()->withTrashed()->get();
+                    foreach ($annexes as $annex) {
+                        if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                            Storage::disk('public')->delete($annex->file_path);
+                        }
+                        $annex->forceDelete();
+                    }
+                    
+                    // Delete main document
+                    if ($registration->user_document_path && Storage::disk('public')->exists($registration->user_document_path)) {
+                        Storage::disk('public')->delete($registration->user_document_path);
+                    }
+                    
+                    // Force delete registration
+                    $registration->forceDelete();
+                }
             }
 
-            Log::info('Expired recycle bin items deleted', [
-                'count' => $expired->count()
-            ]);
+             // Handle BoatrAnnex - delete file then annex
+            elseif ($modelClass === 'App\Models\BoatrAnnex') {
+                $annex = BoatrAnnex::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($annex) {
+                    // Delete file
+                    if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                        Storage::disk('public')->delete($annex->file_path);
+                    }
+                    
+                    // Force delete annex
+                    $annex->forceDelete();
+                }
+            }
+            
+            // Handle RsbsaApplication
+            elseif ($modelClass === 'App\Models\RsbsaApplication') {
+                \App\Models\RsbsaApplication::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
 
-            return $expired->count();
+            // Delete recycle bin entry
+            $item->forceDelete();
+
+            return true;
         } catch (\Exception $e) {
-            Log::error('Error emptying recycle bin', [
-                'error' => $e->getMessage()
+            Log::error('Error in RecycleBinService::permanentlyDelete', [
+                'model_type' => $item->model_type,
+                'model_id' => $item->model_id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-            return 0;
+            return false;
         }
     }
 
     /**
      * Get recycle bin statistics
+     * FIXED: Now returns fishr_annex_items in the array
      */
     public static function getStats()
     {
+        $total = RecycleBin::notRestored()->count();
+        $fishr = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrApplication')->count();
+        $boatr = RecycleBin::notRestored()->where('model_type', 'App\Models\BoatrApplication')->count();
+        $fishrAnnex = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrAnnex')->count();
+        $boatrAnnex = RecycleBin::notRestored()->where('model_type', 'App\Models\BoatrAnnex')->count();
+        $expired = RecycleBin::notRestored()->where('expires_at', '<=', now())->count();
+        $supplyCategories = RecycleBin::notRestored()->where('model_type', 'App\Models\CategoryItem')->count();
+        $supplyItems = RecycleBin::notRestored()->where('model_type', 'App\Models\RequestCategory')->count();
+
         return [
-            'total_items' => RecycleBin::notRestored()->count(),
-            'fishr_items' => RecycleBin::fishR()->notRestored()->count(),
-            'boatr_items' => RecycleBin::boatR()->notRestored()->count(),
-            'rsbsa_items' => RecycleBin::rsbsa()->notRestored()->count(),
-            'expired_items' => RecycleBin::expired()->notRestored()->count(),
+            'total_items' => $total,
+            'fishr_items' => $fishr,
+            'boatr_items' => $boatr,
+            'boatr_annex_items' => $boatrAnnex,
+            'fishr_annex_items' => $fishrAnnex, 
+            'expired_items' => $expired,
+            'supply_category_items' => $supplyCategories, 
+            'supply_item_items' => $supplyItems, 
         ];
+    }
+
+    /**
+     * Empty expired items
+     */
+    public static function emptyExpired()
+    {
+        try {
+            $expired = RecycleBin::notRestored()->where('expires_at', '<=', now())->get();
+            $count = 0;
+
+            foreach ($expired as $item) {
+                if (self::permanentlyDelete($item)) {
+                    $count++;
+                }
+            }
+
+            return $count;
+        } catch (\Exception $e) {
+            Log::error('Error in RecycleBinService::emptyExpired', [
+                'error' => $e->getMessage()
+            ]);
+            return 0;
+        }
     }
 }

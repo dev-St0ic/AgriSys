@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class FishrAnnex extends Model
 { 
-    use LogsActivity;
+    use LogsActivity, SoftDeletes;
     protected $table = 'fishr_annexes';
 
     protected $fillable = [
@@ -24,6 +25,8 @@ class FishrAnnex extends Model
         'file_size',
         'uploaded_by',
     ];
+
+    protected $dates = ['deleted_at']; 
 
     protected $casts = [
         'file_size' => 'integer',

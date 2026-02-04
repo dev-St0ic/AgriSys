@@ -22,7 +22,9 @@ return new class extends Migration
             $table->string('mime_type')->nullable();
             $table->unsignedBigInteger('file_size')->nullable();
             $table->unsignedBigInteger('uploaded_by')->nullable();
+
             $table->timestamps();
+            $table->softDeletes();  
 
             // Foreign key constraints
             $table->foreign('fishr_application_id')->references('id')->on('fishr_applications')->onDelete('cascade');
