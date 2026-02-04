@@ -667,120 +667,7 @@ function showSeedlingsTab(tabId, event) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
-// Pick up date - ALWAYS SHOW
-function showPickupDateField(totalQuantity) {
-    const pickupDateSection = document.getElementById('pickup-date-section');
-    const pickupInput = document.getElementById('seedlings-pickup_date');
-    
-    // ✅ SHOW PICKUP DATE FIELD FOR ALL REQUESTS
-    if (pickupDateSection) pickupDateSection.style.display = 'block';
-    if (pickupInput) {
-        pickupInput.required = true;
-        
-        // Set dynamic min and max dates based on TODAY
-        const today = new Date();
-        const minDate = new Date(today);
-        minDate.setDate(minDate.getDate() + 1); // 1 day from today
-        
-        const maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 30); // 30 days from today
-        
-        // Format dates as YYYY-MM-DD
-        const formatDate = (date) => date.toISOString().split('T')[0];
-        
-        pickupInput.min = formatDate(minDate);
-        pickupInput.max = formatDate(maxDate);
-        pickupInput.value = ''; // Clear any previous value
-    }
-}
-
-function initPickupDateField() {
-    const pickupInput = document.getElementById('seedlings-pickup_date');
-    const displayDiv = document.getElementById('pickup-date-display');
-    const displayText = document.getElementById('pickup-date-text');
-
-    if (!pickupInput) return;
-
-    // Set min/max dates
-    const today = new Date();
-    const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 1);
-    
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 30);
-
-    const formatDate = (date) => date.toISOString().split('T')[0];
-    
-    pickupInput.min = formatDate(minDate);
-    pickupInput.max = formatDate(maxDate);
-
-    // ✅ VALIDATE ON DATE CHANGE
-    pickupInput.addEventListener('change', function() {
-        if (!this.value) {
-            // User cleared the date
-            displayDiv.style.display = 'none';
-            return;
-        }
-
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 6=Saturday
-        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-        const fullDate = selectedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
-
-        // ✅ CHECK IF WEEKEND (0 = Sunday, 6 = Saturday)
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = ''; // Clear invalid selection
-            displayDiv.style.display = 'none';
-            
-            // Show user-friendly warning
-            toast.warning(
-                `${dayName}s are closed. Please select a weekday (Monday-Friday).`,
-                {
-                    title: '⚠️ Weekend Not Available',
-                    duration: 4000
-                }
-            );
-            return;
-        }
-
-        // ✅ VALID WEEKDAY - SHOW CONFIRMATION
-        displayText.innerHTML = `
-            <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
-            <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
-        `;
-        displayDiv.style.display = 'block';
-    });
-
-    // ✅ VALIDATE ON BLUR (When user leaves the field)
-    pickupInput.addEventListener('blur', function() {
-        if (!this.value) return;
-
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
-
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = '';
-            displayDiv.style.display = 'none';
-            
-            toast.warning(
-                'Weekends are not available for pickup. Please select a weekday.',
-                {
-                    title: '❌ Invalid Selection',
-                    duration: 5000
-                }
-            );
-        }
-    });
-}
-
-// Call on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', function() {
-    initPickupDateField();
-});
+// Supporting documents - always optional
 
 
 // ==============================================
@@ -792,8 +679,6 @@ function toggleSupportingDocuments(totalQuantity) {
     // ✅ ALWAYS SHOW supporting documents as OPTIONAL
     if (docsField) docsField.style.display = 'block';
     if (docsInput) docsInput.required = false; // Always optional
-    
-    showPickupDateField(totalQuantity);
 }
 // ==============================================
 // SUMMARY DISPLAY
@@ -838,29 +723,6 @@ function submitSeedlingsRequest(event) {
         return false;
     }
 
-    // ✅ CHECK PICKUP DATE VALIDATION FIRST (BEFORE ANY SUBMISSION)
-    const pickupDateSection = document.getElementById('pickup-date-section');
-    const pickupInput = document.getElementById('seedlings-pickup_date');
-    
-    if (pickupDateSection && pickupDateSection.style.display !== 'none' && !pickupInput.value) {
-        agrisysModal.warning('Please select a pickup date', { title: 'Pickup Date Required' });
-        return false; // STOP execution
-    }
-
-    // ✅ DOUBLE-CHECK: NO WEEKENDS ALLOWED
-    if (pickupInput.value) {
-        const selectedDate = new Date(pickupInput.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
-        
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            agrisysModal.warning(
-                'Weekends are not available for pickup. Please select a weekday (Monday-Friday).',
-                { title: 'Invalid Pickup Date' }
-            );
-            return false; // STOP execution
-        }
-    }
-
     const submitBtn = form.querySelector('.seedlings-submit-btn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Submitting...';
@@ -893,7 +755,7 @@ function submitSeedlingsRequest(event) {
             // ✅ RESET PICKUP DATE FIELD IMMEDIATELY AFTER SUCCESS
             const pickupInput = document.getElementById('seedlings-pickup_date');
             const displayDiv = document.getElementById('pickup-date-display');
-            
+
             if (pickupInput) {
                 pickupInput.value = '';
             }
@@ -1011,7 +873,7 @@ function resetSupportingDocuments() {
         docsInput.required = false;
         docsInput.value = '';
     }
-    
+
     // Pickup date always shows but reset it
     if (pickupDateSection) pickupDateSection.style.display = 'block';
     if (pickupInput) {
@@ -1048,7 +910,7 @@ function restorePreviousSelections() {
 //     // ✅ SHOW FOR ALL REQUESTS
 //     if (docsField) docsField.style.display = 'block';
 //     if (docsInput) docsInput.required = true;
-    
+
 //     showPickupDateField(totalQuantity);
 // }
 
@@ -1335,12 +1197,12 @@ function initPickupDateField() {
     const today = new Date();
     const minDate = new Date(today);
     minDate.setDate(minDate.getDate() + 1); // 1 day from today
-    
+
     const maxDate = new Date(today);
     maxDate.setDate(maxDate.getDate() + 30); // 30 days from today
 
     const formatDate = (date) => date.toISOString().split('T')[0];
-    
+
     pickupInput.min = formatDate(minDate);
     pickupInput.max = formatDate(maxDate);
 
@@ -1365,17 +1227,17 @@ function initPickupDateField() {
         const selectedDate = new Date(this.value + 'T00:00:00');
         const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 6=Saturday
         const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-        const fullDate = selectedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        const fullDate = selectedDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
 
         // ✅ CHECK IF WEEKEND (0 = Sunday, 6 = Saturday)
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             this.value = ''; // Clear invalid selection
             displayDiv.style.display = 'none';
-            
+
             // Show user-friendly warning
             toast.warning(
                 `${dayName}s are closed. Please select a weekday (Monday-Friday).`,
@@ -1407,7 +1269,7 @@ function initPickupDateField() {
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             this.value = '';
             displayDiv.style.display = 'none';
-            
+
             toast.warning(
                 'Weekends are not available for pickup. Please select a weekday.',
                 {
@@ -1427,11 +1289,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 function disableWeekendsInDatePicker() {
     const pickupInput = document.getElementById('seedlings-pickup_date');
-    
+
     pickupInput.addEventListener('change', function() {
         const selectedDate = new Date(this.value);
         const day = selectedDate.getDay();
-        
+
         // 0 = Sunday, 6 = Saturday
         if (day === 0 || day === 6) {
             toast.warning('Saturdays and Sundays are closed. Please select a weekday.', {

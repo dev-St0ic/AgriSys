@@ -113,8 +113,8 @@
         <div class="content">
             <div class="success-badge">
                 Your
-                {{ $applicationType === 'seedling'
-                    ? 'Seedling Request'
+                {{ $applicationType === 'seedling' || $applicationType === 'Supplies Request'
+                    ? 'Supplies & Garden Tools Request'
                     : ($applicationType === 'rsbsa'
                         ? 'RSBSA Registration'
                         : ($applicationType === 'fishr'
@@ -197,7 +197,21 @@
             <!-- Next Steps -->
             <div class="info-box">
                 <h3>Next Steps</h3>
-                @if ($applicationType === 'seedling')
+                @if ($applicationType === 'seedling' || $applicationType === 'Supplies Request')
+                    @if (isset($application->pickup_date))
+                        <p><strong>📅 Pickup Window:</strong></p>
+                        <p style="font-size: 16px; color: #40916c; font-weight: bold;">
+                            Within 30 days from approval<br>
+                            Deadline: {{ $application->pickup_date->format('F d, Y') }}
+                        </p>
+                        <p><strong>⏰ Pickup Hours:</strong> Monday to Friday, 8:00 AM - 5:00 PM</p>
+                        <p><strong>📍 Location:</strong> City Agriculture Office, San Pedro, Laguna</p>
+                        <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+                    @endif
+                    <p>• Bring a valid government-issued ID when picking up your items</p>
+                    <p>• Please pickup within the 30-day window to avoid forfeiture</p>
+                    <p>• Contact us if you need to reschedule or have concerns</p>
+                @elseif($applicationType === 'rsbsa')
                     <p>• You will receive an SMS notification with the pickup date and time</p>
                     <p>• Bring a valid ID when picking up your seedlings</p>
                     <p>• Pickup location: City Agriculture Office</p>

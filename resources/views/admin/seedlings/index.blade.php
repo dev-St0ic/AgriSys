@@ -108,33 +108,64 @@
                         <div class="col-md-2">
                             <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Barangay</option>
-                                <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
-                                <option value="Calendola" {{ request('barangay') == 'Calendola' ? 'selected' : '' }}>Calendola</option>
-                                <option value="Chrysanthemum" {{ request('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
-                                <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
-                                <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella</option>
-                                <option value="Fatima" {{ request('barangay') == 'Fatima' ? 'selected' : '' }}>Fatima</option>
-                                <option value="G.S.I.S." {{ request('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.</option>
-                                <option value="Landayan" {{ request('barangay') == 'Landayan' ? 'selected' : '' }}>Landayan</option>
-                                <option value="Langgam" {{ request('barangay') == 'Langgam' ? 'selected' : '' }}>Langgam</option>
-                                <option value="Laram" {{ request('barangay') == 'Laram' ? 'selected' : '' }}>Laram</option>
-                                <option value="Magsaysay" {{ request('barangay') == 'Magsaysay' ? 'selected' : '' }}>Magsaysay</option>
-                                <option value="Maharlika" {{ request('barangay') == 'Maharlika' ? 'selected' : '' }}>Maharlika</option>
-                                <option value="Narra" {{ request('barangay') == 'Narra' ? 'selected' : '' }}>Narra</option>
-                                <option value="Nueva" {{ request('barangay') == 'Nueva' ? 'selected' : '' }}>Nueva</option>
-                                <option value="Pacita 1" {{ request('barangay') == 'Pacita 1' ? 'selected' : '' }}>Pacita 1</option>
-                                <option value="Pacita 2" {{ request('barangay') == 'Pacita 2' ? 'selected' : '' }}>Pacita 2</option>
-                                <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
-                                <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>Riverside</option>
-                                <option value="Rosario" {{ request('barangay') == 'Rosario' ? 'selected' : '' }}>Rosario</option>
-                                <option value="Sampaguita Village" {{ request('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village</option>
-                                <option value="San Antonio" {{ request('barangay') == 'San Antonio' ? 'selected' : '' }}>San Antonio</option>
-                                <option value="San Lorenzo Ruiz" {{ request('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz</option>
-                                <option value="San Roque" {{ request('barangay') == 'San Roque' ? 'selected' : '' }}>San Roque</option>
-                                <option value="San Vicente" {{ request('barangay') == 'San Vicente' ? 'selected' : '' }}>San Vicente</option>
-                                <option value="Santo Niño" {{ request('barangay') == 'Santo Niño' ? 'selected' : '' }}>Santo Niño</option>
-                                <option value="United Bayanihan" {{ request('barangay') == 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan</option>
-                                <option value="United Better Living" {{ request('barangay') == 'United Better Living' ? 'selected' : '' }}>United Better Living</option>
+                                <option value="Bagong Silang"
+                                    {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
+                                <option value="Calendola" {{ request('barangay') == 'Calendola' ? 'selected' : '' }}>
+                                    Calendola</option>
+                                <option value="Chrysanthemum"
+                                    {{ request('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
+                                <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>Cuyab
+                                </option>
+                                <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella
+                                </option>
+                                <option value="Fatima" {{ request('barangay') == 'Fatima' ? 'selected' : '' }}>Fatima
+                                </option>
+                                <option value="G.S.I.S." {{ request('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.
+                                </option>
+                                <option value="Landayan" {{ request('barangay') == 'Landayan' ? 'selected' : '' }}>Landayan
+                                </option>
+                                <option value="Langgam" {{ request('barangay') == 'Langgam' ? 'selected' : '' }}>Langgam
+                                </option>
+                                <option value="Laram" {{ request('barangay') == 'Laram' ? 'selected' : '' }}>Laram
+                                </option>
+                                <option value="Magsaysay" {{ request('barangay') == 'Magsaysay' ? 'selected' : '' }}>
+                                    Magsaysay</option>
+                                <option value="Maharlika" {{ request('barangay') == 'Maharlika' ? 'selected' : '' }}>
+                                    Maharlika</option>
+                                <option value="Narra" {{ request('barangay') == 'Narra' ? 'selected' : '' }}>Narra
+                                </option>
+                                <option value="Nueva" {{ request('barangay') == 'Nueva' ? 'selected' : '' }}>Nueva
+                                </option>
+                                <option value="Pacita 1" {{ request('barangay') == 'Pacita 1' ? 'selected' : '' }}>Pacita 1
+                                </option>
+                                <option value="Pacita 2" {{ request('barangay') == 'Pacita 2' ? 'selected' : '' }}>Pacita 2
+                                </option>
+                                <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>
+                                    Poblacion</option>
+                                <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>
+                                    Riverside</option>
+                                <option value="Rosario" {{ request('barangay') == 'Rosario' ? 'selected' : '' }}>Rosario
+                                </option>
+                                <option value="Sampaguita Village"
+                                    {{ request('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village
+                                </option>
+                                <option value="San Antonio" {{ request('barangay') == 'San Antonio' ? 'selected' : '' }}>
+                                    San Antonio</option>
+                                <option value="San Lorenzo Ruiz"
+                                    {{ request('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz
+                                </option>
+                                <option value="San Roque" {{ request('barangay') == 'San Roque' ? 'selected' : '' }}>San
+                                    Roque</option>
+                                <option value="San Vicente" {{ request('barangay') == 'San Vicente' ? 'selected' : '' }}>
+                                    San Vicente</option>
+                                <option value="Santo Niño" {{ request('barangay') == 'Santo Niño' ? 'selected' : '' }}>
+                                    Santo Niño</option>
+                                <option value="United Bayanihan"
+                                    {{ request('barangay') == 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan
+                                </option>
+                                <option value="United Better Living"
+                                    {{ request('barangay') == 'United Better Living' ? 'selected' : '' }}>United Better
+                                    Living</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -142,7 +173,8 @@
                                 <input type="text" name="search" class="form-control"
                                     placeholder="Search name, number, contact..." value="{{ request('search') }}"
                                     oninput="autoSearch()" id="searchInput">
-                                <button class="btn btn-outline-secondary" type="submit" title="Search" id="searchButton">
+                                <button class="btn btn-outline-secondary" type="submit" title="Search"
+                                    id="searchButton">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
@@ -193,8 +225,7 @@
                                     <th class="px-3 py-3 fw-medium text-white border-end">Barangay</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Requested Items</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Status</th>
-                                    <th class="px-3 py-3 fw-medium text-white border-end text-center">Pickup Date</th>
-                                    <th class="px-3 py-3 fw-medium text-white border-end text-center">Claimed</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end text-center">Claim Period</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Documents</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Actions</th>
                                 </tr>
@@ -330,65 +361,75 @@
                                             </span>
                                         </td>
                                         <!--  NEW: Pickup Date Column -->
-                                        
-<td class="px-3 py-3 border-end text-center">
-    @if($request->pickup_date)
-        <div class="pickup-date-cell">
-            <small class="d-block fw-semibold">
-                {{ \Carbon\Carbon::parse($request->pickup_date)->format('M d, Y') }}
-            </small>
-            
-            @php
-                $pickupDate = \Carbon\Carbon::parse($request->pickup_date);
-                $daysLeft = now()->diffInDays($pickupDate, false);
-            @endphp
-            
-            @if($pickupDate->isPast())
-                <span class="badge bg-danger badge-sm mt-2">
-                    <i class="fas fa-times-circle me-1"></i>Expired
-                </span>
-            @elseif($daysLeft > 0 && $daysLeft <= 3)
-                <span class="badge bg-warning text-dark badge-sm mt-2">
-                    <i class="fas fa-exclamation-triangle me-1"></i>
-                    {{ (int)$daysLeft }}d left
-                </span>
-            @else
-                <span class="badge bg-success badge-sm mt-2">
-                    <i class="fas fa-check-circle me-1"></i>Active
-                </span>
-            @endif
-        </div>
-    @else
-        <span class="text-muted text-center d-block">
-            <i class="fas fa-minus me-1"></i>Not set
-        </span>
-    @endif
-</td>
-<td class="px-3 py-3 border-end text-center">
-    @if($request->claimed_at)
-        <div class="claimed-status">
-            <small class="d-block fw-semibold text-success">
-                <i class="fas fa-check-circle me-1"></i>Claimed
-            </small>
-            <small class="text-muted">
-                {{ $request->claimed_at->format('M d, Y') }}
-            </small>
-        </div>
-    @elseif($request->pickup_date && $request->pickup_date->isPast())
-        <span class="badge bg-danger">
-            <i class="fas fa-times-circle me-1"></i>Expired - Not Claimed
-        </span>
-    @elseif(in_array($request->status, ['approved', 'partially_approved']))
-        <div class="claimed-actions">
-            <button type="button" class="btn btn-sm btn-outline-success" 
-                onclick="markAsClaimed({{ $request->id }}, '{{ $request->request_number }}')">
-                <i class="fas fa-check me-1"></i>Mark Claimed
-            </button>
-        </div>
-    @else
-        <span class="text-muted">—</span>
-    @endif
-</td>
+
+                                        <td class="px-3 py-3 border-end text-center">
+                                            @if ($request->claimed_at)
+                                                {{-- Show claimed status in Claim Period column --}}
+                                                <div class="claimed-period-status">
+                                                    <span class="badge badge-sm text-success border border-success">
+                                                        <i class="fas fa-check-circle me-1"></i>Claimed
+                                                    </span>
+                                                    <small class="d-block text-success fw-semibold mt-1"
+                                                        style="font-size: 0.75rem;">
+                                                        {{ \Carbon\Carbon::parse($request->claimed_at)->format('M d, Y') }}
+                                                    </small>
+                                                </div>
+                                            @elseif($request->pickup_date)
+                                                <div class="pickup-date-cell">
+                                                    @php
+                                                        $approvedDate = $request->approved_at
+                                                            ? \Carbon\Carbon::parse($request->approved_at)
+                                                            : null;
+                                                        $pickupDate = \Carbon\Carbon::parse($request->pickup_date);
+                                                        $daysLeft = now()->diffInDays($pickupDate, false);
+                                                        $isExpired = $pickupDate->isPast();
+                                                    @endphp
+
+                                                    @if ($isExpired)
+                                                        {{-- Expired and not claimed --}}
+                                                        <span class="badge badge-sm text-danger border border-danger">
+                                                            <i class="fas fa-times-circle me-1"></i>Expired - Not Claimed
+                                                        </span>
+                                                    @else
+                                                        {{-- Active claim period --}}
+                                                        <small class="d-block text-danger fw-bold">
+                                                            <i class="fas fa-hourglass-end me-1"></i>Expires:
+                                                            {{ $pickupDate->format('M d, Y') }}
+                                                        </small>
+
+                                                        @if ($daysLeft > 0 && $daysLeft <= 29)
+                                                            <span class="fw-bold d-block mt-2"
+                                                                style="color: #ffd700 !important;">
+                                                                <i class="fas fa-clock me-1"
+                                                                    style="color: #ffd700 !important;"></i>
+                                                                {{ (int) $daysLeft }} days left
+                                                            </span>
+                                                        @elseif($daysLeft > 29)
+                                                            <span class="text-success fw-bold d-block mt-2">
+                                                                <i class="fas fa-clock me-1"></i>{{ (int) $daysLeft }}
+                                                                days
+                                                                left
+                                                            </span>
+                                                        @endif
+
+                                                        {{-- Add Mark Claimed button for active periods --}}
+                                                        @if (!$isExpired && in_array($request->status, ['approved', 'partially_approved']))
+                                                            <div class="mt-2">
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-outline-success"
+                                                                    onclick="markAsClaimed({{ $request->id }}, '{{ $request->request_number }}')">
+                                                                    <i class="fas fa-check me-1"></i>Mark Claimed
+                                                                </button>
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-muted text-center d-block">
+                                                    <i class="fas fa-minus me-1"></i>Not set
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td class="px-3 py-3 text-center">
                                             <div class="seedling-table-documents">
                                                 @if ($request->hasDocuments())
@@ -587,86 +628,116 @@
                                     </div>
                                     <!-- ✅ NEW: Pickup Date Card -->
                                     <div class="col-12">
-    <div class="card border-info">
-        <div class="card-header bg-info text-white">
-            <h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Pickup Information</h6>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                @php
-                    $viewPickupDate = null;
-                    if($request->pickup_date) {
-                        $viewPickupDate = \Carbon\Carbon::parse($request->pickup_date);
-                    }
-                @endphp
-                
-                @if($viewPickupDate)
-                    <div class="col-md-6">
-                        <strong>Pickup Date:</strong>
-                        <p class="mb-0">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            {{ $viewPickupDate->format('F d, Y') }}
-                        </p>
-                        <small class="text-muted">
-                            ({{ $viewPickupDate->diffForHumans() }})
-                        </small>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Pickup Status:</strong>
-                        <p class="mb-0">
-                            @php
-                                $daysLeft = now()->diffInDays($viewPickupDate, false);
-                            @endphp
-                            
-                            @if($viewPickupDate->isFuture())
-                                @if($daysLeft > 0 && $daysLeft <= 3)
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="fas fa-exclamation-triangle me-1"></i>
-                                        Expiring Soon - {{ (int)$daysLeft }} day{{ $daysLeft !== 1 ? 's' : '' }} left
-                                    </span>
-                                @else
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check-circle me-1"></i>Active
-                                    </span>
-                                @endif
-                            @else
-                                <span class="badge bg-danger">
-                                    <i class="fas fa-times-circle me-1"></i>Expired
-                                </span>
-                            @endif
-                        </p>
-                    </div>
-                    
-                    @if($request->pickup_expired_at && $viewPickupDate->isFuture())
-                        <div class="col-12">
-                            <strong>Expiration Deadline:</strong>
-                            <p class="mb-0">
-                                <i class="fas fa-clock me-1"></i>
-                                {{ \Carbon\Carbon::parse($request->pickup_expired_at)->format('F d, Y') }}
-                            </p>
-                            <small class="text-muted">
-                                @php
-                                    $daysUntilExpiry = now()->diffInDays(\Carbon\Carbon::parse($request->pickup_expired_at), false);
-                                @endphp
-                                @if($daysUntilExpiry > 0)
-                                    Valid for {{ (int)$daysUntilExpiry }} more day{{ $daysUntilExpiry !== 1 ? 's' : '' }}
-                                @else
-                                    Expired
-                                @endif
-                            </small>
-                        </div>
-                    @endif
-                @else
-                    <div class="col-12">
-                        <p class="text-muted mb-0">
-                            <i class="fas fa-info-circle me-1"></i>No pickup date set
-                        </p>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
+                                        <div class="card border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <h6 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Pickup
+                                                    Information</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    @php
+                                                        $viewPickupDate = null;
+                                                        if ($request->pickup_date) {
+                                                            $viewPickupDate = \Carbon\Carbon::parse(
+                                                                $request->pickup_date,
+                                                            );
+                                                        }
+                                                    @endphp
+
+                                                    @if ($viewPickupDate)
+                                                        @php
+                                                            $approvedDate = $request->approved_at
+                                                                ? \Carbon\Carbon::parse($request->approved_at)
+                                                                : null;
+                                                            $daysLeft = now()->diffInDays($viewPickupDate, false);
+                                                        @endphp
+
+                                                        @if ($approvedDate)
+                                                            <div class="col-12">
+                                                                <div class="alert alert-info mb-3">
+                                                                    <i class="fas fa-info-circle me-2"></i>
+                                                                    <strong>30-Day Pickup Window:</strong> This request was
+                                                                    approved on
+                                                                    <strong>{{ $approvedDate->format('F d, Y') }}</strong>.
+                                                                    The user has 30 days from approval to pick up their
+                                                                    items.
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+                                                        <div class="col-md-6">
+                                                            <strong>Pickup Deadline (Expires):</strong>
+                                                            <p class="mb-0">
+                                                                <i class="fas fa-hourglass-end me-1 text-danger"></i>
+                                                                <span
+                                                                    class="text-danger fw-bold">{{ $viewPickupDate->format('F d, Y') }}</span>
+                                                            </p>
+                                                            <small class="text-muted">
+                                                                ({{ $viewPickupDate->diffForHumans() }})
+                                                            </small>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong>Pickup Status:</strong>
+                                                            <p class="mb-0">
+                                                                @if ($viewPickupDate->isFuture())
+                                                                    @if ($daysLeft > 0 && $daysLeft <= 3)
+                                                                        <span class="badge bg-warning text-dark">
+                                                                            <i
+                                                                                class="fas fa-exclamation-triangle me-1"></i>
+                                                                            Expiring Soon - {{ (int) $daysLeft }}
+                                                                            day{{ $daysLeft !== 1 ? 's' : '' }} left
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="badge bg-success">
+                                                                            <i
+                                                                                class="fas fa-clock me-1"></i>{{ (int) $daysLeft }}
+                                                                            days remaining
+                                                                        </span>
+                                                                    @endif
+                                                                @else
+                                                                    <span class="badge bg-danger">
+                                                                        <i class="fas fa-times-circle me-1"></i>Expired
+                                                                    </span>
+                                                                @endif
+                                                            </p>
+                                                        </div>
+
+                                                        @if ($request->pickup_expired_at && $viewPickupDate->isFuture())
+                                                            <div class="col-12">
+                                                                <strong>Expiration Deadline:</strong>
+                                                                <p class="mb-0">
+                                                                    <i class="fas fa-clock me-1"></i>
+                                                                    {{ \Carbon\Carbon::parse($request->pickup_expired_at)->format('F d, Y') }}
+                                                                </p>
+                                                                <small class="text-muted">
+                                                                    @php
+                                                                        $daysUntilExpiry = now()->diffInDays(
+                                                                            \Carbon\Carbon::parse(
+                                                                                $request->pickup_expired_at,
+                                                                            ),
+                                                                            false,
+                                                                        );
+                                                                    @endphp
+                                                                    @if ($daysUntilExpiry > 0)
+                                                                        Valid for {{ (int) $daysUntilExpiry }} more
+                                                                        day{{ $daysUntilExpiry !== 1 ? 's' : '' }}
+                                                                    @else
+                                                                        Expired
+                                                                    @endif
+                                                                </small>
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        <div class="col-12">
+                                                            <p class="text-muted mb-0">
+                                                                <i class="fas fa-info-circle me-1"></i>No pickup date set
+                                                            </p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
 
 
@@ -675,7 +746,7 @@
                                         <div class="card border-primary">
                                             <div class="card-header bg-light">
                                                 <h6 class="mb-0 text-dark">
-                                                  <strong>Requested Items by Category</strong>
+                                                    <strong>Requested Items by Category</strong>
                                                 </h6>
                                             </div>
                                             <div class="card-body">
@@ -687,7 +758,8 @@
                                                     @php
                                                         $category = $items->first()->category;
                                                     @endphp
-                                                    <div class="mb-4 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
+                                                    <div
+                                                        class="mb-4 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
                                                         <div
                                                             class="d-flex justify-content-between align-items-center mb-3">
                                                             <strong class="text-primary">
@@ -798,7 +870,8 @@
                                     <div class="col-12">
                                         <div class="card border-info">
                                             <div class="card-header bg-info text-white">
-                                                <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks</h6>
+                                                <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Admin Remarks
+                                                </h6>
                                             </div>
                                             <div class="card-body">
                                                 @if ($request->remarks && !empty(trim($request->remarks)))
@@ -968,89 +1041,149 @@
                                                         name="barangay" required
                                                         onchange="checkForEditChanges({{ $request->id }})">
                                                         <option value="">Select Barangay</option>
-                                                        <option value="Bagong Silang" {{ $request->barangay === 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
-                                                        <option value="Calendola" {{ $request->barangay === 'Calendola' ? 'selected' : '' }}>Calendola</option>
-                                                        <option value="Chrysanthemum" {{ $request->barangay === 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
-                                                        <option value="Cuyab" {{ $request->barangay === 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
-                                                        <option value="Estrella" {{ $request->barangay === 'Estrella' ? 'selected' : '' }}>Estrella</option>
-                                                        <option value="Fatima" {{ $request->barangay === 'Fatima' ? 'selected' : '' }}>Fatima</option>
-                                                        <option value="G.S.I.S." {{ $request->barangay === 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.</option>
-                                                        <option value="Landayan" {{ $request->barangay === 'Landayan' ? 'selected' : '' }}>Landayan</option>
-                                                        <option value="Langgam" {{ $request->barangay === 'Langgam' ? 'selected' : '' }}>Langgam</option>
-                                                        <option value="Laram" {{ $request->barangay === 'Laram' ? 'selected' : '' }}>Laram</option>
-                                                        <option value="Magsaysay" {{ $request->barangay === 'Magsaysay' ? 'selected' : '' }}>Magsaysay</option>
-                                                        <option value="Maharlika" {{ $request->barangay === 'Maharlika' ? 'selected' : '' }}>Maharlika</option>
-                                                        <option value="Narra" {{ $request->barangay === 'Narra' ? 'selected' : '' }}>Narra</option>
-                                                        <option value="Nueva" {{ $request->barangay === 'Nueva' ? 'selected' : '' }}>Nueva</option>
-                                                        <option value="Pacita 1" {{ $request->barangay === 'Pacita 1' ? 'selected' : '' }}>Pacita 1</option>
-                                                        <option value="Pacita 2" {{ $request->barangay === 'Pacita 2' ? 'selected' : '' }}>Pacita 2</option>
-                                                        <option value="Poblacion" {{ $request->barangay === 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
-                                                        <option value="Riverside" {{ $request->barangay === 'Riverside' ? 'selected' : '' }}>Riverside</option>
-                                                        <option value="Rosario" {{ $request->barangay === 'Rosario' ? 'selected' : '' }}>Rosario</option>
-                                                        <option value="Sampaguita Village" {{ $request->barangay === 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village</option>
-                                                        <option value="San Antonio" {{ $request->barangay === 'San Antonio' ? 'selected' : '' }}>San Antonio</option>
-                                                        <option value="San Lorenzo Ruiz" {{ $request->barangay === 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz</option>
-                                                        <option value="San Roque" {{ $request->barangay === 'San Roque' ? 'selected' : '' }}>San Roque</option>
-                                                        <option value="San Vicente" {{ $request->barangay === 'San Vicente' ? 'selected' : '' }}>San Vicente</option>
-                                                        <option value="Santo Niño" {{ $request->barangay === 'Santo Niño' ? 'selected' : '' }}>Santo Niño</option>
-                                                        <option value="United Bayanihan" {{ $request->barangay === 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan</option>
-                                                        <option value="United Better Living" {{ $request->barangay === 'United Better Living' ? 'selected' : '' }}>United Better Living</option>
+                                                        <option value="Bagong Silang"
+                                                            {{ $request->barangay === 'Bagong Silang' ? 'selected' : '' }}>
+                                                            Bagong Silang</option>
+                                                        <option value="Calendola"
+                                                            {{ $request->barangay === 'Calendola' ? 'selected' : '' }}>
+                                                            Calendola</option>
+                                                        <option value="Chrysanthemum"
+                                                            {{ $request->barangay === 'Chrysanthemum' ? 'selected' : '' }}>
+                                                            Chrysanthemum</option>
+                                                        <option value="Cuyab"
+                                                            {{ $request->barangay === 'Cuyab' ? 'selected' : '' }}>Cuyab
+                                                        </option>
+                                                        <option value="Estrella"
+                                                            {{ $request->barangay === 'Estrella' ? 'selected' : '' }}>
+                                                            Estrella</option>
+                                                        <option value="Fatima"
+                                                            {{ $request->barangay === 'Fatima' ? 'selected' : '' }}>Fatima
+                                                        </option>
+                                                        <option value="G.S.I.S."
+                                                            {{ $request->barangay === 'G.S.I.S.' ? 'selected' : '' }}>
+                                                            G.S.I.S.</option>
+                                                        <option value="Landayan"
+                                                            {{ $request->barangay === 'Landayan' ? 'selected' : '' }}>
+                                                            Landayan</option>
+                                                        <option value="Langgam"
+                                                            {{ $request->barangay === 'Langgam' ? 'selected' : '' }}>
+                                                            Langgam</option>
+                                                        <option value="Laram"
+                                                            {{ $request->barangay === 'Laram' ? 'selected' : '' }}>Laram
+                                                        </option>
+                                                        <option value="Magsaysay"
+                                                            {{ $request->barangay === 'Magsaysay' ? 'selected' : '' }}>
+                                                            Magsaysay</option>
+                                                        <option value="Maharlika"
+                                                            {{ $request->barangay === 'Maharlika' ? 'selected' : '' }}>
+                                                            Maharlika</option>
+                                                        <option value="Narra"
+                                                            {{ $request->barangay === 'Narra' ? 'selected' : '' }}>Narra
+                                                        </option>
+                                                        <option value="Nueva"
+                                                            {{ $request->barangay === 'Nueva' ? 'selected' : '' }}>Nueva
+                                                        </option>
+                                                        <option value="Pacita 1"
+                                                            {{ $request->barangay === 'Pacita 1' ? 'selected' : '' }}>
+                                                            Pacita 1</option>
+                                                        <option value="Pacita 2"
+                                                            {{ $request->barangay === 'Pacita 2' ? 'selected' : '' }}>
+                                                            Pacita 2</option>
+                                                        <option value="Poblacion"
+                                                            {{ $request->barangay === 'Poblacion' ? 'selected' : '' }}>
+                                                            Poblacion</option>
+                                                        <option value="Riverside"
+                                                            {{ $request->barangay === 'Riverside' ? 'selected' : '' }}>
+                                                            Riverside</option>
+                                                        <option value="Rosario"
+                                                            {{ $request->barangay === 'Rosario' ? 'selected' : '' }}>
+                                                            Rosario</option>
+                                                        <option value="Sampaguita Village"
+                                                            {{ $request->barangay === 'Sampaguita Village' ? 'selected' : '' }}>
+                                                            Sampaguita Village</option>
+                                                        <option value="San Antonio"
+                                                            {{ $request->barangay === 'San Antonio' ? 'selected' : '' }}>
+                                                            San Antonio</option>
+                                                        <option value="San Lorenzo Ruiz"
+                                                            {{ $request->barangay === 'San Lorenzo Ruiz' ? 'selected' : '' }}>
+                                                            San Lorenzo Ruiz</option>
+                                                        <option value="San Roque"
+                                                            {{ $request->barangay === 'San Roque' ? 'selected' : '' }}>San
+                                                            Roque</option>
+                                                        <option value="San Vicente"
+                                                            {{ $request->barangay === 'San Vicente' ? 'selected' : '' }}>
+                                                            San Vicente</option>
+                                                        <option value="Santo Niño"
+                                                            {{ $request->barangay === 'Santo Niño' ? 'selected' : '' }}>
+                                                            Santo Niño</option>
+                                                        <option value="United Bayanihan"
+                                                            {{ $request->barangay === 'United Bayanihan' ? 'selected' : '' }}>
+                                                            United Bayanihan</option>
+                                                        <option value="United Better Living"
+                                                            {{ $request->barangay === 'United Better Living' ? 'selected' : '' }}>
+                                                            United Better Living</option>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-<!-- ✅ NEW: Pickup Date Section in Edit Modal - EDITABLE -->
-<div class="card border-0 bg-light mb-3">
-    <div class="card-header bg-white border-0 pb-0">
-        <h6 class="mb-0 fw-semibold text-primary">
-            <i class="fas fa-calendar-check me-2"></i>Pickup Date
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label for="edit_seedling_pickup_date_{{ $request->id }}" class="form-label fw-semibold">
-                    Set/Update Pickup Date
-                </label>
-                <input 
-                    type="date" 
-                    id="edit_seedling_pickup_date_{{ $request->id }}" 
-                    name="pickup_date"
-                    class="form-control"
-                    value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
-                    onchange="checkForEditChanges({{ $request->id }})">
-                
-                <div id="edit_pickup_date_display_{{ $request->id }}" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
-                    <strong>Selected:</strong> <span id="edit_pickup_date_text_{{ $request->id }}"></span>
-                </div>
-            </div>
-            @if($request->pickup_date)
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Current Status</label>
-                    <div class="alert alert-info mb-0">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        {{ $request->pickup_date->format('F d, Y') }}
-                        
-                        @if($request->pickup_date->isPast())
-                            <span class="badge bg-danger float-end">
-                                <i class="fas fa-exclamation-circle me-1"></i>Expired
-                            </span>
-                       @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3 && now()->diffInDays($request->pickup_expired_at) > 0)
-                            <span class="badge bg-warning float-end text-dark">
-                                <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
-                            </span>
-                        @else
-                            <span class="badge bg-success float-end">
-                                <i class="fas fa-check-circle me-1"></i>Active
-                            </span>
-                        @endif
-                    </div>
-                </div>
-            @endif
-        </div>
-    </div>
-</div>
+                                    <!-- ✅ NEW: Pickup Date Section in Edit Modal - EDITABLE -->
+                                    <div class="card border-0 bg-light mb-3">
+                                        <div class="card-header bg-white border-0 pb-0">
+                                            <h6 class="mb-0 fw-semibold text-primary">
+                                                <i class="fas fa-calendar-check me-2"></i>Pickup Date
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label for="edit_seedling_pickup_date_{{ $request->id }}"
+                                                        class="form-label fw-semibold">
+                                                        Set/Update Pickup Date
+                                                    </label>
+                                                    <input type="date"
+                                                        id="edit_seedling_pickup_date_{{ $request->id }}"
+                                                        name="pickup_date" class="form-control"
+                                                        value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
+                                                        onchange="checkForEditChanges({{ $request->id }})">
+
+                                                    <div id="edit_pickup_date_display_{{ $request->id }}"
+                                                        style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                                                        <strong>Selected:</strong> <span
+                                                            id="edit_pickup_date_text_{{ $request->id }}"></span>
+                                                    </div>
+                                                </div>
+                                                @if ($request->pickup_date)
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold">Current Status</label>
+                                                        <div class="alert alert-info mb-0">
+                                                            <i class="fas fa-calendar-alt me-2"></i>
+                                                            {{ $request->pickup_date->format('F d, Y') }}
+
+                                                            @if ($request->pickup_date->isPast())
+                                                                <span class="badge bg-danger float-end">
+                                                                    <i class="fas fa-exclamation-circle me-1"></i>Expired
+                                                                </span>
+                                                            @elseif(
+                                                                $request->pickup_expired_at &&
+                                                                    now()->diffInDays($request->pickup_expired_at) <= 3 &&
+                                                                    now()->diffInDays($request->pickup_expired_at) > 0)
+                                                                <span class="badge bg-warning float-end text-dark">
+                                                                    <i
+                                                                        class="fas fa-exclamation-triangle me-1"></i>Expiring
+                                                                    Soon
+                                                                </span>
+                                                            @else
+                                                                <span class="badge bg-success float-end">
+                                                                    <i class="fas fa-check-circle me-1"></i>Active
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- Supporting Document Card EDIT MODAL-->
                                     <div class="card mb-3 border-0 bg-light">
@@ -1152,18 +1285,20 @@
                         </div>
                     </div>
                 </div>
-         <!-- DELETE SEEDLING MODAL - FISHR DESIGN (CONSISTENT) -->
+                <!-- DELETE SEEDLING MODAL - FISHR DESIGN (CONSISTENT) -->
                 <div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header bg-danger text-white">
                                 <h5 class="modal-title w-100 text-center">Move Supply Request to Recycle Bin</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="alert alert-danger" role="alert">
                                     <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                                    <p class="mb-0">Are you sure you want to delete this Supply Request? <strong id="delete_seedling_name"></strong> will be moved to the Recycle Bin.</p>
+                                    <p class="mb-0">Are you sure you want to delete this Supply Request? <strong
+                                            id="delete_seedling_name"></strong> will be moved to the Recycle Bin.</p>
                                 </div>
                                 <ul class="mb-0" style="padding-left: 1.25rem;">
                                     <li>Remove the supply request from active records</li>
@@ -1381,58 +1516,65 @@
                                     </div>
 
                                     <!-- ✅ NEW: Pickup Date Section in Edit Modal -->
-@if($request->status === 'approved' || $request->status === 'partially_approved')
-    <div class="card border-0 bg-light mb-3">
-        <div class="card-header bg-white border-0 pb-0">
-            <h6 class="mb-0 fw-semibold text-primary">
-                <i class="fas fa-calendar-check me-2"></i>Pickup Date
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="edit_seedling_pickup_date_{{ $request->id }}" class="form-label fw-semibold">
-                        Set/Update Pickup Date
-                    </label>
-                    <input 
-                        type="date" 
-                        id="edit_seedling_pickup_date_{{ $request->id }}" 
-                        name="pickup_date"
-                        class="form-control"
-                        value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
-                        onchange="checkForEditChanges({{ $request->id }})">
-                    
-                    <div id="edit_pickup_date_display_{{ $request->id }}" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
-                        <strong>Selected:</strong> <span id="edit_pickup_date_text_{{ $request->id }}"></span>
-                    </div>
-                </div>
-                @if($request->pickup_date)
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Current Status</label>
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            {{ $request->pickup_date->format('F d, Y') }}
-                            
-                            @if($request->pickup_date->isPast())
-                                <span class="badge bg-danger float-end">
-                                    <i class="fas fa-exclamation-circle me-1"></i>Expired
-                                </span>
-                           @elseif($request->pickup_expired_at && now()->diffInDays($request->pickup_expired_at) <= 3 && now()->diffInDays($request->pickup_expired_at) > 0)
-                                <span class="badge bg-warning float-end text-dark">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>Expiring Soon
-                                </span>
-                            @else
-                                <span class="badge bg-success float-end">
-                                    <i class="fas fa-check-circle me-1"></i>Active
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-@endif
+                                    @if ($request->status === 'approved' || $request->status === 'partially_approved')
+                                        <div class="card border-0 bg-light mb-3">
+                                            <div class="card-header bg-white border-0 pb-0">
+                                                <h6 class="mb-0 fw-semibold text-primary">
+                                                    <i class="fas fa-calendar-check me-2"></i>Pickup Date
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="edit_seedling_pickup_date_{{ $request->id }}"
+                                                            class="form-label fw-semibold">
+                                                            Set/Update Pickup Date
+                                                        </label>
+                                                        <input type="date"
+                                                            id="edit_seedling_pickup_date_{{ $request->id }}"
+                                                            name="pickup_date" class="form-control"
+                                                            value="{{ $request->pickup_date ? $request->pickup_date->format('Y-m-d') : '' }}"
+                                                            onchange="checkForEditChanges({{ $request->id }})">
+
+                                                        <div id="edit_pickup_date_display_{{ $request->id }}"
+                                                            style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                                                            <strong>Selected:</strong> <span
+                                                                id="edit_pickup_date_text_{{ $request->id }}"></span>
+                                                        </div>
+                                                    </div>
+                                                    @if ($request->pickup_date)
+                                                        <div class="col-md-6">
+                                                            <label class="form-label fw-semibold">Current Status</label>
+                                                            <div class="alert alert-info mb-0">
+                                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                                {{ $request->pickup_date->format('F d, Y') }}
+
+                                                                @if ($request->pickup_date->isPast())
+                                                                    <span class="badge bg-danger float-end">
+                                                                        <i
+                                                                            class="fas fa-exclamation-circle me-1"></i>Expired
+                                                                    </span>
+                                                                @elseif(
+                                                                    $request->pickup_expired_at &&
+                                                                        now()->diffInDays($request->pickup_expired_at) <= 3 &&
+                                                                        now()->diffInDays($request->pickup_expired_at) > 0)
+                                                                    <span class="badge bg-warning float-end text-dark">
+                                                                        <i
+                                                                            class="fas fa-exclamation-triangle me-1"></i>Expiring
+                                                                        Soon
+                                                                    </span>
+                                                                @else
+                                                                    <span class="badge bg-success float-end">
+                                                                        <i class="fas fa-check-circle me-1"></i>Active
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
 
                                     <!-- Info Alert -->
                                     <div class="alert alert-info border-left-info mb-0">
@@ -1458,7 +1600,7 @@
     </div>
     </div>
     </div>
-    @else
+@else
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
@@ -1479,7 +1621,7 @@
     </div>
     @endif
 
-   @if ($requests->hasPages())
+    @if ($requests->hasPages())
         <div class="d-flex justify-content-center mt-4">
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm">
@@ -1603,7 +1745,7 @@
                                         <input type="tel" class="form-control" id="seedling_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX 
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
                                     </div>
                                 </div>
@@ -1682,37 +1824,35 @@
                         </div>
 
                         <!-- Pickup Date Card in Add Modal -->
-<div class="card mb-3 border-0 bg-light">
-    <div class="card-header bg-white border-0 pb-0">
-        <h6 class="mb-0 fw-semibold text-primary">
-            <i class="fas fa-calendar-check me-2"></i>Date
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="seedlings-form-group">
-            <label for="seedling_pickup_date_add">
-                <i class="fas fa-calendar-check"></i> Pickup Date 
-                <span class="text-danger">*</span>
-            </label>
-            
-            <div class="pickup-info-box" style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
-                <i class="fas fa-info-circle" style="color: #40916c; margin-right: 8px;"></i>
-                <strong>Weekdays only (Mon-Fri)</strong> • Valid for 30 days from approval
-            </div>
+                        <div class="card mb-3 border-0 bg-light">
+                            <div class="card-header bg-white border-0 pb-0">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="fas fa-calendar-check me-2"></i>Date
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="seedlings-form-group">
+                                    <label for="seedling_pickup_date_add">
+                                        <i class="fas fa-calendar-check"></i> Pickup Date
+                                        <span class="text-danger">*</span>
+                                    </label>
 
-            <input 
-                type="date" 
-                id="seedling_pickup_date_add" 
-                name="pickup_date"
-                class="form-control"
-                required>
+                                    <div class="pickup-info-box"
+                                        style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
+                                        <i class="fas fa-info-circle" style="color: #40916c; margin-right: 8px;"></i>
+                                        <strong>Weekdays only (Mon-Fri)</strong> • Valid for 30 days from approval
+                                    </div>
 
-            <div id="seedling_pickup_date_display_add" style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
-                <strong>Selected:</strong> <span id="seedling_pickup_date_text_add"></span>
-            </div>
-        </div>
-    </div>
-</div>
+                                    <input type="date" id="seedling_pickup_date_add" name="pickup_date"
+                                        class="form-control" required>
+
+                                    <div id="seedling_pickup_date_display_add"
+                                        style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
+                                        <strong>Selected:</strong> <span id="seedling_pickup_date_text_add"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Supporting Document Card -->
                         <div class="card mb-3 border-0 bg-light">
@@ -1776,19 +1916,18 @@
                                         Remarks (Optional)
                                     </label>
                                     <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="1000"
-                                            placeholder="Any notes or comments..."
-                                            oninput="updateAddSeedlingRemarksCounter()"></textarea>
-                                        <div class="d-flex justify-content-between align-items-center mt-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-info-circle me-1"></i>
-                                                Provide context for this request
-                                            </small>
-                                            <small class="text-muted" id="addRemarksCounter">
-                                                <span id="addCharCount">0</span>/1000
-                                            </small>
+                                        placeholder="Any notes or comments..." oninput="updateAddSeedlingRemarksCounter()"></textarea>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Provide context for this request
+                                        </small>
+                                        <small class="text-muted" id="addRemarksCounter">
+                                            <span id="addCharCount">0</span>/1000
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer bg-light">
@@ -1804,7 +1943,7 @@
     </div>
 
 
-    
+
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
@@ -2422,7 +2561,7 @@
         }
 
         [id^="viewModal"] .modal-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%)!important;
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
             border-bottom: 2px solid #0b5ed7;
             padding: 1.5rem;
         }
@@ -2832,60 +2971,62 @@
         #deleteSeedlingModal .modal-backdrop {
             opacity: 0.5;
         }
+
         /* Pickup Date Column Styling */
-.pickup-date-cell {
-    padding: 0.5rem 0;
-}
+        .pickup-date-cell {
+            padding: 0.5rem 0;
+        }
 
-.pickup-date-cell small {
-    line-height: 1.4;
-}
+        .pickup-date-cell small {
+            line-height: 1.4;
+        }
 
-.pickup-date-cell .badge-sm {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-    display: inline-block;
-}
+        .pickup-date-cell .badge-sm {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            display: inline-block;
+        }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .pickup-date-cell {
-        font-size: 0.85rem;
-    }
-    
-    .pickup-date-cell .badge-sm {
-        font-size: 0.65rem;
-        padding: 0.2rem 0.4rem;
-    }
-}
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .pickup-date-cell {
+                font-size: 0.85rem;
+            }
 
-/* Force white text on warning badges in modals */
-[id^="viewModal"] .badge.bg-warning {
-    color: white !important;
-    background-color: #ffc107 !important;
-}
+            .pickup-date-cell .badge-sm {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.4rem;
+            }
+        }
 
-[id^="viewModal"] .badge.bg-warning strong {
-    color: white !important;
-}
-/* Fix modal z-index stacking */
-.modal {
-    z-index: 1060 !important;
-}
+        /* Force white text on warning badges in modals */
+        [id^="viewModal"] .badge.bg-warning {
+            color: white !important;
+            background-color: #ffc107 !important;
+        }
 
-.modal-backdrop {
-    z-index: 1050 !important;
-}
+        [id^="viewModal"] .badge.bg-warning strong {
+            color: white !important;
+        }
 
-/* Ensure modal is visible when shown */
-.modal.show {
-    display: flex !important;
-    z-index: 1060 !important;
-}
+        /* Fix modal z-index stacking */
+        .modal {
+            z-index: 1060 !important;
+        }
 
-.modal.show .modal-dialog {
-    z-index: 1060 !important;
-}
+        .modal-backdrop {
+            z-index: 1050 !important;
+        }
+
+        /* Ensure modal is visible when shown */
+        .modal.show {
+            display: flex !important;
+            z-index: 1060 !important;
+        }
+
+        .modal.show .modal-dialog {
+            z-index: 1060 !important;
+        }
     </style>
 
     <script>
@@ -3432,125 +3573,125 @@
         //             showToast('error', 'Failed to delete supply request: ' + error.message);
         //         });
         // }
-// Delete
-// Global delete tracking
-let currentDeleteSeedlingId = null;
+        // Delete
+        // Global delete tracking
+        let currentDeleteSeedlingId = null;
 
-function deleteSeedlingRequest(id, requestNumber) {
-    currentDeleteSeedlingId = id;
-    
-    // Update modal content
-    const nameElement = document.getElementById('delete_seedling_name');
-    if (nameElement) {
-        nameElement.textContent = `Supply Request #${requestNumber}`;
-    }
-    
-    // Get modal element
-    const modalElement = document.getElementById('deleteSeedlingModal');
-    if (!modalElement) {
-        console.error('Delete modal not found');
-        showToast('error', 'Modal not found');
-        return;
-    }
-    
-    // Create new modal instance
-    const modal = new bootstrap.Modal(modalElement, {
-        backdrop: 'static',
-        keyboard: false
-    });
-    
-    // Show modal
-    modal.show();
-    
-    // Reset button state
-    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-    if (deleteBtn) {
-        deleteBtn.dataset.isDeleting = 'false';
-        deleteBtn.disabled = false;
-        const btnText = deleteBtn.querySelector('.btn-text');
-        const btnLoader = deleteBtn.querySelector('.btn-loader');
-        if (btnText) btnText.style.display = 'inline';
-        if (btnLoader) btnLoader.style.display = 'none';
-    }
-}
+        function deleteSeedlingRequest(id, requestNumber) {
+            currentDeleteSeedlingId = id;
 
-function confirmPermanentDeleteSeedling() {
-    if (!currentDeleteSeedlingId) {
-        showToast('error', 'Request ID not found');
-        return;
-    }
+            // Update modal content
+            const nameElement = document.getElementById('delete_seedling_name');
+            if (nameElement) {
+                nameElement.textContent = `Supply Request #${requestNumber}`;
+            }
 
-    const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
-    const btnText = deleteBtn.querySelector('.btn-text');
-    const btnLoader = deleteBtn.querySelector('.btn-loader');
+            // Get modal element
+            const modalElement = document.getElementById('deleteSeedlingModal');
+            if (!modalElement) {
+                console.error('Delete modal not found');
+                showToast('error', 'Modal not found');
+                return;
+            }
 
-    // Prevent double-click
-    if (deleteBtn.dataset.isDeleting === 'true') return;
-    deleteBtn.dataset.isDeleting = 'true';
+            // Create new modal instance
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
 
-    // Show loading state
-    btnText.style.display = 'none';
-    btnLoader.style.display = 'inline';
-    deleteBtn.disabled = true;
+            // Show modal
+            modal.show();
 
-    // Make DELETE request
-    fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Hide modal
-        const modalElement = document.getElementById('deleteSeedlingModal');
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-            modal.hide();
+            // Reset button state
+            const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+            if (deleteBtn) {
+                deleteBtn.dataset.isDeleting = 'false';
+                deleteBtn.disabled = false;
+                const btnText = deleteBtn.querySelector('.btn-text');
+                const btnLoader = deleteBtn.querySelector('.btn-loader');
+                if (btnText) btnText.style.display = 'inline';
+                if (btnLoader) btnLoader.style.display = 'none';
+            }
         }
 
-        // Clean up after modal closes
-        setTimeout(() => {
-            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-            document.body.classList.remove('modal-open');
-            document.body.style.overflow = '';
-        }, 300);
+        function confirmPermanentDeleteSeedling() {
+            if (!currentDeleteSeedlingId) {
+                showToast('error', 'Request ID not found');
+                return;
+            }
 
-        // Show success message
-        showToast('success', data.message || 'Request deleted successfully');
-        
-        // Reload page
-        setTimeout(() => {
-            window.location.reload();
-        }, 1500);
-    })
-    .catch(error => {
-        console.error('Delete error:', error);
-        showToast('error', error.message || 'Failed to delete request');
-        
-        // Reset button
-        btnText.style.display = 'inline';
-        btnLoader.style.display = 'none';
-        deleteBtn.disabled = false;
-        deleteBtn.dataset.isDeleting = 'false';
-    });
-}
+            const deleteBtn = document.getElementById('confirm_delete_seedling_btn');
+            const btnText = deleteBtn.querySelector('.btn-text');
+            const btnLoader = deleteBtn.querySelector('.btn-loader');
 
-// Cleanup on modal hide
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteModal = document.getElementById('deleteSeedlingModal');
-    if (deleteModal) {
-        deleteModal.addEventListener('hidden.bs.modal', function() {
-            setTimeout(() => {
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-            }, 100);
+            // Prevent double-click
+            if (deleteBtn.dataset.isDeleting === 'true') return;
+            deleteBtn.dataset.isDeleting = 'true';
+
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'inline';
+            deleteBtn.disabled = true;
+
+            // Make DELETE request
+            fetch(`/admin/seedlings/requests/${currentDeleteSeedlingId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide modal
+                    const modalElement = document.getElementById('deleteSeedlingModal');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+
+                    // Clean up after modal closes
+                    setTimeout(() => {
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                    }, 300);
+
+                    // Show success message
+                    showToast('success', data.message || 'Request deleted successfully');
+
+                    // Reload page
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    showToast('error', error.message || 'Failed to delete request');
+
+                    // Reset button
+                    btnText.style.display = 'inline';
+                    btnLoader.style.display = 'none';
+                    deleteBtn.disabled = false;
+                    deleteBtn.dataset.isDeleting = 'false';
+                });
+        }
+
+        // Cleanup on modal hide
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteModal = document.getElementById('deleteSeedlingModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('hidden.bs.modal', function() {
+                    setTimeout(() => {
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                    }, 100);
+                });
+            }
         });
-    }
-});
         // Initialize the update modal with original values
         function initializeSeedlingUpdateModal(requestId) {
             const form = document.getElementById('updateForm' + requestId);
@@ -3979,7 +4120,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('addSeedlingForm').reset();
             seedlingItemCounter = 0;
 
-            
+
 
             // Add one empty item row
             addSeedlingItemRow();
@@ -4156,68 +4297,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Document preview
         function previewSeedlingDocument(inputId, previewId) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword'];
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword'];
 
-    if (!input.files || !input.files[0]) {
-        if (preview) {
-            preview.innerHTML = '';
-            preview.style.display = 'none';
-        }
-        return;
-    }
+            if (!input.files || !input.files[0]) {
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
 
-    const file = input.files[0];
+            const file = input.files[0];
 
-    if (file.size > 10 * 1024 * 1024) {
-        showToast('error', 'File size must not exceed 10MB');
-        input.value = '';
-        if (preview) {
-            preview.innerHTML = '';
-            preview.style.display = 'none';
-        }
-        return;
-    }
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('error', 'File size must not exceed 10MB');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
 
-    if (!allowedTypes.includes(file.type)) {
-        showToast('error', 'File type not supported');
-        input.value = '';
-        return;
-    }
+            if (!allowedTypes.includes(file.type)) {
+                showToast('error', 'File type not supported');
+                input.value = '';
+                return;
+            }
 
-    const reader = new FileReader();
+            const reader = new FileReader();
 
-    reader.onload = function(e) {
-        if (preview) {
-            const iconClass = file.type.startsWith('image/') ? 'fa-file-image' : 'fa-file-pdf';
-            const iconColor = file.type.startsWith('image/') ? '' : 'text-danger';
-            
-            preview.innerHTML = file.type.startsWith('image/') 
-                ? `<div class="document-preview-item">
+            reader.onload = function(e) {
+                if (preview) {
+                    const iconClass = file.type.startsWith('image/') ? 'fa-file-image' : 'fa-file-pdf';
+                    const iconColor = file.type.startsWith('image/') ? '' : 'text-danger';
+
+                    preview.innerHTML = file.type.startsWith('image/') ?
+                        `<div class="document-preview-item">
                     <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <p style="margin-top: 8px; font-size: 12px; color: #666;">
                         <i class="fas fa-file-image me-1"></i>${file.name}
                     </p>
-                </div>`
-                : `<div class="document-preview-item">
+                </div>` :
+                        `<div class="document-preview-item">
                     <div class="text-center p-3 border rounded">
                         <i class="fas ${iconClass} fa-3x ${iconColor} mb-2"></i>
                         <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
                     </div>
                 </div>`;
-            
-            preview.style.display = 'block';
+
+                    preview.style.display = 'block';
+                }
+            };
+
+            reader.onerror = function() {
+                showToast('error', 'Failed to read file');
+                input.value = '';
+            };
+
+            reader.readAsDataURL(file);
         }
-    };
-
-    reader.onerror = function() {
-        showToast('error', 'Failed to read file');
-        input.value = '';
-    };
-
-    reader.readAsDataURL(file);
-}
 
         // Validate seedling form
         function validateSeedlingForm() {
@@ -4288,121 +4429,122 @@ document.addEventListener('DOMContentLoaded', function() {
 
             return isValid;
         }
-function validateAddSeedlingPickupDate() {
-    const pickupDateInput = document.getElementById('seedling_pickup_date_add');
-    
-    if (!pickupDateInput.value || pickupDateInput.value.trim() === '') {
-        showToast('error', 'Pickup date is required');
-        pickupDateInput.classList.add('is-invalid');
-        return false;
-    }
-    
-    pickupDateInput.classList.remove('is-invalid');
-    return true;
-}
-    // Submit add seedling form
-function submitAddSeedling() {
-    // VALIDATE PICKUP DATE FIRST
-    const pickupDateInput = document.getElementById('seedling_pickup_date_add');
-    if (!pickupDateInput.value || pickupDateInput.value.trim() === '') {
-        showToast('error', 'Pickup date is required');
-        pickupDateInput.classList.add('is-invalid');
-        return false;
-    }
-    pickupDateInput.classList.remove('is-invalid');
 
-    // VALIDATE OTHER FIELDS
-    if (!validateSeedlingForm()) {
-        showToast('error', 'Please fix all validation errors before submitting');
-        return;
-    }
+        function validateAddSeedlingPickupDate() {
+            const pickupDateInput = document.getElementById('seedling_pickup_date_add');
 
-    // Remove red border from pickup date
-    pickupDateInput.classList.remove('is-invalid');
-
-    // Prepare form data
-    const formData = new FormData();
-
-    formData.append('first_name', document.getElementById('seedling_first_name').value.trim());
-    formData.append('middle_name', document.getElementById('seedling_middle_name').value.trim());
-    formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
-    formData.append('extension_name', document.getElementById('seedling_extension').value);
-    formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
-    formData.append('barangay', document.getElementById('seedling_barangay').value);
-    formData.append('status', document.getElementById('seedling_status').value);
-    formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
-    formData.append('pickup_date', pickupDateInput.value);
-
-    // Add items
-    const items = document.querySelectorAll('.seedling-item-row');
-    items.forEach((item, index) => {
-        const categorySelect = item.querySelector('.seedling-category-select');
-        const quantityInput = item.querySelector('.seedling-quantity');
-
-        formData.append(`items[${index}][category_item_id]`, categorySelect.value);
-        formData.append(`items[${index}][quantity]`, quantityInput.value);
-    });
-
-    // Add document if uploaded
-    const docInput = document.getElementById('seedling_supporting_document');
-    if (docInput.files && docInput.files[0]) {
-        formData.append('document', docInput.files[0]);
-    }
-
-    // Find submit button
-    const submitBtn = document.querySelector('#addSeedlingModal .btn-primary');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
-    submitBtn.disabled = true;
-
-    // Submit to backend
-    fetch('/admin/seedlings/requests', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
-                modal.hide();
-
-                showToast('success', data.message || 'Supply request created successfully');
-
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(field => {
-                        const input = document.getElementById('seedling_' + field);
-                        if (input) {
-                            const feedback = input.parentNode.querySelector('.invalid-feedback');
-                            if (feedback) feedback.remove();
-
-                            input.classList.add('is-invalid');
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'invalid-feedback d-block';
-                            errorDiv.textContent = data.errors[field][0];
-                            input.parentNode.appendChild(errorDiv);
-                        }
-                    });
-                }
-                showToast('error', data.message || 'Failed to create supply request');
+            if (!pickupDateInput.value || pickupDateInput.value.trim() === '') {
+                showToast('error', 'Pickup date is required');
+                pickupDateInput.classList.add('is-invalid');
+                return false;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', 'An error occurred while creating the request');
-        })
-        .finally(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        });
-}
+
+            pickupDateInput.classList.remove('is-invalid');
+            return true;
+        }
+        // Submit add seedling form
+        function submitAddSeedling() {
+            // VALIDATE PICKUP DATE FIRST
+            const pickupDateInput = document.getElementById('seedling_pickup_date_add');
+            if (!pickupDateInput.value || pickupDateInput.value.trim() === '') {
+                showToast('error', 'Pickup date is required');
+                pickupDateInput.classList.add('is-invalid');
+                return false;
+            }
+            pickupDateInput.classList.remove('is-invalid');
+
+            // VALIDATE OTHER FIELDS
+            if (!validateSeedlingForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+
+            // Remove red border from pickup date
+            pickupDateInput.classList.remove('is-invalid');
+
+            // Prepare form data
+            const formData = new FormData();
+
+            formData.append('first_name', document.getElementById('seedling_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('seedling_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
+            formData.append('extension_name', document.getElementById('seedling_extension').value);
+            formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
+            formData.append('barangay', document.getElementById('seedling_barangay').value);
+            formData.append('status', document.getElementById('seedling_status').value);
+            formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
+            formData.append('pickup_date', pickupDateInput.value);
+
+            // Add items
+            const items = document.querySelectorAll('.seedling-item-row');
+            items.forEach((item, index) => {
+                const categorySelect = item.querySelector('.seedling-category-select');
+                const quantityInput = item.querySelector('.seedling-quantity');
+
+                formData.append(`items[${index}][category_item_id]`, categorySelect.value);
+                formData.append(`items[${index}][quantity]`, quantityInput.value);
+            });
+
+            // Add document if uploaded
+            const docInput = document.getElementById('seedling_supporting_document');
+            if (docInput.files && docInput.files[0]) {
+                formData.append('document', docInput.files[0]);
+            }
+
+            // Find submit button
+            const submitBtn = document.querySelector('#addSeedlingModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+            submitBtn.disabled = true;
+
+            // Submit to backend
+            fetch('/admin/seedlings/requests', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
+                        modal.hide();
+
+                        showToast('success', data.message || 'Supply request created successfully');
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('seedling_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.remove();
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create supply request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the request');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+        }
 
         // Add event listeners for real-time validation
         document.getElementById('seedling_contact_number')?.addEventListener('input', function() {
@@ -4444,7 +4586,7 @@ function submitAddSeedling() {
             const originalPickupDate = pickupDateInput ? pickupDateInput.value : '';
             // Store in form data attribute
             form.dataset.originalData = JSON.stringify(originalData);
-            form.dataset.originalPickupDate = originalPickupDate;  
+            form.dataset.originalPickupDate = originalPickupDate;
             form.dataset.hasOriginalDocument = hasDocument ? 'true' : 'false';
             form.dataset.originalDocumentPath = documentPath || '';
 
@@ -4475,77 +4617,77 @@ function submitAddSeedling() {
 
 
         // Check for changes in edit form
-       function checkForEditChanges(requestId) {
-    const form = document.getElementById('editForm' + requestId);
-    const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+        function checkForEditChanges(requestId) {
+            const form = document.getElementById('editForm' + requestId);
+            const submitBtn = document.getElementById('editSubmitBtn' + requestId);
 
-    if (!form || !submitBtn) return;
+            if (!form || !submitBtn) return;
 
-    const originalData = JSON.parse(form.dataset.originalData || '{}');
-    let hasChanges = false;
-    let changedFields = [];
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+            let hasChanges = false;
+            let changedFields = [];
 
-    // Check all form fields
-    const fields = [
-        'first_name', 'middle_name', 'last_name', 'extension_name',
-        'contact_number', 'barangay'
-    ];
+            // Check all form fields
+            const fields = [
+                'first_name', 'middle_name', 'last_name', 'extension_name',
+                'contact_number', 'barangay'
+            ];
 
-    fields.forEach(field => {
-        const input = form.querySelector(`[name="${field}"]`);
-        if (input && input.value !== originalData[field]) {
-            hasChanges = true;
-            changedFields.push(field);
-            input.classList.add('form-changed');
-        } else if (input) {
-            input.classList.remove('form-changed');
+            fields.forEach(field => {
+                const input = form.querySelector(`[name="${field}"]`);
+                if (input && input.value !== originalData[field]) {
+                    hasChanges = true;
+                    changedFields.push(field);
+                    input.classList.add('form-changed');
+                } else if (input) {
+                    input.classList.remove('form-changed');
+                }
+            });
+
+            // ✅ ADD PICKUP DATE CHANGE DETECTION
+            const pickupDateInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+            if (pickupDateInput) {
+                const originalPickupDate = form.dataset.originalPickupDate || '';
+                const currentPickupDate = pickupDateInput.value || '';
+
+                if (currentPickupDate !== originalPickupDate) {
+                    hasChanges = true;
+                    changedFields.push('pickup_date');
+                    pickupDateInput.classList.add('form-changed');
+                } else {
+                    pickupDateInput.classList.remove('form-changed');
+                }
+            }
+
+            // Check file input - ONLY if a NEW file was selected
+            const fileInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                hasChanges = true;
+                changedFields.push('supporting_document');
+                console.log('New file selected:', fileInput.files[0].name);
+            }
+
+            // Update button state
+            if (hasChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                submitBtn.disabled = false;
+                submitBtn.dataset.hasChanges = 'true';
+                submitBtn.dataset.changedFields = JSON.stringify(changedFields);
+            } else {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                submitBtn.disabled = false;
+                submitBtn.dataset.hasChanges = 'false';
+            }
         }
-    });
-
-    // ✅ ADD PICKUP DATE CHANGE DETECTION
-    const pickupDateInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
-    if (pickupDateInput) {
-        const originalPickupDate = form.dataset.originalPickupDate || '';
-        const currentPickupDate = pickupDateInput.value || '';
-        
-        if (currentPickupDate !== originalPickupDate) {
-            hasChanges = true;
-            changedFields.push('pickup_date');
-            pickupDateInput.classList.add('form-changed');
-        } else {
-            pickupDateInput.classList.remove('form-changed');
-        }
-    }
-
-    // Check file input - ONLY if a NEW file was selected
-    const fileInput = document.getElementById(`edit_seedling_supporting_document_${requestId}`);
-    if (fileInput && fileInput.files && fileInput.files.length > 0) {
-        hasChanges = true;
-        changedFields.push('supporting_document');
-        console.log('New file selected:', fileInput.files[0].name);
-    }
-
-    // Update button state
-    if (hasChanges) {
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-        submitBtn.dataset.hasChanges = 'true';
-        submitBtn.dataset.changedFields = JSON.stringify(changedFields);
-    } else {
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-        submitBtn.dataset.hasChanges = 'false';
-    }
-}
 
         // Handle edit form submission with changes summary
         function handleEditSeedlingSubmit(requestId) {
             const form = document.getElementById('editForm' + requestId);
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
-            const modal = document.getElementById('editSeedlingModal' + requestId); 
-         
+            const modal = document.getElementById('editSeedlingModal' + requestId);
+
 
             // CHECK FOR VALIDATION ERRORS FIRST
             const invalidFields = modal.querySelectorAll('.is-invalid');
@@ -5150,7 +5292,7 @@ function submitAddSeedling() {
             }
         }
 
- 
+
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -5158,497 +5300,503 @@ function submitAddSeedling() {
         });
 
         // =============================================
-// REAL-TIME VALIDATION FOR ADD SEEDLING MODAL
-// =============================================
+        // REAL-TIME VALIDATION FOR ADD SEEDLING MODAL
+        // =============================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Real-time validation for ADD modal name fields
-    const addNameFields = [
-        {
-            id: 'seedling_first_name',
-            pattern: /^[a-zA-Z\s\'-]*$/,
-            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
-        },
-        {
-            id: 'seedling_middle_name',
-            pattern: /^[a-zA-Z\s\'-]*$/,
-            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
-        },
-        {
-            id: 'seedling_last_name',
-            pattern: /^[a-zA-Z\s\'-]*$/,
-            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
-        }
-    ];
+        document.addEventListener('DOMContentLoaded', function() {
+            // Real-time validation for ADD modal name fields
+            const addNameFields = [{
+                    id: 'seedling_first_name',
+                    pattern: /^[a-zA-Z\s\'-]*$/,
+                    message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+                },
+                {
+                    id: 'seedling_middle_name',
+                    pattern: /^[a-zA-Z\s\'-]*$/,
+                    message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+                },
+                {
+                    id: 'seedling_last_name',
+                    pattern: /^[a-zA-Z\s\'-]*$/,
+                    message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+                }
+            ];
 
-    // Setup ADD modal validations
-    addNameFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        
-        if (input) {
-            // Create warning message element if it doesn't exist
-            let warning = document.getElementById(field.id + '-warning');
-            if (!warning) {
-                warning = document.createElement('span');
-                warning.id = field.id + '-warning';
-                warning.className = 'validation-warning';
-                warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
-                warning.textContent = field.message;
-                input.parentNode.appendChild(warning);
-            }
+            // Setup ADD modal validations
+            addNameFields.forEach(field => {
+                const input = document.getElementById(field.id);
 
-            // Real-time input validation
-            input.addEventListener('input', function(e) {
-                const value = e.target.value;
+                if (input) {
+                    // Create warning message element if it doesn't exist
+                    let warning = document.getElementById(field.id + '-warning');
+                    if (!warning) {
+                        warning = document.createElement('span');
+                        warning.id = field.id + '-warning';
+                        warning.className = 'validation-warning';
+                        warning.style.cssText =
+                            'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                        warning.textContent = field.message;
+                        input.parentNode.appendChild(warning);
+                    }
 
-                if (!field.pattern.test(value)) {
-                    warning.style.display = 'block';
-                    input.style.borderColor = '#ff6b6b';
-                    input.classList.add('is-invalid');
-                } else {
-                    warning.style.display = 'none';
-                    input.style.borderColor = '';
-                    input.classList.remove('is-invalid');
+                    // Real-time input validation
+                    input.addEventListener('input', function(e) {
+                        const value = e.target.value;
+
+                        if (!field.pattern.test(value)) {
+                            warning.style.display = 'block';
+                            input.style.borderColor = '#ff6b6b';
+                            input.classList.add('is-invalid');
+                        } else {
+                            warning.style.display = 'none';
+                            input.style.borderColor = '';
+                            input.classList.remove('is-invalid');
+                        }
+                    });
+
+                    // Validation on blur
+                    input.addEventListener('blur', function(e) {
+                        const value = e.target.value;
+
+                        if (!field.pattern.test(value) && value !== '') {
+                            warning.style.display = 'block';
+                            input.style.borderColor = '#ff6b6b';
+                            input.classList.add('is-invalid');
+                        } else {
+                            warning.style.display = 'none';
+                            input.style.borderColor = '';
+                            input.classList.remove('is-invalid');
+                        }
+                    });
                 }
             });
 
-            // Validation on blur
-            input.addEventListener('blur', function(e) {
-                const value = e.target.value;
-
-                if (!field.pattern.test(value) && value !== '') {
-                    warning.style.display = 'block';
-                    input.style.borderColor = '#ff6b6b';
-                    input.classList.add('is-invalid');
-                } else {
-                    warning.style.display = 'none';
-                    input.style.borderColor = '';
-                    input.classList.remove('is-invalid');
+            // Real-time validation for ADD modal contact number
+            const addContactInput = document.getElementById('seedling_contact_number');
+            if (addContactInput) {
+                let contactWarning = document.getElementById('seedling_contact_number-warning');
+                if (!contactWarning) {
+                    contactWarning = document.createElement('span');
+                    contactWarning.id = 'seedling_contact_number-warning';
+                    contactWarning.className = 'validation-warning';
+                    contactWarning.style.cssText =
+                        'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                    contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+                    addContactInput.parentNode.appendChild(contactWarning);
                 }
-            });
-        }
-    });
 
-    // Real-time validation for ADD modal contact number
-    const addContactInput = document.getElementById('seedling_contact_number');
-    if (addContactInput) {
-        let contactWarning = document.getElementById('seedling_contact_number-warning');
-        if (!contactWarning) {
-            contactWarning = document.createElement('span');
-            contactWarning.id = 'seedling_contact_number-warning';
-            contactWarning.className = 'validation-warning';
-            contactWarning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
-            contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
-            addContactInput.parentNode.appendChild(contactWarning);
-        }
+                addContactInput.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    const phonePattern = /^09\d{9}$/;
 
-        addContactInput.addEventListener('input', function(e) {
-            const value = e.target.value;
-            const phonePattern = /^09\d{9}$/;
+                    if (value !== '' && !phonePattern.test(value)) {
+                        contactWarning.style.display = 'block';
+                        addContactInput.style.borderColor = '#ff6b6b';
+                        addContactInput.classList.add('is-invalid');
+                    } else {
+                        contactWarning.style.display = 'none';
+                        addContactInput.style.borderColor = '';
+                        addContactInput.classList.remove('is-invalid');
+                    }
+                });
 
-            if (value !== '' && !phonePattern.test(value)) {
-                contactWarning.style.display = 'block';
-                addContactInput.style.borderColor = '#ff6b6b';
-                addContactInput.classList.add('is-invalid');
-            } else {
-                contactWarning.style.display = 'none';
-                addContactInput.style.borderColor = '';
-                addContactInput.classList.remove('is-invalid');
-            }
-        });
+                // addContactInput.addEventListener('blur', function(e) {
+                //     const value = e.target.value;
+                //     const phonePattern = /^09\d{9}$/;
 
-        // addContactInput.addEventListener('blur', function(e) {
-        //     const value = e.target.value;
-        //     const phonePattern = /^09\d{9}$/;
-
-        //     if (value !== '' && !phonePattern.test(value)) {
-        //         contactWarning.style.display = 'block';
-        //         addContactInput.style.borderColor = '#ff6b6b';
-        //         addContactInput.classList.add('is-invalid');
-        //     }
-        // });
-    }
-});
-
-// =============================================
-// REAL-TIME VALIDATION FOR EDIT MODALS
-// =============================================
-
-function initializeEditModalValidation(requestId) {
-    // Real-time validation for EDIT modal name fields
-    const editNameFields = [
-        {
-            id: 'edit_first_name_' + requestId,
-            pattern: /^[a-zA-Z\s\'-]*$/,
-            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
-        },
-        {
-            id: 'edit_middle_name_' + requestId,
-            pattern: /^[a-zA-Z\s\'-]*$/,
-            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
-        },
-        {
-            id: 'edit_last_name_' + requestId,
-            pattern: /^[a-zA-Z\s\'-]*$/,
-            message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
-        }
-    ];
-
-    editNameFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        
-        if (input) {
-            // Create warning message element if it doesn't exist
-            let warning = document.getElementById(field.id + '-warning');
-            if (!warning) {
-                warning = document.createElement('span');
-                warning.id = field.id + '-warning';
-                warning.className = 'validation-warning';
-                warning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
-                warning.textContent = field.message;
-                input.parentNode.appendChild(warning);
-            }
-
-            // Real-time input validation
-            input.addEventListener('input', function(e) {
-                const value = e.target.value;
-
-                if (!field.pattern.test(value)) {
-                    warning.style.display = 'block';
-                    input.style.borderColor = '#ff6b6b';
-                    input.classList.add('is-invalid');
-                } else {
-                    warning.style.display = 'none';
-                    input.style.borderColor = '';
-                    input.classList.remove('is-invalid');
-                }
-            });
-
-            // Validation on blur
-            input.addEventListener('blur', function(e) {
-                const value = e.target.value;
-
-                if (!field.pattern.test(value) && value !== '') {
-                    warning.style.display = 'block';
-                    input.style.borderColor = '#ff6b6b';
-                    input.classList.add('is-invalid');
-                } else {
-                    warning.style.display = 'none';
-                    input.style.borderColor = '';
-                    input.classList.remove('is-invalid');
-                }
-            });
-        }
-    });
-
-    // Real-time validation for EDIT modal contact number
-    const editContactInput = document.getElementById('edit_contact_number_' + requestId);
-    if (editContactInput) {
-        let contactWarning = document.getElementById('edit_contact_number_' + requestId + '-warning');
-        if (!contactWarning) {
-            contactWarning = document.createElement('span');
-            contactWarning.id = 'edit_contact_number_' + requestId + '-warning';
-            contactWarning.className = 'validation-warning';
-            contactWarning.style.cssText = 'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
-            contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
-            editContactInput.parentNode.appendChild(contactWarning);
-        }
-
-        editContactInput.addEventListener('input', function(e) {
-            const value = e.target.value;
-            const phonePattern = /^09\d{9}$/;
-
-            if (value !== '' && !phonePattern.test(value)) {
-                contactWarning.style.display = 'block';
-                editContactInput.style.borderColor = '#ff6b6b';
-                editContactInput.classList.add('is-invalid');
-            } else {
-                contactWarning.style.display = 'none';
-                editContactInput.style.borderColor = '';
-                editContactInput.classList.remove('is-invalid');
+                //     if (value !== '' && !phonePattern.test(value)) {
+                //         contactWarning.style.display = 'block';
+                //         addContactInput.style.borderColor = '#ff6b6b';
+                //         addContactInput.classList.add('is-invalid');
+                //     }
+                // });
             }
         });
 
-        // editContactInput.addEventListener('blur', function(e) {
-        //     const value = e.target.value;
-        //     const phonePattern = /^09\d{9}$/;
+        // =============================================
+        // REAL-TIME VALIDATION FOR EDIT MODALS
+        // =============================================
 
-        //     if (value !== '' && !phonePattern.test(value)) {
-        //         contactWarning.style.display = 'block';
-        //         editContactInput.style.borderColor = '#ff6b6b';
-        //         editContactInput.classList.add('is-invalid');
-        //     }
-        // });
-    }
-}
-// =============================================
-// PICKUP DATE FIELD - EDIT MODAL
-// =============================================
+        function initializeEditModalValidation(requestId) {
+            // Real-time validation for EDIT modal name fields
+            const editNameFields = [{
+                    id: 'edit_first_name_' + requestId,
+                    pattern: /^[a-zA-Z\s\'-]*$/,
+                    message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+                },
+                {
+                    id: 'edit_middle_name_' + requestId,
+                    pattern: /^[a-zA-Z\s\'-]*$/,
+                    message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+                },
+                {
+                    id: 'edit_last_name_' + requestId,
+                    pattern: /^[a-zA-Z\s\'-]*$/,
+                    message: 'Only letters, spaces, hyphens, and apostrophes are allowed'
+                }
+            ];
 
-function initializePickupDateEditModal(requestId) {
-    const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
-    const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
-    const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
+            editNameFields.forEach(field => {
+                const input = document.getElementById(field.id);
 
-    if (!pickupInput) return;
+                if (input) {
+                    // Create warning message element if it doesn't exist
+                    let warning = document.getElementById(field.id + '-warning');
+                    if (!warning) {
+                        warning = document.createElement('span');
+                        warning.id = field.id + '-warning';
+                        warning.className = 'validation-warning';
+                        warning.style.cssText =
+                            'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                        warning.textContent = field.message;
+                        input.parentNode.appendChild(warning);
+                    }
 
-    // Set min/max dates
-    const today = new Date();
-    const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 1);
-    
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 30);
+                    // Real-time input validation
+                    input.addEventListener('input', function(e) {
+                        const value = e.target.value;
 
-    const formatDate = (date) => date.toISOString().split('T')[0];
-    
-    pickupInput.min = formatDate(minDate);
-    pickupInput.max = formatDate(maxDate);
+                        if (!field.pattern.test(value)) {
+                            warning.style.display = 'block';
+                            input.style.borderColor = '#ff6b6b';
+                            input.classList.add('is-invalid');
+                        } else {
+                            warning.style.display = 'none';
+                            input.style.borderColor = '';
+                            input.classList.remove('is-invalid');
+                        }
+                    });
 
-    // Validate on change
-    pickupInput.addEventListener('change', function() {
-        if (!this.value) {
-            displayDiv.style.display = 'none';
-            return;
+                    // Validation on blur
+                    input.addEventListener('blur', function(e) {
+                        const value = e.target.value;
+
+                        if (!field.pattern.test(value) && value !== '') {
+                            warning.style.display = 'block';
+                            input.style.borderColor = '#ff6b6b';
+                            input.classList.add('is-invalid');
+                        } else {
+                            warning.style.display = 'none';
+                            input.style.borderColor = '';
+                            input.classList.remove('is-invalid');
+                        }
+                    });
+                }
+            });
+
+            // Real-time validation for EDIT modal contact number
+            const editContactInput = document.getElementById('edit_contact_number_' + requestId);
+            if (editContactInput) {
+                let contactWarning = document.getElementById('edit_contact_number_' + requestId + '-warning');
+                if (!contactWarning) {
+                    contactWarning = document.createElement('span');
+                    contactWarning.id = 'edit_contact_number_' + requestId + '-warning';
+                    contactWarning.className = 'validation-warning';
+                    contactWarning.style.cssText =
+                        'color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px; margin-left: 0;';
+                    contactWarning.textContent = 'Contact number must be in format 09XXXXXXXXX (11 digits)';
+                    editContactInput.parentNode.appendChild(contactWarning);
+                }
+
+                editContactInput.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    const phonePattern = /^09\d{9}$/;
+
+                    if (value !== '' && !phonePattern.test(value)) {
+                        contactWarning.style.display = 'block';
+                        editContactInput.style.borderColor = '#ff6b6b';
+                        editContactInput.classList.add('is-invalid');
+                    } else {
+                        contactWarning.style.display = 'none';
+                        editContactInput.style.borderColor = '';
+                        editContactInput.classList.remove('is-invalid');
+                    }
+                });
+
+                // editContactInput.addEventListener('blur', function(e) {
+                //     const value = e.target.value;
+                //     const phonePattern = /^09\d{9}$/;
+
+                //     if (value !== '' && !phonePattern.test(value)) {
+                //         contactWarning.style.display = 'block';
+                //         editContactInput.style.borderColor = '#ff6b6b';
+                //         editContactInput.classList.add('is-invalid');
+                //     }
+                // });
+            }
         }
+        // =============================================
+        // PICKUP DATE FIELD - EDIT MODAL
+        // =============================================
 
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
-        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-        const fullDate = selectedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
+        function initializePickupDateEditModal(requestId) {
+            const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+            const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
+            const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
 
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = '';
-            displayDiv.style.display = 'none';
-            showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
-            return;
-        }
+            if (!pickupInput) return;
 
-        displayText.innerHTML = `
+            // Set min/max dates
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setDate(minDate.getDate() + 1);
+
+            const maxDate = new Date(today);
+            maxDate.setDate(maxDate.getDate() + 30);
+
+            const formatDate = (date) => date.toISOString().split('T')[0];
+
+            pickupInput.min = formatDate(minDate);
+            pickupInput.max = formatDate(maxDate);
+
+            // Validate on change
+            pickupInput.addEventListener('change', function() {
+                if (!this.value) {
+                    displayDiv.style.display = 'none';
+                    return;
+                }
+
+                const selectedDate = new Date(this.value + 'T00:00:00');
+                const dayOfWeek = selectedDate.getDay();
+                const dayName = selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'long'
+                });
+                const fullDate = selectedDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    this.value = '';
+                    displayDiv.style.display = 'none';
+                    showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+                    return;
+                }
+
+                displayText.innerHTML = `
             <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
             <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
         `;
-        displayDiv.style.display = 'block';
-        checkForEditChanges(requestId);
-    });
+                displayDiv.style.display = 'block';
+                checkForEditChanges(requestId);
+            });
 
-    pickupInput.addEventListener('blur', function() {
-        if (!this.value) return;
+            pickupInput.addEventListener('blur', function() {
+                if (!this.value) return;
 
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
+                const selectedDate = new Date(this.value + 'T00:00:00');
+                const dayOfWeek = selectedDate.getDay();
 
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = '';
-            displayDiv.style.display = 'none';
-            showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
-        }
-    });
-}
-
-// =============================================
-// PICKUP DATE FIELD - ADD MODAL
-// =============================================
-
-function initializePickupDateAddModal() {
-    const pickupInput = document.getElementById('seedling_pickup_date_add');
-    const displayDiv = document.getElementById('seedling_pickup_date_display_add');
-    const displayText = document.getElementById('seedling_pickup_date_text_add');
-
-    if (!pickupInput) return;
-
-    const today = new Date();
-    const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 1);
-    
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 30);
-
-    const formatDate = (date) => date.toISOString().split('T')[0];
-    
-    pickupInput.min = formatDate(minDate);
-    pickupInput.max = formatDate(maxDate);
-
-    pickupInput.addEventListener('change', function() {
-        if (!this.value) {
-            displayDiv.style.display = 'none';
-            return;
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    this.value = '';
+                    displayDiv.style.display = 'none';
+                    showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+                }
+            });
         }
 
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
-        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-        const fullDate = selectedDate.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
+        // =============================================
+        // PICKUP DATE FIELD - ADD MODAL
+        // =============================================
 
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = '';
-            displayDiv.style.display = 'none';
-            showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
-            return;
-        }
+        function initializePickupDateAddModal() {
+            const pickupInput = document.getElementById('seedling_pickup_date_add');
+            const displayDiv = document.getElementById('seedling_pickup_date_display_add');
+            const displayText = document.getElementById('seedling_pickup_date_text_add');
 
-        displayText.innerHTML = `
+            if (!pickupInput) return;
+
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setDate(minDate.getDate() + 1);
+
+            const maxDate = new Date(today);
+            maxDate.setDate(maxDate.getDate() + 30);
+
+            const formatDate = (date) => date.toISOString().split('T')[0];
+
+            pickupInput.min = formatDate(minDate);
+            pickupInput.max = formatDate(maxDate);
+
+            pickupInput.addEventListener('change', function() {
+                if (!this.value) {
+                    displayDiv.style.display = 'none';
+                    return;
+                }
+
+                const selectedDate = new Date(this.value + 'T00:00:00');
+                const dayOfWeek = selectedDate.getDay();
+                const dayName = selectedDate.toLocaleDateString('en-US', {
+                    weekday: 'long'
+                });
+                const fullDate = selectedDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    this.value = '';
+                    displayDiv.style.display = 'none';
+                    showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+                    return;
+                }
+
+                displayText.innerHTML = `
             <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
             <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
         `;
-        displayDiv.style.display = 'block';
-    });
+                displayDiv.style.display = 'block';
+            });
 
-    pickupInput.addEventListener('blur', function() {
-        if (!this.value) return;
+            pickupInput.addEventListener('blur', function() {
+                if (!this.value) return;
 
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        const dayOfWeek = selectedDate.getDay();
+                const selectedDate = new Date(this.value + 'T00:00:00');
+                const dayOfWeek = selectedDate.getDay();
 
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            this.value = '';
-            displayDiv.style.display = 'none';
-            showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    this.value = '';
+                    displayDiv.style.display = 'none';
+                    showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+                }
+            });
+            pickupInput.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.classList.add('is-invalid');
+                    displayDiv.style.display = 'none';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+
+                const selectedDate = new Date(this.value + 'T00:00:00');
+                const dayOfWeek = selectedDate.getDay();
+
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    this.value = '';
+                    this.classList.add('is-invalid');
+                    displayDiv.style.display = 'none';
+                    showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+                }
+            });
         }
-    });
-    pickupInput.addEventListener('blur', function() {
-    if (!this.value) {
-        this.classList.add('is-invalid');
-        displayDiv.style.display = 'none';
-    } else {
-        this.classList.remove('is-invalid');
-    }
+        // Update remarks character counter for add modal
+        function updateAddSeedlingRemarksCounter() {
+            const textarea = document.getElementById('seedling_remarks');
+            const charCount = document.getElementById('addCharCount');
 
-    const selectedDate = new Date(this.value + 'T00:00:00');
-    const dayOfWeek = selectedDate.getDay();
+            if (textarea && charCount) {
+                charCount.textContent = textarea.value.length;
 
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-        this.value = '';
-        this.classList.add('is-invalid');
-        displayDiv.style.display = 'none';
-        showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
-    }
-});
-}
-// Update remarks character counter for add modal
-function updateAddSeedlingRemarksCounter() {
-    const textarea = document.getElementById('seedling_remarks');
-    const charCount = document.getElementById('addCharCount');
+                // Change color based on length
+                if (textarea.value.length > 900) {
+                    document.getElementById('addRemarksCounter').classList.add('text-warning');
+                    document.getElementById('addRemarksCounter').classList.remove('text-muted');
+                } else {
+                    document.getElementById('addRemarksCounter').classList.remove('text-warning');
+                    document.getElementById('addRemarksCounter').classList.add('text-muted');
+                }
+            }
 
-    if (textarea && charCount) {
-        charCount.textContent = textarea.value.length;
-
-        // Change color based on length
-        if (textarea.value.length > 900) {
-            document.getElementById('addRemarksCounter').classList.add('text-warning');
-            document.getElementById('addRemarksCounter').classList.remove('text-muted');
-        } else {
-            document.getElementById('addRemarksCounter').classList.remove('text-warning');
-            document.getElementById('addRemarksCounter').classList.add('text-muted');
         }
-    }
+        // // Initialize pickup date field in edit modal (add to existing initializePickupDateEditModal function or create new)
+        // function initializePickupDateEditModal(requestId) {
+        //     const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
+        //     const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
+        //     const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
 
-}
-// // Initialize pickup date field in edit modal (add to existing initializePickupDateEditModal function or create new)
-// function initializePickupDateEditModal(requestId) {
-//     const pickupInput = document.getElementById(`edit_seedling_pickup_date_${requestId}`);
-//     const displayDiv = document.getElementById(`edit_pickup_date_display_${requestId}`);
-//     const displayText = document.getElementById(`edit_pickup_date_text_${requestId}`);
+        //     if (!pickupInput) return;
 
-//     if (!pickupInput) return;
+        //     // Set min/max dates
+        //     const today = new Date();
+        //     const minDate = new Date(today);
+        //     minDate.setDate(minDate.getDate() + 1);
 
-//     // Set min/max dates
-//     const today = new Date();
-//     const minDate = new Date(today);
-//     minDate.setDate(minDate.getDate() + 1);
-    
-//     const maxDate = new Date(today);
-//     maxDate.setDate(maxDate.getDate() + 30);
+        //     const maxDate = new Date(today);
+        //     maxDate.setDate(maxDate.getDate() + 30);
 
-//     const formatDate = (date) => date.toISOString().split('T')[0];
-    
-//     pickupInput.min = formatDate(minDate);
-//     pickupInput.max = formatDate(maxDate);
+        //     const formatDate = (date) => date.toISOString().split('T')[0];
 
-//     // Validate on change
-//     pickupInput.addEventListener('change', function() {
-//         if (!this.value) {
-//             displayDiv.style.display = 'none';
-//             return;
-//         }
+        //     pickupInput.min = formatDate(minDate);
+        //     pickupInput.max = formatDate(maxDate);
 
-//         const selectedDate = new Date(this.value + 'T00:00:00');
-//         const dayOfWeek = selectedDate.getDay();
-//         const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-//         const fullDate = selectedDate.toLocaleDateString('en-US', { 
-//             year: 'numeric', 
-//             month: 'long', 
-//             day: 'numeric' 
-//         });
+        //     // Validate on change
+        //     pickupInput.addEventListener('change', function() {
+        //         if (!this.value) {
+        //             displayDiv.style.display = 'none';
+        //             return;
+        //         }
 
-//         if (dayOfWeek === 0 || dayOfWeek === 6) {
-//             this.value = '';
-//             displayDiv.style.display = 'none';
-//             showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
-//             return;
-//         }
+        //         const selectedDate = new Date(this.value + 'T00:00:00');
+        //         const dayOfWeek = selectedDate.getDay();
+        //         const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        //         const fullDate = selectedDate.toLocaleDateString('en-US', {
+        //             year: 'numeric',
+        //             month: 'long',
+        //             day: 'numeric'
+        //         });
 
-//         displayText.innerHTML = `
-//             <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
-//             <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
-//         `;
-//         displayDiv.style.display = 'block';
-//         checkForEditChanges(requestId);
-//     });
+        //         if (dayOfWeek === 0 || dayOfWeek === 6) {
+        //             this.value = '';
+        //             displayDiv.style.display = 'none';
+        //             showToast('warning', `${dayName}s are closed. Please select a weekday (Monday-Friday).`);
+        //             return;
+        //         }
 
-//     pickupInput.addEventListener('blur', function() {
-//         if (!this.value) return;
+        //         displayText.innerHTML = `
+    //             <i class="fas fa-check-circle" style="color: #40916c; margin-right: 8px;"></i>
+    //             <strong>${fullDate}</strong> <span style="color: #666;">(${dayName})</span>
+    //         `;
+        //         displayDiv.style.display = 'block';
+        //         checkForEditChanges(requestId);
+        //     });
 
-//         const selectedDate = new Date(this.value + 'T00:00:00');
-//         const dayOfWeek = selectedDate.getDay();
+        //     pickupInput.addEventListener('blur', function() {
+        //         if (!this.value) return;
 
-//         if (dayOfWeek === 0 || dayOfWeek === 6) {
-//             this.value = '';
-//             displayDiv.style.display = 'none';
-//             showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
-//         }
-//     });
-// }
-function markAsClaimed(requestId, requestNumber) {
-    showConfirmationToast(
-        'Mark as Claimed',
-        `Mark request ${requestNumber} as claimed by the applicant?`,
-        () => proceedMarkAsClaimed(requestId, requestNumber)
-    );
-}
+        //         const selectedDate = new Date(this.value + 'T00:00:00');
+        //         const dayOfWeek = selectedDate.getDay();
 
-function proceedMarkAsClaimed(requestId, requestNumber) {
-    const csrfToken = getCSRFToken();
-
-    fetch(`/admin/seedlings/requests/${requestId}/mark-claimed`, {
-        method: 'PATCH',
-        headers: {
-            'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+        //         if (dayOfWeek === 0 || dayOfWeek === 6) {
+        //             this.value = '';
+        //             displayDiv.style.display = 'none';
+        //             showToast('warning', 'Weekends are not available for pickup. Please select a weekday.');
+        //         }
+        //     });
+        // }
+        function markAsClaimed(requestId, requestNumber) {
+            showConfirmationToast(
+                'Mark as Claimed',
+                `Mark request ${requestNumber} as claimed by the applicant?`,
+                () => proceedMarkAsClaimed(requestId, requestNumber)
+            );
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('success', data.message);
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            showToast('error', data.message);
+
+        function proceedMarkAsClaimed(requestId, requestNumber) {
+            const csrfToken = getCSRFToken();
+
+            fetch(`/admin/seedlings/requests/${requestId}/mark-claimed`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message);
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        showToast('error', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Failed to mark as claimed');
+                });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'Failed to mark as claimed');
-    });
-}
     </script>
 @endsection

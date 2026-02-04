@@ -352,29 +352,6 @@
                 </select>
             </div>
 
-            <div class="seedlings-form-group" id="pickup-date-section">
-                <label for="seedlings-pickup_date">
-                    <i class="fas fa-calendar-check"></i> Pickup Date
-                    <span class="required-asterisk">*</span>
-                </label>
-
-                <!-- INFO BOX (Always visible) -->
-                <div class="pickup-info-box"
-                    style="margin-bottom: 12px; padding: 12px; background: #e8f5e9; border-radius: 6px; border-left: 4px solid #40916c;">
-                    <i class="fas fa-info-circle" style="color: #40916c; margin-right: 8px;"></i>
-                    <strong>Weekdays only (Mon-Fri)</strong> • Valid for 30 days from approval
-                </div>
-
-                <!-- CALENDAR INPUT -->
-                <input type="date" id="seedlings-pickup_date" name="pickup_date" required>
-
-                <!-- SELECTED DATE DISPLAY (After selection) -->
-                <div id="pickup-date-display"
-                    style="margin-top: 12px; padding: 12px; background: #f5f5f5; border-radius: 6px; display: none;">
-                    <strong>Selected:</strong> <span id="pickup-date-text"></span>
-                </div>
-            </div>
-
             <div class="seedlings-form-group" id="supporting-docs-field">
                 <label for="seedlings-docs">Supporting Documents (Optional)</label>
                 <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png">

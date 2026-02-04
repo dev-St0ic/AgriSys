@@ -205,9 +205,9 @@ class SeedlingRequestController extends Controller
                 'document_path' => $documentPath,
                 'status' => $validated['status'] ?? 'pending',
                 'remarks' => $validated['remarks'] ?? null,
-                'pickup_date' => $pickupDate, 
-                'pickup_expired_at' => $pickupExpiredAt, 
-                'pickup_reminder_sent' => false, 
+                'pickup_date' => $pickupDate,
+                'pickup_expired_at' => $pickupExpiredAt,
+                'pickup_reminder_sent' => false,
             ]);
 
             // Create request items from dynamic selections
@@ -333,7 +333,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 }
             }
         ],
-    
+
     ], [
         'contact_number.required' => 'Contact number is required.',
         'contact_number.regex' => 'Please enter a valid Philippine mobile number.',
@@ -530,7 +530,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             return redirect()->back()->with('error', $errorMessage);
         }
     }
-    
+
 /**
      * Update individual items in a request (for approval/rejection) - WITH AUTOMATIC SUPPLY DEDUCTION
      */
@@ -710,6 +710,13 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             'approved_at' => ($overallStatus === 'approved' || $overallStatus === 'partially_approved') ? now() : null,
             'rejected_at' => $overallStatus === 'rejected' ? now() : null,
         ]);
+
+        // ✅ SET PICKUP DATE (30 days from approval) for approved/partially approved requests
+        if (($overallStatus === 'approved' || $overallStatus === 'partially_approved') && !$seedlingRequest->pickup_date) {
+            $seedlingRequest->pickup_date = now()->addDays(30);
+            $seedlingRequest->pickup_expired_at = $seedlingRequest->pickup_date->copy()->addDay();
+            $seedlingRequest->save();
+        }
 
         // ✅ STATUS CHANGE NOTIFICATION
         if ($previousStatus !== $overallStatus) {

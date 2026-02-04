@@ -473,7 +473,7 @@
                     <div class="profile-content">
                         <!-- Profile Header -->
                         @php $status = strtolower($user['status'] ?? 'active'); @endphp
-                       <div class="profile-header">
+                        <div class="profile-header">
                             <div class="profile-avatar-large">
                                 {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
                             </div>
@@ -498,7 +498,7 @@
 
                         <!-- Profile Information -->
                         <div class="profile-info-grid">
-                           <div class="profile-info-card">
+                            <div class="profile-info-card">
                                 <h5>Account Information</h5>
                                 <div class="info-row">
                                     <span class="info-label">Username:</span>
@@ -672,7 +672,8 @@
                     <!-- Filter Bar -->
                     <div class="filter-bar">
                         <span class="filter-label">Filter by Status:</span>
-                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All Applications</button>
+                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All
+                            Applications</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('pending')">Pending</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('approved')">Approved</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('rejected')">Rejected</button>
@@ -731,11 +732,13 @@
                                         <label for="firstName">First Name</label>
                                         <input type="text" id="firstName" name="firstName" required
                                             placeholder="Enter your first name">
+                                        <small>Letters and spaces only</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="middleName">Middle Name (Optional)</label>
                                         <input type="text" id="middleName" name="middleName"
                                             placeholder="Enter your middle name">
+                                        <small>Letters and spaces only</small>
                                     </div>
                                 </div>
 
@@ -744,6 +747,7 @@
                                         <label for="lastName">Last Name</label>
                                         <input type="text" id="lastName" name="lastName" required
                                             placeholder="Enter your last name">
+                                        <small>Letters and spaces only</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="extensionName">Name Extension</label>
@@ -811,34 +815,34 @@
                                 <div class="form-group">
                                     <label for="barangay">Barangay</label>
                                     <select id="barangay" name="barangay" required>
-                                         <option value="">Select Barangay</option>
-                                            <option value="Bagong Silang">Bagong Silang</option>
-                                            <option value="Calendola">Calendola</option>
-                                            <option value="Chrysanthemum">Chrysanthemum</option>
-                                            <option value="Cuyab">Cuyab</option>
-                                            <option value="Estrella">Estrella</option>
-                                            <option value="Fatima">Fatima</option>
-                                            <option value="G.S.I.S.">G.S.I.S.</option>
-                                            <option value="Landayan">Landayan</option>
-                                            <option value="Langgam">Langgam</option>
-                                            <option value="Laram">Laram</option>
-                                            <option value="Magsaysay">Magsaysay</option>
-                                            <option value="Maharlika">Maharlika</option>
-                                            <option value="Narra">Narra</option>
-                                            <option value="Nueva">Nueva</option>
-                                            <option value="Pacita 1">Pacita 1</option>
-                                            <option value="Pacita 2">Pacita 2</option>
-                                            <option value="Poblacion">Poblacion</option>
-                                            <option value="Riverside">Riverside</option>
-                                            <option value="Rosario">Rosario</option>
-                                            <option value="Sampaguita Village">Sampaguita Village</option>
-                                            <option value="San Antonio">San Antonio</option>
-                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                                            <option value="San Roque">San Roque</option>
-                                            <option value="San Vicente">San Vicente</option>
-                                            <option value="Santo Niño">Santo Niño</option>
-                                            <option value="United Bayanihan">United Bayanihan</option>
-                                            <option value="United Better Living">United Better Living</option>
+                                        <option value="">Select Barangay</option>
+                                        <option value="Bagong Silang">Bagong Silang</option>
+                                        <option value="Calendola">Calendola</option>
+                                        <option value="Chrysanthemum">Chrysanthemum</option>
+                                        <option value="Cuyab">Cuyab</option>
+                                        <option value="Estrella">Estrella</option>
+                                        <option value="Fatima">Fatima</option>
+                                        <option value="G.S.I.S.">G.S.I.S.</option>
+                                        <option value="Landayan">Landayan</option>
+                                        <option value="Langgam">Langgam</option>
+                                        <option value="Laram">Laram</option>
+                                        <option value="Magsaysay">Magsaysay</option>
+                                        <option value="Maharlika">Maharlika</option>
+                                        <option value="Narra">Narra</option>
+                                        <option value="Nueva">Nueva</option>
+                                        <option value="Pacita 1">Pacita 1</option>
+                                        <option value="Pacita 2">Pacita 2</option>
+                                        <option value="Poblacion">Poblacion</option>
+                                        <option value="Riverside">Riverside</option>
+                                        <option value="Rosario">Rosario</option>
+                                        <option value="Sampaguita Village">Sampaguita Village</option>
+                                        <option value="San Antonio">San Antonio</option>
+                                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                        <option value="San Roque">San Roque</option>
+                                        <option value="San Vicente">San Vicente</option>
+                                        <option value="Santo Niño">Santo Niño</option>
+                                        <option value="United Bayanihan">United Bayanihan</option>
+                                        <option value="United Better Living">United Better Living</option>
                                     </select>
                                 </div>
 
@@ -868,12 +872,13 @@
                                         <label for="emergencyContactName">Emergency Contact Name</label>
                                         <input type="text" id="emergencyContactName" name="emergencyContactName"
                                             required placeholder="Full name of emergency contact">
+                                        <small>Letters and spaces only</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="emergencyContactPhone">Emergency Contact Phone</label>
                                         <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone"
                                             required placeholder="09123456789" pattern="[0-9]{11}">
-                                        <small>11-digit Philippine mobile number</small>
+                                        <small>11-digit Philippine mobile number (numbers only)</small>
                                     </div>
                                 </div>
                             </div>
@@ -954,7 +959,8 @@
                                     <div class="form-text">
                                         <strong>Farmers:</strong> Photo of your farm or agricultural land<br>
                                         <strong>Fisherfolk:</strong> Photo of fishing area or boat<br>
-                                        <strong>Others:</strong> Any document or photo that proves your livelihood or business
+                                        <strong>Others:</strong> Any document or photo that proves your livelihood or
+                                        business
                                     </div>
                                 </div>
                             </div>
@@ -1376,35 +1382,35 @@
                         <div class="form-group">
                             <label for="edit-barangay">Barangay</label>
                             <select id="edit-barangay" name="barangay" required>
-                              
-                                 <option value="">Select Barangay</option>
-                                            <option value="Bagong Silang">Bagong Silang</option>
-                                            <option value="Calendola">Calendola</option>
-                                            <option value="Chrysanthemum">Chrysanthemum</option>
-                                            <option value="Cuyab">Cuyab</option>
-                                            <option value="Estrella">Estrella</option>
-                                            <option value="Fatima">Fatima</option>
-                                            <option value="G.S.I.S.">G.S.I.S.</option>
-                                            <option value="Landayan">Landayan</option>
-                                            <option value="Langgam">Langgam</option>
-                                            <option value="Laram">Laram</option>
-                                            <option value="Magsaysay">Magsaysay</option>
-                                            <option value="Maharlika">Maharlika</option>
-                                            <option value="Narra">Narra</option>
-                                            <option value="Nueva">Nueva</option>
-                                            <option value="Pacita 1">Pacita 1</option>
-                                            <option value="Pacita 2">Pacita 2</option>
-                                            <option value="Poblacion">Poblacion</option>
-                                            <option value="Riverside">Riverside</option>
-                                            <option value="Rosario">Rosario</option>
-                                            <option value="Sampaguita Village">Sampaguita Village</option>
-                                            <option value="San Antonio">San Antonio</option>
-                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                                            <option value="San Roque">San Roque</option>
-                                            <option value="San Vicente">San Vicente</option>
-                                            <option value="Santo Niño">Santo Niño</option>
-                                            <option value="United Bayanihan">United Bayanihan</option>
-                                            <option value="United Better Living">United Better Living</option>
+
+                                <option value="">Select Barangay</option>
+                                <option value="Bagong Silang">Bagong Silang</option>
+                                <option value="Calendola">Calendola</option>
+                                <option value="Chrysanthemum">Chrysanthemum</option>
+                                <option value="Cuyab">Cuyab</option>
+                                <option value="Estrella">Estrella</option>
+                                <option value="Fatima">Fatima</option>
+                                <option value="G.S.I.S.">G.S.I.S.</option>
+                                <option value="Landayan">Landayan</option>
+                                <option value="Langgam">Langgam</option>
+                                <option value="Laram">Laram</option>
+                                <option value="Magsaysay">Magsaysay</option>
+                                <option value="Maharlika">Maharlika</option>
+                                <option value="Narra">Narra</option>
+                                <option value="Nueva">Nueva</option>
+                                <option value="Pacita 1">Pacita 1</option>
+                                <option value="Pacita 2">Pacita 2</option>
+                                <option value="Poblacion">Poblacion</option>
+                                <option value="Riverside">Riverside</option>
+                                <option value="Rosario">Rosario</option>
+                                <option value="Sampaguita Village">Sampaguita Village</option>
+                                <option value="San Antonio">San Antonio</option>
+                                <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                <option value="San Roque">San Roque</option>
+                                <option value="San Vicente">San Vicente</option>
+                                <option value="Santo Niño">Santo Niño</option>
+                                <option value="United Bayanihan">United Bayanihan</option>
+                                <option value="United Better Living">United Better Living</option>
                             </select>
                         </div>
                     </div>
@@ -2352,7 +2358,7 @@
     <!-- Toast Notification System - MUST LOAD FIRST (used by all other scripts) -->
     <script src="{{ asset('js/toast-notifications.js') }}?v={{ config('app.asset_version') }}"></script>
 
-    
+
     <script src="{{ asset('js/events-loader.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/slideshow.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/landing.js') }}?v={{ config('app.asset_version') }}"></script>
