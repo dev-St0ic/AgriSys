@@ -136,7 +136,12 @@ class SmsService
     public function sendApplicationStatusNotification($phoneNumber, $fullName, $applicationType, $status, $reason = null)
     {
         if ($status === 'approved') {
-            $message = "Good news {$fullName}! Your {$applicationType} application has been APPROVED. You can now proceed with the next steps. - AgriSys";
+            // Special message for Supplies/Seedling requests with pickup information
+            if (stripos($applicationType, 'Seedling') !== false || stripos($applicationType, 'Supplies') !== false) {
+                $message = "Good news {$fullName}! Your {$applicationType} application has been APPROVED. You have 30 DAYS to pick up your items from our office (Mon-Fri, 8AM-5PM). Bring a valid ID. - AgriSys";
+            } else {
+                $message = "Good news {$fullName}! Your {$applicationType} application has been APPROVED. You can now proceed with the next steps. - AgriSys";
+            }
         } elseif ($status === 'rejected') {
             $reasonText = $reason ? " Reason: {$reason}" : "";
             $message = "Hello {$fullName}, your {$applicationType} application was not approved.{$reasonText} Please contact our office for assistance. - AgriSys";

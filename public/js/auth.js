@@ -89,7 +89,7 @@ function setButtonLoading(button, loadingText) {
     button.disabled = true;
     button.style.pointerEvents = 'none';
     button.style.opacity = '0.8';
-    
+
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
 
@@ -97,7 +97,7 @@ function setButtonLoading(button, loadingText) {
         btnText.textContent = loadingText;
         btnText.style.visibility = 'hidden';  // HIDE BUT KEEP SPACE
     }
-    
+
     if (btnLoader) {
         btnLoader.style.display = 'inline-block';
         btnLoader.textContent = loadingText;
@@ -110,7 +110,7 @@ function resetButtonState(button) {
     button.disabled = false;
     button.style.pointerEvents = 'auto';
     button.style.opacity = '1';
-    
+
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
     const originalText = button.dataset.originalText;
@@ -119,7 +119,7 @@ function resetButtonState(button) {
         btnText.textContent = originalText || 'Submit';
         btnText.style.visibility = 'visible';  // SHOW AGAIN
     }
-    
+
     if (btnLoader) {
         btnLoader.style.display = 'none';
         btnLoader.textContent = '';
@@ -363,7 +363,7 @@ function loadProfileData() {
                     activityList.innerHTML = data.recent_activity.map(activity => {
                         // Get icon SVG based on activity type
                         const iconSVG = getActivityIcon(activity.type);
-                        
+
                         return `
                             <div class="activity-item">
                                 <div class="activity-icon">
@@ -826,10 +826,10 @@ function handleChangePasswordSubmit(event) {
     // Set button to loading state - CLEAR TEXT, SHOW LOADER
     submitBtn.disabled = true;
     submitBtn.style.pointerEvents = 'none';
-    
+
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoader = submitBtn.querySelector('.btn-loader');
-    
+
     if (btnText) {
         btnText.textContent = '';  // CLEAR TEXT
         btnText.style.visibility = 'hidden';
@@ -875,7 +875,7 @@ function handleChangePasswordSubmit(event) {
             if (btnLoader) {
                 btnLoader.style.display = 'none';
             }
-            
+
             showNotification('success', data.message || 'Password changed successfully!');
 
             form.reset();
@@ -908,7 +908,7 @@ function handleChangePasswordSubmit(event) {
             }
 
             showNotification('error', errorMessage);
-            
+
             // Reset button on error
             submitBtn.disabled = false;
             submitBtn.style.pointerEvents = 'auto';
@@ -924,7 +924,7 @@ function handleChangePasswordSubmit(event) {
     .catch(error => {
         console.error('Network error:', error);
         showNotification('error', 'Network error. Please check your connection and try again.');
-        
+
         // Reset button on error
         submitBtn.disabled = false;
         submitBtn.style.pointerEvents = 'auto';
@@ -970,9 +970,495 @@ function closeVerificationModal() {
     const form = document.getElementById('verification-form');
     if (form) {
         form.reset();
+        // Clear all validation errors
+        clearVerificationValidationErrors();
     }
 
     clearImagePreviews();
+}
+
+// ==============================================
+// VERIFICATION FORM VALIDATION FUNCTIONS
+// ==============================================
+
+/**
+ * Clear all validation errors
+ */
+function clearVerificationValidationErrors() {
+    const form = document.getElementById('verification-form');
+    if (!form) return;
+
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+}
+
+/**
+ * Show validation error for a specific field
+ */
+function showVerificationFieldError(fieldName, message) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (!field) return;
+
+    // Add error class
+    field.classList.add('is-invalid');
+
+    // Remove existing error message
+    const existingError = field.parentElement.querySelector('.invalid-feedback');
+    if (existingError) {
+        existingError.remove();
+    }
+
+    // Add error message
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'invalid-feedback';
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    errorDiv.style.color = '#ef4444';
+    errorDiv.style.fontSize = '14px';
+    errorDiv.style.marginTop = '5px';
+
+    field.parentElement.appendChild(errorDiv);
+}
+
+/**
+ * Clear error for a specific field
+ */
+function clearVerificationFieldError(fieldName) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (!field) return;
+
+    field.classList.remove('is-invalid');
+    const existingError = field.parentElement.querySelector('.invalid-feedback');
+    if (existingError) {
+        existingError.remove();
+    }
+}
+
+/**
+ * Validate name fields (letters and spaces only - stricter validation)
+ */
+function validateVerificationName(value, fieldLabel) {
+    if (!value || !value.trim()) {
+        return { valid: false, message: `${fieldLabel} is required` };
+    }
+
+    const trimmed = value.trim();
+
+    if (trimmed.length < 2) {
+        return { valid: false, message: `${fieldLabel} must be at least 2 characters` };
+    }
+
+    if (trimmed.length > 100) {
+        return { valid: false, message: `${fieldLabel} must not exceed 100 characters` };
+    }
+
+    // Only allow letters (including Ñ/ñ) and spaces - no numbers or special characters
+    const nameRegex = /^[A-Za-zÑñ\s]+$/;
+    if (!nameRegex.test(trimmed)) {
+        return { valid: false, message: `${fieldLabel} can only contain letters and spaces` };
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(trimmed)) {
+        return { valid: false, message: `${fieldLabel} cannot contain multiple consecutive spaces` };
+    }
+
+    // Check that name doesn't start or end with a space (already trimmed, but double-check)
+    if (trimmed !== value.trim()) {
+        return { valid: false, message: `${fieldLabel} cannot start or end with spaces` };
+    }
+
+    return { valid: true };
+}
+
+/**
+ * Validate alphanumeric fields (letters and numbers only)
+ */
+function validateAlphanumeric(value, fieldLabel, isRequired = true) {
+    if (!value || !value.trim()) {
+        if (isRequired) {
+            return { valid: false, message: `${fieldLabel} is required` };
+        }
+        return { valid: true }; // Optional field, empty is OK
+    }
+
+    const trimmed = value.trim();
+
+    if (trimmed.length < 2) {
+        return { valid: false, message: `${fieldLabel} must be at least 2 characters` };
+    }
+
+    // Only letters and numbers, no spaces or special characters
+    const alphanumericRegex = /^[A-Za-z0-9]+$/;
+    if (!alphanumericRegex.test(trimmed)) {
+        return { valid: false, message: `${fieldLabel} can only contain letters and numbers (no spaces or special characters)` };
+    }
+
+    return { valid: true };
+}
+
+/**
+ * Validate alphanumeric with spaces (letters, numbers, and spaces only)
+ */
+function validateAlphanumericWithSpaces(value, fieldLabel, isRequired = true) {
+    if (!value || !value.trim()) {
+        if (isRequired) {
+            return { valid: false, message: `${fieldLabel} is required` };
+        }
+        return { valid: true };
+    }
+
+    const trimmed = value.trim();
+
+    if (trimmed.length < 2) {
+        return { valid: false, message: `${fieldLabel} must be at least 2 characters` };
+    }
+
+    // Only letters, numbers, and spaces
+    const alphanumericSpaceRegex = /^[A-Za-z0-9\s]+$/;
+    if (!alphanumericSpaceRegex.test(trimmed)) {
+        return { valid: false, message: `${fieldLabel} can only contain letters, numbers, and spaces` };
+    }
+
+    // Check for multiple consecutive spaces
+    if (/\s{2,}/.test(trimmed)) {
+        return { valid: false, message: `${fieldLabel} cannot contain multiple consecutive spaces` };
+    }
+
+    return { valid: true };
+}
+
+/**
+ * Validate date of birth
+ */
+function validateVerificationDateOfBirth(dateValue) {
+    if (!dateValue) {
+        return { valid: false, message: 'Date of birth is required' };
+    }
+
+    const birthDate = new Date(dateValue);
+    const today = new Date();
+    const hundredYearsAgo = new Date();
+    hundredYearsAgo.setFullYear(today.getFullYear() - 100);
+
+    // Check if date is in the future
+    if (birthDate >= today) {
+        return { valid: false, message: 'Date of birth cannot be today or in the future' };
+    }
+
+    // Check if date is more than 100 years ago
+    if (birthDate < hundredYearsAgo) {
+        return { valid: false, message: 'Date of birth cannot be more than 100 years ago' };
+    }
+
+    // Calculate age
+    const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+
+    if (age < 18) {
+        return { valid: false, message: 'You must be at least 18 years old' };
+    }
+
+    return { valid: true, age: age };
+}
+
+/**
+ * Validate emergency contact phone number
+ */
+function validateVerificationPhone(phoneValue) {
+    if (!phoneValue || !phoneValue.trim()) {
+        return { valid: false, message: 'Emergency contact phone is required' };
+    }
+
+    const phone = phoneValue.trim();
+
+    // Philippine mobile number format: 09XXXXXXXXX (11 digits)
+    const phoneRegex = /^09\d{9}$/;
+
+    if (!phoneRegex.test(phone)) {
+        return { valid: false, message: 'Please enter a valid 11-digit Philippine mobile number (09XXXXXXXXX)' };
+    }
+
+    return { valid: true };
+}
+
+/**
+ * Validate address fields
+ */
+function validateVerificationAddress(value, fieldLabel) {
+    if (!value || !value.trim()) {
+        return { valid: false, message: `${fieldLabel} is required` };
+    }
+
+    const trimmed = value.trim();
+
+    if (trimmed.length < 5) {
+        return { valid: false, message: `${fieldLabel} must be at least 5 characters` };
+    }
+
+    return { valid: true };
+}
+
+/**
+ * Validate file upload
+ */
+function validateVerificationFile(fileInput, fieldLabel) {
+    if (!fileInput.files || !fileInput.files.length) {
+        return { valid: false, message: `${fieldLabel} is required` };
+    }
+
+    const file = fileInput.files[0];
+
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+        return { valid: false, message: `${fieldLabel} must be an image (JPG, PNG, or GIF)` };
+    }
+
+    // Check file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+        return { valid: false, message: `${fieldLabel} must be less than 10MB` };
+    }
+
+    return { valid: true };
+}
+
+/**
+ * Real-time validation for name fields
+ */
+function attachNameValidation(fieldName, fieldLabel) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (!field) return;
+
+    // Real-time input filtering - only allow letters and spaces
+    field.addEventListener('input', function(e) {
+        const cursorPosition = this.selectionStart;
+        const oldValue = this.value;
+
+        // Remove any characters that are not letters (including Ñ/ñ) or spaces
+        let newValue = this.value.replace(/[^A-Za-zÑñ\s]/g, '');
+
+        // Replace multiple consecutive spaces with single space
+        newValue = newValue.replace(/\s{2,}/g, ' ');
+
+        if (oldValue !== newValue) {
+            this.value = newValue;
+            // Adjust cursor position
+            const diff = oldValue.length - newValue.length;
+            this.setSelectionRange(cursorPosition - diff, cursorPosition - diff);
+        }
+
+        // Clear error as user types valid characters
+        if (this.classList.contains('is-invalid')) {
+            clearVerificationFieldError(fieldName);
+        }
+    });
+
+    // Validation on blur
+    field.addEventListener('blur', function() {
+        // Trim whitespace from beginning and end
+        this.value = this.value.trim();
+
+        if (this.value.trim()) {
+            const validation = validateVerificationName(this.value, fieldLabel);
+            if (!validation.valid) {
+                showVerificationFieldError(fieldName, validation.message);
+            } else {
+                clearVerificationFieldError(fieldName);
+            }
+        }
+    });
+
+    // Prevent pasting invalid characters
+    field.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        // Clean the pasted text
+        const cleanedText = pastedText.replace(/[^A-Za-zÑñ\s]/g, '').replace(/\s{2,}/g, ' ');
+
+        // Insert cleaned text at cursor position
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const currentValue = this.value;
+        this.value = currentValue.substring(0, start) + cleanedText + currentValue.substring(end);
+
+        // Set cursor position after inserted text
+        const newCursorPos = start + cleanedText.length;
+        this.setSelectionRange(newCursorPos, newCursorPos);
+
+        // Trigger input event for validation
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+}
+
+/**
+ * Real-time validation for date of birth
+ */
+function attachDateOfBirthValidation() {
+    const dobField = document.getElementById('dateOfBirth');
+    const ageField = document.getElementById('age');
+
+    if (!dobField || !ageField) return;
+
+    dobField.addEventListener('change', function() {
+        clearVerificationFieldError('dateOfBirth');
+
+        if (this.value) {
+            const validation = validateVerificationDateOfBirth(this.value);
+
+            if (!validation.valid) {
+                showVerificationFieldError('dateOfBirth', validation.message);
+                ageField.value = '';
+            } else {
+                // Auto-calculate and display age
+                ageField.value = validation.age;
+            }
+        } else {
+            ageField.value = '';
+        }
+    });
+}
+
+/**
+ * Real-time validation for phone number
+ */
+function attachPhoneValidation() {
+    const phoneField = document.getElementById('emergencyContactPhone');
+    if (!phoneField) return;
+
+    // Format input as user types (restrict to numbers only)
+    phoneField.addEventListener('input', function() {
+        // Remove non-numeric characters
+        let value = this.value.replace(/\D/g, '');
+
+        // Limit to 11 digits
+        if (value.length > 11) {
+            value = value.substring(0, 11);
+        }
+
+        this.value = value;
+
+        // Clear error as user types
+        if (this.classList.contains('is-invalid')) {
+            clearVerificationFieldError('emergencyContactPhone');
+        }
+    });
+
+    phoneField.addEventListener('blur', function() {
+        if (this.value.trim()) {
+            const validation = validateVerificationPhone(this.value);
+            if (!validation.valid) {
+                showVerificationFieldError('emergencyContactPhone', validation.message);
+            } else {
+                clearVerificationFieldError('emergencyContactPhone');
+            }
+        }
+    });
+}
+
+/**
+ * Real-time validation for file uploads
+ */
+function attachFileValidation(fieldName, fieldLabel) {
+    const fileField = document.querySelector(`[name="${fieldName}"]`);
+    if (!fileField) return;
+
+    fileField.addEventListener('change', function() {
+        clearVerificationFieldError(fieldName);
+
+        if (this.files && this.files.length > 0) {
+            const validation = validateVerificationFile(this, fieldLabel);
+            if (!validation.valid) {
+                showVerificationFieldError(fieldName, validation.message);
+                this.value = ''; // Clear invalid file
+
+                // Clear preview
+                const previewId = this.getAttribute('onchange')?.match(/previewImage\(this,\s*'([^']+)'\)/)?.[1];
+                if (previewId) {
+                    const preview = document.getElementById(previewId);
+                    if (preview) {
+                        preview.innerHTML = '';
+                        preview.style.display = 'none';
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Validate dropdown/select fields
+ */
+function validateVerificationSelect(value, fieldLabel) {
+    if (!value || value === '') {
+        return { valid: false, message: `${fieldLabel} is required` };
+    }
+    return { valid: true };
+}
+
+/**
+ * Attach select validation
+ */
+function attachSelectValidation(fieldName, fieldLabel) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (!field) return;
+
+    field.addEventListener('change', function() {
+        clearVerificationFieldError(fieldName);
+
+        const validation = validateVerificationSelect(this.value, fieldLabel);
+        if (!validation.valid) {
+            showVerificationFieldError(fieldName, validation.message);
+        }
+    });
+}
+
+/**
+ * Initialize all verification form validations
+ */
+function initializeVerificationFormValidations() {
+    // Name field validations
+    attachNameValidation('firstName', 'First Name');
+    attachNameValidation('lastName', 'Last Name');
+    attachNameValidation('middleName', 'Middle Name');
+    attachNameValidation('emergencyContactName', 'Emergency Contact Name');
+
+    // Date validation
+    attachDateOfBirthValidation();
+
+    // Phone validation
+    attachPhoneValidation();
+
+    // Select field validations
+    attachSelectValidation('sex', 'Sex');
+    attachSelectValidation('role', 'Sector');
+    attachSelectValidation('barangay', 'Barangay');
+
+    // File upload validations
+    attachFileValidation('idFront', 'Government ID (Front)');
+    attachFileValidation('idBack', 'Government ID (Back)');
+    attachFileValidation('locationProof', 'Location/Role Proof');
+
+    // Address validation
+    const addressField = document.getElementById('completeAddress');
+    if (addressField) {
+        addressField.addEventListener('blur', function() {
+            if (this.value.trim()) {
+                const validation = validateVerificationAddress(this.value, 'Complete Address');
+                if (!validation.valid) {
+                    showVerificationFieldError('completeAddress', validation.message);
+                } else {
+                    clearVerificationFieldError('completeAddress');
+                }
+            }
+        });
+
+        addressField.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                clearVerificationFieldError('completeAddress');
+            }
+        });
+    }
 }
 
 function clearImagePreviews() {
@@ -1005,6 +1491,11 @@ function showVerificationModal() {
     if (modal) {
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+
+        // Initialize validations when modal opens
+        setTimeout(() => {
+            initializeVerificationFormValidations();
+        }, 100);
     }
 }
 
@@ -1018,88 +1509,68 @@ function handleVerificationSubmit(event) {
     const form = event.target;
     const submitBtn = form.querySelector('.verification-submit-btn');
 
-    // UPDATED: Validation to match backend requirements exactly
-    const requiredFields = [
-        { name: 'firstName', label: 'First Name' },
-        { name: 'lastName', label: 'Last Name' },
-        { name: 'sex', label: 'Sex' },
-        { name: 'role', label: 'Sector' },
-        { name: 'dateOfBirth', label: 'Date of Birth' },
-        { name: 'barangay', label: 'Barangay' },
-        { name: 'completeAddress', label: 'Complete Address' },
-        { name: 'emergencyContactName', label: 'Emergency Contact Name' },
-        { name: 'emergencyContactPhone', label: 'Emergency Contact Phone' },
-        { name: 'idFront', label: 'ID Front', type: 'file' },
-        { name: 'idBack', label: 'ID Back', type: 'file' },
-        { name: 'locationProof', label: 'Location Proof', type: 'file' }
-    ];
+    // Clear all previous errors
+    clearVerificationValidationErrors();
 
     let isValid = true;
-    let missingFields = [];
+    let firstInvalidField = null;
 
-    requiredFields.forEach(field => {
-        const input = form.querySelector(`[name="${field.name}"]`);
-        if (!input) {
-            console.error(`Field ${field.name} not found in form`);
-            return;
-        }
-
-        if (field.type === 'file') {
-            if (!input.files || !input.files.length) {
-                isValid = false;
-                missingFields.push(field.label);
+    // Validate all fields with detailed checks
+    const validations = [
+        { field: 'firstName', validator: () => validateVerificationName(form.querySelector('[name="firstName"]').value, 'First Name') },
+        { field: 'lastName', validator: () => validateVerificationName(form.querySelector('[name="lastName"]').value, 'Last Name') },
+        { field: 'middleName', validator: () => {
+            const value = form.querySelector('[name="middleName"]').value;
+            if (value && value.trim()) {
+                return validateVerificationName(value, 'Middle Name');
             }
-        } else {
-            if (!input.value || !input.value.trim()) {
-                isValid = false;
-                missingFields.push(field.label);
+            return { valid: true }; // Optional field
+        }},
+        { field: 'sex', validator: () => validateVerificationSelect(form.querySelector('[name="sex"]').value, 'Sex') },
+        { field: 'role', validator: () => validateVerificationSelect(form.querySelector('[name="role"]').value, 'Sector') },
+        { field: 'dateOfBirth', validator: () => validateVerificationDateOfBirth(form.querySelector('[name="dateOfBirth"]').value) },
+        { field: 'barangay', validator: () => validateVerificationSelect(form.querySelector('[name="barangay"]').value, 'Barangay') },
+        { field: 'completeAddress', validator: () => validateVerificationAddress(form.querySelector('[name="completeAddress"]').value, 'Complete Address') },
+        { field: 'emergencyContactName', validator: () => validateVerificationName(form.querySelector('[name="emergencyContactName"]').value, 'Emergency Contact Name') },
+        { field: 'emergencyContactPhone', validator: () => validateVerificationPhone(form.querySelector('[name="emergencyContactPhone"]').value) },
+        { field: 'idFront', validator: () => validateVerificationFile(form.querySelector('[name="idFront"]'), 'Government ID (Front)') },
+        { field: 'idBack', validator: () => validateVerificationFile(form.querySelector('[name="idBack"]'), 'Government ID (Back)') },
+        { field: 'locationProof', validator: () => validateVerificationFile(form.querySelector('[name="locationProof"]'), 'Location/Role Proof') }
+    ];
+
+    // Run all validations
+    validations.forEach(({ field, validator }) => {
+        const result = validator();
+        if (!result.valid) {
+            isValid = false;
+            showVerificationFieldError(field, result.message);
+
+            // Track first invalid field for scrolling
+            if (!firstInvalidField) {
+                firstInvalidField = document.querySelector(`[name="${field}"]`);
             }
         }
     });
 
-    // Additional validations
-    const dateOfBirth = form.querySelector('[name="dateOfBirth"]').value;
-    if (dateOfBirth) {
-        const birthDate = new Date(dateOfBirth);
-        const today = new Date();
-        const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-
-        if (age < 18) {
-            isValid = false;
-            showNotification('error', 'You must be at least 18 years old to register.');
-            return false;
-        }
-
-        if (age > 100) {
-            isValid = false;
-            showNotification('error', 'Please enter a valid date of birth.');
-            return false;
-        }
-    }
-
-    // Validate emergency contact phone
-    const emergencyPhone = form.querySelector('[name="emergencyContactPhone"]').value;
-    if (emergencyPhone) {
-        const phoneRegex = /^(\+639|09)\d{9}$/;
-        if (!phoneRegex.test(emergencyPhone)) {
-            isValid = false;
-            showNotification('error', 'Please enter a valid Philippine mobile number for emergency contact (09XXXXXXXXX).');
-            return false;
-        }
-    }
-
     if (!isValid) {
-        showNotification('error', `Please complete all required fields: ${missingFields.join(', ')}`);
+        showNotification('error', 'Please fix all validation errors before submitting');
+
+        // Scroll to first invalid field
+        if (firstInvalidField) {
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidField.focus();
+        }
+
         return false;
     }
 
     // Set button to loading state - CLEAR TEXT, SHOW LOADER
     submitBtn.disabled = true;
     submitBtn.style.pointerEvents = 'none';
-    
+
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoader = submitBtn.querySelector('.btn-loader');
-    
+
     if (btnText) {
         btnText.textContent = '';  // CLEAR TEXT
         btnText.style.visibility = 'hidden';
@@ -1196,7 +1667,7 @@ function handleVerificationSubmit(event) {
              }
 
              showNotification('error', errorMessage);
-             
+
              // Reset button on error
              submitBtn.disabled = false;
              submitBtn.style.pointerEvents = 'auto';
@@ -1212,7 +1683,7 @@ function handleVerificationSubmit(event) {
     .catch(error => {
         console.error('Verification error:', error);
         showNotification('error', 'Network error. Please check your connection and try again.');
-        
+
         // Reset button on error
         submitBtn.disabled = false;
         submitBtn.style.pointerEvents = 'auto';
@@ -1367,7 +1838,7 @@ function populateEditForm(user) {
 // VALIDATION FUNCTION FOR FULL NAME
 function validateFullName(firstName, lastName) {
     const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]{2,50}$/;
-    
+
     if (!firstName || !firstName.trim()) {
         return { valid: false, error: 'First name is required' };
     }
@@ -1380,7 +1851,7 @@ function validateFullName(firstName, lastName) {
     if (!nameRegex.test(lastName.trim())) {
         return { valid: false, error: 'Last name contains invalid characters' };
     }
-    
+
     return { valid: true };
 }
 
@@ -2604,13 +3075,13 @@ function checkPasswordStrength(password) {
         strengthBar.className = 'strength-fill';
         strengthBar.style.width = '0%';
         strengthText.textContent = 'Password strength';
-        
+
         // Remove requirements list
         const requirementsList = document.querySelector('.password-requirements-list');
         if (requirementsList) {
             requirementsList.remove();
         }
-        
+
         hideAuthMessages();
         return; // Exit early
     }
@@ -2989,7 +3460,7 @@ function showNotification(type, message) {
             'info': 'info',
             'warning': 'warning'
         };
-        
+
         const toastType = typeMap[type] || 'info';
         toast.show(message, toastType, { duration: 5500 });
     } else {
@@ -3734,7 +4205,7 @@ function initClearMessagesOnEmpty() {
             }
         }, true); // Use capture phase
     }
-    
+
     // Contact number field
     const contactInput = document.getElementById('signup-contact');
     if (contactInput) {
@@ -3750,7 +4221,7 @@ function initClearMessagesOnEmpty() {
             }
         }, true); // Use capture phase
     }
-    
+
     // Password field
     const passwordInput = document.getElementById('signup-password');
     if (passwordInput) {
@@ -3765,20 +4236,20 @@ function initClearMessagesOnEmpty() {
                 if (strengthText) {
                     strengthText.textContent = 'Password strength';
                 }
-                
+
                 // Remove requirements list
                 const requirementsList = document.querySelector('.password-requirements-list');
                 if (requirementsList) {
                     requirementsList.remove();
                 }
-                
+
                 this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
                 this.style.borderColor = '';
                 hideAuthMessages();
             }
         }, true); // Use capture phase
     }
-    
+
     // Confirm password field
     const confirmPasswordInput = document.getElementById('signup-confirm-password');
     if (confirmPasswordInput) {
@@ -3794,7 +4265,7 @@ function initClearMessagesOnEmpty() {
             }
         }, true); // Use capture phase
     }
-    
+
     // Clear all validation on all inputs when empty
     const allAuthInputs = document.querySelectorAll('.auth-form input');
     allAuthInputs.forEach(input => {
@@ -3802,12 +4273,12 @@ function initClearMessagesOnEmpty() {
             if (!this.value || this.value.trim() === '') {
                 this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
                 this.style.borderColor = '';
-                
+
                 const fieldError = this.closest('.form-group')?.querySelector('.field-error');
                 if (fieldError) {
                     fieldError.remove();
                 }
-                
+
                 hideAuthMessages();
             }
         }, true); // Use capture phase
@@ -3840,6 +4311,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const verificationForm = document.getElementById('verification-form');
     if (verificationForm) {
         verificationForm.addEventListener('submit', handleVerificationSubmit);
+        // Initialize verification form validations
+        initializeVerificationFormValidations();
     }
 
     // Edit profile form submission
@@ -4092,7 +4565,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Prevent auto-capitalize on ALL password and username fields immediately
     const usernameInputs = document.querySelectorAll('input[name="username"], input[id*="username"]');
     const passwordInputs = document.querySelectorAll('input[type="password"]');
-    
+
     // Disable auto-capitalize for username fields
     usernameInputs.forEach(input => {
         input.setAttribute('autocapitalize', 'off');
@@ -4100,7 +4573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         input.setAttribute('spellcheck', 'false');
         input.style.textTransform = 'none';
     });
-    
+
     // Disable auto-capitalize for password fields
     passwordInputs.forEach(input => {
         input.setAttribute('autocapitalize', 'off');
@@ -5090,7 +5563,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                 if (window.userData && window.userData.id == id) {
                     // This is the current user's account being updated
                     console.log('Detected current user account update, refreshing session...');
-                    
+
                     refreshUserSessionFromServer().then(() => {
                         console.log('Session refreshed, reloading page...');
                         setTimeout(() => {
@@ -5185,7 +5658,7 @@ function proceedWithEditUser(form, registrationId) {
                 // NEW: Refresh session if user is logged in
                 if (window.userData && window.userData.id == registrationId) {
                     console.log('Detected current user account update, refreshing session...');
-                    
+
                     refreshUserSessionFromServer().then(() => {
                         console.log('Session refreshed, reloading page...');
                         setTimeout(() => {
