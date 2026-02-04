@@ -60,6 +60,19 @@
             </div>
         </div>
 
+        <!-- BoatR Annex Card - FIX #3 -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-link text-secondary"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $stats['boatr_annex_items'] ?? 0 }}</div>
+                    <div class="stat-label text-secondary">BoatR Annexes</div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
@@ -109,12 +122,15 @@
         <div class="card-body">
             <form method="GET" action="{{ route('admin.recycle-bin.index') }}" id="filterForm">
                 <div class="row g-2">
+                    <!-- FIX #2: Updated filter select with all types -->
                     <div class="col-md-2">
                         <select name="type" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Types</option>
                             <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>User Registration</option>
                             <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>FishR</option>
+                            <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>FishR Annex</option>
                             <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR</option>
+                            <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>BoatR Annex</option>
                             <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA</option>
                             <option value="seedling" {{ request('type') == 'seedling' ? 'selected' : '' }}>Supplies Request</option>
                             <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training</option>

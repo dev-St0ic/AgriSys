@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class BoatrAnnex extends Model
-{
-    use HasFactory;
-
+{ 
+    use LogsActivity, SoftDeletes;
+    
     protected $table = 'boatr_annexes';
 
     protected $fillable = [
@@ -26,6 +26,8 @@ class BoatrAnnex extends Model
         'file_size',
         'uploaded_by',
     ];
+
+    protected $dates = ['deleted_at'];
 
     protected $casts = [
         'file_size' => 'integer',
@@ -94,8 +96,8 @@ class BoatrAnnex extends Model
     public function deleteWithFile(): bool
     {
         // Delete the physical file
-        if (Storage::exists($this->file_path)) {
-            Storage::delete($this->file_path);
+        if (Storage::disk('public')->exists($this->file_path)) {
+            Storage::disk('public')->delete($this->file_path);
         }
 
         // Delete the database record

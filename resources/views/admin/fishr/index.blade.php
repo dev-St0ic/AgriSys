@@ -1175,7 +1175,7 @@
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">Are you sure you want to delete this FishR registration? FishR <strong id="delete_fishr_name"></strong> will be moved to the Recycle Bin.</p>
+                        <p class="mb-0">Are you sure you want to delete this FishR registration? <strong id="delete_fishr_name"></strong> will be moved to the Recycle Bin.</p>
                     </div>
                     <ul class="mb-0">
                         <li>Remove the registration from active records</li>
@@ -3902,7 +3902,7 @@ function downloadAnnex(registrationId, annexId) {
 
             showConfirmationToast(
                 'Delete Annex',
-                `Are you sure you want to delete "${fileName}"?\n\nThis action cannot be undone.`,
+                `Are you sure you want to delete this annex?\n\nPlease confirm to continue.`,
                 () => proceedWithAnnexDelete(registrationId, annexId)
             );
         }

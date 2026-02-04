@@ -10,6 +10,7 @@ use App\Models\SeedlingRequest;
 use App\Models\CategoryItem;
 use App\Models\RequestCategory;
 use App\Models\BoatrApplication;
+use App\Models\BoatrAnnex;
 use App\Models\RsbsaApplication;
 use App\Models\TrainingApplication;
 use App\Services\RecycleBinService;
@@ -31,6 +32,8 @@ class RecycleBinController extends Controller
                 $typeMap = [
                     'fishr' => 'App\Models\FishrApplication',
                     'boatr' => 'App\Models\BoatrApplication',
+                    'fishr_annex' => 'App\Models\FishrAnnex', 
+                    'boatr_annex' => 'App\Models\BoatrAnnex',  
                     'rsbsa' => 'App\Models\RsbsaApplication',
                     'seedlings' => 'App\Models\SeedlingRequest',
                     'training' => 'App\Models\TrainingApplication',

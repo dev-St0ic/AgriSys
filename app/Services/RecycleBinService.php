@@ -131,6 +131,16 @@ class RecycleBinService
                     $restored->restore();
                 }
             }
+
+            // Handle BoatrAnnex with soft delete
+            elseif ($modelClass === 'App\Models\BoatrAnnex') {
+                $restored = BoatrAnnex::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
             
             // Handle RsbsaApplication with soft delete
             elseif ($modelClass === 'App\Models\RsbsaApplication') {
@@ -308,6 +318,22 @@ class RecycleBinService
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
+
+             // Handle BoatrAnnex - delete file then annex
+            elseif ($modelClass === 'App\Models\BoatrAnnex') {
+                $annex = BoatrAnnex::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($annex) {
+                    // Delete file
+                    if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                        Storage::disk('public')->delete($annex->file_path);
+                    }
+                    
+                    // Force delete annex
+                    $annex->forceDelete();
+                }
+            }
             
             // Handle RsbsaApplication
             elseif ($modelClass === 'App\Models\RsbsaApplication') {
@@ -341,6 +367,7 @@ class RecycleBinService
         $fishr = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrApplication')->count();
         $boatr = RecycleBin::notRestored()->where('model_type', 'App\Models\BoatrApplication')->count();
         $fishrAnnex = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrAnnex')->count();
+        $boatrAnnex = RecycleBin::notRestored()->where('model_type', 'App\Models\BoatrAnnex')->count();
         $expired = RecycleBin::notRestored()->where('expires_at', '<=', now())->count();
         $supplyCategories = RecycleBin::notRestored()->where('model_type', 'App\Models\CategoryItem')->count();
         $supplyItems = RecycleBin::notRestored()->where('model_type', 'App\Models\RequestCategory')->count();
@@ -349,7 +376,8 @@ class RecycleBinService
             'total_items' => $total,
             'fishr_items' => $fishr,
             'boatr_items' => $boatr,
-            'fishr_annex_items' => $fishrAnnex,  // ← THIS WAS MISSING!
+            'boatr_annex_items' => $boatrAnnex,
+            'fishr_annex_items' => $fishrAnnex, 
             'expired_items' => $expired,
             'supply_category_items' => $supplyCategories,
             'supply_item_items' => $supplyItems,
