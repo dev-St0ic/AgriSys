@@ -4,6 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\RecycleBin;
 use App\Models\UserRegistration;
+use App\Models\FishrApplication;
+use App\Models\FishrAnnex;
+use App\Models\SeedlingRequest;
+use App\Models\CategoryItem;
+use App\Models\RequestCategory;
+use App\Models\BoatrApplication;
+use App\Models\RsbsaApplication;
+use App\Models\TrainingApplication;
 use App\Services\RecycleBinService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -26,9 +34,9 @@ class RecycleBinController extends Controller
                     'rsbsa' => 'App\Models\RsbsaApplication',
                     'seedlings' => 'App\Models\SeedlingRequest',
                     'training' => 'App\Models\TrainingApplication',
-                    'user_registration' => 'App\Models\UserRegistration', // NEW
-                     'category_item' => 'App\Models\CategoryItem',
-                'request_category' => 'App\Models\RequestCategory',
+                    'user_registration' => 'App\Models\UserRegistration',
+                    'category_item' => 'App\Models\CategoryItem',
+                    'request_category' => 'App\Models\RequestCategory',
                 ];
 
                 if (isset($typeMap[$request->type])) {
@@ -124,197 +132,72 @@ class RecycleBinController extends Controller
     }
 
     /**
-     * UPDATED: Restore item from recycle bin
-     * Now handles UserRegistration with soft delete
+     * FIXED: Restore item from recycle bin
+     * Now properly delegates to the RecycleBinService
      */
-    public function restore(): bool
-{
-    try {
-        $modelClass = $this->model_type;
-        
-        if ($modelClass === 'App\Models\FishrApplication') {
-            $restored = FishrApplication::withTrashed()
-                ->find($this->model_id);
-            
-            if ($restored) {
-                // Restore the registration
-                $restored->restore();
-                
-                // Also restore all its annexes if they're soft-deleted
-                if (method_exists($restored, 'annexes')) {
-                    $restored->annexes()->withTrashed()->restore();
-                }
-            }
-        }
-        elseif ($modelClass === 'App\Models\FishrAnnex') {
-            $restored = FishrAnnex::withTrashed()
-                ->find($this->model_id);
-            
-            if ($restored) {
-                $restored->restore();
-            }
-        }
-        elseif ($modelClass === 'App\Models\SeedlingRequest') {
-            $restored = SeedlingRequest::withTrashed()
-                ->find($this->model_id);
-            
-            if ($restored) {
-                $restored->restore();
-            }
-        }
-        elseif ($modelClass === 'App\Models\CategoryItem') {
-            // ADD THIS BLOCK
-            $restored = CategoryItem::withTrashed()
-                ->find($this->model_id);
-            
-            if ($restored) {
-                $restored->restore();
-            }
-        }
-        elseif ($modelClass === 'App\Models\RequestCategory') {
-            // ADD THIS BLOCK
-            $restored = RequestCategory::withTrashed()
-                ->find($this->model_id);
-            
-            if ($restored) {
-                $restored->restore();
-            }
-        }
-        else {
-            // Recreate from stored data
-            $model = new $modelClass();
-            $model->id = $this->model_id;
-            foreach ($this->data as $key => $value) {
-                $model->$key = $value;
-            }
-            $model->save();
-        }
-
-        $this->update([
-            'restored_at' => now(),
-            'restored_by' => auth()->id(),
-        ]);
-
-        return true;
-    } catch (\Exception $e) {
-        \Log::error('Error restoring item from recycle bin', [
-            'model_type' => $this->model_type,
-            'model_id' => $this->model_id,
-            'error' => $e->getMessage()
-        ]);
-        return false;
-    }
-}
-
-    /**
-     * UPDATED: Permanently delete item from recycle bin
-     * Now handles UserRegistration force delete
-     */
-    public static function permanentlyDelete($item): bool
+    public function restore($id)
     {
         try {
-            $modelClass = $item->model_type;
-            
-            if ($modelClass === 'App\Models\FishrApplication') {
-                // Get the trashed record first
-                $registration = \App\Models\FishrApplication::withTrashed()
-                    ->find($item->model_id);
-                
-                if ($registration) {
-                    // Delete all annexes first
-                    $annexes = $registration->annexes;
-                    foreach ($annexes as $annex) {
-                        if ($annex->file_path && \Storage::disk('public')->exists($annex->file_path)) {
-                            \Storage::disk('public')->delete($annex->file_path);
-                        }
-                        $annex->forceDelete();
-                    }
-                    
-                    // Delete main document
-                    if ($registration->document_path && \Storage::disk('public')->exists($registration->document_path)) {
-                        \Storage::disk('public')->delete($registration->document_path);
-                    }
-                    
-                    // Force delete the registration
-                    $registration->forceDelete();
-                }
-            }
-            elseif ($modelClass === 'App\Models\FishrAnnex') {
-                $annex = FishrAnnex::withTrashed()
-                    ->find($item->model_id);
-                
-                if ($annex) {
-                    // Delete the file from storage
-                    if ($annex->file_path && \Storage::disk('public')->exists($annex->file_path)) {
-                        \Storage::disk('public')->delete($annex->file_path);
-                    }
-                    
-                    // Force delete the annex
-                    $annex->forceDelete();
-                }
-            }
-            elseif ($modelClass === 'App\Models\TrainingApplication') {
-                // Delete document if exists
-                if ($item->data['document_path'] ?? null) {
-                    \Storage::disk('public')->delete($item->data['document_path']);
-                }
-                
-                \App\Models\TrainingApplication::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
-            }
-            elseif ($modelClass === 'App\Models\SeedlingRequest') {
-                \App\Models\SeedlingRequest::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
-            }
-            // NEW: Handle UserRegistration - delete documents and force delete
-            elseif ($modelClass === 'App\Models\UserRegistration') {
-                // Delete uploaded documents if they exist
-                if ($item->data['id_front_path'] ?? null) {
-                    \Storage::disk('public')->delete($item->data['id_front_path']);
-                }
-                
-                if ($item->data['id_back_path'] ?? null) {
-                    \Storage::disk('public')->delete($item->data['id_back_path']);
-                }
-                
-                if ($item->data['location_document_path'] ?? null) {
-                    \Storage::disk('public')->delete($item->data['location_document_path']);
-                }
-                
-                if ($item->data['profile_image_url'] ?? null) {
-                    \Storage::disk('public')->delete($item->data['profile_image_url']);
-                }
-                
-                // Force delete the registration record
-                UserRegistration::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
-            }
-                elseif ($modelClass === 'App\Models\CategoryItem') {
-            // ADD THIS BLOCK
-            CategoryItem::withTrashed()
-                ->where('id', $this->model_id)
-                ->forceDelete();
-        }
-        elseif ($modelClass === 'App\Models\RequestCategory') {
-            // ADD THIS BLOCK
-            RequestCategory::withTrashed()
-                ->where('id', $this->model_id)
-                ->forceDelete();
-        }
+            $item = RecycleBin::findOrFail($id);
 
-            $item->forceDelete();
+            // Use the service for restoration
+            if (RecycleBinService::restore($item)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item restored successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to restore item'
+                ], 500);
+            }
 
-            return true;
         } catch (\Exception $e) {
-            \Log::error('Error permanently deleting item from recycle bin', [
-                'model_type' => $item->model_type,
-                'model_id' => $item->model_id,
+            Log::error('Error restoring item from recycle bin', [
+                'id' => $id,
                 'error' => $e->getMessage()
             ]);
-            return false;
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error restoring item: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * FIXED: Permanently delete item from recycle bin
+     * Now properly delegates to the RecycleBinService
+     */
+    public function destroy($id)
+    {
+        try {
+            $item = RecycleBin::findOrFail($id);
+
+            // Use the service for permanent deletion
+            if (RecycleBinService::permanentlyDelete($item)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item permanently deleted'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete item'
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting item from recycle bin', [
+                'id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting item: ' . $e->getMessage()
+            ], 500);
         }
     }
 

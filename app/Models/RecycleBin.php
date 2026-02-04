@@ -222,6 +222,7 @@ public function getTypeNameAttribute(): string
 {
     return match ($this->model_type) {
         'App\Models\FishrApplication' => 'FishR Registration',
+        'App\Models\FishrAnnex' => 'Annex',
         'App\Models\BoatrApplication' => 'BoatR Registration',
         'App\Models\RsbsaApplication' => 'RSBSA Application',
         'App\Models\SeedlingRequest' => 'Seedling Request',

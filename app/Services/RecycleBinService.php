@@ -3,6 +3,13 @@
 namespace App\Services;
 
 use App\Models\RecycleBin;
+use App\Models\FishrApplication;
+use App\Models\FishrAnnex;
+use App\Models\SeedlingRequest;
+use App\Models\CategoryItem;
+use App\Models\RequestCategory;
+use App\Models\TrainingApplication;
+use App\Models\UserRegistration;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,69 +18,48 @@ class RecycleBinService
     /**
      * Soft delete model - move to recycle bin
      */
- public static function softDelete($model, $reason = null)
-{
-    try {
-        // Get the model class name
-        $modelClass = get_class($model);
-        
-        // ✅ GET THE ITEM NAME FIRST
-        $itemName = self::getItemName($model, $modelClass);
-        
-        // Create recycle bin entry with timestamps
-        RecycleBin::create([
-            'model_type' => $modelClass,
-            'model_id' => $model->id,
-            'item_name' => $itemName,  // ✅ NOW DEFINED
-            'reason' => $reason,
-            'data' => $model->toArray(),
-            'deleted_by' => auth()->id(),
-            'deleted_at' => now(),
-            'expires_at' => now()->addDays(30),
-        ]);
-
-        // Soft delete the model
-        $model->delete();
-
-        return true;
-    } catch (\Exception $e) {
-        Log::error('Error in RecycleBinService::softDelete', [
-            'error' => $e->getMessage()
-        ]);
-        return false;
-    }
-}
-
-        /**
-     * Get appropriate item name based on model type
-     * ✅ NEW: Handles different models correctly
-     */
-    private static function getItemName($model, $modelClass): string
+    public static function softDelete($model, $reason = null)
     {
-        return match ($modelClass) {
-            'App\Models\FishrApplication' => $model->full_name ?? $model->name ?? 'Unknown FishR',
-            'App\Models\FishrAnnex' => "Annex - {$model->title}" ?? 'Unknown Annex',
-            'App\Models\BoatrApplication' => $model->full_name ?? $model->name ?? 'Unknown BoatR',
-            'App\Models\RsbsaApplication' => $model->full_name ?? $model->name ?? 'Unknown RSBSA',
-            'App\Models\UserRegistration' => $model->full_name ?? $model->name ?? 'Unknown User',
-            'App\Models\SeedlingRequest' => $model->name ?? 'Unknown Seedling Request',
-            'App\Models\TrainingApplication' => $model->title ?? $model->name ?? 'Unknown Training',
-            'App\Models\CategoryItem' => $model->name ?? $model->title ?? 'Unknown Category Item',
-            'App\Models\RequestCategory' => $model->name ?? $model->title ?? 'Unknown Request Category',
-            default => $model->name ?? $model->title ?? $model->full_name ?? 'Unknown Item'
-        };
+        try {
+            // Get the model class name
+            $modelClass = get_class($model);
+            
+            // Create recycle bin entry with timestamps
+            RecycleBin::create([
+                'model_type' => $modelClass,
+                'model_id' => $model->id,
+                'item_name' => $model->full_name ?? $model->name ?? $model->title ?? 'Unknown Item',
+                'reason' => $reason,
+                'data' => $model->toArray(),
+                'deleted_by' => auth()->id(),
+                'deleted_at' => now(),
+                'expires_at' => now()->addDays(30), // Auto-delete after 30 days
+            ]);
+
+            // Soft delete the model
+            $model->delete();
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error in RecycleBinService::softDelete', [
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 
     /**
-     * Restore item from recycle bin
+     * FIXED: Restore item from recycle bin
+     * Comprehensive handling for all model types
      */
     public static function restore($item)
     {
         try {
             $modelClass = $item->model_type;
             
+            // Handle FishrApplication with soft delete and its annexes
             if ($modelClass === 'App\Models\FishrApplication') {
-                $restored = \App\Models\FishrApplication::withTrashed()
+                $restored = FishrApplication::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
@@ -85,57 +71,107 @@ class RecycleBinService
                     }
                 }
             }
+            
+            // Handle FishrAnnex with soft delete
             elseif ($modelClass === 'App\Models\FishrAnnex') {
-                $restored = \App\Models\FishrAnnex::withTrashed()
+                $restored = FishrAnnex::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
                 }
             }
+            
+            // Handle SeedlingRequest with soft delete
             elseif ($modelClass === 'App\Models\SeedlingRequest') {
-                $restored = \App\Models\SeedlingRequest::withTrashed()
+                $restored = SeedlingRequest::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
                 }
             }
+            
+            // Handle CategoryItem with soft delete
             elseif ($modelClass === 'App\Models\CategoryItem') {
-                $restored = \App\Models\CategoryItem::withTrashed()
+                $restored = CategoryItem::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
                 }
             }
+            
+            // Handle RequestCategory with soft delete
             elseif ($modelClass === 'App\Models\RequestCategory') {
-                $restored = \App\Models\RequestCategory::withTrashed()
+                $restored = RequestCategory::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
                 }
             }
+            
+            // Handle UserRegistration with soft delete
             elseif ($modelClass === 'App\Models\UserRegistration') {
-                $restored = \App\Models\UserRegistration::withTrashed()
+                $restored = UserRegistration::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
                 }
             }
-            else {
-                // Recreate from stored data
-                $model = new $modelClass();
-                $model->id = $item->model_id;
-                foreach ($item->data as $key => $value) {
-                    $model->$key = $value;
+            
+            // Handle BoatrApplication with soft delete
+            elseif ($modelClass === 'App\Models\BoatrApplication') {
+                $restored = \App\Models\BoatrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
                 }
-                $model->save();
+            }
+            
+            // Handle RsbsaApplication with soft delete
+            elseif ($modelClass === 'App\Models\RsbsaApplication') {
+                $restored = \App\Models\RsbsaApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Handle TrainingApplication with soft delete
+            elseif ($modelClass === 'App\Models\TrainingApplication') {
+                $restored = TrainingApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            
+            // Fallback: Try to recreate from stored data
+            else {
+                try {
+                    $model = new $modelClass();
+                    $model->id = $item->model_id;
+                    foreach ($item->data as $key => $value) {
+                        $model->$key = $value;
+                    }
+                    $model->save();
+                } catch (\Exception $fallbackError) {
+                    Log::warning('Could not restore model using fallback method', [
+                        'model_type' => $modelClass,
+                        'model_id' => $item->model_id,
+                        'error' => $fallbackError->getMessage()
+                    ]);
+                    return false;
+                }
             }
 
-            // Mark as restored
+            // Mark as restored in recycle bin
             $item->update([
                 'restored_at' => now(),
                 'restored_by' => auth()->id(),
@@ -146,22 +182,25 @@ class RecycleBinService
             Log::error('Error in RecycleBinService::restore', [
                 'model_type' => $item->model_type,
                 'model_id' => $item->model_id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             return false;
         }
     }
 
     /**
-     * Permanently delete item from recycle bin
+     * FIXED: Permanently delete item from recycle bin
+     * Comprehensive handling for all model types with file cleanup
      */
     public static function permanentlyDelete($item)
     {
         try {
             $modelClass = $item->model_type;
             
+            // Handle FishrApplication - delete annexes, documents, then application
             if ($modelClass === 'App\Models\FishrApplication') {
-                $registration = \App\Models\FishrApplication::withTrashed()
+                $registration = FishrApplication::withTrashed()
                     ->find($item->model_id);
                 
                 if ($registration) {
@@ -183,8 +222,10 @@ class RecycleBinService
                     $registration->forceDelete();
                 }
             }
+            
+            // Handle FishrAnnex - delete file then annex
             elseif ($modelClass === 'App\Models\FishrAnnex') {
-                $annex = \App\Models\FishrAnnex::withTrashed()
+                $annex = FishrAnnex::withTrashed()
                     ->find($item->model_id);
                 
                 if ($annex) {
@@ -197,46 +238,80 @@ class RecycleBinService
                     $annex->forceDelete();
                 }
             }
+            
+            // Handle TrainingApplication - delete document then application
             elseif ($modelClass === 'App\Models\TrainingApplication') {
                 if ($item->data['document_path'] ?? null) {
-                    Storage::disk('public')->delete($item->data['document_path']);
+                    if (Storage::disk('public')->exists($item->data['document_path'])) {
+                        Storage::disk('public')->delete($item->data['document_path']);
+                    }
                 }
                 
-                \App\Models\TrainingApplication::withTrashed()
+                TrainingApplication::withTrashed()
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
+            
+            // Handle SeedlingRequest
             elseif ($modelClass === 'App\Models\SeedlingRequest') {
-                \App\Models\SeedlingRequest::withTrashed()
+                SeedlingRequest::withTrashed()
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
+            
+            // Handle UserRegistration - delete documents then user registration
             elseif ($modelClass === 'App\Models\UserRegistration') {
                 // Delete uploaded documents
                 if ($item->data['id_front_path'] ?? null) {
-                    Storage::disk('public')->delete($item->data['id_front_path']);
+                    if (Storage::disk('public')->exists($item->data['id_front_path'])) {
+                        Storage::disk('public')->delete($item->data['id_front_path']);
+                    }
                 }
                 if ($item->data['id_back_path'] ?? null) {
-                    Storage::disk('public')->delete($item->data['id_back_path']);
+                    if (Storage::disk('public')->exists($item->data['id_back_path'])) {
+                        Storage::disk('public')->delete($item->data['id_back_path']);
+                    }
                 }
                 if ($item->data['location_document_path'] ?? null) {
-                    Storage::disk('public')->delete($item->data['location_document_path']);
+                    if (Storage::disk('public')->exists($item->data['location_document_path'])) {
+                        Storage::disk('public')->delete($item->data['location_document_path']);
+                    }
                 }
                 if ($item->data['profile_image_url'] ?? null) {
-                    Storage::disk('public')->delete($item->data['profile_image_url']);
+                    if (Storage::disk('public')->exists($item->data['profile_image_url'])) {
+                        Storage::disk('public')->delete($item->data['profile_image_url']);
+                    }
                 }
                 
-                \App\Models\UserRegistration::withTrashed()
+                UserRegistration::withTrashed()
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
+            
+            // Handle CategoryItem
             elseif ($modelClass === 'App\Models\CategoryItem') {
-                \App\Models\CategoryItem::withTrashed()
+                CategoryItem::withTrashed()
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
+            
+            // Handle RequestCategory
             elseif ($modelClass === 'App\Models\RequestCategory') {
-                \App\Models\RequestCategory::withTrashed()
+                RequestCategory::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
+            
+            // Handle BoatrApplication
+            elseif ($modelClass === 'App\Models\BoatrApplication') {
+                \App\Models\BoatrApplication::withTrashed()
+                    ->where('id', $item->model_id)
+                    ->forceDelete();
+            }
+            
+            // Handle RsbsaApplication
+            elseif ($modelClass === 'App\Models\RsbsaApplication') {
+                \App\Models\RsbsaApplication::withTrashed()
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
@@ -249,7 +324,8 @@ class RecycleBinService
             Log::error('Error in RecycleBinService::permanentlyDelete', [
                 'model_type' => $item->model_type,
                 'model_id' => $item->model_id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             return false;
         }
