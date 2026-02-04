@@ -333,12 +333,14 @@ class RecycleBinService
 
     /**
      * Get recycle bin statistics
+     * FIXED: Now returns fishr_annex_items in the array
      */
     public static function getStats()
     {
         $total = RecycleBin::notRestored()->count();
         $fishr = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrApplication')->count();
         $boatr = RecycleBin::notRestored()->where('model_type', 'App\Models\BoatrApplication')->count();
+        $fishrAnnex = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrAnnex')->count();
         $expired = RecycleBin::notRestored()->where('expires_at', '<=', now())->count();
         $supplyCategories = RecycleBin::notRestored()->where('model_type', 'App\Models\CategoryItem')->count();
         $supplyItems = RecycleBin::notRestored()->where('model_type', 'App\Models\RequestCategory')->count();
@@ -347,6 +349,7 @@ class RecycleBinService
             'total_items' => $total,
             'fishr_items' => $fishr,
             'boatr_items' => $boatr,
+            'fishr_annex_items' => $fishrAnnex,  // ← THIS WAS MISSING!
             'expired_items' => $expired,
             'supply_category_items' => $supplyCategories,
             'supply_item_items' => $supplyItems,

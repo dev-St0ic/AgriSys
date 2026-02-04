@@ -40,6 +40,18 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
+                        <i class="fas fa-paperclip text-muted"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $stats['fishr_annex_items'] ?? 0 }}</div>
+                    <div class="stat-label text-muted">FishR Annexes</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
                         <i class="fas fa-ship text-primary"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $stats['boatr_items'] }}</div>
