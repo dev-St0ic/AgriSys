@@ -1110,7 +1110,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Training Request</h5>
+                    <h5 class="modal-title w-100 text-center">Move Training Request to Recycle Bin</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">

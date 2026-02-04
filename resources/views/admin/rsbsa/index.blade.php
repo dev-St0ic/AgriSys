@@ -1010,7 +1010,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete RSBSA Registration</h5>
+                    <h5 class="modal-title w-100 text-center">Move RSBSA Registration to Recycle Bin</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">

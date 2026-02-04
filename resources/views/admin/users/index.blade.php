@@ -1,11 +1,11 @@
 {{-- resources/views/admin/users/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'User Registration - AgriSys Admin')
+@section('title', 'User Management - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
         <i class="fas fa-user-edit text-primary me-2"></i>
-        <span class="text-primary fw-bold">User Registration</span>
+        <span class="text-primary fw-bold">User Management</span>
     </div>
 @endsection
 
@@ -19,7 +19,7 @@
                         <i class="fas fa-users text-primary"></i>
                     </div>
                     <div class="stat-number mb-2" id="total-count">{{ $stats['total'] ?? 0 }}</div>
-                    <div class="stat-label text-primary">Total Registrations</div>
+                    <div class="stat-label text-primary">Total Users</div>
                 </div>
             </div>
         </div>
@@ -139,7 +139,7 @@
             <div></div>
             <div class="text-center flex-fill">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-user-edit me-2"></i>User Registration Records
+                    <i class="fas fa-user-edit me-2"></i>User Records
                 </h6>
             </div>
             <div class="d-flex gap-2">
@@ -338,7 +338,7 @@
                             <tr>
                                 <td colspan="10" class="text-center text-muted py-4">
                                     <i class="fas fa-user-edit fa-3x mb-3"></i>
-                                    <p>No user registrations found matching your criteria.</p>
+                                    <p>No user found matching your criteria.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -916,7 +916,7 @@
         </div>
     </div>
 
-    <!-- Enhanced Edit User Registration Modal with ALL Fields -->
+    <!-- Enhanced Edit Usee Modal with ALL Fields -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -1242,32 +1242,31 @@
         </div>
     </div>
 
-    <!-- DELETE USER REGISTRATION MODAL  -->
+    <!-- DELETE USER MODAL  -->
     <div class="modal fade" id="deleteUserModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Registration</h5>
+                    <h5 class="modal-title w-100 text-center">Move User to Recycle Bin</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong
-                                id="delete_user_name"></strong> will:</p>
+                        <p class="mb-0">Are you sure you want to delete this User? <strong
+                                id="delete_user_name"></strong> will be moved to the Recycle Bin.</p>
                     </div>
                     <ul class="mb-0">
-                        <li>Remove the registration from the database</li>
-                        <li>Delete all associated documents and files</li>
-                        <li>Delete all registration history and logs</li>
-                        <li>Cannot be recovered</li>
+                        <li>Remove the user from active records</li>
+                        <li>Keep all documents and attachments</li>
+                        <li><strong>Can be restored from the Recycle Bin</strong></li>
                     </ul>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteUser()"
                         id="confirm_delete_user_btn">
-                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-text">Move to Recycle Bin</span>
                         <span class="btn-loader" style="display: none;"><span
                                 class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>

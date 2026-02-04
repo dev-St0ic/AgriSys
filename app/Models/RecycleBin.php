@@ -230,6 +230,7 @@ public function getTypeNameAttribute(): string
         'App\Models\CategoryItem' => 'Supply Item',           
         'App\Models\RequestCategory' => 'Supply Category',   
         'App\Models\TrainingApplication' => 'Training Request',
+        'App\Models\UserRegistration' => 'User Registration',
         default => 'Unknown Item'
     };
 }
