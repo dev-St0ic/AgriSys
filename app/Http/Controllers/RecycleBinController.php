@@ -146,6 +146,14 @@ class RecycleBinController extends Controller
                 }
             }
         }
+        elseif ($modelClass === 'App\Models\FishrAnnex') {
+            $restored = FishrAnnex::withTrashed()
+                ->find($this->model_id);
+            
+            if ($restored) {
+                $restored->restore();
+            }
+        }
         elseif ($modelClass === 'App\Models\SeedlingRequest') {
             $restored = SeedlingRequest::withTrashed()
                 ->find($this->model_id);
@@ -229,6 +237,20 @@ class RecycleBinController extends Controller
                     
                     // Force delete the registration
                     $registration->forceDelete();
+                }
+            }
+            elseif ($modelClass === 'App\Models\FishrAnnex') {
+                $annex = FishrAnnex::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($annex) {
+                    // Delete the file from storage
+                    if ($annex->file_path && \Storage::disk('public')->exists($annex->file_path)) {
+                        \Storage::disk('public')->delete($annex->file_path);
+                    }
+                    
+                    // Force delete the annex
+                    $annex->forceDelete();
                 }
             }
             elseif ($modelClass === 'App\Models\TrainingApplication') {
