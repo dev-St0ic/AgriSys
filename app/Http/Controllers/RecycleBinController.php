@@ -67,7 +67,7 @@ class RecycleBinController extends Controller
 
             // Paginate
             $items = $query->orderBy('deleted_at', 'desc')
-                          ->paginate(15)
+                          ->paginate(10)
                           ->appends($request->query());
 
             // Get statistics
