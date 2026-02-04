@@ -11,7 +11,7 @@
 
 @section('content')
     <div class="row">
-        <!-- Simplified Statistics Cards -->
+        <!-- Total Items Card -->
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
@@ -20,30 +20,6 @@
                     </div>
                     <div class="stat-number mb-2">{{ $stats['total_items'] }}</div>
                     <div class="stat-label text-warning">Total Items</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
-                        <i class="fas fa-hourglass-end text-danger"></i>
-                    </div>
-                    <div class="stat-number mb-2">{{ $stats['expired_items'] }}</div>
-                    <div class="stat-label text-danger">Expired Items</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div class="stat-number mb-2">{{ $stats['total_items'] - $stats['expired_items'] }}</div>
-                    <div class="stat-label text-success">Active Items</div>
                 </div>
             </div>
         </div>
@@ -76,15 +52,6 @@
                         </select>
                     </div>
 
-                    <!-- Status Filter -->
-                    <div class="col-md-2">
-                        <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
-                            <option value="">All Status</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
-                        </select>
-                    </div>
-
                     <!-- Search Input -->
                     <div class="col-md-4">
                         <div class="input-group">
@@ -101,238 +68,86 @@
                         <a href="{{ route('admin.recycle-bin.index') }}" class="btn btn-secondary btn-sm me-2">
                             <i class="fas fa-sync me-1"></i>Clear
                         </a>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="emptyRecycleBin()" title="Permanently delete expired items">
-                            <i class="fas fa-broom me-1"></i>Empty Expired
-                        </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Deleted Items & Archived Items Tabs -->
+    <!-- Recycle Bin Items -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-trash-restore me-2"></i>Recycle Bin Items
             </h6>
-            <!-- Tab Buttons -->
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary btn-sm tab-button active" data-tab="deleted-items" onclick="switchTab('deleted-items')">
-                    <i class="fas fa-trash me-1"></i>Deleted Items
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm tab-button" data-tab="archived-items" onclick="switchTab('archived-items')">
-                    <i class="fas fa-archive me-1"></i>Archived Items
-                </button>
-            </div>
         </div>
 
         <div class="card-body">
-            <!-- DELETED ITEMS TABLE -->
-            <div id="deleted-items-section" class="tab-content active">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="recycleBinTable">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="text-center">
-                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
-                                </th>
-                                <th>Item Name</th>
-                                <th>Type</th>
-                                <th>Deleted By</th>
-                                <th>Deleted On</th>
-                                <th>Expires In</th>
-                                <th>Reason</th>
-                                <th class="text-center">Actions</th>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="recycleBinTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                            </th>
+                            <th>Item Name</th>
+                            <th>Type</th>
+                            <th>Deleted By</th>
+                            <th>Deleted On</th>
+                            <th>Reason</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($items as $item)
+                            <tr data-item-id="{{ $item->id }}">
+                                <td class="text-center">
+                                    <input type="checkbox" class="item-checkbox" value="{{ $item->id }}">
+                                </td>
+                                <td>
+                                    <strong>{{ $item->item_name }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ $item->type_name }}</span>
+                                </td>
+                                <td>{{ $item->deletedBy->name ?? 'Unknown' }}</td>
+                                <td>{{ $item->deleted_at->format('M d, Y h:i A') }}</td>
+                                <td>{{ $item->reason ?? 'No reason provided' }}</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="viewItem({{ $item->id }})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="restoreItem({{ $item->id }})" title="Restore">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger"
+                                            onclick="deleteItem({{ $item->id }})" title="Remove from Recycle Bin">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($items as $item)
-                                @if(!$item->is_archived)
-                                    <tr data-item-id="{{ $item->id }}" class="{{ $item->is_expired ? 'table-danger' : '' }}">
-                                        <td class="text-center">
-                                            <input type="checkbox" class="item-checkbox" value="{{ $item->id }}">
-                                        </td>
-                                        <td>
-                                            <strong>{{ $item->item_name }}</strong>
-                                            @if ($item->is_expired)
-                                                <span class="badge bg-danger ms-2">EXPIRED</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info">{{ $item->type_name }}</span>
-                                        </td>
-                                        <td>{{ $item->deletedBy->name ?? 'Unknown' }}</td>
-                                        <td>{{ $item->formatted_deleted_at }}</td>
-                                        <td>
-                                            @if ($item->is_expired)
-                                                <span class="badge bg-danger">Expired</span>
-                                            @else
-                                                <span class="badge bg-warning">{{ $item->days_until_expire }} days</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $item->reason ?? 'No reason provided' }}</td>
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <button type="button" class="btn btn-outline-primary"
-                                                    onclick="viewItem({{ $item->id }})" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-outline-success"
-                                                    onclick="restoreItem({{ $item->id }})" title="Restore">
-                                                    <i class="fas fa-undo"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-outline-danger"
-                                                    onclick="deleteItemPermanently({{ $item->id }})" title="Archive (Permanent)">
-                                                    <i class="fas fa-archive"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
-                                        <i class="fas fa-trash-restore fa-3x mb-3"></i>
-                                        <p>No deleted items</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination for Deleted Items -->
-                @if ($items->hasPages())
-                    <div class="d-flex justify-content-center mt-4">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination pagination-sm">
-                                @if ($items->onFirstPage())
-                                    <li class="page-item disabled">
-                                        <span class="page-link">Back</span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $items->previousPageUrl() }}" rel="prev">Back</a>
-                                    </li>
-                                @endif
-
-                                @php
-                                    $currentPage = $items->currentPage();
-                                    $lastPage = $items->lastPage();
-                                    $startPage = max(1, $currentPage - 2);
-                                    $endPage = min($lastPage, $currentPage + 2);
-                                    if ($endPage - $startPage < 4) {
-                                        if ($startPage == 1) {
-                                            $endPage = min($lastPage, $startPage + 4);
-                                        } else {
-                                            $startPage = max(1, $endPage - 4);
-                                        }
-                                    }
-                                @endphp
-
-                                @for ($page = $startPage; $page <= $endPage; $page++)
-                                    @if ($page == $currentPage)
-                                        <li class="page-item active">
-                                            <span class="page-link bg-primary border-primary">{{ $page }}</span>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $items->url($page) }}">{{ $page }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-
-                                @if ($items->hasMorePages())
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $items->nextPageUrl() }}" rel="next">Next</a>
-                                    </li>
-                                @else
-                                    <li class="page-item disabled">
-                                        <span class="page-link">Next</span>
-                                    </li>
-                                @endif
-                            </ul>
-                        </nav>
-                    </div>
-                @else
-                    @php $deletedCount = $items->count(); @endphp
-                    @if ($deletedCount > 0)
-                        <div class="d-flex justify-content-center mt-3">
-                            <small class="text-muted">Showing {{ $deletedCount }} deleted item(s)</small>
-                        </div>
-                    @endif
-                @endif
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fas fa-trash-restore fa-3x mb-3"></i>
+                                    <p>No deleted items</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
 
-            <!-- ARCHIVED ITEMS TABLE -->
-            <div id="archived-items-section" class="tab-content" style="display: none;">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="archivedBinTable">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="text-center">
-                                    <input type="checkbox" id="selectAllArchived" onchange="toggleSelectAllArchived(this)">
-                                </th>
-                                <th>Item Name</th>
-                                <th>Type</th>
-                                <th>Deleted By</th>
-                                <th>Deleted On</th>
-                                <th>Archived On</th>
-                                <th>Reason</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($items as $item)
-                                @if($item->is_archived)
-                                    <tr data-item-id="{{ $item->id }}" class="table-secondary">
-                                        <td class="text-center">
-                                            <input type="checkbox" class="item-checkbox-archived" value="{{ $item->id }}">
-                                        </td>
-                                        <td>
-                                            <strong>{{ $item->item_name }}</strong>
-                                            <span class="badge bg-secondary ms-2">ARCHIVED</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info">{{ $item->type_name }}</span>
-                                        </td>
-                                        <td>{{ $item->deletedBy->name ?? 'Unknown' }}</td>
-                                        <td>{{ $item->formatted_deleted_at }}</td>
-                                        <td>{{ $item->archived_at ? $item->archived_at->format('M d, Y g:i A') : 'N/A' }}</td>
-                                        <td>{{ $item->reason ?? 'No reason provided' }}</td>
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <button type="button" class="btn btn-outline-primary"
-                                                    onclick="viewItem({{ $item->id }})" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-outline-success"
-                                                    onclick="restoreItem({{ $item->id }})" title="Restore">
-                                                    <i class="fas fa-undo"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
-                                        <i class="fas fa-archive fa-3x mb-3"></i>
-                                        <p>No archived items</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <!-- Pagination -->
+            @if ($items->hasPages())
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $items->links('pagination::bootstrap-4') }}
                 </div>
-
-                @if($items->where('is_archived', true)->count() > 0)
-                    <div class="d-flex justify-content-center mt-3">
-                        <small class="text-muted">Showing {{ $items->where('is_archived', true)->count() }} archived item(s)</small>
-                    </div>
-                @endif
-            </div>
+            @endif
         </div>
     </div>
 
@@ -398,94 +213,6 @@
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
         }
-
-        /* Tab Styling */
-        .tab-button {
-            border: 1px solid #dee2e6;
-            transition: all 0.2s ease;
-        }
-
-        .tab-button.active {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-
-        .tab-button:hover:not(.active) {
-            background-color: #f8f9fa;
-        }
-
-        .tab-content {
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block !important;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Pagination Styles */
-        .pagination {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 8px;
-            margin: 0;
-        }
-
-        .pagination .page-item .page-link {
-            color: #6c757d;
-            background-color: transparent;
-            border: none;
-            padding: 8px 12px;
-            margin: 0 2px;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .pagination .page-item .page-link:hover {
-            color: #495057;
-            background-color: #e9ecef;
-            text-decoration: none;
-        }
-
-        .pagination .page-item.active .page-link {
-            color: white;
-            background-color: #007bff;
-            border-color: #007bff;
-            font-weight: 600;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            color: #adb5bd;
-            background-color: transparent;
-            cursor: not-allowed;
-        }
-
-        /* Responsive */
-        @media (max-width: 576px) {
-            .pagination {
-                padding: 4px;
-            }
-
-            .pagination .page-item .page-link {
-                padding: 6px 10px;
-                margin: 0 1px;
-                font-size: 0.875rem;
-            }
-
-            .btn-group {
-                flex-wrap: wrap;
-            }
-        }
     </style>
 
     <script>
@@ -494,38 +221,9 @@
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
 
-        // Switch between tabs
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-                tab.style.display = 'none';
-            });
-
-            // Deactivate all buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Show selected tab
-            document.getElementById(tabName + '-section').classList.add('active');
-            document.getElementById(tabName + '-section').style.display = 'block';
-
-            // Activate selected button
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-            console.log('Switched to tab:', tabName);
-        }
-
-        // Toggle select all for deleted items
+        // Toggle select all
         function toggleSelectAll(checkbox) {
-            const itemCheckboxes = document.querySelectorAll('.item-checkbox:not(.item-checkbox-archived)');
-            itemCheckboxes.forEach(cb => cb.checked = checkbox.checked);
-        }
-
-        // Toggle select all for archived items
-        function toggleSelectAllArchived(checkbox) {
-            const itemCheckboxes = document.querySelectorAll('.item-checkbox-archived');
+            const itemCheckboxes = document.querySelectorAll('.item-checkbox');
             itemCheckboxes.forEach(cb => cb.checked = checkbox.checked);
         }
 
@@ -560,7 +258,6 @@
                     </div>
                     <div class="col-md-6">
                         <p><strong>Deleted On:</strong> ${item.deleted_at}</p>
-                        <p><strong>Status:</strong> <span class="badge bg-${item.is_archived ? 'secondary' : (item.is_expired ? 'danger' : 'warning')}">${item.is_archived ? 'ARCHIVED' : (item.is_expired ? 'EXPIRED' : 'ACTIVE')}</span></p>
                     </div>
                 </div>
                 <hr>
@@ -597,9 +294,9 @@
             }
         }
 
-        // Delete item permanently (Archives it)
-        function deleteItemPermanently(itemId) {
-            if (confirm('This item will be moved to Archives and cannot be undone. Continue?')) {
+        // Delete item from recycle bin
+        function deleteItem(itemId) {
+            if (confirm('Remove this item from recycle bin?')) {
                 fetch(`/admin/recycle-bin/${itemId}`, {
                     method: 'DELETE',
                     headers: {
@@ -610,34 +307,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Item archived successfully - cannot be undone');
+                        showToast('success', data.message);
                         setTimeout(() => location.reload(), 1500);
                     } else {
                         showToast('error', data.message);
                     }
                 })
-                .catch(error => showToast('error', 'Error archiving item'));
-            }
-        }
-
-        // Empty recycle bin
-        function emptyRecycleBin() {
-            if (confirm('This will permanently delete all expired items. This cannot be undone. Continue?')) {
-                fetch('/admin/recycle-bin/empty', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        setTimeout(() => location.reload(), 1500);
-                    }
-                })
-                .catch(error => showToast('error', 'Error emptying recycle bin'));
+                .catch(error => showToast('error', 'Error deleting item'));
             }
         }
 

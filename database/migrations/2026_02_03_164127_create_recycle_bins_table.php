@@ -43,8 +43,6 @@ return new class extends Migration
                 ->on('users')
                 ->onDelete('set null');
             
-            // Auto-expiration
-            $table->timestamp('expires_at')->nullable()->comment('When item will be auto-deleted (30 days)');
             
             // Timestamps
             $table->timestamps();
@@ -53,12 +51,8 @@ return new class extends Migration
             $table->index(['model_type', 'model_id']);
             $table->index('deleted_by');
             $table->index('deleted_at');
-            $table->index('expires_at');
             $table->index('restored_at');
 
-            // archived
-            $table->boolean('is_archived')->default(false);
-            $table->timestamp('archived_at')->nullable();
         });
     }
 
