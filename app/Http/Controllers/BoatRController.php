@@ -152,7 +152,7 @@ class BoatRController extends Controller
                 'boat_length' => 'required|numeric|min:0.1|max:999.99',
                 'boat_width' => 'required|numeric|min:0.1|max:999.99',
                 'boat_depth' => 'required|numeric|min:0.1|max:999.99',
-                
+
                 // boat classification
                 'boat_classification' => 'required|in:Motorized,Non-motorized',
 
@@ -180,7 +180,7 @@ class BoatRController extends Controller
                     'engine_type' => ['Engine Type is required for motorized boats']
                 ]);
             }
-            
+
             if (empty($validated['engine_horsepower'])) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'engine_horsepower' => ['Engine Horsepower is required for motorized boats']
@@ -338,7 +338,7 @@ public function update(Request $request, $id)
             'engine_type' => ['Engine Type is required for motorized boats']
         ]);
     }
-    
+
     if (empty($validated['engine_horsepower'])) {
         throw \Illuminate\Validation\ValidationException::withMessages([
             'engine_horsepower' => ['Engine Horsepower is required for motorized boats']
@@ -862,7 +862,7 @@ private function getChangedFields($original, $updated)
                 'boat_width' => $registration->boat_width,
                 'boat_depth' => $registration->boat_depth,
                 'boat_dimensions' => $registration->boat_dimensions,
-                'boat_classification' => $registration->boat_classification, 
+                'boat_classification' => $registration->boat_classification,
                 'engine_type' => $registration->engine_type,
                 'engine_horsepower' => $registration->engine_horsepower,
                 'boat_classification' => $registration->boat_classification,
@@ -1614,7 +1614,7 @@ public function validateFishrNumber($fishrNumber)
         // ✅ CHECK 2: Verify username matches (WITHOUT revealing owner info)
         if ($currentUser) {
             $currentUsername = strtoupper(trim($currentUser->username ?? ''));
-            
+
             // Get the user who owns this FishR
             $fishrUser = \App\Models\User::find($fishrApp->user_id);
             $fishrUsername = strtoupper(trim($fishrUser->username ?? ''));
@@ -1637,17 +1637,10 @@ public function validateFishrNumber($fishrNumber)
             }
         }
 
-        // CHECK 3: Already used for another boat?
+        // CHECK 3: Count existing boats for this FishR (for information only)
         $boatCount = BoatrApplication::where('fishr_number', $fishrApp->registration_number)->count();
-        if ($boatCount > 0) {
-            return response()->json([
-                'exists' => true,
-                'valid' => false,
-                'already_used' => true,
-                'message' => 'This FishR number has already been registered for a boat'
-            ], 200);
-        }
 
+        // ✅ ALLOW MULTIPLE BOATS PER FISHR - Return success with boat count
         // ✅ ALL CHECKS PASSED
         return response()->json([
             'exists' => true,
