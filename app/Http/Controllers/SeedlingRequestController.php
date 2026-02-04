@@ -895,10 +895,14 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
     }
 /**
  * Mark request as claimed by applicant - DEDUCTS SUPPLIES HERE
+ * FIXED: Now properly loads and restores items relationship
  */
 public function markAsClaimed(SeedlingRequest $seedlingRequest)
 {
     try {
+        // ✅ LOAD THE REQUEST WITH ITEMS (important for restored requests)
+        $seedlingRequest->load(['items.categoryItem']);
+
         // Check if request can be claimed (must be approved or partially approved)
         if (!in_array($seedlingRequest->status, ['approved', 'partially_approved'])) {
             return response()->json([
@@ -919,30 +923,59 @@ public function markAsClaimed(SeedlingRequest $seedlingRequest)
 
         // ✅ DEDUCT SUPPLIES ONLY WHEN CLAIMED
         $totalDeducted = 0;
-        foreach ($seedlingRequest->items()->where('status', 'approved')->get() as $item) {
-            if ($item->categoryItem && $item->approved_quantity > 0) {
-                $success = $item->categoryItem->distributeSupply(
-                    $item->approved_quantity,
-                    auth()->id(),
-                    "Distributed for claimed request #{$seedlingRequest->request_number} - {$seedlingRequest->full_name}",
-                    'SeedlingRequest',
-                    $seedlingRequest->id
-                );
+        $approvedItems = $seedlingRequest->items()->where('status', 'approved')->get();
 
-                if (!$success) {
-                    throw new \Exception("Failed to distribute supply for {$item->item_name}");
-                }
+        // ✅ CHECK IF THERE ARE ANY APPROVED ITEMS
+        if ($approvedItems->isEmpty()) {
+            \DB::commit();
+            return response()->json([
+                'success' => false,
+                'message' => 'No approved items to claim.'
+            ], 400);
+        }
 
-                $totalDeducted += $item->approved_quantity;
+        foreach ($approvedItems as $item) {
+            // ✅ VALIDATE ITEM AND CATEGORY ITEM EXIST
+            if (!$item) {
+                throw new \Exception("Item not found");
+            }
 
-                // Check stock levels after distribution
-                $item->categoryItem->refresh();
-                if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
-                    NotificationService::seedlingStockLow($item->categoryItem);
-                }
-                if ($item->categoryItem->current_supply <= 0) {
-                    NotificationService::seedlingStockOut($item->categoryItem);
-                }
+            if (!$item->categoryItem) {
+                throw new \Exception("Category item not found for: {$item->item_name}");
+            }
+
+            // ✅ CHECK APPROVED QUANTITY EXISTS
+            if (!$item->approved_quantity || $item->approved_quantity <= 0) {
+                \Log::warning('Skipping item with no approved quantity', [
+                    'item_id' => $item->id,
+                    'item_name' => $item->item_name,
+                    'approved_quantity' => $item->approved_quantity
+                ]);
+                continue;
+            }
+
+            // ✅ DISTRIBUTE SUPPLY
+            $success = $item->categoryItem->distributeSupply(
+                $item->approved_quantity,
+                auth()->id(),
+                "Distributed for claimed request #{$seedlingRequest->request_number} - {$seedlingRequest->full_name}",
+                'SeedlingRequest',
+                $seedlingRequest->id
+            );
+
+            if (!$success) {
+                throw new \Exception("Failed to distribute supply for {$item->item_name}");
+            }
+
+            $totalDeducted += $item->approved_quantity;
+
+            // ✅ CHECK STOCK LEVELS AFTER DISTRIBUTION
+            $item->categoryItem->refresh();
+            if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
+                NotificationService::seedlingStockLow($item->categoryItem);
+            }
+            if ($item->categoryItem->current_supply <= 0) {
+                NotificationService::seedlingStockOut($item->categoryItem);
             }
         }
 

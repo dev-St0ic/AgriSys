@@ -91,7 +91,11 @@ class RecycleBinService
                     ->find($item->model_id);
                 
                 if ($restored) {
+                    // Restore the main request
                     $restored->restore();
+                    
+                    // ✅ ALSO RESTORE all associated items
+                    $restored->items()->withTrashed()->restore();
                 }
             }
             
@@ -270,11 +274,18 @@ class RecycleBinService
                     ->forceDelete();
             }
             
-            // Handle SeedlingRequest
+            // NEW CODE (Fixed to delete items too) seedling reuqwt
             elseif ($modelClass === 'App\Models\SeedlingRequest') {
-                SeedlingRequest::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
+                $request = SeedlingRequest::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($request) {
+                    // ✅ Force delete all associated items first
+                    $request->items()->withTrashed()->forceDelete();
+                    
+                    // ✅ Then force delete the request
+                    $request->forceDelete();
+                }
             }
             
             // Handle UserRegistration - delete documents then user registration
