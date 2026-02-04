@@ -226,9 +226,10 @@ public function getTypeNameAttribute(): string
         'App\Models\BoatrAnnex' => 'BoatR Annex',
         'App\Models\BoatrApplication' => 'BoatR Registration',
         'App\Models\RsbsaApplication' => 'RSBSA Application',
-        'App\Models\SeedlingRequest' => 'Seedling Request',
+        'App\Models\SeedlingRequest' => 'Supply Request',
         'App\Models\CategoryItem' => 'Supply Item',           
         'App\Models\RequestCategory' => 'Supply Category',   
+        'App\Models\TrainingApplication' => 'Training Request',
         default => 'Unknown Item'
     };
 }

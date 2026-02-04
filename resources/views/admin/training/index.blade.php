@@ -150,7 +150,7 @@
         </div>
     </div>
 
-    <!-- Applications Table -->
+    <!-- Requests Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <div></div>
@@ -352,7 +352,7 @@
                 </div>
                 
                 <div class="modal-body">
-                    <!-- Application Info Card -->
+                    <!-- Request Info Card -->
                     <div class="card bg-light border-primary mb-4">
                         <div class="card-header bg-white border-0 pb-0">
                             <h6 class="mb-0 fw-semibold text-primary">
@@ -468,7 +468,7 @@
         </div>
     </div>
 
-    <!-- Application Details Modal enhanced-->
+    <!-- Request Details Modal enhanced-->
     <div class="modal fade" id="applicationModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -792,7 +792,7 @@
                             </div>
                         </div>
 
-                        <!-- Application Status Card -->
+                        <!-- Request Status Card -->
                         <div class="card mb-3 border-0 bg-light">
                             <div class="card-header bg-white border-0 pb-0">
                                 <h6 class="mb-0 fw-semibold text-primary">
@@ -1061,7 +1061,7 @@
                         </div>
                     </div>
 
-                    <!-- Application Status (Read-only) Card -->
+                    <!-- Request Status (Read-only) Card -->
                     <div class="card mb-3 border-0 bg-light">
                         <div class="card-header bg-white border-0 pb-0">
                             <h6 class="mb-0 fw-semibold text-primary">
@@ -1116,20 +1116,20 @@
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_training_name"></strong> will:</p>
+                        <p class="mb-0">Are you sure you want to delete this Training Request? <strong id="delete_training_name"></strong> will be moved to the Recycle Bin.</p>
                     </div>
                     <ul class="mb-0">
-                        <li>Remove the training request from the database</li>
-                        <li>Delete all associated documents and files</li>
-                        <li>Delete all request history and logs</li>
-                        <li>Cannot be recovered</li>
+                        <li>Remove the training request from active records</li>
+                        <li>Hide it from users and administrators</li>
+                        <li>Keep all documents and attachments</li>
+                        <li><strong>Can be restored from the Recycle Bin</strong></li>
                     </ul>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteTraining()"
                         id="confirm_delete_training_btn">
-                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-text">Move to Recycle Bin</span>
                         <span class="btn-loader" style="display: none;"><span
                                 class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
@@ -1826,7 +1826,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        showToast('error', 'Error loading application details: ' + error.message);
+                        showToast('error', 'Error loading request details: ' + error.message);
                     });
             }
 
@@ -1915,7 +1915,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        showToast('error', 'Error updating application status: ' + error.message);
+                        showToast('error', 'Error updating request status: ' + error.message);
                     })
                     .finally(() => {
                         updateButton.innerHTML = originalText;
@@ -1965,7 +1965,7 @@
                 }
             });
        
-        // UPDATED: View application details - FIXED remarks display
+        // UPDATED: View request details - FIXED remarks display
         function viewApplication(id) {
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
             const detailsContainer = document.getElementById('applicationDetails');
@@ -2696,7 +2696,7 @@
                 // Set the global variable
                 currentDeleteTrainingId = id;
 
-                // Update modal with application number
+                // Update modal with request number
                 document.getElementById('delete_training_name').textContent = applicationNumber;
 
                 // Show the delete modal
@@ -2816,7 +2816,7 @@
             }
         });
 
-        // Proceed with application deletion
+        // Proceed with request deletion
         function proceedWithApplicationDelete(id, applicationNumber) {
             fetch(`/admin/training/requests/${id}`, {
                     method: 'DELETE',
@@ -3256,7 +3256,7 @@ function initializeEditTrainingForm(trainingId, data) {
     // Populate training type
     document.getElementById('edit_training_type').value = data.training_type || '';
     
-    // Populate application number (read-only)
+    // Populate request number (read-only)
     document.getElementById('edit_training_app_number').value = data.application_number || '';
     
     // Populate status badge
