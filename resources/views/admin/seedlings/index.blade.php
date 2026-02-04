@@ -451,7 +451,7 @@
                                                         <li>
                                                             <a class="dropdown-item text-danger" href="javascript:void(0)"
                                                                 onclick="deleteSeedlingRequest({{ $request->id }}, '{{ $request->request_number }}')">
-                                                                <i class="fas fa-trash me-2"></i>Delete
+                                                                <i class="fas fa-trash me-2"></i>Delete Request
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -1153,38 +1153,37 @@
                     </div>
                 </div>
          <!-- DELETE SEEDLING MODAL - FISHR DESIGN (CONSISTENT) -->
-<div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title w-100 text-center">Permanently Delete Supply Request</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger" role="alert">
-                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                    <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_seedling_name"></strong> will:</p>
+                <div class="modal fade" id="deleteSeedlingModal" tabindex="-1" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title w-100 text-center">Move Supply Request to Recycle Bin</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger" role="alert">
+                                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                                    <p class="mb-0">Are you sure you want to delete this Supply Request? <strong id="delete_seedling_name"></strong> will be moved to the Recycle Bin.</p>
+                                </div>
+                                <ul class="mb-0" style="padding-left: 1.25rem;">
+                                    <li>Remove the supply request from active records</li>
+                                    <li>Hide it from users and administrators</li>
+                                    <li>Keep all documents and attachments</li>
+                                    <li><strong>Can be restored from the Recycle Bin</strong></li>
+                                </ul>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()"
+                                    id="confirm_delete_seedling_btn">
+                                    <span class="btn-text">Move to Recycle Bin</span>
+                                    <span class="btn-loader" style="display: none;"><span
+                                            class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <ul class="mb-0">
-                    <li>Remove the supply request from the database</li>
-                    <li>Delete all associated documents and files</li>
-                    <li>Delete all request items and history</li>
-                    <li>Clear all logs and records</li>
-                    <li>Cannot be recovered</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" onclick="confirmPermanentDeleteSeedling()"
-                    id="confirm_delete_seedling_btn">
-                    <span class="btn-text">Yes, Delete Permanently</span>
-                    <span class="btn-loader" style="display: none;"><span
-                            class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
                 <!-- UPDATED: Change Status Modal -->
                 <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">

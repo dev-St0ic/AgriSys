@@ -132,10 +132,10 @@
                             <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR</option>
                             <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>BoatR Annex</option>
                             <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA</option>
-                            <option value="seedling" {{ request('type') == 'seedling' ? 'selected' : '' }}>Supplies Request</option>
+                            <option value="seedlings" {{ request('type') == 'seedling' ? 'selected' : '' }}>Supplies Request</option>
                             <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training</option>
-                            <option value="supply_category" {{ request('type') == 'supply_category' ? 'selected' : '' }}>Supply Categories</option>
-                            <option value="supply_item" {{ request('type') == 'supply_item' ? 'selected' : '' }}>Supply Items</option>
+                            <option value="category_item" {{ request('type') == 'supply_category' ? 'selected' : '' }}>Supply Categories</option>
+                            <option value="request_category" {{ request('type') == 'supply_item' ? 'selected' : '' }}>Supply Items</option>
                         </select>
                     </div>
                     <div class="col-md-2">
