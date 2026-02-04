@@ -55,6 +55,8 @@ class FishrApplication extends Model
         'user_id',
     ];
 
+    protected $dates = ['deleted_at'];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
