@@ -137,9 +137,15 @@ class RecycleBinController extends Controller
                 ->find($this->model_id);
             
             if ($restored) {
+                // Restore the registration
                 $restored->restore();
+                
+                // Also restore all its annexes if they're soft-deleted
+                if (method_exists($restored, 'annexes')) {
+                    $restored->annexes()->withTrashed()->restore();
+                }
             }
-        } 
+        }
         elseif ($modelClass === 'App\Models\SeedlingRequest') {
             $restored = SeedlingRequest::withTrashed()
                 ->find($this->model_id);
@@ -202,9 +208,28 @@ class RecycleBinController extends Controller
             $modelClass = $item->model_type;
             
             if ($modelClass === 'App\Models\FishrApplication') {
-                \App\Models\FishrApplication::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
+                // Get the trashed record first
+                $registration = \App\Models\FishrApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($registration) {
+                    // Delete all annexes first
+                    $annexes = $registration->annexes;
+                    foreach ($annexes as $annex) {
+                        if ($annex->file_path && \Storage::disk('public')->exists($annex->file_path)) {
+                            \Storage::disk('public')->delete($annex->file_path);
+                        }
+                        $annex->forceDelete();
+                    }
+                    
+                    // Delete main document
+                    if ($registration->document_path && \Storage::disk('public')->exists($registration->document_path)) {
+                        \Storage::disk('public')->delete($registration->document_path);
+                    }
+                    
+                    // Force delete the registration
+                    $registration->forceDelete();
+                }
             }
             elseif ($modelClass === 'App\Models\TrainingApplication') {
                 // Delete document if exists

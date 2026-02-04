@@ -59,6 +59,32 @@
                 </div>
             </div>
         </div>
+
+        <!-- Supply Categories Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-layer-group text-success"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $stats['supply_category_items'] ?? 0 }}</div>
+                    <div class="stat-label text-success">Supply Categories</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supply Items Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-box text-secondary"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $stats['supply_item_items'] ?? 0 }}</div>
+                    <div class="stat-label text-secondary">Supply Items</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Filters Section -->
@@ -79,7 +105,9 @@
                             <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR</option>
                             <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA</option>
                             <option value="seedling" {{ request('type') == 'seedling' ? 'selected' : '' }}>Supplies Request</option>
-                            <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training</option> 
+                            <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training</option>
+                            <option value="supply_category" {{ request('type') == 'supply_category' ? 'selected' : '' }}>Supply Categories</option>
+                            <option value="supply_item" {{ request('type') == 'supply_item' ? 'selected' : '' }}>Supply Items</option>
                         </select>
                     </div>
                     <div class="col-md-2">
