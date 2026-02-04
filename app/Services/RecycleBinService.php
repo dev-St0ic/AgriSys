@@ -11,6 +11,7 @@ use App\Models\RsbsaApplication;
 use App\Models\SeedlingRequest;
 use App\Models\CategoryItem;
 use App\Models\RequestCategory;
+use App\Models\ItemSupplyLog; 
 use App\Models\TrainingApplication;
 use App\Models\UserRegistration;
 use Illuminate\Support\Facades\Log;
@@ -109,13 +110,18 @@ class RecycleBinService
                 }
             }
             
-            // Handle RequestCategory with soft delete
+            // Handle RequestCategory with soft delete - restore items too
             elseif ($modelClass === 'App\Models\RequestCategory') {
                 $restored = RequestCategory::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {
                     $restored->restore();
+                    
+                    // ✅ ALSO RESTORE all soft-deleted items in this category
+                    if (method_exists($restored, 'items')) {
+                        $restored->items()->withTrashed()->restore();
+                    }
                 }
             }
             
@@ -316,19 +322,56 @@ class RecycleBinService
                     ->where('id', $item->model_id)
                     ->forceDelete();
             }
-            
-            // Handle CategoryItem
+        
+            // Handle CategoryItem - delete supply logs first
             elseif ($modelClass === 'App\Models\CategoryItem') {
-                CategoryItem::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
+                $categoryItem = CategoryItem::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($categoryItem) {
+                    // ✅ Delete all supply logs for this item
+                    ItemSupplyLog::where('category_item_id', $categoryItem->id)
+                        ->forceDelete();
+                    
+                    // ✅ Delete image file if exists
+                    if ($categoryItem->image_path && Storage::disk('public')->exists($categoryItem->image_path)) {
+                        Storage::disk('public')->delete($categoryItem->image_path);
+                    }
+                    
+                    // Force delete the item
+                    $categoryItem->forceDelete();
+                }
             }
             
-            // Handle RequestCategory
+            // Handle RequestCategory - delete items and their supply logs first
             elseif ($modelClass === 'App\Models\RequestCategory') {
-                RequestCategory::withTrashed()
-                    ->where('id', $item->model_id)
-                    ->forceDelete();
+                $category = RequestCategory::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($category) {
+                    // ✅ Get all items in this category (including soft-deleted)
+                    $items = CategoryItem::withTrashed()
+                        ->where('category_id', $category->id)
+                        ->get();
+                    
+                    // ✅ For each item, delete supply logs and images
+                    foreach ($items as $categoryItem) {
+                        // Delete supply logs
+                        ItemSupplyLog::where('category_item_id', $categoryItem->id)
+                            ->forceDelete();
+                        
+                        // Delete image file
+                        if ($categoryItem->image_path && Storage::disk('public')->exists($categoryItem->image_path)) {
+                            Storage::disk('public')->delete($categoryItem->image_path);
+                        }
+                        
+                        // Force delete the item
+                        $categoryItem->forceDelete();
+                    }
+                    
+                    // Finally, force delete the category
+                    $category->forceDelete();
+                }
             }
             
             // Handle BoatrApplication - delete annexes, documents, then application
@@ -416,8 +459,8 @@ class RecycleBinService
             'boatr_annex_items' => $boatrAnnex,
             'fishr_annex_items' => $fishrAnnex, 
             'expired_items' => $expired,
-            'supply_category_items' => $supplyCategories,
-            'supply_item_items' => $supplyItems,
+            'supply_category_items' => $supplyCategories, 
+            'supply_item_items' => $supplyItems, 
         ];
     }
 

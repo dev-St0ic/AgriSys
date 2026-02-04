@@ -204,73 +204,92 @@ class RecycleBinController extends Controller
         }
     }
 
-    /**
-     * Bulk restore items
-     */
-    public function bulkRestore(Request $request)
-    {
-        try {
-            $ids = $request->input('ids', []);
-            $restored = 0;
+  public function bulkRestore(Request $request)
+{
+    try {
+        $ids = $request->input('ids', []);
+        $restored = 0;
+        $failed = [];
 
-            foreach ($ids as $id) {
-                $item = RecycleBin::find($id);
-                if ($item && RecycleBinService::restore($item)) {
+        foreach ($ids as $id) {
+            $item = RecycleBin::find($id);
+            if ($item) {
+                if (RecycleBinService::restore($item)) {
                     $restored++;
+                } else {
+                    $failed[] = $item->item_name; // ✅ Track failures
                 }
+            } else {
+                $failed[] = "Item #{$id} not found"; // ✅ Track missing items
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => "{$restored} item(s) restored successfully",
-                'count' => $restored
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error bulk restoring items', [
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error restoring items'
-            ], 500);
         }
+
+        $message = "{$restored} item(s) restored successfully";
+        if (!empty($failed)) {
+            $message .= ". Failed: " . implode(", ", $failed); // ✅ Report failures
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'count' => $restored,
+            'failed_count' => count($failed)  // ✅ Return failed count
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error bulk restoring items', [
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error restoring items: ' . $e->getMessage()
+        ], 500);
     }
+}
 
-    /**
-     * Bulk permanently delete items
-     */
-    public function bulkDestroy(Request $request)
-    {
-        try {
-            $ids = $request->input('ids', []);
-            $deleted = 0;
+// ✅ Same fix for bulkDestroy()
+public function bulkDestroy(Request $request)
+{
+    try {
+        $ids = $request->input('ids', []);
+        $deleted = 0;
+        $failed = [];
 
-            foreach ($ids as $id) {
-                $item = RecycleBin::find($id);
-                if ($item && RecycleBinService::permanentlyDelete($item)) {
+        foreach ($ids as $id) {
+            $item = RecycleBin::find($id);
+            if ($item) {
+                if (RecycleBinService::permanentlyDelete($item)) {
                     $deleted++;
+                } else {
+                    $failed[] = $item->item_name;
                 }
+            } else {
+                $failed[] = "Item #{$id} not found";
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => "{$deleted} item(s) permanently deleted",
-                'count' => $deleted
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error bulk deleting items', [
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting items'
-            ], 500);
         }
+
+        $message = "{$deleted} item(s) permanently deleted";
+        if (!empty($failed)) {
+            $message .= ". Failed: " . implode(", ", $failed);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'count' => $deleted,
+            'failed_count' => count($failed)
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error bulk deleting items', [
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error deleting items: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Empty recycle bin (delete expired items)

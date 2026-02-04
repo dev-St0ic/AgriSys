@@ -449,7 +449,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         try {
             // If there are approved items, return supplies to inventory
             $approvedItems = $seedlingRequest->items()->where('status', 'approved')->get();
-            if ($approvedItems->count() > 0) {
+            if ($approvedItems->count() > 0 && !$seedlingRequest->claimed_at) {
                 foreach ($approvedItems as $item) {
                     if ($item->categoryItem) {
                         $item->categoryItem->returnSupply(
@@ -475,22 +475,30 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             // Send admin notification
             NotificationService::seedlingRequestDeleted($seedlingRequest);
 
+            // ✅ FIXED: Accurate log activity
             $this->logActivity('deleted', 'SeedlingRequest', $seedlingRequest->id, [
                 'request_number' => $requestNumber,
                 'action' => 'moved_to_recycle_bin',
-                'supplies_returned' => $approvedItems->count() > 0
+                'was_claimed' => (bool) $seedlingRequest->claimed_at,
+                'supplies_returned' => ($approvedItems->count() > 0 && !$seedlingRequest->claimed_at)
             ]);
 
+            // ✅ FIXED: Accurate log message
             \Log::info('Supply request moved to recycle bin', [
                 'request_id' => $seedlingRequest->id,
                 'request_number' => $requestNumber,
+                'was_claimed' => $seedlingRequest->claimed_at ? 'Yes' : 'No',
                 'deleted_by' => auth()->user()->name ?? 'System',
-                'supplies_returned' => $approvedItems->count() > 0 ? 'Yes' : 'No'
+                'supplies_returned' => ($approvedItems->count() > 0 && !$seedlingRequest->claimed_at) ? 'Yes' : 'No'
             ]);
 
+            // ✅ FIXED: Non-contradictory message
             $message = "Request {$requestNumber} has been moved to recycle bin";
-            if ($approvedItems->count() > 0) {
-                $message .= ". {$approvedItems->count()} approved item(s) supplies returned to inventory.";
+
+            if ($seedlingRequest->claimed_at) {
+                $message .= " - ⚠️ Request was already claimed, no supplies returned.";
+            } elseif ($approvedItems->count() > 0) {
+                $message .= " - {$approvedItems->count()} approved item(s) supplies returned to inventory.";
             }
 
             if (request()->expectsJson()) {

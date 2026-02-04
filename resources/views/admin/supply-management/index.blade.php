@@ -3071,6 +3071,38 @@
                 });
             }
         });
+// When user clicks delete item button - FIXED: Uses confirmation toast
+function deleteItem(itemId, itemName, usedInCount) {
+    let warningMessage = ``;
+    
+    // Add warning if it's been used
+    if (usedInCount > 0) {
+        warningMessage = `⚠️ This item has been used in ${usedInCount} request(s).\n\nYou can restore it from the recycle bin if needed.`;
+    }
+    
+    showConfirmationToast(
+        'Delete Item',
+        `Are you sure you want to delete "${itemName}"?\n\n${warningMessage}`,
+        () => proceedDeleteItem(itemId)
+    );
+}
+
+// Handle item deletion after confirmation
+async function proceedDeleteItem(itemId) {
+    try {
+        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        showSuccess(data.message);
+    } catch (error) {
+        showError(error.message);
+    }
+}
     </script>
 
     <style>

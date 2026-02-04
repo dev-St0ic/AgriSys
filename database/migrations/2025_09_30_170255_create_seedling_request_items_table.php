@@ -21,7 +21,9 @@ return new class extends Migration
             $table->integer('approved_quantity')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('rejection_reason')->nullable();
+
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['seedling_request_id', 'category_id']);
             $table->index('status');
