@@ -466,9 +466,9 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="add_sex" name="sex" required>
-                                            <option value="">Select Sex</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
+                                            <option value="Preferred not to say">Preferred not to say</option>
                                         </select>
                                     </div>
                                 </div>
@@ -676,7 +676,7 @@
                             <div class="card-body">
                                 <p class="text-muted small mb-4">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Upload documents to associate with this user. Supported formats: JPG, PNG (Max 5MB each)
+                                    Upload documents to associate with this user. Supported formats: JPG, PNG (Max 10MB each)
                                 </p>
                                 <div class="row">
                                     <div class="col-md-6 mb-4">
@@ -1153,7 +1153,7 @@
                             <div class="card-body">
                                 <p class="text-muted small mb-4">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    View or re-upload documents. Supported formats: JPG, PNG (Max 5MB each)
+                                    View or re-upload documents. Supported formats: JPG, PNG (Max 10MB each)
                                 </p>
                                 <div class="row">
                                     <div class="col-md-6 mb-4">
@@ -5779,13 +5779,13 @@
                         isValid = false;
                     }
 
-                    // Check file size (5MB max)
-                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    // Check file size (10MB max)
+                    const maxSize = 10 * 1024 * 1024; // 10MB
                     if (uploadedFile.size > maxSize) {
                         fileInput.classList.add('is-invalid');
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'invalid-feedback d-block';
-                        errorDiv.textContent = `${file.label} must be less than 5MB`;
+                        errorDiv.textContent = `${file.label} must be less than 10MB`;
                         fileInput.parentNode.appendChild(errorDiv);
                         isValid = false;
                     }
@@ -6183,14 +6183,14 @@
                     return;
                 }
                 
-                // Validate file size (5MB max)
-                const maxSize = 5 * 1024 * 1024;
+                // Validate file size (10MB max)
+                const maxSize = 10 * 1024 * 1024;
                 if (file.size > maxSize) {
                     if (preview) {
                         preview.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="fas fa-exclamation-circle me-2"></i>
-                                File must be less than 5MB
+                                File must be less than 10MB
                             </div>
                         `;
                         preview.style.display = 'flex';

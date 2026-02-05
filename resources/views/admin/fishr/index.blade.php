@@ -1606,23 +1606,6 @@
         </div>
     </div>
 
-    <!-- Confirmation Status Card
-    <div class="card border-0 bg-light">
-        <div class="card-header bg-white border-0 pb-0">
-            <h6 class="mb-0 fw-semibold text-primary">
-                <i class="fas fa-check-double me-2"></i>Confirmation Status
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="confirmStatusChange">
-                <label class="form-check-label" for="confirmStatusChange">
-                    I confirm that all information is accurate and I want to proceed with this status change
-                </label>
-            </div>
-        </div>
-    </div> -->
-
     <style>
         /* Modern Statistics Cards */
         .stat-card {
