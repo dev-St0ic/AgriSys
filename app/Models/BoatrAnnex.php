@@ -27,8 +27,6 @@ class BoatrAnnex extends Model
         'uploaded_by',
     ];
 
-    protected $dates = ['deleted_at'];
-
     protected $casts = [
         'file_size' => 'integer',
         'created_at' => 'datetime',
