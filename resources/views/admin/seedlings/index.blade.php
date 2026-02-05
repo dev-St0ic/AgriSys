@@ -4255,18 +4255,7 @@
             if (!contactNumber || contactNumber.trim() === '') {
                 return;
             }
-
-            // const phoneRegex = /^(\+639|09)\d{9}$/;
-
-            // if (!phoneRegex.test(contactNumber.trim())) {
-            //     input.classList.add('is-invalid');
-            //     const errorDiv = document.createElement('div');
-            //     errorDiv.className = 'invalid-feedback d-block';
-            //     errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-            //     input.parentNode.appendChild(errorDiv);
-            //     return false;
-            // }
-
+            
             input.classList.add('is-valid');
             return true;
         }

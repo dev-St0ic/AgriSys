@@ -144,7 +144,7 @@
                                         <input type="tel" class="form-control @error('contact_number') is-invalid @enderror" 
                                                id="contact_number" name="contact_number" 
                                                value="{{ old('contact_number', $user->contact_number ?? '') }}"
-                                               placeholder="+639XXXXXXXXX">
+                                               placeholder="09XXXXXXXXX">
                                         @error('contact_number')
                                             <div class="invalid-feedback">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
