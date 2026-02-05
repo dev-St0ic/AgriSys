@@ -193,6 +193,14 @@ class RecycleBinController extends Controller
     {
         try {
             $ids = $request->input('ids', []);
+            
+            if (empty($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No items selected'
+                ], 422);
+            }
+
             $restored = 0;
             $failed = [];
 
@@ -220,6 +228,7 @@ class RecycleBinController extends Controller
                 'count' => $restored,
                 'failed_count' => count($failed)
             ]);
+
         } catch (\Exception $e) {
             Log::error('Error bulk restoring items', [
                 'error' => $e->getMessage()
@@ -239,6 +248,14 @@ class RecycleBinController extends Controller
     {
         try {
             $ids = $request->input('ids', []);
+            
+            if (empty($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No items selected'
+                ], 422);
+            }
+
             $deleted = 0;
             $failed = [];
 
@@ -267,6 +284,7 @@ class RecycleBinController extends Controller
                 'count' => $deleted,
                 'failed_count' => count($failed)
             ]);
+
         } catch (\Exception $e) {
             Log::error('Error bulk deleting items', [
                 'error' => $e->getMessage()
