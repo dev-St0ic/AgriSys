@@ -4,7 +4,7 @@
 @section('title', 'Recycle Bin - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
-        <i class="fas fa-trash-alt text-warning me-2"></i>
+        <i class="fas fa-trash-alt text-danger me-2"></i>
         <span class="text-primary fw-bold">Recycle Bin</span>
     </div>
 @endsection
@@ -70,7 +70,7 @@
 
                     <div class="col-md-5 text-end">
                         <a href="{{ route('admin.recycle-bin.index') }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-redo me-1"></i> Clear Filters
+                            <i></i> Clear Filters
                         </a>
                     </div>
                 </div>
@@ -109,13 +109,13 @@
                             title="Restore Selected Items">
                         <i class="fas fa-undo me-1"></i>Restore
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-warning" 
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
                             onclick="openBulkDeleteModal()" 
                             title="Permanently Delete Selected Items">
                         <i class="fas fa-trash-alt me-1"></i>Delete Permanently
                     </button>
                 </div>
-                <button type="button" class="btn btn-warning btn-sm" 
+                <button type="button" class="btn btn-danger btn-sm"
                         onclick="openEmptyBinModal()"
                         title="Empty Entire Recycle Bin">
                     <i class="fas fa-broom me-1"></i>Empty Bin
@@ -134,9 +134,9 @@
                             </th>
                             <th class="text-center">Type</th>
                             <th class="text-start">Item Name</th>
+                            <th class="text-center">Deleted Date</th>
                             <th class="text-start">Deleted From</th>
                             <th class="text-start">Deleted By</th>
-                            <th class="text-center">Deleted Date</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -154,14 +154,14 @@
                                 <td class="text-start">
                                     <strong class="text-dark">{{ $item->item_name }}</strong>
                                 </td>
+                                 <td class="text-center">
+                                    <small class="text-muted">{{ $item->deleted_at->format('M d, Y') }}</small>
+                                </td>
                                 <td class="text-start">
                                     <small class="text-muted">{{ $item->reason ?? 'No reason provided' }}</small>
                                 </td>
                                 <td class="text-start">
                                     <small>{{ $item->deletedBy->name ?? 'Unknown' }}</small>
-                                </td>
-                                <td class="text-center">
-                                    <small class="text-muted">{{ $item->deleted_at->format('M d, Y') }}</small>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
@@ -260,16 +260,16 @@
     <div class="modal fade" id="recycleBinDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
+                <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-trash-alt me-2"></i>Recycle Bin Item Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="card bg-light mb-3">
                         <div class="card-header bg-white border-0 pb-0">
-                            <h6 class="mb-0 fw-semibold text-warning">
+                            <h6 class="mb-0 fw-semibold text-danger">
                                 <i class="fas fa-info-circle me-2"></i>Item Information
                             </h6>
                         </div>
@@ -277,7 +277,7 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <small class="d-block text-muted">Type</small>
-                                    <strong id="detailsTypeName" class="text-warning"></strong>
+                                    <strong id="detailsTypeName" class="text-danger"></strong>
                                 </div>
                                 <div class="col-md-6">
                                     <small class="d-block text-muted">Item Name</small>
@@ -301,13 +301,17 @@
 
                     <div class="card bg-light">
                         <div class="card-header bg-white border-0 pb-0">
-                            <h6 class="mb-0 fw-semibold text-warning">
+                            <h6 class="mb-0 fw-semibold text-danger">
                                 <i class="fas fa-database me-2"></i>Original Data
                             </h6>
                         </div>
-                        <div class="card-body">
-                            <div id="detailsData" class="small" style="max-height: 300px; overflow-y: auto;">
-                                <!-- Data will be populated here -->
+                        <div class="card-body p-0">
+                            <div id="detailsData" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tbody id="dataTableBody">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -319,24 +323,30 @@
         </div>
     </div>
 
+
     <!-- Permanent Delete Single Item Confirmation Modal -->
     <div class="modal fade" id="permanentDeleteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash-alt me-2"></i>Permanently Delete Item
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-warning mb-3" role="alert">
+                    <div class="alert alert-danger mb-3" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
                         <p class="mb-0">This action cannot be undone. The item will be permanently deleted from the recycle bin.</p>
                     </div>
-                    <p class="mb-0">Item: <strong id="deleteItemName"></strong></p>
+                    <div class="alert alert-light border border-danger mb-0" role="alert">
+                        <small class="text-muted d-block">Item Name:</small>
+                        <strong class="text-danger" id="deleteItemName"></strong>
+                    </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light border-top border-danger">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning text-dark" onclick="confirmPermanentDelete()"
+                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()"
                             id="confirmDeleteBtn">
                         <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete Permanently</span>
                         <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
@@ -345,6 +355,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Bulk Restore Modal -->
     <div class="modal fade" id="bulkRestoreModal" tabindex="-1" data-bs-backdrop="static">
@@ -376,21 +387,25 @@
     <!-- Bulk Delete Modal -->
     <div class="modal fade" id="bulkDeleteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title w-100 text-center">Permanently Delete Items</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash-alt me-2"></i>Permanently Delete Items
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-warning mb-3" role="alert">
+                    <div class="alert alert-danger mb-3" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
                         <p class="mb-0">This action cannot be undone. You will permanently delete <strong id="bulkDeleteCount">0</strong> item(s).</p>
                     </div>
-                    <p class="mb-0">Are you sure you want to proceed?</p>
+                    <div class="alert alert-light border border-danger mb-0" role="alert">
+                        <small class="text-muted">Are you sure you want to proceed?</small>
+                    </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light border-top border-danger">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning text-dark" onclick="confirmBulkDelete()"
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()"
                             id="confirmBulkDeleteBtn">
                         <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete Permanently</span>
                         <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
@@ -403,21 +418,26 @@
     <!-- Empty Recycle Bin Confirmation Modal -->
     <div class="modal fade" id="emptyBinModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title w-100 text-center">Empty Recycle Bin</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-broom me-2"></i>Empty Recycle Bin
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="alert alert-warning mb-3" role="alert">
+                    <div class="alert alert-danger mb-3" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
                         <p class="mb-0">This will permanently delete all items in the recycle bin. This action cannot be undone.</p>
                     </div>
-                    <p>Total items to delete: <strong id="totalItemsCount">0</strong></p>
+                    <div class="alert alert-light border border-danger mb-0" role="alert">
+                        <small class="text-muted">Total items to delete:</small>
+                        <p class="mb-0"><strong class="text-danger" id="totalItemsCount">0</strong></p>
+                    </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light border-top border-danger">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning text-dark" onclick="confirmEmptyBin()"
+                    <button type="button" class="btn btn-danger" onclick="confirmEmptyBin()"
                             id="confirmEmptyBtn">
                         <span class="btn-text"><i class="fas fa-broom me-2"></i>Empty Bin</span>
                         <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Emptying...</span>
@@ -444,6 +464,34 @@
             padding: 0.375rem 0.5rem;
             font-size: 0.75rem;
         }
+            #recycleBinDetailsModal .modal-header {
+            background-color: #dc3545 !important;
+        }
+
+        #recycleBinDetailsModal .text-danger {
+            color: #dc3545 !important;
+        }
+
+        #dataTableBody tr {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #dataTableBody tr:last-child {
+            border-bottom: none;
+        }
+
+        #dataTableBody td {
+            padding: 0.75rem 0.5rem;
+            vertical-align: middle;
+        }
+
+        #detailsTypeName,
+        #detailsItemName,
+        #detailsDeletedBy,
+        #detailsDeletedAt {
+            color: #dc3545;
+        }
+
     </style>
 
     <script>
@@ -542,7 +590,7 @@
         }
 
         // View item details
-        function viewRecycleBinItem(id) {
+       function viewRecycleBinItem(id) {
             fetch(`/admin/recycle-bin/${id}`, {
                 method: 'GET',
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
@@ -553,12 +601,37 @@
                 if (data.success) {
                     document.getElementById('detailsTypeName').textContent = data.data.type_name;
                     document.getElementById('detailsItemName').textContent = data.data.item_name;
-                    document.getElementById('detailsReason').textContent = data.data.reason || '-';
+                    document.getElementById('detailsReason').textContent = data.data.reason || 'No reason provided';
                     document.getElementById('detailsDeletedBy').textContent = data.data.deleted_by_name;
                     document.getElementById('detailsDeletedAt').textContent = data.data.deleted_at;
                     
-                    const dataDisplay = document.getElementById('detailsData');
-                    dataDisplay.innerHTML = '<pre>' + JSON.stringify(data.data.data, null, 2) + '</pre>';
+                    // Populate the data table with formatted data
+                    const dataTableBody = document.getElementById('dataTableBody');
+                    dataTableBody.innerHTML = '';
+                    
+                    const itemData = data.data.data;
+                    
+                    if (itemData && typeof itemData === 'object') {
+                        for (const [key, value] of Object.entries(itemData)) {
+                            // Skip certain system fields
+                            if (['created_at', 'updated_at', 'deleted_at'].includes(key)) continue;
+                            
+                            const row = document.createElement('tr');
+                            const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            const formattedValue = formatValue(value);
+                            
+                            row.innerHTML = `
+                                <td style="width: 35%; word-break: break-word;">
+                                    <small class="text-muted">${formattedKey}</small>
+                                </td>
+                                <td style="width: 65%; word-break: break-word;">
+                                    <strong>${formattedValue}</strong>
+                                </td>
+                            `;
+                            
+                            dataTableBody.appendChild(row);
+                        }
+                    }
                     
                     new bootstrap.Modal(document.getElementById('recycleBinDetailsModal')).show();
                 }
@@ -566,6 +639,26 @@
             .catch(err => showToast('error', 'Error loading item details'));
         }
 
+        // Helper function to format values nicely
+        function formatValue(value) {
+            if (value === null || value === undefined) {
+                return '<span class="text-muted">-</span>';
+            }
+            
+            if (typeof value === 'boolean') {
+                return value ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>';
+            }
+            
+            if (typeof value === 'object') {
+                return JSON.stringify(value);
+            }
+            
+            if (typeof value === 'string' && value.length > 100) {
+                return value.substring(0, 100) + '...';
+            }
+            
+            return value;
+        }
         // Restore single item
         function restoreRecycleBinItem(id, name) {
             fetch(`/admin/recycle-bin/${id}/restore`, {
