@@ -1606,7 +1606,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Status Card -->
+    <!-- Confirmation Status Card
     <div class="card border-0 bg-light">
         <div class="card-header bg-white border-0 pb-0">
             <h6 class="mb-0 fw-semibold text-primary">
@@ -1621,7 +1621,7 @@
                 </label>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <style>
         /* Modern Statistics Cards */
