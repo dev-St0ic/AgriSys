@@ -478,7 +478,7 @@
                                         </label>
                                         <input type="tel" class="form-control" id="boatr_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
                                     </div>
                                     <div class="col-md-6 mb-3">
@@ -6166,7 +6166,7 @@ function confirmPermanentDeleteBoatr() {
             if (!phoneRegex.test(contactNumber.trim())) {
                 input.classList.add('is-invalid');
                 if (feedback) {
-                    feedback.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                    feedback.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 }
                 return false;
             }
@@ -7161,7 +7161,7 @@ async function validateBoatrForm() {
         const phoneRegex = /^(\+639|09)\d{9}$/;
         if (!phoneRegex.test(contact.value.trim())) {
             contact?.classList.add('is-invalid');
-            errors.push('Contact number format invalid (use 09XXXXXXXXX or +639XXXXXXXXX)');
+            errors.push('Contact number format invalid (use 09XXXXXXXXX)');
             isValid = false;
         }
     }
@@ -8647,7 +8647,7 @@ function validateEditBoatrForm() {
             
             let errorMsg = `Invalid ${field.label.toLowerCase()}`;
             if (field.id === 'edit_boatr_contact_number') {
-                errorMsg = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorMsg = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
             }
             
             errorDiv.textContent = errorMsg;
@@ -8768,7 +8768,7 @@ function validateEditBoatrForm() {
             contactInput.classList.add('is-invalid');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
             
             const existingError = contactInput.parentNode.querySelector('.invalid-feedback');
             if (existingError) existingError.remove();

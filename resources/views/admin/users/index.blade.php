@@ -572,7 +572,7 @@
                                         </label>
                                         <input type="tel" class="form-control" id="add_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <small class="text-muted d-block mt-2">09XXXXXXXXX or +639XXXXXXXXX</small>
+                                        <small class="text-muted d-block mt-2">09XXXXXXXXX</small>
                                     </div>
                                 </div>
                             </div>
@@ -1028,7 +1028,7 @@
                                             name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX 
                                         </small>
                                     </div>
                                     <div class="col-md-4 mb-3">
@@ -1136,7 +1136,7 @@
                                             name="emergency_contact_phone" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
                                     </div>
                                 </div>
@@ -5663,7 +5663,7 @@
                     contactInput.classList.add('is-invalid');
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                    errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                     contactInput.parentNode.appendChild(errorDiv);
                     isValid = false;
                 }

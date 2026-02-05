@@ -651,7 +651,7 @@
                                             name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
                                     </div>
                                     <div class="col-md-6 mb-3">
@@ -2723,7 +2723,7 @@
                                         pattern="^(\+639|09)\d{9}$" maxlength="20"
                                         oninput="formatRsbsaContactNumber(this)">
                                     <small class="text-muted d-block mt-2">
-                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX or +639XXXXXXXXX
+                                        <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX 
                                     </small>
                                 </div>
                             </div>
@@ -4709,7 +4709,7 @@ function viewApplication(id) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -4892,7 +4892,7 @@ function validateRsbsaForm() {
             contactInput.classList.add('is-invalid');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
             contactInput.parentNode.appendChild(errorDiv);
             isValid = false;
         }
@@ -5713,7 +5713,7 @@ function validateEditRsbsaForm() {
             contactInput.classList.add('is-invalid');
             const errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
             contactInput.parentNode.appendChild(errorDiv);
             isValid = false;
         }
@@ -5810,7 +5810,7 @@ function validateEditRsbsaForm() {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX)';
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
@@ -6330,7 +6330,7 @@ function proceedWithEditRsbsa_ManualCollection(form, applicationId) {
                 const phoneRegex = /^(\+639|09)\d{9}$/;
                 if (!phoneRegex.test(data.contact_number.trim())) {
                     errors.contact_number =
-                        'Contact number must be in format: 09XXXXXXXXX or +639XXXXXXXXX (exactly 11 or 12 digits)';
+                        'Contact number must be in format: 09XXXXXXXXX(exactly 11 digits)';
                 }
             }
 

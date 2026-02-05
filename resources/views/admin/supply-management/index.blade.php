@@ -501,22 +501,6 @@
                                                             {{ $item->reorder_point }}</small>
                                                     @endif
                                                 </td>
-                                                <!-- <td class="text-center">
-                                                    <small class="text-muted">
-                                                        @if ($item->min_quantity)
-                                                            Min: {{ $item->min_quantity }}
-                                                        @endif
-                                                        @if ($item->min_quantity && $item->max_quantity)
-                                                            <br>
-                                                        @endif
-                                                        @if ($item->max_quantity)
-                                                            Max: {{ $item->max_quantity }}
-                                                        @endif
-                                                        @if (!$item->min_quantity && !$item->max_quantity)
-                                                            -
-                                                        @endif
-                                                    </small>
-                                                </td> -->
                                                 <td class="text-center">
                                                     <span
                                                         class="badge bg-{{ $item->is_active ? 'success' : 'secondary' }}">
