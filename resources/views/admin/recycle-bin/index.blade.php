@@ -284,7 +284,7 @@
                                     <strong id="detailsItemName"></strong>
                                 </div>
                                 <div class="col-12">
-                                    <small class="d-block text-muted">Reason for Deletion</small>
+                                    <small class="d-block text-muted">Deleted From</small>
                                     <p id="detailsReason" class="mb-0">-</p>
                                 </div>
                                 <div class="col-md-6">
@@ -327,7 +327,7 @@
     <!-- Permanent Delete Single Item Confirmation Modal -->
     <div class="modal fade" id="permanentDeleteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-danger">
+            <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-trash-alt me-2"></i>Permanently Delete Item
@@ -339,12 +339,12 @@
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
                         <p class="mb-0">This action cannot be undone. The item will be permanently deleted from the recycle bin.</p>
                     </div>
-                    <div class="alert alert-light border border-danger mb-0" role="alert">
+                    <div class="alert alert-light border mb-0" role="alert">
                         <small class="text-muted d-block">Item Name:</small>
                         <strong class="text-danger" id="deleteItemName"></strong>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top border-danger">
+                <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()"
                             id="confirmDeleteBtn">
@@ -387,7 +387,7 @@
     <!-- Bulk Delete Modal -->
     <div class="modal fade" id="bulkDeleteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-danger">
+            <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-trash-alt me-2"></i>Permanently Delete Items
@@ -399,11 +399,11 @@
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
                         <p class="mb-0">This action cannot be undone. You will permanently delete <strong id="bulkDeleteCount">0</strong> item(s).</p>
                     </div>
-                    <div class="alert alert-light border border-danger mb-0" role="alert">
+                    <div class="alert alert-light border mb-0" role="alert">
                         <small class="text-muted">Are you sure you want to proceed?</small>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top border-danger">
+                <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()"
                             id="confirmBulkDeleteBtn">
@@ -418,7 +418,7 @@
     <!-- Empty Recycle Bin Confirmation Modal -->
     <div class="modal fade" id="emptyBinModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-danger">
+            <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-broom me-2"></i>Empty Recycle Bin
@@ -430,12 +430,12 @@
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
                         <p class="mb-0">This will permanently delete all items in the recycle bin. This action cannot be undone.</p>
                     </div>
-                    <div class="alert alert-light border border-danger mb-0" role="alert">
+                    <div class="alert alert-light border mb-0" role="alert">
                         <small class="text-muted">Total items to delete:</small>
                         <p class="mb-0"><strong class="text-danger" id="totalItemsCount">0</strong></p>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top border-danger">
+                <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmEmptyBin()"
                             id="confirmEmptyBtn">
