@@ -367,7 +367,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info mb-3" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
+                        <!-- <i class="fas fa-info-circle me-2"></i> -->
                         <p class="mb-0">You are about to restore <strong id="bulkRestoreCount">0</strong> item(s) from the recycle bin.</p>
                     </div>
                     <p class="mb-0">Are you sure you want to proceed?</p>
