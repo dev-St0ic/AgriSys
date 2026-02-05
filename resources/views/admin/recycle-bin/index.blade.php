@@ -24,24 +24,36 @@
                     <div class="col-md-3">
                         <select name="type" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Types</option>
-                            <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>
-                                FishR Registrations
-                            </option>
-                            <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>
-                                FishR Annexes
-                            </option>
-                            <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>
-                                BoatR Registrations
-                            </option>
-                            <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>
-                                RSBSA Applications
-                            </option>
-                            <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>
-                                Training Requests
-                            </option>
-                            <option value="seedlings" {{ request('type') == 'seedlings' ? 'selected' : '' }}>
-                                Supply Requests
-                            </option>
+                                <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>
+                                    FishR Registrations
+                                </option>
+                                <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>
+                                    FishR Annexes
+                                </option>
+                                <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>
+                                    BoatR Registrations
+                                </option>
+                                <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>
+                                    BoatR Annexes
+                                </option>
+                                <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>
+                                    RSBSA Registrations
+                                </option>
+                                <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>
+                                    Training Requests
+                                </option>
+                                <option value="seedlings" {{ request('type') == 'seedlings' ? 'selected' : '' }}>
+                                    Supply Requests
+                                </option>
+                                <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>
+                                    User Registrations
+                                </option>
+                                <option value="category_item" {{ request('type') == 'category_item' ? 'selected' : '' }}>
+                                    Supply Items
+                                </option>
+                                <option value="request_category" {{ request('type') == 'request_category' ? 'selected' : '' }}>
+                                    Supply Categories
+                                </option>
                         </select>
                     </div>
 
@@ -122,7 +134,7 @@
                             </th>
                             <th class="text-center">Type</th>
                             <th class="text-start">Item Name</th>
-                            <th class="text-start">Reason</th>
+                            <th class="text-start">Deleted From</th>
                             <th class="text-start">Deleted By</th>
                             <th class="text-center">Deleted Date</th>
                             <th class="text-center">Actions</th>
@@ -163,7 +175,7 @@
                                                 title="Restore Item">
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button class="btn btn-outline-warning" 
+                                        <button class="btn btn-outline-danger" 
                                                 onclick="permanentlyDeleteRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
                                                 title="Permanently Delete">
                                             <i class="fas fa-trash-alt"></i>
@@ -760,16 +772,32 @@
                 btn.disabled = false;
             });
         }
+        // auto searhc
+       let searchTimeout;
 
-        // Search and filter
-        let searchTimeout;
-        function handleSearchInput() {
+        // Auto search functionality
+        function autoSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 document.getElementById('filterForm').submit();
-            }, 500);
+            }, 500); // Wait 500ms after user stops typing
         }
 
+        // Handle search input - auto-reset when empty
+        function handleSearchInput() {
+            const searchInput = document.getElementById('searchInput');
+            const filterForm = document.getElementById('filterForm');
+            
+            if (searchInput.value.trim() === '') {
+                // If search is empty, reset and submit
+                filterForm.submit();
+            } else {
+                // If search has value, use auto-search
+                autoSearch();
+            }
+        }
+
+        // Submit filter form when dropdowns change
         function submitFilterForm() {
             document.getElementById('filterForm').submit();
         }

@@ -615,7 +615,7 @@ class RsbsaController extends Controller
             // Move to recycle bin instead of permanent deletion
             \App\Services\RecycleBinService::softDelete(
                 $application,
-                'Deleted from RSBSA applications'
+                'Deleted from RSBSA registrations'
             );
 
             // Send admin notification

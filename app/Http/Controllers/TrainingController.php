@@ -452,7 +452,7 @@ public function destroy($id)
         // Move to recycle bin instead of permanent deletion
         \App\Services\RecycleBinService::softDelete(
             $training,
-            'Deleted from Training applications'
+            'Deleted from Training requests'
         );
 
         // Send admin notification about deletion

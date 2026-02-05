@@ -142,7 +142,7 @@ class RecycleBin extends Model
             'App\Models\FishrAnnex' => 'FishR Annex',
             'App\Models\BoatrAnnex' => 'BoatR Annex',
             'App\Models\BoatrApplication' => 'BoatR Registration',
-            'App\Models\RsbsaApplication' => 'RSBSA Application',
+            'App\Models\RsbsaApplication' => 'RSBSA Registration',
             'App\Models\SeedlingRequest' => 'Supply Request',
             'App\Models\CategoryItem' => 'Supply Item',           
             'App\Models\RequestCategory' => 'Supply Category',   

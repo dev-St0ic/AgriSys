@@ -61,13 +61,13 @@ class RecycleBinController extends Controller
                           ->paginate(10)
                           ->appends($request->query());
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $items,
-                    'view' => view('admin.recycle-bin.partials.table', compact('items'))->render()
-                ]);
-            }
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'data' => $items,
+                        'view' => view('admin.recycle-bin.partials.table', compact('items'))->render()
+                    ]);
+                }
 
             return view('admin.recycle-bin.index', compact('items'));
 
