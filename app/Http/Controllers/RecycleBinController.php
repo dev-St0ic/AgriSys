@@ -61,9 +61,6 @@ class RecycleBinController extends Controller
                           ->paginate(10)
                           ->appends($request->query());
 
-            // Get statistics
-            $stats = RecycleBinService::getStats();
-
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -72,7 +69,7 @@ class RecycleBinController extends Controller
                 ]);
             }
 
-            return view('admin.recycle-bin.index', compact('items', 'stats'));
+            return view('admin.recycle-bin.index', compact('items'));
 
         } catch (\Exception $e) {
             Log::error('Error loading recycle bin', [
@@ -158,7 +155,40 @@ class RecycleBinController extends Controller
     }
 
     /**
-     * Delete item from recycle bin
+     * Permanently delete item from recycle bin (hard delete)
+     */
+    public function permanentlyDelete($id)
+    {
+        try {
+            $item = RecycleBin::findOrFail($id);
+            $itemName = $item->item_name;
+
+            // Delete from recycle bin
+            $item->delete();
+
+            // TODO: Optionally also permanently delete the soft-deleted model from the original table
+            // This depends on your business logic - currently we just remove from recycle bin
+
+            return response()->json([
+                'success' => true,
+                'message' => "'{$itemName}' has been permanently deleted"
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting item from recycle bin', [
+                'id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting item: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete item from recycle bin (remove record only)
      */
     public function destroy($id)
     {
@@ -242,6 +272,63 @@ class RecycleBinController extends Controller
     }
 
     /**
+     * Bulk permanently delete items
+     */
+    public function bulkPermanentlyDelete(Request $request)
+    {
+        try {
+            $ids = $request->input('ids', []);
+            
+            if (empty($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No items selected'
+                ], 422);
+            }
+
+            $deleted = 0;
+            $failed = [];
+
+            foreach ($ids as $id) {
+                $item = RecycleBin::find($id);
+                if ($item) {
+                    try {
+                        // Delete from recycle bin
+                        $item->delete();
+                        $deleted++;
+                    } catch (\Exception $e) {
+                        $failed[] = $item->item_name . ' (' . $e->getMessage() . ')';
+                    }
+                } else {
+                    $failed[] = "Item #{$id} not found";
+                }
+            }
+
+            $message = "{$deleted} item(s) permanently deleted";
+            if (!empty($failed)) {
+                $message .= ". Failed: " . implode(", ", $failed);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'count' => $deleted,
+                'failed_count' => count($failed)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error bulk permanently deleting items', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting items: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Bulk delete items from recycle bin
      */
     public function bulkDestroy(Request $request)
@@ -298,26 +385,48 @@ class RecycleBinController extends Controller
     }
 
     /**
-     * Get recycle bin statistics
+     * Empty entire recycle bin (all non-restored items)
      */
-    public function stats()
+    public function empty(Request $request)
     {
         try {
-            $stats = RecycleBinService::getStats();
+            $items = RecycleBin::notRestored()->get();
+            
+            if ($items->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Recycle bin is already empty'
+                ], 422);
+            }
+
+            $count = $items->count();
+            $deleted = 0;
+
+            foreach ($items as $item) {
+                try {
+                    $item->delete();
+                    $deleted++;
+                } catch (\Exception $e) {
+                    Log::warning("Could not delete recycle bin item {$item->id}", [
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'data' => $stats
+                'message' => "Recycle bin emptied. {$deleted} of {$count} items deleted",
+                'count' => $deleted
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error getting recycle bin statistics', [
+            Log::error('Error emptying recycle bin', [
                 'error' => $e->getMessage()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error getting statistics'
+                'message' => 'Error emptying recycle bin: ' . $e->getMessage()
             ], 500);
         }
     }
