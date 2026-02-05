@@ -724,15 +724,21 @@ Route::get('/api/user/session-check', function (\Illuminate\Http\Request $reques
 // ==============================================
 // RECYCLE BIN MANAGEMENT
 // ==============================================
+
 Route::prefix('admin/recycle-bin')->name('admin.recycle-bin.')->middleware(['auth', 'admin'])->group(function () {
-    // Specific routes FIRST
-    Route::get('/stats', [RecycleBinController::class, 'stats'])->name('stats');
+    // Bulk operations
     Route::post('/bulk/restore', [RecycleBinController::class, 'bulkRestore'])->name('bulk.restore');
+    Route::post('/bulk/delete', [RecycleBinController::class, 'bulkDestroy'])->name('bulk.delete');
+    Route::post('/bulk/permanently-delete', [RecycleBinController::class, 'bulkPermanentlyDelete'])->name('bulk.permanently-delete');
     
-    // Generic routes LAST
+    // Empty entire bin
+    Route::post('/empty', [RecycleBinController::class, 'empty'])->name('empty');
+    
+    // Generic routes
     Route::get('/', [RecycleBinController::class, 'index'])->name('index');
     Route::get('/{id}', [RecycleBinController::class, 'show'])->name('show');
     Route::post('/{id}/restore', [RecycleBinController::class, 'restore'])->name('restore');
+    Route::delete('/{id}/permanently-delete', [RecycleBinController::class, 'permanentlyDelete'])->name('permanently-delete');
     Route::delete('/{id}', [RecycleBinController::class, 'destroy'])->name('destroy');
 });
 /*

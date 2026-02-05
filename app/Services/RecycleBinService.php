@@ -182,28 +182,4 @@ class RecycleBinService
             return false;
         }
     }
-
-    /**
-     * Get recycle bin statistics
-     */
-    public static function getStats()
-    {
-        $total = RecycleBin::notRestored()->count();
-        $fishr = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrApplication')->count();
-        $boatr = RecycleBin::notRestored()->where('model_type', 'App\Models\BoatrApplication')->count();
-        $fishrAnnex = RecycleBin::notRestored()->where('model_type', 'App\Models\FishrAnnex')->count();
-        $boatrAnnex = RecycleBin::notRestored()->where('model_type', 'App\Models\BoatrAnnex')->count();
-        $supplyCategories = RecycleBin::notRestored()->where('model_type', 'App\Models\CategoryItem')->count();
-        $supplyItems = RecycleBin::notRestored()->where('model_type', 'App\Models\RequestCategory')->count();
-
-        return [
-            'total_items' => $total,
-            'fishr_items' => $fishr,
-            'boatr_items' => $boatr,
-            'boatr_annex_items' => $boatrAnnex,
-            'fishr_annex_items' => $fishrAnnex, 
-            'supply_category_items' => $supplyCategories, 
-            'supply_item_items' => $supplyItems, 
-        ];
-    }
 }

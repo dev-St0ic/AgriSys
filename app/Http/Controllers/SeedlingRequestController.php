@@ -469,7 +469,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             // Move to recycle bin instead of permanent deletion
             \App\Services\RecycleBinService::softDelete(
                 $seedlingRequest,
-                'Deleted from seedling requests'
+                'Deleted from Supply requests'
             );
 
             // Send admin notification

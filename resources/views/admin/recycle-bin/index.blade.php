@@ -4,69 +4,73 @@
 @section('title', 'Recycle Bin - AgriSys Admin')
 @section('page-title')
     <div class="d-flex align-items-center">
-        <i class="fas fa-trash-restore text-warning me-2"></i>
-        <span class="text-warning fw-bold">Recycle Bin</span>
+        <i class="fas fa-trash-alt text-danger me-2"></i>
+        <span class="text-primary fw-bold">Recycle Bin</span>
     </div>
 @endsection
 
 @section('content')
-    <div class="row">
-        <!-- Total Items Card -->
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card stat-card shadow h-100">
-                <div class="card-body text-center py-3">
-                    <div class="stat-icon mb-2">
-                        <i class="fas fa-trash text-warning"></i>
-                    </div>
-                    <div class="stat-number mb-2">{{ $stats['total_items'] }}</div>
-                    <div class="stat-label text-warning">Total Items</div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Filters Section -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-filter me-2"></i>Filters & Actions
+                <i class="fas fa-filter me-2"></i>Filters & Search
             </h6>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('admin.recycle-bin.index') }}" id="filterForm">
                 <div class="row g-2">
-                    <!-- Type Filter -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select name="type" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Types</option>
-                            <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>User Registration</option>
-                            <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>FishR</option>
-                            <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>FishR Annex</option>
-                            <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR</option>
-                            <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>BoatR Annex</option>
-                            <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA</option>
-                            <option value="seedlings" {{ request('type') == 'seedling' ? 'selected' : '' }}>Supplies Request</option>
-                            <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training</option>
-                            <option value="category_item" {{ request('type') == 'supply_category' ? 'selected' : '' }}>Supply Categories</option>
-                            <option value="request_category" {{ request('type') == 'supply_item' ? 'selected' : '' }}>Supply Items</option>
+                                <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>
+                                    FishR Registrations
+                                </option>
+                                <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>
+                                    FishR Annexes
+                                </option>
+                                <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>
+                                    BoatR Registrations
+                                </option>
+                                <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>
+                                    BoatR Annexes
+                                </option>
+                                <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>
+                                    RSBSA Registrations
+                                </option>
+                                <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>
+                                    Training Requests
+                                </option>
+                                <option value="seedlings" {{ request('type') == 'seedlings' ? 'selected' : '' }}>
+                                    Supply Requests
+                                </option>
+                                <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>
+                                    User Registrations
+                                </option>
+                                <option value="category_item" {{ request('type') == 'category_item' ? 'selected' : '' }}>
+                                    Supply Items
+                                </option>
+                                <option value="request_category" {{ request('type') == 'request_category' ? 'selected' : '' }}>
+                                    Supply Categories
+                                </option>
                         </select>
                     </div>
 
-                    <!-- Search Input -->
                     <div class="col-md-4">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
-                                placeholder="Search by name or reason..." value="{{ request('search') }}">
-                            <button class="btn btn-outline-secondary btn-sm" type="submit">
+                                placeholder="Search item name or reason..." value="{{ request('search') }}"
+                                oninput="handleSearchInput()" id="searchInput">
+                            <button class="btn btn-outline-secondary btn-sm" type="submit" id="searchButton">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="col-md-4 text-end">
-                        <a href="{{ route('admin.recycle-bin.index') }}" class="btn btn-secondary btn-sm me-2">
-                            <i class="fas fa-sync me-1"></i>Clear
+                    <div class="col-md-5 text-end">
+                        <a href="{{ route('admin.recycle-bin.index') }}" class="btn btn-secondary btn-sm">
+                            <i></i> Clear Filters
                         </a>
                     </div>
                 </div>
@@ -74,12 +78,49 @@
         </div>
     </div>
 
-    <!-- Recycle Bin Items -->
+    <!-- Recycle Bin Items Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-trash-restore me-2"></i>Recycle Bin Items
-            </h6>
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <div></div>
+            <div class="text-center flex-fill">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-trash-alt me-2"></i>Recycle Bin Items
+                </h6>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                            onclick="selectAllItems()" 
+                            id="selectAllBtn"
+                            title="Select All Items on This Page">
+                        <i class="fas fa-check-square me-1"></i>Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                            onclick="deselectAllItems()" 
+                            id="deselectAllBtn"
+                            title="Deselect All Items"
+                            style="display: none;">
+                        <i class="fas fa-square me-1"></i>Deselect All
+                    </button>
+                </div>
+                <div class="btn-group" role="group" id="bulkActionsGroup" style="display: none;">
+                    <button type="button" class="btn btn-sm btn-outline-success" 
+                            onclick="openBulkRestoreModal()" 
+                            title="Restore Selected Items">
+                        <i class="fas fa-undo me-1"></i>Restore
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            onclick="openBulkDeleteModal()" 
+                            title="Permanently Delete Selected Items">
+                        <i class="fas fa-trash-alt me-1"></i>Delete Permanently
+                    </button>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm"
+                        onclick="openEmptyBinModal()"
+                        title="Empty Entire Recycle Bin">
+                    <i class="fas fa-broom me-1"></i>Empty Bin
+                </button>
+            </div>
         </div>
 
         <div class="card-body">
@@ -87,45 +128,57 @@
                 <table class="table table-bordered table-hover" id="recycleBinTable">
                     <thead class="table-dark">
                         <tr>
-                            <th class="text-center">
-                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                            <th class="text-center" style="width: 40px;">
+                                <input type="checkbox" id="checkboxHeaderRecycleBin" 
+                                       onchange="toggleAllCheckboxes(this)">
                             </th>
-                            <th>Item Name</th>
-                            <th>Type</th>
-                            <th>Deleted By</th>
-                            <th>Deleted On</th>
-                            <th>Reason</th>
+                            <th class="text-center">Type</th>
+                            <th class="text-start">Item Name</th>
+                            <th class="text-center">Deleted Date</th>
+                            <th class="text-start">Deleted From</th>
+                            <th class="text-start">Deleted By</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($items as $item)
-                            <tr data-item-id="{{ $item->id }}">
+                            <tr data-item-id="{{ $item->id }}" class="recycle-item">
                                 <td class="text-center">
-                                    <input type="checkbox" class="item-checkbox" value="{{ $item->id }}">
+                                    <input type="checkbox" class="item-checkbox" 
+                                           value="{{ $item->id }}" 
+                                           onchange="updateBulkActionsVisibility()">
                                 </td>
-                                <td>
-                                    <strong>{{ $item->item_name }}</strong>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ $item->type_name }}</span>
                                 </td>
-                                <td>
-                                    <span class="badge bg-info">{{ $item->type_name }}</span>
+                                <td class="text-start">
+                                    <strong class="text-dark">{{ $item->item_name }}</strong>
                                 </td>
-                                <td>{{ $item->deletedBy->name ?? 'Unknown' }}</td>
-                                <td>{{ $item->deleted_at->format('M d, Y h:i A') }}</td>
-                                <td>{{ $item->reason ?? 'No reason provided' }}</td>
+                                 <td class="text-center">
+                                    <small class="text-muted">{{ $item->deleted_at->format('M d, Y') }}</small>
+                                </td>
+                                <td class="text-start">
+                                    <small class="text-muted">{{ $item->reason ?? 'No reason provided' }}</small>
+                                </td>
+                                <td class="text-start">
+                                    <small>{{ $item->deletedBy->name ?? 'Unknown' }}</small>
+                                </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-outline-primary"
-                                            onclick="viewItem({{ $item->id }})" title="View Details">
+                                        <button class="btn btn-outline-primary" 
+                                                onclick="viewRecycleBinItem({{ $item->id }})"
+                                                title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-success"
-                                            onclick="restoreItem({{ $item->id }})" title="Restore">
+                                        <button class="btn btn-outline-success" 
+                                                onclick="restoreRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
+                                                title="Restore Item">
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-danger"
-                                            onclick="deleteItem({{ $item->id }})" title="Remove from Recycle Bin">
-                                            <i class="fas fa-trash"></i>
+                                        <button class="btn btn-outline-danger" 
+                                                onclick="permanentlyDeleteRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
+                                                title="Permanently Delete">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -133,8 +186,8 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center text-muted py-4">
-                                    <i class="fas fa-trash-restore fa-3x mb-3"></i>
-                                    <p>No deleted items</p>
+                                    <i class="fas fa-inbox fa-3x mb-3" style="opacity: 0.3;"></i>
+                                    <p>Recycle Bin is empty</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -145,196 +198,701 @@
             <!-- Pagination -->
             @if ($items->hasPages())
                 <div class="d-flex justify-content-center mt-4">
-                    {{ $items->links('pagination::bootstrap-4') }}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm">
+                            {{-- Previous Page Link --}}
+                            @if ($items->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">Back</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $items->previousPageUrl() }}" rel="prev">Back</a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @php
+                                $currentPage = $items->currentPage();
+                                $lastPage = $items->lastPage();
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($lastPage, $currentPage + 2);
+
+                                if ($endPage - $startPage < 4) {
+                                    if ($startPage == 1) {
+                                        $endPage = min($lastPage, $startPage + 4);
+                                    } else {
+                                        $startPage = max(1, $endPage - 4);
+                                    }
+                                }
+                            @endphp
+
+                            @for ($page = $startPage; $page <= $endPage; $page++)
+                                @if ($page == $currentPage)
+                                    <li class="page-item active">
+                                        <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $items->url($page) }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endfor
+
+                            {{-- Next Page Link --}}
+                            @if ($items->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $items->nextPageUrl() }}" rel="next">Next</a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next</span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
                 </div>
             @endif
         </div>
     </div>
 
-    <!-- Item Details Modal -->
-    <div class="modal fade" id="itemDetailsModal" tabindex="-1">
+    <!-- View Item Details Modal -->
+    <div class="modal fade" id="recycleBinDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title">Item Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash-alt me-2"></i>Recycle Bin Item Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="itemDetailsContent">
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                <div class="modal-body">
+                    <div class="card bg-light mb-3">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-danger">
+                                <i class="fas fa-info-circle me-2"></i>Item Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <small class="d-block text-muted">Type</small>
+                                    <strong id="detailsTypeName" class="text-danger"></strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="d-block text-muted">Item Name</small>
+                                    <strong id="detailsItemName"></strong>
+                                </div>
+                                <div class="col-12">
+                                    <small class="d-block text-muted">Deleted From</small>
+                                    <p id="detailsReason" class="mb-0">-</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="d-block text-muted">Deleted By</small>
+                                    <strong id="detailsDeletedBy"></strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="d-block text-muted">Deleted Date</small>
+                                    <strong id="detailsDeletedAt"></strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="card bg-light">
+                        <div class="card-header bg-white border-0 pb-0">
+                            <h6 class="mb-0 fw-semibold text-danger">
+                                <i class="fas fa-database me-2"></i>Original Data
+                            </h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="detailsData" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <tbody id="dataTableBody">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Permanent Delete Single Item Confirmation Modal -->
+    <div class="modal fade" id="permanentDeleteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash-alt me-2"></i>Permanently Delete Item
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-3" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. The item will be permanently deleted from the recycle bin.</p>
+                    </div>
+                    <div class="alert alert-light border mb-0" role="alert">
+                        <small class="text-muted d-block">Item Name:</small>
+                        <strong class="text-danger" id="deleteItemName"></strong>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()"
+                            id="confirmDeleteBtn">
+                        <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bulk Restore Modal -->
+    <div class="modal fade" id="bulkRestoreModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title w-100 text-center">Restore Items</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3" role="alert">
+                        <!-- <i class="fas fa-info-circle me-2"></i> -->
+                        <p class="mb-0">You are about to restore <strong id="bulkRestoreCount">0</strong> item(s) from the recycle bin.</p>
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="confirmBulkRestore()"
+                            id="confirmBulkRestoreBtn">
+                        <span class="btn-text"><i class="fas fa-undo me-2"></i>Restore Items</span>
+                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Restoring...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Delete Modal -->
+    <div class="modal fade" id="bulkDeleteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash-alt me-2"></i>Permanently Delete Items
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-3" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. You will permanently delete <strong id="bulkDeleteCount">0</strong> item(s).</p>
+                    </div>
+                    <div class="alert alert-light border mb-0" role="alert">
+                        <small class="text-muted">Are you sure you want to proceed?</small>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()"
+                            id="confirmBulkDeleteBtn">
+                        <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty Recycle Bin Confirmation Modal -->
+    <div class="modal fade" id="emptyBinModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-broom me-2"></i>Empty Recycle Bin
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-3" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This will permanently delete all items in the recycle bin. This action cannot be undone.</p>
+                    </div>
+                    <div class="alert alert-light border mb-0" role="alert">
+                        <small class="text-muted">Total items to delete:</small>
+                        <p class="mb-0"><strong class="text-danger" id="totalItemsCount">0</strong></p>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmEmptyBin()"
+                            id="confirmEmptyBtn">
+                        <span class="btn-text"><i class="fas fa-broom me-2"></i>Empty Bin</span>
+                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Emptying...</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <style>
-        .stat-card {
-            border: none;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            transition: all 0.3s ease;
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        .recycle-item {
+            transition: background-color 0.3s ease;
         }
 
-        .stat-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
+        .recycle-item.selected {
+            background-color: #fff3cd;
         }
 
-        .stat-icon i {
-            font-size: 2.5rem;
+        .btn-group-sm > .btn {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.75rem;
+        }
+            #recycleBinDetailsModal .modal-header {
+            background-color: #dc3545 !important;
         }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #495057;
-            line-height: 1;
+        #recycleBinDetailsModal .text-danger {
+            color: #dc3545 !important;
         }
 
-        .stat-label {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        #dataTableBody tr {
+            border-bottom: 1px solid #dee2e6;
         }
 
-        .btn-group-sm .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
+        #dataTableBody tr:last-child {
+            border-bottom: none;
         }
+
+        #dataTableBody td {
+            padding: 0.75rem 0.5rem;
+            vertical-align: middle;
+        }
+
+        #detailsTypeName,
+        #detailsItemName,
+        #detailsDeletedBy,
+        #detailsDeletedAt {
+            color: #dc3545;
+        }
+
     </style>
 
     <script>
-        // Get CSRF token
+        // CSRF Token
         function getCSRFToken() {
-            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         }
 
-        // Toggle select all
-        function toggleSelectAll(checkbox) {
-            const itemCheckboxes = document.querySelectorAll('.item-checkbox');
-            itemCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => removeToast(toast), 5000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        function removeToast(element) {
+            element.classList.remove('show');
+            setTimeout(() => element.remove(), 300);
+        }
+
+        // Checkbox management
+        function toggleAllCheckboxes(headerCheckbox) {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = headerCheckbox.checked;
+            });
+            updateBulkActionsVisibility();
+        }
+
+        function selectAllItems() {
+            document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = true);
+            updateBulkActionsVisibility();
+        }
+
+        function deselectAllItems() {
+            document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = false);
+            updateBulkActionsVisibility();
+        }
+
+        function updateBulkActionsVisibility() {
+            const checked = document.querySelectorAll('.item-checkbox:checked').length;
+            const bulkActionsGroup = document.getElementById('bulkActionsGroup');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const deselectAllBtn = document.getElementById('deselectAllBtn');
+            const headerCheckbox = document.getElementById('checkboxHeaderRecycleBin');
+
+            if (checked > 0) {
+                bulkActionsGroup.style.display = 'flex';
+                selectAllBtn.style.display = 'none';
+                deselectAllBtn.style.display = 'block';
+                headerCheckbox.checked = true;
+
+                // Update row highlighting
+                document.querySelectorAll('.recycle-item').forEach(row => {
+                    const checkbox = row.querySelector('.item-checkbox');
+                    if (checkbox.checked) {
+                        row.classList.add('selected');
+                    } else {
+                        row.classList.remove('selected');
+                    }
+                });
+            } else {
+                bulkActionsGroup.style.display = 'none';
+                selectAllBtn.style.display = 'block';
+                deselectAllBtn.style.display = 'none';
+                headerCheckbox.checked = false;
+                document.querySelectorAll('.recycle-item').forEach(row => row.classList.remove('selected'));
+            }
         }
 
         // View item details
-        function viewItem(itemId) {
-            fetch(`/admin/recycle-bin/${itemId}`, {
+       function viewRecycleBinItem(id) {
+            fetch(`/admin/recycle-bin/${id}`, {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('detailsTypeName').textContent = data.data.type_name;
+                    document.getElementById('detailsItemName').textContent = data.data.item_name;
+                    document.getElementById('detailsReason').textContent = data.data.reason || 'No reason provided';
+                    document.getElementById('detailsDeletedBy').textContent = data.data.deleted_by_name;
+                    document.getElementById('detailsDeletedAt').textContent = data.data.deleted_at;
+                    
+                    // Populate the data table with formatted data
+                    const dataTableBody = document.getElementById('dataTableBody');
+                    dataTableBody.innerHTML = '';
+                    
+                    const itemData = data.data.data;
+                    
+                    if (itemData && typeof itemData === 'object') {
+                        for (const [key, value] of Object.entries(itemData)) {
+                            // Skip certain system fields
+                            if (['created_at', 'updated_at', 'deleted_at'].includes(key)) continue;
+                            
+                            const row = document.createElement('tr');
+                            const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            const formattedValue = formatValue(value);
+                            
+                            row.innerHTML = `
+                                <td style="width: 35%; word-break: break-word;">
+                                    <small class="text-muted">${formattedKey}</small>
+                                </td>
+                                <td style="width: 65%; word-break: break-word;">
+                                    <strong>${formattedValue}</strong>
+                                </td>
+                            `;
+                            
+                            dataTableBody.appendChild(row);
+                        }
+                    }
+                    
+                    new bootstrap.Modal(document.getElementById('recycleBinDetailsModal')).show();
+                }
+            })
+            .catch(err => showToast('error', 'Error loading item details'));
+        }
+
+        // Helper function to format values nicely
+        function formatValue(value) {
+            if (value === null || value === undefined) {
+                return '<span class="text-muted">-</span>';
+            }
+            
+            if (typeof value === 'boolean') {
+                return value ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>';
+            }
+            
+            if (typeof value === 'object') {
+                return JSON.stringify(value);
+            }
+            
+            if (typeof value === 'string' && value.length > 100) {
+                return value.substring(0, 100) + '...';
+            }
+            
+            return value;
+        }
+        // Restore single item
+        function restoreRecycleBinItem(id, name) {
+            fetch(`/admin/recycle-bin/${id}/restore`, {
+                method: 'POST',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    const modal = new bootstrap.Modal(document.getElementById('itemDetailsModal'));
-                    displayItemDetails(data.data);
-                    modal.show();
+                    showToast('success', `"${name}" restored successfully`);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('error', data.message || 'Failed to restore item');
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(err => showToast('error', 'Error restoring item'));
         }
 
-        // Display item details
-        function displayItemDetails(item) {
-            const content = document.getElementById('itemDetailsContent');
-            content.innerHTML = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Name:</strong> ${item.item_name}</p>
-                        <p><strong>Type:</strong> ${item.type_name}</p>
-                        <p><strong>Deleted By:</strong> ${item.deleted_by_name}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Deleted On:</strong> ${item.deleted_at}</p>
-                    </div>
-                </div>
-                <hr>
-                <p><strong>Reason:</strong></p>
-                <p>${item.reason || 'No reason provided'}</p>
-                <hr>
-                <p><strong>Original Data:</strong></p>
-                <div class="bg-light p-3" style="max-height: 300px; overflow-y: auto;">
-                    <pre>${JSON.stringify(item.data, null, 2)}</pre>
-                </div>
-            `;
+        // Permanent delete single item
+        let currentDeleteId = null;
+        function permanentlyDeleteRecycleBinItem(id, name) {
+            currentDeleteId = id;
+            document.getElementById('deleteItemName').textContent = name;
+            new bootstrap.Modal(document.getElementById('permanentDeleteModal')).show();
         }
 
-        // Restore item
-        function restoreItem(itemId) {
-            if (confirm('Are you sure you want to restore this item?')) {
-                fetch(`/admin/recycle-bin/${itemId}/restore`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        showToast('error', data.message);
-                    }
-                })
-                .catch(error => showToast('error', 'Error restoring item'));
+        function confirmPermanentDelete() {
+            if (!currentDeleteId) return;
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            fetch(`/admin/recycle-bin/${currentDeleteId}/permanently-delete`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('permanentDeleteModal'));
+                modal.hide();
+                
+                if (data.success) {
+                    showToast('success', data.message || 'Item deleted permanently');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('error', data.message || 'Failed to delete item');
+                }
+            })
+            .catch(err => showToast('error', 'Error deleting item'))
+            .finally(() => {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            });
+        }
+
+        // Bulk restore
+        function openBulkRestoreModal() {
+            const ids = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => cb.value);
+            if (ids.length === 0) {
+                showToast('warning', 'No items selected');
+                return;
+            }
+
+            document.getElementById('bulkRestoreCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkRestoreModal')).show();
+        }
+
+        function confirmBulkRestore() {
+            const ids = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => cb.value);
+            const btn = document.getElementById('confirmBulkRestoreBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            fetch('/admin/recycle-bin/bulk/restore', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ ids })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('bulkRestoreModal'));
+                modal.hide();
+
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('error', data.message || 'Failed to restore items');
+                }
+            })
+            .catch(err => showToast('error', 'Error restoring items'))
+            .finally(() => {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            });
+        }
+
+        // Bulk permanent delete
+        function openBulkDeleteModal() {
+            const ids = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => cb.value);
+            if (ids.length === 0) {
+                showToast('warning', 'No items selected');
+                return;
+            }
+
+            document.getElementById('bulkDeleteCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkDeleteModal')).show();
+        }
+
+        function confirmBulkDelete() {
+            const ids = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => cb.value);
+            const btn = document.getElementById('confirmBulkDeleteBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            fetch('/admin/recycle-bin/bulk/permanently-delete', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ ids })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal'));
+                modal.hide();
+
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('error', data.message || 'Failed to delete items');
+                }
+            })
+            .catch(err => showToast('error', 'Error deleting items'))
+            .finally(() => {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            });
+        }
+
+        // Empty recycle bin
+        function openEmptyBinModal() {
+            const totalItems = document.querySelectorAll('.recycle-item').length;
+            if (totalItems === 0) {
+                showToast('warning', 'Recycle bin is already empty');
+                return;
+            }
+
+            document.getElementById('totalItemsCount').textContent = totalItems;
+            new bootstrap.Modal(document.getElementById('emptyBinModal')).show();
+        }
+
+        function confirmEmptyBin() {
+            const btn = document.getElementById('confirmEmptyBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            fetch('/admin/recycle-bin/empty', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('emptyBinModal'));
+                modal.hide();
+
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('error', data.message || 'Failed to empty recycle bin');
+                }
+            })
+            .catch(err => showToast('error', 'Error emptying recycle bin'))
+            .finally(() => {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            });
+        }
+        // auto searhc
+       let searchTimeout;
+
+        // Auto search functionality
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500); // Wait 500ms after user stops typing
+        }
+
+        // Handle search input - auto-reset when empty
+        function handleSearchInput() {
+            const searchInput = document.getElementById('searchInput');
+            const filterForm = document.getElementById('filterForm');
+            
+            if (searchInput.value.trim() === '') {
+                // If search is empty, reset and submit
+                filterForm.submit();
+            } else {
+                // If search has value, use auto-search
+                autoSearch();
             }
         }
 
-        // Delete item from recycle bin
-        function deleteItem(itemId) {
-            if (confirm('Remove this item from recycle bin?')) {
-                fetch(`/admin/recycle-bin/${itemId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        showToast('error', data.message);
-                    }
-                })
-                .catch(error => showToast('error', 'Error deleting item'));
-            }
-        }
-
-        // Submit filter form
+        // Submit filter form when dropdowns change
         function submitFilterForm() {
             document.getElementById('filterForm').submit();
-        }
-
-        // Toast notification
-        function showToast(type, message) {
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            const alertHtml = `
-                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-                    <i class="fas ${icon} me-2"></i>${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            const container = document.createElement('div');
-            container.innerHTML = alertHtml;
-            document.body.insertBefore(container.firstElementChild, document.body.firstChild);
         }
     </script>
 @endsection
