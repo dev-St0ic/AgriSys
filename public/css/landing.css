@@ -2118,7 +2118,7 @@ header {
 }
 
 .contact-modal-close {
-    position: relative;
+    position: absolute;
     z-index: 3;
     font-size: 28px;
     color: white;
@@ -2127,7 +2127,6 @@ header {
     cursor: pointer;
     width: 38px;
     height: 38px;
-    left: 100px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -2136,6 +2135,30 @@ header {
     padding: 0;
     line-height: 1;
     flex-shrink: 0;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+/* Add mobile-specific adjustment */
+@media (max-width: 600px) {
+    .contact-modal-close {
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        font-size: 26px;
+        top: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-modal-close {
+        right: 14px;
+        width: 34px;
+        height: 34px;
+        font-size: 24px;
+        top: 75%;
+    }
 }
 
 /* ==============================================
