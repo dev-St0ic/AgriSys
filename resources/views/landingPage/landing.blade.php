@@ -86,7 +86,7 @@
                 <i class="fas fa-ship"></i> BoatR Registration
             </a>
             <a href="javascript:void(0)" class="mobile-nav-item" onclick="openFormTraining(event); closeMobileNav();">
-                <i class="fas fa-chalkboard-teacher"></i> Training Registration
+                <i class="fas fa-chalkboard-teacher"></i> Training Request
             </a>
         </div>
     </nav>
@@ -342,7 +342,7 @@
                         <img src="{{ asset('images/services/ServicesTrainingTemporary.jpg') }}"
                             alt="Training Service">
                     </div>
-                    <h3>Training Registration</h3>
+                    <h3>Training Request</h3>
                     <p>Apply for agricultural training programs to enhance your farming skills and knowledge.</p>
                     <button class="btn-choice" onclick="openFormTraining(event)">Apply Now</button>
                 </div>
