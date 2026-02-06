@@ -580,25 +580,17 @@ header {
 
 @media (max-width: 360px) {
     .slideshow-controls {
-        flex-direction: column;
+        bottom: 15px;
         gap: 10px;
-        align-items: center;
+        flex-direction: row;
+        justify-content: center;
     }
 
-    .slideshow-nav.prev,
-    .slide-indicators,
-    .slideshow-nav.next {
-        order: initial;
-    }
-
-    .slide-indicators {
-        order: 1;
-    }
-
-    .slideshow-controls .slideshow-nav {
-        order: 2;
-        display: inline-flex;
-        margin: 0 5px;
+    .slideshow-nav {
+        padding: 5px 8px;
+        font-size: 12px;
+        width: 28px;
+        height: 28px;
     }
 }
 

@@ -1,5 +1,5 @@
 // ==============================================
-// AGRISYS MODAL NOTIFICATION SYSTEM
+// AGRISYS MODAL NOTIFICATION SYSTEM (MOBILE OPTIMIZED)
 // Consistent, modern modal-based notifications
 // Replaces browser alert() calls with styled modals
 // ==============================================
@@ -312,11 +312,29 @@ class AgrisysModal {
                 color: white;
             }
 
-            /* Responsive */
+            /* ========================================== */
+            /* MOBILE CENTERING FIX */
+            /* ========================================== */
+            
             @media (max-width: 480px) {
+                .agrisys-modal-overlay {
+                    padding: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    width: 100vw;
+                    height: 100vh;
+                }
+
                 .agrisys-modal {
-                    width: 95%;
-                    margin: 16px;
+                    width: 90vw !important;
+                    max-width: 400px !important;
+                    margin: 0 auto !important;
+                    max-height: 80vh;
+                }
+
+                .agrisys-modal-overlay.show .agrisys-modal {
+                    transform: scale(1) translateY(0) !important;
                 }
 
                 .agrisys-modal-header {
@@ -325,11 +343,13 @@ class AgrisysModal {
 
                 .agrisys-modal-body {
                     padding: 16px 20px;
+                    max-height: 40vh;
                 }
 
                 .agrisys-modal-footer {
                     padding: 14px 20px 20px;
                     flex-direction: column;
+                    gap: 10px;
                 }
 
                 .agrisys-modal-btn {
@@ -341,6 +361,41 @@ class AgrisysModal {
                     width: 44px;
                     height: 44px;
                     font-size: 20px;
+                }
+
+                .agrisys-modal-title {
+                    font-size: 16px;
+                }
+
+                .agrisys-modal-message {
+                    font-size: 14px;
+                }
+            }
+
+            /* For very small screens (landscape mobile) */
+            @media (max-height: 600px) {
+                .agrisys-modal-body {
+                    max-height: 30vh !important;
+                }
+
+                .agrisys-modal {
+                    max-height: 70vh !important;
+                }
+            }
+
+            /* Tablet sizing */
+            @media (min-width: 481px) and (max-width: 768px) {
+                .agrisys-modal {
+                    width: 85vw !important;
+                    max-width: 500px !important;
+                }
+
+                .agrisys-modal-footer {
+                    flex-direction: row;
+                }
+
+                .agrisys-modal-btn {
+                    width: auto;
                 }
             }
 
@@ -661,4 +716,4 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = { AgrisysModal, agrisysModal, showAgrisysAlert };
 }
 
-console.log('AgriSys Modal Notification System loaded');
+console.log('AgriSys Modal Notification System loaded (Mobile Optimized)');
