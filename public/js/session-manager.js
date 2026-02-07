@@ -187,7 +187,7 @@ handleSessionExpired(reason = 'unknown') {
 async destroySessionOnServer() {
     try {
         console.log('🔄 Destroying session on server...');
-        
+
         const response = await fetch('/auth/logout', {
             method: 'POST',
             headers: {
@@ -363,7 +363,7 @@ async destroySessionOnServer() {
 
         // CRITICAL: Append directly to body to bypass any stacking context issues
         document.body.appendChild(notification);
-        
+
         console.log('✅ Session expired modal displayed');
 
         // Prevent interactions with page
@@ -406,7 +406,7 @@ async destroySessionOnServer() {
      */
     reloadToLoginPage() {
         console.log('🔄 Reloading to login page...');
-        
+
         // Clear user data before reload
         window.userData = null;
         sessionStorage.clear();
@@ -415,7 +415,7 @@ async destroySessionOnServer() {
         const loginUrl = new URL(window.location.origin);
         loginUrl.searchParams.set('session_expired', 'true');
         loginUrl.searchParams.set('t', Date.now());
-        
+
         window.location.href = loginUrl.toString();
     },
 
@@ -485,7 +485,7 @@ window.confirmLogoutEnhanced = async function() {
     confirmBtn.disabled = true;
     const btnText = confirmBtn.querySelector('.btn-text');
     const btnLoader = confirmBtn.querySelector('.btn-loader');
-    
+
     if (btnText) btnText.style.display = 'none';
     if (btnLoader) btnLoader.style.display = 'inline';
 
@@ -593,7 +593,7 @@ window.fetch = function(...args) {
         // Check for 401 Unauthorized or 403 Forbidden
         if ((response.status === 401 || response.status === 403) && window.userData) {
             console.log('🔴 Received ' + response.status + ' response - session expired');
-            
+
             // Only handle if it's not a logout request (logout requests are expected to fail if already expired)
             if (!args[0].includes('/auth/logout')) {
                 sessionManager.handleSessionExpired('server');
@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (sessionExpired === 'true' || loggedOut === 'true') {
         // Clear URL parameter
         window.history.replaceState({}, document.title, window.location.pathname);
-        
+
         // Show session expired/logged out message if applicable
         if (sessionExpired === 'true' && !window.userData) {
             if (typeof showNotification === 'function') {
@@ -643,8 +643,10 @@ document.addEventListener('visibilitychange', function() {
     } else {
         console.log('📱 Page is visible - checking session');
         // Check session validity when user returns
+        // Note: checkSessionValidity is currently disabled
         if (window.userData && sessionManager.state.isSessionActive && !sessionManager.state.isExpired) {
-            sessionManager.checkSessionValidity();
+            // Session check disabled - using activity-based timeout only
+            console.log('✓ Session still active');
         }
     }
 });

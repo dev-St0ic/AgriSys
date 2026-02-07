@@ -18,6 +18,169 @@
     <!-- Page-specific styles -->
     @yield('styles')
 
+    <!-- Language Selector Styles -->
+    <style>
+        /* Language Selector for Admin */
+        .admin-language-selector {
+            margin-right: 20px;
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .admin-lang-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border: 2px solid #4CAF50;
+            border-radius: 20px;
+            background-color: white;
+            color: #333;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .admin-lang-dropdown-btn:hover {
+            background-color: #f0f9f0;
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.2);
+        }
+
+        .admin-lang-dropdown-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .admin-lang-dropdown-btn.active .admin-lang-globe-icon,
+        .admin-lang-dropdown-btn.active .admin-lang-chevron {
+            color: white;
+        }
+
+        .admin-lang-globe-icon {
+            font-size: 16px;
+            color: #4CAF50;
+            display: flex;
+            align-items: center;
+        }
+
+        .admin-lang-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .admin-lang-chevron {
+            font-size: 14px;
+            color: #4CAF50;
+            transition: transform 0.3s ease;
+        }
+
+        .admin-lang-dropdown-btn.open .admin-lang-chevron {
+            transform: rotate(180deg);
+        }
+
+        .admin-lang-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            background: white;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 120px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .admin-lang-dropdown-menu.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .admin-lang-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .admin-lang-option:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .admin-lang-option:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .admin-lang-option:hover {
+            background-color: #f0f9f0;
+        }
+
+        .admin-lang-option.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .admin-lang-option .check-icon {
+            margin-left: auto;
+            font-size: 14px;
+            color: #4CAF50;
+        }
+
+        .admin-lang-option.active .check-icon {
+            color: white;
+        }
+
+        /* Hide ALL Google Translate default elements */
+        #google_translate_element_admin,
+        #google_translate_element_admin *,
+        .goog-te-banner-frame.skiptranslate,
+        .goog-te-gadget,
+        .goog-te-gadget-simple,
+        .goog-te-gadget-icon,
+        .goog-te-combo,
+        .goog-logo-link,
+        .goog-te-gadget span,
+        .goog-te-menu-value,
+        .goog-te-menu-value span,
+        .goog-te-balloon-frame,
+        div#goog-gt-,
+        .goog-te-spinner-pos {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+
+        body.translated-ltr {
+            top: 0 !important;
+        }
+
+        .skiptranslate,
+        .goog-te-banner-frame {
+            display: none !important;
+        }
+    </style>
+
     <!-- Apply sidebar state IMMEDIATELY to prevent flash -->
     <script>
         // Inline script to apply state before any rendering
@@ -1032,6 +1195,34 @@
                                 <h1 class="h2 text-primary">@yield('page-title', '')</h1>
                                 <div class="btn-toolbar mb-2 mb-md-0">
                                     <div class="d-flex align-items-center profile-section">
+                                        <!-- Language Selector -->
+                                        <div class="admin-language-selector">
+                                            <button class="admin-lang-dropdown-btn" onclick="toggleAdminLangDropdown()"
+                                                id="adminLangDropdownBtn">
+                                                <span class="admin-lang-globe-icon">
+                                                    <i class="fas fa-globe"></i>
+                                                </span>
+                                                <span class="admin-lang-text" id="adminCurrentLangText">English</span>
+                                                <span class="admin-lang-chevron">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </span>
+                                            </button>
+                                            <div class="admin-lang-dropdown-menu" id="adminLangDropdownMenu">
+                                                <div class="admin-lang-option active"
+                                                    onclick="selectAdminLanguage('en', 'English')" data-lang="en">
+                                                    English
+                                                    <span class="check-icon"><i class="fas fa-check"></i></span>
+                                                </div>
+                                                <div class="admin-lang-option"
+                                                    onclick="selectAdminLanguage('tl', 'Filipino')" data-lang="tl">
+                                                    Filipino
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hidden Google Translate Element -->
+                                        <div id="google_translate_element_admin"></div>
+
                                         <!-- Notification Bell with Live Updates -->
                                         <div class="dropdown position-relative">
                                             <button class="btn btn-link text-dark position-relative p-0" type="button"
@@ -1928,6 +2119,185 @@
             color: #777 !important;
         }
     </style>
+
+    <!-- Language Translation Script -->
+    <script type="text/javascript">
+        // Initialize Google Translate for Admin
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,tl',
+                autoDisplay: false
+            }, 'google_translate_element_admin');
+        }
+
+        // Toggle language dropdown
+        function toggleAdminLangDropdown() {
+            const dropdown = document.getElementById('adminLangDropdownMenu');
+            const btn = document.getElementById('adminLangDropdownBtn');
+            dropdown.classList.toggle('open');
+            btn.classList.toggle('open');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const selector = document.querySelector('.admin-language-selector');
+            const dropdown = document.getElementById('adminLangDropdownMenu');
+            const btn = document.getElementById('adminLangDropdownBtn');
+
+            if (selector && !selector.contains(e.target)) {
+                dropdown?.classList.remove('open');
+                btn?.classList.remove('open');
+            }
+        });
+
+        // Close dropdown on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const dropdown = document.getElementById('adminLangDropdownMenu');
+                const btn = document.getElementById('adminLangDropdownBtn');
+                dropdown?.classList.remove('open');
+                btn?.classList.remove('open');
+            }
+        });
+
+        // Select language from dropdown
+        function selectAdminLanguage(langCode, langName) {
+            // Close dropdown first
+            document.getElementById('adminLangDropdownMenu').classList.remove('open');
+            document.getElementById('adminLangDropdownBtn').classList.remove('open');
+
+            // Update UI immediately for better UX
+            document.getElementById('adminCurrentLangText').textContent = langName;
+
+            // Update active state in dropdown
+            document.querySelectorAll('.admin-lang-option').forEach(option => {
+                option.classList.remove('active');
+                const checkIcon = option.querySelector('.check-icon');
+                if (checkIcon) {
+                    checkIcon.remove();
+                }
+            });
+
+            const selectedOption = document.querySelector(`.admin-lang-option[data-lang=\"${langCode}\"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('active');
+                if (!selectedOption.querySelector('.check-icon')) {
+                    const checkIcon = document.createElement('span');
+                    checkIcon.className = 'check-icon';
+                    checkIcon.innerHTML = '<i class=\"fas fa-check\"></i>';
+                    selectedOption.appendChild(checkIcon);
+                }
+            }
+
+            // Set cookies for persistence
+            const googleTransCookie = langCode === 'en' ? '/en/en' : `/en/${langCode}`;
+            document.cookie = `googtrans=${googleTransCookie}; path=/`;
+            document.cookie = `googtrans=${googleTransCookie}; path=/; domain=${window.location.hostname}`;
+
+            // Try to trigger Google Translate via the select element
+            const translateSelect = document.querySelector('.goog-te-combo');
+            if (translateSelect && translateSelect.value !== undefined) {
+                // Google Translate is ready - use it directly (no reload needed)
+                translateSelect.value = langCode;
+                translateSelect.dispatchEvent(new Event('change'));
+            } else {
+                // Google Translate not initialized yet - reload with cookie set
+                location.reload();
+            }
+        }
+
+        // Check and restore language preference on page load
+        window.addEventListener('load', function() {
+            // Wait for Google Translate to initialize
+            setTimeout(function() {
+                const savedLang = getAdminCookie('googtrans');
+                if (savedLang) {
+                    const langCode = savedLang.split('/')[2] || 'en';
+                    const langName = langCode === 'tl' ? 'Filipino' : 'English';
+
+                    // Update button text
+                    const currentLangText = document.getElementById('adminCurrentLangText');
+                    if (currentLangText) {
+                        currentLangText.textContent = langName;
+                    }
+
+                    // Update dropdown active state
+                    document.querySelectorAll('.admin-lang-option').forEach(option => {
+                        option.classList.remove('active');
+                        const checkIcon = option.querySelector('.check-icon');
+                        if (checkIcon) {
+                            checkIcon.remove();
+                        }
+                    });
+
+                    const activeOption = document.querySelector(
+                        `.admin-lang-option[data-lang=\"${langCode}\"]`);
+                    if (activeOption) {
+                        activeOption.classList.add('active');
+                        if (!activeOption.querySelector('.check-icon')) {
+                            const checkIcon = document.createElement('span');
+                            checkIcon.className = 'check-icon';
+                            checkIcon.innerHTML = '<i class=\"fas fa-check\"></i>';
+                            activeOption.appendChild(checkIcon);
+                        }
+                    }
+                }
+
+                // Hide Google Translate elements
+                hideAdminGoogleTranslateElements();
+            }, 1000);
+        });
+
+        // Function to aggressively hide all Google Translate UI elements
+        function hideAdminGoogleTranslateElements() {
+            const translateElement = document.getElementById('google_translate_element_admin');
+            if (translateElement) {
+                translateElement.style.display = 'none';
+                translateElement.style.visibility = 'hidden';
+            }
+
+            const selectors = [
+                '.goog-te-gadget',
+                '.goog-te-combo',
+                '.goog-te-banner-frame',
+                '.goog-te-balloon-frame',
+                '.goog-te-menu-frame',
+                '.skiptranslate',
+                'iframe.goog-te-banner-frame',
+                'iframe.goog-te-menu-frame'
+            ];
+
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.display = 'none !important';
+                    el.style.visibility = 'hidden !important';
+                    el.style.opacity = '0 !important';
+                });
+            });
+        }
+
+        // Run the hiding function periodically
+        setInterval(hideAdminGoogleTranslateElements, 500);
+
+        // Also run on DOM changes
+        const adminObserver = new MutationObserver(hideAdminGoogleTranslateElements);
+        adminObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Helper function to get cookie
+        function getAdminCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+    </script>
 </body>
 
 </html>

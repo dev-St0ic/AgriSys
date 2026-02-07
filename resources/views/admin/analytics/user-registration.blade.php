@@ -141,11 +141,11 @@
             <div class="card border-0 shadow-sm h-100 metric-card">
                 <div class="card-body text-center p-4">
                     <div class="metric-icon mb-3 mx-auto">
-                        <i class="fas fa-envelope fa-2x text-purple"></i>
+                        <i class="fas fa-user-check fa-2x text-purple"></i>
                     </div>
-                    <h2 class="text-dark mb-1">{{ $overview['email_verification_rate'] }}%</h2>
-                    <h6 class="text-muted mb-2">Email Verification</h6>
-                    <small class="text-muted">{{ number_format($overview['email_verified']) }} verified</small>
+                    <h2 class="text-dark mb-1">{{ $overview['profile_completion_rate'] }}%</h2>
+                    <h6 class="text-muted mb-2">Profile Completion</h6>
+                    <small class="text-muted">{{ number_format($overview['profile_completed']) }} completed</small>
                 </div>
             </div>
         </div>
@@ -180,20 +180,24 @@
                     </div>
                     <div class="status-legends">
                         @foreach ($statusAnalysis['counts'] as $status => $count)
-                            <div class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
-                                <span class="d-flex align-items-center">
-                                    <span class="legend-dot me-2"
-                                        style="background-color: {{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : ($status === 'pending' ? '#f59e0b' : ($status === 'unverified' ? '#6b7280' : '#1f2937'))) }};"></span>
-                                    {{ ucfirst($status) }}
-                                </span>
-                                <div>
-                                    <span class="badge"
-                                        style="background-color: {{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : ($status === 'pending' ? '#f59e0b' : ($status === 'unverified' ? '#6b7280' : '#1f2937'))) }};">
-                                        {{ $count }}
+                            @if ($status !== 'banned')
+                                <div
+                                    class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
+                                    <span class="d-flex align-items-center">
+                                        <span class="legend-dot me-2"
+                                            style="background-color: {{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : ($status === 'pending' ? '#f59e0b' : '#6b7280')) }};"></span>
+                                        {{ ucfirst($status) }}
                                     </span>
-                                    <small class="text-muted ms-1">{{ $statusAnalysis['percentages'][$status] }}%</small>
+                                    <div>
+                                        <span class="badge"
+                                            style="background-color: {{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : ($status === 'pending' ? '#f59e0b' : '#6b7280')) }};">
+                                            {{ $count }}
+                                        </span>
+                                        <small
+                                            class="text-muted ms-1">{{ $statusAnalysis['percentages'][$status] }}%</small>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -280,7 +284,7 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-file-alt me-2 text-warning"></i>Verification Status
+                        <i class="fas fa-file-alt me-2 text-warning"></i>Profile & Document Status
                     </h5>
                 </div>
                 <div class="card-body">
@@ -313,19 +317,38 @@
                         </div>
                     </div>
 
-                    <!-- Email Verification -->
-                    <div class="alert alert-success mb-0 p-2">
+                    <!-- Profile Completion -->
+                    <div class="alert alert-info mb-3 p-2">
                         <div class="d-flex justify-content-between align-items-center">
-                            <small><i class="fas fa-envelope-check me-1"></i>Email Verified</small>
-                            <span class="badge bg-success">{{ $emailVerificationAnalysis['verified'] }} users</span>
+                            <span class="text-sm"><i class="fas fa-user-check me-1"></i>Profile Completed</span>
+                            <strong>{{ number_format($overview['profile_completed']) }}</strong>
                         </div>
                         <div class="progress mt-2" style="height: 6px;">
-                            <div class="progress-bar bg-success"
-                                style="width: {{ $emailVerificationAnalysis['verification_rate'] }}%"></div>
+                            <div class="progress-bar bg-info" role="progressbar"
+                                style="width: {{ $overview['profile_completion_rate'] }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Number Verification (SMS) -->
+                    <div class="alert alert-success mb-0 p-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small><i class="fas fa-phone me-1"></i>Has Contact Number</small>
+                            <span class="badge bg-success">{{ number_format($overview['total_registrations']) }}
+                                users</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: 100%"></div>
                         </div>
                     </div>
 
                     <!-- Impact Info -->
+                    <div class="mt-3 p-2 bg-light rounded">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Profile completion helps users access all services. Contact number is required for SMS
+                            notifications.
+                        </small>
+                    </div>
                     <div class="mt-3 p-2 bg-light rounded">
                         <small class="text-muted">
                             <strong>Impact:</strong> Complete docs improve approval by
@@ -405,7 +428,6 @@
                                     <th class="text-center">Total</th>
                                     <th class="text-center">Approved</th>
                                     <th class="text-center">Approval Rate</th>
-                                    <th class="text-center">Verified</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -440,10 +462,6 @@
                                                 <small
                                                     class="fw-semibold">{{ round(($barangay->approved / max(1, $barangay->total_registrations)) * 100, 1) }}%</small>
                                             </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span
-                                                class="badge bg-info text-white px-2 py-1">{{ $barangay->email_verified }}</span>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -1087,23 +1105,45 @@
                             const ctx = document.getElementById('userRegStatusChart');
                             if (!ctx) return;
 
+                            // Check if there's any data
+                            const statusData = [
+                                @foreach ($statusAnalysis['counts'] as $status => $count)
+                                    @if ($status !== 'banned')
+                                        {{ $count }},
+                                    @endif
+                                @endforeach
+                            ];
+                            const hasData = statusData.some(val => val > 0);
+
+                            if (!hasData) {
+                                ctx.parentElement.innerHTML =
+                                    '<div class="text-center text-muted py-5"><i class="fas fa-chart-pie fa-3x mb-3 opacity-25"></i><p class="mb-0">No data available</p><small>Add some user registrations to see status distribution</small></div>';
+                                return;
+                            }
+
                             chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
                                 type: 'doughnut',
                                 data: {
                                     labels: [
                                         @foreach ($statusAnalysis['counts'] as $status => $count)
-                                            '{{ ucfirst($status) }}',
+                                            @if ($status !== 'banned')
+                                                '{{ ucfirst($status) }}',
+                                            @endif
                                         @endforeach
                                     ],
                                     datasets: [{
                                         data: [
-                                            @foreach ($statusAnalysis['counts'] as $count)
-                                                {{ $count }},
+                                            @foreach ($statusAnalysis['counts'] as $status => $count)
+                                                @if ($status !== 'banned')
+                                                    {{ $count }},
+                                                @endif
                                             @endforeach
                                         ],
                                         backgroundColor: [
                                             @foreach ($statusAnalysis['counts'] as $status => $count)
-                                                '{{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : ($status === 'pending' ? '#f59e0b' : ($status === 'unverified' ? '#6b7280' : '#1f2937'))) }}',
+                                                @if ($status !== 'banned')
+                                                    '{{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : ($status === 'pending' ? '#f59e0b' : '#6b7280')) }}',
+                                                @endif
                                             @endforeach
                                         ],
                                         borderColor: '#ffffff',
@@ -1224,6 +1264,20 @@
                         function initializeTrendsChart() {
                             const ctx = document.getElementById('userRegTrendsChart');
                             if (!ctx) return;
+
+                            // Check if there's any data
+                            const trendsData = [
+                                @foreach ($monthlyTrends as $trend)
+                                    {{ $trend->total_registrations }},
+                                @endforeach
+                            ];
+                            const hasData = trendsData.length > 0 && trendsData.some(val => val > 0);
+
+                            if (!hasData) {
+                                ctx.parentElement.innerHTML =
+                                    '<div class="text-center text-muted py-5"><i class="fas fa-chart-line fa-3x mb-3 opacity-25"></i><p class="mb-0">No data available</p><small>Add some user registrations to see trends over time</small></div>';
+                                return;
+                            }
 
                             chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
                                 type: 'line',
