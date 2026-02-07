@@ -25,6 +25,7 @@ use App\Http\Controllers\DSSController;
 use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ActivityLogApiController;
 use App\Http\Controllers\SlideshowController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminDashboardController;
@@ -387,43 +388,23 @@ Route::prefix('admin/notifications')->name('admin.notifications.')->middleware([
     // ==============================================
 // Activity Logs Routes (Admin only)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    // Activity Logs Routes - Specific routes BEFORE generic ones
+    
+    // Activity Logs Routes
+    Route::prefix('activity-logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+        Route::get('/{id}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
+        Route::get('/export', [ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
+        Route::get('/summary', [ActivityLogController::class, 'auditSummary'])->name('admin.activity-logs.audit-summary');
+    });
 
-    // Export route (must be before /{id})
-    Route::get('activity-logs/export', [ActivityLogController::class, 'export'])
-        ->name('admin.activity-logs.export');
+});
 
-    // Audit summary route (must be before /{id})
-    Route::get('activity-logs/audit-summary', [ActivityLogController::class, 'auditSummary'])
-        ->name('admin.activity-logs.audit-summary');
+// routes/api.php - Add JSON API routes
+Route::middleware(['auth', 'api'])->prefix('api')->group(function () {
+    
+    Route::get('/activity-logs/{id}', [ActivityLogApiController::class, 'show']);
 
-    // Compliance report route (must be before /{id})
-    Route::get('activity-logs/compliance-report', [ActivityLogController::class, 'complianceReport'])
-        ->name('admin.activity-logs.compliance-report');
-
-    // Model logs route (must be before /{id})
-    Route::get('activity-logs/model/{modelType}/{modelId}', [ActivityLogController::class, 'forModel'])
-        ->name('admin.activity-logs.for-model');
-
-    // User logs route (must be before /{id})
-    Route::get('activity-logs/user/{userId}', [ActivityLogController::class, 'byUser'])
-        ->name('admin.activity-logs.by-user');
-
-    // Archive route (POST)
-    Route::post('activity-logs/archive', [ActivityLogController::class, 'archiveOld'])
-        ->name('admin.activity-logs.archive');
-
-    // Clear route (DELETE)
-    Route::delete('activity-logs/clear', [ActivityLogController::class, 'clearOld'])
-        ->name('admin.activity-logs.clear');
-
-    // List all activity logs (must be LAST before /{id})
-    Route::get('activity-logs', [ActivityLogController::class, 'index'])
-        ->name('admin.activity-logs.index');
-
-    // View specific log (MUST BE LAST - generic catch-all)
-    Route::get('activity-logs/{id}', [ActivityLogController::class, 'show'])
-        ->name('admin.activity-logs.show');
+});
 
     // ==============================================
     // SLIDESHOW MANAGEMENT
@@ -436,7 +417,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::post('/update-order', [SlideshowController::class, 'updateOrder'])->name('update-order');
         Route::post('/{id}/toggle-status', [SlideshowController::class, 'toggleStatus'])->name('toggle-status');
     });
-});
     // ==============================================
     // ANALYTICS ROUTES - SECTION
     // ==============================================
