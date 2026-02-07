@@ -1348,21 +1348,26 @@
             margin: 0 0 1rem 0;
         }
 
-        .service-stats {
+.service-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            gap: 0.5rem;
             margin-bottom: 1rem;
+            width: 100%;
         }
 
         .stat-item {
             text-align: center;
+            padding: 0;
+            min-width: 0;
         }
 
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #333;
+            display: block;
+            white-space: nowrap;
         }
 
         .stat-value.success {
@@ -1378,9 +1383,11 @@
         }
 
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.6rem;
             color: #999;
             margin-top: 0.25rem;
+            white-space: nowrap;
+            display: block;
         }
 
         .service-action-link {
