@@ -324,7 +324,7 @@ class AdminDashboardController extends Controller
                 'route' => 'admin.boatr.requests'
             ],
             'training' => [
-                'name' => 'Training Registration',
+                'name' => 'Training Request',
                 'icon' => 'fas fa-graduation-cap',
                 'pending' => TrainingApplication::whereIn('status', ['pending', 'under_review'])->count(),
                 'approved' => TrainingApplication::where('status', 'approved')->count(),

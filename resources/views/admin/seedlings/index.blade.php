@@ -435,7 +435,7 @@
                                                 @if ($request->hasDocuments())
                                                     <div class="seedling-document-previews">
                                                         <button type="button" class="seedling-mini-doc"
-                                                            onclick="viewDocument('{{ $request->document_path }}', 'Supply Request #{{ $request->request_number }} - Supporting Document')"
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Supporting Document')"
                                                             title="Supporting Document">
                                                             <div class="seedling-mini-doc-icon">
                                                                 <i class="fas fa-file-alt text-primary"></i>
@@ -511,12 +511,12 @@
             @foreach ($requests as $request)
                 <!-- View Modal Enhanced -->
                 <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
-                    <div class="modal-dialog modal-xl">
+                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title w-100 text-center">
                                     <i></i>
-                                    Supply Request Details - {{ $request->request_number }}
+                                    Supply Request Details 
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -902,8 +902,8 @@
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title w-100 text-center">
-                                    <i></i>Edit Request - <span
-                                        id="editRequestNumber{{ $request->id }}">{{ $request->request_number }}</span>
+                                    <i></i>Edit Request <span
+                                        id="editRequestNumber{{ $request->id }}"></span>
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -1327,7 +1327,7 @@
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title w-100 text-center">
                                     <i></i>
-                                    Change Status Items - {{ $request->request_number }}
+                                    Change Status Items
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -2044,6 +2044,29 @@
         </div>
     </div>
     </div>
+
+    <!-- Document Viewer Modal -->
+<div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <!-- Added modal-dialog-scrollable and modal-dialog-centered -->
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white text-center">
+                <h5 class="modal-title w-100 text-center" id="documentModalLabel">
+                    <i></i>Supporting Document
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="documentViewer" style="max-height: 80vh; overflow-y: auto;">
+                <!-- Document will be loaded here -->
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <style>
         /* Modern Statistics Cards */
@@ -3054,24 +3077,23 @@
             }
 
             // Create modal if it doesn't exist
-
             if (!document.getElementById('documentModal')) {
                 const modalHTML = `
                     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content">
-                                <div class="modal-header bg-primary text-white position-relative">
-                                    <h5 class="modal-title w-100 text-center" id="documentModalLabel">
-                                        Supporting Document
+                                <div class="modal-header bg-primary text-white sticky-top">
+                                    <h5 class="modal-title" id="documentModalLabel">
+                                        <i class="fas fa-file-alt me-2"></i>Supporting Document
                                     </h5>
-                                    <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body p-0" id="documentViewer">
+                                <div class="modal-body" id="documentViewer" style="max-height: calc(100vh - 200px); overflow-y: auto;">
                                     <!-- Document will be loaded here -->
                                 </div>
-                                <div class="modal-footer bg-light">
+                                <div class="modal-footer bg-light sticky-bottom">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        <i></i>Close
+                                        <i class="fas fa-times me-1"></i>Close
                                     </button>
                                 </div>
                             </div>
