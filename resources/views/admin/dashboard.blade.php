@@ -8,7 +8,7 @@
         <!-- Header Section with Welcome -->
         <div class="dashboard-welcome-header">
             <div class="welcome-content">
-                <h1 class="welcome-title">Good Morning!</h1>
+                <h1 class="welcome-title" id="greeting">Good Morning!</h1>
             </div>
         </div>
 
@@ -965,6 +965,28 @@
             // Refresh every 10 minutes
             setInterval(updateWeather, 600000);
         })();
+
+        // Dynamic greeting based on time of day
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('greeting');
+            
+            if (hour >= 5 && hour < 12) {
+                greetingEl.textContent = 'Good Morning!';
+            } else if (hour >= 12 && hour < 17) {
+                greetingEl.textContent = 'Good Afternoon!';
+            } else if (hour >= 17 && hour < 21) {
+                greetingEl.textContent = 'Good Evening!';
+            } else {
+                greetingEl.textContent = 'Hello!';
+            }
+        }
+
+        // Call on page load
+        updateGreeting();
+
+        // Optional: Update greeting every minute
+        setInterval(updateGreeting, 60000);
     </script>
 
     <style>
@@ -1348,21 +1370,26 @@
             margin: 0 0 1rem 0;
         }
 
-        .service-stats {
+.service-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            gap: 0.5rem;
             margin-bottom: 1rem;
+            width: 100%;
         }
 
         .stat-item {
             text-align: center;
+            padding: 0;
+            min-width: 0;
         }
 
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #333;
+            display: block;
+            white-space: nowrap;
         }
 
         .stat-value.success {
@@ -1378,9 +1405,11 @@
         }
 
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.6rem;
             color: #999;
             margin-top: 0.25rem;
+            white-space: nowrap;
+            display: block;
         }
 
         .service-action-link {

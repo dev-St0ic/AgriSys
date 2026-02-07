@@ -357,8 +357,8 @@ function filterApplicationsByStatus(status) {
             }
         });
 
-        // Show empty message ONLY if no cards match filter
-        if (visibleCount === 0) {
+        // NEW (CORRECT - shows only 1 message)
+        if (visibleCount === 0 && cards.length > 0) {
             showEmptyFilterMessage(status);
         }
     }

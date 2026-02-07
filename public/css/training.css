@@ -248,7 +248,7 @@ input::placeholder {
     }
 
     .training-form-actions {
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: stretch;
     }
 

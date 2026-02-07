@@ -423,7 +423,7 @@
             <a href="javascript:window.close();" class="back-button">Close Window</a>
 
             <div class="footer-info">
-                <p>© 2025 City Agriculture Office of San Pedro, Laguna. All rights reserved.</p>
+                <p>© 2026 City Agriculture Office of San Pedro, Laguna. All rights reserved.</p>
             </div>
         </div>
     </div>

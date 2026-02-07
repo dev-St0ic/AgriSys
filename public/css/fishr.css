@@ -238,7 +238,7 @@
     }
     
     .fishr-form-buttons {
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: stretch;
     }
     

@@ -580,25 +580,17 @@ header {
 
 @media (max-width: 360px) {
     .slideshow-controls {
-        flex-direction: column;
+        bottom: 15px;
         gap: 10px;
-        align-items: center;
+        flex-direction: row;
+        justify-content: center;
     }
 
-    .slideshow-nav.prev,
-    .slide-indicators,
-    .slideshow-nav.next {
-        order: initial;
-    }
-
-    .slide-indicators {
-        order: 1;
-    }
-
-    .slideshow-controls .slideshow-nav {
-        order: 2;
-        display: inline-flex;
-        margin: 0 5px;
+    .slideshow-nav {
+        padding: 5px 8px;
+        font-size: 12px;
+        width: 28px;
+        height: 28px;
     }
 }
 
@@ -2118,7 +2110,7 @@ header {
 }
 
 .contact-modal-close {
-    position: relative;
+    position: absolute;
     z-index: 3;
     font-size: 28px;
     color: white;
@@ -2127,7 +2119,6 @@ header {
     cursor: pointer;
     width: 38px;
     height: 38px;
-    left: 100px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -2136,6 +2127,30 @@ header {
     padding: 0;
     line-height: 1;
     flex-shrink: 0;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+/* Add mobile-specific adjustment */
+@media (max-width: 600px) {
+    .contact-modal-close {
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        font-size: 26px;
+        top: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-modal-close {
+        right: 14px;
+        width: 34px;
+        height: 34px;
+        font-size: 24px;
+        top: 75%;
+    }
 }
 
 /* ==============================================

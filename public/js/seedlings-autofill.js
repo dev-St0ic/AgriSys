@@ -1,6 +1,6 @@
 // ==============================================
 // SEEDLINGS AUTOFILL SYSTEM - PROFESSIONAL VERSION
-// Updated: Enhanced UI, Better Validation, Complete Field Coverage
+// Updated: Mobile-Responsive Design
 // ==============================================
 
 /**
@@ -188,75 +188,34 @@ function clearSeedlingsAutoFill() {
 }
 
 /**
- * Show professional clear form confirmation
+ * Show professional clear form confirmation - MOBILE RESPONSIVE
  */
 function showClearFormConfirmation(onConfirm) {
     // Create professional confirmation modal
     const modalOverlay = document.createElement('div');
-    modalOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-    `;
+    modalOverlay.className = 'seedlings-modal-overlay';
 
     const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        max-width: 400px;
-        width: 90%;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        animation: slideUp 0.3s ease-out;
-    `;
+    modalContent.className = 'seedlings-modal-content';
 
     modalContent.innerHTML = `
-        <div style="text-align: center; margin-bottom: 20px;">
-            <svg width="48" height="48" viewBox="0 0 48 48" style="color: #40916c; margin: 0 auto;">
+        <div class="modal-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" style="color: #40916c;">
                 <path fill="currentColor" d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm0 36c-8.84 0-16-7.16-16-16s7.16-16 16-16 16 7.16 16 16-7.16 16-16 16z"/>
             </svg>
         </div>
 
-        <h3 style="color: #2d6a4f; text-align: center; margin: 0 0 12px 0; font-size: 18px;">Clear Form Data?</h3>
+        <h3 class="modal-title">Clear Form Data?</h3>
         
-        <p style="color: #555; text-align: center; margin: 0 0 24px 0; font-size: 14px; line-height: 1.5;">
+        <p class="modal-text">
             This will remove all information currently in the form. You can always use auto-fill again to repopulate your profile data.
         </p>
 
-        <div style="display: flex; gap: 12px;">
-            <button class="clear-form-cancel" style="
-                flex: 1;
-                padding: 12px 16px;
-                border: 1px solid #d0d0d0;
-                background: #f5f5f5;
-                color: #333;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: 500;
-                font-size: 14px;
-                transition: all 0.2s ease;
-            ">
+        <div class="modal-buttons">
+            <button class="clear-form-cancel modal-btn btn-secondary">
                 Keep Form
             </button>
-            <button class="clear-form-confirm" style="
-                flex: 1;
-                padding: 12px 16px;
-                border: none;
-                background: #40916c;
-                color: white;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: 600;
-                font-size: 14px;
-                transition: all 0.2s ease;
-            ">
+            <button class="clear-form-confirm modal-btn btn-primary">
                 Clear Form
             </button>
         </div>
@@ -266,10 +225,138 @@ function showClearFormConfirmation(onConfirm) {
     document.body.appendChild(modalOverlay);
 
     // Add animation styles if not present
-    if (!document.querySelector('style[data-autofill-modal]')) {
+    if (!document.querySelector('style[data-seedlings-modal-responsive]')) {
         const style = document.createElement('style');
-        style.setAttribute('data-autofill-modal', 'true');
+        style.setAttribute('data-seedlings-modal-responsive', 'true');
         style.textContent = `
+            /* Modal Responsive Styles */
+            .seedlings-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 16px;
+                animation: fadeIn 0.2s ease-out;
+            }
+
+            .seedlings-modal-content {
+                background: white;
+                padding: 24px;
+                border-radius: 12px;
+                width: 100%;
+                max-width: 400px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                animation: slideUp 0.3s ease-out;
+            }
+
+            .modal-icon {
+                text-align: center;
+                margin-bottom: 16px;
+                display: flex;
+                justify-content: center;
+            }
+
+            .modal-icon svg {
+                width: 44px;
+                height: 44px;
+            }
+
+            .modal-title {
+                color: #2d6a4f;
+                text-align: center;
+                margin: 0 0 12px 0;
+                font-size: 18px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
+            .modal-text {
+                color: #555;
+                text-align: center;
+                margin: 0 0 24px 0;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            .modal-buttons {
+                display: flex;
+                gap: 10px;
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                padding: 12px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                border: none;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .btn-secondary {
+                border: 1px solid #d0d0d0;
+                background: #f5f5f5;
+                color: #333;
+            }
+
+            .btn-secondary:active {
+                background: #e8e8e8;
+            }
+
+            .btn-primary {
+                background: #40916c;
+                color: white;
+            }
+
+            .btn-primary:active {
+                background: #2d6a4f;
+            }
+
+            /* Tablet & Desktop */
+            @media (min-width: 480px) {
+                .seedlings-modal-content {
+                    padding: 30px;
+                }
+
+                .modal-buttons {
+                    flex-direction: row;
+                }
+
+                .modal-btn {
+                    flex: 1;
+                }
+
+                .btn-secondary:hover {
+                    background: #e8e8e8;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+
+                .btn-primary:hover {
+                    background: #2d6a4f;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+            }
+
+            /* Accessibility */
+            .modal-btn:focus {
+                outline: 2px solid #40916c;
+                outline-offset: 2px;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
             @keyframes slideUp {
                 from {
                     opacity: 0;
@@ -295,22 +382,9 @@ function showClearFormConfirmation(onConfirm) {
     };
 
     cancelBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('mouseover', function() {
-        this.style.background = '#e8e8e8';
-    });
-    cancelBtn.addEventListener('mouseout', function() {
-        this.style.background = '#f5f5f5';
-    });
-
     confirmBtn.addEventListener('click', () => {
         closeModal();
         onConfirm();
-    });
-    confirmBtn.addEventListener('mouseover', function() {
-        this.style.background = '#2d6a4f';
-    });
-    confirmBtn.addEventListener('mouseout', function() {
-        this.style.background = '#40916c';
     });
 
     // Close modal when clicking outside
@@ -322,8 +396,7 @@ function showClearFormConfirmation(onConfirm) {
 }
 
 /**
- * Add auto-fill button to Seedlings form
- * Professional styling matching Training form
+ * Add auto-fill button to Seedlings form - MOBILE RESPONSIVE
  */
 function addAutoFillButtonToSeedlings() {
     const form = document.querySelector('#seedlings-request-form');
@@ -338,73 +411,191 @@ function addAutoFillButtonToSeedlings() {
         return;
     }
 
-    console.log('Adding auto-fill button for user:', window.userData.username);
+    console.log('Adding mobile-responsive auto-fill button for user:', window.userData.username);
 
     // Create auto-fill button container with consistent green styling
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'seedlings-autofill-container';
-    buttonContainer.style.cssText = `
-        margin-bottom: 25px;
-        padding: 18px 20px;
-        background-color: #40916c;
-        border-radius: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
-    `;
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #ffffff; display: block; margin-bottom: 4px; font-size: 15px;">Quick Fill Available</strong>
-            <span style="color: rgba(255, 255, 255, 0.9); font-size: 13px;">Use your verified profile information to auto-complete this form</span>
+            <strong class="autofill-title">Quick Fill Available</strong>
+            <span class="autofill-subtitle">Use your verified profile information to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
             <button type="button" id="seedlings-autofill-btn" class="btn-autofill"
-                    onclick="fetchAndAutoFillSeedlings()"
-                    style="
-                        background: rgba(255, 255, 255, 0.25);
-                        color: white;
-                        border: 1px solid rgba(255, 255, 255, 0.5);
-                        padding: 10px 20px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        font-size: 13px;
-                        font-weight: 600;
-                        margin-right: 10px;
-                        transition: all 0.3s ease;
-                        backdrop-filter: blur(4px);
-                    "
-                    onmouseover="this.style.background='rgba(255, 255, 255, 0.35)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)'"
-                    onmouseout="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.boxShadow='none'">
+                    onclick="fetchAndAutoFillSeedlings()">
                 Auto-fill
             </button>
             <button type="button" class="btn-clear"
-                    onclick="clearSeedlingsAutoFill()"
-                    style="
-                        background: rgba(255, 255, 255, 0.15);
-                        color: white;
-                        border: 1px solid rgba(255, 255, 255, 0.5);
-                        padding: 10px 20px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        font-size: 13px;
-                        font-weight: 600;
-                        transition: all 0.3s ease;
-                        backdrop-filter: blur(4px);
-                    "
-                    onmouseover="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)'"
-                    onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.boxShadow='none'">
+                    onclick="clearSeedlingsAutoFill()">
                 Clear
             </button>
         </div>
     `;
 
+    // Add mobile-responsive CSS
+    if (!document.getElementById('seedlings-mobile-responsive-style')) {
+        const style = document.createElement('style');
+        style.id = 'seedlings-mobile-responsive-style';
+        style.textContent = `
+            .seedlings-autofill-container {
+                margin-bottom: 20px;
+                padding: 16px;
+                background-color: #40916c;
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
+                transition: all 0.3s ease;
+            }
+
+            .autofill-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .autofill-title {
+                color: #ffffff;
+                display: block;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1.2;
+            }
+
+            .autofill-subtitle {
+                color: rgba(255, 255, 255, 0.85);
+                font-size: 12px;
+                line-height: 1.3;
+            }
+
+            .autofill-actions {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .btn-autofill,
+            .btn-clear {
+                flex: 1;
+                min-width: 120px;
+                padding: 12px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 600;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                transition: all 0.3s ease;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .btn-autofill {
+                background: rgba(255, 255, 255, 0.25);
+                color: white;
+                backdrop-filter: blur(4px);
+            }
+
+            .btn-autofill:active {
+                background: rgba(255, 255, 255, 0.35);
+                transform: scale(0.98);
+            }
+
+            .btn-clear {
+                background: rgba(255, 255, 255, 0.15);
+                color: white;
+                backdrop-filter: blur(4px);
+            }
+
+            .btn-clear:active {
+                background: rgba(255, 255, 255, 0.25);
+                transform: scale(0.98);
+            }
+
+            /* Tablet & Desktop (768px and up) */
+            @media (min-width: 768px) {
+                .seedlings-autofill-container {
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 20px;
+                    padding: 18px 20px;
+                    margin-bottom: 25px;
+                }
+
+                .autofill-info {
+                    flex: 1;
+                }
+
+                .autofill-title {
+                    font-size: 15px;
+                    margin-bottom: 4px;
+                }
+
+                .autofill-subtitle {
+                    font-size: 13px;
+                }
+
+                .autofill-actions {
+                    gap: 12px;
+                    flex-wrap: nowrap;
+                }
+
+                .btn-autofill,
+                .btn-clear {
+                    min-width: auto;
+                    flex: 0 1 auto;
+                    padding: 10px 20px;
+                }
+
+                .btn-autofill:hover {
+                    background: rgba(255, 255, 255, 0.35);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                    transform: translateY(-2px);
+                }
+
+                .btn-clear:hover {
+                    background: rgba(255, 255, 255, 0.25);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                    transform: translateY(-2px);
+                }
+            }
+
+            /* Very small screens */
+            @media (max-width: 480px) {
+                .btn-autofill,
+                .btn-clear {
+                    min-width: 100px;
+                    padding: 10px 12px;
+                    font-size: 12px;
+                }
+
+                .autofill-title {
+                    font-size: 13px;
+                }
+
+                .autofill-subtitle {
+                    font-size: 11px;
+                }
+            }
+
+            /* Focus states for accessibility */
+            .btn-autofill:focus,
+            .btn-clear:focus {
+                outline: 2px solid rgba(255, 255, 255, 0.8);
+                outline-offset: 2px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     // Insert button at the top of the form
     const firstLabel = form.querySelector('label');
     if (firstLabel) {
         firstLabel.parentNode.insertBefore(buttonContainer, firstLabel);
-        console.log('Auto-fill button added to Seedlings form');
+        console.log('Mobile-responsive auto-fill button added to Seedlings form');
     } else {
         // Fallback: insert at beginning of form after hidden inputs
         const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
@@ -414,7 +605,7 @@ function addAutoFillButtonToSeedlings() {
         } else {
             form.insertBefore(buttonContainer, form.firstChild);
         }
-        console.log('Auto-fill button added to Seedlings form (fallback position)');
+        console.log('Mobile-responsive auto-fill button added to Seedlings form (fallback position)');
     }
 }
 
