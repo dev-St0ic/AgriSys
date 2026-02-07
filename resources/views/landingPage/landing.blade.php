@@ -19,6 +19,200 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <style>
+        /* Language Selector Styling */
+        .language-selector {
+            margin-right: 15px;
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .lang-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border: 2px solid #4CAF50;
+            border-radius: 25px;
+            background-color: white;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .lang-dropdown-btn:hover {
+            background-color: #f0f9f0;
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .lang-dropdown-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .lang-dropdown-btn.active .lang-globe-icon,
+        .lang-dropdown-btn.active .lang-chevron {
+            color: white;
+        }
+
+        .lang-globe-icon {
+            font-size: 20px;
+            color: #4CAF50;
+            display: flex;
+            align-items: center;
+        }
+
+        .lang-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .lang-chevron {
+            font-size: 18px;
+            color: #4CAF50;
+            transition: transform 0.3s ease;
+        }
+
+        .lang-dropdown-btn.open .lang-chevron {
+            transform: rotate(180deg);
+        }
+
+        .lang-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: white;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 140px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .lang-dropdown-menu.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .lang-option {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .lang-option:first-child {
+            border-radius: 10px 10px 0 0;
+        }
+
+        .lang-option:last-child {
+            border-radius: 0 0 10px 10px;
+        }
+
+        .lang-option:hover {
+            background-color: #f0f9f0;
+        }
+
+        .lang-option.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .lang-option .check-icon {
+            margin-left: auto;
+            font-size: 16px;
+            color: #4CAF50;
+        }
+
+        .lang-option.active .check-icon {
+            color: white;
+        }
+
+        /* Hide ALL Google Translate default elements */
+        #google_translate_element,
+        #google_translate_element *,
+        .goog-te-banner-frame.skiptranslate,
+        .goog-te-gadget,
+        .goog-te-gadget-simple,
+        .goog-te-gadget-icon,
+        .goog-te-combo,
+        .goog-logo-link,
+        .goog-te-gadget span,
+        .goog-te-menu-value,
+        .goog-te-menu-value span,
+        .goog-te-balloon-frame,
+        div#goog-gt-,
+        .goog-te-spinner-pos {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+        }
+
+        body {
+            top: 0 !important;
+        }
+
+        body.translated-ltr {
+            top: 0 !important;
+        }
+
+        /* Force hide translator toolbar */
+        .skiptranslate,
+        .goog-te-banner-frame {
+            display: none !important;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .language-selector {
+                margin-right: 8px;
+            }
+
+            .lang-dropdown-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+                min-width: 120px;
+                gap: 8px;
+            }
+
+            .lang-globe-icon {
+                font-size: 16px;
+            }
+
+            .lang-chevron {
+                font-size: 14px;
+            }
+
+            .lang-dropdown-menu {
+                min-width: 120px;
+            }
+
+            .lang-option {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+    </style>
+
     @if (isset($user))
         <script>
             // Pass user data to JavaScript
@@ -111,6 +305,31 @@
             </div>
 
             <div class="header-right auth-buttons">
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <button class="lang-dropdown-btn" onclick="toggleLangDropdown()" id="langDropdownBtn">
+                        <span class="lang-globe-icon">
+                            <i class="fas fa-globe"></i>
+                        </span>
+                        <span class="lang-text" id="currentLangText">English</span>
+                        <span class="lang-chevron">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </button>
+                    <div class="lang-dropdown-menu" id="langDropdownMenu">
+                        <div class="lang-option active" onclick="selectLanguage('en', 'English')" data-lang="en">
+                            English
+                            <span class="check-icon"><i class="fas fa-check"></i></span>
+                        </div>
+                        <div class="lang-option" onclick="selectLanguage('tl', 'Filipino')" data-lang="tl">
+                            Filipino
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Google Translate Element -->
+                <div id="google_translate_element"></div>
+
                 <!-- Mobile Menu Toggle Button (visible only on mobile) -->
                 <button class="mobile-menu-toggle" onclick="toggleMobileNav()" aria-label="Toggle navigation menu">
                     <span>☰</span>
@@ -1242,8 +1461,8 @@
                             <div class="form-group">
                                 <label for="new-password">New Password</label>
                                 <div class="password-input-container">
-                                    <input type="password" id="new-password" name="password" required minlength="8"
-                                        placeholder="Create a strong password"
+                                    <input type="password" id="new-password" name="password" required
+                                        minlength="8" placeholder="Create a strong password"
                                         oninput="checkResetPasswordStrength(this.value)">
                                     <button type="button" class="password-toggle"
                                         onclick="togglePasswordVisibility('new-password')">
@@ -1361,8 +1580,7 @@
                         <div class="form-group">
                             <label for="edit-contact-number">Contact Number</label>
                             <input type="tel" id="edit-contact-number" name="contact_number"
-                                placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
-                                maxlength="20">
+                                placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                             <small>11-digit Philippine mobile number format</small>
                         </div>
                     </div>
@@ -2468,6 +2686,188 @@
             }
         });
     </script>
+
+    <!-- Language Translation Script -->
+    <script type="text/javascript">
+        // Initialize Google Translate
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,tl',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+
+        // Toggle language dropdown
+        function toggleLangDropdown() {
+            const dropdown = document.getElementById('langDropdownMenu');
+            const btn = document.getElementById('langDropdownBtn');
+            dropdown.classList.toggle('open');
+            btn.classList.toggle('open');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const selector = document.querySelector('.language-selector');
+            const dropdown = document.getElementById('langDropdownMenu');
+            const btn = document.getElementById('langDropdownBtn');
+
+            if (selector && !selector.contains(e.target)) {
+                dropdown?.classList.remove('open');
+                btn?.classList.remove('open');
+            }
+        });
+
+        // Close dropdown on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const dropdown = document.getElementById('langDropdownMenu');
+                const btn = document.getElementById('langDropdownBtn');
+                dropdown?.classList.remove('open');
+                btn?.classList.remove('open');
+            }
+        });
+
+        // Select language from dropdown
+        function selectLanguage(langCode, langName) {
+            // Close dropdown first
+            document.getElementById('langDropdownMenu').classList.remove('open');
+            document.getElementById('langDropdownBtn').classList.remove('open');
+
+            // Update UI immediately for better UX
+            document.getElementById('currentLangText').textContent = langName;
+
+            // Update active state in dropdown
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+                const checkIcon = option.querySelector('.check-icon');
+                if (checkIcon) {
+                    checkIcon.remove();
+                }
+            });
+
+            const selectedOption = document.querySelector(`.lang-option[data-lang="${langCode}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('active');
+                if (!selectedOption.querySelector('.check-icon')) {
+                    const checkIcon = document.createElement('span');
+                    checkIcon.className = 'check-icon';
+                    checkIcon.innerHTML = '<i class="fas fa-check"></i>';
+                    selectedOption.appendChild(checkIcon);
+                }
+            }
+
+            // Set cookies for persistence
+            const googleTransCookie = langCode === 'en' ? '/en/en' : `/en/${langCode}`;
+            document.cookie = `googtrans=${googleTransCookie}; path=/`;
+            document.cookie = `googtrans=${googleTransCookie}; path=/; domain=${window.location.hostname}`;
+
+            // Try to trigger Google Translate via the select element
+            const translateSelect = document.querySelector('.goog-te-combo');
+            if (translateSelect && translateSelect.value !== undefined) {
+                // Google Translate is ready - use it directly (no reload needed)
+                translateSelect.value = langCode;
+                translateSelect.dispatchEvent(new Event('change'));
+            } else {
+                // Google Translate not initialized yet - reload with cookie set
+                location.reload();
+            }
+        }
+
+        // Check and restore language preference on page load
+        window.addEventListener('load', function() {
+            // Wait for Google Translate to initialize
+            setTimeout(function() {
+                const savedLang = getCookie('googtrans');
+                if (savedLang) {
+                    const langCode = savedLang.split('/')[2] || 'en';
+                    const langName = langCode === 'tl' ? 'Filipino' : 'English';
+
+                    // Update button text
+                    const currentLangText = document.getElementById('currentLangText');
+                    if (currentLangText) {
+                        currentLangText.textContent = langName;
+                    }
+
+                    // Update dropdown active state
+                    document.querySelectorAll('.lang-option').forEach(option => {
+                        option.classList.remove('active');
+                        const checkIcon = option.querySelector('.check-icon');
+                        if (checkIcon) {
+                            checkIcon.remove();
+                        }
+                    });
+
+                    const activeOption = document.querySelector(`.lang-option[data-lang="${langCode}"]`);
+                    if (activeOption) {
+                        activeOption.classList.add('active');
+                        // Only add check icon if it doesn't exist
+                        if (!activeOption.querySelector('.check-icon')) {
+                            const checkIcon = document.createElement('span');
+                            checkIcon.className = 'check-icon';
+                            checkIcon.innerHTML = '<i class="fas fa-check"></i>';
+                            activeOption.appendChild(checkIcon);
+                        }
+                    }
+                }
+
+                // Hide Google Translate elements
+                hideGoogleTranslateElements();
+            }, 1000);
+        });
+
+        // Function to aggressively hide all Google Translate UI elements
+        function hideGoogleTranslateElements() {
+            // Hide the translate element container
+            const translateElement = document.getElementById('google_translate_element');
+            if (translateElement) {
+                translateElement.style.display = 'none';
+                translateElement.style.visibility = 'hidden';
+            }
+
+            // Hide all Google Translate gadget elements
+            const selectors = [
+                '.goog-te-gadget',
+                '.goog-te-combo',
+                '.goog-te-banner-frame',
+                '.goog-te-balloon-frame',
+                '.goog-te-menu-frame',
+                '.skiptranslate',
+                'iframe.goog-te-banner-frame',
+                'iframe.goog-te-menu-frame'
+            ];
+
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.display = 'none !important';
+                    el.style.visibility = 'hidden !important';
+                    el.style.opacity = '0 !important';
+                });
+            });
+        }
+
+        // Run the hiding function periodically to catch dynamically added elements
+        setInterval(hideGoogleTranslateElements, 500);
+
+        // Also run on DOM changes
+        const observer = new MutationObserver(hideGoogleTranslateElements);
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Helper function to get cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+    </script>
+
 </body>
 
 </html>

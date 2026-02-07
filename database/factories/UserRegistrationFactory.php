@@ -45,6 +45,8 @@ class UserRegistrationFactory extends Factory
 
         $firstName = $this->faker->randomElement($filipinoFirstNames);
         $lastName = $this->faker->randomElement($filipinoLastNames);
+        $dateOfBirth = $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years');
+        $age = $dateOfBirth ? now()->diffInYears($dateOfBirth) : null;
 
         return [
             'username' => $this->faker->unique()->userName(),
@@ -62,8 +64,11 @@ class UserRegistrationFactory extends Factory
             'complete_address' => $this->faker->optional(0.7)->address(),
             'barangay' => $this->faker->optional(0.7)->randomElement($allBarangays),
             'user_type' => $this->faker->optional(0.8)->randomElement(['farmer', 'fisherfolk']),
-            'date_of_birth' => $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years'),
-            // 'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            'date_of_birth' => $dateOfBirth,
+            'age' => $age,
+            'location_document_path' => $this->faker->optional(0.6)->imageUrl(640, 480, 'documents', true, 'Location'),
+            'id_front_path' => $this->faker->optional(0.6)->imageUrl(640, 480, 'documents', true, 'ID Front'),
+            'id_back_path' => $this->faker->optional(0.6)->imageUrl(640, 480, 'documents', true, 'ID Back'),
 
             // 'verification_token' => $this->faker->optional(0.3)->sha256(),
             'username_changed_at' => null,
@@ -122,6 +127,9 @@ class UserRegistrationFactory extends Factory
             'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
         ];
 
+        $dateOfBirth = $this->faker->dateTimeBetween('-65 years', '-18 years');
+        $age = now()->diffInYears($dateOfBirth);
+
         return $this->state(fn (array $attributes) => [
             'status' => UserRegistration::STATUS_PENDING,
             'first_name' => $this->faker->randomElement($filipinoFirstNames),
@@ -132,8 +140,11 @@ class UserRegistrationFactory extends Factory
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
-            'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
-            // 'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            'date_of_birth' => $dateOfBirth,
+            'age' => $age,
+            'location_document_path' => $this->faker->optional(0.9)->imageUrl(640, 480, 'documents', true, 'Location'),
+            'id_front_path' => $this->faker->optional(0.9)->imageUrl(640, 480, 'documents', true, 'ID Front'),
+            'id_back_path' => $this->faker->optional(0.9)->imageUrl(640, 480, 'documents', true, 'ID Back'),
             'approved_at' => null,
             'approved_by' => null,
             'rejection_reason' => null,
@@ -168,6 +179,9 @@ class UserRegistrationFactory extends Factory
             'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
         ];
 
+        $dateOfBirth = $this->faker->dateTimeBetween('-65 years', '-18 years');
+        $age = now()->diffInYears($dateOfBirth);
+
         return $this->state(fn (array $attributes) => [
             'status' => UserRegistration::STATUS_APPROVED,
             'first_name' => $this->faker->randomElement($filipinoFirstNames),
@@ -178,8 +192,11 @@ class UserRegistrationFactory extends Factory
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
-            'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
-            // 'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            'date_of_birth' => $dateOfBirth,
+            'age' => $age,
+            'location_document_path' => $this->faker->imageUrl(640, 480, 'documents', true, 'Location'),
+            'id_front_path' => $this->faker->imageUrl(640, 480, 'documents', true, 'ID Front'),
+            'id_back_path' => $this->faker->imageUrl(640, 480, 'documents', true, 'ID Back'),
             'approved_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
             'approved_by' => null,
             'rejection_reason' => null,
@@ -214,6 +231,9 @@ class UserRegistrationFactory extends Factory
             'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
         ];
 
+        $dateOfBirth = $this->faker->dateTimeBetween('-65 years', '-18 years');
+        $age = now()->diffInYears($dateOfBirth);
+
         return $this->state(fn (array $attributes) => [
             'status' => UserRegistration::STATUS_REJECTED,
             'first_name' => $this->faker->randomElement($filipinoFirstNames),
@@ -224,9 +244,15 @@ class UserRegistrationFactory extends Factory
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
+            'date_of_birth' => $dateOfBirth,
+            'age' => $age,
+            'location_document_path' => $this->faker->optional(0.7)->imageUrl(640, 480, 'documents', true, 'Location'),
+            'id_front_path' => $this->faker->optional(0.7)->imageUrl(640, 480, 'documents', true, 'ID Front'),
+            'id_back_path' => $this->faker->optional(0.7)->imageUrl(640, 480, 'documents', true, 'ID Back'),
             'approved_at' => null,
             'approved_by' => null,
             'rejected_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
+            'rejected_by' => 1,
             'rejection_reason' => $this->faker->randomElement([
                 'Invalid or unreadable ID documents',
                 'Incomplete information provided',

@@ -364,44 +364,59 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-address-book me-2 text-info"></i>Contact Methods
+                        <i class="fas fa-graduation-cap me-2 text-success"></i>Most Applied Training Programs
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="metric-item">
-                                <h4 class="text-success mb-1">{{ $contactAnalysis['stats']['both_contacts'] }}</h4>
-                                <p class="mb-0 small text-muted">Both Contacts</p>
-                                <small
-                                    class="text-success fw-semibold">{{ $contactAnalysis['percentages']['both_contacts'] }}%</small>
+                    @foreach ($trainingTypeAnalysis->take(5) as $index => $training)
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <span class="badge bg-success me-2" style="min-width: 28px;">{{ $index + 1 }}</span>
+                                <span class="fw-semibold text-truncate" style="max-width: 150px;">
+                                    @switch($training->training_type)
+                                        @case('tilapia_hito')
+                                            Tilapia & Hito
+                                        @break
+
+                                        @case('hydroponics')
+                                            Hydroponics
+                                        @break
+
+                                        @case('aquaponics')
+                                            Aquaponics
+                                        @break
+
+                                        @case('mushrooms')
+                                            Mushrooms
+                                        @break
+
+                                        @case('livestock_poultry')
+                                            Livestock & Poultry
+                                        @break
+
+                                        @case('high_value_crops')
+                                            High Value Crops
+                                        @break
+
+                                        @case('sampaguita_propagation')
+                                            Sampaguita
+                                        @break
+
+                                        @default
+                                            {{ ucfirst(str_replace('_', ' ', $training->training_type)) }}
+                                    @endswitch
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="progress-bar-container me-2" style="width: 50px;">
+                                    <div class="progress-bar-fill bg-success"
+                                        style="width: {{ $trainingTypeAnalysis->max('total_applications') > 0 ? ($training->total_applications / $trainingTypeAnalysis->max('total_applications')) * 100 : 0 }}%">
+                                    </div>
+                                </div>
+                                <span class="badge bg-success">{{ $training->total_applications }}</span>
                             </div>
                         </div>
-                        <div class="col-6 mb-3">
-                            <div class="metric-item">
-                                <h4 class="text-primary mb-1">{{ $contactAnalysis['stats']['email_only'] }}</h4>
-                                <p class="mb-0 small text-muted">Email Only</p>
-                                <small
-                                    class="text-primary fw-semibold">{{ $contactAnalysis['percentages']['email_only'] }}%</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="metric-item">
-                                <h4 class="text-warning mb-1">{{ $contactAnalysis['stats']['mobile_only'] }}</h4>
-                                <p class="mb-0 small text-muted">Mobile Only</p>
-                                <small
-                                    class="text-warning fw-semibold">{{ $contactAnalysis['percentages']['mobile_only'] }}%</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="metric-item">
-                                <h4 class="text-danger mb-1">{{ $contactAnalysis['stats']['no_contact'] }}</h4>
-                                <p class="mb-0 small text-muted">No Contact</p>
-                                <small
-                                    class="text-danger fw-semibold">{{ $contactAnalysis['percentages']['no_contact'] }}%</small>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -431,7 +446,79 @@
             </div>
         </div>
     </div>
-    </div>
+
+    <!-- Top Performing Barangays -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-trophy text-warning me-2"></i>Top Performing Barangays
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 80px;">Rank</th>
+                                    <th>Barangay</th>
+                                    <th class="text-center">Total Applications</th>
+                                    <th class="text-center">Approved</th>
+                                    <th class="text-center">Approval Rate</th>
+                                    <th class="text-center">With Documents</th>
+                                    <th class="text-center">Unique Applicants</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($barangayAnalysis->take(10) as $index => $barangay)
+                                    <tr>
+                                        <td class="text-center">
+                                            @if ($index < 3)
+                                                <div class="rank-badge rank-{{ $index + 1 }}">
+                                                    <i class="fas fa-medal"></i>
+                                                    <span>{{ $index + 1 }}</span>
+                                                </div>
+                                            @else
+                                                <span class="badge bg-light text-dark">#{{ $index + 1 }}</span>
+                                            @endif
+                                        </td>
+                                        <td><strong>{{ $barangay->barangay }}</strong></td>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge bg-primary text-white px-2 py-1">{{ $barangay->total_applications }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge bg-success text-white px-2 py-1">{{ $barangay->approved }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div class="progress me-2" style="width: 60px; height: 6px;">
+                                                    <div class="progress-bar bg-success"
+                                                        style="width: {{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%">
+                                                    </div>
+                                                </div>
+                                                <small
+                                                    class="fw-semibold">{{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge bg-warning text-white px-2 py-1">{{ $barangay->with_documents }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge bg-info text-white px-2 py-1">{{ $barangay->unique_applicants }}</span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -455,7 +542,7 @@
             padding: 0.6rem 1.2rem;
             border-radius: 8px;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
             position: relative;
             overflow: hidden;
@@ -464,6 +551,25 @@
             flex-direction: row;
             align-items: center;
             gap: 8px;
+        }
+
+        .analytics-nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transition: left 0.5s;
+        }
+
+        .analytics-nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .analytics-nav-btn:hover i {
+            transform: scale(1.15) rotate(5deg);
         }
 
         .nav-icon-wrapper {
@@ -592,7 +698,6 @@
             color: white !important;
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(245, 87, 108, 0.5) !important;
-        }
         }
 
         .service-nav .nav-link:hover {
@@ -970,6 +1075,17 @@
             // Chart instances
             let chartInstances = {};
 
+            // Debug: Log data received from backend
+            console.log('=== Training Analytics Debug ===');
+            console.log('Overview Data:', @json($overview));
+            console.log('Status Analysis:', @json($statusAnalysis));
+            console.log('Monthly Trends:', @json($monthlyTrends));
+            console.log('Date Range:', {
+                start: '{{ $startDate }}',
+                end: '{{ $endDate }}'
+            });
+            console.log('================================');
+
             // Chart.js default configuration
             Chart.defaults.font.family = "'Inter', sans-serif";
             Chart.defaults.color = '#64748b';
@@ -985,18 +1101,33 @@
              */
             function initializeStatusChart() {
                 const ctx = document.getElementById('trainingStatusChart');
-                if (!ctx) return;
+                if (!ctx) {
+                    console.error('Status chart canvas not found');
+                    return;
+                }
+
+                // Data validation
+                const chartData = [{{ implode(',', $statusAnalysis['counts']) }}];
+                const chartLabels = [
+                    @foreach ($statusAnalysis['counts'] as $status => $count)
+                        '{{ ucfirst(str_replace('_', ' ', $status)) }}',
+                    @endforeach
+                ];
+
+                // Check if we have valid data
+                if (chartData.length === 0 || chartLabels.length === 0) {
+                    console.warn('No status data available for chart');
+                    ctx.parentElement.innerHTML =
+                        '<div class="text-center text-muted p-4"><i class="fas fa-chart-pie fa-3x mb-3 opacity-25"></i><p>No data available</p></div>';
+                    return;
+                }
 
                 chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
                     type: 'doughnut',
                     data: {
-                        labels: [
-                            @foreach ($statusAnalysis['counts'] as $status => $count)
-                                '{{ ucfirst(str_replace('_', ' ', $status)) }}',
-                            @endforeach
-                        ],
+                        labels: chartLabels,
                         datasets: [{
-                            data: [{{ implode(',', $statusAnalysis['counts']) }}],
+                            data: chartData,
                             backgroundColor: [
                                 '#10b981',
                                 '#ef4444',
@@ -1130,21 +1261,35 @@
              */
             function initializeTrendsChart() {
                 const ctx = document.getElementById('trainingTrendsChart');
-                if (!ctx) return;
+                if (!ctx) {
+                    console.error('Trends chart canvas not found');
+                    return;
+                }
+
+                // Data validation
+                const monthLabels = [
+                    @foreach ($monthlyTrends as $trend)
+                        '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
+                    @endforeach
+                ];
+                const totalApplicationsData = [{{ $monthlyTrends->pluck('total_applications')->implode(',') }}];
+                const approvedData = [{{ $monthlyTrends->pluck('approved')->implode(',') }}];
+
+                // Check if we have valid data
+                if (monthLabels.length === 0 || totalApplicationsData.length === 0) {
+                    console.warn('No trends data available for chart');
+                    ctx.parentElement.innerHTML =
+                        '<div class="text-center text-muted p-4"><i class="fas fa-chart-line fa-3x mb-3 opacity-25"></i><p>No data available for selected date range</p></div>';
+                    return;
+                }
 
                 chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
                     type: 'line',
                     data: {
-                        labels: [
-                            @foreach ($monthlyTrends as $trend)
-                                '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
-                            @endforeach
-                        ],
+                        labels: monthLabels,
                         datasets: [{
                                 label: 'Total Applications',
-                                data: [
-                                    {{ $monthlyTrends->pluck('total_applications')->implode(',') }}
-                                ],
+                                data: totalApplicationsData,
                                 borderColor: '#3b82f6',
                                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                 borderWidth: 3,
@@ -1158,7 +1303,7 @@
                             },
                             {
                                 label: 'Approved',
-                                data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
+                                data: approvedData,
                                 borderColor: '#10b981',
                                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
                                 borderWidth: 3,
@@ -1311,114 +1456,4 @@
             });
         });
     </script>
-@endsection
-
-@section('styles')
-    <style>
-        /* Navigation Container */
-        .navigation-container {
-            background: #f8f9fa;
-            border-radius: 15px;
-            border: 1px solid #dee2e6;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-        }
-
-        /* Modern Analytics Navigation */
-        .analytics-nav-btn {
-            background: #e9ecef;
-            border: 1px solid #ced4da;
-            color: #495057;
-            font-weight: 500;
-            font-size: 0.875rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 2rem;
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-            transform: translateY(0);
-        }
-
-        .analytics-nav-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-            transition: left 0.5s;
-        }
-
-        .analytics-nav-btn:hover {
-            background: #6c757d;
-            border-color: #5a6268;
-            color: white;
-            text-decoration: none;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
-        }
-
-        .analytics-nav-btn:hover::before {
-            left: 100%;
-        }
-
-        .analytics-nav-btn:hover i {
-            transform: scale(1.15) rotate(5deg);
-        }
-
-        .analytics-nav-btn.active {
-            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
-            border-color: #495057;
-            color: white;
-            box-shadow: 0 4px 20px rgba(73, 80, 87, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .analytics-nav-btn.active:hover {
-            background: linear-gradient(135deg, #343a40 0%, #212529 100%);
-            border-color: #343a40;
-            color: white;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(73, 80, 87, 0.6);
-        }
-
-        .analytics-nav-btn i {
-            font-size: 0.875rem;
-            transition: transform 0.3s ease;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .analytics-nav-btn {
-                font-size: 0.75rem;
-                padding: 0.375rem 0.75rem;
-            }
-
-            .analytics-nav-btn i {
-                font-size: 0.75rem;
-            }
-        }
-
-        .metric-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .card {
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-    </style>
 @endsection

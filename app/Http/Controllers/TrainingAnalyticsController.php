@@ -17,47 +17,52 @@ class TrainingAnalyticsController extends Controller
     public function index(Request $request)
     {
         try {
-            // Date range filter with better defaults
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+            // Date range filter with better defaults (2 years back to capture all dummy data)
+            $startDate = $request->get('start_date', now()->subYears(2)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
-            // Base query with date range
-            $baseQuery = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
+            // Debug: Log the date range being used
+            Log::info('Training Analytics Date Range', [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'total_all_records' => TrainingApplication::count(),
+                'total_in_range' => TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count()
+            ]);
+
             // 1. Overview Statistics
-            $overview = $this->getOverviewStatistics(clone $baseQuery);
-            
+            $overview = $this->getOverviewStatistics($startDate, $endDate);
+
             // 2. Application Status Analysis
-            $statusAnalysis = $this->getStatusAnalysis(clone $baseQuery);
-            
+            $statusAnalysis = $this->getStatusAnalysis($startDate, $endDate);
+
             // 3. Monthly Trends
             $monthlyTrends = $this->getMonthlyTrends($startDate, $endDate);
-            
+
             // 4. Training Type Analysis
-            $trainingTypeAnalysis = $this->getTrainingTypeAnalysis(clone $baseQuery);
-            
+            $trainingTypeAnalysis = $this->getTrainingTypeAnalysis($startDate, $endDate);
+
             // 5. Registration Patterns
-            $registrationPatterns = $this->getRegistrationPatterns(clone $baseQuery);
-            
+            $registrationPatterns = $this->getRegistrationPatterns($startDate, $endDate);
+
             // 6. Application Processing Time Analysis
-            $processingTimeAnalysis = $this->getProcessingTimeAnalysis(clone $baseQuery);
-            
+            $processingTimeAnalysis = $this->getProcessingTimeAnalysis($startDate, $endDate);
+
             // 7. Document Submission Analysis
-            $documentAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
-            
+            $documentAnalysis = $this->getDocumentAnalysis($startDate, $endDate);
+
             // 8. Performance Metrics
-            $performanceMetrics = $this->getPerformanceMetrics(clone $baseQuery);
-            
+            $performanceMetrics = $this->getPerformanceMetrics($startDate, $endDate);
+
             // 9. Applicant Demographics
-            $demographicAnalysis = $this->getDemographicAnalysis(clone $baseQuery);
-            
-            // 10. Contact Method Analysis
-            $contactAnalysis = $this->getContactAnalysis(clone $baseQuery);
-            
+            $demographicAnalysis = $this->getDemographicAnalysis($startDate, $endDate);
+
+            // 10. Barangay Analysis
+            $barangayAnalysis = $this->getBarangayAnalysis($startDate, $endDate);
+
             return view('admin.analytics.training', compact(
                 'overview',
                 'statusAnalysis',
@@ -68,7 +73,7 @@ class TrainingAnalyticsController extends Controller
                 'documentAnalysis',
                 'performanceMetrics',
                 'demographicAnalysis',
-                'contactAnalysis',
+                'barangayAnalysis',
                 'startDate',
                 'endDate'
             ));
@@ -79,34 +84,45 @@ class TrainingAnalyticsController extends Controller
             return back()->with('error', 'Error loading Training analytics data. Please try again.');
         }
     }
-    
+
     /**
      * Get overview statistics
      */
-    private function getOverviewStatistics($baseQuery)
+    private function getOverviewStatistics($startDate, $endDate)
     {
         try {
-            $total = $baseQuery->count();
-            $approved = (clone $baseQuery)->where('status', 'approved')->count();
-            $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
-            $pending = (clone $baseQuery)->where('status', 'under_review')->count();
-            
+            // IMPORTANT: Create fresh queries for each count
+            $total = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
+            $approved = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->where('status', 'approved')->count();
+            $rejected = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->where('status', 'rejected')->count();
+            $pending = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->where('status', 'under_review')->count();
+
+            Log::info('Training Overview Debug', [
+                'total' => $total,
+                'approved' => $approved,
+                'rejected' => $rejected,
+                'pending' => $pending
+            ]);
+
             // Count unique applicants
-            $uniqueApplicants = (clone $baseQuery)
+            $uniqueApplicants = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->select(DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"))
                 ->distinct()
                 ->whereNotNull('first_name')
                 ->count();
-                
+
             // Count applications with documents
-            $withDocuments = (clone $baseQuery)->whereNotNull('document_paths')->whereRaw('JSON_LENGTH(document_paths) > 0')->count();
-            
+            $withDocuments = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->whereNotNull('document_path')->where('document_path', '!=', '')->count();
+
             // Count unique training types requested
-            $uniqueTrainingTypes = (clone $baseQuery)->whereNotNull('training_type')->distinct()->count('training_type');
-            
-            // Count applications with email vs mobile only
-            $withEmail = (clone $baseQuery)->whereNotNull('email')->where('email', '!=', '')->count();
-            
+            $uniqueTrainingTypes = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->whereNotNull('training_type')->distinct()->count('training_type');
+
+            // Count applications with contact number
+            $withContactNumber = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->whereNotNull('contact_number')->where('contact_number', '!=', '')->count();
+
             return [
                 'total_applications' => $total,
                 'approved_applications' => $approved,
@@ -117,37 +133,38 @@ class TrainingAnalyticsController extends Controller
                 'with_documents' => $withDocuments,
                 'document_submission_rate' => $total > 0 ? round(($withDocuments / $total) * 100, 2) : 0,
                 'unique_training_types' => $uniqueTrainingTypes,
-                'with_email' => $withEmail,
-                'email_provision_rate' => $total > 0 ? round(($withEmail / $total) * 100, 2) : 0
+                'with_contact_number' => $withContactNumber,
+                'contact_provision_rate' => $total > 0 ? round(($withContactNumber / $total) * 100, 2) : 0
             ];
         } catch (\Exception $e) {
             Log::error('Training Overview Statistics Error: ' . $e->getMessage());
             return $this->getDefaultOverview();
         }
     }
-    
+
     /**
      * Get status analysis with trends
      */
-    private function getStatusAnalysis($baseQuery)
+    private function getStatusAnalysis($startDate, $endDate)
     {
         try {
-            $statusCounts = (clone $baseQuery)->select('status', DB::raw('count(*) as count'))
+            $statusCounts = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select('status', DB::raw('count(*) as count'))
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray();
-                
+
             // Ensure all statuses are present with default values
             $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'under_review' => 0];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
-                
+
             // Add percentage calculations
             $total = array_sum($statusCounts);
             $statusPercentages = [];
             foreach ($statusCounts as $status => $count) {
                 $statusPercentages[$status] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
             }
-            
+
             return [
                 'counts' => $statusCounts,
                 'percentages' => $statusPercentages,
@@ -162,7 +179,7 @@ class TrainingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get monthly trends
      */
@@ -176,35 +193,38 @@ class TrainingAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
                     DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
-                    DB::raw('SUM(CASE WHEN document_paths IS NOT NULL AND JSON_LENGTH(document_paths) > 0 THEN 1 ELSE 0 END) as with_documents'),
+                    DB::raw('SUM(CASE WHEN document_path IS NOT NULL AND document_path != "" THEN 1 ELSE 0 END) as with_documents'),
                     DB::raw('COUNT(DISTINCT training_type) as unique_training_types')
                 )
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
-                
+
+            Log::info('Monthly Trends Query Result', ['count' => $trends->count(), 'data' => $trends->toArray()]);
+
             return $trends;
         } catch (\Exception $e) {
             Log::error('Training Monthly Trends Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get training type analysis
      */
-    private function getTrainingTypeAnalysis($baseQuery)
+    private function getTrainingTypeAnalysis($startDate, $endDate)
     {
         try {
-            $trainingStats = (clone $baseQuery)->select(
+            $trainingStats = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select(
                     'training_type',
                     DB::raw('COUNT(*) as total_applications'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
                     DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
                     DB::raw('COUNT(DISTINCT CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, ""))) as unique_applicants'),
-                    DB::raw('SUM(CASE WHEN document_paths IS NOT NULL AND JSON_LENGTH(document_paths) > 0 THEN 1 ELSE 0 END) as with_documents'),
-                    DB::raw('AVG(CASE WHEN status_updated_at IS NOT NULL AND created_at IS NOT NULL 
+                    DB::raw('SUM(CASE WHEN document_path IS NOT NULL AND document_path != "" THEN 1 ELSE 0 END) as with_documents'),
+                    DB::raw('AVG(CASE WHEN status_updated_at IS NOT NULL AND created_at IS NOT NULL
                              THEN DATEDIFF(status_updated_at, created_at) END) as avg_processing_days')
                 )
                 ->whereNotNull('training_type')
@@ -212,21 +232,22 @@ class TrainingAnalyticsController extends Controller
                 ->groupBy('training_type')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $trainingStats;
         } catch (\Exception $e) {
             Log::error('Training Type Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get registration patterns (day of week, time patterns)
      */
-    private function getRegistrationPatterns($baseQuery)
+    private function getRegistrationPatterns($startDate, $endDate)
     {
         try {
-            $dayOfWeekStats = (clone $baseQuery)->select(
+            $dayOfWeekStats = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select(
                     DB::raw('DAYNAME(created_at) as day_name'),
                     DB::raw('DAYOFWEEK(created_at) as day_number'),
                     DB::raw('COUNT(*) as applications_count')
@@ -234,15 +255,16 @@ class TrainingAnalyticsController extends Controller
                 ->groupBy('day_name', 'day_number')
                 ->orderBy('day_number')
                 ->get();
-                
-            $hourlyStats = (clone $baseQuery)->select(
+
+            $hourlyStats = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select(
                     DB::raw('HOUR(created_at) as hour'),
                     DB::raw('COUNT(*) as applications_count')
                 )
                 ->groupBy('hour')
                 ->orderBy('hour')
                 ->get();
-                
+
             return [
                 'day_of_week' => $dayOfWeekStats,
                 'hourly' => $hourlyStats
@@ -255,15 +277,16 @@ class TrainingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get processing time analysis
      */
-    private function getProcessingTimeAnalysis($baseQuery)
+    private function getProcessingTimeAnalysis($startDate, $endDate)
     {
         try {
-            $processedApplications = (clone $baseQuery)->whereNotNull('status_updated_at')->get();
-            
+            $processedApplications = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->whereNotNull('status_updated_at')->get();
+
             $processingTimes = [];
             foreach ($processedApplications as $application) {
                 if ($application->status_updated_at && $application->created_at) {
@@ -272,7 +295,7 @@ class TrainingAnalyticsController extends Controller
                     $processingTimes[] = $processingTime;
                 }
             }
-            
+
             if (empty($processingTimes)) {
                 return [
                     'avg_processing_days' => 0,
@@ -282,13 +305,13 @@ class TrainingAnalyticsController extends Controller
                     'median_processing_days' => 0
                 ];
             }
-            
+
             sort($processingTimes);
             $count = count($processingTimes);
-            $median = $count % 2 === 0 
-                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2 
+            $median = $count % 2 === 0
+                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2
                 : $processingTimes[floor($count/2)];
-            
+
             return [
                 'avg_processing_days' => round(array_sum($processingTimes) / count($processingTimes), 2),
                 'min_processing_days' => min($processingTimes),
@@ -307,34 +330,36 @@ class TrainingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get document submission analysis
      */
-    private function getDocumentAnalysis($baseQuery)
+    private function getDocumentAnalysis($startDate, $endDate)
     {
         try {
-            $withDocs = (clone $baseQuery)->whereNotNull('document_paths')->whereRaw('JSON_LENGTH(document_paths) > 0')->count();
-            $withoutDocs = (clone $baseQuery)->where(function($q) {
-                $q->whereNull('document_paths')->orWhereRaw('JSON_LENGTH(document_paths) = 0');
-            })->count();
-            
+            $withDocs = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->whereNotNull('document_path')->where('document_path', '!=', '')->count();
+            $withoutDocs = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->where(function($q) {
+                    $q->whereNull('document_path')->orWhere('document_path', '=', '');
+                })->count();
+
             $total = $withDocs + $withoutDocs;
-            
+
             // Approval rates by document submission
-            $approvalWithDocs = (clone $baseQuery)
-                ->whereNotNull('document_paths')
-                ->whereRaw('JSON_LENGTH(document_paths) > 0')
+            $approvalWithDocs = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->whereNotNull('document_path')
+                ->where('document_path', '!=', '')
                 ->where('status', 'approved')
                 ->count();
-                
-            $approvalWithoutDocs = (clone $baseQuery)
+
+            $approvalWithoutDocs = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where(function($q) {
-                    $q->whereNull('document_paths')->orWhereRaw('JSON_LENGTH(document_paths) = 0');
+                    $q->whereNull('document_path')->orWhere('document_path', '=', '');
                 })
                 ->where('status', 'approved')
                 ->count();
-            
+
             return [
                 'with_documents' => $withDocs,
                 'without_documents' => $withoutDocs,
@@ -355,33 +380,34 @@ class TrainingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get performance metrics
      */
-    private function getPerformanceMetrics($baseQuery)
+    private function getPerformanceMetrics($startDate, $endDate)
     {
         try {
             $metrics = [];
-            
+
             // Overall completion rate
-            $total = (clone $baseQuery)->count();
-            $completed = (clone $baseQuery)->whereIn('status', ['approved', 'rejected'])->count();
+            $total = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
+            $completed = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->whereIn('status', ['approved', 'rejected'])->count();
             $metrics['completion_rate'] = $total > 0 ? round(($completed / $total) * 100, 2) : 0;
-            
+
             // Average applications per day
-            $dateRange = (clone $baseQuery)->selectRaw('DATEDIFF(MAX(created_at), MIN(created_at)) + 1 as days')->first();
+            $dateRange = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->selectRaw('DATEDIFF(MAX(created_at), MIN(created_at)) + 1 as days')->first();
             $totalDays = $dateRange ? $dateRange->days : 1;
             $metrics['avg_applications_per_day'] = round($total / max(1, $totalDays), 2);
-            
+
             // Quality score (based on document submission and approval rates)
-            $overview = $this->getOverviewStatistics(clone $baseQuery);
-            $docAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
+            $overview = $this->getOverviewStatistics($startDate, $endDate);
+            $docAnalysis = $this->getDocumentAnalysis($startDate, $endDate);
             $metrics['quality_score'] = round(
-                ($overview['approval_rate'] * 0.6) + 
+                ($overview['approval_rate'] * 0.6) +
                 ($docAnalysis['submission_rate'] * 0.4), 2
             );
-            
+
             return $metrics;
         } catch (\Exception $e) {
             Log::error('Training Performance Metrics Error: ' . $e->getMessage());
@@ -392,15 +418,15 @@ class TrainingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get demographic analysis
      */
-    private function getDemographicAnalysis($baseQuery)
+    private function getDemographicAnalysis($startDate, $endDate)
     {
         try {
             // Most common first names
-            $commonNames = (clone $baseQuery)
+            $commonNames = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->select('first_name', DB::raw('COUNT(*) as count'))
                 ->whereNotNull('first_name')
                 ->where('first_name', '!=', '')
@@ -408,11 +434,11 @@ class TrainingAnalyticsController extends Controller
                 ->orderBy('count', 'desc')
                 ->limit(10)
                 ->get();
-                
+
             // Application length patterns
-            $applicationsByNameLength = (clone $baseQuery)
+            $applicationsByNameLength = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->select(
-                    DB::raw('CASE 
+                    DB::raw('CASE
                         WHEN LENGTH(CONCAT(first_name, " ", COALESCE(middle_name, ""), " ", last_name)) <= 20 THEN "Short"
                         WHEN LENGTH(CONCAT(first_name, " ", COALESCE(middle_name, ""), " ", last_name)) <= 35 THEN "Medium"
                         ELSE "Long" END as name_length_category'),
@@ -421,7 +447,7 @@ class TrainingAnalyticsController extends Controller
                 )
                 ->groupBy('name_length_category')
                 ->get();
-                
+
             return [
                 'common_names' => $commonNames,
                 'name_length_patterns' => $applicationsByNameLength
@@ -434,45 +460,36 @@ class TrainingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
-     * Get contact method analysis
+     * Get barangay analysis
      */
-    private function getContactAnalysis($baseQuery)
+    private function getBarangayAnalysis($startDate, $endDate)
     {
         try {
-            $contactStats = [
-                'email_only' => (clone $baseQuery)->whereNotNull('email')->where('email', '!=', '')->whereNull('mobile_number')->count(),
-                'mobile_only' => (clone $baseQuery)->whereNotNull('mobile_number')->where('mobile_number', '!=', '')->whereNull('email')->count(),
-                'both_contacts' => (clone $baseQuery)->whereNotNull('email')->where('email', '!=', '')->whereNotNull('mobile_number')->where('mobile_number', '!=', '')->count(),
-                'no_contact' => (clone $baseQuery)->where(function($q) {
-                    $q->whereNull('email')->orWhere('email', '');
-                })->where(function($q) {
-                    $q->whereNull('mobile_number')->orWhere('mobile_number', '');
-                })->count()
-            ];
-            
-            $total = array_sum($contactStats);
-            $contactPercentages = [];
-            foreach ($contactStats as $type => $count) {
-                $contactPercentages[$type] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
-            }
-            
-            return [
-                'stats' => $contactStats,
-                'percentages' => $contactPercentages,
-                'total' => $total
-            ];
+            $barangayStats = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select(
+                    'barangay',
+                    DB::raw('COUNT(*) as total_applications'),
+                    DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
+                    DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
+                    DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
+                    DB::raw('COUNT(DISTINCT CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, ""))) as unique_applicants'),
+                    DB::raw('SUM(CASE WHEN document_path IS NOT NULL AND document_path != "" THEN 1 ELSE 0 END) as with_documents')
+                )
+                ->whereNotNull('barangay')
+                ->where('barangay', '!=', '')
+                ->groupBy('barangay')
+                ->orderByDesc('total_applications')
+                ->get();
+
+            return $barangayStats;
         } catch (\Exception $e) {
-            Log::error('Training Contact Analysis Error: ' . $e->getMessage());
-            return [
-                'stats' => ['email_only' => 0, 'mobile_only' => 0, 'both_contacts' => 0, 'no_contact' => 0],
-                'percentages' => ['email_only' => 0, 'mobile_only' => 0, 'both_contacts' => 0, 'no_contact' => 0],
-                'total' => 0
-            ];
+            Log::error('Training Barangay Analysis Error: ' . $e->getMessage());
+            return collect([]);
         }
     }
-    
+
     /**
      * Calculate approval rate
      */
@@ -480,7 +497,7 @@ class TrainingAnalyticsController extends Controller
     {
         return $total > 0 ? round(($approved / $total) * 100, 2) : 0;
     }
-    
+
     /**
      * Get default overview when errors occur
      */
@@ -496,11 +513,11 @@ class TrainingAnalyticsController extends Controller
             'with_documents' => 0,
             'document_submission_rate' => 0,
             'unique_training_types' => 0,
-            'with_email' => 0,
-            'email_provision_rate' => 0
+            'with_contact_number' => 0,
+            'contact_provision_rate' => 0
         ];
     }
-    
+
     /**
      * Export analytics data
      */
@@ -509,13 +526,11 @@ class TrainingAnalyticsController extends Controller
         try {
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
-            $baseQuery = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
             $data = [
                 'export_info' => [
                     'generated_at' => now()->format('Y-m-d H:i:s'),
@@ -525,26 +540,26 @@ class TrainingAnalyticsController extends Controller
                     ],
                     'generated_by' => auth()->user()->name ?? 'System'
                 ],
-                'overview' => $this->getOverviewStatistics(clone $baseQuery),
-                'status_analysis' => $this->getStatusAnalysis(clone $baseQuery),
+                'overview' => $this->getOverviewStatistics($startDate, $endDate),
+                'status_analysis' => $this->getStatusAnalysis($startDate, $endDate),
                 'monthly_trends' => $this->getMonthlyTrends($startDate, $endDate)->toArray(),
-                'training_type_analysis' => $this->getTrainingTypeAnalysis(clone $baseQuery)->toArray(),
-                'registration_patterns' => $this->getRegistrationPatterns(clone $baseQuery),
-                'processing_time' => $this->getProcessingTimeAnalysis(clone $baseQuery),
-                'document_analysis' => $this->getDocumentAnalysis(clone $baseQuery),
-                'performance_metrics' => $this->getPerformanceMetrics(clone $baseQuery),
-                'demographic_analysis' => $this->getDemographicAnalysis(clone $baseQuery),
-                'contact_analysis' => $this->getContactAnalysis(clone $baseQuery)
+                'training_type_analysis' => $this->getTrainingTypeAnalysis($startDate, $endDate)->toArray(),
+                'registration_patterns' => $this->getRegistrationPatterns($startDate, $endDate),
+                'processing_time' => $this->getProcessingTimeAnalysis($startDate, $endDate),
+                'document_analysis' => $this->getDocumentAnalysis($startDate, $endDate),
+                'performance_metrics' => $this->getPerformanceMetrics($startDate, $endDate),
+                'demographic_analysis' => $this->getDemographicAnalysis($startDate, $endDate),
+                'barangay_analysis' => $this->getBarangayAnalysis($startDate, $endDate)
             ];
-            
+
             $filename = 'training-analytics-' . $startDate . '-to-' . $endDate . '.json';
-            
+
             // Log activity
             $this->logActivity('exported', 'TrainingApplication', null, [
                 'format' => 'JSON',
                 'date_range' => ['start' => $startDate, 'end' => $endDate]
             ], 'Exported Training analytics data from ' . $startDate . ' to ' . $endDate);
-            
+
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

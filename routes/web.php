@@ -48,20 +48,20 @@ Route::get('/download/{file}', function($file) {
     // Whitelist allowed files (security measure)
     $allowedFiles = [
         'Barangay-Certification'
-      
+
     ];
-    
+
     // Check if file is in whitelist
     if (!in_array($file, $allowedFiles)) {
         abort(403, 'Unauthorized file');
     }
-    
+
     $filePath = storage_path('app/public/documents/' . $file . '.pdf');
-    
+
     if (!file_exists($filePath)) {
         abort(404, 'File not found');
     }
-    
+
     return response()->download($filePath);
 })->name('download');
 
@@ -91,7 +91,7 @@ Route::get('/services/{service}', function ($service) {
     return redirect()->route('landing.page');
 })->name('services.show');
 
-// validte 
+// validte
 Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
     ->where('fishrNumber', '.*')
     ->name('validate.fishr');
@@ -262,11 +262,11 @@ Route::middleware('auth')->get('/validate-fishr/{fishrNumber}', [BoatRController
         // General routes first
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
-        
+
         // Special/Specific routes BEFORE generic {id} routes
         Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
         Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
-        
+
         // Generic routes with {event} parameter LAST
         Route::get('/{event}', [EventController::class, 'show'])->name('show');
         Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
@@ -300,7 +300,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     // Route::get('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
 
     // In your admin routes group
-    Route::patch('/requests/{seedlingRequest}/mark-claimed', 
+    Route::patch('/requests/{seedlingRequest}/mark-claimed',
         [SeedlingRequestController::class, 'markAsClaimed'])
         ->name('mark-claimed');
     // export csv
@@ -388,7 +388,7 @@ Route::prefix('admin/notifications')->name('admin.notifications.')->middleware([
     // ==============================================
 // Activity Logs Routes (Admin only)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    
+
     // Activity Logs Routes
     Route::prefix('activity-logs')->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
@@ -401,7 +401,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
 // routes/api.php - Add JSON API routes
 Route::middleware(['auth', 'api'])->prefix('api')->group(function () {
-    
+
     Route::get('/activity-logs/{id}', [ActivityLogApiController::class, 'show']);
 
 });
@@ -571,7 +571,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 
     // Main user management interface
     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
-    
+
     // Create new user account
     Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
     // edit user account
@@ -584,7 +584,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Enhanced status management with auto-refresh
     Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
     Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
-    
+
     // Status update with session sync
     Route::post('/registrations/{id}/update-status', [UserRegistrationController::class, 'updateStatus'])->name('registrations.update-status');
 
@@ -670,13 +670,13 @@ Route::get('/api/user/session-check', function (\Illuminate\Http\Request $reques
 
     // Get user from session
     $user = $request->session()->get('user');
-    
+
     // Validate session data
     if (!is_array($user) || empty($user['id'])) {
         // Session is corrupted
         $request->session()->flush();
         $request->session()->regenerate();
-        
+
         return response()->json([
             'success' => false,
             'authenticated' => false,
@@ -710,10 +710,10 @@ Route::prefix('admin/recycle-bin')->name('admin.recycle-bin.')->middleware(['aut
     Route::post('/bulk/restore', [RecycleBinController::class, 'bulkRestore'])->name('bulk.restore');
     Route::post('/bulk/delete', [RecycleBinController::class, 'bulkDestroy'])->name('bulk.delete');
     Route::post('/bulk/permanently-delete', [RecycleBinController::class, 'bulkPermanentlyDelete'])->name('bulk.permanently-delete');
-    
+
     // Empty entire bin
     Route::post('/empty', [RecycleBinController::class, 'empty'])->name('empty');
-    
+
     // Generic routes
     Route::get('/', [RecycleBinController::class, 'index'])->name('index');
     Route::get('/{id}', [RecycleBinController::class, 'show'])->name('show');
