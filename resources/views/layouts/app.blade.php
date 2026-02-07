@@ -1007,7 +1007,7 @@
                                             href="{{ route('admin.activity-logs.index') }}" data-tooltip="Activity Logs"
                                             aria-label="Activity Logs" role="menuitem">
                                             <i class="fas fa-history" aria-hidden="true"></i>
-                                            <span class="nav-link-text">Activity Logs</span>
+                                            <span class="nav-link-text">Audit Logs</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
