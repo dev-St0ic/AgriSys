@@ -8,7 +8,7 @@
         <!-- Header Section with Welcome -->
         <div class="dashboard-welcome-header">
             <div class="welcome-content">
-                <h1 class="welcome-title">Good Morning!</h1>
+                <h1 class="welcome-title" id="greeting">Good Morning!</h1>
             </div>
         </div>
 
@@ -965,6 +965,28 @@
             // Refresh every 10 minutes
             setInterval(updateWeather, 600000);
         })();
+
+        // Dynamic greeting based on time of day
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('greeting');
+            
+            if (hour >= 5 && hour < 12) {
+                greetingEl.textContent = 'Good Morning!';
+            } else if (hour >= 12 && hour < 17) {
+                greetingEl.textContent = 'Good Afternoon!';
+            } else if (hour >= 17 && hour < 21) {
+                greetingEl.textContent = 'Good Evening!';
+            } else {
+                greetingEl.textContent = 'Hello!';
+            }
+        }
+
+        // Call on page load
+        updateGreeting();
+
+        // Optional: Update greeting every minute
+        setInterval(updateGreeting, 60000);
     </script>
 
     <style>
