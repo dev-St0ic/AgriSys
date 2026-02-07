@@ -1361,7 +1361,7 @@
                         <div class="form-group">
                             <label for="edit-contact-number">Contact Number</label>
                             <input type="tel" id="edit-contact-number" name="contact_number"
-                                placeholder="09XXXXXXXXX or +639XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
+                                placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                                 maxlength="20">
                             <small>11-digit Philippine mobile number format</small>
                         </div>

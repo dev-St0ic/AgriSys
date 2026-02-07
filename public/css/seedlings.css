@@ -2302,7 +2302,7 @@ section.application-section small {
 
     /* Form Buttons */
     .seedlings-form-buttons {
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: stretch;
         gap: 8px;
     }
