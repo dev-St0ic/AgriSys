@@ -82,6 +82,10 @@ header {
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
 }
 
 .mobile-nav-menu.active {
@@ -93,8 +97,10 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
+    padding-top: max(15px, env(safe-area-inset-top));
     border-bottom: 2px solid #e8f5e9;
     background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+    flex-shrink: 0;
 }
 
 .mobile-nav-title {
@@ -119,6 +125,10 @@ header {
 
 .mobile-nav-items {
     padding: 20px 0;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .mobile-nav-item {
@@ -144,6 +154,74 @@ header {
     width: 20px;
     text-align: center;
     color: #40916c;
+}
+
+/* Mobile Nav User Section */
+.mobile-nav-user-section {
+    padding: 20px;
+    background: linear-gradient(135deg, #f0f8f5 0%, #e8f5e9 100%);
+    border-bottom: 2px solid #d4edda;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+}
+
+.mobile-nav-user-avatar {
+    flex-shrink: 0;
+}
+
+.mobile-nav-user-avatar i {
+    font-size: 3rem;
+    color: #40916c;
+}
+
+.mobile-nav-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.mobile-nav-user-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a5f3f;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mobile-nav-user-email {
+    font-size: 0.85rem;
+    color: #2d6a4f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Mobile Nav Divider */
+.mobile-nav-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #d4edda, transparent);
+    margin: 15px 10px;
+}
+
+/* Mobile Nav Logout Button */
+.mobile-nav-logout {
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.mobile-nav-logout:hover,
+.mobile-nav-logout:active {
+    background: #fee !important;
+    border-left-color: #dc3545 !important;
+    color: #bb2d3b !important;
+}
+
+.mobile-nav-logout i {
+    color: #dc3545 !important;
 }
 
 @keyframes fadeIn {
@@ -2028,11 +2106,11 @@ header {
 }
 
 @keyframes contactOverlayFadeIn {
-    from { 
-        opacity: 0; 
+    from {
+        opacity: 0;
     }
-    to { 
-        opacity: 1; 
+    to {
+        opacity: 1;
     }
 }
 
@@ -2902,25 +2980,26 @@ header {
     header {
         flex-direction: row;
         justify-content: space-between;
-        padding: 12px 15px;
-        min-height: 60px;
+        padding: 8px 12px;
+        min-height: 56px;
     }
 
     .header-left {
         flex-direction: row;
         width: auto;
-        gap: 15px;
+        gap: 10px;
         align-items: center;
         flex: 1;
     }
 
     .logo-container {
         margin-bottom: 0;
+        margin-right: auto;
     }
 
     .main-logo {
-        height: 50px;
-        max-width: 160px;
+        height: 45px;
+        max-width: 150px;
     }
 
     /* Hide Desktop Navigation on Mobile */
@@ -2940,32 +3019,34 @@ header {
     .header-right {
         width: auto;
         justify-content: flex-end;
-        gap: 10px;
+        gap: 6px;
         margin-left: auto;
+        flex-shrink: 0;
     }
 
     .auth-buttons {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         align-items: center;
     }
 
     .auth-buttons .btn {
-        padding: 8px 16px;
-        font-size: 0.85rem;
-        min-width: 70px;
+        padding: 7px 14px;
+        font-size: 0.8rem;
+        min-width: 65px;
+        white-space: nowrap;
     }
 
     /* User Profile Mobile */
     .user-profile {
-        width: 100%;
-        max-width: 300px;
-        padding: 10px 15px;
+        width: auto;
+        max-width: none;
+        padding: 6px 10px;
     }
 
     .user-avatar {
-        width: 35px;
-        height: 35px;
+        width: 36px;
+        height: 36px;
         font-size: 0.9rem;
     }
 
@@ -2994,8 +3075,8 @@ header {
         transform: none !important;
         width: 280px !important;
         max-width: calc(100vw - 20px) !important;
-        top: 70px !important;
-        max-height: calc(100vh - 80px) !important;
+        top: 60px !important;
+        max-height: calc(100vh - 70px) !important;
         overflow-y: auto !important;
         z-index: 1100 !important;
         box-sizing: border-box !important;
@@ -3265,28 +3346,68 @@ header {
 @media (max-width: 480px) {
     /* Header Extra Small */
     header {
-        padding: 10px 12px;
+        padding: 6px 10px;
+        min-height: 52px;
+    }
+
+    .header-left {
+        gap: 8px;
     }
 
     .main-logo {
-        height: 45px;
-        max-width: 140px;
+        height: 40px;
+        max-width: 130px;
     }
 
     .mobile-menu-toggle {
-        padding: 8px 12px;
-        font-size: 1.1rem;
+        padding: 7px 10px;
+        font-size: 1rem;
+    }
+
+    .header-right {
+        gap: 5px;
+    }
+
+    .auth-buttons {
+        gap: 5px;
     }
 
     .auth-buttons .btn {
-        padding: 8px 14px;
-        font-size: 0.8rem;
-        min-width: 60px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        min-width: 55px;
     }
 
     .mobile-nav-menu {
         width: 85vw;
         max-width: 280px;
+    }
+
+    /* Mobile Nav User Section Responsive */
+    .mobile-nav-user-section {
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .mobile-nav-user-avatar i {
+        font-size: 2.5rem;
+    }
+
+    .mobile-nav-user-name {
+        font-size: 0.95rem;
+    }
+
+    .mobile-nav-user-email {
+        font-size: 0.8rem;
+    }
+
+    .mobile-nav-item {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    .mobile-nav-divider {
+        margin: 12px 8px;
     }
 
     /* Welcome Extra Small */
@@ -3464,6 +3585,34 @@ header {
         font-size: 0.75rem;
     }
 
+    /* Mobile Nav User Section for Extra Small Screens */
+    .mobile-nav-user-section {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .mobile-nav-user-avatar i {
+        font-size: 2.2rem;
+    }
+
+    .mobile-nav-user-name {
+        font-size: 0.9rem;
+    }
+
+    .mobile-nav-user-email {
+        font-size: 0.75rem;
+    }
+
+    .mobile-nav-item {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+
+    .mobile-nav-item i {
+        font-size: 0.9rem;
+        margin-right: 10px;
+    }
+
     .welcome h2 {
         font-size: 1.4rem;
     }
@@ -3500,6 +3649,53 @@ header {
     }
 }
 
+/* Extra Small Mobile Devices */
+@media (max-width: 380px) {
+    header {
+        padding: 5px 8px;
+        min-height: 48px;
+    }
+
+    .header-left {
+        gap: 6px;
+    }
+
+    .main-logo {
+        height: 36px;
+        max-width: 110px;
+    }
+
+    .mobile-menu-toggle {
+        padding: 6px 8px;
+        font-size: 0.95rem;
+    }
+
+    .header-right {
+        gap: 4px;
+    }
+
+    .auth-buttons {
+        gap: 4px;
+    }
+
+    .auth-buttons .btn {
+        padding: 5px 10px;
+        font-size: 0.7rem;
+        min-width: 50px;
+    }
+
+    /* User Profile on very small screens */
+    .user-profile {
+        padding: 8px 10px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+}
+
 /* Touch Device Optimizations */
 @media (hover: none) and (pointer: coarse) {
     /* Larger touch targets for mobile */
@@ -3507,24 +3703,43 @@ header {
     .auth-buttons .btn,
     .btn-services,
     .btn-help,
-    .card .btn {
+    .card .btn,
+    .mobile-menu-toggle,
+    .lang-dropdown-btn {
         min-height: 44px;
         min-width: 44px;
+    }
+
+    /* Language dropdown touch optimization */
+    .lang-option {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
     }
 
     /* Remove hover effects on touch devices */
     .header-center .btn:hover,
     .auth-buttons .btn:hover,
     .card:hover,
-    .step:hover {
+    .step:hover,
+    .lang-dropdown-btn:hover {
         transform: none;
     }
 
     /* Better tap feedback */
     .header-center .btn:active,
-    .auth-buttons .btn:active {
+    .auth-buttons .btn:active,
+    .mobile-menu-toggle:active,
+    .lang-dropdown-btn:active {
         opacity: 0.7;
         transform: scale(0.98);
+    }
+
+    /* User avatar touch target */
+    .user-profile {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
     }
 }
 
@@ -3625,7 +3840,7 @@ header {
 }
 
 /* Terms & Privacy Modal Overlay - MUCH Higher z-index */
-#terms-modal, 
+#terms-modal,
 #privacy-modal {
     position: fixed;
     top: 0;
@@ -3641,7 +3856,7 @@ header {
     padding: 20px;
 }
 
-#terms-modal.active, 
+#terms-modal.active,
 #privacy-modal.active {
     display: flex !important;
 }
@@ -3825,7 +4040,7 @@ header {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    #terms-modal, 
+    #terms-modal,
     #privacy-modal {
         padding: 10px;
         align-items: center;
@@ -3929,7 +4144,7 @@ body.modal-open {
     }
 }
 
-#terms-modal, 
+#terms-modal,
 #privacy-modal {
     animation: fadeIn 0.3s ease;
 }
