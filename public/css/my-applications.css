@@ -953,3 +953,81 @@
         gap: 12px;
     }
 }
+
+   /* Service Filter Styling */
+    #service-filter-bar {
+        display: flex !important;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    .service-filter-btn {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .service-filter-btn:hover {
+        border-color: #4CAF50;
+        color: #4CAF50;
+        background-color: #f0f8f5;
+    }
+
+    .service-filter-btn.active {
+        background-color: #4CAF50;
+        color: white;
+        border-color: #4CAF50;
+    }
+
+    /* Enhanced Filter Bar */
+    .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: #333;
+        white-space: nowrap;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+        border-color: #4CAF50;
+        color: #4CAF50;
+        background-color: #f0f8f5;
+    }
+
+    .filter-btn.active {
+        background-color: #4CAF50;
+        color: white;
+        border-color: #4CAF50;
+    }
