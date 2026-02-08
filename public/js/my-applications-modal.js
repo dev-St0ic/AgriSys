@@ -1,6 +1,6 @@
 // Enhanced My Applications Modal - User Application Management (Simplified)
 // Fetch and display user's applications with professional styling
-// Updated: Removed category badge, reduced redundancy, added border colors
+// Updated: Added Under Review filter, Service-based filtering, reduced redundancy
 
 /**
  * Load user applications in modal
@@ -55,6 +55,7 @@ function loadUserApplicationsInModal() {
         if (data.success && data.applications && data.applications.length > 0) {
             renderApplicationsInModal(data.applications);
             updateApplicationStatistics(data.applications);
+            populateServiceFilters(data.applications);
         } else {
             renderEmptyApplications();
         }
@@ -100,8 +101,30 @@ function updateApplicationStatistics(applications) {
 }
 
 /**
+ * Populate service filter buttons based on applications
+ */
+function populateServiceFilters(applications) {
+    const serviceFilterContainer = document.getElementById('service-filter-container');
+    if (!serviceFilterContainer) return;
+
+    // Get unique services from applications
+    const uniqueServices = [...new Set(applications.map(app => app.type).filter(Boolean))];
+    
+    if (uniqueServices.length === 0) return;
+
+    let filterHTML = '<button class="service-filter-btn active" onclick="filterApplicationsByService(\'all\', this)">All Services</button>';
+    
+    uniqueServices.forEach(service => {
+        const serviceId = service.toLowerCase().replace(/\s+/g, '-');
+        filterHTML += `<button class="service-filter-btn" onclick="filterApplicationsByService('${serviceId}', this)" data-service="${service}">${service}</button>`;
+    });
+
+    serviceFilterContainer.innerHTML = filterHTML;
+}
+
+/**
  * Render applications in modal
- * Updated: Removed category badge, reduced redundancy, removed remarks
+ * Updated: Removed category badge, reduced redundancy, added service data attribute
  */
 function renderApplicationsInModal(applications) {
     const grid = document.getElementById('applications-modal-grid');
@@ -116,9 +139,10 @@ function renderApplicationsInModal(applications) {
         const statusClass = getStatusClass(app.status);
         const statusLabel = formatStatus(app.status);
         const isRejected = app.status.toLowerCase() === 'rejected';
+        const serviceId = app.type.toLowerCase().replace(/\s+/g, '-');
 
         return `
-            <div class="app-card ${statusClass}">
+            <div class="app-card ${statusClass}" data-service="${serviceId}" data-status="${app.status.toLowerCase()}">
                 <div class="card-header">
                     <div class="app-type">
                         <h3 class="app-title">${app.type}</h3>
@@ -188,7 +212,7 @@ function handleResubmit(applicationType) {
             openFunction: (e) => openRSBSAForm(e),
             path: '/services/rsbsa'
         },
-        'Seedlings Request': {
+        'Supply Request': {
             formId: 'seedlings-form',
             openFunction: (e) => openFormSeedlings(e),
             path: '/services/seedlings'
@@ -293,7 +317,6 @@ function formatStatus(status) {
     const statusMap = {
         'pending': 'Pending',
         'under_review': 'Under Review',
-        'processing': 'Processing',
         'approved': 'Approved',
         'rejected': 'Rejected'
     };
@@ -324,7 +347,7 @@ function formatApplicationDate(dateString) {
 }
 
 /**
- * Filter applications by status - FIXED VERSION
+ * Filter applications by status - UPDATED to handle both status and service filtering
  */
 function filterApplicationsByStatus(status) {
     const cards = document.querySelectorAll('.app-card');
@@ -338,8 +361,11 @@ function filterApplicationsByStatus(status) {
         event.target.classList.add('active');
     }
 
-    // ALWAYS remove the empty filter message first
+    // Always remove the empty filter message first
     removeEmptyFilterMessage();
+
+    // Reset service filters when status filter is used
+    resetServiceFilters();
 
     if (status === 'all') {
         // Show all cards
@@ -348,16 +374,13 @@ function filterApplicationsByStatus(status) {
         // Filter by specific status
         let visibleCount = 0;
         cards.forEach(card => {
-            const cardStatus = card.className.match(/status-(\w+)/);
-            if (cardStatus) {
-                const currentStatus = cardStatus[1];
-                const isVisible = currentStatus === status;
-                card.style.display = isVisible ? '' : 'none';
-                if (isVisible) visibleCount++;
-            }
+            const cardStatus = card.dataset.status;
+            const isVisible = cardStatus === status;
+            card.style.display = isVisible ? '' : 'none';
+            if (isVisible) visibleCount++;
         });
 
-        // NEW (CORRECT - shows only 1 message)
+        // Show empty message if no results
         if (visibleCount === 0 && cards.length > 0) {
             showEmptyFilterMessage(status);
         }
@@ -365,7 +388,48 @@ function filterApplicationsByStatus(status) {
 }
 
 /**
- * Show empty state message when filter has no results
+ * Filter applications by service
+ */
+function filterApplicationsByService(serviceId, buttonElement) {
+    const cards = document.querySelectorAll('.app-card');
+    const buttons = document.querySelectorAll('.service-filter-btn');
+
+    // Remove active class from all service filter buttons
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Add active class to clicked button
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+    }
+
+    // Always remove the empty filter message first
+    removeEmptyFilterMessage();
+
+    // Reset status filters when service filter is used
+    resetStatusFilters();
+
+    if (serviceId === 'all') {
+        // Show all cards
+        cards.forEach(card => card.style.display = '');
+    } else {
+        // Filter by specific service
+        let visibleCount = 0;
+        cards.forEach(card => {
+            const cardService = card.dataset.service;
+            const isVisible = cardService === serviceId;
+            card.style.display = isVisible ? '' : 'none';
+            if (isVisible) visibleCount++;
+        });
+
+        // Show empty message if no results
+        if (visibleCount === 0 && cards.length > 0) {
+            showEmptyServiceFilterMessage(serviceId);
+        }
+    }
+}
+
+/**
+ * Show empty state message when status filter has no results
  */
 function showEmptyFilterMessage(status) {
     let messageContainer = document.querySelector('.empty-filter-message');
@@ -383,9 +447,9 @@ function showEmptyFilterMessage(status) {
     const messages = {
         'pending': {
             title: 'No Pending Applications',
-            text: 'You don\'t have any applications currently under review.'
+            text: 'You don\'t have any applications currently pending.'
         },
-        'under-review': {
+        'under_review': {
             title: 'No Applications Under Review',
             text: 'You don\'t have any applications currently being reviewed.'
         },
@@ -426,6 +490,38 @@ function showEmptyFilterMessage(status) {
 }
 
 /**
+ * Show empty state message when service filter has no results
+ */
+function showEmptyServiceFilterMessage(serviceId) {
+    let messageContainer = document.querySelector('.empty-filter-message');
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.className = 'empty-filter-message';
+        const grid = document.getElementById('applications-modal-grid');
+        if (grid && grid.parentElement) {
+            grid.parentElement.appendChild(messageContainer);
+        } else {
+            return;
+        }
+    }
+
+    messageContainer.innerHTML = `
+        <div class="empty-filter-state">
+            <div class="empty-filter-icon">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                    <line x1="9" y1="17" x2="15" y2="17"/>
+                </svg>
+            </div>
+            <h3 class="empty-filter-title">No Applications for This Service</h3>
+            <p class="empty-filter-text">You don\'t have any applications for the selected service.</p>
+            <button class="empty-filter-btn" onclick="filterApplicationsByService('all', document.querySelector('.service-filter-btn'));">View All Services</button>
+        </div>
+    `;
+}
+
+/**
  * Remove empty filter message
  */
 function removeEmptyFilterMessage() {
@@ -436,42 +532,81 @@ function removeEmptyFilterMessage() {
 }
 
 /**
- * Reset filter buttons to 'All Applications' on modal close/open
+ * Reset status filter buttons to show 'All Applications'
+ */
+function resetStatusFilters() {
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    const allButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'All Applications');
+    if (allButton) {
+        allButton.classList.add('active');
+    } else if (buttons.length > 0) {
+        buttons[0].classList.add('active');
+    }
+}
+
+/**
+ * Reset service filter buttons to show 'All Services'
+ */
+function resetServiceFilters() {
+    const buttons = document.querySelectorAll('.service-filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    const allButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'All Services');
+    if (allButton) {
+        allButton.classList.add('active');
+    } else if (buttons.length > 0) {
+        buttons[0].classList.add('active');
+    }
+}
+
+/**
+ * Reset ALL filter buttons on modal close/open
  */
 function resetApplicationFilters() {
-    // Get all filter buttons
-    const buttons = document.querySelectorAll('.filter-btn');
+    // Reset status filters
+    const statusButtons = document.querySelectorAll('.filter-btn');
+    console.log('Resetting status filters - found', statusButtons.length, 'buttons');
     
-    console.log('Resetting filters - found', buttons.length, 'buttons');
-    
-    if (buttons.length === 0) {
-        console.warn('No filter buttons found');
-        return;
-    }
-    
-    // Remove active class from ALL buttons
-    buttons.forEach((btn, index) => {
+    statusButtons.forEach((btn, index) => {
         if (btn.classList.contains('active')) {
-            console.log('Removing active from button', index, '(' + btn.textContent.trim() + ')');
+            console.log('Removing active from status button', index, '(' + btn.textContent.trim() + ')');
             btn.classList.remove('active');
         }
     });
     
-    // Find and activate the 'All Applications' button
-    const allButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'All Applications');
-    
-    if (allButton) {
-        allButton.classList.add('active');
+    const allStatusButton = Array.from(statusButtons).find(btn => btn.textContent.trim() === 'All Applications');
+    if (allStatusButton) {
+        allStatusButton.classList.add('active');
         console.log('All Applications button set to active');
-    } else {
-        console.warn('All Applications button not found, activating first button');
-        buttons[0].classList.add('active');
+    } else if (statusButtons.length > 0) {
+        statusButtons[0].classList.add('active');
+    }
+
+    // Reset service filters
+    const serviceButtons = document.querySelectorAll('.service-filter-btn');
+    console.log('Resetting service filters - found', serviceButtons.length, 'buttons');
+    
+    serviceButtons.forEach((btn, index) => {
+        if (btn.classList.contains('active')) {
+            console.log('Removing active from service button', index, '(' + btn.textContent.trim() + ')');
+            btn.classList.remove('active');
+        }
+    });
+    
+    const allServiceButton = Array.from(serviceButtons).find(btn => btn.textContent.trim() === 'All Services');
+    if (allServiceButton) {
+        allServiceButton.classList.add('active');
+        console.log('All Services button set to active');
+    } else if (serviceButtons.length > 0) {
+        serviceButtons[0].classList.add('active');
     }
     
     // Show all application cards
     const cards = document.querySelectorAll('.app-card');
     cards.forEach(card => {
-        card.style.display = ''; // Reset to default
+        card.style.display = '';
     });
     
     console.log('Filter reset complete - showing', cards.length, 'cards');
@@ -482,10 +617,14 @@ window.loadUserApplicationsInModal = loadUserApplicationsInModal;
 window.renderApplicationsInModal = renderApplicationsInModal;
 window.renderEmptyApplications = renderEmptyApplications;
 window.filterApplicationsByStatus = filterApplicationsByStatus;
+window.filterApplicationsByService = filterApplicationsByService;
 window.resetApplicationFilters = resetApplicationFilters;
+window.resetStatusFilters = resetStatusFilters;
+window.resetServiceFilters = resetServiceFilters;
 window.handleResubmit = handleResubmit;
 window.showEmptyFilterMessage = showEmptyFilterMessage;
+window.showEmptyServiceFilterMessage = showEmptyServiceFilterMessage;
 window.removeEmptyFilterMessage = removeEmptyFilterMessage;
+window.populateServiceFilters = populateServiceFilters;
 
-
-console.log('Enhanced My Applications Modal - Simplified Version Loaded');
+console.log('Enhanced My Applications Modal - With Service & Status Filtering Loaded');

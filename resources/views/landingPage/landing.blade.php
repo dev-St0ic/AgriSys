@@ -460,7 +460,7 @@
 
         <div class="welcome-content">
             <h2>Welcome to <span class="highlight">AgriSys</span><br>Agriculture System</br></h2>
-            <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
+            <p>The Agricultural System of the City Agriculture Office of San Pedro, <br>Laguna</p>
             <button class="btn-services"
                 onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
                 Services</button>
@@ -854,7 +854,7 @@
             </div>
         </div>
 
-        <!-- MY APPLICATIONS MODAL - ENHANCED VERSION -->
+        <!-- MY APPLICATIONS MODAL - ENHANCED VERSION WITH SERVICE FILTERS -->
         <div id="applications-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content applications-modal">
                 <!-- Modal Header -->
@@ -888,14 +888,22 @@
                         </div>
                     </div>
 
-                    <!-- Filter Bar -->
+                    <!-- Status Filter Bar -->
                     <div class="filter-bar">
                         <span class="filter-label">Filter by Status:</span>
-                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All
-                            Applications</button>
+                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All Applications</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('pending')">Pending</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('under_review')">Under Review</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('approved')">Approved</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('rejected')">Rejected</button>
+                    </div>
+
+                    <!-- Service Filter Bar (Dynamically populated) -->
+                    <div class="filter-bar" id="service-filter-bar" style="display: none;">
+                        <span class="filter-label">Filter by Service:</span>
+                        <div id="service-filter-container">
+                            <!-- Dynamically populated by JavaScript -->
+                        </div>
                     </div>
 
                     <!-- Applications Grid -->

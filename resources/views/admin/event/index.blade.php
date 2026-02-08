@@ -510,7 +510,7 @@
                                     <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
                                 </label>
                                 <input type="text" name="date" id="create_date" class="form-control" 
-                                    placeholder="e.g., November 15, 2025 | 6:00 AM" maxlength="100">
+                                    placeholder="e.g., November 15, 2026 | 6:00 AM" maxlength="100">
                                 <small class="text-muted d-block mt-2">Format: Month Day, Year | Time</small>
                             </div>
                             <div class="col-md-6">
@@ -716,7 +716,7 @@
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
                                 </label>
-                                <input type="text" id="edit_date" name="date" class="form-control" placeholder="e.g., November 15, 2025 | 6:00 AM">
+                                <input type="text" id="edit_date" name="date" class="form-control" placeholder="e.g., November 15, 2026 | 6:00 AM">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
