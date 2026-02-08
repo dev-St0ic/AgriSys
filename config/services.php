@@ -89,20 +89,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | PhilSMS Configuration
+    | Semaphore SMS Configuration
     |--------------------------------------------------------------------------
     |
-    | Configuration for PhilSMS API integration for SMS notifications
+    | Configuration for Semaphore API integration for SMS notifications
     | and OTP verification in AgriSys.
     |
     */
 
-    'philsms' => [
-        'api_key' => env('PHILSMS_API_KEY'),
-        'sender_id' => env('PHILSMS_SENDER_ID', 'AgriSys'),
-        'base_url' => env('PHILSMS_BASE_URL', 'https://www.philsms.com/api/v3'),
-        'timeout' => env('PHILSMS_TIMEOUT', 30),
-        'enabled' => env('PHILSMS_ENABLED', false),
+    'semaphore' => [
+        'api_key' => env('SEMAPHORE_API_KEY'),
+        'sender_name' => env('SEMAPHORE_SENDER_NAME', 'AgriSys'),
+        'base_url' => env('SEMAPHORE_BASE_URL', 'https://api.semaphore.co/api/v4'),
+        'timeout' => env('SEMAPHORE_TIMEOUT', 30),
+        'enabled' => env('SEMAPHORE_ENABLED', false),
     ],
 
     /*

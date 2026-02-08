@@ -8,18 +8,18 @@ use Illuminate\Support\Facades\Log;
 class SmsService
 {
     protected $apiKey;
-    protected $senderId;
+    protected $senderName;
     protected $baseUrl;
     protected $timeout;
     protected $enabled;
 
     public function __construct()
     {
-        $this->apiKey = config('services.philsms.api_key');
-        $this->senderId = config('services.philsms.sender_id');
-        $this->baseUrl = config('services.philsms.base_url');
-        $this->timeout = config('services.philsms.timeout');
-        $this->enabled = config('services.philsms.enabled');
+        $this->apiKey = config('services.semaphore.api_key');
+        $this->senderName = config('services.semaphore.sender_name');
+        $this->baseUrl = config('services.semaphore.base_url');
+        $this->timeout = config('services.semaphore.timeout');
+        $this->enabled = config('services.semaphore.enabled');
     }
 
     /**
@@ -37,43 +37,47 @@ class SmsService
         }
 
         if (!$this->apiKey) {
-            Log::error('PhilSMS API key not configured');
+            Log::error('Semaphore API key not configured');
             return ['success' => false, 'message' => 'SMS service not configured'];
         }
 
-        // Format phone number (ensure it starts with +63)
+        // Format phone number
         $formattedNumber = $this->formatPhoneNumber($phoneNumber);
 
         try {
+            // Semaphore API uses form parameters
+            $params = [
+                'apikey' => $this->apiKey,
+                'number' => $formattedNumber,
+                'message' => $message,
+            ];
+            
+            // Only add sendername if it's set and not empty
+            if (!empty($this->senderName)) {
+                $params['sendername'] = $this->senderName;
+            }
+            
             $response = Http::timeout($this->timeout)
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json'
-                ])
-                ->post($this->baseUrl . '/sms/send', [
-                    'recipient' => $formattedNumber,
-                    'sender_id' => $this->senderId,
-                    'type' => 'plain',
-                    'message' => $message,
-                ]);
+                ->asForm()
+                ->post($this->baseUrl . '/messages', $params);
 
             $responseData = $response->json();
 
-            if ($response->successful() && isset($responseData['data'])) {
-                Log::info('SMS sent successfully', [
+            // Semaphore returns array of message objects on success
+            if ($response->successful() && isset($responseData[0]['message_id'])) {
+                Log::info('SMS sent successfully via Semaphore', [
                     'phone' => $formattedNumber,
-                    'message_id' => $responseData['data']['id'] ?? null
+                    'message_id' => $responseData[0]['message_id'] ?? null
                 ]);
 
                 return [
                     'success' => true,
                     'message' => 'SMS sent successfully',
-                    'message_id' => $responseData['data']['id'] ?? null,
+                    'message_id' => $responseData[0]['message_id'] ?? null,
                     'response' => $responseData
                 ];
             } else {
-                Log::warning('SMS sending failed', [
+                Log::warning('SMS sending failed via Semaphore', [
                     'phone' => $formattedNumber,
                     'response' => $responseData,
                     'status_code' => $response->status()
@@ -81,7 +85,7 @@ class SmsService
 
                 return [
                     'success' => false,
-                    'message' => $responseData['message'] ?? 'Failed to send SMS',
+                    'message' => $responseData['message'] ?? $responseData['error'] ?? 'Failed to send SMS',
                     'response' => $responseData
                 ];
             }
@@ -167,7 +171,7 @@ class SmsService
     }
 
     /**
-     * Check SMS balance (if supported by PhilSMS)
+     * Check SMS balance via Semaphore
      *
      * @return array
      */
@@ -179,25 +183,24 @@ class SmsService
 
         try {
             $response = Http::timeout($this->timeout)
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'Accept' => 'application/json'
-                ])
-                ->get($this->baseUrl . '/balance');
+                ->get($this->baseUrl . '/account', [
+                    'apikey' => $this->apiKey
+                ]);
 
             $responseData = $response->json();
 
-            if ($response->successful() && isset($responseData['data'])) {
+            if ($response->successful() && isset($responseData['credit_balance'])) {
                 return [
                     'success' => true,
-                    'balance' => $responseData['data']['balance'] ?? 'Unknown',
+                    'balance' => $responseData['credit_balance'],
+                    'account_name' => $responseData['account_name'] ?? 'Unknown',
                     'response' => $responseData
                 ];
             } else {
                 return [
                     'success' => false,
                     'balance' => 'Unknown',
-                    'message' => $responseData['message'] ?? 'Failed to check balance',
+                    'message' => $responseData['message'] ?? $responseData['error'] ?? 'Failed to check balance',
                     'response' => $responseData
                 ];
             }
@@ -208,8 +211,8 @@ class SmsService
     }
 
     /**
-     * Format phone number to PhilSMS format
-     * Only accepts 09XXXXXXXXX format and converts to 639XXXXXXXXX
+     * Format phone number for Semaphore API
+     * Accepts 09XXXXXXXXX format and converts to 639XXXXXXXXX
      *
      * @param string $phoneNumber
      * @return string
@@ -219,10 +222,14 @@ class SmsService
         // Remove all non-numeric characters
         $number = preg_replace('/[^0-9]/', '', $phoneNumber);
 
-        // Only accept 09XXXXXXXXX format (11 digits starting with 09)
+        // If starts with 09, convert to 639 format
         if (strlen($number) === 11 && substr($number, 0, 2) === '09') {
-            // Convert 09XXXXXXXXX to 639XXXXXXXXX for PhilSMS API
             return '63' . substr($number, 1);
+        }
+
+        // If already in 639 format, return as-is
+        if (strlen($number) === 12 && substr($number, 0, 2) === '63') {
+            return $number;
         }
 
         // If it doesn't match expected pattern, return as-is and let API handle error
@@ -251,7 +258,7 @@ class SmsService
         return [
             'enabled' => $this->enabled,
             'configured' => !empty($this->apiKey),
-            'sender_id' => $this->senderId,
+            'sender_name' => $this->senderName,
             'base_url' => $this->baseUrl,
         ];
     }
