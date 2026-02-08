@@ -184,31 +184,90 @@
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .language-selector {
-                margin-right: 8px;
+                margin-right: 6px;
             }
 
             .lang-dropdown-btn {
-                padding: 8px 16px;
+                padding: 6px 12px;
+                font-size: 11px;
+                min-width: 95px;
+                gap: 6px;
+                border-width: 1.5px;
+            }
+
+            .lang-globe-icon {
+                font-size: 14px;
+            }
+
+            .lang-chevron {
                 font-size: 12px;
-                min-width: 120px;
-                gap: 8px;
+            }
+
+            .lang-dropdown-menu {
+                min-width: 95px;
+                right: 0;
+                left: auto;
+            }
+
+            .lang-option {
+                padding: 9px 12px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .language-selector {
+                margin-right: 4px;
+            }
+
+            .lang-dropdown-btn {
+                padding: 5px 10px;
+                font-size: 10px;
+                min-width: 85px;
+                gap: 5px;
+            }
+
+            .lang-globe-icon {
+                font-size: 13px;
+            }
+
+            .lang-chevron {
+                font-size: 11px;
+            }
+
+            .lang-dropdown-menu {
+                min-width: 85px;
+            }
+
+            .lang-option {
+                padding: 8px 10px;
+                font-size: 10px;
+                gap: 6px;
+            }
+
+            .lang-option .check-icon {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .lang-dropdown-btn {
+                padding: 5px 8px;
+                font-size: 0;
+                min-width: 40px;
+                gap: 0;
+            }
+
+            .lang-text {
+                display: none;
+            }
+
+            .lang-chevron {
+                display: none;
             }
 
             .lang-globe-icon {
                 font-size: 16px;
-            }
-
-            .lang-chevron {
-                font-size: 14px;
-            }
-
-            .lang-dropdown-menu {
-                min-width: 120px;
-            }
-
-            .lang-option {
-                padding: 10px 16px;
-                font-size: 12px;
             }
         }
     </style>
@@ -263,6 +322,22 @@
             <span class="mobile-nav-title">Navigation</span>
             <button class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
         </div>
+
+        @if (isset($user))
+            <!-- User Profile Section in Mobile Nav -->
+            <div class="mobile-nav-user-section">
+                <div class="mobile-nav-user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="mobile-nav-user-info">
+                    <div class="mobile-nav-user-name">{{ $user['name'] ?? $user['username'] }}</div>
+                    @if (isset($user['email']) && !empty($user['email']))
+                        <div class="mobile-nav-user-email">{{ $user['email'] }}</div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <div class="mobile-nav-items">
             <a href="javascript:void(0)" class="mobile-nav-item" onclick="goHome(event); closeMobileNav();">
                 <i class="fas fa-home"></i> Home
@@ -282,6 +357,24 @@
             <a href="javascript:void(0)" class="mobile-nav-item" onclick="openFormTraining(event); closeMobileNav();">
                 <i class="fas fa-chalkboard-teacher"></i> Training Request
             </a>
+
+            @if (isset($user))
+                <!-- Divider before user actions -->
+                <div class="mobile-nav-divider"></div>
+
+                <!-- User Action Items -->
+                <a href="javascript:void(0)" class="mobile-nav-item" onclick="showProfileModal(); closeMobileNav();">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+                <a href="javascript:void(0)" class="mobile-nav-item"
+                    onclick="showMyApplicationsModal(); closeMobileNav();">
+                    <i class="fas fa-folder-open"></i> My Applications
+                </a>
+                <a href="javascript:void(0)" class="mobile-nav-item mobile-nav-logout"
+                    onclick="showLogoutConfirmation(); closeMobileNav();">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            @endif
         </div>
     </nav>
 

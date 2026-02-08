@@ -2684,11 +2684,45 @@ input.is-invalid {
 
 /* ==============================================
    VERIFICATION MODAL STYLES
+   ==============================================
+
+   Desktop: Centered modal with max-width 700px
+
+   Mobile Optimizations (480px and below):
+   ✓ Full-screen modal for maximum content visibility
+   ✓ Sticky header with shadow for better navigation
+   ✓ Sticky submit button for easy access
+   ✓ Optimized touch targets (min 44px)
+   ✓ Prevents background body scroll
+   ✓ Safe area padding for notched devices
+   ✓ Smooth scrolling with touch support
+   ✓ Font size 16px to prevent iOS auto-zoom
+   ✓ Compact spacing optimized for small screens
+   ✓ Better visual feedback on interactions
+
+   Breakpoints:
+   - 768px: Tablet optimizations
+   - 480px: Phone full-screen mode
+   - 360px: Small phone adjustments
    ============================================== */
 
 /* Professional Verification Modal Styles */
 .verification-modal {
     max-width: 700px;
+}
+
+/* Prevent body scroll when verification modal is open on mobile */
+body:has(#verification-modal[style*="display: flex"]) {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    body:has(#verification-modal[style*="display: flex"]) {
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 .verification-header {
@@ -2866,6 +2900,36 @@ input.is-invalid {
     max-width: 100%;
     max-height: 200px;
     border-radius: 6px;
+    object-fit: contain;
+}
+
+/* Mobile image preview enhancements */
+@media (max-width: 480px) {
+    .image-preview {
+        margin-top: 12px;
+        padding: 8px;
+        border-radius: 6px;
+    }
+
+    .image-preview img {
+        max-height: 180px;
+        border-radius: 4px;
+    }
+
+    /* Add remove button for uploaded images on mobile */
+    .image-preview {
+        position: relative;
+    }
+
+    .image-preview.has-image {
+        padding-bottom: 40px;
+    }
+}
+
+@media (max-width: 360px) {
+    .image-preview img {
+        max-height: 150px;
+    }
 }
 
 .form-text {
@@ -2967,41 +3031,444 @@ input.is-invalid {
     color: white;
 }
 
+/* ============================================
+   MOBILE RESPONSIVE - TABLET (768px and below)
+   ============================================ */
 @media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    .verification-modal {
+        max-width: 95%;
+        width: 95%;
+        max-height: 92vh;
     }
 
-    .verification-section {
+    .modal-header {
+        padding: 16px 20px;
+    }
+
+    .modal-header h3 {
+        font-size: 18px;
+    }
+
+    .modal-body {
         padding: 20px;
     }
-}
 
-@media (max-width: 480px) {
-    .verification-header {
-        padding: 15px;
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 
     .verification-section {
-        padding: 15px;
-        margin-bottom: 25px;
+        padding: 16px;
+        margin-bottom: 20px;
     }
 
-    .section-header {
-        gap: 10px;
+    .verification-header {
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .verification-header h4 {
+        font-size: 18px;
+    }
+
+    .verification-header p {
+        font-size: 13px;
     }
 
     .section-header h5 {
         font-size: 16px;
     }
 
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .file-upload-area {
+        padding: 20px;
+    }
+
+    .verification-notice {
+        padding: 16px;
+        gap: 12px;
+    }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE - PHONE (480px and below)
+   ============================================ */
+@media (max-width: 480px) {
+    .verification-modal {
+        max-width: 100%;
+        width: 100%;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+        margin: 0;
+    }
+
+    .modal-header {
+        padding: 14px 16px;
+        border-radius: 0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .modal-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 24px;
+    }
+
+    .modal-body {
+        padding: 16px 14px;
+        padding-bottom: 24px;
+    }
+
+    /* Verification Header - Compact for Mobile */
+    .verification-header {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .verification-header-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+
+    .verification-header h4 {
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    .verification-header p {
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    /* Verification Sections - Optimized Spacing */
+    .verification-section {
+        padding: 14px;
+        margin-bottom: 16px;
+        border-radius: 10px;
+    }
+
+    /* Section Headers - Compact */
+    .section-header {
+        gap: 8px;
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+    }
+
+    .section-header svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .section-header h5 {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .section-description {
+        font-size: 12px;
+        margin-bottom: 14px;
+        line-height: 1.4;
+    }
+
+    /* Form Groups - Better Touch Targets */
+    .form-group {
+        margin-bottom: 14px;
+    }
+
     .form-group label {
-        font-size: 14px;
+        font-size: 13px;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px 14px;
+        font-size: 15px;
+        border-radius: 8px;
+        border-width: 1.5px;
+    }
+
+    .form-group small {
+        font-size: 11px;
+        color: #6b7280;
+        display: block;
+        margin-top: 4px;
+    }
+
+    .form-group textarea {
+        min-height: 70px;
+    }
+
+    /* File Upload - Mobile Optimized */
+    .file-upload-area {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .upload-icon svg {
+        width: 28px;
+        height: 28px;
     }
 
     .upload-text {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .image-preview {
+        margin-top: 12px;
+        padding: 8px;
+    }
+
+    .image-preview img {
+        max-height: 150px;
+    }
+
+    .form-text {
+        font-size: 11px;
+        padding: 6px 10px;
+        margin-top: 6px;
+        line-height: 1.3;
+    }
+
+    /* Verification Notice - Compact */
+    .verification-notice {
+        padding: 12px;
+        margin: 16px 0;
+        gap: 10px;
+        border-radius: 8px;
+    }
+
+    .notice-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .notice-content h6 {
         font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .notice-content p {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    /* Submit Button - Mobile Optimized */
+    .verification-submit-btn {
+        padding: 14px;
+        font-size: 15px;
+        border-radius: 10px;
+        margin-top: 16px;
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(135deg, #0A6953, #2d6a4f);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1), 0 4px 12px rgba(10, 105, 83, 0.2);
+    }
+
+    .verification-submit-btn:active {
+        transform: scale(0.98);
+    }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE - SMALL PHONE (360px and below)
+   ============================================ */
+@media (max-width: 360px) {
+    .modal-header {
+        padding: 12px 14px;
+    }
+
+    .modal-header h3 {
+        font-size: 15px;
+    }
+
+    .modal-close {
+        width: 28px;
+        height: 28px;
+        font-size: 22px;
+    }
+
+    .modal-body {
+        padding: 14px 12px;
+        padding-bottom: 20px;
+    }
+
+    .verification-header {
+        padding: 14px;
+    }
+
+    .verification-header-icon svg {
+        width: 36px;
+        height: 36px;
+    }
+
+    .verification-header h4 {
+        font-size: 16px;
+    }
+
+    .verification-header p {
+        font-size: 12px;
+    }
+
+    .verification-section {
+        padding: 12px;
+        margin-bottom: 14px;
+    }
+
+    .section-header h5 {
+        font-size: 14px;
+    }
+
+    .section-description {
+        font-size: 11px;
+    }
+
+    .form-group label {
+        font-size: 12px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .form-group small {
+        font-size: 10px;
+    }
+
+    .file-upload-area {
+        padding: 14px;
+    }
+
+    .upload-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .upload-text {
+        font-size: 12px;
+    }
+
+    .verification-submit-btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+/* ============================================
+   MOBILE ENHANCEMENTS FOR VERIFICATION MODAL
+   ============================================ */
+
+/* Improved scrolling for mobile */
+@media (max-width: 768px) {
+    .verification-modal .modal-content {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    /* Better input focus for mobile - prevent zoom on iOS */
+    .verification-section .form-group input,
+    .verification-section .form-group select,
+    .verification-section .form-group textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+
+    /* Improved touch targets */
+    .verification-section .form-group input,
+    .verification-section .form-group select,
+    .verification-section .form-group textarea,
+    .file-upload-area {
+        min-height: 44px; /* iOS recommended touch target */
+    }
+
+    /* Better visual feedback on mobile */
+    .verification-section .form-group input:active,
+    .verification-section .form-group select:active,
+    .verification-section .form-group textarea:active {
+        background-color: #f9fafb;
+    }
+
+    /* Optimize file upload for mobile */
+    .file-upload-area:active {
+        transform: scale(0.98);
+        background: #f0f9f0;
+    }
+
+    /* Better spacing for form rows on tablet */
+    .verification-section .form-row {
+        gap: 16px;
+    }
+
+    .verification-section .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    /* Last form group in row should have proper margin */
+    .verification-section .form-group:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Small field labels - better for small screens */
+@media (max-width: 480px) {
+    .verification-section .form-group small {
+        display: block;
+        margin-top: 4px;
+        font-size: 11px;
+        line-height: 1.3;
+        color: #6b7280;
+    }
+
+    /* Compact checkbox/radio if any */
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Better error message display */
+    .verification-section .form-group .error-message {
+        font-size: 12px;
+        margin-top: 4px;
+        color: #ef4444;
+    }
+
+    /* Sticky header for better navigation */
+    .verification-modal .modal-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    /* Add safe area padding for notched phones */
+    .verification-modal .modal-body {
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
+        padding-bottom: max(24px, env(safe-area-inset-bottom));
+    }
+
+    .verification-submit-btn {
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
+        padding-bottom: max(14px, env(safe-area-inset-bottom));
     }
 }
 
@@ -4142,7 +4609,8 @@ input.is-invalid {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 20px;
+    padding: 15px;
+    overflow-y: auto;
 }
 
 .verification-alert-modal.show {
@@ -4155,11 +4623,13 @@ input.is-invalid {
     border-radius: 20px;
     max-width: 560px;
     width: 100%;
-    max-height: 90vh;
+    max-height: calc(100vh - 30px);
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
     transform: translateY(30px) scale(0.9);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: auto;
+    position: relative;
 }
 
 .verification-alert-modal.show .modal-content {
@@ -4169,7 +4639,7 @@ input.is-invalid {
 /* Modal Header - More prominent with green theme */
 .verification-alert-modal .modal-header {
     background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
-    padding: 26px 28px;
+    padding: 20px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -4180,7 +4650,7 @@ input.is-invalid {
 
 .verification-alert-modal .modal-header h3 {
     color: #ffffff;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     margin: 0;
     display: flex;
@@ -4188,12 +4658,12 @@ input.is-invalid {
     flex: 1;
     justify-content: center;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    gap: 12px;
+    gap: 10px;
 }
 
 .verification-alert-modal .modal-header h3 i {
     color: #aca21e;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     flex-shrink: 0;
 }
@@ -4225,26 +4695,26 @@ input.is-invalid {
 
 /* Modal Body - Clear and spacious */
 .verification-alert-modal .modal-body {
-    padding: 32px 28px;
+    padding: 24px 20px;
     text-align: center;
 }
 
 /* Alert Icon - Larger and more prominent */
 .verification-alert-modal .alert-icon {
-    width: 90px;
-    height: 90px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(135deg, #ffd60a 0%, #ffc300 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 24px;
-    box-shadow: 0 6px 20px rgba(255, 214, 10, 0.35);
-    border: 4px solid #fff8dc;
+    margin: 0 auto 18px;
+    box-shadow: 0 4px 16px rgba(255, 214, 10, 0.3);
+    border: 3px solid #fff8dc;
 }
 
 .verification-alert-modal .alert-icon i {
-    font-size: 2.8rem;
+    font-size: 2.2rem;
     color: #ffffff;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
@@ -4272,17 +4742,17 @@ input.is-invalid {
 /* Headings and Text - Larger and easier to read */
 .verification-alert-modal h4 {
     color: #1b4332;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin: 0 0 16px 0;
+    margin: 0 0 12px 0;
     line-height: 1.3;
 }
 
 .verification-alert-modal p {
     color: #52796f;
-    font-size: 1.1rem;
-    line-height: 1.7;
-    margin: 0 0 18px 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 16px 0;
 }
 
 .verification-alert-modal p strong {
@@ -4293,9 +4763,9 @@ input.is-invalid {
 /* Verification Steps - Clear visual steps */
 .verification-alert-modal .verification-steps {
     background: linear-gradient(135deg, #f1faee 0%, #d8f3dc 100%);
-    border-radius: 14px;
-    padding: 24px;
-    margin: 24px 0;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 18px 0;
     text-align: center;
     border: 2px solid #b7e4c7;
     display: flex;
@@ -4304,12 +4774,11 @@ input.is-invalid {
 }
 
 .verification-alert-modal .step {
-    display: grid;
-    grid-template-columns: 40px 1fr;
+    display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 16px;
-    padding: 14px;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
     background: #ffffff;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -4327,32 +4796,29 @@ input.is-invalid {
 }
 
 .verification-alert-modal .step-number {
-    width: 40px;
-    height: 40px;
-    margin-top: 20px;
-    margin-left: 40px;
-    min-width: 40px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
     border-radius: 50%;
     background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
     color: #ffffff;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
     box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
-    text-align: left;
-    line-height: 40px;
 }
 
 .verification-alert-modal .step-text {
     color: #2d6a4f;
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 600;
     line-height: 1.4;
     margin: 0;
-    text-align: center;
+    text-align: left;
+    flex: 1;
 }
 
 /* Responsive adjustments */
@@ -4454,10 +4920,10 @@ input.is-invalid {
 
 /* Modal Actions - Large, clear buttons */
 .verification-alert-modal .modal-actions {
-    padding: 0 28px 28px 28px;
+    padding: 0 20px 20px 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     justify-content: center;
 }
 
@@ -4466,19 +4932,19 @@ input.is-invalid {
     background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
     color: #ffffff;
     border: none;
-    padding: 18px 32px;
+    padding: 15px 28px;
     border-radius: 50px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 6px 20px rgba(64, 145, 108, 0.3);
+    box-shadow: 0 5px 18px rgba(64, 145, 108, 0.3);
     width: 100%;
 }
 
@@ -4493,7 +4959,7 @@ input.is-invalid {
 }
 
 .verification-alert-modal .btn-verify-now i {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 /* Primary Button (for understood/confirmation) */
@@ -4501,19 +4967,19 @@ input.is-invalid {
     background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
     color: #ffffff;
     border: none;
-    padding: 18px 32px;
+    padding: 15px 28px;
     border-radius: 50px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 6px 20px rgba(64, 145, 108, 0.3);
+    box-shadow: 0 5px 18px rgba(64, 145, 108, 0.3);
     width: 100%;
 }
 
@@ -4528,7 +4994,7 @@ input.is-invalid {
 }
 
 .verification-alert-modal .btn-primary i {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 /* Cancel Button - Subtle but clear */
@@ -4536,9 +5002,9 @@ input.is-invalid {
     background: transparent;
     color: #52796f;
     border: 2px solid #95d5b2;
-    padding: 16px 32px;
+    padding: 13px 28px;
     border-radius: 50px;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -4557,169 +5023,360 @@ input.is-invalid {
 /* Responsive Design for Verification Modal */
 @media (max-width: 768px) {
     .verification-alert-modal {
-        padding: 15px;
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 15px;
+        justify-content: center;
     }
 
     .verification-alert-modal .modal-content {
-        max-width: 100%;
-        border-radius: 16px;
+        max-width: calc(100vw - 24px);
+        width: calc(100vw - 24px);
+        border-radius: 14px;
+        max-height: calc(100vh - 30px);
+        margin: 0 auto;
     }
 
     .verification-alert-modal .modal-header {
-        padding: 22px 20px;
-        border-radius: 16px 16px 0 0;
+        padding: 10px 8px;
+        border-radius: 14px 14px 0 0;
     }
 
     .verification-alert-modal .modal-header h3 {
-        font-size: 1.2rem;
+        font-size: 0.8rem;
+        gap: 5px;
+        padding-right: 24px;
     }
 
     .verification-alert-modal .modal-header h3 i {
-        font-size: 1.4rem;
+        font-size: 0.92rem;
     }
 
-    .verification-alert-modal .close-btn {
-        width: 34px;
-        height: 34px;
-        font-size: 1.6rem;
+    .verification-alert-modal .auth-modal-close {
+        width: 22px;
+        height: 22px;
+        font-size: 16px;
+        right: 8px;
     }
 
     .verification-alert-modal .modal-body {
-        padding: 24px 20px;
+        padding: 10px 8px;
     }
 
     .verification-alert-modal .alert-icon {
-        width: 75px;
-        height: 75px;
-        margin-bottom: 20px;
-        border-width: 3px;
+        width: 44px;
+        height: 44px;
+        margin-bottom: 10px;
+        border-width: 2px;
     }
 
     .verification-alert-modal .alert-icon i {
-        font-size: 2.3rem;
+        font-size: 1.36rem;
     }
 
     .verification-alert-modal h4 {
-        font-size: 1.3rem;
+        font-size: 0.86rem;
+        margin-bottom: 6px;
     }
 
     .verification-alert-modal p {
-        font-size: 1.05rem;
+        font-size: 0.7rem;
+        line-height: 1.4;
+        margin-bottom: 8px;
     }
 
     .verification-alert-modal .verification-steps {
-        padding: 18px;
-        margin: 20px 0;
+        padding: 9px;
+        margin: 9px 0;
+        border-radius: 6px;
     }
 
     .verification-alert-modal .step {
-        padding: 12px;
-        gap: 12px;
-        margin-bottom: 12px;
+        padding: 7px 6px;
+        gap: 6px;
+        margin-bottom: 7px;
+        max-width: 100%;
     }
 
     .verification-alert-modal .step-number {
-        width: 36px;
-        height: 36px;
-        font-size: 1.1rem;
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        font-size: 0.76rem;
     }
 
     .verification-alert-modal .step-text {
-        font-size: 1rem;
+        font-size: 0.68rem;
+        line-height: 1.3;
     }
 
     .verification-alert-modal .status-info {
         padding: 16px;
+        margin: 16px 0;
     }
 
     .verification-alert-modal .status-info p {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .verification-alert-modal .modal-actions {
-        padding: 0 20px 20px 20px;
-        gap: 10px;
+        padding: 0 8px 10px 8px;
+        gap: 6px;
     }
 
     .verification-alert-modal .btn-verify-now,
     .verification-alert-modal .btn-primary {
-        padding: 16px 28px;
-        font-size: 1.05rem;
+        padding: 10px 14px;
+        font-size: 0.7rem;
+        gap: 5px;
+    }
+
+    .verification-alert-modal .btn-verify-now i,
+    .verification-alert-modal .btn-primary i {
+        font-size: 0.76rem;
     }
 
     .verification-alert-modal .btn-cancel {
-        padding: 14px 28px;
-        font-size: 1rem;
+        padding: 8px 14px;
+        font-size: 0.68rem;
     }
 }
 
 @media (max-width: 480px) {
+    .verification-alert-modal {
+        padding: 8px;
+        align-items: flex-start;
+        padding-top: 10px;
+        justify-content: center;
+    }
+
+    .verification-alert-modal .modal-content {
+        max-width: calc(100vw - 16px);
+        width: calc(100vw - 16px);
+        max-height: calc(100vh - 20px);
+        border-radius: 12px;
+        margin: 0 auto;
+    }
+
     .verification-alert-modal .modal-header {
-        padding: 18px 16px;
+        padding: 9px 7px;
     }
 
     .verification-alert-modal .modal-header h3 {
-        font-size: 1.1rem;
-        gap: 8px;
+        font-size: 0.77rem;
+        gap: 4px;
+        padding-right: 22px;
+        line-height: 1.3;
     }
 
     .verification-alert-modal .modal-header h3 i {
-        font-size: 1.2rem;
+        font-size: 0.88rem;
+    }
+
+    .verification-alert-modal .auth-modal-close {
+        width: 21px;
+        height: 21px;
+        font-size: 16px;
+        right: 9px;
     }
 
     .verification-alert-modal .modal-body {
-        padding: 20px 16px;
+        padding: 9px 7px;
     }
 
     .verification-alert-modal .alert-icon {
-        width: 70px;
-        height: 70px;
+        width: 47px;
+        height: 47px;
+        margin-bottom: 11px;
+        border-width: 2px;
     }
 
     .verification-alert-modal .alert-icon i {
-        font-size: 2rem;
+        font-size: 1.55rem;
     }
 
     .verification-alert-modal h4 {
-        font-size: 1.2rem;
+        font-size: 0.83rem;
+        margin-bottom: 7px;
+        line-height: 1.3;
     }
 
     .verification-alert-modal p {
-        font-size: 1rem;
+        font-size: 0.69rem;
+        line-height: 1.45;
+        margin-bottom: 9px;
     }
 
     .verification-alert-modal .verification-steps {
-        padding: 16px;
+        padding: 8px;
+        margin: 8px 0;
+        border-radius: 6px;
     }
 
     .verification-alert-modal .step {
-        padding: 10px;
-        gap: 10px;
+        padding: 6px 5px;
+        gap: 6px;
+        margin-bottom: 6px;
+        border-radius: 6px;
+    }
+
+    .verification-alert-modal .step:last-child {
+        margin-bottom: 0;
     }
 
     .verification-alert-modal .step-number {
-        width: 32px;
-        height: 32px;
-        font-size: 1rem;
+        width: 23px;
+        height: 23px;
+        min-width: 23px;
+        font-size: 0.72rem;
     }
 
     .verification-alert-modal .step-text {
-        font-size: 0.95rem;
+        font-size: 0.66rem;
+        line-height: 1.3;
+    }
+
+    .verification-alert-modal .status-info {
+        padding: 9px;
+        margin: 9px 0;
+        border-radius: 7px;
+    }
+
+    .verification-alert-modal .status-info p {
+        font-size: 0.68rem;
+        margin-bottom: 6px;
     }
 
     .verification-alert-modal .modal-actions {
-        padding: 0 16px 16px 16px;
+        padding: 0 7px 9px 7px;
+        gap: 6px;
     }
 
     .verification-alert-modal .btn-verify-now,
     .verification-alert-modal .btn-primary {
-        padding: 14px 24px;
-        font-size: 1rem;
+        padding: 9.5px 14px;
+        font-size: 0.69rem;
+        gap: 5.5px;
+    }
+
+    .verification-alert-modal .btn-verify-now i,
+    .verification-alert-modal .btn-primary i {
+        font-size: 0.72rem;
     }
 
     .verification-alert-modal .btn-cancel {
-        padding: 12px 24px;
-        font-size: 0.95rem;
+        padding: 8px 14px;
+        font-size: 0.66rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .verification-alert-modal {
+        padding: 6px;
+        align-items: flex-start;
+        padding-top: 8px;
+        justify-content: center;
+    }
+
+    .verification-alert-modal .modal-content {
+        max-width: calc(100vw - 12px);
+        width: calc(100vw - 12px);
+        max-height: calc(100vh - 16px);
+        border-radius: 10px;
+        margin: 0 auto;
+    }
+
+    .verification-alert-modal .modal-header {
+        padding: 8px 6px;
+    }
+
+    .verification-alert-modal .modal-header h3 {
+        font-size: 0.74rem;
+        gap: 4px;
+        padding-right: 22px;
+        line-height: 1.3;
+    }
+
+    .verification-alert-modal .modal-header h3 i {
+        font-size: 0.84rem;
+    }
+
+    .verification-alert-modal .auth-modal-close {
+        width: 21px;
+        height: 21px;
+        font-size: 14px;
+        right: 6px;
+    }
+
+    .verification-alert-modal .modal-body {
+        padding: 8px 6px;
+    }
+
+    .verification-alert-modal .alert-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 8px;
+        border-width: 2px;
+    }
+
+    .verification-alert-modal .alert-icon i {
+        font-size: 1.2rem;
+    }
+
+    .verification-alert-modal h4 {
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+        line-height: 1.3;
+    }
+
+    .verification-alert-modal p {
+        font-size: 0.66rem;
+        line-height: 1.4;
+        margin-bottom: 6px;
+    }
+
+    .verification-alert-modal .verification-steps {
+        padding: 7px;
+        margin: 7px 0;
+        border-radius: 6px;
+    }
+
+    .verification-alert-modal .step {
+        padding: 5px 4px;
+        gap: 5px;
+        margin-bottom: 5px;
+    }
+
+    .verification-alert-modal .step-number {
+        width: 21px;
+        height: 21px;
+        min-width: 21px;
+        font-size: 0.68rem;
+    }
+
+    .verification-alert-modal .step-text {
+        font-size: 0.64rem;
+        line-height: 1.3;
+    }
+
+    .verification-alert-modal .modal-actions {
+        padding: 0 6px 8px 6px;
+        gap: 5px;
+    }
+
+    .verification-alert-modal .btn-verify-now,
+    .verification-alert-modal .btn-primary {
+        padding: 9px 13px;
+        font-size: 0.68rem;
+        gap: 4px;
+        border-radius: 32px;
+    }
+
+    .verification-alert-modal .btn-cancel {
+        padding: 7px 13px;
+        font-size: 0.64rem;
+        border-radius: 32px;
     }
 }
 @media (prefers-reduced-motion: reduce) {
