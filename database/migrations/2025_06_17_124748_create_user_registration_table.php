@@ -51,6 +51,7 @@ return new class extends Migration
             // ===== ADMIN APPROVAL SYSTEM =====
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
+            $table->unsignedBigInteger('rejected_by')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
             $table->text('rejection_reason')->nullable();
 

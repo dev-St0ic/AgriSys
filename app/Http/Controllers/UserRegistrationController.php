@@ -178,19 +178,6 @@ class UserRegistrationController extends Controller
                 'contact_number' => $registration->contact_number,
             ]);
 
-            // Log activity - register as system action since not logged in yet
-            try {
-                $activity = \Spatie\Activitylog\Facades\Activity::withProperties([
-                    'username' => $registration->username,
-                    'contact_number' => $registration->contact_number,
-                    'status' => $registration->status,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
-                ])->log('registered - UserRegistration (ID: ' . $registration->id . ')');
-            } catch (\Exception $e) {
-                \Log::error('Activity logging failed: ' . $e->getMessage());
-            }
-
             return response()->json([
                 'success' => true,
                 'message' => 'Account created successfully! Your account has been added to our database.',

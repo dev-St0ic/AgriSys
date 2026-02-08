@@ -383,28 +383,15 @@ Route::prefix('admin/notifications')->name('admin.notifications.')->middleware([
         ->name('clear-all');
 });
 
-    // ==============================================
-    // ACTIVITY LOGS
-    // ==============================================
-// Activity Logs Routes (Admin only)
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-
-    // Activity Logs Routes
-    Route::prefix('activity-logs')->group(function () {
-        Route::get('/', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
-        Route::get('/{id}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
-        Route::get('/export', [ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
-        Route::get('/summary', [ActivityLogController::class, 'auditSummary'])->name('admin.activity-logs.audit-summary');
-    });
+ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Activity Logs
+    Route::get('activity-logs', [App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::get('activity-logs/{id}', [App\Http\Controllers\ActivityLogController::class, 'show'])->name('activity-logs.show');
+    Route::get('activity-logs/export/csv', [App\Http\Controllers\ActivityLogController::class, 'export'])->name('activity-logs.export');
 
 });
 
-// routes/api.php - Add JSON API routes
-Route::middleware(['auth', 'api'])->prefix('api')->group(function () {
-
-    Route::get('/activity-logs/{id}', [ActivityLogApiController::class, 'show']);
-
-});
 
     // ==============================================
     // SLIDESHOW MANAGEMENT
