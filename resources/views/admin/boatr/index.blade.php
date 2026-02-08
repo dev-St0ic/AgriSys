@@ -3755,6 +3755,43 @@
             margin-bottom: 0.75rem;
         }
     }
+
+    /* Prevent body from staying greyed out */
+    body {
+        filter: none !important;
+        opacity: 1 !important;
+    }
+
+    /* Ensure table is always visible in full color */
+    #registrationsTable {
+        filter: none !important;
+        opacity: 1 !important;
+    }
+
+    /* Ensure all rows are visible */
+    #registrationsTable tbody tr {
+        filter: none !important;
+        opacity: 1 !important;
+    }
+
+    /* Fix modal backdrop issues */
+    .modal-backdrop {
+        display: none !important;
+    }
+
+    body.modal-open {
+        overflow: auto;
+    }
+
+    /* When modal is shown */
+    body.modal-open::after {
+        content: none;
+    }
+
+    /* Prevent filter inheritance */
+    .card, .table, .btn {
+        filter: inherit !important;
+    }
     </style>
 @endsection
 
@@ -9821,5 +9858,50 @@ function validateBoatRAddVesselNameOnBlur(input) {
                 showToast('error', 'Error loading document: ' + error.message);
             });
         }
+
+        /**
+         * Fix grayscale effect after modal closes
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const documentPreviewModal = document.getElementById('documentPreviewModal');
+            
+            if (documentPreviewModal) {
+                documentPreviewModal.addEventListener('hidden.bs.modal', function() {
+                    console.log('Document Preview Modal Closed - Cleaning up');
+                    
+                    // Remove all modal backdrops
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                        backdrop.remove();
+                    });
+                    
+                    // Remove modal-open class from body
+                    document.body.classList.remove('modal-open');
+                    
+                    // Reset body overflow
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                    
+                    // Remove any filters applied to body
+                    document.body.style.filter = '';
+                    document.body.style.opacity = '';
+                    
+                    // Reset main content area
+                    const mainContent = document.querySelector('main');
+                    if (mainContent) {
+                        mainContent.style.filter = '';
+                        mainContent.style.opacity = '';
+                    }
+                    
+                    // Reset table
+                    const table = document.querySelector('#registrationsTable');
+                    if (table) {
+                        table.style.filter = '';
+                        table.style.opacity = '';
+                    }
+                    
+                    console.log('Modal cleanup complete');
+                });
+            }
+        });
     </script>
 @endsection
