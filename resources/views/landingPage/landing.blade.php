@@ -460,7 +460,7 @@
 
         <div class="welcome-content">
             <h2>Welcome to <span class="highlight">AgriSys</span><br>Agriculture System</br></h2>
-            <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
+            <p>The Agricultural System of the City Agriculture Office of San Pedro, <br>Laguna</p>
             <button class="btn-services"
                 onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
                 Services</button>

@@ -40,7 +40,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered align-middle mb-0">
-                        <thead class="table-light">
+                        <thead class="table-dark">
                             <tr>
                                 <th style="width: 80px;">Image</th>
                                 <th>Title</th>
