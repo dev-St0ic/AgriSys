@@ -238,7 +238,7 @@
                                             <div class="boatr-document-previews">
                                                 @if ($userDocs > 0)
                                                     <div class="boatr-mini-doc"
-                                                        onclick="viewDocuments({{ $registration->id }})"
+                                                        onclick="directPreviewDocument({{ $registration->id }}, 'user', 0)"
                                                         title="User Documents">
                                                         <div class="boatr-mini-doc-icon">
                                                             <i class="fas fa-file-alt text-primary"></i>
@@ -247,7 +247,7 @@
                                                 @endif
                                                 @if ($inspectionDocs > 0)
                                                     <div class="boatr-mini-doc"
-                                                        onclick="viewDocuments({{ $registration->id }})"
+                                                        onclick="directPreviewDocument({{ $registration->id }}, 'inspection', 0)"
                                                         title="Inspection Documents">
                                                         <div class="boatr-mini-doc-icon">
                                                             <i class="fas fa-file-alt text-primary"></i>
@@ -256,7 +256,8 @@
                                                 @endif
                                                 @if ($annexesDocs > 0)
                                                     <div class="boatr-mini-doc"
-                                                        onclick="viewDocuments({{ $registration->id }})" title="Annexes">
+                                                        onclick="directPreviewDocument({{ $registration->id }}, 'annexes', 0)" 
+                                                        title="Annexes">
                                                         <div class="boatr-mini-doc-icon">
                                                             <i class="fas fa-file-alt text-primary"></i>
                                                         </div>
@@ -9722,5 +9723,103 @@ function validateBoatRAddVesselNameOnBlur(input) {
         input.style.backgroundColor = '#f8fff8';
     }
 }
+        /**
+         * Direct Preview Document from Table Icon Click
+         * Opens preview modal directly for the clicked document type
+         */
+        function directPreviewDocument(registrationId, docType, index) {
+            console.log('=== Direct Preview Document ===', { registrationId, docType, index });
+            
+            // Fetch registration details
+            fetch(`/admin/boatr/requests/${registrationId}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCSRFToken()
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load registration');
+
+                console.log('Registration loaded, document type:', docType);
+
+                let documents = [];
+                let displayTitle = ''; // Title to show in preview modal
+                
+                // Get documents based on type
+                if (docType === 'user' && data.user_documents && data.user_documents.length > 0) {
+                    documents = data.user_documents;
+                    displayTitle = 'User Document';
+                } else if (docType === 'inspection' && data.inspection_documents && data.inspection_documents.length > 0) {
+                    documents = data.inspection_documents;
+                    displayTitle = 'Inspection Document'; 
+                } else if (docType === 'annexes' && data.annexes && data.annexes.length > 0) {
+                    documents = data.annexes;
+                    displayTitle = 'Annex Document';
+                }
+
+                if (documents.length === 0) {
+                    showToast('warning', `No ${displayTitle.toLowerCase()} found`);
+                    return;
+                }
+
+                // Get the first document by default
+                const doc = documents[0];
+                console.log('Document to preview:', doc);
+
+                // Open the preview modal
+                const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+                modal.show();
+
+                // Update title with generic label
+                document.getElementById('documentPreviewTitle').innerHTML = 
+                    `<i class="fas fa-eye me-2"></i>${displayTitle}`;
+
+                // Determine file path and extension
+                let filePath = '';
+                let fileExtension = '';
+                let fileName = '';
+
+                if (docType === 'annexes') {
+                    filePath = doc.file_path;
+                    fileName = doc.file_name || doc.title;
+                    fileExtension = fileName.split('.').pop().toLowerCase();
+                } else {
+                    // For user and inspection documents
+                    filePath = doc.path || doc.file_path;
+                    fileName = doc.name || doc.original_name;
+                    fileExtension = fileName.split('.').pop().toLowerCase();
+                }
+
+                console.log('File details:', { filePath, fileName, fileExtension });
+
+                if (!filePath) {
+                    throw new Error('File path not available for this document');
+                }
+
+                const fileUrl = `/storage/${filePath}`;
+
+                // Show loading state
+                document.getElementById('documentPreview').innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted">Loading document preview...</p>
+                    </div>
+                `;
+
+                // Load preview content
+                previewFileContent(fileUrl, fileName, fileExtension);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error loading document: ' + error.message);
+            });
+        }
     </script>
 @endsection
