@@ -9,7 +9,7 @@
     <div class="row mb-4">
         <div class="col">
             <h2><i class="fas fa-history"></i> Audit Logs</h2>
-            <p class="text-muted small">View system activity and user actions</p>
+            <p class="text-muted small">Complete record of all system activity</p>
         </div>
     </div>
 
@@ -20,58 +20,45 @@
         </div>
     @endif
 
-    @if (session('error'))
-        <div class="alert alert-danger alert-dismissible fade show">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
     <!-- Filter Card -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h6 class="mb-0"><i class="fas fa-filter"></i> Filter & Search</h6>
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <h6 class="mb-0"><i class="fas fa-filter"></i> Search & Filter</h6>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('admin.activity-logs.index') }}" class="row g-3">
                 
                 <div class="col-md-4">
-                    <label class="form-label">Search Description</label>
-                    <input type="text" name="search" class="form-control" 
-                        placeholder="Search..." value="{{ request('search') }}">
+                    <label class="form-label small fw-bold">Search What Changed</label>
+                    <input type="text" name="search" class="form-control form-control-sm" 
+                        placeholder="e.g., 'application', 'status'" value="{{ request('search') }}">
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Action Type</label>
-                    <select name="event" class="form-select">
-                        <option value="">All Actions</option>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Action Type</label>
+                    <select name="event" class="form-select form-select-sm">
+                        <option value="">All</option>
                         <option value="created" {{ request('event') == 'created' ? 'selected' : '' }}>Created</option>
                         <option value="updated" {{ request('event') == 'updated' ? 'selected' : '' }}>Updated</option>
                         <option value="deleted" {{ request('event') == 'deleted' ? 'selected' : '' }}>Deleted</option>
-                        <option value="login" {{ request('event') == 'login' ? 'selected' : '' }}>Login</option>
                     </select>
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label">From</label>
-                    <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                    <label class="form-label small fw-bold">From Date</label>
+                    <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label">To</label>
-                    <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                    <label class="form-label small fw-bold">To Date</label>
+                    <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
                 </div>
 
-                <div class="col-md-1">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i>
+                <div class="col-md-2 d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="fas fa-search"></i> Search
                     </button>
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <a href="{{ route('admin.activity-logs.export', request()->query()) }}" class="btn btn-success w-100">
+                    <a href="{{ route('admin.activity-logs.export', request()->query()) }}" class="btn btn-success btn-sm">
                         <i class="fas fa-download"></i> CSV
                     </a>
                 </div>
@@ -79,56 +66,72 @@
         </div>
     </div>
 
-    <!-- Logs Table -->
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="fas fa-list"></i> Activity Records</h6>
-            <small class="text-muted">Total: <strong>{{ $activities->total() }}</strong></small>
+    <!-- Activity Logs Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="row align-items-center g-0">
+                <div class="col">
+                    <h6 class="mb-0"><i class="fas fa-list"></i> Activity Records</h6>
+                </div>
+                <div class="col-auto">
+                    <small class="text-muted">Total: <strong>{{ $activities->total() }}</strong></small>
+                </div>
+            </div>
         </div>
+
         <div class="table-responsive">
             <table class="table table-sm table-hover mb-0">
                 <thead class="table-light">
                     <tr>
                         <th style="width: 18%;">Date & Time</th>
-                        <th style="width: 20%;">User</th>
-                        <th style="width: 10%;">Action</th>
-                        <th style="width: 25%;">Description</th>
-                        <th style="width: 12%;">Type</th>
-                        <th style="width: 5%;">Details</th>
+                        <th style="width: 18%;">User</th>
+                        <th style="width: 12%;">Role</th>
+                        <th style="width: 12%;">Action</th>
+                        <th style="width: 28%;">What Changed</th>
+                        <th style="width: 12%;" class="text-center">Details</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($activities as $activity)
-                    <tr>
+                    <tr class="align-middle">
                         <td>
-                            <small>{{ $activity->created_at->format('M d, Y') }}</small><br>
-                            <code style="font-size: 11px;">{{ $activity->created_at->format('H:i:s') }}</code>
+                            <div class="small fw-bold">{{ $activity->created_at->format('M d, Y') }}</div>
+                            <code class="text-muted" style="font-size: 11px;">{{ $activity->created_at->format('H:i:s') }}</code>
                         </td>
                         <td>
                             @php
-                                // Determine actual user for self-service actions
-                                $user = $activity->causer;
-                                $userName = 'System';
-                                $userEmail = 'N/A';
-                                
-                                if (!$user && $activity->subject_type === 'App\Models\UserRegistration' && $activity->subject_id) {
-                                    $userReg = \App\Models\UserRegistration::find($activity->subject_id);
-                                    if ($userReg) {
-                                        $userName = $userReg->full_name ?? $userReg->username;
-                                        $userEmail = $userReg->username;
-                                    }
-                                } elseif ($user) {
-                                    $userName = $user->name;
-                                    $userEmail = $user->email;
-                                }
+                                // Get the ACTUAL user who performed the action
+                                $actionUser = $activity->causer;
+                                $actionUserName = 'System';
+                                $actionUserEmail = 'N/A';
                             @endphp
                             
-                            @if($userName !== 'System')
-                                <strong>{{ $userName }}</strong><br>
-                                <small class="text-muted">{{ $userEmail }}</small>
+                            @if($actionUser)
+                                <div class="small fw-bold">{{ $actionUser->name }}</div>
+                                <div class="text-muted small">{{ $actionUser->email }}</div>
                             @else
-                                <em class="text-muted">{{ $userName }}</em>
+                                <em class="text-muted small">System</em>
                             @endif
+                        </td>
+                        <td>
+                            @php
+                                // Show the ACTUAL user's role, not the current superadmin
+                                $roleBg = 'secondary';
+                                $roleText = 'System';
+                                
+                                if ($actionUser) {
+                                    $roleText = ucfirst($actionUser->role ?? 'user');
+                                    
+                                    if ($actionUser->role === 'superadmin') {
+                                        $roleBg = 'danger';
+                                    } elseif ($actionUser->role === 'admin') {
+                                        $roleBg = 'warning';
+                                    } elseif ($actionUser->role === 'user') {
+                                        $roleBg = 'info';
+                                    }
+                                }
+                            @endphp
+                            <span class="badge bg-{{ $roleBg }}">{{ $roleText }}</span>
                         </td>
                         <td>
                             @php
@@ -136,31 +139,36 @@
                                     'created' => 'success',
                                     'updated' => 'info',
                                     'deleted' => 'danger',
-                                    'login' => 'primary',
                                     default => 'secondary'
+                                };
+                                $badgeIcon = match($activity->event) {
+                                    'created' => 'fa-plus-circle',
+                                    'updated' => 'fa-edit',
+                                    'deleted' => 'fa-trash',
+                                    default => 'fa-circle'
                                 };
                             @endphp
                             <span class="badge bg-{{ $badgeColor }}">
-                                {{ ucfirst($activity->event) }}
+                                <i class="fas {{ $badgeIcon }}"></i> {{ ucfirst($activity->event) }}
                             </span>
                         </td>
                         <td>
-                            <small>{{ $activity->description }}</small>
-                        </td>
-                        <td>
-                            <small class="text-muted">{{ $activity->subject_type ? class_basename($activity->subject_type) : '-' }}</small>
+                            <small class="text-dark">{{ $activity->description }}</small>
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary" onclick="showDetails({{ $activity->id }})">
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="showDetails({{ $activity->id }})"
+                                    data-bs-toggle="tooltip" 
+                                    title="View details">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                            No activity logs found
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                            <strong>No activity logs found</strong>
                         </td>
                     </tr>
                     @endforelse
@@ -170,15 +178,17 @@
 
         <!-- Pagination -->
         @if($activities->hasPages())
-        <div class="card-footer bg-light">
+        <div class="card-footer bg-light border-top">
             <nav>
                 <ul class="pagination pagination-sm justify-content-center mb-0">
+                    {{-- Previous Page Link --}}
                     @if ($activities->onFirstPage())
-                        <li class="page-item disabled"><span class="page-link">« Prev</span></li>
+                        <li class="page-item disabled"><span class="page-link">« Previous</span></li>
                     @else
-                        <li class="page-item"><a class="page-link" href="{{ $activities->previousPageUrl() }}">« Prev</a></li>
+                        <li class="page-item"><a class="page-link" href="{{ $activities->previousPageUrl() }}">« Previous</a></li>
                     @endif
 
+                    {{-- Page Numbers --}}
                     @php
                         $current = $activities->currentPage();
                         $last = $activities->lastPage();
@@ -192,6 +202,7 @@
                         @endif
                     @endfor
 
+                    {{-- Next Page Link --}}
                     @if ($activities->hasMorePages())
                         <li class="page-item"><a class="page-link" href="{{ $activities->nextPageUrl() }}">Next »</a></li>
                     @else
@@ -206,35 +217,33 @@
 
 <!-- Details Modal -->
 <div class="modal fade" id="detailsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Activity Details</h5>
+    <div class="modal-dialog">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title"><i class="fas fa-info-circle"></i> Activity Details</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modalContent">
-                <div class="text-center">
+                <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
 <style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
     code {
         background-color: #f8f9fa;
         padding: 2px 6px;
         border-radius: 3px;
-        font-size: 0.85rem;
-    }
-    .table-hover tbody tr:hover {
-        background-color: rgba(0, 123, 255, 0.05);
+        color: #666;
     }
 </style>
 
@@ -247,39 +256,70 @@ function showDetails(id) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
+                const d = data.data;
+                
+                let actionColor = 'success';
+                if (d.action === 'Updated') actionColor = 'info';
+                if (d.action === 'Deleted') actionColor = 'danger';
+                
                 content.innerHTML = `
                     <div class="row g-3">
                         <div class="col-12">
-                            <strong>Date:</strong> ${data.data.date}
+                            <div class="row">
+                                <div class="col-5">
+                                    <small class="text-muted d-block">DATE & TIME</small>
+                                    <strong>${d.date}</strong>
+                                </div>
+                                <div class="col-7">
+                                    <small class="text-muted d-block">ACTION</small>
+                                    <span class="badge bg-${actionColor}"><i class="fas fa-circle"></i> ${d.action}</span>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <hr class="my-2">
+                        
                         <div class="col-12">
-                            <strong>User:</strong> ${data.data.user} (${data.data.email})
+                            <small class="text-muted d-block">WHO DID IT</small>
+                            <strong>${d.user}</strong>
+                            <div class="small text-muted">${d.email}</div>
+                            <span class="badge bg-secondary mt-1">${d.role}</span>
                         </div>
+                        
                         <div class="col-12">
-                            <strong>Action:</strong> <span class="badge bg-info">${data.data.event}</span>
+                            <small class="text-muted d-block">WHAT CHANGED</small>
+                            <code class="d-block p-2 bg-light rounded">${d.description}</code>
                         </div>
-                        <div class="col-12">
-                            <strong>Description:</strong><br>
-                            <code>${data.data.description}</code>
+                        
+                        <div class="col-6">
+                            <small class="text-muted d-block">RECORD TYPE</small>
+                            <code>${d.model}</code>
                         </div>
-                        <div class="col-12">
-                            <strong>Type:</strong> ${data.data.subject_type || 'N/A'}
-                        </div>
-                        <div class="col-12">
-                            <strong>IP Address:</strong> <code>${data.data.ip}</code>
+                        
+                        <div class="col-6">
+                            <small class="text-muted d-block">IP ADDRESS</small>
+                            <code>${d.ip}</code>
                         </div>
                     </div>
                 `;
             } else {
-                content.innerHTML = '<div class="alert alert-danger">Failed to load details</div>';
+                content.innerHTML = '<div class="alert alert-danger mb-0">Failed to load details</div>';
             }
             modal.show();
         })
         .catch(err => {
-            content.innerHTML = '<div class="alert alert-danger">Error loading details</div>';
+            content.innerHTML = '<div class="alert alert-danger mb-0">Error loading details</div>';
             modal.show();
         });
 }
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 </script>
 
 @endsection

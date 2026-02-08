@@ -14,21 +14,25 @@ class ActivityLogController extends Controller
      */
     public function index(Request $request)
     {
+        // Only superadmin can view audit logs
         if (!Auth::check() || !Auth::user()->isSuperAdmin()) {
-            abort(403, 'Unauthorized');
+            abort(403, 'Only superadmin can access audit logs');
         }
 
         try {
             $query = Activity::with(['causer'])->latest();
 
+            // Search by description
             if ($request->filled('search')) {
                 $query->where('description', 'like', '%' . $request->search . '%');
             }
 
+            // Filter by event type (created, updated, deleted)
             if ($request->filled('event')) {
                 $query->where('event', $request->event);
             }
 
+            // Filter by date range
             if ($request->filled('date_from')) {
                 $query->whereDate('created_at', '>=', $request->date_from);
             }
@@ -46,7 +50,7 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Show activity details
+     * Show activity details via AJAX
      */
     public function show($id)
     {
@@ -57,35 +61,29 @@ class ActivityLogController extends Controller
         try {
             $activity = Activity::with('causer')->findOrFail($id);
 
-            // Determine who actually did the action
+            // Get user who performed the action
             $user = $activity->causer;
             $userName = 'System';
             $userEmail = 'N/A';
+            $userRole = 'System';
 
-            // For self-service actions on UserRegistration, get the user from the subject
-            if (!$user && $activity->subject_type === 'App\Models\UserRegistration' && $activity->subject_id) {
-                $userRegistration = UserRegistration::find($activity->subject_id);
-                if ($userRegistration) {
-                    $userName = $userRegistration->full_name ?? $userRegistration->username;
-                    $userEmail = $userRegistration->username; // Show username since email might not be verified
-                }
-            } elseif ($user) {
+            if ($user) {
                 $userName = $user->name;
                 $userEmail = $user->email;
+                $userRole = ucfirst($user->role ?? 'user');
             }
 
             return response()->json([
                 'success' => true,
                 'data' => [
                     'id' => $activity->id,
-                    'event' => ucfirst($activity->event),
                     'date' => $activity->created_at->format('M d, Y h:i A'),
                     'user' => $userName,
                     'email' => $userEmail,
+                    'role' => $userRole,
+                    'action' => ucfirst($activity->event),
                     'description' => $activity->description,
-                    'subject_type' => $activity->subject_type,
-                    'subject_id' => $activity->subject_id,
-                    'properties' => $activity->properties,
+                    'model' => class_basename($activity->subject_type),
                     'ip' => $activity->properties['ip_address'] ?? 'N/A'
                 ]
             ]);
@@ -96,7 +94,7 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Export to CSV
+     * Export activity logs to CSV - Superadmin only
      */
     public function export(Request $request)
     {
@@ -106,6 +104,7 @@ class ActivityLogController extends Controller
 
         $query = Activity::with('causer')->latest();
 
+        // Apply date filters
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
@@ -124,30 +123,26 @@ class ActivityLogController extends Controller
         $callback = function() use ($activities) {
             $file = fopen('php://output', 'w');
             
-            fputcsv($file, ['Date', 'User', 'Email', 'Action', 'Description']);
+            // CSV Headers
+            fputcsv($file, ['Date', 'User', 'Email', 'Role', 'Action', 'What Changed']);
 
             foreach ($activities as $activity) {
-                // Determine actual user
                 $user = $activity->causer;
                 $userName = 'System';
                 $userEmail = '-';
+                $userRole = 'System';
 
-                // For self-service actions on UserRegistration
-                if (!$user && $activity->subject_type === 'App\Models\UserRegistration' && $activity->subject_id) {
-                    $userRegistration = UserRegistration::find($activity->subject_id);
-                    if ($userRegistration) {
-                        $userName = $userRegistration->full_name ?? $userRegistration->username;
-                        $userEmail = $userRegistration->username;
-                    }
-                } elseif ($user) {
+                if ($user) {
                     $userName = $user->name;
                     $userEmail = $user->email;
+                    $userRole = ucfirst($user->role ?? 'user');
                 }
 
                 fputcsv($file, [
                     $activity->created_at->format('Y-m-d H:i:s'),
                     $userName,
                     $userEmail,
+                    $userRole,
                     ucfirst($activity->event),
                     $activity->description
                 ]);
