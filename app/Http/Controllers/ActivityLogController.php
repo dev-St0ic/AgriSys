@@ -20,7 +20,13 @@ class ActivityLogController extends Controller
         }
 
         try {
-            $query = Activity::with(['causer'])->latest();
+            $query = Activity::with(['causer', 'subject'])->latest();
+
+            // Exclude system-generated technical records
+            $query->where(function($q) {
+                $q->whereNull('subject_type')
+                  ->orWhere('subject_type', 'not like', '%ItemSupplyLog%');
+            });
 
             // Search by description
             if ($request->filled('search')) {
@@ -30,6 +36,23 @@ class ActivityLogController extends Controller
             // Filter by event type (created, updated, deleted)
             if ($request->filled('event')) {
                 $query->where('event', $request->event);
+            }
+
+            // Filter by module/service (subject_type)
+            if ($request->filled('module')) {
+                if ($request->module === 'Authentication') {
+                    // Special case: filter authentication activities (login/logout without subject)
+                    $query->where(function($q) {
+                        $q->whereNull('subject_type')
+                          ->where(function($q2) {
+                              $q2->where('description', 'like', '%login%')
+                                 ->orWhere('description', 'like', '%logout%');
+                          });
+                    });
+                } else {
+                    // Normal case: filter by subject_type
+                    $query->where('subject_type', 'like', '%' . $request->module);
+                }
             }
 
             // Filter by date range
@@ -43,7 +66,7 @@ class ActivityLogController extends Controller
             $activities = $query->paginate(50);
 
             return view('admin.activity-logs.index', compact('activities'));
-            
+
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
@@ -84,7 +107,13 @@ class ActivityLogController extends Controller
                     'action' => ucfirst($activity->event),
                     'description' => $activity->description,
                     'model' => class_basename($activity->subject_type),
-                    'ip' => $activity->properties['ip_address'] ?? 'N/A'
+                    'ip' => $activity->properties['ip_address'] ?? 'N/A',
+                    // NEW: Include properties for before/after comparison
+                    'properties' => $activity->properties ?? [],
+                    'properties_old' => $activity->properties['old'] ?? $activity->properties['attributes'] ?? null,
+                    'properties_new' => $activity->properties['attributes'] ?? $activity->properties['old'] ?? null,
+                    'has_changes' => isset($activity->properties['changes']) || isset($activity->properties['old']),
+                    'changes' => $activity->properties['changes'] ?? null
                 ]
             ]);
 
@@ -122,7 +151,7 @@ class ActivityLogController extends Controller
 
         $callback = function() use ($activities) {
             $file = fopen('php://output', 'w');
-            
+
             // CSV Headers
             fputcsv($file, ['Date', 'User', 'Email', 'Role', 'Action', 'What Changed']);
 

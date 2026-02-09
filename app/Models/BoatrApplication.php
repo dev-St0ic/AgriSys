@@ -575,8 +575,7 @@ class BoatrApplication extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 }

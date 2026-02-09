@@ -6,7 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -62,7 +62,7 @@ class User extends Authenticatable
             if (file_exists($publicPath)) {
                 return asset('storage/' . $this->profile_photo);
             }
-            
+
             // Fallback to storage disk URL
             if (Storage::disk('public')->exists($this->profile_photo)) {
                 return Storage::disk('public')->url($this->profile_photo);
@@ -99,8 +99,7 @@ class User extends Authenticatable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 }

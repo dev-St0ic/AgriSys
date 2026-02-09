@@ -428,6 +428,15 @@ public function update(Request $request, $id)
             Log::info("Inspection document replaced for BoatR registration {$boatr->id}");
         }
 
+        // Log update activity
+        $this->logActivity('updated', 'BoatrApplication', $boatr->id, [
+            'application_number' => $boatr->application_number,
+            'applicant_name' => $boatr->first_name . ' ' . $boatr->last_name,
+            'vessel_name' => $boatr->vessel_name,
+            'has_supporting_doc' => $request->hasFile('supporting_document'),
+            'has_inspection_doc' => $request->hasFile('inspection_document')
+        ]);
+
         Log::info("BoatR registration {$boatr->id} updated by " . auth()->user()->name);
 
         return response()->json([
@@ -539,6 +548,15 @@ private function getChangedFields($original, $updated)
             }
 
             // Queue activity logging (non-blocking)
+            $this->logActivity('status_changed', 'BoatrApplication', $registration->id, [
+                'application_type' => 'BoatR',
+                'application_number' => $registration->application_number,
+                'old_status' => $oldStatus,
+                'new_status' => $validated['status'],
+                'remarks' => $validated['remarks'],
+                'applicant_name' => $registration->getApplicantName()
+            ]);
+
             try {
                 dispatch(function() use ($registration, $oldStatus, $validated) {
                     activity()
@@ -746,6 +764,16 @@ private function getChangedFields($original, $updated)
                 'new_status' => $newStatus,
                 'inspection_completed' => true,
                 'auto_approved' => $approveApplication
+            ]);
+
+            // Log inspection completion
+            $this->logActivity('inspection_completed', 'BoatrApplication', $registration->id, [
+                'application_number' => $registration->application_number,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'auto_approved' => $approveApplication,
+                'has_inspection_notes' => !empty($validated['inspection_notes']),
+                'applicant_name' => $registration->getApplicantName()
             ]);
 
             // ✅ Send admin notification if status changed
@@ -1391,6 +1419,16 @@ public function destroy(Request $request, $id)
                 'uploaded_by' => auth()->id(),
             ]);
 
+            // Log annex upload
+            $this->logActivity('annex_uploaded', 'BoatrApplication', $registration->id, [
+                'annex_id' => $annex->id,
+                'annex_title' => $annex->title,
+                'file_name' => $annex->file_name,
+                'file_size' => $annex->file_size,
+                'application_number' => $registration->application_number,
+                'applicant_name' => $registration->getApplicantName()
+            ]);
+
             Log::info('Annex uploaded successfully', [
                 'registration_id' => $id,
                 'annex_id' => $annex->id,
@@ -1532,16 +1570,29 @@ public function destroy(Request $request, $id)
             $registration = BoatrApplication::findOrFail($id);
             $annex = $registration->annexes()->findOrFail($annexId);
 
+            $annexTitle = $annex->title;
+            $annexFileName = $annex->file_name;
+
             // Move to recycle bin instead of permanent delete
             \App\Services\RecycleBinService::softDelete(
                 $annex,
                 'Deleted from BoatR annexes'
             );
 
+            // Log annex deletion
+            $this->logActivity('annex_deleted', 'BoatrApplication', $registration->id, [
+                'annex_id' => $annexId,
+                'annex_title' => $annexTitle,
+                'file_name' => $annexFileName,
+                'application_number' => $registration->application_number,
+                'applicant_name' => $registration->getApplicantName(),
+                'action' => 'moved_to_recycle_bin'
+            ]);
+
             Log::info('BoatR annex moved to recycle bin', [
                 'registration_id' => $id,
                 'annex_id' => $annexId,
-                'title' => $annex->title,
+                'title' => $annexTitle,
                 'deleted_by' => auth()->id()
             ]);
 

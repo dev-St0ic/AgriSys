@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CategoryItem extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes; 
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -383,8 +383,7 @@ class CategoryItem extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 }

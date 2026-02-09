@@ -238,6 +238,18 @@ class UserRegistrationController extends Controller
 
                 $userRegistration->update(['last_login_at' => now()]);
 
+                // Log successful login using direct Activity facade (session-based user)
+                activity()
+                    ->causedBy($userRegistration)
+                    ->withProperties([
+                        'username' => $userRegistration->username,
+                        'user_status' => $userRegistration->status,
+                        'login_method' => 'password',
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('login - UserRegistration');
+
                 $statusMessages = [
                     'unverified' => 'Welcome! You can start using our services. Complete profile verification for full access.',
                     'pending' => 'Welcome! Your verification is being reviewed. You\'ll be notified once approved.',
@@ -267,6 +279,21 @@ class UserRegistrationController extends Controller
                 ]);
             }
 
+            // Log failed login attempt
+            activity()
+                ->withProperties([
+                    'username' => $loginField,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'failed_reason' => 'invalid_credentials'
+                ])
+                ->log('login_failed');
+
+            \Log::warning('Failed login attempt', [
+                'username' => $loginField,
+                'ip' => $request->ip()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Username or password is incorrect. Please try again.',
@@ -286,6 +313,24 @@ class UserRegistrationController extends Controller
      */
     public function logout(Request $request)
     {
+        $userId = $request->session()->get('user.id');
+        $username = $request->session()->get('user.username');
+
+        // Log logout activity using direct Activity facade
+        if ($userId) {
+            $user = \App\Models\UserRegistration::find($userId);
+            if ($user) {
+                activity()
+                    ->causedBy($user)
+                    ->withProperties([
+                        'username' => $username,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('logout - UserRegistration');
+            }
+        }
+
          // Log the logout
         \Log::info('User logout', [
             'user_id' => $request->session()->get('user.id') ?? null,
@@ -989,12 +1034,12 @@ class UserRegistrationController extends Controller
             }
             if ($request->has('date_of_birth')) {
                 $updateData['date_of_birth'] = $request->date_of_birth;
-                
+
                 // Auto-calculate age if date_of_birth is provided
                 if ($request->date_of_birth) {
                     $dateOfBirth = new \DateTime($request->date_of_birth);
                     $age = $dateOfBirth->diff(new \DateTime())->y;
-                    
+
                     if ($age < 18) {
                         return response()->json([
                             'success' => false,
@@ -1004,7 +1049,7 @@ class UserRegistrationController extends Controller
                             ]
                         ], 422);
                     }
-                    
+
                     $updateData['age'] = $age;
                 }
             }
@@ -1236,7 +1281,7 @@ class UserRegistrationController extends Controller
 
    /**
      * UPDATED: Move registration to recycle bin instead of permanent deletion
-     * 
+     *
      */
     public function destroy($id)
     {
@@ -1370,7 +1415,7 @@ public function getUserProfile(Request $request)
                 'last_name' => $user->last_name,
                 'middle_name' => $user->middle_name,
                 'name_extension' => $user->name_extension,
-                'sex' => $user->sex, 
+                'sex' => $user->sex,
                 'contact_number' => $user->contact_number,
                 'date_of_birth' => $user->date_of_birth,
                 'age' => $user->age,
@@ -1672,7 +1717,7 @@ public function getUserProfile(Request $request)
                     $registration->username,
                     $registration->first_name,
                     $registration->last_name,
-                    $registration->sex, 
+                    $registration->sex,
                     $registration->user_type,
                     $registration->status,
                     $registration->contact_number,
@@ -1902,7 +1947,7 @@ public function getUserProfile(Request $request)
     public function refreshUserSession(Request $request)
     {
         $userId = session('user.id');
-        
+
         if (!$userId) {
             return response()->json([
                 'success' => false,
@@ -1913,7 +1958,7 @@ public function getUserProfile(Request $request)
 
         try {
             $user = UserRegistration::find($userId);
-            
+
             if (!$user) {
                 $request->session()->flush();
                 return response()->json([
@@ -1951,7 +1996,7 @@ public function getUserProfile(Request $request)
 
         } catch (\Exception $e) {
             \Log::error('Session refresh error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error refreshing session'
