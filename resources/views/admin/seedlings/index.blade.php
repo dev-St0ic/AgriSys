@@ -3,12 +3,8 @@
 @extends('layouts.app')
 
 @section('title', 'Supply Requests - AgriSys Admin')
-@section('page-title')
-    <div class="d-flex align-items-center">
-        <i class="fas fa-seedling text-primary me-2"></i>
-        <span class="text-primary fw-bold">Supply Requests</span>
-    </div>
-@endsection
+@section('page-icon', 'fas fa-seedling')
+@section('page-title', 'Supply Requests')
 
 @section('content')
     <div class="container-fluid">
@@ -516,7 +512,7 @@
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title w-100 text-center">
                                     <i></i>
-                                    Supply Request Details 
+                                    Supply Request Details
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -902,8 +898,7 @@
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
                                 <h5 class="modal-title w-100 text-center">
-                                    <i></i>Edit Request <span
-                                        id="editRequestNumber{{ $request->id }}"></span>
+                                    <i></i>Edit Request <span id="editRequestNumber{{ $request->id }}"></span>
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -2046,27 +2041,29 @@
     </div>
 
     <!-- Document Viewer Modal -->
-<div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <!-- Added modal-dialog-scrollable and modal-dialog-centered -->
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white text-center">
-                <h5 class="modal-title w-100 text-center" id="documentModalLabel">
-                    <i></i>Supporting Document
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="documentViewer" style="max-height: 80vh; overflow-y: auto;">
-                <!-- Document will be loaded here -->
-            </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i></i>Close
-                </button>
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <!-- Added modal-dialog-scrollable and modal-dialog-centered -->
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white text-center">
+                    <h5 class="modal-title w-100 text-center" id="documentModalLabel">
+                        <i></i>Supporting Document
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="documentViewer" style="max-height: 80vh; overflow-y: auto;">
+                    <!-- Document will be loaded here -->
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i></i>Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <style>
         /* Modern Statistics Cards */
@@ -4277,7 +4274,7 @@
             if (!contactNumber || contactNumber.trim() === '') {
                 return;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -5809,5 +5806,37 @@
                     showToast('error', 'Failed to mark as claimed');
                 });
         }
+
+        // Auto-highlight and open item from URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const highlightId = urlParams.get('highlight');
+            if (highlightId) {
+                setTimeout(() => {
+                    const row = document.querySelector(`tr[data-request-id="${highlightId}"]`);
+                    if (row) {
+                        // Scroll to the row
+                        row.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+
+                        // Add highlight animation
+                        row.style.backgroundColor = '#fff3cd';
+                        row.style.transition = 'background-color 2s';
+                        setTimeout(() => {
+                            row.style.backgroundColor = '';
+                        }, 2000);
+
+                        // Auto-open the view modal by clicking the View button
+                        const viewButton = row.querySelector('[data-bs-target="#viewModal' + highlightId +
+                            '"]');
+                        if (viewButton) {
+                            viewButton.click();
+                        }
+                    }
+                }, 500);
+            }
+        });
     </script>
 @endsection

@@ -22,9 +22,8 @@
 @extends('layouts.app')
 
 @section('title', 'Analytics - AgriSys Admin')
-@section('page-title')
-    <i class="fas fa-chart-bar me-2"></i>Seedling Analytics Dashboard
-@endsection
+@section('page-icon', 'fas fa-chart-bar')
+@section('page-title', 'Seedling Analytics Dashboard')
 
 @section('content')
     <!-- Enhanced Service Navigation -->
@@ -38,7 +37,7 @@
                             <div class="nav-icon-wrapper">
                                 <i class="fas fa-seedling"></i>
                             </div>
-                            <span class="nav-label">Seedlings</span>
+                            <span class="nav-label">Supply Request</span>
                         </a>
                         <a href="{{ route('admin.analytics.rsbsa') }}"
                             class="analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
@@ -260,7 +259,7 @@
                             <div class="col-lg-4 col-md-6 mb-3">
                                 <div class="p-3 border rounded">
                                     <div class="d-flex justify-content-between mb-2">
-                                        <strong class="text-capitalize">{{ $category }}</strong>
+                                        <strong class="text-capitalize">{{ str_replace('_', ' ', $category) }}</strong>
                                         <span
                                             class="badge bg-{{ $data['rate'] >= 80 ? 'success' : ($data['rate'] >= 60 ? 'warning' : 'danger') }}">
                                             {{ $data['rate'] }}%
@@ -560,32 +559,6 @@
             }
 
             .nav-label {
-                font-size: 0.75rem;
-            }
-        }
-
-        .nav-icon-wrapper i {
-            font-size: 0.9rem;
-        }
-
-        .nav-label {
-            font-size: 0.75rem;
-        }
-        }
-
-        .analytics-nav-btn i {
-            font-size: 0.875rem;
-            transition: transform 0.3s ease;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .analytics-nav-btn {
-                font-size: 0.75rem;
-                padding: 0.375rem 0.75rem;
-            }
-
-            .analytics-nav-btn i {
                 font-size: 0.75rem;
             }
         }
@@ -985,12 +958,12 @@
             new Chart(supplyDemandCtx, {
                 type: 'bar',
                 data: {
-                    labels: categories.map(c => c.toUpperCase()),
+                    labels: categories.map(c => c.replaceAll('_', ' ').toUpperCase()),
                     datasets: [{
                         label: 'Total Demand',
                         data: demands,
-                        backgroundColor: [colors.success, colors.info, colors.warning, colors
-                            .danger, colors.purple, colors.orange
+                        backgroundColor: [colors.success, colors.info, colors.purple, '#6366f1',
+                            '#ec4899', colors.orange
                         ],
                         borderRadius: 8,
                         borderWidth: 2,
@@ -1030,7 +1003,7 @@
             // Barangay Performance Chart
             const barangayCtx = document.getElementById('barangayChart');
             const barangayData = @json($barangayAnalysis->take(10)->toArray());
-            const barangayLabels = barangayData.map(b => b.barangay);
+            const barangayLabels = barangayData.map(b => b.barangay.replaceAll('_', ' '));
             const barangayValues = barangayData.map(b => b.total_requests);
 
             new Chart(barangayCtx, {
@@ -1129,7 +1102,7 @@
             // Top Items Chart
             const topItemsCtx = document.getElementById('topItemsChart');
             const topItemsData = @json($topItems->take(10)->toArray());
-            const itemLabels = topItemsData.map(item => item.name);
+            const itemLabels = topItemsData.map(item => item.name.replaceAll('_', ' '));
             const itemValues = topItemsData.map(item => item.total_quantity);
 
             new Chart(topItemsCtx, {
@@ -1139,7 +1112,7 @@
                     datasets: [{
                         label: 'Total Quantity',
                         data: itemValues,
-                        backgroundColor: colors.danger,
+                        backgroundColor: '#8b5cf6',
                         borderRadius: 6
                     }]
                 },

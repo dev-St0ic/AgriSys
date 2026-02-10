@@ -1,13 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Audit Logs')
+@section('title', 'Activity Logs')
 
-@section('page-title')
-    <div>
-        <h2 class="mb-0 text-primary"><i class="fas fa-history"></i> Audit Logs</h2>
-
-    </div>
-@endsection
+@section('page-icon', 'fas fa-history')
+@section('page-title', 'Activity Logs')
 
 @section('content')
     <div class="container-fluid py-4">

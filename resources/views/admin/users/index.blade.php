@@ -2,12 +2,8 @@
 @extends('layouts.app')
 
 @section('title', 'User Management - AgriSys Admin')
-@section('page-title')
-    <div class="d-flex align-items-center">
-        <i class="fas fa-user-edit text-primary me-2"></i>
-        <span class="text-primary fw-bold">User Management</span>
-    </div>
-@endsection
+@section('page-icon', 'fas fa-user-edit')
+@section('page-title', 'User Management')
 
 @section('content')
     <div class="row">
@@ -24,7 +20,7 @@
             </div>
         </div>
 
-         <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
@@ -108,11 +104,9 @@
                     </div>
                     <div class="col-md-4">
                         <div class="input-group input-group-sm">
-                            <input type="text" name="search" class="form-control"
-                                placeholder="Search username, name..." value="{{ request('search') }}"
-                                oninput="autoSearch()" id="searchInput">
-                            <button class="btn btn-outline-secondary" type="submit" title="Search"
-                                id="searchButton">
+                            <input type="text" name="search" class="form-control" placeholder="Search username, name..."
+                                value="{{ request('search') }}" oninput="autoSearch()" id="searchInput">
+                            <button class="btn btn-outline-secondary" type="submit" title="Search" id="searchButton">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
@@ -317,7 +311,8 @@
                                                 <li>
                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                         onclick="showEditUserModal({{ $registration->id }})">
-                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit Information
+                                                        <i class="fas fa-edit me-2" style="color: #28a745;"></i>Edit
+                                                        Information
                                                     </a>
                                                 </li>
                                                 <li>
@@ -434,7 +429,7 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="add_username" class="form-label fw-semibold">
-                                            Username 
+                                            Username
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="add_username" required
@@ -447,7 +442,7 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="add_user_type" class="form-label fw-semibold">
-                                            Sector 
+                                            Sector
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="add_user_type" required>
@@ -462,7 +457,7 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="add_sex" class="form-label fw-semibold">
-                                            Sex 
+                                            Sex
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="add_sex" name="sex" required>
@@ -475,7 +470,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="add_password" class="form-label fw-semibold">
-                                            Password 
+                                            Password
                                             <span class="text-danger">*</span>
                                         </label>
                                         <div class="input-group">
@@ -493,7 +488,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="add_password_confirmation" class="form-label fw-semibold">
-                                            Confirm Password 
+                                            Confirm Password
                                             <span class="text-danger">*</span>
                                         </label>
                                         <div class="input-group">
@@ -520,7 +515,7 @@
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
                                         <label for="add_first_name" class="form-label fw-semibold">
-                                            First Name 
+                                            First Name
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="add_first_name" required
@@ -535,7 +530,7 @@
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="add_last_name" class="form-label fw-semibold">
-                                            Last Name 
+                                            Last Name
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="add_last_name" required
@@ -559,7 +554,7 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="add_date_of_birth" class="form-label fw-semibold">
-                                            Date of Birth 
+                                            Date of Birth
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="date" class="form-control" id="add_date_of_birth" required>
@@ -567,7 +562,7 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="add_contact_number" class="form-label fw-semibold">
-                                            Contact Number 
+                                            Contact Number
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="add_contact_number" required
@@ -589,7 +584,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="add_barangay" class="form-label fw-semibold">
-                                            Barangay 
+                                            Barangay
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="add_barangay" required>
@@ -625,11 +620,11 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="add_complete_address" class="form-label fw-semibold">
-                                            Complete Address 
+                                            Complete Address
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <textarea class="form-control" id="add_complete_address" required rows="3"
-                                            maxlength="500" placeholder="Street address, building, etc."></textarea>
+                                        <textarea class="form-control" id="add_complete_address" required rows="3" maxlength="500"
+                                            placeholder="Street address, building, etc."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -646,7 +641,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="add_emergency_contact_name" class="form-label fw-semibold">
-                                            Contact Name 
+                                            Contact Name
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="add_emergency_contact_name"
@@ -654,7 +649,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="add_emergency_contact_phone" class="form-label fw-semibold">
-                                            Contact Phone 
+                                            Contact Phone
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="add_emergency_contact_phone"
@@ -676,12 +671,13 @@
                             <div class="card-body">
                                 <p class="text-muted small mb-4">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Upload documents to associate with this user. Supported formats: JPG, PNG (Max 10MB each)
+                                    Upload documents to associate with this user. Supported formats: JPG, PNG (Max 10MB
+                                    each)
                                 </p>
                                 <div class="row">
                                     <div class="col-md-6 mb-4">
                                         <label for="add_id_front" class="form-label fw-semibold">
-                                            Government ID - Front 
+                                            Government ID - Front
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="file" class="form-control" id="add_id_front" accept="image/*"
@@ -691,7 +687,7 @@
 
                                     <div class="col-md-6 mb-4">
                                         <label for="add_id_back" class="form-label fw-semibold">
-                                            Government ID - Back 
+                                            Government ID - Back
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="file" class="form-control" id="add_id_back" accept="image/*"
@@ -703,7 +699,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="add_location_proof" class="form-label fw-semibold">
-                                            Location/Role Proof 
+                                            Location/Role Proof
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="file" class="form-control" id="add_location_proof"
@@ -726,7 +722,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="add_status" class="form-label fw-semibold">
-                                            Initial Status 
+                                            Initial Status
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="add_status" required>
@@ -748,7 +744,8 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i></i>Cancel
                     </button>
-                    <button type="button" class="btn btn-primary" id="create_submit_btn_user" onclick="submitAddUser()">
+                    <button type="button" class="btn btn-primary" id="create_submit_btn_user"
+                        onclick="submitAddUser()">
                         <span class="btn-text">
                             <i class="fas fa-save me-1"></i>Create User
                         </span>
@@ -831,7 +828,7 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="newStatus" class="form-label fw-semibold">
-                                        Select New Status 
+                                        Select New Status
                                         <span class="text-danger">*</span>
                                     </label>
                                     <select class="form-select" id="newStatus" required>
@@ -859,9 +856,8 @@
                                 <label for="remarks" class="form-label fw-semibold">
                                     Remarks (Optional)
                                 </label>
-                                <textarea class="form-control" id="remarks" rows="4" 
-                                    placeholder="Add any notes or comments about this status change..."
-                                    maxlength="1000"
+                                <textarea class="form-control" id="remarks" rows="4"
+                                    placeholder="Add any notes or comments about this status change..." maxlength="1000"
                                     oninput="updateRemarksCounter()"></textarea>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                     <small class="text-muted">
@@ -878,7 +874,8 @@
                         <!-- Status Change Alert -->
                         <div class="alert alert-info border-left-info mb-0">
                             <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> Your changes will be logged and the user will be notified of the status update.
+                            <strong>Note:</strong> Your changes will be logged and the user will be notified of the status
+                            update.
                         </div>
                     </form>
                 </div>
@@ -941,7 +938,7 @@
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
                                         <label for="edit_first_name" class="form-label fw-semibold">
-                                            First Name 
+                                            First Name
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="edit_first_name"
@@ -956,7 +953,7 @@
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="edit_last_name" class="form-label fw-semibold">
-                                            Last Name 
+                                            Last Name
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="edit_last_name" name="last_name"
@@ -1003,8 +1000,8 @@
                                         <label for="edit_age" class="form-label fw-semibold">
                                             Age (Auto-calculated)
                                         </label>
-                                        <input type="number" class="form-control" id="edit_age"
-                                            name="age" readonly placeholder="Auto-calculated">
+                                        <input type="number" class="form-control" id="edit_age" name="age"
+                                            readonly placeholder="Auto-calculated">
                                     </div>
                                 </div>
                             </div>
@@ -1021,14 +1018,14 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="edit_contact_number" class="form-label fw-semibold">
-                                            Contact Number 
+                                            Contact Number
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_contact_number"
                                             name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
-                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX 
+                                            <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
                                     </div>
                                     <div class="col-md-4 mb-3">
@@ -1061,7 +1058,7 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="edit_barangay" class="form-label fw-semibold">
-                                            Barangay 
+                                            Barangay
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="edit_barangay" name="barangay" required>
@@ -1100,8 +1097,8 @@
                                             Complete Address
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <textarea class="form-control" id="edit_complete_address" name="complete_address" 
-                                            rows="3" maxlength="500" placeholder="Street address, building, etc."></textarea>
+                                        <textarea class="form-control" id="edit_complete_address" name="complete_address" rows="3" maxlength="500"
+                                            placeholder="Street address, building, etc."></textarea>
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>Maximum 500 characters
                                         </small>
@@ -1125,11 +1122,12 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="edit_emergency_contact_name"
-                                            name="emergency_contact_name" required maxlength="100" placeholder="Full name">
+                                            name="emergency_contact_name" required maxlength="100"
+                                            placeholder="Full name">
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="edit_emergency_contact_phone" class="form-label fw-semibold">
-                                            Contact Phone 
+                                            Contact Phone
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_emergency_contact_phone"
@@ -1161,8 +1159,8 @@
                                             Government ID - Front
                                         </label>
                                         <div id="edit_id_front_preview" class="mb-3"></div>
-                                        <input type="file" class="form-control" id="edit_id_front" 
-                                            accept="image/*" onchange="previewEditDocument('edit_id_front', 'edit_id_front_preview')">
+                                        <input type="file" class="form-control" id="edit_id_front" accept="image/*"
+                                            onchange="previewEditDocument('edit_id_front', 'edit_id_front_preview')">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>Click to view or re-upload
                                         </small>
@@ -1173,8 +1171,8 @@
                                             Government ID - Back
                                         </label>
                                         <div id="edit_id_back_preview" class="mb-3"></div>
-                                        <input type="file" class="form-control" id="edit_id_back" 
-                                            accept="image/*" onchange="previewEditDocument('edit_id_back', 'edit_id_back_preview')">
+                                        <input type="file" class="form-control" id="edit_id_back" accept="image/*"
+                                            onchange="previewEditDocument('edit_id_back', 'edit_id_back_preview')">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>Click to view or re-upload
                                         </small>
@@ -1187,8 +1185,9 @@
                                             Location/Role Proof
                                         </label>
                                         <div id="edit_location_proof_preview" class="mb-3"></div>
-                                        <input type="file" class="form-control" id="edit_location_proof" 
-                                            accept="image/*" onchange="previewEditDocument('edit_location_proof', 'edit_location_proof_preview')">
+                                        <input type="file" class="form-control" id="edit_location_proof"
+                                            accept="image/*"
+                                            onchange="previewEditDocument('edit_location_proof', 'edit_location_proof_preview')">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>Click to view or re-upload
                                         </small>
@@ -1224,7 +1223,8 @@
                         <div class="alert alert-info border-left-info mb-0">
                             <i class="fas fa-lightbulb me-2"></i>
                             <strong>Note:</strong> You can edit all user information here.
-                            To change registration status or add remarks, use the "Change Status" button from the main table.
+                            To change registration status or add remarks, use the "Change Status" button from the main
+                            table.
                         </div>
                     </form>
                 </div>
@@ -2259,6 +2259,7 @@
         .alert-info {
             border-left-color: #17a2b8;
         }
+
         /* Enhanced modal styling */
         .modal-header {
             border-bottom: 1px solid #e9ecef;
@@ -2392,6 +2393,7 @@
             color: #6c757d;
             word-break: break-word;
         }
+
         /* update modal */
         #updateModal .modal-header {
             border-bottom: 1px solid #e9ecef;
@@ -2509,6 +2511,7 @@
             transform: translateY(-50%);
             opacity: 1;
         }
+
         /* Enhanced Modal Styling for Consistency */
         #editUserModal .modal-header {
             border-bottom: 1px solid #e9ecef;
@@ -2710,6 +2713,7 @@
                 margin-bottom: 1rem;
             }
         }
+
         /* Delete Modal Styling  */
         #deleteUserModal .modal-header {
             border-bottom: 1px solid #f8d7da;
@@ -2929,7 +2933,7 @@
         </div>` : '';
 
             const statusBadgeColor = getStatusBadgeColor(data.status);
-            const verificationStatus = data.is_verified ? 
+            const verificationStatus = data.is_verified ?
                 '<span class="badge bg-success"><i class="fas fa-check"></i> Verified</span>' :
                 '<span class="badge bg-secondary"><i class="fas fa-times"></i> Unverified</span>';
 
@@ -3404,31 +3408,31 @@
                         documentsHtml = `
                             <div class="row g-3">
                                 ${docs.map(doc => `
-                                            <div class="col-md-4">
-                                                <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
-                                                    <div class="document-thumbnail-container">
-                                                        <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
-                                                            <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
-                                                                <span class="visually-hidden">Loading...</span>
+                                                <div class="col-md-4">
+                                                    <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
+                                                        <div class="document-thumbnail-container">
+                                                            <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
+                                                                <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
+                                                                    <span class="visually-hidden">Loading...</span>
+                                                                </div>
+                                                            </div>
+                                                            <img class="document-thumbnail-image"
+                                                                 id="thumb-${doc.type}"
+                                                                 style="display: none;"
+                                                                 alt="${doc.name}"
+                                                                 onload="showThumbnail('${doc.type}')"
+                                                                 onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
+                                                            <div class="document-thumbnail-overlay">
+                                                                <i class="fas fa-eye fa-2x text-white"></i>
                                                             </div>
                                                         </div>
-                                                        <img class="document-thumbnail-image"
-                                                             id="thumb-${doc.type}"
-                                                             style="display: none;"
-                                                             alt="${doc.name}"
-                                                             onload="showThumbnail('${doc.type}')"
-                                                             onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
-                                                        <div class="document-thumbnail-overlay">
-                                                            <i class="fas fa-eye fa-2x text-white"></i>
+                                                        <div class="document-thumbnail-info">
+                                                            <h6 class="document-thumbnail-title">${doc.name}</h6>
+                                                            <small class="text-muted">Click to view full size</small>
                                                         </div>
                                                     </div>
-                                                    <div class="document-thumbnail-info">
-                                                        <h6 class="document-thumbnail-title">${doc.name}</h6>
-                                                        <small class="text-muted">Click to view full size</small>
-                                                    </div>
                                                 </div>
-                                            </div>
-                                        `).join('')}
+                                            `).join('')}
                             </div>
                         `;
                     } else {
@@ -4238,13 +4242,13 @@
         function validateAddContactNumberWithDuplicate(contactNumber) {
             clearTimeout(contactNumberCheckTimeout);
             const input = document.getElementById('add_contact_number');
-            
+
             if (!contactNumber || contactNumber.trim() === '') {
                 return;
             }
 
             const phoneRegex = /^09\d{9}$/;
-            
+
             if (!phoneRegex.test(contactNumber.trim())) {
                 input.classList.remove('is-valid');
                 input.classList.add('is-invalid');
@@ -4366,7 +4370,7 @@
         function validateAddEmergencyPhoneWithDuplicate(phone) {
             const input = document.getElementById('add_emergency_contact_phone');
             const phoneRegex = /^09\d{9}$/;
-            
+
             if (!phoneRegex.test(phone.trim())) {
                 input.classList.remove('is-valid');
                 input.classList.add('is-invalid');
@@ -4729,16 +4733,17 @@
                     submitBtn.disabled = false;
                 });
         }
-    
+
         // delete registration
-       let currentDeleteUserId = null;
+        let currentDeleteUserId = null;
 
         // Updated deleteRegistration function to use modal
         function deleteRegistration(id) {
             try {
                 // Get registration details from the table row
                 const row = document.querySelector(`tr[data-id="${id}"]`);
-                const username = row ? row.querySelector('.font-weight-bold.text-primary').textContent : 'this registration';
+                const username = row ? row.querySelector('.font-weight-bold.text-primary').textContent :
+                'this registration';
 
                 // Set the global variable
                 currentDeleteUserId = id;
@@ -4808,7 +4813,7 @@
 
             } catch (error) {
                 console.error('Error deleting registration:', error);
-                
+
                 // Close modal first
                 const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteUserModal'));
                 if (deleteModal) {
@@ -5173,19 +5178,19 @@
         // Helper function to format date for HTML input (YYYY-MM-DD)
         function formatDateForInput(dateString) {
             if (!dateString) return '';
-            
+
             try {
                 console.log('Formatting date input from:', dateString);
-                
+
                 // Remove any time component
                 let cleanDate = dateString;
                 if (dateString.includes(' ')) {
                     cleanDate = dateString.split(' ')[0];
                 }
-                
+
                 // Handle different date formats
                 let date;
-                
+
                 // Try YYYY-MM-DD format first
                 if (/^\d{4}-\d{2}-\d{2}/.test(cleanDate)) {
                     date = new Date(cleanDate + 'T00:00:00Z');
@@ -5194,28 +5199,28 @@
                 else {
                     date = new Date(cleanDate);
                 }
-                
+
                 // Validate the date
                 if (isNaN(date.getTime())) {
                     console.warn('Could not parse date:', dateString);
                     return '';
                 }
-                
+
                 // Format as YYYY-MM-DD for HTML input
                 const year = date.getUTCFullYear();
                 const month = String(date.getUTCMonth() + 1).padStart(2, '0');
                 const day = String(date.getUTCDate()).padStart(2, '0');
-                
+
                 const formatted = `${year}-${month}-${day}`;
                 console.log('Formatted date result:', formatted);
-                
+
                 return formatted;
             } catch (error) {
                 console.error('Error formatting date:', error, 'Input:', dateString);
                 return '';
             }
         }
-      // Fixed showEditUserModal function - Date of Birth section
+        // Fixed showEditUserModal function - Date of Birth section
         function showEditUserModal(registrationId) {
             if (!registrationId) {
                 showToast('error', 'Invalid registration ID');
@@ -5251,16 +5256,16 @@
                     if (data.date_of_birth) {
                         const formattedDob = formatDateForInput(data.date_of_birth);
                         document.getElementById('edit_date_of_birth').value = formattedDob;
-                        
+
                         console.log('DOB set to:', formattedDob, 'from:', data.date_of_birth);
-                        
+
                         // Auto-calculate age
                         if (formattedDob) {
                             const dob = new Date(formattedDob + 'T00:00:00');
                             const today = new Date();
                             let age = today.getFullYear() - dob.getFullYear();
                             const monthDiff = today.getMonth() - dob.getMonth();
-                            
+
                             if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
                                 age--;
                             }
@@ -5279,7 +5284,8 @@
                         displayExistingDocument(data.id_back_path, 'Government ID - Back', 'edit_id_back_preview');
                     }
                     if (data.location_document_path) {
-                        displayExistingDocument(data.location_document_path, 'Location/Role Proof', 'edit_location_proof_preview');
+                        displayExistingDocument(data.location_document_path, 'Location/Role Proof',
+                            'edit_location_proof_preview');
                     }
 
                     // Read-only fields
@@ -5359,7 +5365,7 @@
          */
         function addEditUserFormChangeListeners(registrationId) {
             const form = document.getElementById('editUserForm');
-            
+
             if (!form) return;
 
             // Text inputs, dates, tel, textarea, and selects
@@ -5390,7 +5396,7 @@
         function handleEditUserFormChange() {
             const form = document.getElementById('editUserForm');
             if (!form || !form.dataset.registrationId) return;
-            
+
             checkEditUserFormChanges(form.dataset.registrationId);
         }
 
@@ -5398,22 +5404,22 @@
          * Initialize original data with ALL fields
          */
         function initializeEditUserFormData(data) {
-        return {
-            first_name: (data.first_name || '').trim(),
-            middle_name: (data.middle_name || '').trim(),
-            last_name: (data.last_name || '').trim(),
-            name_extension: (data.name_extension || '').trim(),
-            sex: (data.sex || '').trim(),
-            date_of_birth: formatDateForInput(data.date_of_birth), // Use the formatter 
-            age: (data.age || '').toString().trim(),
-            contact_number: (data.contact_number || '').trim(),
-            barangay: (data.barangay || '').trim(),
-            complete_address: (data.complete_address || '').trim(),
-            user_type: (data.user_type || '').trim(),
-            emergency_contact_name: (data.emergency_contact_name || '').trim(),
-            emergency_contact_phone: (data.emergency_contact_phone || '').trim()
-        };
-    }
+            return {
+                first_name: (data.first_name || '').trim(),
+                middle_name: (data.middle_name || '').trim(),
+                last_name: (data.last_name || '').trim(),
+                name_extension: (data.name_extension || '').trim(),
+                sex: (data.sex || '').trim(),
+                date_of_birth: formatDateForInput(data.date_of_birth), // Use the formatter
+                age: (data.age || '').toString().trim(),
+                contact_number: (data.contact_number || '').trim(),
+                barangay: (data.barangay || '').trim(),
+                complete_address: (data.complete_address || '').trim(),
+                user_type: (data.user_type || '').trim(),
+                emergency_contact_name: (data.emergency_contact_name || '').trim(),
+                emergency_contact_phone: (data.emergency_contact_phone || '').trim()
+            };
+        }
 
         /**
          * Initialize edit form with original data for change detection
@@ -5424,7 +5430,7 @@
 
             // Store original data for comparison - NOW INCLUDES ALL FIELDS
             const originalData = initializeEditUserFormData(data);
-            
+
             form.dataset.originalData = JSON.stringify(originalData);
             form.dataset.registrationId = registrationId;
 
@@ -5495,12 +5501,12 @@
                 if (input) {
                     let currentValue = (input.value || '').trim();
                     let originalValue = (originalData[fieldName] || '').trim();
-                    
+
                     // Normalize empty values
                     if (currentValue === '' && originalValue === '') {
                         return; // Skip if both are empty
                     }
-                    
+
                     // Special handling for date_of_birth
                     if (fieldName === 'date_of_birth' && currentValue && originalValue) {
                         currentValue = currentValue.split(' ')[0];
@@ -5508,13 +5514,17 @@
                     }
 
                     // Special handling for phone numbers - normalize format
-                    if ((fieldName === 'contact_number' || fieldName === 'emergency_contact_phone') && currentValue && originalValue) {
+                    if ((fieldName === 'contact_number' || fieldName === 'emergency_contact_phone') &&
+                        currentValue && originalValue) {
                         currentValue = currentValue.replace(/^\+63/, '0').replace(/\s+/g, '');
                         originalValue = originalValue.replace(/^\+63/, '0').replace(/\s+/g, '');
                     }
 
                     if (currentValue !== originalValue) {
-                        console.log(`Field changed: ${fieldName}`, {current: currentValue, original: originalValue});
+                        console.log(`Field changed: ${fieldName}`, {
+                            current: currentValue,
+                            original: originalValue
+                        });
                         hasChanges = true;
                         changedFields.push(fieldLabels[fieldName]);
                         input.classList.add('form-changed');
@@ -5525,10 +5535,18 @@
             });
 
             // Check for file uploads (documents) - THIS WAS MISSING!
-            const fileInputs = [
-                { id: 'edit_id_front', label: 'Government ID - Front' },
-                { id: 'edit_id_back', label: 'Government ID - Back' },
-                { id: 'edit_location_proof', label: 'Location/Role Proof' }
+            const fileInputs = [{
+                    id: 'edit_id_front',
+                    label: 'Government ID - Front'
+                },
+                {
+                    id: 'edit_id_back',
+                    label: 'Government ID - Back'
+                },
+                {
+                    id: 'edit_location_proof',
+                    label: 'Location/Role Proof'
+                }
             ];
 
             fileInputs.forEach(fileConfig => {
@@ -5537,7 +5555,7 @@
                     console.log(`File selected for upload: ${fileConfig.id}`);
                     hasChanges = true;
                     changedFields.push(fileConfig.label + ' (Uploaded)');
-                    
+
                     // Add visual indicator
                     if (fileInput.parentElement) {
                         fileInput.parentElement.classList.add('form-changed');
@@ -5579,14 +5597,34 @@
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
 
-            const requiredFields = [
-                { elementId: 'edit_first_name', label: 'First Name' },
-                { elementId: 'edit_last_name', label: 'Last Name' },
-                { elementId: 'edit_contact_number', label: 'Contact Number' },
-                { elementId: 'edit_barangay', label: 'Barangay' },
-                { elementId: 'edit_user_type', label: 'User Type' },
-                { elementId: 'edit_emergency_contact_name', label: 'Emergency Contact Name' },
-                { elementId: 'edit_emergency_contact_phone', label: 'Emergency Contact Phone' }
+            const requiredFields = [{
+                    elementId: 'edit_first_name',
+                    label: 'First Name'
+                },
+                {
+                    elementId: 'edit_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    elementId: 'edit_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    elementId: 'edit_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    elementId: 'edit_user_type',
+                    label: 'User Type'
+                },
+                {
+                    elementId: 'edit_emergency_contact_name',
+                    label: 'Emergency Contact Name'
+                },
+                {
+                    elementId: 'edit_emergency_contact_phone',
+                    label: 'Emergency Contact Phone'
+                }
             ];
 
             // Validate required fields
@@ -5757,10 +5795,18 @@
             }
 
             // Validate file uploads (optional - only check if files are selected)
-            const fileInputs = [
-                { id: 'edit_id_front', label: 'Government ID - Front' },
-                { id: 'edit_id_back', label: 'Government ID - Back' },
-                { id: 'edit_location_proof', label: 'Location/Role Proof' }
+            const fileInputs = [{
+                    id: 'edit_id_front',
+                    label: 'Government ID - Front'
+                },
+                {
+                    id: 'edit_id_back',
+                    label: 'Government ID - Back'
+                },
+                {
+                    id: 'edit_location_proof',
+                    label: 'Location/Role Proof'
+                }
             ];
 
             fileInputs.forEach(file => {
@@ -5795,7 +5841,7 @@
             return isValid;
         }
 
-            /**
+        /**
          * Handle edit form submission with confirmation - NOW INCLUDES ALL FIELDS
          */
         function handleEditUserSubmit() {
@@ -5836,159 +5882,159 @@
             );
         }
 
-     /**
-     * Proceed with edit submission after confirmation - NOW INCLUDES FILES
-     */
-    function proceedWithEditUser(form, registrationId) {
-        const submitBtn = document.getElementById('editUserSubmitBtn');
+        /**
+         * Proceed with edit submission after confirmation - NOW INCLUDES FILES
+         */
+        function proceedWithEditUser(form, registrationId) {
+            const submitBtn = document.getElementById('editUserSubmitBtn');
 
-        // Show loading state
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
-        submitBtn.disabled = true;
+            // Show loading state
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+            submitBtn.disabled = true;
 
-        // Create FormData to support file uploads
-        const formData = new FormData();
+            // Create FormData to support file uploads
+            const formData = new FormData();
 
-        // Add all text/select fields
-        const fieldMap = {
-            'first_name': 'edit_first_name',
-            'middle_name': 'edit_middle_name',
-            'last_name': 'edit_last_name',
-            'name_extension': 'edit_name_extension',
-            'sex': 'edit_sex',
-            'date_of_birth': 'edit_date_of_birth',
-            'contact_number': 'edit_contact_number',
-            'barangay': 'edit_barangay',
-            'complete_address': 'edit_complete_address',
-            'user_type': 'edit_user_type',
-            'emergency_contact_name': 'edit_emergency_contact_name',
-            'emergency_contact_phone': 'edit_emergency_contact_phone'
-        };
+            // Add all text/select fields
+            const fieldMap = {
+                'first_name': 'edit_first_name',
+                'middle_name': 'edit_middle_name',
+                'last_name': 'edit_last_name',
+                'name_extension': 'edit_name_extension',
+                'sex': 'edit_sex',
+                'date_of_birth': 'edit_date_of_birth',
+                'contact_number': 'edit_contact_number',
+                'barangay': 'edit_barangay',
+                'complete_address': 'edit_complete_address',
+                'user_type': 'edit_user_type',
+                'emergency_contact_name': 'edit_emergency_contact_name',
+                'emergency_contact_phone': 'edit_emergency_contact_phone'
+            };
 
-        Object.keys(fieldMap).forEach(fieldName => {
-            const elementId = fieldMap[fieldName];
-            const input = document.getElementById(elementId);
-            if (input) {
-                formData.append(fieldName, (input.value || '').trim());
-            }
-        });
+            Object.keys(fieldMap).forEach(fieldName => {
+                const elementId = fieldMap[fieldName];
+                const input = document.getElementById(elementId);
+                if (input) {
+                    formData.append(fieldName, (input.value || '').trim());
+                }
+            });
 
-        // Add file uploads if present
-        const fileInputs = [
-            'edit_id_front',
-            'edit_id_back',
-            'edit_location_proof'
-        ];
+            // Add file uploads if present
+            const fileInputs = [
+                'edit_id_front',
+                'edit_id_back',
+                'edit_location_proof'
+            ];
 
-        const fileInputNames = {
-            'edit_id_front': 'id_front',
-            'edit_id_back': 'id_back',
-            'edit_location_proof': 'location_proof'
-        };
+            const fileInputNames = {
+                'edit_id_front': 'id_front',
+                'edit_id_back': 'id_back',
+                'edit_location_proof': 'location_proof'
+            };
 
-        fileInputs.forEach(fileInputId => {
-            const fileInput = document.getElementById(fileInputId);
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                const fieldName = fileInputNames[fileInputId];
-                formData.append(fieldName, fileInput.files[0]);
-                console.log(`Adding file for upload: ${fieldName}`, fileInput.files[0]);
-            }
-        });
+            fileInputs.forEach(fileInputId => {
+                const fileInput = document.getElementById(fileInputId);
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    const fieldName = fileInputNames[fileInputId];
+                    formData.append(fieldName, fileInput.files[0]);
+                    console.log(`Adding file for upload: ${fieldName}`, fileInput.files[0]);
+                }
+            });
 
-        console.log('Submitting FormData with files and all fields');
+            console.log('Submitting FormData with files and all fields');
 
-        // Submit to backend with FormData
-        fetch(`/admin/registrations/${registrationId}`, {
-                method: 'POST', // Laravel expects POST for file uploads with _method override
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-HTTP-Method-Override': 'PUT' // Tell backend this is actually a PUT request
-                },
-                body: formData
-            })
-            .then(response => {
-                return response.json().then(data => {
-                    if (!response.ok) {
+            // Submit to backend with FormData
+            fetch(`/admin/registrations/${registrationId}`, {
+                    method: 'POST', // Laravel expects POST for file uploads with _method override
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-HTTP-Method-Override': 'PUT' // Tell backend this is actually a PUT request
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw {
+                                status: response.status,
+                                message: data.message || 'Update failed',
+                                errors: data.errors || {}
+                            };
+                        }
+                        return data;
+                    });
+                })
+                .then(data => {
+                    console.log('Update response:', data);
+
+                    if (data.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                        if (modal) modal.hide();
+
+                        showToast('success', data.message || 'Registration updated successfully');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
                         throw {
-                            status: response.status,
-                            message: data.message || 'Update failed',
+                            status: 422,
+                            message: data.message || 'Failed to update registration',
                             errors: data.errors || {}
                         };
                     }
-                    return data;
+                })
+                .catch(error => {
+                    console.error('Error occurred:', error);
+
+                    // Handle validation errors
+                    if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+                        const fieldMap = {
+                            'first_name': 'edit_first_name',
+                            'last_name': 'edit_last_name',
+                            'contact_number': 'edit_contact_number',
+                            'barangay': 'edit_barangay',
+                            'user_type': 'edit_user_type',
+                            'emergency_contact_name': 'edit_emergency_contact_name',
+                            'emergency_contact_phone': 'edit_emergency_contact_phone',
+                            'complete_address': 'edit_complete_address',
+                            'middle_name': 'edit_middle_name',
+                            'name_extension': 'edit_name_extension',
+                            'sex': 'edit_sex',
+                            'date_of_birth': 'edit_date_of_birth',
+                            'id_front': 'edit_id_front',
+                            'id_back': 'edit_id_back',
+                            'location_proof': 'edit_location_proof'
+                        };
+
+                        Object.keys(error.errors).forEach(field => {
+                            const elementId = fieldMap[field];
+                            const input = document.getElementById(elementId);
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                                if (existingFeedback) existingFeedback.remove();
+
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback d-block';
+                                const errorMessage = Array.isArray(error.errors[field]) ?
+                                    error.errors[field][0] :
+                                    error.errors[field];
+                                errorDiv.textContent = errorMessage;
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+
+                        showToast('error', error.message);
+                    } else {
+                        showToast('error', error.message || 'Error updating registration');
+                    }
+
+                    // Restore button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
                 });
-            })
-            .then(data => {
-                console.log('Update response:', data);
-                
-                if (data.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
-                    if (modal) modal.hide();
-
-                    showToast('success', data.message || 'Registration updated successfully');
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    throw {
-                        status: 422,
-                        message: data.message || 'Failed to update registration',
-                        errors: data.errors || {}
-                    };
-                }
-            })
-            .catch(error => {
-                console.error('Error occurred:', error);
-
-                // Handle validation errors
-                if (error.status === 422 && error.errors && typeof error.errors === 'object') {
-                    const fieldMap = {
-                        'first_name': 'edit_first_name',
-                        'last_name': 'edit_last_name',
-                        'contact_number': 'edit_contact_number',
-                        'barangay': 'edit_barangay',
-                        'user_type': 'edit_user_type',
-                        'emergency_contact_name': 'edit_emergency_contact_name',
-                        'emergency_contact_phone': 'edit_emergency_contact_phone',
-                        'complete_address': 'edit_complete_address',
-                        'middle_name': 'edit_middle_name',
-                        'name_extension': 'edit_name_extension',
-                        'sex': 'edit_sex',
-                        'date_of_birth': 'edit_date_of_birth',
-                        'id_front': 'edit_id_front',
-                        'id_back': 'edit_id_back',
-                        'location_proof': 'edit_location_proof'
-                    };
-
-                    Object.keys(error.errors).forEach(field => {
-                        const elementId = fieldMap[field];
-                        const input = document.getElementById(elementId);
-                        if (input) {
-                            input.classList.add('is-invalid');
-                            const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
-                            if (existingFeedback) existingFeedback.remove();
-
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'invalid-feedback d-block';
-                            const errorMessage = Array.isArray(error.errors[field]) ?
-                                error.errors[field][0] :
-                                error.errors[field];
-                            errorDiv.textContent = errorMessage;
-                            input.parentNode.appendChild(errorDiv);
-                        }
-                    });
-
-                    showToast('error', error.message);
-                } else {
-                    showToast('error', error.message || 'Error updating registration');
-                }
-
-                // Restore button state
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
-    }
+        }
 
 
         /**
@@ -6014,7 +6060,7 @@
         // close the edit modal
         document.addEventListener('DOMContentLoaded', function() {
             const editUserModal = document.getElementById('editUserModal');
-            
+
             if (editUserModal) {
                 editUserModal.addEventListener('hidden.bs.modal', function() {
                     // Clear file inputs when modal closes
@@ -6022,7 +6068,7 @@
                     fileInputs.forEach(input => {
                         input.value = ''; // Clear the file input
                     });
-                    
+
                     // Clear previews
                     const previews = this.querySelectorAll('[id$="_preview"]');
                     previews.forEach(preview => {
@@ -6045,16 +6091,16 @@
             });
         });
 
-          /**
+        /**
          * Update remarks character counter
          */
         function updateRemarksCounter() {
             const textarea = document.getElementById('remarks');
             const charCount = document.getElementById('charCount');
-            
+
             if (textarea && charCount) {
                 charCount.textContent = textarea.value.length;
-                
+
                 // Change color based on length
                 if (textarea.value.length > 900) {
                     charCount.parentElement.classList.add('text-warning');
@@ -6104,7 +6150,7 @@
         // Add event listeners when modal is shown
         document.addEventListener('DOMContentLoaded', function() {
             const updateModal = document.getElementById('updateModal');
-            
+
             if (updateModal) {
                 updateModal.addEventListener('shown.bs.modal', function() {
                     const statusSelect = document.getElementById('newStatus');
@@ -6124,169 +6170,169 @@
             }
         });
 
-            /**
-             * Auto-calculate age from date of birth
-             */
-            document.getElementById('edit_date_of_birth')?.addEventListener('change', function() {
-                const dob = new Date(this.value);
-                const today = new Date();
-                let age = today.getFullYear() - dob.getFullYear();
-                const monthDiff = today.getMonth() - dob.getMonth();
-                
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                    age--;
-                }
-                
-                document.getElementById('edit_age').value = age >= 0 ? age : '';
-                
-                // Trigger change detection
-                const form = document.getElementById('editUserForm');
-                if (form && form.dataset.registrationId) {
-                    checkEditUserFormChanges(form.dataset.registrationId);
-                }
-            });
+        /**
+         * Auto-calculate age from date of birth
+         */
+        document.getElementById('edit_date_of_birth')?.addEventListener('change', function() {
+            const dob = new Date(this.value);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
 
-            /**
-             * Preview documents in edit modal
-             */
-            function previewEditDocument(inputId, previewId) {
-                const input = document.getElementById(inputId);
-                const preview = document.getElementById(previewId);
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
 
-                // Clear previous preview
+            document.getElementById('edit_age').value = age >= 0 ? age : '';
+
+            // Trigger change detection
+            const form = document.getElementById('editUserForm');
+            if (form && form.dataset.registrationId) {
+                checkEditUserFormChanges(form.dataset.registrationId);
+            }
+        });
+
+        /**
+         * Preview documents in edit modal
+         */
+        function previewEditDocument(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            // Clear previous preview
+            if (preview) {
+                preview.innerHTML = '';
+                preview.style.display = 'none';
+            }
+
+            // If no files selected, just clear the preview
+            if (!input.files || !input.files[0]) {
+                console.log('No file selected for:', inputId);
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!allowedTypes.includes(file.type)) {
                 if (preview) {
-                    preview.innerHTML = '';
-                    preview.style.display = 'none';
-                }
-
-                // If no files selected, just clear the preview
-                if (!input.files || !input.files[0]) {
-                    console.log('No file selected for:', inputId);
-                    return;
-                }
-
-                const file = input.files[0];
-                
-                // Validate file type
-                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-                if (!allowedTypes.includes(file.type)) {
-                    if (preview) {
-                        preview.innerHTML = `
+                    preview.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="fas fa-exclamation-circle me-2"></i>
                                 Please select a JPG or PNG image
                             </div>
                         `;
-                        preview.style.display = 'flex';
-                    }
-                    input.value = ''; // Clear the input
-                    return;
+                    preview.style.display = 'flex';
                 }
-                
-                // Validate file size (10MB max)
-                const maxSize = 10 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    if (preview) {
-                        preview.innerHTML = `
+                input.value = ''; // Clear the input
+                return;
+            }
+
+            // Validate file size (10MB max)
+            const maxSize = 10 * 1024 * 1024;
+            if (file.size > maxSize) {
+                if (preview) {
+                    preview.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="fas fa-exclamation-circle me-2"></i>
                                 File must be less than 10MB
                             </div>
                         `;
-                        preview.style.display = 'flex';
-                    }
-                    input.value = ''; // Clear the input
-                    return;
+                    preview.style.display = 'flex';
                 }
+                input.value = ''; // Clear the input
+                return;
+            }
 
-                const reader = new FileReader();
+            const reader = new FileReader();
 
-                reader.onload = function(e) {
-                    if (preview) {
-                        preview.innerHTML = `
+            reader.onload = function(e) {
+                if (preview) {
+                    preview.innerHTML = `
                             <div class="document-preview-item">
-                                <img src="${e.target.result}" alt="Preview" 
+                                <img src="${e.target.result}" alt="Preview"
                                     style="max-width: 100%; max-height: 200px; border-radius: 8px; cursor: pointer;">
                                 <p style="margin-top: 8px; font-size: 12px; color: #666;">
                                     <i class="fas fa-check text-success me-2"></i>${file.name}
                                 </p>
                             </div>
                         `;
-                        preview.style.display = 'flex';
-                    }
-                    
-                    console.log('File preview loaded:', inputId, file.name);
-                    
-                    // Trigger change detection
-                    const form = document.getElementById('editUserForm');
-                    if (form && form.dataset.registrationId) {
-                        checkEditUserFormChanges(form.dataset.registrationId);
-                    }
-                };
+                    preview.style.display = 'flex';
+                }
 
-                reader.onerror = function(error) {
-                    console.error('File read error:', error);
-                    if (preview) {
-                        preview.innerHTML = `
+                console.log('File preview loaded:', inputId, file.name);
+
+                // Trigger change detection
+                const form = document.getElementById('editUserForm');
+                if (form && form.dataset.registrationId) {
+                    checkEditUserFormChanges(form.dataset.registrationId);
+                }
+            };
+
+            reader.onerror = function(error) {
+                console.error('File read error:', error);
+                if (preview) {
+                    preview.innerHTML = `
                             <div class="alert alert-danger">
                                 <i class="fas fa-exclamation-circle me-2"></i>
                                 Failed to load file preview
                             </div>
                         `;
-                        preview.style.display = 'flex';
-                    }
-                    input.value = ''; // Clear the input
-                };
+                    preview.style.display = 'flex';
+                }
+                input.value = ''; // Clear the input
+            };
 
-                reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Display existing document thumbnail in preview (FIXED VERSION)
+         */
+        function displayExistingDocument(documentPath, documentName, previewId) {
+            const preview = document.getElementById(previewId);
+            if (!preview || !documentPath) {
+                console.warn(`Preview container not found: ${previewId}`);
+                return;
             }
 
-            /**
-             * Display existing document thumbnail in preview (FIXED VERSION)
-             */
-            function displayExistingDocument(documentPath, documentName, previewId) {
-                const preview = document.getElementById(previewId);
-                if (!preview || !documentPath) {
-                    console.warn(`Preview container not found: ${previewId}`);
-                    return;
-                }
+            // Build the correct document URL
+            let documentUrl;
 
-                // Build the correct document URL
-                let documentUrl;
-                
-                if (documentPath.startsWith('http')) {
-                    documentUrl = documentPath;
-                } else if (documentPath.startsWith('/')) {
-                    documentUrl = documentPath;
-                } else {
-                    // Path is relative, prepend /storage/
-                    documentUrl = `/storage/${documentPath}`;
-                }
+            if (documentPath.startsWith('http')) {
+                documentUrl = documentPath;
+            } else if (documentPath.startsWith('/')) {
+                documentUrl = documentPath;
+            } else {
+                // Path is relative, prepend /storage/
+                documentUrl = `/storage/${documentPath}`;
+            }
 
-                console.log(`Loading document: ${documentName} from ${documentUrl}`);
+            console.log(`Loading document: ${documentName} from ${documentUrl}`);
 
-                preview.innerHTML = `
+            preview.innerHTML = `
                     <div class="document-preview-item">
-                        <img 
-                            src="${documentUrl}" 
-                            alt="${documentName}" 
+                        <img
+                            src="${documentUrl}"
+                            alt="${documentName}"
                             style="max-width: 100%; max-height: 200px; border-radius: 8px; cursor: pointer;"
                             onclick="viewDocumentFullScreen('${documentUrl}', '${documentName}')"
                             onerror="handleDocumentLoadError(this, '${previewId}')">
                         <p style="margin-top: 8px; font-size: 12px; color: #666;">Click to view full size</p>
                     </div>
                 `;
-                preview.style.display = 'flex';
-            }
+            preview.style.display = 'flex';
+        }
 
-            /**
-             * Handle document image load errors
-             */
-            function handleDocumentLoadError(imgElement, previewId) {
-                console.error(`Failed to load image for preview: ${previewId}`);
-                const preview = document.getElementById(previewId);
-                if (preview) {
-                    preview.innerHTML = `
+        /**
+         * Handle document image load errors
+         */
+        function handleDocumentLoadError(imgElement, previewId) {
+            console.error(`Failed to load image for preview: ${previewId}`);
+            const preview = document.getElementById(previewId);
+            if (preview) {
+                preview.innerHTML = `
                         <div class="document-preview-item">
                             <div style="text-align: center; padding: 20px;">
                                 <i class="fas fa-exclamation-circle text-warning" style="font-size: 3rem;"></i>
@@ -6295,17 +6341,17 @@
                             </div>
                         </div>
                     `;
-                }
             }
+        }
 
-            /**
-             * View document in full screen modal (ENSURE THIS EXISTS)
-             */
-            function viewDocumentFullScreen(documentUrl, documentName) {
-                // Create a unique modal ID to avoid conflicts
-                const modalId = 'documentPreviewModal_' + Date.now();
-                
-                const modalHtml = `
+        /**
+         * View document in full screen modal (ENSURE THIS EXISTS)
+         */
+        function viewDocumentFullScreen(documentUrl, documentName) {
+            // Create a unique modal ID to avoid conflicts
+            const modalId = 'documentPreviewModal_' + Date.now();
+
+            const modalHtml = `
                     <div class="modal fade" id="${modalId}" tabindex="-1">
                         <div class="modal-dialog modal-lg modal-dialog-centered">
                             <div class="modal-content">
@@ -6316,7 +6362,7 @@
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body text-center">
-                                    <img src="${documentUrl}" alt="${documentName}" 
+                                    <img src="${documentUrl}" alt="${documentName}"
                                         style="max-width: 100%; max-height: 70vh; object-fit: contain;">
                                 </div>
                                 <div class="modal-footer">
@@ -6329,21 +6375,21 @@
                         </div>
                     </div>
                 `;
-                
-                // Add modal to DOM
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = modalHtml;
-                document.body.appendChild(tempDiv.firstElementChild);
-                
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById(modalId));
-                modal.show();
-                
-                // Clean up modal from DOM when hidden
-                document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
-                    this.remove();
-                });
-            }
+
+            // Add modal to DOM
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = modalHtml;
+            document.body.appendChild(tempDiv.firstElementChild);
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+
+            // Clean up modal from DOM when hidden
+            document.getElementById(modalId).addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>

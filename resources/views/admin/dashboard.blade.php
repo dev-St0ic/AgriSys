@@ -1,17 +1,11 @@
 @extends('layouts.app')
 
 @section('title', 'Admin Dashboard - AgriSys')
+@section('page-icon', 'fas fa-tachometer-alt')
 @section('page-title', 'Dashboard')
 
 @section('content')
     <div class="farmvista-dashboard">
-        <!-- Header Section with Welcome -->
-        <div class="dashboard-welcome-header">
-            <div class="welcome-content">
-                <h1 class="welcome-title" id="greeting">Good Morning!</h1>
-            </div>
-        </div>
-
         <!-- Main Dashboard Grid -->
         <div class="dashboard-main-grid">
             <!-- Left Column - Main Content -->
@@ -27,9 +21,6 @@
                         <div class="metric-info">
                             <div class="metric-label">Total Users</div>
                             <div class="metric-value-large">{{ number_format($keyMetrics['total_users'] ?? 0) }}</div>
-                            <div class="metric-trend positive">
-                                <i class="fas fa-arrow-up"></i> +2% from last month
-                            </div>
                         </div>
                     </div>
 
@@ -41,9 +32,6 @@
                         <div class="metric-info">
                             <div class="metric-label">Current Applications</div>
                             <div class="metric-value-large">{{ number_format($keyMetrics['total_pending'] ?? 0) }}</div>
-                            <div class="metric-trend positive">
-                                <i class="fas fa-arrow-up"></i> +5.67% from last month
-                            </div>
                         </div>
                     </div>
 
@@ -58,9 +46,6 @@
                                 $approvedCount = collect($applicationStatus ?? [])->sum('approved');
                             @endphp
                             <div class="metric-value-large">{{ number_format($approvedCount) }}</div>
-                            <div class="metric-trend positive">
-                                <i class="fas fa-arrow-up"></i> +150% from last month
-                            </div>
                         </div>
                     </div>
 
@@ -178,52 +163,70 @@
                     </div>
                 </div>
 
-                <!-- Task Management -->
+                <!-- Priority Tasks -->
                 <div class="task-card-farmvista">
                     <div class="card-header-with-action">
-                        <h3 class="card-title-compact">Task Management</h3>
-                        <div class="header-actions-compact">
-                            <button class="icon-btn-compact"
-                                onclick="window.location.href='{{ route('admin.seedlings.supply-management.index') }}'">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <a href="{{ route('admin.rsbsa.applications') }}" class="view-all-link-compact">
-                                View All <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
+                        <h3 class="card-title-compact">
+                            <i class="fas fa-exclamation-circle me-2"></i>Priority Tasks
+                        </h3>
                     </div>
                     <div class="task-list">
                         <div class="task-table-header">
-                            <div class="task-col-name">Task Name</div>
-                            <div class="task-col-assigned">Assigned To</div>
-                            <div class="task-col-due">Due Date</div>
-                            <div class="task-col-status">Status</div>
+                            <div class="task-col-type">Type</div>
+                            <div class="task-col-applicant">Applicant</div>
+                            <div class="task-col-pending">Pending</div>
+                            <div class="task-col-priority">Priority</div>
+                            <div class="task-col-action">Action</div>
                         </div>
-                        @if (isset($recentActivity) && count($recentActivity) > 0)
-                            @foreach ($recentActivity->take(5) as $activity)
-                                <div class="task-row">
-                                    <div class="task-col-name">
-                                        <span class="task-name-text">{{ $activity['type'] ?? 'Application' }}
-                                            Review</span>
-                                    </div>
-                                    <div class="task-col-assigned">
-                                        <span class="task-assigned-text">{{ $activity['name'] ?? 'N/A' }}</span>
-                                    </div>
-                                    <div class="task-col-due">
-                                        <span
-                                            class="task-date-text">{{ $activity['created_at']->format('M d, Y') }}</span>
-                                    </div>
-                                    <div class="task-col-status">
-                                        <span class="task-status-badge {{ $activity['status_color'] ?? 'warning' }}">
-                                            {{ $activity['action'] ?? 'Pending' }}
+                        @if (isset($priorityTasks) && count($priorityTasks) > 0)
+                            @foreach ($priorityTasks as $task)
+                                <div class="task-row priority-task-row">
+                                    <div class="task-col-type">
+                                        <span class="task-type-badge {{ $task['color'] }}">
+                                            <i class="fas {{ $task['icon'] }}"></i>
+                                            {{ $task['type'] }}
                                         </span>
+                                    </div>
+                                    <div class="task-col-applicant">
+                                        <span class="task-applicant-text">{{ $task['name'] }}</span>
+                                    </div>
+                                    <div class="task-col-pending">
+                                        <span class="task-pending-text">
+                                            @if ($task['days_pending'] == 0)
+                                                Today
+                                            @elseif($task['days_pending'] == 1)
+                                                1 day
+                                            @else
+                                                {{ floor($task['days_pending']) }} days
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <div class="task-col-priority">
+                                        <span class="priority-badge priority-{{ $task['priority'] }}">
+                                            @if ($task['priority'] == 'high')
+                                                <i class="fas fa-exclamation-circle"></i> High
+                                            @elseif($task['priority'] == 'medium')
+                                                <i class="fas fa-exclamation-triangle"></i> Medium
+                                            @else
+                                                <i class="fas fa-info-circle"></i> Low
+                                            @endif
+                                        </span>
+                                    </div>
+                                    <div class="task-col-action">
+                                        @if (!empty($task['route']))
+                                            <a href="{{ $task['route'] }}" class="action-btn-small">
+                                                Review <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        @else
+                                            <span class="text-muted small">No route</span>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
                         @else
                             <div class="task-empty-state">
-                                <i class="fas fa-tasks"></i>
-                                <p>No pending tasks</p>
+                                <i class="fas fa-check-circle"></i>
+                                <p>All caught up! No pending tasks.</p>
                             </div>
                         @endif
                     </div>
@@ -336,23 +339,29 @@
                 <div class="summary-card-farmvista">
                     <div class="card-header-compact">
                         <h3 class="card-title-compact">Recent Activities</h3>
+                        <a href="{{ route('admin.activity-logs.index') }}" class="view-all-link-compact">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                     <div class="activities-list">
                         @if (isset($recentActivity) && count($recentActivity) > 0)
                             @foreach ($recentActivity->take(5) as $activity)
-                                <div class="activity-item">
-                                    <div class="activity-icon {{ $activity['status_color'] ?? 'warning' }}">
-                                        <i class="fas fa-clock"></i>
+                                <a href="{{ route('admin.activity-logs.index') }}" class="activity-item-link">
+                                    <div class="activity-item">
+                                        <div class="activity-icon {{ $activity['status_color'] ?? 'warning' }}">
+                                            <i class="fas {{ $activity['icon'] ?? 'fa-clock' }}"></i>
+                                        </div>
+                                        <div class="activity-details">
+                                            <div class="activity-title">{{ $activity['type'] ?? 'Activity' }}</div>
+                                            <div class="activity-name">{{ $activity['name'] ?? 'N/A' }}</div>
+                                            <div class="activity-time">{{ $activity['created_at']->diffForHumans() }}
+                                            </div>
+                                        </div>
+                                        <div class="activity-badge {{ $activity['status_color'] ?? 'warning' }}">
+                                            {{ $activity['action'] ?? 'Activity' }}
+                                        </div>
                                     </div>
-                                    <div class="activity-details">
-                                        <div class="activity-title">{{ $activity['type'] ?? 'Application' }}</div>
-                                        <div class="activity-name">{{ $activity['name'] ?? 'N/A' }}</div>
-                                        <div class="activity-time">{{ $activity['created_at']->diffForHumans() }}</div>
-                                    </div>
-                                    <div class="activity-badge {{ $activity['status_color'] ?? 'warning' }}">
-                                        {{ $activity['action'] ?? 'Pending' }}
-                                    </div>
-                                </div>
+                                </a>
                             @endforeach
                         @else
                             <div class="activities-empty-state">
@@ -968,18 +977,7 @@
 
         // Dynamic greeting based on time of day
         function updateGreeting() {
-            const hour = new Date().getHours();
-            const greetingEl = document.getElementById('greeting');
-            
-            if (hour >= 5 && hour < 12) {
-                greetingEl.textContent = 'Good Morning!';
-            } else if (hour >= 12 && hour < 17) {
-                greetingEl.textContent = 'Good Afternoon!';
-            } else if (hour >= 17 && hour < 21) {
-                greetingEl.textContent = 'Good Evening!';
-            } else {
-                greetingEl.textContent = 'Hello!';
-            }
+            // Removed - welcome header no longer exists
         }
 
         // Call on page load
@@ -1001,72 +999,6 @@
         /* Adjust padding when sidebar is collapsed for better use of space */
         html.sidebar-collapsed-state .farmvista-dashboard {
             padding: 2rem 3rem;
-        }
-
-        /* Welcome Header */
-        .dashboard-welcome-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .welcome-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0;
-        }
-
-        .welcome-subtitle {
-            font-size: 0.95rem;
-            color: #666;
-            margin: 0.5rem 0 0 0;
-        }
-
-        .header-right-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .weather-mini {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            font-size: 0.9rem;
-            color: #333;
-        }
-
-        .weather-mini i {
-            color: #FFC107;
-            font-size: 1.2rem;
-        }
-
-        .export-btn-modern {
-            padding: 0.75rem 1.5rem;
-            background: #22c55e;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-        }
-
-        .export-btn-modern:hover {
-            background: #16a34a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
 
         /* Main Grid Layout */
@@ -1370,7 +1302,7 @@
             margin: 0 0 1rem 0;
         }
 
-.service-stats {
+        .service-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0.5rem;
@@ -1570,6 +1502,12 @@
             gap: 0.75rem;
         }
 
+        .activity-item-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
         .activity-item {
             display: flex;
             align-items: flex-start;
@@ -1578,10 +1516,13 @@
             background: #f9f9f9;
             border-radius: 8px;
             transition: all 0.3s;
+            cursor: pointer;
         }
 
-        .activity-item:hover {
-            background: #f0f0f0;
+        .activity-item-link:hover .activity-item {
+            background: #e8f5e9;
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
         }
 
         .activity-icon {
@@ -1754,12 +1695,21 @@
             color: #333;
         }
 
-        /* Task Management */
+        /* Priority Tasks */
         .card-header-with-action {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+        }
+
+        .card-header-with-action h3 {
+            display: flex;
+            align-items: center;
+        }
+
+        .card-header-with-action h3 i {
+            color: #FF9800;
         }
 
         .header-actions-compact {
@@ -1808,58 +1758,120 @@
 
         .task-table-header {
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr 1fr;
-            gap: 0.5rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f0f0f0;
+            grid-template-columns: 1.2fr 1.5fr 0.8fr 1fr 1fr;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
             font-size: 0.75rem;
             font-weight: 600;
-            color: #999;
+            color: #666;
             text-transform: uppercase;
         }
 
-        .task-row {
+        .priority-task-row {
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr 1fr;
-            gap: 0.5rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f5f5f5;
+            grid-template-columns: 1.2fr 1.5fr 0.8fr 1fr 1fr;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
             align-items: center;
             font-size: 0.85rem;
+            transition: all 0.3s;
         }
 
-        .task-name-text {
+        .priority-task-row:hover {
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .task-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .task-type-badge.success {
+            background: #4CAF50;
+        }
+
+        .task-type-badge.warning {
+            background: #FFC107;
+            color: #333;
+        }
+
+        .task-type-badge.info {
+            background: #2196F3;
+        }
+
+        .task-type-badge.danger {
+            background: #f44336;
+        }
+
+        .task-type-badge.purple {
+            background: #9C27B0;
+        }
+
+        .task-applicant-text {
             font-weight: 500;
             color: #333;
         }
 
-        .task-assigned-text,
-        .task-date-text {
+        .task-pending-text {
             color: #666;
+            font-size: 0.85rem;
         }
 
-        .task-status-badge {
-            padding: 0.25rem 0.75rem;
+        .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.3rem 0.65rem;
             border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-align: center;
-            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
 
-        .task-status-badge.warning {
+        .priority-badge.priority-high {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .priority-badge.priority-medium {
             background: #FFF3E0;
             color: #F57C00;
         }
 
-        .task-status-badge.success {
-            background: #E8F5E9;
-            color: #2E7D32;
+        .priority-badge.priority-low {
+            background: #E3F2FD;
+            color: #1976D2;
         }
 
-        .task-status-badge.danger {
-            background: #FFEBEE;
-            color: #C62828;
+        .action-btn-small {
+            padding: 0.4rem 0.75rem;
+            background: #4CAF50;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .action-btn-small:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+            color: white;
         }
 
         .task-empty-state {
@@ -1872,6 +1884,7 @@
             font-size: 3rem;
             margin-bottom: 1rem;
             opacity: 0.3;
+            color: #4CAF50;
         }
 
         /* Responsive Design */
@@ -1923,40 +1936,46 @@
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .task-table-header,
-            .task-row {
-                grid-template-columns: 1fr;
-                gap: 0.25rem;
-            }
-
-            .task-table-header {
+            .priority-task-table-header {
                 display: none;
             }
 
-            .task-row {
+            .priority-task-row {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
                 padding: 1rem;
                 background: #f9f9f9;
                 border-radius: 8px;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.75rem;
                 border: none;
             }
 
-            .task-col-name::before {
-                content: 'Task: ';
+            .priority-task-row>div::before {
                 font-weight: 600;
                 color: #999;
+                font-size: 0.7rem;
+                display: block;
+                margin-bottom: 0.25rem;
             }
 
-            .task-col-assigned::before {
-                content: 'Assigned: ';
-                font-weight: 600;
-                color: #999;
+            .priority-task-row>div:nth-child(1)::before {
+                content: 'Type';
             }
 
-            .task-col-due::before {
-                content: 'Due: ';
-                font-weight: 600;
-                color: #999;
+            .priority-task-row>div:nth-child(2)::before {
+                content: 'Applicant';
+            }
+
+            .priority-task-row>div:nth-child(3)::before {
+                content: 'Pending';
+            }
+
+            .priority-task-row>div:nth-child(4)::before {
+                content: 'Priority';
+            }
+
+            .priority-task-row>div:nth-child(5)::before {
+                content: 'Action';
             }
         }
     </style>
