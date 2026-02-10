@@ -28,7 +28,7 @@ class SeedlingRequest extends Model
         'pickup_date',
         'pickup_expired_at',
         'pickup_reminder_sent',
-        'claimed_at', 
+        'claimed_at',
         'document_path',
         'status',
         'reviewed_by',
@@ -140,17 +140,17 @@ class SeedlingRequest extends Model
         if (!in_array($this->status, ['approved', 'partially_approved'])) {
             return false;
         }
-        
+
         // Must have a pickup_date
         if (!$this->pickup_date) {
             return false;
         }
-        
+
         // Cannot claim if already claimed
         if ($this->claimed_at) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -162,7 +162,7 @@ class SeedlingRequest extends Model
         if (!$this->canBeClaimed()) {
             return false;
         }
-        
+
         return $this->update(['claimed_at' => now()]);
     }
 
@@ -386,8 +386,7 @@ class SeedlingRequest extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logFillable()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 
@@ -419,7 +418,7 @@ class SeedlingRequest extends Model
     if (!$this->pickup_expired_at) {
         return null;
     }
-    
+
     return now()->diffInDays($this->pickup_expired_at);
 }
 
@@ -428,7 +427,7 @@ public function getIsPickupExpiredAttribute()
     if (!$this->pickup_date) {
         return false;
     }
-    
+
     return $this->pickup_date->isPast();
 }
 }

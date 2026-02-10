@@ -10,13 +10,13 @@ abstract class Controller
     /**
      * Log a system activity
      * Used for tracking all critical business actions across the system
-     * 
+     *
      * @param string $action - Action performed (e.g., 'created', 'updated', 'deleted', 'approved', 'rejected', 'login', 'logout', 'downloaded', 'exported')
      * @param string $model - Model type (e.g., 'BoatrApplication', 'User', 'Training')
      * @param int|null $modelId - ID of the affected model
      * @param array|null $properties - Additional context data (changes, reason, etc.)
      * @param string|null $description - Custom description for the log
-     * 
+     *
      * @return void
      */
     protected function logActivity(
@@ -39,10 +39,35 @@ abstract class Controller
             $contextProperties['ip_address'] = request()->ip();
             $contextProperties['user_agent'] = request()->userAgent();
 
-            Activity::causedBy($user)
-                ->withProperties($contextProperties)
-                ->log($desc);
-                
+            // Build activity log
+            $activityLog = Activity::causedBy($user)
+                ->withProperties($contextProperties);
+
+            // Try to load and attach the actual model instance
+            if ($modelId) {
+                try {
+                    // Handle different model namespaces
+                    $modelClass = "App\\Models\\{$model}";
+
+                    // Special case for User model variations
+                    if ($model === 'UserRegistration') {
+                        $modelClass = "App\\Models\\UserRegistration";
+                    }
+
+                    if (class_exists($modelClass)) {
+                        $modelInstance = $modelClass::find($modelId);
+                        if ($modelInstance) {
+                            $activityLog->performedOn($modelInstance);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // If model not found, just log without subject
+                    \Log::debug("Model instance not found for activity log: {$model}#{$modelId}");
+                }
+            }
+
+            $activityLog->log($desc);
+
         } catch (\Exception $e) {
             \Log::error('Activity logging failed: ' . $e->getMessage(), [
                 'action' => $action,
