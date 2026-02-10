@@ -2,16 +2,15 @@
 
 @section('title', 'Audit Logs')
 
+@section('page-title')
+    <div>
+        <h2 class="mb-0 text-primary"><i class="fas fa-history"></i> Audit Logs</h2>
+
+    </div>
+@endsection
+
 @section('content')
     <div class="container-fluid py-4">
-
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col">
-                <h2><i class="fas fa-history"></i> Audit Logs</h2>
-                <p class="text-muted small">Complete record of all system activity</p>
-            </div>
-        </div>
 
         @if ($errors->any())
             <div class="alert alert-danger alert-dismissible fade show">
@@ -37,8 +36,7 @@
                         <div class="col-md-4">
                             <div class="input-group">
                                 <input type="text" name="search" class="form-control form-control-sm"
-                                    placeholder="Search what changed..." value="{{ request('search') }}"
-                                    oninput="autoSearch()" id="searchInput">
+                                    placeholder="Search what changed..." value="{{ request('search') }}" id="searchInput">
                                 <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                     id="searchButton">
                                     <i class="fas fa-search"></i>
@@ -81,18 +79,67 @@
                                     Bin</option>
                                 <option value="Barangay" {{ request('module') == 'Barangay' ? 'selected' : '' }}>Barangay
                                     Management</option>
+                                <option value="DSSReport" {{ request('module') == 'DSSReport' ? 'selected' : '' }}>DSS
+                                    Reports
+                                </option>
                             </select>
                         </div>
 
                         <div class="col-md-2">
                             <select name="event" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All</option>
-                                <option value="created" {{ request('event') == 'created' ? 'selected' : '' }}>Created
-                                </option>
-                                <option value="updated" {{ request('event') == 'updated' ? 'selected' : '' }}>Updated
-                                </option>
-                                <option value="deleted" {{ request('event') == 'deleted' ? 'selected' : '' }}>Deleted
-                                </option>
+                                <optgroup label="Basic Actions">
+                                    <option value="created" {{ request('event') == 'created' ? 'selected' : '' }}>Created
+                                    </option>
+                                    <option value="updated" {{ request('event') == 'updated' ? 'selected' : '' }}>Updated
+                                    </option>
+                                    <option value="deleted" {{ request('event') == 'deleted' ? 'selected' : '' }}>Deleted
+                                    </option>
+                                </optgroup>
+                                <optgroup label="Authentication">
+                                    <option value="login" {{ request('event') == 'login' ? 'selected' : '' }}>Login
+                                    </option>
+                                    <option value="logout" {{ request('event') == 'logout' ? 'selected' : '' }}>Logout
+                                    </option>
+                                    <option value="login_failed"
+                                        {{ request('event') == 'login_failed' ? 'selected' : '' }}>Login Failed</option>
+                                </optgroup>
+                                <optgroup label="Request Actions">
+                                    <option value="approved" {{ request('event') == 'approved' ? 'selected' : '' }}>
+                                        Approved</option>
+                                    <option value="rejected" {{ request('event') == 'rejected' ? 'selected' : '' }}>
+                                        Rejected</option>
+                                    <option value="marked_claimed"
+                                        {{ request('event') == 'marked_claimed' ? 'selected' : '' }}>Marked as Claimed
+                                    </option>
+                                </optgroup>
+                                <optgroup label="Supply Management">
+                                    <option value="supply_added"
+                                        {{ request('event') == 'supply_added' ? 'selected' : '' }}>Supply Added</option>
+                                    <option value="supply_adjusted"
+                                        {{ request('event') == 'supply_adjusted' ? 'selected' : '' }}>Supply Adjusted
+                                    </option>
+                                    <option value="supply_loss" {{ request('event') == 'supply_loss' ? 'selected' : '' }}>
+                                        Supply Loss</option>
+                                </optgroup>
+                                <optgroup label="Other Actions">
+                                    <option value="status_changed"
+                                        {{ request('event') == 'status_changed' ? 'selected' : '' }}>Status Changed
+                                    </option>
+                                    <option value="inspection_completed"
+                                        {{ request('event') == 'inspection_completed' ? 'selected' : '' }}>Inspection
+                                        Completed</option>
+                                    <option value="exported" {{ request('event') == 'exported' ? 'selected' : '' }}>
+                                        Exported</option>
+                                    <option value="downloaded" {{ request('event') == 'downloaded' ? 'selected' : '' }}>
+                                        Downloaded</option>
+                                    <option value="viewed" {{ request('event') == 'viewed' ? 'selected' : '' }}>Viewed
+                                    </option>
+                                    <option value="annex_uploaded"
+                                        {{ request('event') == 'annex_uploaded' ? 'selected' : '' }}>File Uploaded</option>
+                                    <option value="annex_deleted"
+                                        {{ request('event') == 'annex_deleted' ? 'selected' : '' }}>File Deleted</option>
+                                </optgroup>
                             </select>
                         </div>
 
@@ -123,7 +170,8 @@
                     <small class="text-muted">Total: <strong>{{ $activities->total() }}</strong></small>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.activity-logs.export', request()->query()) }}" class="btn btn-success btn-sm">
+                    <a href="{{ route('admin.activity-logs.export', request()->query()) }}"
+                        class="btn btn-success btn-sm">
                         <i class="fas fa-download"></i> Export CSV
                     </a>
                 </div>
@@ -155,11 +203,34 @@
                                         $actionUser = $activity->causer;
                                         $actionUserName = 'System';
                                         $actionUserEmail = 'N/A';
+
+                                        if ($actionUser) {
+                                            // Check if it's a UserRegistration or User model
+    if ($actionUser instanceof \App\Models\UserRegistration) {
+        // UserRegistration: just show username
+        $actionUserName = $actionUser->username ?? 'Unknown User';
+        $actionUserEmail = null; // Don't show secondary info
+                                            } else {
+                                                // User model has: name, email
+                                                $actionUserName = $actionUser->name ?? 'Unknown';
+                                                $actionUserEmail = $actionUser->email ?? 'N/A';
+                                            }
+                                        } elseif (in_array($activity->event, ['login', 'logout', 'login_failed'])) {
+                                            // Fallback: check properties for login/logout activities without causer
+                                            $properties = $activity->properties->all() ?? [];
+                                            $actionUserName =
+                                                $properties['name'] ??
+                                                ($properties['email'] ?? ($properties['username'] ?? 'Unknown User'));
+                                            $actionUserEmail =
+                                                $properties['email'] ?? ($properties['first_name'] ?? 'N/A');
+                                        }
                                     @endphp
 
-                                    @if ($actionUser)
-                                        <div class="fw-bold">{{ $actionUser->name }}</div>
-                                        <small class="text-muted">{{ $actionUser->email }}</small>
+                                    @if ($actionUserName !== 'System')
+                                        <div class="fw-bold">{{ $actionUserName }}</div>
+                                        @if ($actionUserEmail)
+                                            <small class="text-muted">{{ $actionUserEmail }}</small>
+                                        @endif
                                     @else
                                         <em class="text-muted">System</em>
                                     @endif
@@ -179,6 +250,22 @@ if ($actionUser) {
         $roleBg = 'warning';
     } elseif ($actionUser->role === 'user') {
         $roleBg = 'info';
+    }
+} elseif (
+    !$actionUser &&
+    in_array($activity->event, ['login', 'logout', 'login_failed'])
+) {
+    // For login/logout without causer, check properties
+    $properties = $activity->properties->all() ?? [];
+    if (isset($properties['role'])) {
+        $roleText = ucfirst($properties['role']);
+        if ($properties['role'] === 'superadmin') {
+            $roleBg = 'danger';
+        } elseif ($properties['role'] === 'admin') {
+            $roleBg = 'warning';
+        } elseif ($properties['role'] === 'user') {
+            $roleBg = 'info';
+                                                }
                                             }
                                         }
                                     @endphp
@@ -287,6 +374,16 @@ if ($actionUser) {
                                                 'label' => 'File Deleted',
                                                 'color' => 'danger',
                                                 'icon' => 'fa-file-times',
+                                            ],
+                                            'dss_report_viewed' => [
+                                                'label' => 'Report Viewed',
+                                                'color' => 'info',
+                                                'icon' => 'fa-chart-line',
+                                            ],
+                                            'dss_report_downloaded' => [
+                                                'label' => 'Report Downloaded',
+                                                'color' => 'success',
+                                                'icon' => 'fa-file-download',
                                             ],
                                         ];
 
@@ -407,6 +504,11 @@ if ($actionUser) {
                                                 'name' => 'Barangay Management',
                                                 'icon' => 'fa-map-marker-alt',
                                                 'color' => 'info',
+                                            ],
+                                            'DSSReport' => [
+                                                'name' => 'DSS Reports',
+                                                'icon' => 'fa-chart-line',
+                                                'color' => 'primary',
                                             ],
                                         ];
 
@@ -858,38 +960,60 @@ if ($actionUser) {
 
             <!-- Pagination -->
             @if ($activities->hasPages())
-                <div class="card-footer bg-light border-top">
-                    <nav>
-                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm">
                             {{-- Previous Page Link --}}
                             @if ($activities->onFirstPage())
-                                <li class="page-item disabled"><span class="page-link">« Previous</span></li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">Back</span>
+                                </li>
                             @else
-                                <li class="page-item"><a class="page-link" href="{{ $activities->previousPageUrl() }}">«
-                                        Previous</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $activities->previousPageUrl() }}"
+                                        rel="prev">Back</a>
+                                </li>
                             @endif
 
-                            {{-- Page Numbers --}}
+                            {{-- Pagination Elements --}}
                             @php
-                                $current = $activities->currentPage();
-                                $last = $activities->lastPage();
+                                $currentPage = $activities->currentPage();
+                                $lastPage = $activities->lastPage();
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($lastPage, $currentPage + 2);
+
+                                // Ensure we always show 5 pages when possible
+                                if ($endPage - $startPage < 4) {
+                                    if ($startPage == 1) {
+                                        $endPage = min($lastPage, $startPage + 4);
+                                    } else {
+                                        $startPage = max(1, $endPage - 4);
+                                    }
+                                }
                             @endphp
 
-                            @for ($i = max(1, $current - 2); $i <= min($last, $current + 2); $i++)
-                                @if ($i == $current)
-                                    <li class="page-item active"><span class="page-link">{{ $i }}</span></li>
+                            @for ($page = $startPage; $page <= $endPage; $page++)
+                                @if ($page == $currentPage)
+                                    <li class="page-item active">
+                                        <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                    </li>
                                 @else
-                                    <li class="page-item"><a class="page-link"
-                                            href="{{ $activities->url($i) }}">{{ $i }}</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="{{ $activities->url($page) }}">{{ $page }}</a>
+                                    </li>
                                 @endif
                             @endfor
 
                             {{-- Next Page Link --}}
                             @if ($activities->hasMorePages())
-                                <li class="page-item"><a class="page-link" href="{{ $activities->nextPageUrl() }}">Next
-                                        »</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $activities->nextPageUrl() }}" rel="next">Next</a>
+                                </li>
                             @else
-                                <li class="page-item disabled"><span class="page-link">Next »</span></li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next</span>
+                                </li>
                             @endif
                         </ul>
                     </nav>
@@ -917,6 +1041,51 @@ if ($actionUser) {
         </div>
     </div>
 
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-calendar-alt"></i> Date Filter</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modal_date_from" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="modal_date_from">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_date_to" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="modal_date_to">
+                    </div>
+                    @if (request('date_from') || request('date_to'))
+                        <div class="alert alert-info small mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            Current filter:
+                            @if (request('date_from'))
+                                <strong>{{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}</strong>
+                            @else
+                                <strong>Any date</strong>
+                            @endif
+                            to
+                            @if (request('date_to'))
+                                <strong>{{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}</strong>
+                            @else
+                                <strong>Any date</strong>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="clearDateFilter()"><i
+                            class="fas fa-times"></i> Clear</button>
+                    <button type="button" class="btn btn-primary" onclick="applyDateFilter()"><i
+                            class="fas fa-check"></i> Apply Filter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
         .table-hover tbody tr:hover {
             background-color: rgba(13, 110, 253, 0.05);
@@ -927,6 +1096,49 @@ if ($actionUser) {
             padding: 2px 6px;
             border-radius: 3px;
             color: #666;
+        }
+
+        /* Custom Pagination Styles */
+        .pagination {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 0;
+        }
+
+        .pagination .page-item .page-link {
+            color: #6c757d;
+            background-color: transparent;
+            border: none;
+            padding: 8px 12px;
+            margin: 0 2px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item .page-link:hover {
+            color: #495057;
+            background-color: #e9ecef;
+            text-decoration: none;
+        }
+
+        .pagination .page-item.active .page-link {
+            color: white;
+            background-color: #007bff;
+            border-color: #007bff;
+            font-weight: 600;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-item:first-child .page-link,
+        .pagination .page-item:last-child .page-link {
+            font-weight: 600;
         }
     </style>
 
@@ -1119,12 +1331,40 @@ if ($actionUser) {
             document.getElementById('filterForm').submit();
         }
 
+        // Date filter modal functionality
+        function applyDateFilter() {
+            const dateFrom = document.getElementById('modal_date_from').value;
+            const dateTo = document.getElementById('modal_date_to').value;
+
+            document.getElementById('date_from').value = dateFrom;
+            document.getElementById('date_to').value = dateTo;
+
+            // Close modal and submit form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            modal.hide();
+
+            document.getElementById('filterForm').submit();
+        }
+
+        function clearDateFilter() {
+            document.getElementById('modal_date_from').value = '';
+            document.getElementById('modal_date_to').value = '';
+            document.getElementById('date_from').value = '';
+            document.getElementById('date_to').value = '';
+        }
+
         // Initialize tooltips
         document.addEventListener('DOMContentLoaded', function() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+
+            // Initialize modal date inputs with current filter values
+            const dateFrom = document.getElementById('date_from').value;
+            const dateTo = document.getElementById('date_to').value;
+            if (dateFrom) document.getElementById('modal_date_from').value = dateFrom;
+            if (dateTo) document.getElementById('modal_date_to').value = dateTo;
         });
     </script>
 

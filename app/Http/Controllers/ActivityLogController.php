@@ -22,7 +22,7 @@ class ActivityLogController extends Controller
         try {
             $query = Activity::with(['causer', 'subject'])->latest();
 
-            // Exclude system-generated technical records
+            // Exclude system-generated technical records (ItemSupplyLog)
             $query->where(function($q) {
                 $q->whereNull('subject_type')
                   ->orWhere('subject_type', 'not like', '%ItemSupplyLog%');
@@ -33,9 +33,14 @@ class ActivityLogController extends Controller
                 $query->where('description', 'like', '%' . $request->search . '%');
             }
 
-            // Filter by event type (created, updated, deleted)
+            // Filter by event type (created, updated, deleted, login, logout, etc.)
             if ($request->filled('event')) {
-                $query->where('event', $request->event);
+                $query->where(function($q) use ($request) {
+                    // Check both the event column and the description
+                    $q->where('event', $request->event)
+                      ->orWhere('description', 'like', $request->event . '%')
+                      ->orWhere('description', 'like', '%' . $request->event . ' -%');
+                });
             }
 
             // Filter by module/service (subject_type)
@@ -49,9 +54,16 @@ class ActivityLogController extends Controller
                                  ->orWhere('description', 'like', '%logout%');
                           });
                     });
+                } elseif ($request->module === 'DSSReport') {
+                    // Special case: filter DSS report activities
+                    $query->where(function($q) {
+                        $q->where('event', 'dss_report_viewed')
+                          ->orWhere('event', 'dss_report_downloaded')
+                          ->orWhere('description', 'like', '%DSS Report%');
+                    });
                 } else {
-                    // Normal case: filter by subject_type
-                    $query->where('subject_type', 'like', '%' . $request->module);
+                    // Normal case: filter by subject_type containing the module name
+                    $query->where('subject_type', 'like', '%' . $request->module . '%');
                 }
             }
 
@@ -63,7 +75,7 @@ class ActivityLogController extends Controller
                 $query->whereDate('created_at', '<=', $request->date_to);
             }
 
-            $activities = $query->paginate(50);
+            $activities = $query->paginate(10);
 
             return view('admin.activity-logs.index', compact('activities'));
 
@@ -91,9 +103,22 @@ class ActivityLogController extends Controller
             $userRole = 'System';
 
             if ($user) {
-                $userName = $user->name;
-                $userEmail = $user->email;
-                $userRole = ucfirst($user->role ?? 'user');
+                // Check if it's a UserRegistration or User model
+                if ($user instanceof \App\Models\UserRegistration) {
+                    $userName = $user->username ?? 'Unknown User';
+                    $userEmail = '-';
+                    $userRole = ucfirst($user->user_type ?? 'user');
+                } else {
+                    $userName = $user->name;
+                    $userEmail = $user->email;
+                    $userRole = ucfirst($user->role ?? 'user');
+                }
+            } elseif (in_array($activity->event, ['login', 'logout', 'login_failed'])) {
+                // For login/logout without causer, check properties
+                $properties = $activity->properties->all() ?? [];
+                $userName = $properties['name'] ?? ($properties['email'] ?? ($properties['username'] ?? 'Unknown User'));
+                $userEmail = $properties['email'] ?? ($properties['first_name'] ?? 'N/A');
+                $userRole = isset($properties['role']) ? ucfirst($properties['role']) : 'User';
             }
 
             return response()->json([
@@ -133,6 +158,51 @@ class ActivityLogController extends Controller
 
         $query = Activity::with('causer')->latest();
 
+        // Exclude system-generated technical records (ItemSupplyLog)
+        $query->where(function($q) {
+            $q->whereNull('subject_type')
+              ->orWhere('subject_type', 'not like', '%ItemSupplyLog%');
+        });
+
+        // Search by description
+        if ($request->filled('search')) {
+            $query->where('description', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by event type (created, updated, deleted, login, logout, etc.)
+        if ($request->filled('event')) {
+            $query->where(function($q) use ($request) {
+                // Check both the event column and the description
+                $q->where('event', $request->event)
+                  ->orWhere('description', 'like', $request->event . '%')
+                  ->orWhere('description', 'like', '%' . $request->event . ' -%');
+            });
+        }
+
+        // Filter by module/service (subject_type)
+        if ($request->filled('module')) {
+            if ($request->module === 'Authentication') {
+                // Special case: filter authentication activities (login/logout without subject)
+                $query->where(function($q) {
+                    $q->whereNull('subject_type')
+                      ->where(function($q2) {
+                          $q2->where('description', 'like', '%login%')
+                             ->orWhere('description', 'like', '%logout%');
+                      });
+                });
+            } elseif ($request->module === 'DSSReport') {
+                // Special case: filter DSS report activities
+                $query->where(function($q) {
+                    $q->where('event', 'dss_report_viewed')
+                      ->orWhere('event', 'dss_report_downloaded')
+                      ->orWhere('description', 'like', '%DSS Report%');
+                });
+            } else {
+                // Normal case: filter by subject_type containing the module name
+                $query->where('subject_type', 'like', '%' . $request->module . '%');
+            }
+        }
+
         // Apply date filters
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
@@ -162,9 +232,22 @@ class ActivityLogController extends Controller
                 $userRole = 'System';
 
                 if ($user) {
-                    $userName = $user->name;
-                    $userEmail = $user->email;
-                    $userRole = ucfirst($user->role ?? 'user');
+                    // Check if it's a UserRegistration or User model
+                    if ($user instanceof \App\Models\UserRegistration) {
+                        $userName = $user->username ?? 'Unknown User';
+                        $userEmail = '-';
+                        $userRole = ucfirst($user->user_type ?? 'user');
+                    } else {
+                        $userName = $user->name;
+                        $userEmail = $user->email;
+                        $userRole = ucfirst($user->role ?? 'user');
+                    }
+                } elseif (in_array($activity->event, ['login', 'logout', 'login_failed'])) {
+                    // For login/logout without causer, check properties
+                    $properties = $activity->properties->all() ?? [];
+                    $userName = $properties['name'] ?? ($properties['email'] ?? ($properties['username'] ?? 'Unknown User'));
+                    $userEmail = $properties['email'] ?? ($properties['first_name'] ?? '-');
+                    $userRole = isset($properties['role']) ? ucfirst($properties['role']) : 'User';
                 }
 
                 fputcsv($file, [

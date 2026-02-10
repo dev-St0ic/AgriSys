@@ -14,6 +14,7 @@ use App\Models\RsbsaApplication;
 use App\Models\FishrApplication;
 use App\Models\BoatrApplication;
 use App\Models\TrainingRequest;
+use Spatie\Activitylog\Models\Activity;
 
 
 class AuthController extends Controller
@@ -53,11 +54,19 @@ public function login(Request $request)
             // Regenerate session again to prevent session fixation attacks
             $request->session()->regenerate();
 
-            // Log successful login
-            $this->logActivity('login', 'User', $user->id, [
-                'role' => $user->role,
-                'success' => true
-            ]);
+            // Log successful login with proper user tracking
+            activity()
+                ->causedBy($user)
+                ->event('login')
+                ->withProperties([
+                    'role' => $user->role,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'success' => true,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('login - User (ID: ' . $user->id . ')');
 
             return redirect()->intended('/admin/dashboard')
                 ->with('success', 'Welcome back, ' . $user->name . '!');
@@ -99,9 +108,17 @@ public function login(Request $request)
 
         // Log logout before actually logging out
         if ($user) {
-            $this->logActivity('logout', 'User', $user->id, [
-                'role' => $user->role
-            ]);
+            activity()
+                ->causedBy($user)
+                ->event('logout')
+                ->withProperties([
+                    'role' => $user->role,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('logout - User (ID: ' . $user->id . ')');
         }
 
         Auth::logout();
