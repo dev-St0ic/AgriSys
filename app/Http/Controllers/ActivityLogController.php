@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Auth;
 class ActivityLogController extends Controller
 {
     /**
-     * Display activity logs - Superadmin only
+     * Display activity logs - Admin and Superadmin
      */
     public function index(Request $request)
     {
-        // Only superadmin can view audit logs
-        if (!Auth::check() || !Auth::user()->isSuperAdmin()) {
-            abort(403, 'Only superadmin can access audit logs');
+        // Only admin and superadmin can view activity logs
+        if (!Auth::check() || !Auth::user()->hasAdminPrivileges()) {
+            abort(403, 'Unauthorized access to activity logs');
         }
 
         try {
@@ -27,6 +27,19 @@ class ActivityLogController extends Controller
                 $q->whereNull('subject_type')
                   ->orWhere('subject_type', 'not like', '%ItemSupplyLog%');
             });
+
+            // Role-based filtering: Admin sees only admin activities, Superadmin sees everything
+            if (Auth::user()->isAdmin()) {
+                // Only show activities from User models with role='admin'
+                $query->where('causer_type', 'App\\Models\\User')
+                      ->whereExists(function($q) {
+                          $q->selectRaw('1')
+                            ->from('users')
+                            ->whereColumn('users.id', 'activity_log.causer_id')
+                            ->where('users.role', 'admin');
+                      });
+            }
+            // Superadmin sees all activities (no additional filter)
 
             // Search by description
             if ($request->filled('search')) {
@@ -89,12 +102,29 @@ class ActivityLogController extends Controller
      */
     public function show($id)
     {
-        if (!Auth::check() || !Auth::user()->isSuperAdmin()) {
+        if (!Auth::check() || !Auth::user()->hasAdminPrivileges()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         try {
-            $activity = Activity::with('causer')->findOrFail($id);
+            // Role-based access: Admin can only view admin activities
+            if (Auth::user()->isAdmin()) {
+                $activity = Activity::with('causer')
+                    ->where('causer_type', 'App\\Models\\User')
+                    ->whereExists(function($q) {
+                        $q->selectRaw('1')
+                          ->from('users')
+                          ->whereColumn('users.id', 'activity_log.causer_id')
+                          ->where('users.role', 'admin');
+                    })->find($id);
+
+                if (!$activity) {
+                    return response()->json(['error' => 'Not found or unauthorized'], 403);
+                }
+            } else {
+                // Superadmin can view all activities
+                $activity = Activity::with('causer')->findOrFail($id);
+            }
 
             // Get user who performed the action
             $user = $activity->causer;
@@ -148,11 +178,11 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Export activity logs to CSV - Superadmin only
+     * Export activity logs to CSV - Admin and Superadmin
      */
     public function export(Request $request)
     {
-        if (!Auth::check() || !Auth::user()->isSuperAdmin()) {
+        if (!Auth::check() || !Auth::user()->hasAdminPrivileges()) {
             abort(403, 'Unauthorized');
         }
 
@@ -163,6 +193,18 @@ class ActivityLogController extends Controller
             $q->whereNull('subject_type')
               ->orWhere('subject_type', 'not like', '%ItemSupplyLog%');
         });
+
+        // Role-based filtering: Admin exports only admin activities, Superadmin exports everything
+        if (Auth::user()->isAdmin()) {
+            // Only export activities from User models with role='admin'
+            $query->where('causer_type', 'App\\Models\\User')
+                  ->whereExists(function($q) {
+                      $q->selectRaw('1')
+                        ->from('users')
+                        ->whereColumn('users.id', 'activity_log.causer_id')
+                        ->where('users.role', 'admin');
+                  });
+        }
 
         // Search by description
         if ($request->filled('search')) {

@@ -12,6 +12,7 @@ use App\Models\SeedlingRequest;
 use App\Models\RsbsaApplication;
 use App\Models\FishrApplication;
 use App\Models\BoatrApplication;
+use Spatie\Activitylog\Models\Activity;
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -32,6 +33,9 @@ class AdminDashboardController extends Controller
         // RECENT ACTIVITY - Only actionable items
         $recentActivity = $this->getRecentActivity();
 
+        // PRIORITY TASKS - Most urgent pending applications
+        $priorityTasks = $this->getPriorityTasks();
+
         // SUPPLY ALERTS
         $supplyAlerts = $this->getSupplyAlerts();
 
@@ -51,6 +55,7 @@ class AdminDashboardController extends Controller
             'criticalAlerts',
             'keyMetrics',
             'recentActivity',
+            'priorityTasks',
             'supplyAlerts',
             'applicationStatus',
             'geographicDistribution',
@@ -159,70 +164,247 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Get recent activity with direct action links
+     * Get recent activity logs based on user role
      */
     private function getRecentActivity()
     {
-        $activities = [];
+        $user = auth()->user();
 
-        // Recent pending RSBSA applications
-        $recentRsbsa = RsbsaApplication::whereIn('status', ['pending', 'under_review'])
-            ->orderBy('created_at', 'desc')
+        // Base query for activity logs
+        $query = Activity::with('causer')
+            ->latest()
+            ->where(function($q) {
+                $q->whereNull('subject_type')
+                  ->orWhere('subject_type', 'not like', '%ItemSupplyLog%');
+            })
+            // Exclude login/logout activities
+            ->whereNotIn('event', ['login', 'logout', 'login_failed'])
+            ->where(function($q) {
+                $q->whereNotNull('subject_type')
+                  ->orWhere(function($q2) {
+                      $q2->whereNull('subject_type')
+                         ->where('description', 'not like', '%login%')
+                         ->where('description', 'not like', '%logout%');
+                  });
+            });
+
+        // Role-based filtering: Admin sees only admin activities, Superadmin sees everything
+        if ($user->isAdmin()) {
+            $query->where('causer_type', 'App\\Models\\User')
+                  ->whereExists(function($q) {
+                      $q->selectRaw('1')
+                        ->from('users')
+                        ->whereColumn('users.id', 'activity_log.causer_id')
+                        ->where('users.role', 'admin');
+                  });
+        }
+
+        // Get recent 8 activities
+        $activities = $query->take(8)->get()->map(function($activity) {
+            // Determine action color based on event
+            $statusColor = 'warning';
+            $icon = 'fa-clock';
+
+            if (in_array($activity->event, ['created', 'approved', 'completed'])) {
+                $statusColor = 'success';
+                $icon = 'fa-check-circle';
+            } elseif (in_array($activity->event, ['deleted', 'rejected'])) {
+                $statusColor = 'danger';
+                $icon = 'fa-times-circle';
+            } elseif (in_array($activity->event, ['updated', 'updated_status', 'updated_items'])) {
+                $statusColor = 'warning';
+                $icon = 'fa-edit';
+            }
+
+            // Get user info
+            $userName = 'System';
+            if ($activity->causer) {
+                if ($activity->causer instanceof \App\Models\UserRegistration) {
+                    $userName = $activity->causer->username ?? 'Unknown User';
+                } else {
+                    $userName = $activity->causer->name ?? 'Unknown User';
+                }
+            }
+
+            // Extract module/type from description or subject
+            $type = 'Activity';
+            if ($activity->subject_type) {
+                $type = class_basename($activity->subject_type);
+            }
+
+            // Format action text
+            $action = ucfirst($activity->event ?? 'Activity');
+
+            return [
+                'type' => $type,
+                'name' => $userName,
+                'action' => $action,
+                'created_at' => $activity->created_at,
+                'status_color' => $statusColor,
+                'icon' => $icon,
+                'description' => $activity->description
+            ];
+        });
+
+        return $activities;
+    }
+
+    /**
+     * Get priority tasks - most urgent pending applications
+     */
+    private function getPriorityTasks()
+    {
+        $tasks = collect();
+
+        // Get pending RSBSA (oldest first, most urgent)
+        $rsbsa = RsbsaApplication::whereIn('status', ['pending', 'under_review'])
+            ->orderBy('created_at', 'asc')
             ->take(3)
             ->get()
             ->map(function($app) {
+                $daysOld = $app->created_at->diffInDays(now());
+                $priority = $daysOld > 7 ? 'high' : ($daysOld > 3 ? 'medium' : 'low');
+
                 return [
+                    'id' => $app->id,
                     'type' => 'RSBSA',
                     'name' => $app->full_name,
-                    'action' => 'Pending Review',
+                    'status' => ucfirst($app->status),
+                    'days_pending' => $daysOld,
                     'created_at' => $app->created_at,
-                    'action_url' => route('admin.rsbsa.show', $app->id),
-                    'status_color' => 'warning'
+                    'priority' => $priority,
+                    'route' => route('admin.rsbsa.applications') . '?highlight=' . $app->id,
+                    'icon' => 'fa-seedling',
+                    'color' => 'success'
                 ];
             });
 
-        // Recent pending Seedling requests
-        $recentSeedling = SeedlingRequest::whereIn('status', ['pending', 'under_review'])
-            ->orderBy('created_at', 'desc')
-            ->take(3)
+        // Get pending Seedling requests
+        $seedling = SeedlingRequest::whereIn('status', ['pending', 'under_review'])
+            ->orderBy('created_at', 'asc')
+            ->take(2)
             ->get()
             ->map(function($req) {
+                $daysOld = $req->created_at->diffInDays(now());
+                $priority = $daysOld > 7 ? 'high' : ($daysOld > 3 ? 'medium' : 'low');
+
                 return [
-                    'type' => 'Seedling',
+                    'id' => $req->id,
+                    'type' => 'Supply Request',
                     'name' => $req->full_name,
-                    'action' => 'Pending Review',
+                    'status' => ucfirst($req->status),
+                    'days_pending' => $daysOld,
                     'created_at' => $req->created_at,
-                    'action_url' => route('admin.seedlings.edit', $req->id),
-                    'status_color' => 'warning'
+                    'priority' => $priority,
+                    'route' => route('admin.seedlings.requests') . '?highlight=' . $req->id,
+                    'icon' => 'fa-leaf',
+                    'color' => 'warning'
                 ];
             });
 
-        // Recent pending FishR
-        $recentFishr = FishrApplication::whereIn('status', ['pending', 'under_review'])
-            ->orderBy('created_at', 'desc')
+        // Get pending FishR
+        $fishr = FishrApplication::whereIn('status', ['pending', 'under_review'])
+            ->orderBy('created_at', 'asc')
             ->take(2)
             ->get()
             ->map(function($app) {
+                $daysOld = $app->created_at->diffInDays(now());
+                $priority = $daysOld > 7 ? 'high' : ($daysOld > 3 ? 'medium' : 'low');
+
                 return [
+                    'id' => $app->id,
                     'type' => 'FishR',
                     'name' => $app->full_name,
-                    'action' => 'Pending Review',
+                    'status' => ucfirst($app->status),
+                    'days_pending' => $daysOld,
                     'created_at' => $app->created_at,
-                    'action_url' => route('admin.fishr.show', $app->id),
-                    'status_color' => 'warning'
+                    'priority' => $priority,
+                    'route' => route('admin.fishr.requests') . '?highlight=' . $app->id,
+                    'icon' => 'fa-fish',
+                    'color' => 'info'
                 ];
             });
 
-        // Merge and sort by date, take 8 most recent
-        $activities = collect()
-            ->merge($recentRsbsa)
-            ->merge($recentSeedling)
-            ->merge($recentFishr)
-            ->sortByDesc('created_at')
-            ->take(8)
-            ->values();
+        // Get pending BoatR
+        $boatr = BoatrApplication::whereIn('status', ['pending', 'under_review'])
+            ->orderBy('created_at', 'asc')
+            ->take(1)
+            ->get()
+            ->map(function($app) {
+                $daysOld = $app->created_at->diffInDays(now());
+                $priority = $daysOld > 7 ? 'high' : ($daysOld > 3 ? 'medium' : 'low');
 
-        return $activities;
+                return [
+                    'id' => $app->id,
+                    'type' => 'BoatR',
+                    'name' => $app->full_name,
+                    'status' => ucfirst($app->status),
+                    'days_pending' => $daysOld,
+                    'created_at' => $app->created_at,
+                    'priority' => $priority,
+                    'route' => route('admin.boatr.requests') . '?highlight=' . $app->id,
+                    'icon' => 'fa-ship',
+                    'color' => 'danger'
+                ];
+            });
+
+        // Get pending Training
+        $training = TrainingApplication::whereIn('status', ['pending', 'under_review'])
+            ->orderBy('created_at', 'asc')
+            ->take(1)
+            ->get()
+            ->map(function($app) {
+                $daysOld = $app->created_at->diffInDays(now());
+                $priority = $daysOld > 7 ? 'high' : ($daysOld > 3 ? 'medium' : 'low');
+
+                return [
+                    'id' => $app->id,
+                    'type' => 'Training',
+                    'name' => $app->full_name,
+                    'status' => ucfirst($app->status),
+                    'days_pending' => $daysOld,
+                    'created_at' => $app->created_at,
+                    'priority' => $priority,
+                    'route' => route('admin.training.requests') . '?highlight=' . $app->id,
+                    'icon' => 'fa-chalkboard-teacher',
+                    'color' => 'purple'
+                ];
+            });
+
+        // Add critical supply items
+        $criticalSupply = CategoryItem::outOfSupply()
+            ->take(2)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'type' => 'Supply Alert',
+                    'name' => $item->item_name,
+                    'status' => 'Out of Stock',
+                    'days_pending' => 0,
+                    'created_at' => now(),
+                    'priority' => 'high',
+                    'route' => route('admin.seedlings.supply-management.index') . '?highlight=' . $item->id,
+                    'icon' => 'fa-exclamation-triangle',
+                    'color' => 'danger'
+                ];
+            });
+
+        // Merge all tasks and sort by priority (high first) then by days pending (oldest first)
+        return $tasks
+            ->merge($rsbsa)
+            ->merge($seedling)
+            ->merge($fishr)
+            ->merge($boatr)
+            ->merge($training)
+            ->merge($criticalSupply)
+            ->sortByDesc(function($task) {
+                // Sort order: high = 3, medium = 2, low = 1
+                $priorityWeight = ['high' => 3, 'medium' => 2, 'low' => 1];
+                return ($priorityWeight[$task['priority']] * 1000) + $task['days_pending'];
+            })
+            ->take(5)
+            ->values();
     }
 
     /**

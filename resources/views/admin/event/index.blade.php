@@ -4,12 +4,8 @@
 @extends('layouts.app')
 
 @section('title', 'Manage Events')
-@section('page-title')
-    <div class="d-flex align-items-center">
-        <i class="fas fa-calendar-alt text-primary me-2"></i>
-        <span class="text-primary fw-bold">Event Management</span>
-    </div>
-@endsection
+@section('page-icon', 'fas fa-calendar-alt')
+@section('page-title', 'Event Management')
 
 @section('content')
     <div class="container-fluid">
@@ -437,12 +433,12 @@
                         <!-- Title -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-heading me-1 text-primary"></i>Title 
+                                <i class="fas fa-heading me-1 text-primary"></i>Title
                                 <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
-                                <input type="text" name="title" id="create_title" class="form-control" 
-                                    placeholder="Enter event title" 
+                                <input type="text" name="title" id="create_title" class="form-control"
+                                    placeholder="Enter event title"
                                      maxlength="100" required>
                                 <span class="input-group-text">
                                     <small><span id="create_title_count">0</span>/100</small>
@@ -458,11 +454,11 @@
                         <!-- Description -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-align-left me-1 text-primary"></i>Description 
+                                <i class="fas fa-align-left me-1 text-primary"></i>Description
                                 <span class="text-danger">*</span>
                             </label>
-                            <textarea name="description" id="create_description" class="form-control" 
-                                rows="4" placeholder="Enter event description" 
+                            <textarea name="description" id="create_description" class="form-control"
+                                rows="4" placeholder="Enter event description"
                                 maxlength="1000" required></textarea>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <small class="text-muted">
@@ -480,7 +476,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
-                                    <i class="fas fa-tag me-1 text-primary"></i>Category 
+                                    <i class="fas fa-tag me-1 text-primary"></i>Category
                                     <span class="text-danger">*</span>
                                 </label>
                                 <select name="category" id="create_category" class="form-select" required>
@@ -509,7 +505,7 @@
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
                                 </label>
-                                <input type="text" name="date" id="create_date" class="form-control" 
+                                <input type="text" name="date" id="create_date" class="form-control"
                                     placeholder="e.g., November 15, 2026 | 6:00 AM" maxlength="100">
                                 <small class="text-muted d-block mt-2">Format: Month Day, Year | Time</small>
                             </div>
@@ -517,7 +513,7 @@
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-map-marker-alt me-1 text-primary"></i>Location
                                 </label>
-                                <input type="text" name="location" id="create_location" class="form-control" 
+                                <input type="text" name="location" id="create_location" class="form-control"
                                     placeholder="Enter event location (max 150 characters)" maxlength="150">
                                 <small class="text-muted d-block mt-2">Building, venue, or address</small>
                             </div>
@@ -534,7 +530,7 @@
                             </small>
                             <div id="create_image_preview" class="mt-3" style="display: none;">
                                 <small class="text-muted d-block mb-2">Preview:</small>
-                                <img id="create_image_preview_img" src="" alt="Preview" class="rounded" 
+                                <img id="create_image_preview_img" src="" alt="Preview" class="rounded"
                                     style="max-width: 150px; max-height: 150px; object-fit: cover;">
                             </div>
                         </div>
@@ -547,19 +543,19 @@
                                 <i class="fas fa-list-ul me-2"></i>Additional Event Details
                                 <span class="badge bg-secondary ms-2">Optional</span>
                             </h6>
-                            
+
                             <div id="detailsContainer">
                                 <div class="detail-row mb-3">
                                     <div class="row g-2">
                                         <div class="col-md-5">
-                                            <input type="text" class="form-control form-control-sm detail-key" 
+                                            <input type="text" class="form-control form-control-sm detail-key"
                                                 placeholder="Detail name (e.g., Speaker, Duration)" maxlength="50">
                                         </div>
                                         <div class="col-md-7">
                                             <div class="input-group input-group-sm">
-                                                <input type="text" class="form-control detail-value" 
+                                                <input type="text" class="form-control detail-value"
                                                     placeholder="Detail value (max 200 characters)" maxlength="200">
-                                                <button type="button" class="btn btn-outline-danger" 
+                                                <button type="button" class="btn btn-outline-danger"
                                                     onclick="removeDetailRow(this)" title="Remove this detail">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
@@ -633,10 +629,10 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="text-center">
-                        <img id="previewImage" 
-                            src="" 
-                            alt="Event Image" 
-                            class="img-fluid rounded shadow-sm" 
+                        <img id="previewImage"
+                            src=""
+                            alt="Event Image"
+                            class="img-fluid rounded shadow-sm"
                             style="max-height: 550px; object-fit: contain;">
                     </div>
                 </div>
@@ -669,7 +665,7 @@
                         <!-- Title -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-heading me-1 text-primary"></i>Title 
+                                <i class="fas fa-heading me-1 text-primary"></i>Title
                                 <span class="text-danger">*</span>
                             </label>
                             <input type="text" id="edit_title" name="title" class="form-control" placeholder="Enter event title" required>
@@ -678,7 +674,7 @@
                         <!-- Description -->
                         <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-align-left me-1 text-primary"></i>Description 
+                                <i class="fas fa-align-left me-1 text-primary"></i>Description
                                 <span class="text-danger">*</span>
                             </label>
                             <textarea id="edit_description" name="description" class="form-control" rows="4" placeholder="Enter event description" required></textarea>
@@ -688,7 +684,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
-                                    <i class="fas fa-tag me-1 text-primary"></i>Category 
+                                    <i class="fas fa-tag me-1 text-primary"></i>Category
                                     <span class="text-danger">*</span>
                                 </label>
                                 <select id="edit_category" name="category" class="form-select" required>
@@ -746,7 +742,7 @@
                                 <i class="fas fa-list-ul me-2"></i>Additional Event Details
                                 <span class="badge bg-secondary ms-2">Optional</span>
                             </h6>
-                            
+
                             <div id="editDetailsContainer">
                                 <!-- Details will be populated dynamically -->
                             </div>
@@ -1109,7 +1105,7 @@
                 // Show modal with loading state
                 const modal = new bootstrap.Modal(document.getElementById('viewEventModal'));
                 modal.show();
-                
+
                 const response = await fetch(`/admin/events/${eventId}`, {
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -1152,13 +1148,13 @@
                     <div class="row g-4">
                         <!-- Image Section -->
                         <div class="col-md-4">
-                            ${event.image 
+                            ${event.image
                                 ? `<div class="position-relative" style="cursor: pointer;" onclick="previewEventImage('${event.image}', '${event.title.replace(/'/g, "\\'")}')">
                                     <img src="${event.image}" alt="${event.title}" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
                                     <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
                                         <i class="fas fa-search-plus fa-2x text-white"></i>
                                     </div>
-                                </div>` 
+                                </div>`
                                 : `<div class="bg-light rounded shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
                                     <div class="text-center">
                                         <i class="fas fa-image fa-4x text-muted mb-2"></i>
@@ -1254,9 +1250,9 @@
                         ${detailsHtml}
                     </div>
                 `;
-                
+
                 document.getElementById('eventDetailsContent').innerHTML = html;
-                
+
             } catch (error) {
                 document.getElementById('eventDetailsContent').innerHTML = `
                     <div class="alert alert-danger">
@@ -1272,15 +1268,15 @@
             const previewImage = document.getElementById('previewImage');
             const titleElement = document.getElementById('previewImageTitle');
             const downloadBtn = document.getElementById('downloadBtn');
-            
+
             previewImage.src = imageUrl;
             previewImage.alt = eventTitle;
             titleElement.textContent = eventTitle;
-            
+
             // Download functionality
             downloadBtn.href = imageUrl;
             downloadBtn.download = `${eventTitle || 'event-image'}.jpg`;
-            
+
             const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
             imagePreviewModal.show();
         }
@@ -1698,29 +1694,29 @@
         // VALIDATION FUNCTIONS WITH FRIENDLY MESSAGES
         function validateTitle() {
             const title = document.getElementById('create_title');
-            
+
             if (title.value.length === 0) {
                 return false;
             }
-            
+
             if (title.value.length < 20) {
                 return false;
             }
-            
+
             return true;
         }
 
         function validateDescription() {
             const description = document.getElementById('create_description');
-            
+
             if (description.value.length === 0) {
                 return false;
             }
-            
+
             if (description.value.length < 50) {
                 return false;
             }
-            
+
             return true;
         }
 
@@ -2042,7 +2038,7 @@
                 statusElement.innerHTML = statusText;
             }
         }
-        
+
         console.log('✅ Admin page loaded successfully');
     </script>
 

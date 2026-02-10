@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Manage Admins - AgriSys')
+@section('page-icon', 'fas fa-users-cog')
 @section('page-title', 'Manage Admins')
 
 @section('content')

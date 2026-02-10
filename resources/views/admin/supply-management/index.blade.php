@@ -3,10 +3,8 @@
 @extends('layouts.app')
 
 @section('title', 'Supply Management')
-
-@section('page-title')
-    <i class="fas fa-boxes text-primary me-2"></i><span class="text-primary">Supply Management</span>
-@endsection
+@section('page-icon', 'fas fa-layer-group')
+@section('page-title', 'Supply Management')
 
 @section('content')
     <div class="container-fluid">
@@ -247,7 +245,7 @@
                                             </thead>
                                             <tbody>
                                                 @foreach ($displayItems as $item)
-                                                    <tr class="item-row">
+                                                    <tr class="item-row" data-item-id="{{ $item->id }}">
                                                         <td>
                                                             @if ($item->image_path)
                                                                 <img src="{{ Storage::url($item->image_path) }}"
@@ -409,7 +407,7 @@
                                     <i class="fas fa-ellipsis-v me-1"></i><span class="d-none d-md-inline">More</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                     <li>
+                                    <li>
                                         <a class="dropdown-item" href="#"
                                             onclick="event.preventDefault(); toggleCategory({{ $category->id }})">
                                             <i
@@ -417,7 +415,7 @@
                                             {{ $category->is_active ? 'Deactivate' : 'Activate' }} Category
                                         </a>
                                     </li>
-                                     <li>
+                                    <li>
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li>
@@ -456,7 +454,7 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($category->items->sortBy('name') as $item)
-                                            <tr class="item-row">
+                                            <tr class="item-row" data-item-id="{{ $item->id }}">
                                                 <td>
                                                     @if ($item->image_path)
                                                         <img src="{{ Storage::url($item->image_path) }}"
@@ -2775,56 +2773,56 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
 
-    // Check if we need to switch back to a category after reload
-    let pendingCategory = sessionStorage.getItem('pendingCategorySwitch');
-    
-    // If no pending category from an action, check localStorage for last viewed category
-    if (!pendingCategory) {
-        pendingCategory = localStorage.getItem('lastViewedCategory') || 'all';
-    }
-    
-    if (pendingCategory) {
-        setTimeout(() => {
-            switchCategory(pendingCategory);
-            // Set active button
-            document.querySelectorAll('.category-tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.category === pendingCategory) {
-                    btn.classList.add('active');
+            // Check if we need to switch back to a category after reload
+            let pendingCategory = sessionStorage.getItem('pendingCategorySwitch');
+
+            // If no pending category from an action, check localStorage for last viewed category
+            if (!pendingCategory) {
+                pendingCategory = localStorage.getItem('lastViewedCategory') || 'all';
+            }
+
+            if (pendingCategory) {
+                setTimeout(() => {
+                    switchCategory(pendingCategory);
+                    // Set active button
+                    document.querySelectorAll('.category-tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.category === pendingCategory) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    sessionStorage.removeItem('pendingCategorySwitch');
+                }, 100);
+            }
+
+            const statusSelect = document.querySelector('select[name="status"]');
+            const stockStatusSelect = document.querySelector('select[name="stock_status"]');
+            const searchInput = document.getElementById('searchInput');
+
+            if (statusSelect) {
+                statusSelect.addEventListener('change', applyFiltersToActiveCategory);
+            }
+
+            if (stockStatusSelect) {
+                stockStatusSelect.addEventListener('change', applyFiltersToActiveCategory);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', autoSearch);
+            }
+
+            // Apply initial filters
+            applyFiltersToActiveCategory();
+
+            // Initialize pagination for all individual categories
+            document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
+                const categoryId = container.id.replace('category-', '');
+                if (categoryId !== 'all') {
+                    const filteredRows = filteredRowsCache[categoryId] || [];
+                    displayPageItems(categoryId, 1, filteredRows);
                 }
             });
-            sessionStorage.removeItem('pendingCategorySwitch');
-        }, 100);
-    }
-
-    const statusSelect = document.querySelector('select[name="status"]');
-    const stockStatusSelect = document.querySelector('select[name="stock_status"]');
-    const searchInput = document.getElementById('searchInput');
-
-    if (statusSelect) {
-        statusSelect.addEventListener('change', applyFiltersToActiveCategory);
-    }
-
-    if (stockStatusSelect) {
-        stockStatusSelect.addEventListener('change', applyFiltersToActiveCategory);
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener('input', autoSearch);
-    }
-
-    // Apply initial filters
-    applyFiltersToActiveCategory();
-
-    // Initialize pagination for all individual categories
-    document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
-        const categoryId = container.id.replace('category-', '');
-        if (categoryId !== 'all') {
-            const filteredRows = filteredRowsCache[categoryId] || [];
-            displayPageItems(categoryId, 1, filteredRows);
-        }
-    });
-});
+        });
 
         // CRITICAL: Add event delegation for pagination links
         document.addEventListener('click', function(e) {
@@ -3054,38 +3052,75 @@
                 });
             }
         });
-// When user clicks delete item button - FIXED: Uses confirmation toast
-function deleteItem(itemId, itemName, usedInCount) {
-    let warningMessage = ``;
-    
-    // Add warning if it's been used
-    if (usedInCount > 0) {
-        warningMessage = `This item has been used in ${usedInCount} request(s).\n\nYou can restore it from the recycle bin if needed.`;
-    }
-    
-    showConfirmationToast(
-        'Delete Item',
-        `Are you sure you want to delete this item"?\n\n${warningMessage}`,
-        () => proceedDeleteItem(itemId)
-    );
-}
+        // When user clicks delete item button - FIXED: Uses confirmation toast
+        function deleteItem(itemId, itemName, usedInCount) {
+            let warningMessage = ``;
 
-// Handle item deletion after confirmation
-async function proceedDeleteItem(itemId) {
-    try {
-        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json'
+            // Add warning if it's been used
+            if (usedInCount > 0) {
+                warningMessage =
+                    `This item has been used in ${usedInCount} request(s).\n\nYou can restore it from the recycle bin if needed.`;
+            }
+
+            showConfirmationToast(
+                'Delete Item',
+                `Are you sure you want to delete this item"?\n\n${warningMessage}`,
+                () => proceedDeleteItem(itemId)
+            );
+        }
+
+        // Handle item deletion after confirmation
+        async function proceedDeleteItem(itemId) {
+            try {
+                const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // Auto-highlight and open item from URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const highlightId = urlParams.get('highlight');
+            if (highlightId) {
+                setTimeout(() => {
+                    // Try to find the item row
+                    const row = document.querySelector(`tr[data-item-id="${highlightId}"]`);
+                    if (row) {
+                        // Check if the row is in a collapsed category tab and switch to it
+                        const categoryContent = row.closest('.category-content');
+                        if (categoryContent && !categoryContent.classList.contains('active')) {
+                            const categoryId = categoryContent.id.replace('category-', '');
+                            switchCategory(categoryId);
+                        }
+
+                        // Scroll to the row
+                        row.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+
+                        // Add highlight animation
+                        row.style.backgroundColor = '#fff3cd';
+                        row.style.transition = 'background-color 2s';
+                        setTimeout(() => {
+                            row.style.backgroundColor = '';
+                        }, 2000);
+
+                        // Auto-open the manage supply modal
+                        manageSupply(parseInt(highlightId));
+                    }
+                }, 500);
             }
         });
-        
-        showSuccess(data.message);
-    } catch (error) {
-        showError(error.message);
-    }
-}
     </script>
 
     <style>
@@ -3851,8 +3886,8 @@ async function proceedDeleteItem(itemId) {
         }
 
         /* ================================
-           COMPREHENSIVE TEXT OVERFLOW FIXES
-           ================================ */
+                   COMPREHENSIVE TEXT OVERFLOW FIXES
+                   ================================ */
 
         /* Category Name - Primary Fix - AGGRESSIVE */
         .category-name {
@@ -4092,8 +4127,8 @@ async function proceedDeleteItem(itemId) {
         }
 
         /* ================================
-           RESPONSIVE ADJUSTMENTS
-           ================================ */
+                   RESPONSIVE ADJUSTMENTS
+                   ================================ */
 
         /* Large Screens (lg) */
         @media (min-width: 1200px) {

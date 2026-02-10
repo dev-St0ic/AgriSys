@@ -1,12 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Slideshow Management - AgriSys Admin')
-@section('page-title')
-    <div class="d-flex align-items-center">
-        <i class="fas fa-images text-primary me-2"></i>
-        <span class="text-primary fw-bold">Slideshow Management</span>
-    </div>
-@endsection
+@section('page-icon', 'fas fa-images')
+@section('page-title', 'Slideshow Management')
 
 @section('content')
     <style>
@@ -1248,7 +1244,7 @@
                         if (response.success) {
                             showToast('success', response.message || 'Slideshow image updated successfully!');
                             $('#editSlideModal').modal('hide');
-                            
+
                             // Reload page after a short delay
                             setTimeout(() => {
                                 location.reload();
@@ -1271,7 +1267,7 @@
                         }
 
                         showToast('error', errorMessage);
-                        
+
                         // Reset button
                         submitBtn.prop('disabled', false).html(originalText);
                     }
@@ -1430,7 +1426,7 @@
 
             } catch (error) {
                 showToast('error', error.message || 'An error occurred while deleting the slide.');
-                
+
                 // Reset button state
                 document.getElementById('confirm_delete_slide_btn').querySelector('.btn-text').style.display = 'inline';
                 document.getElementById('confirm_delete_slide_btn').querySelector('.btn-loader').style.display = 'none';

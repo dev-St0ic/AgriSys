@@ -2,12 +2,8 @@
 @extends('layouts.app')
 
 @section('title', 'Recycle Bin - AgriSys Admin')
-@section('page-title')
-    <div class="d-flex align-items-center">
-        <i class="fas fa-trash-alt text-danger me-2"></i>
-        <span class="text-primary fw-bold">Recycle Bin</span>
-    </div>
-@endsection
+@section('page-icon', 'fas fa-trash-restore')
+@section('page-title', 'Recycle Bin')
 
 @section('content')
 
@@ -89,14 +85,14 @@
             </div>
             <div class="d-flex gap-2">
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-primary" 
-                            onclick="selectAllItems()" 
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="selectAllItems()"
                             id="selectAllBtn"
                             title="Select All Items on This Page">
                         <i class="fas fa-check-square me-1"></i>Select All
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" 
-                            onclick="deselectAllItems()" 
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="deselectAllItems()"
                             id="deselectAllBtn"
                             title="Deselect All Items"
                             style="display: none;">
@@ -104,13 +100,13 @@
                     </button>
                 </div>
                 <div class="btn-group" role="group" id="bulkActionsGroup" style="display: none;">
-                    <button type="button" class="btn btn-sm btn-outline-success" 
-                            onclick="openBulkRestoreModal()" 
+                    <button type="button" class="btn btn-sm btn-outline-success"
+                            onclick="openBulkRestoreModal()"
                             title="Restore Selected Items">
                         <i class="fas fa-undo me-1"></i>Restore
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                            onclick="openBulkDeleteModal()" 
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            onclick="openBulkDeleteModal()"
                             title="Permanently Delete Selected Items">
                         <i class="fas fa-trash-alt me-1"></i>Delete Permanently
                     </button>
@@ -129,7 +125,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center" style="width: 40px;">
-                                <input type="checkbox" id="checkboxHeaderRecycleBin" 
+                                <input type="checkbox" id="checkboxHeaderRecycleBin"
                                        onchange="toggleAllCheckboxes(this)">
                             </th>
                             <th class="text-center">Type</th>
@@ -144,8 +140,8 @@
                         @forelse($items as $item)
                             <tr data-item-id="{{ $item->id }}" class="recycle-item">
                                 <td class="text-center">
-                                    <input type="checkbox" class="item-checkbox" 
-                                           value="{{ $item->id }}" 
+                                    <input type="checkbox" class="item-checkbox"
+                                           value="{{ $item->id }}"
                                            onchange="updateBulkActionsVisibility()">
                                 </td>
                                 <td class="text-center">
@@ -165,17 +161,17 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <button class="btn btn-outline-primary" 
+                                        <button class="btn btn-outline-primary"
                                                 onclick="viewRecycleBinItem({{ $item->id }})"
                                                 title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn btn-outline-success" 
+                                        <button class="btn btn-outline-success"
                                                 onclick="restoreRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
                                                 title="Restore Item">
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger" 
+                                        <button class="btn btn-outline-danger"
                                                 onclick="permanentlyDeleteRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
                                                 title="Permanently Delete">
                                             <i class="fas fa-trash-alt"></i>
@@ -604,22 +600,22 @@
                     document.getElementById('detailsReason').textContent = data.data.reason || 'No reason provided';
                     document.getElementById('detailsDeletedBy').textContent = data.data.deleted_by_name;
                     document.getElementById('detailsDeletedAt').textContent = data.data.deleted_at;
-                    
+
                     // Populate the data table with formatted data
                     const dataTableBody = document.getElementById('dataTableBody');
                     dataTableBody.innerHTML = '';
-                    
+
                     const itemData = data.data.data;
-                    
+
                     if (itemData && typeof itemData === 'object') {
                         for (const [key, value] of Object.entries(itemData)) {
                             // Skip certain system fields
                             if (['created_at', 'updated_at', 'deleted_at'].includes(key)) continue;
-                            
+
                             const row = document.createElement('tr');
                             const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                             const formattedValue = formatValue(value);
-                            
+
                             row.innerHTML = `
                                 <td style="width: 35%; word-break: break-word;">
                                     <small class="text-muted">${formattedKey}</small>
@@ -628,11 +624,11 @@
                                     <strong>${formattedValue}</strong>
                                 </td>
                             `;
-                            
+
                             dataTableBody.appendChild(row);
                         }
                     }
-                    
+
                     new bootstrap.Modal(document.getElementById('recycleBinDetailsModal')).show();
                 }
             })
@@ -644,19 +640,19 @@
             if (value === null || value === undefined) {
                 return '<span class="text-muted">-</span>';
             }
-            
+
             if (typeof value === 'boolean') {
                 return value ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>';
             }
-            
+
             if (typeof value === 'object') {
                 return JSON.stringify(value);
             }
-            
+
             if (typeof value === 'string' && value.length > 100) {
                 return value.substring(0, 100) + '...';
             }
-            
+
             return value;
         }
         // Restore single item
@@ -708,7 +704,7 @@
             .then(data => {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('permanentDeleteModal'));
                 modal.hide();
-                
+
                 if (data.success) {
                     showToast('success', data.message || 'Item deleted permanently');
                     setTimeout(() => location.reload(), 1500);
@@ -880,7 +876,7 @@
         function handleSearchInput() {
             const searchInput = document.getElementById('searchInput');
             const filterForm = document.getElementById('filterForm');
-            
+
             if (searchInput.value.trim() === '') {
                 // If search is empty, reset and submit
                 filterForm.submit();
