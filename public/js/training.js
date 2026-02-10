@@ -42,6 +42,13 @@ function openFormTraining(event) {
             history.pushState({page: 'training'}, 'Training Application', '/services/training');
         }
 
+        // Auto-fill profile data immediately
+        setTimeout(() => {
+            if (typeof autoFillTrainingFromProfile === 'function') {
+                autoFillTrainingFromProfile();
+            }
+        }, 100);
+
         // Scroll to top with proper timing and multiple fallbacks
         setTimeout(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -245,6 +252,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Form validation passed');
 
+            // Enable disabled fields before submission so their values are included
+            const nameExtensionField = trainingForm.querySelector('[name="name_extension"]');
+            if (nameExtensionField && nameExtensionField.hasAttribute('disabled')) {
+                nameExtensionField.removeAttribute('disabled');
+            }
+
             // Show loading state
             const submitBtn = trainingForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
@@ -404,21 +417,21 @@ function validateFiles(files) {
 
     // Since we only allow one file now
     const file = files[0];
-    
+
     if (!file) {
         return true; // No file selected is valid (unless required by HTML)
     }
 
     if (file.size > maxSize) {
-        agrisysModal.warning('File "' + file.name + '" is too large. Maximum size is 10MB.', { 
-            title: 'File Too Large' 
+        agrisysModal.warning('File "' + file.name + '" is too large. Maximum size is 10MB.', {
+            title: 'File Too Large'
         });
         return false;
     }
 
     if (!allowedTypes.includes(file.type)) {
-        agrisysModal.warning('File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.', { 
-            title: 'Invalid File Type' 
+        agrisysModal.warning('File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.', {
+            title: 'Invalid File Type'
         });
         return false;
     }

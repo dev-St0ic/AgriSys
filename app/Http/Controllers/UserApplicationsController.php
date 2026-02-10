@@ -16,7 +16,7 @@ class UserApplicationsController extends Controller
     {
         try {
             $userId = session('user.id');
-            
+
             if (!$userId) {
                 return response()->json([
                     'success' => false,
@@ -53,7 +53,7 @@ class UserApplicationsController extends Controller
                 ];
             }
 
-            // FETCH SEEDLING REQUESTS
+            // FETCH SEEDLING REQUESTS (Display as "Supply Request")
             try {
                 if (class_exists('App\Models\SeedlingRequest')) {
                     $seedlingApps = SeedlingRequest::where('user_id', $userId)
@@ -63,11 +63,11 @@ class UserApplicationsController extends Controller
                     foreach ($seedlingApps as $app) {
                         $allApplications[] = [
                             'id' => $app->id,
-                            'type' => 'Seedlings Request',
+                            'type' => 'Supply Request',
                             'application_number' => $app->request_number ?? 'SL-' . $app->id,
                             'reference_number' => $app->request_number ?? 'SL-' . $app->id,
                             'status' => $app->status,
-                            'description' => 'Request for agricultural seedlings',
+                            'description' => 'Request for agricultural supplies',
                             'full_name' => $app->full_name ?? $app->name ?? 'N/A',
                             'barangay' => $app->barangay ?? null,
                             'remarks' => $app->remarks ?? null,
@@ -80,7 +80,7 @@ class UserApplicationsController extends Controller
                     }
                 }
             } catch (\Exception $e) {
-                Log::warning('Could not fetch seedling applications: ' . $e->getMessage());
+                Log::warning('Could not fetch supply request applications: ' . $e->getMessage());
             }
 
             // FETCH FISHR APPLICATIONS
@@ -198,7 +198,7 @@ class UserApplicationsController extends Controller
                 'total' => count($allApplications),
                 'breakdown' => [
                     'rsbsa' => $rsbsaApps->count(),
-                    'seedlings' => isset($seedlingApps) ? $seedlingApps->count() : 0,
+                    'supplies' => isset($seedlingApps) ? $seedlingApps->count() : 0,
                     'fishr' => isset($fishrApps) ? $fishrApps->count() : 0,
                     'boatr' => isset($boatrApps) ? $boatrApps->count() : 0,
                     'training' => isset($trainingApps) ? $trainingApps->count() : 0,
@@ -223,7 +223,7 @@ class UserApplicationsController extends Controller
     private function generateRecentActivity($applications)
     {
         $activities = [];
-        
+
         foreach ($applications as $app) {
             $activities[] = [
                 'icon' => $this->getActivityIcon($app['type']),
@@ -308,7 +308,7 @@ class UserApplicationsController extends Controller
     {
         try {
             $userId = session('user.id');
-            
+
             if (!$userId) {
                 return response()->json([
                     'success' => false,
@@ -354,7 +354,7 @@ class UserApplicationsController extends Controller
     {
         try {
             $userId = session('user.id');
-            
+
             if (!$userId) {
                 return response()->json([
                     'success' => false,
@@ -400,7 +400,7 @@ class UserApplicationsController extends Controller
     {
         try {
             $userId = session('user.id');
-            
+
             if (!$userId) {
                 return response()->json([
                     'success' => false,
@@ -408,21 +408,21 @@ class UserApplicationsController extends Controller
                 ], 401);
             }
 
-            $total = 
+            $total =
                 RsbsaApplication::where('user_id', $userId)->count() +
                 SeedlingRequest::where('user_id', $userId)->count() +
                 FishrApplication::where('user_id', $userId)->count() +
                 BoatrApplication::where('user_id', $userId)->count() +
                 TrainingApplication::where('user_id', $userId)->count();
-            
-            $approved = 
+
+            $approved =
                 RsbsaApplication::where('user_id', $userId)->where('status', 'approved')->count() +
                 SeedlingRequest::where('user_id', $userId)->where('status', 'approved')->count() +
                 FishrApplication::where('user_id', $userId)->where('status', 'approved')->count() +
                 BoatrApplication::where('user_id', $userId)->where('status', 'approved')->count() +
                 TrainingApplication::where('user_id', $userId)->where('status', 'approved')->count();
-            
-            $pending = 
+
+            $pending =
                 RsbsaApplication::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count() +
                 SeedlingRequest::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count() +
                 FishrApplication::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count() +
@@ -438,7 +438,7 @@ class UserApplicationsController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error fetching application stats: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load statistics'

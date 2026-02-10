@@ -50,37 +50,31 @@
 
             <div class="training-form-group">
                 <label for="training_first_name">First Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_first_name" name="first_name" placeholder="Example: Juan"
-                    pattern="[a-zA-Z\s'\-]+"
-                    title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
-                <span class="validation-warning" id="training_first_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
-                    spaces, hyphens, and apostrophes are allowed</span>
+                <input type="text" id="training_first_name" name="first_name" placeholder="From your profile"
+                    pattern="[a-zA-Z\s'\-]+" title="First name from your registered profile" readonly required
+                    style="background-color: #f5f5f5; cursor: not-allowed;">
+                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile</small>
             </div>
 
             <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
-                <input type="text" id="training_middle_name" name="middle_name" placeholder="Example: Santos"
-                    pattern="[a-zA-Z\s'\-]+"
-                    title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
-                <span class="validation-warning" id="training_middle_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
-                    spaces, hyphens, and apostrophes are allowed</span>
+                <input type="text" id="training_middle_name" name="middle_name" placeholder="From your profile"
+                    pattern="[a-zA-Z\s'\-]+" title="Middle name from your registered profile" readonly
+                    style="background-color: #f5f5f5; cursor: not-allowed;">
             </div>
 
             <div class="training-form-group">
                 <label for="training_last_name">Last Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_last_name" name="last_name" placeholder="Example: Dela Cruz"
-                    pattern="[a-zA-Z\s'\-]+"
-                    title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
-                <span class="validation-warning" id="training_last_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
-                    spaces, hyphens, and apostrophes are allowed</span>
+                <input type="text" id="training_last_name" name="last_name" placeholder="From your profile"
+                    pattern="[a-zA-Z\s'\-]+" title="Last name from your registered profile" readonly required
+                    style="background-color: #f5f5f5; cursor: not-allowed;">
+                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile</small>
             </div>
 
             <div class="training-form-group">
                 <label for="training_name_extension">Name Extension (Optional)</label>
-                <select id="training_name_extension" name="name_extension">
+                <select id="training_name_extension" name="name_extension" disabled
+                    style="background-color: #f5f5f5; cursor: not-allowed;">
                     <option value="" selected>Select Extension</option>
                     <option value="Jr.">Jr.</option>
                     <option value="Sr.">Sr.</option>
@@ -93,9 +87,10 @@
 
             <div class="training-form-group">
                 <label for="training_contact_number">Contact Number <span class="required-asterisk">*</span></label>
-                <input type="tel" id="training_contact_number" name="contact_number"
-                    placeholder="Example: 09123456789" pattern="^09\d{9}$"
-                    title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)" required>
+                <input type="tel" id="training_contact_number" name="contact_number" placeholder="From your profile"
+                    pattern="^09\d{9}$" title="Contact number from your registered profile" readonly required
+                    style="background-color: #f5f5f5; cursor: not-allowed;">
+                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile</small>
             </div>
 
             <div class="training-form-group">

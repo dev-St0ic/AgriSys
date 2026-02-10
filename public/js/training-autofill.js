@@ -26,26 +26,42 @@ function autoFillTrainingFromProfile() {
     const userData = window.userData;
     let filledCount = 0;
 
-    // Helper function to safely set field value
+    // Helper function to safely set field value (for readonly fields too)
     function setFieldValue(fieldName, value) {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (field && value) {
+            // Temporarily remove readonly to set value
+            const wasReadonly = field.hasAttribute('readonly');
+            if (wasReadonly) {
+                field.removeAttribute('readonly');
+            }
+
             field.value = value;
+
+            // Restore readonly
+            if (wasReadonly) {
+                field.setAttribute('readonly', 'readonly');
+            }
 
             // Trigger change event for selects
             if (field.tagName === 'SELECT') {
+                // Temporarily enable disabled selects
+                const wasDisabled = field.hasAttribute('disabled');
+                if (wasDisabled) {
+                    field.removeAttribute('disabled');
+                }
+
                 field.dispatchEvent(new Event('change', { bubbles: true }));
+
+                // Restore disabled state
+                if (wasDisabled) {
+                    field.setAttribute('disabled', 'disabled');
+                }
             }
 
             // Trigger input event for validation
             field.dispatchEvent(new Event('input', { bubbles: true }));
             field.dispatchEvent(new Event('blur', { bubbles: true }));
-
-            // Add visual feedback
-            field.style.backgroundColor = '#f0f8ff';
-            setTimeout(() => {
-                field.style.backgroundColor = '';
-            }, 2000);
 
             filledCount++;
             console.log(`Filled ${fieldName} with: ${value}`);
@@ -210,7 +226,7 @@ function showClearFormConfirmation(onConfirm) {
         </div>
 
         <h3 class="modal-title">Clear Form Data?</h3>
-        
+
         <p class="modal-text">
             This will remove all information currently in the form. You can always use auto-fill again to repopulate your profile data.
         </p>
