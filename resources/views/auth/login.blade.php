@@ -223,7 +223,7 @@
                     <div class="form-group">
                         <i class="fas fa-user"></i>
                         <input type="text" class="form-control @error('email') is-invalid @enderror" id="email"
-                            name="email" value="{{ old('email') }}" placeholder="Username" required autofocus>
+                            name="email" value="{{ old('email') }}" placeholder="Email" required autofocus>
                         @error('email')
                             <div class="invalid-feedback">
                                 {{ $message }}

@@ -80,6 +80,30 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Email Verification Routes (NO AUTH REQUIRED)
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (Request $request) {
+    $request->fulfill();
+    return redirect('/login')->with('success', 'Email verified successfully! You can now login.');
+})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+// Update Admin Resource Routes
+Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('admins', AdminController::class);
+    // Add this line for resend verification
+    Route::post('admins/{admin}/resend-verification', [AdminController::class, 'resendVerificationEmail'])
+        ->name('admins.resend-verification');
+});
+
+
 // Service routes for frontend navigation
 Route::get('/services', [HomeController::class, 'index'])->name('services');
 

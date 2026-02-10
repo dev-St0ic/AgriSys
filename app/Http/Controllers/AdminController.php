@@ -57,12 +57,21 @@ class AdminController extends Controller
             'role' => 'required|in:admin,superadmin',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
+        // User::create([
+        //     'name' => $request->name,
+        //     'email' => $request->email,
+        //     'password' => Hash::make($request->password),
+        //     'role' => $request->role,
+        // ]);
+
+        $admin = User::create([  
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => $request->role,
         ]);
+
+        $admin->sendEmailVerificationNotification();
 
         $this->logActivity('created', 'User', null, [
             'name' => $request->name,
@@ -105,9 +114,8 @@ class AdminController extends Controller
     /**
      * Update the specified admin in storage.
      */
-    public function update(Request $request, User $admin)
+      public function update(Request $request, User $admin)
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
         if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
@@ -120,6 +128,8 @@ class AdminController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
+        $emailChanged = $request->email !== $admin->email;
+
         $admin->update([
             'name' => $request->name,
             'email' => $request->email,
@@ -130,14 +140,47 @@ class AdminController extends Controller
             $admin->update(['password' => Hash::make($request->password)]);
         }
 
+        if ($emailChanged) {
+            $admin->update(['email_verified_at' => null]);
+            $admin->sendEmailVerificationNotification();
+        }
+
         $this->logActivity('updated', 'User', $admin->id, [
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role
+            'role' => $request->role,
+            'email_changed' => $emailChanged
+        ]);
+
+        $successMessage = 'Admin updated successfully.';
+        if ($emailChanged) {
+            $successMessage .= ' Verification email has been sent to ' . $admin->email;
+        }
+
+        return redirect()->route('admin.admins.index')
+                        ->with('success', $successMessage);
+    }
+
+      public function resendVerificationEmail(User $admin)
+    {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($admin->hasVerifiedEmail()) {
+            return redirect()->route('admin.admins.index')
+                            ->with('info', 'This admin email is already verified.');
+        }
+
+        $admin->sendEmailVerificationNotification();
+
+        $this->logActivity('resent_verification', 'User', $admin->id, [
+            'email' => $admin->email
         ]);
 
         return redirect()->route('admin.admins.index')
-                        ->with('success', 'Admin updated successfully.');
+                        ->with('success', "Verification email resent to {$admin->email}");
     }
 
     /**

@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage; 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Notifications\VerifyAdminEmail;
 
-class User extends Authenticatable
+
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, LogsActivity;
 
@@ -93,6 +96,18 @@ class User extends Authenticatable
     public function hasAdminPrivileges(): bool
     {
         return in_array($this->role, ['admin', 'superadmin']);
+    }
+
+
+    public function sendEmailVerificationNotification()
+    {
+        \Log::info('DEBUG: About to send verification email to ' . $this->email);
+        try {
+            $this->notify(new VerifyAdminEmail());
+            \Log::info('DEBUG: Verification email sent successfully to ' . $this->email);
+        } catch (\Exception $e) {
+            \Log::error('DEBUG: Failed to send verification email: ' . $e->getMessage());
+        }
     }
 
     // Log activity options
