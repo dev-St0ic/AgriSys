@@ -30,6 +30,7 @@ use App\Http\Controllers\SlideshowController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\RecycleBinController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -85,15 +86,24 @@ Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
-Route::get('/email/verify/{id}/{hash}', function (Request $request) {
-    $request->fulfill();
+// Route::get('/email/verify/{id}/{hash}', function (Request $request) {
+//     $request->fulfill();
+//     return redirect('/login')->with('success', 'Email verified successfully! You can now login.');
+// })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
+Route::get('/email/verify/{id}/{hash}', function ($id, $hash, Request $request) {
+    $user = \App\Models\User::findOrFail($id);
+    
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        throw new \Illuminate\Auth\Access\AuthorizationException();
+    }
+    
+    if ($user->markEmailAsVerified()) {
+        event(new \Illuminate\Auth\Events\Verified($user));
+    }
+    
     return redirect('/login')->with('success', 'Email verified successfully! You can now login.');
 })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
-
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('status', 'verification-link-sent');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 // Update Admin Resource Routes
 Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {

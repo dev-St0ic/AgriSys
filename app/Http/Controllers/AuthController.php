@@ -18,7 +18,79 @@ use App\Models\TrainingRequest;
 
 class AuthController extends Controller
 {
-    /**
+    // /**
+    //  * Show the login form
+    //  */
+    // public function showLoginForm()
+    // {
+    //     return view('auth.login');
+    // }
+
+/**
+ * Handle login request
+ */
+// public function login(Request $request)
+// {
+//     $request->validate([
+//         'email' => 'required|email',
+//         'password' => 'required',
+//     ]);
+
+//     $credentials = $request->only('email', 'password');
+
+//     // Logout any existing user first
+//     Auth::logout();
+//     $request->session()->flush();
+//     $request->session()->regenerate();
+
+//     if (Auth::attempt($credentials)) {
+//         /** @var User $user */
+//         $user = Auth::user();
+//         $user->refresh();
+
+//         // Check if user has admin privileges
+//         if ($user->hasAdminPrivileges()) {
+//             // Regenerate session again to prevent session fixation attacks
+//             $request->session()->regenerate();
+
+//             // Log successful login
+//             $this->logActivity('login', 'User', $user->id, [
+//                 'role' => $user->role,
+//                 'success' => true
+//             ]);
+
+//             return redirect()->intended('/admin/dashboard')
+//                 ->with('success', 'Welcome back, ' . $user->name . '!');
+//         } else {
+//             // User exists but doesn't have admin privileges
+//             Auth::logout();
+//             $request->session()->invalidate();
+//             $request->session()->regenerateToken();
+
+//             // Log failed login attempt (no admin privileges)
+//             $this->logActivity('login_failed', 'User', null, [
+//                 'email' => $credentials['email'],
+//                 'reason' => 'No admin privileges'
+//             ]);
+
+//             return back()->withErrors([
+//                 'email' => 'You do not have admin privileges.',
+//             ])->onlyInput('email');
+//         }
+//     }
+
+//     // Log failed login attempt (invalid credentials)
+//     $this->logActivity('login_failed', 'User', null, [
+//         'email' => $credentials['email'],
+//         'reason' => 'Invalid credentials'
+//     ]);
+
+//     return back()->withErrors([
+//         'email' => 'The provided credentials do not match our records.',
+//     ])->onlyInput('email');
+// }
+
+   /**
      * Show the login form
      */
     public function showLoginForm()
@@ -26,69 +98,58 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-/**
- * Handle login request
- */
-public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    /**
+     * Handle login request
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    $credentials = $request->only('email', 'password');
+        $credentials = $request->only('email', 'password');
 
-    // Logout any existing user first
-    Auth::logout();
-    $request->session()->flush();
-    $request->session()->regenerate();
+        // Logout any existing user first
+        Auth::logout();
+        $request->session()->flush();
+        $request->session()->regenerate();
 
-    if (Auth::attempt($credentials)) {
-        /** @var User $user */
-        $user = Auth::user();
-        $user->refresh();
+        if (Auth::attempt($credentials)) {
+            /** @var User $user */
+            $user = Auth::user();
+            $user->refresh();
 
-        // Check if user has admin privileges
-        if ($user->hasAdminPrivileges()) {
-            // Regenerate session again to prevent session fixation attacks
-            $request->session()->regenerate();
+            // Check if user has admin privileges
+            if ($user->hasAdminPrivileges()) {
+                // Regenerate session again to prevent session fixation attacks
+                $request->session()->regenerate();
 
-            // Log successful login
-            $this->logActivity('login', 'User', $user->id, [
-                'role' => $user->role,
-                'success' => true
-            ]);
+                // Check if email is verified
+                if (!$user->hasVerifiedEmail()) {
+                    // Redirect to email verification page
+                    return redirect()->route('verification.notice')
+                        ->with('status', 'Please verify your email to access the admin dashboard.');
+                }
 
-            return redirect()->intended('/admin/dashboard')
-                ->with('success', 'Welcome back, ' . $user->name . '!');
-        } else {
-            // User exists but doesn't have admin privileges
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+                return redirect()->intended('/admin/dashboard')
+                    ->with('success', 'Welcome back, ' . $user->name . '!');
+            } else {
+                // User exists but doesn't have admin privileges
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
 
-            // Log failed login attempt (no admin privileges)
-            $this->logActivity('login_failed', 'User', null, [
-                'email' => $credentials['email'],
-                'reason' => 'No admin privileges'
-            ]);
-
-            return back()->withErrors([
-                'email' => 'You do not have admin privileges.',
-            ])->onlyInput('email');
+                return back()->withErrors([
+                    'email' => 'You do not have admin privileges.',
+                ])->onlyInput('email');
+            }
         }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
-
-    // Log failed login attempt (invalid credentials)
-    $this->logActivity('login_failed', 'User', null, [
-        'email' => $credentials['email'],
-        'reason' => 'Invalid credentials'
-    ]);
-
-    return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ])->onlyInput('email');
-}
 
     /**
      * Handle logout request
