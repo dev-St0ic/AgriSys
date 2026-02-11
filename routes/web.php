@@ -105,10 +105,15 @@ Route::get('/email/verify/{id}/{hash}', function ($id, $hash, Request $request) 
     return redirect('/login')->with('success', 'Email verified successfully! You can now login.');
 })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
-// Update Admin Resource Routes
-Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::post('/email/verification-notification', function () {
+    auth()->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+// SuperAdmin routes - NO verification required
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
     Route::resource('admins', AdminController::class);
-    // Add this line for resend verification
     Route::post('admins/{admin}/resend-verification', [AdminController::class, 'resendVerificationEmail'])
         ->name('admins.resend-verification');
 });

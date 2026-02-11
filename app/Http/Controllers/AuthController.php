@@ -110,32 +110,27 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        // Logout any existing user first
         Auth::logout();
         $request->session()->flush();
         $request->session()->regenerate();
 
         if (Auth::attempt($credentials)) {
-            /** @var User $user */
             $user = Auth::user();
             $user->refresh();
 
-            // Check if user has admin privileges
             if ($user->hasAdminPrivileges()) {
-                // Regenerate session again to prevent session fixation attacks
                 $request->session()->regenerate();
 
-                // Check if email is verified
-                if (!$user->hasVerifiedEmail()) {
-                    // Redirect to email verification page
+                // Only require verification for regular admins, NOT superadmin
+                if ($user->role === 'admin' && !$user->hasVerifiedEmail()) {
                     return redirect()->route('verification.notice')
-                        ->with('status', 'Please verify your email to access the admin dashboard.');
+                        ->with('status', 'Please verify your email.');
                 }
 
+                // SuperAdmin or verified admin → go to dashboard
                 return redirect()->intended('/admin/dashboard')
                     ->with('success', 'Welcome back, ' . $user->name . '!');
             } else {
-                // User exists but doesn't have admin privileges
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();

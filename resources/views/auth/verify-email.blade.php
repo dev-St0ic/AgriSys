@@ -8,28 +8,23 @@
         <h2>Verify Your Email Address</h2>
         
         <p class="verification-message">
-            Thanks for signing up! Before getting started, could you verify your email address by clicking on the link 
-            we just emailed to you? If you didn't receive the email, we will gladly send you another.
+            A verification link has been sent to your email address. 
+            Click the link to verify your email and activate your admin account. 
+            If you didn't receive it, click "Resend Verification Email" below.
         </p>
 
         @if (session('status') == 'verification-link-sent')
             <div class="alert alert-success">
                 A new verification link has been sent to the email address you provided.
+                <br><small>You can request another in 5 minutes.</small>
             </div>
         @endif
 
         <div class="verification-actions">
-            <form method="POST" action="{{ route('verification.send') }}">
+            <form method="POST" action="{{ route('verification.send') }}" id="resendForm">
                 @csrf
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="resendBtn">
                     Resend Verification Email
-                </button>
-            </form>
-
-            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                @csrf
-                <button type="submit" class="btn btn-secondary">
-                    Sign Out
                 </button>
             </form>
         </div>
@@ -97,17 +92,58 @@
         color: white;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
         background-color: #5568d3;
     }
 
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
+    .btn:disabled {
+        background-color: #0056b3; 
+        cursor: not-allowed;
+        opacity: 0.6;
+        font-weight: bold;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const resendBtn = document.getElementById('resendBtn');
+        const cooldownTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+        function updateButtonState() {
+            const now = Date.now();
+            const storedTime = localStorage.getItem('lastResendTime');
+            
+            if (storedTime) {
+                const timePassed = now - parseInt(storedTime);
+                
+                if (timePassed < cooldownTime) {
+                    const timeRemaining = Math.ceil((cooldownTime - timePassed) / 1000);
+                    const minutes = Math.floor(timeRemaining / 60);
+                    const seconds = timeRemaining % 60;
+                    const secondsStr = seconds < 10 ? '0' + seconds : seconds;
+                    
+                    resendBtn.disabled = true;
+                    resendBtn.innerHTML = `Try again in <strong>${minutes}:${secondsStr}</strong>`;
+                    
+                    console.log(`Countdown: ${minutes}:${secondsStr}`); // Debug log
+                    
+                    // Update countdown every second
+                    setTimeout(updateButtonState, 1000);
+                } else {
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'Resend Verification Email';
+                }
+            }
+        }
+
+        // Update button state on page load
+        updateButtonState();
+
+        // Store timestamp when form is submitted
+        document.getElementById('resendForm').addEventListener('submit', function(e) {
+            localStorage.setItem('lastResendTime', Date.now().toString());
+            updateButtonState(); // Update immediately after click
+        });
+    });
+</script>
 @endsection
