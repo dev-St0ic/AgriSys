@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Services\RecycleBinService;
 
 class AdminController extends Controller
 {
@@ -191,23 +192,56 @@ class AdminController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         if (!$user->isSuperAdmin()) {
-            abort(403, 'Unauthorized action.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action.'
+            ], 403);
         }
 
         // Prevent deleting yourself
         if ($admin->id === Auth::id()) {
-            return redirect()->route('admin.admins.index')
-                            ->with('error', 'You cannot delete yourself.');
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot delete yourself.'
+            ], 400);
         }
 
-        $this->logActivity('deleted', 'User', $admin->id, [
-            'name' => $admin->name,
-            'email' => $admin->email
-        ]);
+        try {
+            // Move to recycle bin instead of permanent deletion
+            \App\Services\RecycleBinService::softDelete(
+                $admin,
+                'Deleted from admin users'
+            );
 
-        $admin->delete();
+            $this->logActivity('deleted', 'User', $admin->id, [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'action' => 'moved_to_recycle_bin'
+            ]);
 
-        return redirect()->route('admin.admins.index')
-                        ->with('success', 'Admin deleted successfully.');
+            \Log::info('Admin user moved to recycle bin', [
+                'admin_id' => $admin->id,
+                'admin_name' => $admin->name,
+                'admin_email' => $admin->email,
+                'deleted_by' => auth()->user()->name ?? 'System'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Admin user moved to recycle bin successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error moving admin to recycle bin', [
+                'admin_id' => $admin->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting admin: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
