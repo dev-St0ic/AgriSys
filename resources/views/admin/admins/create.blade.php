@@ -8,7 +8,7 @@
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+                    <h6 class="m-0 font-weight-bold text-primary text-center">
                         <i class="fas fa-user-plus me-2"></i>Add New Admin User
                     </h6>
                 </div>

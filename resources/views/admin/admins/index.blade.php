@@ -140,7 +140,7 @@
 
         .avatar-title {
             align-items: center;
-            background-color: #6c757d;
+            background-color:  #0040ff;
             color: #fff;
             display: flex;
             font-size: 0.875rem;
