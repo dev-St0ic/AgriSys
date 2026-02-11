@@ -4,14 +4,21 @@
 @section('page-title', 'Manage Admins')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">Admin Users</h4>
-        <a href="{{ route('admin.admins.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Add New Admin
-        </a>
-    </div>
-
-    <div class="card shadow">
+    <!-- Requests Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <div></div>
+            <div class="text-center flex-fill">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user-shield me-2"></i>Admin Users
+                </h6>
+            </div>
+            <div>
+                <a href="{{ route('admin.admins.create') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-user-plus me-2"></i>Add New Admin
+                </a>
+            </div>
+        </div>
         <div class="card-body">
             @if ($admins->count() > 0)
                 <div class="table-responsive">
