@@ -5,10 +5,10 @@
 
 @section('content')
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
+                    <h6 class="m-0 font-weight-bold text-primary text-center">
                         <i class="fas fa-user me-2"></i>Admin User Details
                     </h6>
                 </div>
@@ -75,43 +75,47 @@
 
                     <hr>
 
-                    <!-- Permissions Section -->
+                    <!-- Permissions Section - CENTERED & FULL WIDTH -->
                     <div class="mb-4">
-                        <h5 class="mb-3">
+                        <h5 class="mb-4 text-center">
                             <i class="fas fa-key me-2"></i>Permissions
                         </h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <ul class="list-group list-group-flush">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <ul class="list-group">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Access Admin Dashboard
-                                        <i class="fas fa-check text-success"></i>
+                                        <span><i class="fas fa-tachometer-alt me-2 text-primary"></i>Access Admin Dashboard</span>
+                                        <i class="fas fa-check-circle text-success fs-5"></i>
                                     </li>
                                     @if ($admin->isSuperAdmin())
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Manage Admin Users
-                                            <i class="fas fa-check text-success"></i>
+                                            <span><i class="fas fa-users-cog me-2 text-primary"></i>Manage Admin Users</span>
+                                            <i class="fas fa-check-circle text-success fs-5"></i>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Create New Admins
-                                            <i class="fas fa-check text-success"></i>
+                                            <span><i class="fas fa-user-plus me-2 text-primary"></i>Create New Admins</span>
+                                            <i class="fas fa-check-circle text-success fs-5"></i>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Delete Admin Users
-                                            <i class="fas fa-check text-success"></i>
+                                            <span><i class="fas fa-user-times me-2 text-primary"></i>Delete Admin Users</span>
+                                            <i class="fas fa-check-circle text-success fs-5"></i>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-crown me-2 text-warning"></i>Full System Access</span>
+                                            <i class="fas fa-check-circle text-success fs-5"></i>
                                         </li>
                                     @else
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Manage Admin Users
-                                            <i class="fas fa-times text-danger"></i>
+                                            <span><i class="fas fa-users-cog me-2 text-muted"></i>Manage Admin Users</span>
+                                            <i class="fas fa-times-circle text-danger fs-5"></i>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Create New Admins
-                                            <i class="fas fa-times text-danger"></i>
+                                            <span><i class="fas fa-user-plus me-2 text-muted"></i>Create New Admins</span>
+                                            <i class="fas fa-times-circle text-danger fs-5"></i>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Delete Admin Users
-                                            <i class="fas fa-times text-danger"></i>
+                                            <span><i class="fas fa-user-times me-2 text-muted"></i>Delete Admin Users</span>
+                                            <i class="fas fa-times-circle text-danger fs-5"></i>
                                         </li>
                                     @endif
                                 </ul>
@@ -126,7 +130,7 @@
                             <i class="fas fa-arrow-left me-2"></i>Back to List
                         </a>
                         <div>
-                            <a href="{{ route('admin.admins.edit', $admin) }}" class="btn btn-warning me-2">
+                            <a href="{{ route('admin.admins.edit', $admin) }}" class="btn btn-success me-2">
                                 <i class="fas fa-edit me-2"></i>Edit Admin
                             </a>
                             @if ($admin->id !== auth()->id())
@@ -188,6 +192,27 @@
             height: 100%;
             justify-content: center;
             width: 100%;
+        }
+
+        /* Enhanced Permissions List */
+        .list-group-item {
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            padding: 1rem 1.25rem;
+        }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: #0d6efd;
+            transform: translateX(5px);
+        }
+
+        .list-group-item i.fa-check-circle {
+            font-size: 1.25rem;
+        }
+
+        .list-group-item i.fa-times-circle {
+            font-size: 1.25rem;
         }
 
         /* Toast notification styles */
