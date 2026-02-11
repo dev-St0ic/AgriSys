@@ -25,8 +25,8 @@
                                             <i class="fas fa-user me-2"></i>Full Name
                                         </label>
                                         <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                            id="name" name="name" value="{{ old('name', $admin->name) }}" required
-                                            autofocus>
+                                            id="name" name="name" value="{{ old('name', $admin->name) }}" 
+                                            onkeyup="autoCapitalizeName()" required autofocus>
                                         @error('name')
                                             <div class="invalid-feedback">
                                                 {{ $message }}
@@ -39,12 +39,14 @@
                                             <i class="fas fa-envelope me-2"></i>Email Address
                                         </label>
                                         <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                            id="email" name="email" value="{{ old('email', $admin->email) }}" required>
+                                            id="email" name="email" value="{{ old('email', $admin->email) }}" 
+                                            onkeyup="validateEmail()" onblur="validateEmail()" required>
                                         @error('email')
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
                                         @enderror
+                                        <div id="email-feedback" class="mt-2"></div>
                                     </div>
                                 </div>
 
@@ -267,6 +269,20 @@
             border-color: #86b7fe;
         }
 
+        /* Email validation feedback */
+        #email-feedback {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        #email-feedback.text-danger {
+            color: #dc3545 !important;
+        }
+
+        #email-feedback.text-success {
+            color: #198754 !important;
+        }
+
         /* Password validation feedback */
         #password-match-feedback {
             font-size: 0.875rem;
@@ -305,6 +321,31 @@
     </style>
 
     <script>
+        /**
+         * Validate email format in real-time
+         */
+        function validateEmail() {
+            const email = document.getElementById('email').value;
+            const feedback = document.getElementById('email-feedback');
+
+            if (!email) {
+                feedback.textContent = '';
+                feedback.className = '';
+                return;
+            }
+
+            // Email validation regex
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(email)) {
+                feedback.innerHTML = '<i class="fas fa-check-circle me-1"></i>Valid email format';
+                feedback.className = 'text-success';
+            } else {
+                feedback.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>Please enter a valid email address';
+                feedback.className = 'text-danger';
+            }
+        }
+
         /**
          * Toggle password visibility
          */
@@ -438,8 +479,17 @@
 
             if (form && submitBtn) {
                 form.addEventListener('submit', function(e) {
+                    const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
                     const passwordConfirmation = document.getElementById('password_confirmation').value;
+
+                    // Validate email format
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        e.preventDefault();
+                        showToast('error', 'Please enter a valid email address');
+                        return false;
+                    }
 
                     // Check if passwords match
                     if (password && password !== passwordConfirmation) {
@@ -468,5 +518,21 @@
                 });
             }
         });
+
+        /**
+         * Auto-capitalize name input
+         */
+        function autoCapitalizeName() {
+            const nameInput = document.getElementById('name');
+            const cursorPosition = nameInput.selectionStart;
+            
+            // Capitalize first letter of each word
+            nameInput.value = nameInput.value.replace(/\b\w/g, function(char) {
+                return char.toUpperCase();
+            });
+            
+            // Restore cursor position
+            nameInput.setSelectionRange(cursorPosition, cursorPosition);
+        }
     </script>
 @endsection
