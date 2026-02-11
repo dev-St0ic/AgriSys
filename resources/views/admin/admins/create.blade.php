@@ -48,14 +48,10 @@
                             <label for="role" class="form-label">
                                 <i class="fas fa-user-shield me-2"></i>Role
                             </label>
-                            <select class="form-select @error('role') is-invalid @enderror" id="role" name="role"
-                                required>
-                                <option value="">Select Role</option>
+                            <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
+                                <option value="" disabled>Select Role</option>
                                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>
                                     Admin
-                                </option>
-                                <option value="superadmin" {{ old('role') === 'superadmin' ? 'selected' : '' }}>
-                                    Super Admin
                                 </option>
                             </select>
                             @error('role')
@@ -64,8 +60,7 @@
                                 </div>
                             @enderror
                             <div class="form-text">
-                                <strong>Admin:</strong> Can access admin dashboard<br>
-                                <strong>Super Admin:</strong> Can manage other admins and access all features
+                                <strong>Admin:</strong> Can access admin dashboard and manage basic operations
                             </div>
                         </div>
 

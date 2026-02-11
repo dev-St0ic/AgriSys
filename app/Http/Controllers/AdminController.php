@@ -40,6 +40,50 @@ class AdminController extends Controller
         return view('admin.admins.create');
     }
 
+    // /**
+    //  * Store a newly created admin in storage.
+    //  */
+    // public function store(Request $request)
+    // {
+    //     /** @var \App\Models\User $user */
+    //     $user = Auth::user();
+    //     if (!$user->isSuperAdmin()) {
+    //         abort(403, 'Unauthorized action.');
+    //     }
+
+    //     $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:users',
+    //         'password' => 'required|string|min:8|confirmed',
+    //         'role' => 'required|in:admin,superadmin',
+    //     ]);
+
+    //     // User::create([
+    //     //     'name' => $request->name,
+    //     //     'email' => $request->email,
+    //     //     'password' => Hash::make($request->password),
+    //     //     'role' => $request->role,
+    //     // ]);
+
+    //     $admin = User::create([  
+    //     'name' => $request->name,
+    //     'email' => $request->email,
+    //     'password' => Hash::make($request->password),
+    //     'role' => $request->role,
+    //     ]);
+
+    //     $admin->sendEmailVerificationNotification();
+
+    //     $this->logActivity('created', 'User', null, [
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'role' => $request->role
+    //     ]);
+
+    //     return redirect()->route('admin.admins.index')
+    //                     ->with('success', 'Admin created successfully.');
+    // }
+
     /**
      * Store a newly created admin in storage.
      */
@@ -51,19 +95,20 @@ class AdminController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // ===== ADD THIS BLOCK =====
+        if ($request->role === 'superadmin' && User::superadminExists()) {
+            return redirect()->back()
+                ->withErrors(['role' => 'A SuperAdmin already exists. Only Admins can be created.'])
+                ->withInput();
+        }
+        // ===== END ADD =====
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,superadmin',
         ]);
-
-        // User::create([
-        //     'name' => $request->name,
-        //     'email' => $request->email,
-        //     'password' => Hash::make($request->password),
-        //     'role' => $request->role,
-        // ]);
 
         $admin = User::create([  
         'name' => $request->name,
@@ -115,12 +160,85 @@ class AdminController extends Controller
     /**
      * Update the specified admin in storage.
      */
-      public function update(Request $request, User $admin)
+    //   public function update(Request $request, User $admin)
+    // {
+    //     $user = Auth::user();
+    //     if (!$user->isSuperAdmin()) {
+    //         abort(403, 'Unauthorized action.');
+    //     }
+
+    //     $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:users,email,' . $admin->id,
+    //         'role' => 'required|in:admin,superadmin',
+    //         'password' => 'nullable|string|min:8|confirmed',
+    //     ]);
+
+    //     $emailChanged = $request->email !== $admin->email;
+
+    //     $admin->update([
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'role' => $request->role,
+    //     ]);
+
+    //     if ($request->filled('password')) {
+    //         $admin->update(['password' => Hash::make($request->password)]);
+    //     }
+
+    //     if ($emailChanged) {
+    //         $admin->update(['email_verified_at' => null]);
+    //         $admin->sendEmailVerificationNotification();
+    //     }
+
+    //     $this->logActivity('updated', 'User', $admin->id, [
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'role' => $request->role,
+    //         'email_changed' => $emailChanged
+    //     ]);
+
+    //     $successMessage = 'Admin updated successfully.';
+    //     if ($emailChanged) {
+    //         $successMessage .= ' Verification email has been sent to ' . $admin->email;
+    //     }
+
+    //     return redirect()->route('admin.admins.index')
+    //                     ->with('success', $successMessage);
+    // }
+
+     /**
+     * Update the specified admin in storage.
+     */
+    public function update(Request $request, User $admin)
     {
         $user = Auth::user();
         if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
+
+        // absolute 1 superadmin only
+        if ($admin->isSuperAdmin() && $request->role !== 'superadmin') {
+            $otherSuperAdmins = User::where('id', '!=', $admin->id)
+                ->where('role', 'superadmin')
+                ->where('deleted_at', null)
+                ->count();
+
+            if ($otherSuperAdmins === 0) {
+                return redirect()->back()
+                    ->withErrors(['role' => 'Cannot downgrade the only SuperAdmin.'])
+                    ->withInput();
+            }
+        }
+
+        if ($request->role === 'superadmin' && !$admin->isSuperAdmin()) {
+            if (User::superadminExists()) {
+                return redirect()->back()
+                    ->withErrors(['role' => 'A SuperAdmin already exists. Cannot create another.'])
+                    ->withInput();
+            }
+        }
+        
 
         $request->validate([
             'name' => 'required|string|max:255',

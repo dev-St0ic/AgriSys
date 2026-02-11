@@ -119,4 +119,39 @@ class User extends Authenticatable implements MustVerifyEmail
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
+    /**
+     * Check if superadmin exists
+     */
+    public static function superadminExists(): bool
+    {
+        return self::where('role', 'superadmin')->where('deleted_at', null)->exists();
+    }
+
+    /**
+     * Get current superadmin
+     */
+    public static function getCurrentSuperAdmin(): ?User
+    {
+        return self::where('role', 'superadmin')->where('deleted_at', null)->first();
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if ($model->role === 'superadmin' && User::superadminExists()) {
+                throw new \Exception('A SuperAdmin already exists.');
+            }
+        });
+
+        static::updating(function ($model) {
+            if ($model->isDirty('role') && $model->role === 'superadmin') {
+                if (User::where('id', '!=', $model->id)->where('role', 'superadmin')->where('deleted_at', null)->exists()) {
+                    throw new \Exception('A SuperAdmin already exists.');
+                }
+            }
+        });
+    }
 }

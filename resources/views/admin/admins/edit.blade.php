@@ -50,28 +50,32 @@
                             <label for="role" class="form-label">
                                 <i class="fas fa-user-shield me-2"></i>Role
                             </label>
-                            <select class="form-select @error('role') is-invalid @enderror" id="role" name="role"
-                                required>
-                                <option value="">Select Role</option>
-                                <option value="admin" {{ old('role', $admin->role) === 'admin' ? 'selected' : '' }}>
-                                    Admin
-                                </option>
-                                <option value="superadmin"
-                                    {{ old('role', $admin->role) === 'superadmin' ? 'selected' : '' }}>
-                                    Super Admin
-                                </option>
-                            </select>
+
+                            @if($admin->isSuperAdmin())
+                                <div class="alert alert-info mb-3">
+                                    <i class="fas fa-crown me-2"></i><strong>Super Admin Account</strong><br>
+                                    This user is the system's Super Admin and cannot be changed.
+                                </div>
+                                <input type="hidden" name="role" value="superadmin">
+                                <input type="text" class="form-control" value="Super Admin" disabled readonly>
+                            @else
+                                <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
+                                    <option value="" disabled>Select Role</option>
+                                    <option value="admin" {{ old('role', $admin->role) === 'admin' ? 'selected' : '' }}>
+                                        Admin
+                                    </option>
+                                </select>
+                            @endif
+
                             @error('role')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
                             @enderror
                             <div class="form-text">
-                                <strong>Admin:</strong> Can access admin dashboard<br>
-                                <strong>Super Admin:</strong> Can manage other admins and access all features
+                                <strong>Admin:</strong> Can access admin dashboard and manage basic operations
                             </div>
                         </div>
-
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
                             Leave password fields empty if you don't want to change the password.
