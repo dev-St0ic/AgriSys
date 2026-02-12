@@ -26,7 +26,7 @@ class EmailChangeNotification extends Notification
      */
     public function __construct(User $user, $oldEmail, $newEmail, $changedBy = 'yourself', $token = null, $type = 'confirmation')
     {
-        $this->user      = $user;   // ← ADD THIS
+        $this->user      = $user;   
         $this->oldEmail  = $oldEmail;
         $this->newEmail  = $newEmail;
         $this->changedBy = $changedBy;
@@ -74,13 +74,13 @@ class EmailChangeNotification extends Notification
             ->line('• **Requested at:** ' . now()->format('F d, Y \\a\\t g:i A'))
             ->line('')
             ->line('**To confirm this email change, click the button below:**')
-            ->action('✓ Confirm Email Change', $confirmationUrl)
+            ->action('Confirm Email Change', $confirmationUrl)
             ->line('')
             ->line('**This confirmation link will expire in 24 hours.**')
             ->line('')
             ->line('If you did not request this change or do not recognize the requester, please:')
             ->line('1. Ignore this email')
-            ->line('2. Contact support immediately at support@agrisys.com')
+            ->line('2. Contact support immediately at agrisys0@gmail.com')
             ->line('3. Your email will NOT be changed unless you click the confirmation link above')
             ->line('')
             ->line('For security, we always send email change confirmations to your current email address.')

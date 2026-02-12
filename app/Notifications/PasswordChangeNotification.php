@@ -50,6 +50,6 @@ class PasswordChangeNotification extends Notification
             ->action('Verify Password Change', $verificationUrl)
             ->line('This verification link will expire in 60 minutes.')
             ->line('If you did not request a password change, please ignore this email and your password will remain unchanged.')
-            ->salutation('Best regards, AgriSys Team');
+            ->salutation('Best regards, AgriSys');
     }
 }

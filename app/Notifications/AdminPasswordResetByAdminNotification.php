@@ -41,7 +41,7 @@ class AdminPasswordResetByAdminNotification extends Notification
 
         if ($this->temporaryPassword) {
             $message->line('**Your Temporary Password:** ' . $this->temporaryPassword)
-                    ->line('⚠️ **Important Security Notice:**')
+                    ->line('**Important Security Notice:**')
                     ->line('• Please change this temporary password immediately after logging in')
                     ->line('• Do not share this password with anyone')
                     ->line('• You will be required to change your password on next login');
@@ -53,7 +53,7 @@ class AdminPasswordResetByAdminNotification extends Notification
         $message->line('For security reasons, you have been logged out from all active sessions.')
                 ->action('Login to AgriSys', url('/login'))
                 ->line('If you did not authorize this password reset, please contact your system administrator immediately.')
-                ->salutation('Best regards, AgriSys Team');
+                ->salutation('Best regards, AgriSys');
 
         return $message;
     }
