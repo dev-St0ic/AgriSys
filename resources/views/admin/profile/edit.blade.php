@@ -9,6 +9,21 @@
 <div class="container-fluid mt-4 mb-5" style="max-width: 1200px;">
     <div class="row">
         <div class="col-lg-12">
+            <!-- Success/Info Messages -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            
+            @if(session('info'))
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>{{ session('info') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            
             <!-- Header with Save Button -->
             <div class="d-flex justify-content-between align-items-center mb-5">
                 <div>
@@ -145,7 +160,12 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body p-4">
                                 <h6 class="fw-semibold mb-2"><i class="fas fa-lock me-2 text-primary"></i>Change Password</h6>
-                                <small class="text-muted d-block mb-4">Leave blank if you don't want to change your password</small>
+                                <small class="text-muted d-block mb-3">Leave blank if you don't want to change your password</small>
+                                
+                                <div class="alert alert-info mb-4">
+                                    <i class="fas fa-envelope-open-text me-2"></i>
+                                    <strong>Email Verification Required:</strong> When you change your password, a verification email will be sent. Your password will only be updated after you click the verification link in your email.
+                                </div>
 
                                 <div class="row g-3">
                                     <!-- Current Password -->
@@ -170,7 +190,7 @@
                                         <label for="password" class="form-label"><i class="fas fa-lock me-2 text-muted"></i>New Password</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                                id="password" name="password" placeholder="Min 8 characters with uppercase, numbers, symbols">
+                                                id="password" name="password">
                                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
                                                 <i class="fas fa-eye" id="password_icon"></i>
                                             </button>
@@ -354,26 +374,11 @@
             margin-bottom: 2rem;
         }
     }
-    .input-group-text {
-    background-color: #f8f9fa;
-    border: 1px solid #e0e0e0;
-    border-right: none;
-    }
-
-    .input-group .form-control.border-start-0 {
-        border-left: none;
-    }
-
-    .input-group .form-control.border-end-0 {
-        border-right: none;
-    }
-
-    .input-group:focus-within .input-group-text {
-        border-color: #3498db;
-    }
-
-    .input-group:focus-within .form-control {
-        border-color: #3498db;
+    
+    .alert-info {
+        background-color: #e7f3ff;
+        border-color: #b3d9ff;
+        color: #004085;
     }
 </style>
 @endsection

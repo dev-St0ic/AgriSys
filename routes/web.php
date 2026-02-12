@@ -86,11 +86,6 @@ Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
-// Route::get('/email/verify/{id}/{hash}', function (Request $request) {
-//     $request->fulfill();
-//     return redirect('/login')->with('success', 'Email verified successfully! You can now login.');
-// })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
-
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash, Request $request) {
     $user = \App\Models\User::findOrFail($id);
     
@@ -109,6 +104,11 @@ Route::post('/email/verification-notification', function () {
     auth()->user()->sendEmailVerificationNotification();
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+// Password Change Verification Route (PUBLIC - no auth required)
+Route::get('/password/change/verify/{user}', [AdminProfileController::class, 'verifyPasswordChange'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('password.change.verify');
 
 // SuperAdmin routes - NO verification required
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -147,6 +147,10 @@ Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFi
     Route::get('/admin/profile/edit', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::put('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
     Route::delete('/admin/profile/photo', [AdminProfileController::class, 'deletePhoto'])->name('admin.profile.deletePhoto');
+
+     Route::resource('admins', AdminController::class);
+    Route::post('admins/{admin}/resend-verification', [AdminController::class, 'resendVerificationEmail'])
+        ->name('admins.resend-verification');
 
     // ==============================================
     // RSBSA APPLICATIONS MANAGEMENT
