@@ -133,10 +133,15 @@
             border-left: none;
             cursor: pointer;
             transition: all 0.2s;
+            border-color: #e0e0e0;
+            background-color: #ffffff;
+            color: #6c757d;
         }
 
         .toggle-password:hover {
-            background-color: #e9ecef;
+            background-color: #f8f9fa;
+            border-color: #e0e0e0;
+            color: #495057;
         }
 
         .input-group .form-control {
@@ -146,10 +151,12 @@
         .input-group .form-control:focus {
             border-right: none;
             box-shadow: none;
+            border-color: #2ecc71;
         }
 
         .input-group .form-control:focus + .toggle-password {
-            border-color: #86b7fe;
+            border-color: #2ecc71;
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.1);
         }
 
         /* Email validation feedback */

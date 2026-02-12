@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Services\RecycleBinService;
+use App\Notifications\AdminPasswordResetByAdminNotification;
 
 class AdminController extends Controller
 {
@@ -163,7 +166,37 @@ class AdminController extends Controller
         ]);
 
         if ($request->filled('password')) {
+             // Update password
             $admin->update(['password' => Hash::make($request->password)]);
+            
+            // SECURITY: Log out admin from ALL devices
+            DB::table('sessions')
+                ->where('user_id', $admin->id)
+                ->delete();
+            
+            // NOTIFICATION: Send email to affected admin
+            try {
+                $admin->notify(new AdminPasswordResetByAdminNotification(
+                    Auth::user()->name,
+                    null
+                ));
+            } catch (\Exception $e) {
+                Log::error('Failed to send password reset notification', [
+                    'admin_id' => $admin->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+            
+            // AUDIT: Log the password reset action
+            Log::warning('Admin password reset by superadmin', [
+                'target_admin_id' => $admin->id,
+                'target_admin_email' => $admin->email,
+                'reset_by_id' => Auth::id(),
+                'reset_by_name' => Auth::user()->name,
+                'ip_address' => $request->ip()
+            ]);
+            
+            $passwordChanged = true; // Flag for success message
         }
 
         if ($emailChanged) {
