@@ -286,7 +286,7 @@ class AdminController extends Controller
                         $request->email,
                         Auth::user()->name . ' (Super Admin)',
                         null,
-                        'notification' // Type: notification
+                        'notification' 
                     ));
                     
                 Log::info('Email change notification sent to new email for admin', [

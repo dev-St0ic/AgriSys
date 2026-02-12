@@ -261,7 +261,7 @@ class AdminProfileController extends Controller
                     
                     if ($emailChanged) {
                         return redirect()->route('admin.profile.edit')
-                            ->with('success', 'Profile updated! ✓ A confirmation link has been sent to your old email address (' . $oldEmail . '). Please check your inbox and click the link to confirm the email change. A notification has also been sent to your new email address (' . $request->email . ').');
+                            ->with('success', 'Profile updated! A confirmation link has been sent to your old email address (' . $oldEmail . '). Please check your inbox and click the link to confirm the email change. A notification has also been sent to your new email address (' . $request->email . ').');
                     }
                     
                     return redirect()->route('admin.profile.edit')
@@ -479,7 +479,7 @@ class AdminProfileController extends Controller
                 }
 
                 return redirect()->route('login')
-                    ->with('success', 'Email address changed successfully! ✓ A verification email has been sent to ' . $newEmail . '. Please verify your new email address before logging in.');
+                    ->with('success', 'Email address changed successfully! A verification email has been sent to ' . $newEmail . '. Please verify your new email address before logging in.');
                     
             } catch (\Exception $e) {
                 DB::rollBack();

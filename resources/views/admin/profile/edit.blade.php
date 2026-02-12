@@ -15,6 +15,7 @@
                     <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                {{ session()->forget('success') }}
             @endif
             
             @if(session('info'))
