@@ -12,14 +12,13 @@
             <!-- Header with Save Button -->
             <div class="d-flex justify-content-between align-items-center mb-5">
                 <div>
-                    <h6 class="text-muted mb-1">My profile</h6>
-                    <h4 class="mb-0"><strong>Edit Profile</strong></h4>
+                    <h4 class="mb-0"><strong>My Profile</strong></h4>
                 </div>
                 <div class="d-flex gap-3">
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary px-4">
                         Cancel
                     </a>
-                    <button type="submit" form="profileForm" class="btn btn-success px-4">
+                    <button type="submit" form="profileForm" class="btn btn-primary px-4">
                         <i class="fas fa-check me-2"></i>Save
                     </button>
                 </div>
@@ -48,8 +47,8 @@
                                         </div>
                                     @endif
                                     
-                                    <label for="profile_photo" class="position-absolute bottom-0 end-0 btn btn-success btn-sm rounded-circle" 
-                                           style="width: 48px; height: 48px; padding: 0; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
+                                    <label for="profile_photo" class="position-absolute bottom-0 end-0 btn btn-primary btn-sm rounded-circle" 
+                                        style="width: 48px; height: 48px; padding: 0; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
                                         <i class="fas fa-camera" style="font-size: 1rem;"></i>
                                     </label>
                                     <input type="file" class="d-none @error('profile_photo') is-invalid @enderror" 
@@ -111,14 +110,15 @@
                         <!-- Personal Information Section -->
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-body p-4">
-                                <h6 class="fw-semibold mb-4">Personal Information</h6>
+                                <h6 class="fw-semibold mb-4"><i class="fas fa-user-circle me-2 text-primary"></i>Personal Information</h6>
 
                                 <div class="row g-3">
                                     <!-- Full Name -->
                                     <div class="col-12">
-                                        <label for="name" class="form-label">Full Name</label>
+                                        <label for="name" class="form-label"><i class="fas fa-user me-2 text-muted"></i>Full Name</label>
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                               id="name" name="name" value="{{ old('name', $user->name) }}" required>
+                                            id="name" name="name" value="{{ old('name', $user->name) }}" required 
+                                            style="text-transform: capitalize;" oninput="this.value = this.value.replace(/\b\w/g, l => l.toUpperCase())">
                                         @error('name')
                                             <div class="invalid-feedback">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
@@ -128,24 +128,10 @@
 
                                     <!-- Email -->
                                     <div class="col-12">
-                                        <label for="email" class="form-label">Email Address</label>
+                                        <label for="email" class="form-label"><i class="fas fa-envelope me-2 text-muted"></i>Email Address</label>
                                         <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                               id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                                            id="email" name="email" value="{{ old('email', $user->email) }}" required>
                                         @error('email')
-                                            <div class="invalid-feedback">
-                                                <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Phone -->
-                                    <div class="col-12">
-                                        <label for="contact_number" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control @error('contact_number') is-invalid @enderror" 
-                                               id="contact_number" name="contact_number" 
-                                               value="{{ old('contact_number', $user->contact_number ?? '') }}"
-                                               placeholder="09XXXXXXXXX">
-                                        @error('contact_number')
                                             <div class="invalid-feedback">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
                                             </div>
@@ -158,16 +144,16 @@
                         <!-- Password Section -->
                         <div class="card border-0 shadow-sm">
                             <div class="card-body p-4">
-                                <h6 class="fw-semibold mb-2">Change Password</h6>
+                                <h6 class="fw-semibold mb-2"><i class="fas fa-lock me-2 text-primary"></i>Change Password</h6>
                                 <small class="text-muted d-block mb-4">Leave blank if you don't want to change your password</small>
 
                                 <div class="row g-3">
                                     <!-- Current Password -->
                                     <div class="col-12">
-                                        <label for="current_password" class="form-label">Current Password</label>
+                                        <label for="current_password" class="form-label"><i class="fas fa-key me-2 text-muted"></i>Current Password</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control @error('current_password') is-invalid @enderror" 
-                                                   id="current_password" name="current_password">
+                                                id="current_password" name="current_password">
                                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current_password')">
                                                 <i class="fas fa-eye" id="current_password_icon"></i>
                                             </button>
@@ -181,10 +167,10 @@
 
                                     <!-- New Password -->
                                     <div class="col-12">
-                                        <label for="password" class="form-label">New Password</label>
+                                        <label for="password" class="form-label"><i class="fas fa-lock me-2 text-muted"></i>New Password</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                                   id="password" name="password" placeholder="Min 8 characters with uppercase, numbers, symbols">
+                                                id="password" name="password" placeholder="Min 8 characters with uppercase, numbers, symbols">
                                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
                                                 <i class="fas fa-eye" id="password_icon"></i>
                                             </button>
@@ -201,10 +187,10 @@
 
                                     <!-- Confirm Password -->
                                     <div class="col-12">
-                                        <label for="password_confirmation" class="form-label">Confirm New Password</label>
+                                        <label for="password_confirmation" class="form-label"><i class="fas fa-check-circle me-2 text-muted"></i>Confirm New Password</label>
                                         <div class="input-group">
                                             <input type="password" class="form-control" 
-                                                   id="password_confirmation" name="password_confirmation">
+                                                id="password_confirmation" name="password_confirmation">
                                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirmation')">
                                                 <i class="fas fa-eye" id="password_confirmation_icon"></i>
                                             </button>
@@ -263,8 +249,8 @@
         font-size: 0.95rem;
     }
 
-    .btn-success {
-        background-color: #2ecc71;
+    .btn-primary {
+        background-color: #3498db;
         border: none;
         padding: 0.625rem 2rem;
         border-radius: 6px;
@@ -272,10 +258,10 @@
         transition: all 0.3s ease;
     }
 
-    .btn-success:hover {
-        background-color: #27ae60;
+    .btn-primary:hover {
+        background-color: #2980b9;
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
     }
 
     .btn-outline-secondary {
@@ -367,6 +353,27 @@
         .col-lg-8 {
             margin-bottom: 2rem;
         }
+    }
+    .input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-right: none;
+    }
+
+    .input-group .form-control.border-start-0 {
+        border-left: none;
+    }
+
+    .input-group .form-control.border-end-0 {
+        border-right: none;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #3498db;
+    }
+
+    .input-group:focus-within .form-control {
+        border-color: #3498db;
     }
 </style>
 @endsection
