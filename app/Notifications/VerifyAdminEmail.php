@@ -12,12 +12,12 @@ class VerifyAdminEmail extends VerifyEmail
         $verificationUrl = $this->verificationUrl($notifiable);
 
         return (new MailMessage)
-            ->subject('Verify Email Address - AgriSys Admin')
-            ->greeting('Welcome to AgriSys!')
-            ->line('You have been registered as an administrator. Please verify your email address to activate your account.')
+            ->subject('Verify Your Email Address - AgriSys')
+            ->greeting('Hello ' . $notifiable->name . '!')
+            ->line('Please verify your email address to activate access to your AgriSys account.')
             ->action('Verify Email Address', $verificationUrl)
             ->line('This link will expire in 60 minutes.')
-            ->line('If you did not create an account, no further action is required.')
+            ->line('If you did not request this, no further action is required.')
             ->salutation('Best regards, AgriSys');
     }
 }

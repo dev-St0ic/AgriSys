@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use App\Models\User;
 use App\Services\RecycleBinService;
 use App\Notifications\AdminPasswordResetByAdminNotification;
+use App\Notifications\EmailChangeNotification;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -18,7 +21,6 @@ class AdminController extends Controller
      */
     public function index()
     {
-        // Only superadmin can manage admins
         /** @var \App\Models\User $user */
         $user = Auth::user();
         if (!$user->isSuperAdmin()) {
@@ -54,13 +56,11 @@ class AdminController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // ===== ADD THIS BLOCK =====
         if ($request->role === 'superadmin' && User::superadminExists()) {
             return redirect()->back()
                 ->withErrors(['role' => 'A SuperAdmin already exists. Only Admins can be created.'])
                 ->withInput();
         }
-        // ===== END ADD =====
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -70,10 +70,10 @@ class AdminController extends Controller
         ]);
 
         $admin = User::create([  
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $request->role,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
         $admin->sendEmailVerificationNotification();
@@ -116,8 +116,7 @@ class AdminController extends Controller
         return view('admin.admins.edit', compact('admin'));
     }
 
-
-     /**
+    /**
      * Update the specified admin in storage.
      */
     public function update(Request $request, User $admin)
@@ -127,7 +126,7 @@ class AdminController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // absolute 1 superadmin only
+        // Check superadmin constraints
         if ($admin->isSuperAdmin() && $request->role !== 'superadmin') {
             $otherSuperAdmins = User::where('id', '!=', $admin->id)
                 ->where('role', 'superadmin')
@@ -149,14 +148,16 @@ class AdminController extends Controller
             }
         }
 
-         $emailChanged = $request->email !== $admin->email;
+        // Store old email BEFORE any changes
+        $oldEmail = $admin->email;
+        $emailChanged = $request->email !== $oldEmail;
 
-         //  Require current password for email changes =====
+        // Require current password for email changes
         if ($emailChanged) {
             $request->validate([
                 'current_password' => 'required|string'
             ], [
-                'current_password.required' => 'Please enter your current password to change the email address.'
+                'current_password.required' => 'Please enter the current password to change the email address.'
             ]);
             
             if (!Hash::check($request->current_password, $admin->password)) {
@@ -165,7 +166,6 @@ class AdminController extends Controller
                     ->withInput();
             }
         }
-            
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -174,24 +174,21 @@ class AdminController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $emailChanged = $request->email !== $admin->email;
-
+        // Update basic info
         $admin->update([
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
         ]);
 
+        // Handle password change
         if ($request->filled('password')) {
-             // Update password
             $admin->update(['password' => Hash::make($request->password)]);
             
-            // SECURITY: Log out admin from ALL devices
-            DB::table('sessions')
-                ->where('user_id', $admin->id)
-                ->delete();
+            // Log out from all devices
+            DB::table('sessions')->where('user_id', $admin->id)->delete();
             
-            // NOTIFICATION: Send email to affected admin
+            // Send password reset notification
             try {
                 $admin->notify(new AdminPasswordResetByAdminNotification(
                     Auth::user()->name,
@@ -204,7 +201,6 @@ class AdminController extends Controller
                 ]);
             }
             
-            // AUDIT: Log the password reset action
             Log::warning('Admin password reset by superadmin', [
                 'target_admin_id' => $admin->id,
                 'target_admin_email' => $admin->email,
@@ -212,13 +208,111 @@ class AdminController extends Controller
                 'reset_by_name' => Auth::user()->name,
                 'ip_address' => $request->ip()
             ]);
-            
-            $passwordChanged = true; // Flag for success message
         }
 
+        // Handle email change - TWO-STEP FLOW WITH TWO NOTIFICATIONS
         if ($emailChanged) {
-            $admin->update(['email_verified_at' => null]);
-            $admin->sendEmailVerificationNotification();
+            // Generate secure token
+            $token = Str::random(60);
+            
+            // Delete any existing email change tokens for this admin
+            DB::table('email_change_tokens')
+                ->where('user_id', $admin->id)
+                ->delete();
+            
+            // Store the email change request
+            DB::table('email_change_tokens')->insert([
+                'user_id' => $admin->id,
+                'old_email' => $oldEmail,
+                'new_email' => $request->email,
+                'token' => hash('sha256', $token),
+                'created_at' => now()
+            ]);
+
+            Log::info('Email change initiated for admin - preparing notifications', [
+                'admin_id' => $admin->id,
+                'old_email' => $oldEmail,
+                'new_email' => $request->email,
+                'changed_by' => Auth::user()->name
+            ]);
+
+            // SEND 1: Confirmation email to OLD email address (with link to confirm)
+            try {
+                Notification::route('mail', $oldEmail)
+                    ->notify(new EmailChangeNotification(
+                        $admin,
+                        $oldEmail,
+                        $request->email,
+                        Auth::user()->name . ' (Super Admin)',
+                        $token,
+                        'confirmation' // Type: confirmation
+                    ));
+                    
+                Log::info('Email change confirmation sent to old address for admin', [
+                    'admin_id' => $admin->id,
+                    'old_email' => $oldEmail,
+                    'new_email' => $request->email
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send email change confirmation to admin', [
+                    'admin_id' => $admin->id,
+                    'old_email' => $oldEmail,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                // Revert email update on failure
+                $admin->email = $oldEmail;
+                $admin->save();
+                
+                // Delete the token
+                DB::table('email_change_tokens')
+                    ->where('user_id', $admin->id)
+                    ->delete();
+                
+                return redirect()->back()
+                    ->withErrors([
+                        'email' => 'Failed to send confirmation email to ' . $oldEmail . '. Please try again.'
+                    ])
+                    ->withInput();
+            }
+
+            // SEND 2: Informational email to NEW email address (notifying about the change)
+            try {
+                Notification::route('mail', $request->email)
+                    ->notify(new EmailChangeNotification(
+                        $admin,
+                        $oldEmail,
+                        $request->email,
+                        Auth::user()->name . ' (Super Admin)',
+                        null,
+                        'notification' // Type: notification
+                    ));
+                    
+                Log::info('Email change notification sent to new email for admin', [
+                    'admin_id' => $admin->id,
+                    'old_email' => $oldEmail,
+                    'new_email' => $request->email
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('Failed to send email change notification to new email for admin', [
+                    'admin_id' => $admin->id,
+                    'new_email' => $request->email,
+                    'error' => $e->getMessage()
+                ]);
+                // Don't fail the transaction for this - it's informational only
+            }
+            
+            // IMPORTANT: Revert email to original - will be updated after confirmation
+            $admin->email = $oldEmail;
+            $admin->save();
+            
+            Log::info('Email change awaiting confirmation for admin', [
+                'admin_id' => $admin->id,
+                'old_email' => $oldEmail,
+                'new_email' => $request->email,
+                'status' => 'pending_confirmation'
+            ]);
         }
 
         $this->logActivity('updated', 'User', $admin->id, [
@@ -230,14 +324,14 @@ class AdminController extends Controller
 
         $successMessage = 'Admin updated successfully.';
         if ($emailChanged) {
-            $successMessage .= ' Verification email has been sent to ' . $admin->email;
+            $successMessage .= ' A confirmation link has been sent to the old email address (' . $oldEmail . '). The admin must click this link to confirm the email change. A notification has also been sent to the new email address (' . $request->email . ').';
         }
 
         return redirect()->route('admin.admins.index')
                         ->with('success', $successMessage);
     }
 
-      public function resendVerificationEmail(User $admin)
+    public function resendVerificationEmail(User $admin)
     {
         $user = Auth::user();
         if (!$user->isSuperAdmin()) {
@@ -273,7 +367,6 @@ class AdminController extends Controller
             ], 403);
         }
 
-        // Prevent deleting yourself
         if ($admin->id === Auth::id()) {
             return response()->json([
                 'success' => false,
@@ -282,7 +375,6 @@ class AdminController extends Controller
         }
 
         try {
-            // Move to recycle bin instead of permanent deletion
             \App\Services\RecycleBinService::softDelete(
                 $admin,
                 'Deleted from admin users'

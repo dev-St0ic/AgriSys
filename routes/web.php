@@ -110,6 +110,11 @@ Route::get('/password/change/verify/{user}', [AdminProfileController::class, 've
     ->middleware(['signed', 'throttle:6,1'])
     ->name('password.change.verify');
 
+// Email Change Confirmation Route (PUBLIC - no auth required)
+Route::get('/email/change/confirm/{user}', [AdminProfileController::class, 'confirmEmailChange'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('email.change.confirm');
+
 // SuperAdmin routes - NO verification required
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');

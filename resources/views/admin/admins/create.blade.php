@@ -76,7 +76,7 @@
                                 </label>
                                 <div class="input-group">
                                     <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        id="password" name="password" placeholder="Min 8 characters with uppercase, numbers, symbols"
+                                        id="password" name="password" 
                                         onkeyup="validatePasswordStrength()" required>
                                     <button type="button" class="btn btn-outline-secondary toggle-password" 
                                         onclick="togglePasswordVisibility('password')">
