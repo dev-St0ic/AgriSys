@@ -32,6 +32,24 @@ class AdminProfileController extends Controller
     {
         $user = Auth::user();
 
+        // Check if email is being changed
+        $emailChanged = $request->email !== $user->email;
+
+        // Require current password for email changes
+        if ($emailChanged) {
+            $request->validate([
+                'email_change_password' => 'required|string'
+            ], [
+                'email_change_password.required' => 'Please enter your current password to change the email address.'
+            ]);
+            
+            if (!Hash::check($request->email_change_password, $user->password)) {
+                return redirect()->back()
+                    ->withErrors(['email_change_password' => 'Current password is incorrect.'])
+                    ->withInput();
+            }
+        }
+
         // Validate request
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -84,6 +102,17 @@ class AdminProfileController extends Controller
                 }
             }
 
+            // Handle email change - mark as unverified
+            if ($emailChanged) {
+                $user->email_verified_at = null;
+                
+                Log::info('Email changed - verification required', [
+                    'user_id' => $user->id,
+                    'old_email' => $user->getOriginal('email'),
+                    'new_email' => $request->email
+                ]);
+            }
+
             // Handle password change with email verification
             if ($request->filled('password')) {
                 // Verify current password
@@ -123,7 +152,23 @@ class AdminProfileController extends Controller
                 // Commit the transaction before sending email
                 DB::commit();
 
-                // Send verification email
+                // Send verification email for email change if email was changed
+                if ($emailChanged) {
+                    try {
+                        $user->sendEmailVerificationNotification();
+                        Log::info('Email verification sent after email change', [
+                            'user_id' => $user->id,
+                            'new_email' => $user->email
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send email verification', [
+                            'user_id' => $user->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+
+                // Send verification email for password change
                 try {
                     $user->notify(new PasswordChangeNotification($token, $request->password));
                     
@@ -132,19 +177,14 @@ class AdminProfileController extends Controller
                         'email' => $user->email
                     ]);
 
-                    // OPTIONAL: Log out user immediately for extra security
-                    // Uncomment the lines below if you want users logged out when they REQUEST password change
-                    // (not just when they VERIFY it)
-                    // 
-                    // Auth::logout();
-                    // $request->session()->invalidate();
-                    // $request->session()->regenerateToken();
-                    // 
-                    // return redirect()->route('login')
-                    //     ->with('info', 'For security, you have been logged out. A verification email has been sent to ' . $user->email . '. Please check your inbox to confirm your password change, then login with your new password.');
+                    $message = 'Profile updated! A verification email has been sent to ' . $user->email . '. Please check your inbox to confirm your password change.';
+                    
+                    if ($emailChanged) {
+                        $message .= ' You will also need to verify your new email address.';
+                    }
 
                     return redirect()->route('admin.profile.edit')
-                        ->with('info', 'Profile updated! A verification email has been sent to ' . $user->email . '. Please check your inbox to confirm your password change.');
+                        ->with('info', $message);
                         
                 } catch (\Exception $e) {
                     Log::error('Failed to send password change verification email', [
@@ -159,6 +199,30 @@ class AdminProfileController extends Controller
                 // Save user without password change
                 if ($user->save()) {
                     DB::commit();
+                    
+                    // Send email verification if email was changed
+                    if ($emailChanged) {
+                        try {
+                            $user->sendEmailVerificationNotification();
+                            
+                            Log::info('Email verification sent', [
+                                'user_id' => $user->id,
+                                'new_email' => $user->email
+                            ]);
+                            
+                            return redirect()->route('admin.profile.edit')
+                                ->with('success', 'Profile updated successfully! A verification email has been sent to ' . $user->email . '. Please verify your new email address.');
+                        } catch (\Exception $e) {
+                            Log::error('Failed to send email verification', [
+                                'user_id' => $user->id,
+                                'error' => $e->getMessage()
+                            ]);
+                            
+                            return redirect()->route('admin.profile.edit')
+                                ->with('warning', 'Profile updated, but we couldn\'t send the verification email. Please try again.');
+                        }
+                    }
+                    
                     return redirect()->route('admin.profile.edit')
                         ->with('success', 'Profile updated successfully!');
                 } else {

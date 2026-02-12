@@ -147,13 +147,42 @@
                                         <label for="email" class="form-label"><i class="fas fa-envelope me-2 text-muted"></i>Email Address</label>
                                         <input type="email" class="form-control @error('email') is-invalid @enderror" 
                                             id="email" name="email" value="{{ old('email', $user->email) }}" required
-                                            onkeyup="validateEmail()" onblur="validateEmail()">
+                                            onkeyup="handleEmailChange()" onblur="validateEmail()">
                                         @error('email')
                                             <div class="invalid-feedback">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
                                             </div>
                                         @enderror
                                         <div id="email-feedback" class="mt-2"></div>
+                                    </div>
+
+                                    <!-- Current Password for Email Change (shown only when email changes) -->
+                                    <div class="col-12" id="email-password-group" style="display: none;">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Email Change Detected:</strong> Please enter your current password to confirm this change.
+                                        </div>
+                                        <label for="email_change_password" class="form-label">
+                                            <i class="fas fa-key me-2 text-muted"></i>Current Password <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control @error('email_change_password') is-invalid @enderror" 
+                                                id="email_change_password" name="email_change_password"
+                                                placeholder="Enter current password to change email">
+                                            <button class="btn btn-outline-secondary toggle-password" type="button" 
+                                                onclick="togglePasswordVisibility('email_change_password')">
+                                                <i class="fas fa-eye" id="email_change_password_icon"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Required to confirm email change for security
+                                        </small>
+                                        @error('email_change_password')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-times-circle me-1"></i>{{ $message }}
+                                            </div>
+                                        @enderror
+                                        <div id="email-password-feedback" class="mt-2"></div>
                                     </div>
                                 </div>
                             </div>
@@ -416,6 +445,20 @@
         color: #198754 !important;
     }
 
+    /* Email password validation feedback */
+    #email-password-feedback {
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    #email-password-feedback.text-danger {
+        color: #dc3545 !important;
+    }
+
+    #email-password-feedback.text-info {
+        color: #0dcaf0 !important;
+    }
+
     /* Password validation feedback */
     #password-match-feedback {
         font-size: 0.875rem;
@@ -534,11 +577,49 @@
     .form-label i {
         opacity: 0.7;
     }
+
+    /* Highlight field with error from server */
+    .field-error-highlight {
+        animation: shake 0.5s;
+        border-color: #dc3545 !important;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
 </style>
 @endsection
 
 @section('scripts')
 <script>
+    // Store original email for comparison
+    const originalEmail = "{{ $user->email }}";
+
+    /**
+     * Handle email change - show/hide email password field
+     */
+    function handleEmailChange() {
+        const email = document.getElementById('email').value;
+        const emailPasswordGroup = document.getElementById('email-password-group');
+        const emailPasswordInput = document.getElementById('email_change_password');
+        
+        // Validate email format first
+        validateEmail();
+        
+        // Show email password field if email has changed
+        if (email !== originalEmail && email.trim() !== '') {
+            emailPasswordGroup.style.display = 'block';
+            emailPasswordInput.setAttribute('required', 'required');
+        } else {
+            emailPasswordGroup.style.display = 'none';
+            emailPasswordInput.removeAttribute('required');
+            emailPasswordInput.value = ''; // Clear the field
+            document.getElementById('email-password-feedback').textContent = '';
+        }
+    }
+
     /**
      * Preview image before upload
      */
@@ -746,18 +827,49 @@
         const form = document.getElementById('profileForm');
         const submitBtn = document.getElementById('submitBtn');
 
+        // Check if there was an email_change_password error from server
+        @error('email_change_password')
+            const emailPasswordInput = document.getElementById('email_change_password');
+            const emailPasswordGroup = document.getElementById('email-password-group');
+            
+            // Show the password group if hidden
+            emailPasswordGroup.style.display = 'block';
+            
+            // Add error highlight animation
+            emailPasswordInput.classList.add('field-error-highlight');
+            emailPasswordInput.focus();
+            
+            // Show error toast
+            showToast('error', '{{ $message }}');
+            
+            // Remove animation class after it completes
+            setTimeout(() => {
+                emailPasswordInput.classList.remove('field-error-highlight');
+            }, 500);
+        @enderror
+
         if (form && submitBtn) {
             form.addEventListener('submit', function(e) {
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
                 const passwordConfirmation = document.getElementById('password_confirmation').value;
                 const currentPassword = document.getElementById('current_password').value;
+                const emailChangePassword = document.getElementById('email_change_password').value;
 
                 // Validate email format
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
                     e.preventDefault();
                     showToast('error', 'Please enter a valid email address');
+                    document.getElementById('email').focus();
+                    return false;
+                }
+
+                // Check if email changed and password is provided
+                if (email !== originalEmail && !emailChangePassword) {
+                    e.preventDefault();
+                    showToast('error', 'Please enter your current password to change the email address');
+                    document.getElementById('email_change_password').focus();
                     return false;
                 }
 
@@ -765,6 +877,7 @@
                 if (password && !currentPassword) {
                     e.preventDefault();
                     showToast('error', 'Current password is required to change your password');
+                    document.getElementById('current_password').focus();
                     return false;
                 }
 
@@ -772,6 +885,7 @@
                 if (password && password !== passwordConfirmation) {
                     e.preventDefault();
                     showToast('error', 'Passwords do not match');
+                    document.getElementById('password_confirmation').focus();
                     return false;
                 }
 
@@ -785,6 +899,7 @@
                     if (!hasMinLength || !hasUpperCase || !hasNumber || !hasSymbol) {
                         e.preventDefault();
                         showToast('error', 'Password must be at least 8 characters with uppercase, numbers, and symbols');
+                        document.getElementById('password').focus();
                         return false;
                     }
                 }

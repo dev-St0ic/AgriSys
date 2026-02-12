@@ -148,7 +148,24 @@ class AdminController extends Controller
                     ->withInput();
             }
         }
-        
+
+         $emailChanged = $request->email !== $admin->email;
+
+         //  Require current password for email changes =====
+        if ($emailChanged) {
+            $request->validate([
+                'current_password' => 'required|string'
+            ], [
+                'current_password.required' => 'Please enter your current password to change the email address.'
+            ]);
+            
+            if (!Hash::check($request->current_password, $admin->password)) {
+                return redirect()->back()
+                    ->withErrors(['current_password' => 'Current password is incorrect.'])
+                    ->withInput();
+            }
+        }
+            
 
         $request->validate([
             'name' => 'required|string|max:255',

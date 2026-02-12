@@ -40,13 +40,45 @@
                                         </label>
                                         <input type="email" class="form-control @error('email') is-invalid @enderror"
                                             id="email" name="email" value="{{ old('email', $admin->email) }}" 
-                                            onkeyup="validateEmail()" onblur="validateEmail()" required>
+                                            onkeyup="handleEmailChange()" onblur="validateEmail()" required>
                                         @error('email')
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
                                         @enderror
                                         <div id="email-feedback" class="mt-2"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Current Password field (shown only when email changes) -->
+                                <div class="row mb-3" id="current-password-group" style="display: none;">
+                                    <div class="col-md-12">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Email Change Detected:</strong> Please enter the current password to confirm this change.
+                                        </div>
+                                        <label for="current_password" class="form-label">
+                                            <i class="fas fa-key me-2"></i>Current Password <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control @error('current_password') is-invalid @enderror"
+                                                id="current_password" name="current_password" 
+                                                placeholder="Enter current password to change email"
+                                                onkeyup="validateCurrentPassword()">
+                                            <button type="button" class="btn btn-outline-secondary toggle-password" 
+                                                onclick="togglePasswordVisibility('current_password')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle me-1"></i>Required to confirm email change for security
+                                        </small>
+                                        @error('current_password')
+                                            <div class="invalid-feedback d-block">
+                                                <i class="fas fa-times-circle me-1"></i>{{ $message }}
+                                            </div>
+                                        @enderror
+                                        <div id="current-password-feedback" class="mt-2"></div>
                                     </div>
                                 </div>
 
@@ -97,7 +129,7 @@
                                 </label>
                                 <div class="input-group">
                                     <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        id="password" name="password" placeholder="Min 8 characters with uppercase, numbers, symbols" 
+                                        id="password" name="password"  
                                         onkeyup="validatePasswordStrength()">
                                     <button type="button" class="btn btn-outline-secondary toggle-password" 
                                         data-target="password" onclick="togglePasswordVisibility('password')">
@@ -299,6 +331,20 @@
             color: #198754 !important;
         }
 
+        /* Current Password validation feedback */
+        #current-password-feedback {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        #current-password-feedback.text-danger {
+            color: #dc3545 !important;
+        }
+
+        #current-password-feedback.text-info {
+            color: #0dcaf0 !important;
+        }
+
         /* Password validation feedback */
         #password-match-feedback {
             font-size: 0.875rem;
@@ -334,9 +380,61 @@
         .form-label i {
             opacity: 0.7;
         }
+
+        /* Highlight field with error from server */
+        .field-error-highlight {
+            animation: shake 0.5s;
+            border-color: #dc3545 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
     </style>
 
     <script>
+        // Store original email for comparison
+        const originalEmail = "{{ $admin->email }}";
+
+        /**
+         * Validate current password field (basic client-side check)
+         */
+        function validateCurrentPassword() {
+            const currentPassword = document.getElementById('current_password').value;
+            const feedback = document.getElementById('current-password-feedback');
+
+            if (!currentPassword) {
+                feedback.textContent = '';
+                feedback.className = '';
+                return;
+            }
+        }
+
+        /**
+         * Handle email change - show/hide current password field
+         */
+        function handleEmailChange() {
+            const email = document.getElementById('email').value;
+            const currentPasswordGroup = document.getElementById('current-password-group');
+            const currentPasswordInput = document.getElementById('current_password');
+            
+            // Validate email format first
+            validateEmail();
+            
+            // Show current password field if email has changed
+            if (email !== originalEmail && email.trim() !== '') {
+                currentPasswordGroup.style.display = 'block';
+                currentPasswordInput.setAttribute('required', 'required');
+            } else {
+                currentPasswordGroup.style.display = 'none';
+                currentPasswordInput.removeAttribute('required');
+                currentPasswordInput.value = ''; // Clear the field
+                document.getElementById('current-password-feedback').textContent = '';
+            }
+        }
+
         /**
          * Validate email format in real-time
          */
@@ -493,24 +591,56 @@
             const form = document.getElementById('editAdminForm');
             const submitBtn = document.getElementById('submitBtn');
 
+            // Check if there was a current_password error from server
+            @error('current_password')
+                const currentPasswordInput = document.getElementById('current_password');
+                const currentPasswordGroup = document.getElementById('current-password-group');
+                
+                // Show the password group if hidden
+                currentPasswordGroup.style.display = 'block';
+                
+                // Add error highlight animation
+                currentPasswordInput.classList.add('field-error-highlight');
+                currentPasswordInput.focus();
+                
+                // Show error toast
+                showToast('error', '{{ $message }}');
+                
+                // Remove animation class after it completes
+                setTimeout(() => {
+                    currentPasswordInput.classList.remove('field-error-highlight');
+                }, 500);
+            @enderror
+
             if (form && submitBtn) {
                 form.addEventListener('submit', function(e) {
                     const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
                     const passwordConfirmation = document.getElementById('password_confirmation').value;
+                    const currentPassword = document.getElementById('current_password').value;
 
                     // Validate email format
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (!emailRegex.test(email)) {
                         e.preventDefault();
                         showToast('error', 'Please enter a valid email address');
+                        document.getElementById('email').focus();
+                        return false;
+                    }
+
+                    // Check if email changed and current password is provided
+                    if (email !== originalEmail && !currentPassword) {
+                        e.preventDefault();
+                        showToast('error', 'Please enter the current password to change the email address');
+                        document.getElementById('current_password').focus();
                         return false;
                     }
 
                     // Check if passwords match
                     if (password && password !== passwordConfirmation) {
                         e.preventDefault();
-                        showToast('error', 'Passwords do not match');
+                        showToast('error', 'New passwords do not match');
+                        document.getElementById('password_confirmation').focus();
                         return false;
                     }
 
@@ -524,10 +654,12 @@
                         if (!hasMinLength || !hasUpperCase || !hasNumber || !hasSymbol) {
                             e.preventDefault();
                             showToast('error', 'Password must be at least 8 characters with uppercase, numbers, and symbols');
+                            document.getElementById('password').focus();
                             return false;
                         }
                     }
 
+                    // Show loading state
                     submitBtn.querySelector('.btn-text').style.display = 'none';
                     submitBtn.querySelector('.btn-loader').style.display = 'inline';
                     submitBtn.disabled = true;
