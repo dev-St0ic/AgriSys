@@ -132,6 +132,17 @@ class AdminProfileController extends Controller
                         'email' => $user->email
                     ]);
 
+                    // OPTIONAL: Log out user immediately for extra security
+                    // Uncomment the lines below if you want users logged out when they REQUEST password change
+                    // (not just when they VERIFY it)
+                    // 
+                    // Auth::logout();
+                    // $request->session()->invalidate();
+                    // $request->session()->regenerateToken();
+                    // 
+                    // return redirect()->route('login')
+                    //     ->with('info', 'For security, you have been logged out. A verification email has been sent to ' . $user->email . '. Please check your inbox to confirm your password change, then login with your new password.');
+
                     return redirect()->route('admin.profile.edit')
                         ->with('info', 'Profile updated! A verification email has been sent to ' . $user->email . '. Please check your inbox to confirm your password change.');
                         
@@ -236,16 +247,30 @@ class AdminProfileController extends Controller
                     ->where('user_id', $userModel->id)
                     ->delete();
 
+                // SECURITY: Invalidate all existing sessions for this user
+                // This logs out the user from all devices
+                DB::table('sessions')
+                    ->where('user_id', $userModel->id)
+                    ->delete();
+
+                // If the current user is logged in and is the same user, log them out
+                if (Auth::check() && Auth::id() === $userModel->id) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                }
+
                 DB::commit();
 
                 Log::info('Password changed successfully via email verification', [
                     'user_id' => $userModel->id,
                     'user_email' => $userModel->email,
-                    'ip' => $request->ip()
+                    'ip' => $request->ip(),
+                    'sessions_invalidated' => true
                 ]);
 
                 return redirect()->route('login')
-                    ->with('success', 'Password changed successfully! Please login with your new password.');
+                    ->with('success', 'Password changed successfully! For security, you have been logged out from all devices. Please login with your new password.');
                     
             } catch (\Exception $e) {
                 DB::rollBack();
