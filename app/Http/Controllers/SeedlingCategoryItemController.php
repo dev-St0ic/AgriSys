@@ -87,6 +87,13 @@ class SeedlingCategoryItemController extends Controller
 
         $category = RequestCategory::create($validated);
 
+        // Log activity
+        $this->logActivity('created', 'RequestCategory', $category->id, [
+            'name' => $category->name,
+            'display_name' => $category->display_name,
+            'icon' => $category->icon
+        ]);
+
         NotificationService::supplyManagementCategoryCreated($category);
 
         return response()->json([
@@ -244,6 +251,14 @@ public function destroyCategory(RequestCategory $category)
 
         $item = CategoryItem::create($validated);
 
+        // Log activity
+        $this->logActivity('created', 'CategoryItem', $item->id, [
+            'name' => $item->name,
+            'category' => $item->category->display_name,
+            'unit' => $item->unit,
+            'initial_supply' => $item->current_supply
+        ]);
+
         // Log initial supply if set
         if ($item->current_supply > 0) {
             ItemSupplyLog::create([
@@ -327,8 +342,12 @@ public function destroyCategory(RequestCategory $category)
             $newCategory->update(['is_active' => true]);
         }
 
-        // ✅ SEND NOTIFICATION IF CHANGES MADE
+        // ✅ LOG ACTIVITY IF CHANGES MADE
         if (!empty($changes)) {
+            $this->logActivity('updated', 'CategoryItem', $item->id, [
+                'name' => $item->name,
+                'changes' => $changes
+            ]);
             NotificationService::supplyManagementItemUpdated($item, $changes);
         }
 
@@ -344,7 +363,7 @@ public function destroyItem(CategoryItem $item)
 {
     // Check if used but DON'T BLOCK - just warn
     $usedInRequests = $item->requestItems()->count();
-    
+
     $categoryId = $item->category_id;
     $itemName = $item->name;
     $categoryName = $item->category->display_name;
@@ -364,11 +383,12 @@ public function destroyItem(CategoryItem $item)
     NotificationService::supplyManagementItemDeleted($itemName, $categoryName);
 
     // Log activity
-    activity()
-        ->performedOn($item)
-        ->causedBy(auth()->user())
-        ->withProperties(['action' => 'moved_to_recycle_bin', 'was_used_in' => $usedInRequests])
-        ->log('deleted');
+    $this->logActivity('deleted', 'CategoryItem', $item->id, [
+        'name' => $itemName,
+        'category' => $categoryName,
+        'was_used_in_requests' => $usedInRequests,
+        'action' => 'moved_to_recycle_bin'
+    ]);
 
     \Log::info('Supply item moved to recycle bin', [
         'item_id' => $item->id,
@@ -497,6 +517,16 @@ public function destroyItem(CategoryItem $item)
         );
 
         if ($success) {
+            // ✅ LOG SUPPLY ADDITION
+            $this->logActivity('supply_added', 'CategoryItem', $item->id, [
+                'item_name' => $item->name,
+                'quantity_added' => $validated['quantity'],
+                'old_supply' => $item->current_supply - $validated['quantity'],
+                'new_supply' => $item->current_supply,
+                'source' => $validated['source'] ?? 'Manual',
+                'notes' => $validated['notes']
+            ]);
+
             // ✅ SEND NOTIFICATION ABOUT SUPPLY ADDED
             NotificationService::supplyManagementSupplyAdded(
                 $item,
@@ -544,8 +574,17 @@ public function destroyItem(CategoryItem $item)
         );
 
         if ($success) {
-            // ✅ SEND NOTIFICATION ABOUT SUPPLY ADJUSTMENT
+            // ✅ LOG SUPPLY ADJUSTMENT
             $item->refresh();
+            $this->logActivity('supply_adjusted', 'CategoryItem', $item->id, [
+                'item_name' => $item->name,
+                'old_supply' => $oldSupply,
+                'new_supply' => $item->current_supply,
+                'change_amount' => $item->current_supply - $oldSupply,
+                'reason' => $validated['reason']
+            ]);
+
+            // ✅ SEND NOTIFICATION ABOUT SUPPLY ADJUSTMENT
             NotificationService::supplyManagementSupplyAdjusted(
                 $item,
                 $oldSupply,
@@ -590,8 +629,17 @@ public function destroyItem(CategoryItem $item)
         );
 
         if ($success) {
-            // ✅ SEND NOTIFICATION ABOUT SUPPLY LOSS
+            // ✅ LOG SUPPLY LOSS
             $item->refresh();
+            $this->logActivity('supply_loss', 'CategoryItem', $item->id, [
+                'item_name' => $item->name,
+                'quantity_lost' => $validated['quantity'],
+                'old_supply' => $item->current_supply + $validated['quantity'],
+                'new_supply' => $item->current_supply,
+                'reason' => $validated['reason']
+            ]);
+
+            // ✅ SEND NOTIFICATION ABOUT SUPPLY LOSS
             NotificationService::supplyManagementSupplyLossRecorded(
                 $item,
                 $validated['quantity'],

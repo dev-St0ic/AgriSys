@@ -69,7 +69,7 @@ class UserRegistration extends Model
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'date_of_birth' => 'date',
-        'sex' => 'string', 
+        'sex' => 'string',
         'name_extension' => 'string',
         'last_login_at' => 'datetime',
         'username_changed_at' => 'datetime',
@@ -329,8 +329,7 @@ class UserRegistration extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 }

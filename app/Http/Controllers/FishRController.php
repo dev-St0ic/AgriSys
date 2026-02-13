@@ -338,6 +338,14 @@ class FishRController extends Controller
             }
 
             // Queue activity logging (non-blocking)
+            $this->logActivity('status_changed', 'FishrApplication', $registration->id, [
+                'application_type' => 'FishR',
+                'old_status' => $previousStatus,
+                'new_status' => $validated['status'],
+                'remarks' => $validated['remarks'],
+                'applicant_name' => $registration->applicant_name
+            ]);
+
             dispatch(function() use ($registration, $previousStatus, $validated) {
                 activity()
                     ->performedOn($registration)
@@ -394,7 +402,7 @@ class FishRController extends Controller
 
                 // Main livelihood info
                 'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
-                'other_livelihood' => 'nullable|string|max:255', 
+                'other_livelihood' => 'nullable|string|max:255',
 
                 // Secondary livelihood info
                 'secondary_livelihood' => [
@@ -778,6 +786,12 @@ public function destroy($id)
                 'fishr_number_assigned_by' => auth()->id()
             ]);
 
+            $this->logActivity('fishr_number_assigned', 'FishrApplication', $registration->id, [
+                'fishr_number' => $number,
+                'applicant_name' => $registration->applicant_name,
+                'assigned_by' => auth()->user()->name
+            ]);
+
             Log::info('FishR number assigned', [
                 'registration_id' => $id,
                 'fishr_number' => $number,
@@ -878,6 +892,14 @@ public function destroy($id)
                 'mime_type' => $file->getMimeType(),
                 'file_size' => $file->getSize(),
                 'uploaded_by' => auth()->id(),
+            ]);
+
+            $this->logActivity('annex_uploaded', 'FishrApplication', $registration->id, [
+                'annex_id' => $annex->id,
+                'annex_title' => $annex->title,
+                'file_name' => $annex->file_name,
+                'file_size' => $annex->file_size,
+                'applicant_name' => $registration->applicant_name
             ]);
 
             Log::info('FishR annex uploaded successfully', [
@@ -1011,7 +1033,7 @@ public function destroy($id)
             abort(500, 'Error downloading file');
         }
     }
-    
+
     /**
      * Delete an annex - moves to recycle bin
      */
@@ -1022,15 +1044,26 @@ public function destroy($id)
             $annex = $registration->annexes()->findOrFail($annexId);
 
             // Move to recycle bin instead of permanent delete
+            $annexTitle = $annex->title;
+            $annexFileName = $annex->file_name;
+
             \App\Services\RecycleBinService::softDelete(
                 $annex,
                 'Deleted from FishR annexes'
             );
 
+            $this->logActivity('annex_deleted', 'FishrApplication', $registration->id, [
+                'annex_id' => $annexId,
+                'annex_title' => $annexTitle,
+                'file_name' => $annexFileName,
+                'applicant_name' => $registration->applicant_name,
+                'action' => 'moved_to_recycle_bin'
+            ]);
+
             Log::info('FishR annex moved to recycle bin', [
                 'registration_id' => $id,
                 'annex_id' => $annexId,
-                'title' => $annex->title,
+                'title' => $annexTitle,
                 'deleted_by' => auth()->id()
             ]);
 

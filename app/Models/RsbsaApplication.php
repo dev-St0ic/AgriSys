@@ -23,15 +23,15 @@ class RsbsaApplication extends Model
         'last_name',
         'name_extension',
         'sex',
-        
+
         // Contact & location
         'contact_number',
         'barangay',
         'address',
-        
+
         // Main livelihood
         'main_livelihood',
-        
+
         // Farmer-specific
         'farmer_crops',
         'farmer_other_crops',
@@ -41,24 +41,24 @@ class RsbsaApplication extends Model
         'farmer_land_ownership',
         'farmer_special_status',
         'farm_location',
-        
+
         // Farmworker-specific
         'farmworker_type',
         'farmworker_other_type',
-        
+
         // Fisherfolk-specific
         'fisherfolk_activity',
         'fisherfolk_other_activity',
-        
+
         // Agri-youth-specific
         'agriyouth_farming_household',
         'agriyouth_training',
         'agriyouth_participation',
-        
+
         // General
         'commodity',
         'supporting_document_path',
-        
+
         // Status
         'status',
         'remarks',
@@ -324,8 +324,7 @@ class RsbsaApplication extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 

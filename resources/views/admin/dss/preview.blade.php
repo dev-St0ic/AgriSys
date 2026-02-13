@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'DSS Report Preview - AgriSys Admin')
+@section('page-icon', 'fas fa-brain')
 @section('page-title', 'Decision Support System - Report Preview')
 
 @section('styles')

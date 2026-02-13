@@ -14,6 +14,7 @@ use App\Models\RsbsaApplication;
 use App\Models\FishrApplication;
 use App\Models\BoatrApplication;
 use App\Models\TrainingRequest;
+use Spatie\Activitylog\Models\Activity;
 
 
 class AuthController extends Controller
@@ -121,19 +122,25 @@ class AuthController extends Controller
             if ($user->hasAdminPrivileges()) {
                 $request->session()->regenerate();
 
-                // Only require verification for regular admins, NOT superadmin
-                if ($user->role === 'admin' && !$user->hasVerifiedEmail()) {
-                    return redirect()->route('verification.notice')
-                        ->with('status', 'Please verify your email.');
-                }
+            // Log successful login
+            $this->logActivity('login', 'User', $user->id, [
+                'role' => $user->role,
+                'success' => true
+            ]);
 
-                // SuperAdmin or verified admin → go to dashboard
-                return redirect()->intended('/admin/dashboard')
-                    ->with('success', 'Welcome back, ' . $user->name . '!');
-            } else {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+            return redirect()->intended('/admin/dashboard')
+                ->with('success', 'Welcome back, ' . $user->name . '!');
+        } else {
+            // User exists but doesn't have admin privileges
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Log failed login attempt (no admin privileges)
+            $this->logActivity('login_failed', 'User', null, [
+                'email' => $credentials['email'],
+                'reason' => 'No admin privileges'
+            ]);
 
                 return back()->withErrors([
                     'email' => 'You do not have admin privileges.',
@@ -155,9 +162,17 @@ class AuthController extends Controller
 
         // Log logout before actually logging out
         if ($user) {
-            $this->logActivity('logout', 'User', $user->id, [
-                'role' => $user->role
-            ]);
+            activity()
+                ->causedBy($user)
+                ->event('logout')
+                ->withProperties([
+                    'role' => $user->role,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log('logout - User (ID: ' . $user->id . ')');
         }
 
         Auth::logout();

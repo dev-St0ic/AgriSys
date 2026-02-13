@@ -28,7 +28,40 @@ class DSSController extends Controller
         try {
             // Check if this is an AJAX request for data loading
             if ($request->ajax()) {
-                return $this->loadDataAjax($request);
+                $response = $this->loadDataAjax($request);
+
+                // Log activity only on successful data load
+                if ($response->getData()->success ?? false) {
+                    $service = $request->get('service', 'comprehensive');
+                    $month = $request->get('month', now()->format('m'));
+                    $year = $request->get('year', now()->format('Y'));
+                    $monthYear = Carbon::createFromDate($year, $month, 1)->format('F Y');
+
+                    $serviceTypes = [
+                        'comprehensive' => 'Supplies',
+                        'training' => 'Training',
+                        'rsbsa' => 'RSBSA',
+                        'fishr' => 'FishR',
+                        'boatr' => 'BoatR'
+                    ];
+
+                    $serviceName = $serviceTypes[$service] ?? 'Comprehensive';
+
+                    activity()
+                        ->causedBy(auth()->user())
+                        ->event('dss_report_viewed')
+                        ->withProperties([
+                            'report_type' => $serviceName,
+                            'month' => $month,
+                            'year' => $year,
+                            'period' => $monthYear,
+                            'ip_address' => $request->ip(),
+                            'user_agent' => $request->userAgent()
+                        ])
+                        ->log("Viewed {$serviceName} DSS Report for {$monthYear}");
+                }
+
+                return $response;
             }
 
             // Get service type from request (default: comprehensive)
@@ -157,6 +190,32 @@ class DSSController extends Controller
                 ]);
 
             $filename .= Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.pdf';
+
+            // Log activity
+            $monthYear = Carbon::createFromDate($year, $month, 1)->format('F Y');
+            $serviceTypes = [
+                'comprehensive' => 'Supplies',
+                'training' => 'Training',
+                'rsbsa' => 'RSBSA',
+                'fishr' => 'FishR',
+                'boatr' => 'BoatR'
+            ];
+            $serviceName = $serviceTypes[$service] ?? 'Comprehensive';
+
+            activity()
+                ->causedBy(auth()->user())
+                ->event('dss_report_downloaded')
+                ->withProperties([
+                    'report_type' => $serviceName,
+                    'month' => $month,
+                    'year' => $year,
+                    'period' => $monthYear,
+                    'filename' => $filename,
+                    'format' => 'PDF',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])
+                ->log("Downloaded {$serviceName} DSS Report (PDF) for {$monthYear}");
 
             return $pdf->download($filename);
 

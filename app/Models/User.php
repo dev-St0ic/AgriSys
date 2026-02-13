@@ -66,7 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
             if (file_exists($publicPath)) {
                 return asset('storage/' . $this->profile_photo);
             }
-            
+
             // Fallback to storage disk URL
             if (Storage::disk('public')->exists($this->profile_photo)) {
                 return Storage::disk('public')->url($this->profile_photo);
@@ -115,8 +115,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 

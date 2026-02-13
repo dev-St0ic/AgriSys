@@ -382,13 +382,12 @@ class FishrApplication extends Model
             ] : null,
         ];
     }
-    
+
     // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll()
-            ->logOnlyDirty()
+            ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
     }
 }

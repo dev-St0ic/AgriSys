@@ -3,9 +3,8 @@
 @extends('layouts.app')
 
 @section('title', 'FISHR Analytics - AgriSys Admin')
-@section('page-title')
-    <i class="fas fa-chart-bar me-2"></i>FISHR Analytics Dashboard
-@endsection
+@section('page-icon', 'fas fa-chart-bar')
+@section('page-title', 'FISHR Analytics Dashboard')
 
 @section('content')
     <!-- Enhanced Service Navigation -->
@@ -19,7 +18,7 @@
                             <div class="nav-icon-wrapper">
                                 <i class="fas fa-seedling"></i>
                             </div>
-                            <span class="nav-label">Seedlings</span>
+                            <span class="nav-label">Supply Request</span>
                         </a>
                         <a href="{{ route('admin.analytics.rsbsa') }}"
                             class="analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">

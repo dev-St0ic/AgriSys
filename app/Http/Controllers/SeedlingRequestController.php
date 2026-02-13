@@ -892,6 +892,20 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 fclose($file);
             };
 
+            // Log export activity
+            $this->logActivity('exported', 'SeedlingRequest', null, [
+                'export_format' => 'csv',
+                'total_records' => $requests->count(),
+                'filters' => [
+                    'search' => $request->get('search'),
+                    'category' => $request->get('category'),
+                    'barangay' => $request->get('barangay'),
+                    'status' => $request->get('status'),
+                    'date_from' => $request->get('date_from'),
+                    'date_to' => $request->get('date_to'),
+                ]
+            ]);
+
             return response()->stream($callback, 200, $headers);
 
         } catch (\Exception $e) {

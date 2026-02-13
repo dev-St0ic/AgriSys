@@ -1146,18 +1146,7 @@
                                     </a>
                                 </li>
 
-                                <!-- Recycle Bin Menu Item -->
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.recycle-bin.index') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.recycle-bin.index') }}" data-tooltip="Recycle Bin"
-                                        aria-label="Recycle Bin" role="menuitem">
-                                        <i class="fas fa-trash-restore" aria-hidden="true"></i>
-                                        <span class="nav-link-text">Recycle Bin</span>
-                                    </a>
-                                </li>
-
-
-                                @if (auth()->user()->isSuperAdmin())
+                                @if (auth()->user()->hasAdminPrivileges())
                                     <!-- Admin Section Separator -->
                                     <div class="nav-section-divider">
                                         <div class="divider-line"></div>
@@ -1170,18 +1159,31 @@
                                             href="{{ route('admin.activity-logs.index') }}" data-tooltip="Activity Logs"
                                             aria-label="Activity Logs" role="menuitem">
                                             <i class="fas fa-history" aria-hidden="true"></i>
-                                            <span class="nav-link-text">Audit Logs</span>
+                                            <span class="nav-link-text">Activity Logs</span>
                                         </a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.admins.index') }}" data-tooltip="Manage Admins"
-                                            aria-label="Manage Admins" role="menuitem">
-                                            <i class="fas fa-users-cog" aria-hidden="true"></i>
-                                            <span class="nav-link-text">Manage Admins</span>
-                                        </a>
-                                    </li>
+
+                                    @if (auth()->user()->isSuperAdmin())
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }} tooltip-custom"
+                                                href="{{ route('admin.admins.index') }}" data-tooltip="Manage Admins"
+                                                aria-label="Manage Admins" role="menuitem">
+                                                <i class="fas fa-users-cog" aria-hidden="true"></i>
+                                                <span class="nav-link-text">Manage Admins</span>
+                                            </a>
+                                        </li>
+                                    @endif
                                 @endif
+
+                                <!-- Recycle Bin Menu Item -->
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.recycle-bin.index') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.recycle-bin.index') }}" data-tooltip="Recycle Bin"
+                                        aria-label="Recycle Bin" role="menuitem">
+                                        <i class="fas fa-trash-restore" aria-hidden="true"></i>
+                                        <span class="nav-link-text">Recycle Bin</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </nav>
@@ -1192,7 +1194,12 @@
                             <!-- Top navbar -->
                             <div
                                 class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                                <h1 class="h2 text-primary">@yield('page-title', '')</h1>
+                                <h1 class="h2" style="color: #4CAF50; display: flex; align-items: center; gap: 0.5rem;">
+                                    @if(trim($__env->yieldContent('page-icon')))
+                                        <i class="@yield('page-icon')" aria-hidden="true"></i>
+                                    @endif
+                                    @yield('page-title', '')
+                                </h1>
                                 <div class="btn-toolbar mb-2 mb-md-0">
                                     <div class="d-flex align-items-center profile-section">
                                         <!-- Language Selector -->
