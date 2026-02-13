@@ -32,6 +32,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\RecycleBinController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SmsNotificationController;
+use App\Http\Controllers\ArchiveController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 
@@ -1006,6 +1007,23 @@ Route::prefix('api/sms')->group(function () {
     });
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ARCHIVE ROUTES (SuperAdmin Only - enforced via controller middleware + auth)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('admin/archive')
+    ->name('admin.archive.')
+    ->middleware(['auth', 'admin'])
+    ->group(function () {
+        Route::get('/', [ArchiveController::class, 'index'])->name('index');
+        Route::get('/retention-schedules', [ArchiveController::class, 'retentionSchedules'])->name('retention-schedules');
+        Route::get('/audit-log', [ArchiveController::class, 'auditLog'])->name('audit-log');
+        Route::get('/{id}', [ArchiveController::class, 'show'])->name('show');
+        Route::post('/from-recycle-bin/{recycleBinId}', [ArchiveController::class, 'archiveFromRecycleBin'])->name('from-recycle-bin');
+        Route::post('/{id}/approve-disposal', [ArchiveController::class, 'approveDisposal'])->name('approve-disposal');
+        Route::post('/{id}/revoke-disposal', [ArchiveController::class, 'revokeDisposal'])->name('revoke-disposal');
+        Route::post('/{id}/dispose', [ArchiveController::class, 'dispose'])->name('dispose');
+        Route::put('/retention-schedules/{id}', [ArchiveController::class, 'updateRetentionSchedule'])->name('retention-schedules.update');
+    });
 /*
 |--------------------------------------------------------------------------
 | Static Pages
