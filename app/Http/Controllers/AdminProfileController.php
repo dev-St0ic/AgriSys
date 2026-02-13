@@ -58,7 +58,7 @@ class AdminProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'contact_number' => ['nullable', 'string', 'max:20'],
-            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:10240'], // 10 mb
             'current_password' => ['required_with:password', 'nullable'],
             'password' => [
                 'nullable',
@@ -136,7 +136,7 @@ class AdminProfileController extends Controller
                             $request->email,
                             'yourself',
                             $token,
-                            'confirmation' // Type: confirmation
+                            'confirmation'
                         ));
                     
                     Log::info('Email change confirmation sent to old email', [

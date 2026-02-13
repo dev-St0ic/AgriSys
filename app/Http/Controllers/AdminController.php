@@ -245,7 +245,7 @@ class AdminController extends Controller
                         $request->email,
                         Auth::user()->name . ' (Super Admin)',
                         $token,
-                        'confirmation' // Type: confirmation
+                        'confirmation' 
                     ));
                     
                 Log::info('Email change confirmation sent to old address for admin', [
@@ -331,6 +331,9 @@ class AdminController extends Controller
                         ->with('success', $successMessage);
     }
 
+    /**
+     * Resend email verification for admin verification
+     */
     public function resendVerificationEmail(User $admin)
     {
         $user = Auth::user();

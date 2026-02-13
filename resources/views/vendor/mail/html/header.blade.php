@@ -3,7 +3,7 @@
 <a href="{{ $url }}" style="display: inline-block;">
 @if (trim($slot) === 'Laravel')
 @php
-    $logoPath = public_path('images/logos/agrii-removebg.png');
+    $logoPath = public_path('images/logos/agri-removebg.png');
     
     if (file_exists($logoPath)) {
         $imageData = base64_encode(file_get_contents($logoPath));
