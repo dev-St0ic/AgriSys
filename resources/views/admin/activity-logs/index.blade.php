@@ -29,18 +29,7 @@
                     <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
                     <div class="row g-2">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <input type="text" name="search" class="form-control form-control-sm"
-                                    placeholder="Search what changed..." value="{{ request('search') }}" id="searchInput">
-                                <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
-                                    id="searchButton">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <select name="module" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Modules</option>
                                 <option value="Event" {{ request('module') == 'Event' ? 'selected' : '' }}>Events</option>
@@ -137,6 +126,17 @@
                                         {{ request('event') == 'annex_deleted' ? 'selected' : '' }}>File Deleted</option>
                                 </optgroup>
                             </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control form-control-sm"
+                                    placeholder="Search what changed..." value="{{ request('search') }}" id="searchInput" oninput="autoSearch()">
+                                <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
+                                    id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="col-md-2">
@@ -1046,7 +1046,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title"><i class="fas fa-calendar-alt"></i> Date Filter</h5>
+                    <h5 class="modal-title w-100 text-center">Date Filter</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -1078,7 +1078,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="clearDateFilter()"><i
-                            class="fas fa-times"></i> Clear</button>
+                           ></i> Clear</button>
                     <button type="button" class="btn btn-primary" onclick="applyDateFilter()"><i
                             class="fas fa-check"></i> Apply Filter</button>
                 </div>
@@ -1324,6 +1324,16 @@
                     content.innerHTML = '<div class="alert alert-danger mb-0">Error loading details</div>';
                     modal.show();
                 });
+        }
+        
+        // Auto search
+        let searchTimeout;
+
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500);
         }
 
         // Submit filter form when dropdowns change
