@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('title', 'Compliance Archive - AgriSys Admin')
-@section('page-icon', 'fas fa-archive')
+@section('page-icon', 'fas fa-file-archive')
 @section('page-title', 'Compliance Archive')
 
 @section('content')
@@ -16,7 +16,7 @@
             <strong>ISO 15489 Records Management Compliance Archive</strong>
             <p class="mb-0 small text-muted">
                 All records in this archive are <strong>immutable and locked</strong>.
-                Disposal requires SuperAdmin approval and follows the configured retention schedule.
+                Disposal requires Super Admin approval and follows the configured retention schedule.
                 All actions are permanently logged for audit compliance.
             </p>
         </div>
@@ -131,7 +131,7 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">
-            <i class="fas fa-archive me-2"></i>Archived Records
+            <i class="fas fa-file-archive me-2"></i>Archived Records
             <span class="badge bg-primary ms-2">{{ $items->total() }}</span>
         </h6>
         <div class="d-flex gap-2">
@@ -264,7 +264,7 @@
                     @empty
                         <tr>
                             <td colspan="9" class="text-center text-muted py-5">
-                                <i class="fas fa-archive fa-3x mb-3" style="opacity:0.2;"></i>
+                                <i class="fas fa-file-archive fa-3x mb-3" style="opacity:0.2;"></i>
                                 <p>No archived records found.</p>
                             </td>
                         </tr>
@@ -293,7 +293,7 @@
         <div class="modal-content">
             <div class="modal-header" style="background:linear-gradient(135deg,#1a237e,#283593);color:white;">
                 <h5 class="modal-title w-100 text-center">
-                    <i class="fas fa-archive me-2"></i>Archive Record Details
+                    <i class="fas fa-file-archive me-2"></i>Archive Record Details
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>

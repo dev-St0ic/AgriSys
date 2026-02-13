@@ -42,12 +42,12 @@ function openFormTraining(event) {
             history.pushState({page: 'training'}, 'Training Application', '/services/training');
         }
 
-        // Auto-fill profile data immediately
-        setTimeout(() => {
-            if (typeof autoFillTrainingFromProfile === 'function') {
-                autoFillTrainingFromProfile();
-            }
-        }, 100);
+        // // Auto-fill profile data immediately
+        // setTimeout(() => {
+        //     if (typeof autoFillTrainingFromProfile === 'function') {
+        //         autoFillTrainingFromProfile();
+        //     }
+        // }, 100);
 
         // Scroll to top with proper timing and multiple fallbacks
         setTimeout(() => {

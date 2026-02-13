@@ -1189,7 +1189,7 @@
                                     <a class="nav-link {{ request()->routeIs('admin.archive.*') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.archive.index') }}" data-tooltip="Compliance Archive"
                                         aria-label="Compliance Archive" role="menuitem">
-                                        <i class="fas fa-archive" aria-hidden="true"></i>
+                                        <i class="fas fa-file-archive" aria-hidden="true"></i>
                                         <span class="nav-link-text">Compliance Archive</span>
                                     </a>
                                 </li>
