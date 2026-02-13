@@ -30,7 +30,7 @@ class AuthController extends Controller
     /**
      * Handle login request
      */
-      public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -39,31 +39,48 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        Auth::logout();
-        $request->session()->flush();
-        $request->session()->regenerate();
-
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $user->refresh();
 
-            // ============================================
-            // STEP 1: Check if user has admin privileges
-            // ============================================
             if ($user->hasAdminPrivileges()) {
 
                 $request->session()->regenerate();
-                
-                // require verification for regular admins and superadmin
+
                 if (!$user->hasVerifiedEmail()) {
                     return redirect()->route('verification.notice')
-                    ->with('status', 'Please verify your email.');
+                        ->with('status', 'Please verify your email.');
                 }
 
-                // SuperAdmin or verified admin → go to dashboard
+                // This is the correct place — $user is defined, event is 'login'
+                activity()
+                    ->causedBy($user)
+                    ->event('login')
+                    ->withProperties([
+                        'role' => $user->role,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'success' => true,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('login - User (ID: ' . $user->id . ')');
+
                 return redirect()->intended('/admin/dashboard')
                     ->with('success', 'Welcome back, ' . $user->name . '!');
+
             } else {
+
+                // Log the failed attempt (non-admin tried to log in)
+                activity()
+                    ->event('login_failed')
+                    ->withProperties([
+                        'email' => $request->email,
+                        'reason' => 'no_admin_privileges',
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('login_failed - User (ID: ' . $user->id . ')');
 
                 Auth::logout();
                 $request->session()->invalidate();
@@ -75,12 +92,22 @@ class AuthController extends Controller
             }
         }
 
+        // Log failed credentials attempt (user not found / wrong password)
+        activity()
+            ->event('login_failed')
+            ->withProperties([
+                'email' => $request->email,
+                'reason' => 'invalid_credentials',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('login_failed - unknown user');
+
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
     }
-
-       
+        
     /**
      * Handle logout request
      */
