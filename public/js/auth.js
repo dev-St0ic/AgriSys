@@ -294,23 +294,50 @@ function toggleUserDropdown() {
 // PROFILE MODAL FUNCTIONS
 // ==============================================
 
-function showProfileModal() {
-    const modal = document.getElementById('profile-modal');
-    if (!modal) {
-        console.error('Profile modal not found');
-        return;
+/**
+ * Show profile modal - with navigation to home first
+ */
+function showProfileModal(event) {
+    // Prevent default link behavior
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
     }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    loadProfileData();
-
-    // Close user dropdown
+    
+    // Close user dropdown first
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
+    
+    // Navigate to home if not already there
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/' && currentPath !== '') {
+        // Hide all forms and show main sections
+        if (typeof hideAllForms === 'function') hideAllForms();
+        if (typeof showAllMainSections === 'function') showAllMainSections();
+        
+        // Update URL to home
+        history.pushState({page: 'home'}, 'Home', '/');
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Open modal after navigation (with small delay for smooth transition)
+    setTimeout(() => {
+        const modal = document.getElementById('profile-modal');
+        if (!modal) {
+            console.error('Profile modal not found');
+            return;
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        loadProfileData();
+    }, currentPath !== '/' ? 300 : 0); // Delay only if we navigated
 }
+
 
 function closeProfileModal() {
     const modal = document.getElementById('profile-modal');
@@ -2103,23 +2130,50 @@ document.addEventListener('DOMContentLoaded', function() {
 // MODAL-BASED USER FUNCTIONS
 // ==============================================
 
-function showMyApplicationsModal() {
-    const modal = document.getElementById('applications-modal');
-    if (!modal) {
-        console.error('Applications modal not found');
-        return;
+/**
+ * Show my applications modal - with navigation to home first
+ */
+function showMyApplicationsModal(event) {
+    // Prevent default link behavior
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
     }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    loadUserApplicationsInModal();
-
-    // Close user dropdown
+    
+    // Close user dropdown first
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
+    
+    // Navigate to home if not already there
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/' && currentPath !== '') {
+        // Hide all forms and show main sections
+        if (typeof hideAllForms === 'function') hideAllForms();
+        if (typeof showAllMainSections === 'function') showAllMainSections();
+        
+        // Update URL to home
+        history.pushState({page: 'home'}, 'Home', '/');
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Open modal after navigation (with small delay for smooth transition)
+    setTimeout(() => {
+        const modal = document.getElementById('applications-modal');
+        if (!modal) {
+            console.error('Applications modal not found');
+            return;
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        loadUserApplicationsInModal();
+    }, currentPath !== '/' ? 300 : 0); // Delay only if we navigated
 }
+
 
 function closeApplicationsModal() {
     const modal = document.getElementById('applications-modal');
