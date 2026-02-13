@@ -30,7 +30,7 @@ class AuthController extends Controller
     /**
      * Handle login request
      */
-    public function login(Request $request)
+      public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -47,28 +47,27 @@ class AuthController extends Controller
             $user = Auth::user();
             $user->refresh();
 
+            // ============================================
+            // STEP 1: Check if user has admin privileges
+            // ============================================
             if ($user->hasAdminPrivileges()) {
+
                 $request->session()->regenerate();
+                
+                // require verification for regular admins and superadmin
+                if (!$user->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice')
+                    ->with('status', 'Please verify your email.');
+                }
 
-            // Log successful login
-            $this->logActivity('login', 'User', $user->id, [
-                'role' => $user->role,
-                'success' => true
-            ]);
+                // SuperAdmin or verified admin → go to dashboard
+                return redirect()->intended('/admin/dashboard')
+                    ->with('success', 'Welcome back, ' . $user->name . '!');
+            } else {
 
-            return redirect()->intended('/admin/dashboard')
-                ->with('success', 'Welcome back, ' . $user->name . '!');
-        } else {
-            // User exists but doesn't have admin privileges
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            // Log failed login attempt (no admin privileges)
-            $this->logActivity('login_failed', 'User', null, [
-                'email' => $credentials['email'],
-                'reason' => 'No admin privileges'
-            ]);
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
 
                 return back()->withErrors([
                     'email' => 'You do not have admin privileges.',
@@ -81,6 +80,7 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
+       
     /**
      * Handle logout request
      */

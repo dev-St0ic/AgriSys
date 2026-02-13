@@ -17,7 +17,7 @@ class SuperAdminSeeder extends Seeder
         // Create Super Admin
         User::create([
             'name' => 'Super Admin',
-            'email' => 'superadmin@agrisys.com',
+            'email' => 'agrisys0@gmail.com',
             'password' => Hash::make('password123'),
             'role' => 'superadmin',
         ]);

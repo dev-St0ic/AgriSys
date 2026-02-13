@@ -83,6 +83,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Email Verification Routes (NO AUTH REQUIRED)
 Route::get('/email/verify', function () {
+    // If user is logged in AND email is verified
+    if (auth()->check() && auth()->user()->hasVerifiedEmail()) {
+        // AUTO-REDIRECT (page closes)
+        return redirect('/login')
+            ->with('info', 'Your email is already verified.');
+    }
+    
+    // If email not verified yet
+    // Show the page (page stays open)
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
