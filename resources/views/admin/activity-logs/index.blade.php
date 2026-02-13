@@ -162,8 +162,10 @@
                 <div class="text-center flex-fill">
                     <h6 class="m-0 font-weight-bold text-primary">
                         <i class="fas fa-history me-2"></i>Audit Logs
+                        <span class="text-muted fw-normal ms-2" style="font-size: 0.85rem;">
+                            Total: <strong>{{ $activities->total() }}</strong>
+                        </span>
                     </h6>
-                    <small class="text-muted">Total: <strong>{{ $activities->total() }}</strong></small>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="{{ route('admin.activity-logs.export', request()->query()) }}"
@@ -173,435 +175,376 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle mb-0">
-                    <thead class="table-light" style="white-space: nowrap;">
-                        <tr>
-                            <th>Date & Time</th>
-                            <th>User</th>
-                            <th>Role</th>
-                            <th>Action</th>
-                            <th>Service/Module</th>
-                            <th>What Changed</th>
-                            <th class="text-center">Full Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($activities as $activity)
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle mb-0">
+                        <thead class="table-dark" style="white-space: nowrap;">
                             <tr>
-                                <td>
-                                    <div class="fw-bold">{{ $activity->created_at->format('M d, Y') }}</div>
-                                    <small class="text-muted">{{ $activity->created_at->format('H:i:s') }}</small>
-                                </td>
-                                <td>
-                                    @php
-                                        // Get the ACTUAL user who performed the action
-                                        $actionUser = $activity->causer;
-                                        $actionUserName = 'System';
-                                        $actionUserEmail = 'N/A';
+                                <th>Date & Time</th>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                                <th>Service/Module</th>
+                                <th>What Changed</th>
+                                <th class="text-center">Full Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($activities as $activity)
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ $activity->created_at->format('M d, Y') }}</div>
+                                        <small class="text-muted">{{ $activity->created_at->format('H:i:s') }}</small>
+                                    </td>
+                                    <td>
+                                        @php
+                                            // Get the ACTUAL user who performed the action
+                                            $actionUser = $activity->causer;
+                                            $actionUserName = 'System';
+                                            $actionUserEmail = 'N/A';
 
-                                        if ($actionUser) {
-                                            // Check if it's a UserRegistration or User model
-    if ($actionUser instanceof \App\Models\UserRegistration) {
-        // UserRegistration: just show username
-        $actionUserName = $actionUser->username ?? 'Unknown User';
-        $actionUserEmail = null; // Don't show secondary info
-                                            } else {
-                                                // User model has: name, email
-                                                $actionUserName = $actionUser->name ?? 'Unknown';
-                                                $actionUserEmail = $actionUser->email ?? 'N/A';
+                                            if ($actionUser) {
+                                                // Check if it's a UserRegistration or User model
+                                                if ($actionUser instanceof \App\Models\UserRegistration) {
+                                                    // UserRegistration: just show username
+                                                    $actionUserName = $actionUser->username ?? 'Unknown User';
+                                                    $actionUserEmail = null; // Don't show secondary info
+                                                } else {
+                                                    // User model has: name, email
+                                                    $actionUserName = $actionUser->name ?? 'Unknown';
+                                                    $actionUserEmail = $actionUser->email ?? 'N/A';
+                                                }
+                                            } elseif (in_array($activity->event, ['login', 'logout', 'login_failed'])) {
+                                                // Fallback: check properties for login/logout activities without causer
+                                                $properties = $activity->properties->all() ?? [];
+                                                $actionUserName =
+                                                    $properties['name'] ??
+                                                    ($properties['email'] ?? ($properties['username'] ?? 'Unknown User'));
+                                                $actionUserEmail =
+                                                    $properties['email'] ?? ($properties['first_name'] ?? 'N/A');
                                             }
-                                        } elseif (in_array($activity->event, ['login', 'logout', 'login_failed'])) {
-                                            // Fallback: check properties for login/logout activities without causer
-                                            $properties = $activity->properties->all() ?? [];
-                                            $actionUserName =
-                                                $properties['name'] ??
-                                                ($properties['email'] ?? ($properties['username'] ?? 'Unknown User'));
-                                            $actionUserEmail =
-                                                $properties['email'] ?? ($properties['first_name'] ?? 'N/A');
-                                        }
-                                    @endphp
+                                        @endphp
 
-                                    @if ($actionUserName !== 'System')
-                                        <div class="fw-bold">{{ $actionUserName }}</div>
-                                        @if ($actionUserEmail)
-                                            <small class="text-muted">{{ $actionUserEmail }}</small>
+                                        @if ($actionUserName !== 'System')
+                                            <div class="fw-bold">{{ $actionUserName }}</div>
+                                            @if ($actionUserEmail)
+                                                <small class="text-muted">{{ $actionUserEmail }}</small>
+                                            @endif
+                                        @else
+                                            <em class="text-muted">System</em>
                                         @endif
-                                    @else
-                                        <em class="text-muted">System</em>
-                                    @endif
-                                </td>
-                                <td>
-                                    @php
-                                        // Show the ACTUAL user's role, not the current superadmin
-$roleBg = 'secondary';
-$roleText = 'System';
+                                    </td>
+                                    <td>
+                                        @php
+                                            // Show the ACTUAL user's role, not the current superadmin
+                                            $roleBg = 'secondary';
+                                            $roleText = 'System';
 
-if ($actionUser) {
-    $roleText = ucfirst($actionUser->role ?? 'user');
+                                            if ($actionUser) {
+                                                $roleText = ucfirst($actionUser->role ?? 'user');
 
-    if ($actionUser->role === 'superadmin') {
-        $roleBg = 'danger';
-    } elseif ($actionUser->role === 'admin') {
-        $roleBg = 'warning';
-    } elseif ($actionUser->role === 'user') {
-        $roleBg = 'info';
-    }
-} elseif (
-    !$actionUser &&
-    in_array($activity->event, ['login', 'logout', 'login_failed'])
-) {
-    // For login/logout without causer, check properties
-    $properties = $activity->properties->all() ?? [];
-    if (isset($properties['role'])) {
-        $roleText = ucfirst($properties['role']);
-        if ($properties['role'] === 'superadmin') {
-            $roleBg = 'danger';
-        } elseif ($properties['role'] === 'admin') {
-            $roleBg = 'warning';
-        } elseif ($properties['role'] === 'user') {
-            $roleBg = 'info';
+                                                if ($actionUser->role === 'superadmin') {
+                                                    $roleBg = 'danger';
+                                                } elseif ($actionUser->role === 'admin') {
+                                                    $roleBg = 'warning';
+                                                } elseif ($actionUser->role === 'user') {
+                                                    $roleBg = 'info';
+                                                }
+                                            } elseif (
+                                                !$actionUser &&
+                                                in_array($activity->event, ['login', 'logout', 'login_failed'])
+                                            ) {
+                                                // For login/logout without causer, check properties
+                                                $properties = $activity->properties->all() ?? [];
+                                                if (isset($properties['role'])) {
+                                                    $roleText = ucfirst($properties['role']);
+                                                    if ($properties['role'] === 'superadmin') {
+                                                        $roleBg = 'danger';
+                                                    } elseif ($properties['role'] === 'admin') {
+                                                        $roleBg = 'warning';
+                                                    } elseif ($properties['role'] === 'user') {
+                                                        $roleBg = 'info';
+                                                    }
                                                 }
                                             }
-                                        }
-                                    @endphp
-                                    <span class="badge bg-{{ $roleBg }}">{{ $roleText }}</span>
-                                </td>
-                                <td>
-                                    @php
-                                        // Extract action from description if event is empty
-                                        $action = $activity->event;
-                                        if (!$action && $activity->description) {
-                                            // Parse "marked_claimed - Model" or "login - User"
-                                            if (preg_match('/^(\w+)\s*-/', $activity->description, $matches)) {
-                                                $action = $matches[1];
+                                        @endphp
+                                        <span class="badge bg-{{ $roleBg }}">{{ $roleText }}</span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            // Extract action from description if event is empty
+                                            $action = $activity->event;
+                                            if (!$action && $activity->description) {
+                                                // Parse "marked_claimed - Model" or "login - User"
+                                                if (preg_match('/^(\w+)\s*-/', $activity->description, $matches)) {
+                                                    $action = $matches[1];
+                                                }
                                             }
-                                        }
 
-                                        // Map actions to badge styling
-                                        $actionMap = [
-                                            'created' => [
-                                                'label' => 'Created',
-                                                'color' => 'success',
-                                                'icon' => 'fa-plus-circle',
-                                            ],
-                                            'updated' => ['label' => 'Updated', 'color' => 'info', 'icon' => 'fa-edit'],
-                                            'deleted' => [
-                                                'label' => 'Deleted',
-                                                'color' => 'danger',
-                                                'icon' => 'fa-trash',
-                                            ],
-                                            'login' => [
-                                                'label' => 'Login',
-                                                'color' => 'primary',
-                                                'icon' => 'fa-sign-in-alt',
-                                            ],
-                                            'logout' => [
-                                                'label' => 'Logout',
-                                                'color' => 'secondary',
-                                                'icon' => 'fa-sign-out-alt',
-                                            ],
-                                            'login_failed' => [
-                                                'label' => 'Login Failed',
-                                                'color' => 'danger',
-                                                'icon' => 'fa-times-circle',
-                                            ],
-                                            'marked_claimed' => [
-                                                'label' => 'Claimed',
-                                                'color' => 'success',
-                                                'icon' => 'fa-check-circle',
-                                            ],
-                                            'approved' => [
-                                                'label' => 'Approved',
-                                                'color' => 'success',
-                                                'icon' => 'fa-thumbs-up',
-                                            ],
-                                            'rejected' => [
-                                                'label' => 'Rejected',
-                                                'color' => 'danger',
-                                                'icon' => 'fa-thumbs-down',
-                                            ],
-                                            'exported' => [
-                                                'label' => 'Exported',
-                                                'color' => 'info',
-                                                'icon' => 'fa-file-export',
-                                            ],
-                                            'downloaded' => [
-                                                'label' => 'Downloaded',
-                                                'color' => 'info',
-                                                'icon' => 'fa-download',
-                                            ],
-                                            'viewed' => [
-                                                'label' => 'Viewed',
-                                                'color' => 'secondary',
-                                                'icon' => 'fa-eye',
-                                            ],
-                                            'status_changed' => [
-                                                'label' => 'Status Changed',
-                                                'color' => 'warning',
-                                                'icon' => 'fa-exchange-alt',
-                                            ],
-                                            'supply_added' => [
-                                                'label' => 'Supply Added',
-                                                'color' => 'success',
-                                                'icon' => 'fa-plus',
-                                            ],
-                                            'supply_adjusted' => [
-                                                'label' => 'Adjusted',
-                                                'color' => 'warning',
-                                                'icon' => 'fa-adjust',
-                                            ],
-                                            'supply_loss' => [
-                                                'label' => 'Supply Loss',
-                                                'color' => 'danger',
-                                                'icon' => 'fa-minus-circle',
-                                            ],
-                                            'inspection_completed' => [
-                                                'label' => 'Inspected',
-                                                'color' => 'info',
-                                                'icon' => 'fa-clipboard-check',
-                                            ],
-                                            'annex_uploaded' => [
-                                                'label' => 'Uploaded',
-                                                'color' => 'success',
-                                                'icon' => 'fa-upload',
-                                            ],
-                                            'annex_deleted' => [
-                                                'label' => 'File Deleted',
-                                                'color' => 'danger',
-                                                'icon' => 'fa-file-times',
-                                            ],
-                                            'dss_report_viewed' => [
-                                                'label' => 'Report Viewed',
-                                                'color' => 'info',
-                                                'icon' => 'fa-chart-line',
-                                            ],
-                                            'dss_report_downloaded' => [
-                                                'label' => 'Report Downloaded',
-                                                'color' => 'success',
-                                                'icon' => 'fa-file-download',
-                                            ],
-                                        ];
-
-                                        $actionData = $actionMap[$action] ?? [
-                                            'label' => ucfirst(str_replace('_', ' ', $action)),
-                                            'color' => 'secondary',
-                                            'icon' => 'fa-circle',
-                                        ];
-                                    @endphp
-                                    <span class="badge bg-{{ $actionData['color'] }}">
-                                        <i class="fas {{ $actionData['icon'] }}"></i> {{ $actionData['label'] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @php
-                                        // Map model types to service/module names
-                                        $modelType = class_basename($activity->subject_type ?? 'System');
-
-                                        // If no subject_type, try to extract from description for old logs
-                                        if (!$activity->subject_type && $activity->description) {
-                                            // Parse description like "marked_claimed - SeedlingRequest (ID: 143)"
-                                            if (preg_match('/- (\w+)/', $activity->description, $matches)) {
-                                                $modelType = $matches[1];
-                                            }
-                                        }
-
-                                        // Special handling for authentication activities without subject
-                                        if (
-                                            !$activity->subject_type &&
-                                            (str_contains($activity->description, 'login') ||
-                                                str_contains($activity->description, 'logout'))
-                                        ) {
-                                            $modelType = 'Authentication';
-                                        }
-
-                                        $serviceMap = [
-                                            'Event' => [
-                                                'name' => 'Events',
-                                                'icon' => 'fa-calendar-alt',
-                                                'color' => 'info',
-                                            ],
-                                            'SlideshowImage' => [
-                                                'name' => 'Slideshow Management',
-                                                'icon' => 'fa-images',
-                                                'color' => 'warning',
-                                            ],
-                                            'User' => [
-                                                'name' => 'User Management',
-                                                'icon' => 'fa-users',
-                                                'color' => 'primary',
-                                            ],
-                                            'UserRegistration' => [
-                                                'name' => 'User Management',
-                                                'icon' => 'fa-users',
-                                                'color' => 'primary',
-                                            ],
-                                            'Authentication' => [
-                                                'name' => 'Authentication',
-                                                'icon' => 'fa-sign-in-alt',
-                                                'color' => 'secondary',
-                                            ],
-                                            'RsbsaApplication' => [
-                                                'name' => 'RSBSA Registrations',
-                                                'icon' => 'fa-file-alt',
-                                                'color' => 'success',
-                                            ],
-                                            'SeedlingRequest' => [
-                                                'name' => 'Supplies Requests',
-                                                'icon' => 'fa-seedling',
-                                                'color' => 'success',
-                                            ],
-                                            'SeedlingRequestItem' => [
-                                                'name' => 'Supplies Requests',
-                                                'icon' => 'fa-seedling',
-                                                'color' => 'success',
-                                            ],
-                                            'CategoryItem' => [
-                                                'name' => 'Supply Management',
-                                                'icon' => 'fa-boxes',
-                                                'color' => 'warning',
-                                            ],
-                                            'RequestCategory' => [
-                                                'name' => 'Supply Management',
-                                                'icon' => 'fa-boxes',
-                                                'color' => 'warning',
-                                            ],
-                                            'FishrApplication' => [
-                                                'name' => 'FishR Registrations',
-                                                'icon' => 'fa-fish',
-                                                'color' => 'info',
-                                            ],
-                                            'FishrAnnex' => [
-                                                'name' => 'FishR Registrations',
-                                                'icon' => 'fa-fish',
-                                                'color' => 'info',
-                                            ],
-                                            'BoatrApplication' => [
-                                                'name' => 'BoatR Registrations',
-                                                'icon' => 'fa-ship',
-                                                'color' => 'primary',
-                                            ],
-                                            'BoatrAnnex' => [
-                                                'name' => 'BoatR Registrations',
-                                                'icon' => 'fa-ship',
-                                                'color' => 'primary',
-                                            ],
-                                            'TrainingApplication' => [
-                                                'name' => 'Training Requests',
-                                                'icon' => 'fa-graduation-cap',
-                                                'color' => 'danger',
-                                            ],
-                                            'RecycleBin' => [
-                                                'name' => 'Recycle Bin',
-                                                'icon' => 'fa-trash-restore',
-                                                'color' => 'secondary',
-                                            ],
-                                            'Barangay' => [
-                                                'name' => 'Barangay Management',
-                                                'icon' => 'fa-map-marker-alt',
-                                                'color' => 'info',
-                                            ],
-                                            'DSSReport' => [
-                                                'name' => 'DSS Reports',
-                                                'icon' => 'fa-chart-line',
-                                                'color' => 'primary',
-                                            ],
-                                        ];
-
-                                        $service = $serviceMap[$modelType] ?? [
-                                            'name' => $modelType,
-                                            'icon' => 'fa-cog',
-                                            'color' => 'secondary',
-                                        ];
-                                    @endphp
-
-                                    <span>
-                                        <i class="fas {{ $service['icon'] }} text-{{ $service['color'] }}"></i>
-                                        {{ $service['name'] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @php
-                                        $subject = $activity->subject;
-                                        $properties = $activity->properties->all() ?? [];
-                                        $changes = $properties['attributes'] ?? [];
-                                        $oldValues = $properties['old'] ?? [];
-
-                                        // Get changed fields
-                                        $changedFields = [];
-                                        if (!empty($changes) && !empty($oldValues)) {
-                                            $changedFields = array_keys(array_diff_assoc($changes, $oldValues));
-                                        }
-
-                                        // Get subject identifier with friendly names
-                                        $subjectName = '';
-                                        $subjectLabel = '';
-                                        $parsedModelType = null;
-                                        $parsedModelId = null;
-
-                                        if ($subject) {
-                                            // Map model types to friendly labels
-                                            $modelType = class_basename(get_class($subject));
-                                            $labelMap = [
-                                                'SeedlingRequest' => 'Supply Request',
-                                                'SeedlingRequestItem' => 'Supply Item',
-                                                'RsbsaApplication' => 'RSBSA Application',
-                                                'FishrApplication' => 'FishR Application',
-                                                'BoatrApplication' => 'BoatR Application',
-                                                'TrainingApplication' => 'Training Application',
-                                                'CategoryItem' => 'Supply Item',
-                                                'User' => 'User',
-                                                'UserRegistration' => 'User Registration',
-                                                'Event' => 'Event',
+                                            // Map actions to badge styling
+                                            $actionMap = [
+                                                'created' => [
+                                                    'label' => 'Created',
+                                                    'color' => 'success',
+                                                    'icon' => 'fa-plus-circle',
+                                                ],
+                                                'updated' => ['label' => 'Updated', 'color' => 'info', 'icon' => 'fa-edit'],
+                                                'deleted' => [
+                                                    'label' => 'Deleted',
+                                                    'color' => 'danger',
+                                                    'icon' => 'fa-trash',
+                                                ],
+                                                'login' => [
+                                                    'label' => 'Login',
+                                                    'color' => 'primary',
+                                                    'icon' => 'fa-sign-in-alt',
+                                                ],
+                                                'logout' => [
+                                                    'label' => 'Logout',
+                                                    'color' => 'secondary',
+                                                    'icon' => 'fa-sign-out-alt',
+                                                ],
+                                                'login_failed' => [
+                                                    'label' => 'Login Failed',
+                                                    'color' => 'danger',
+                                                    'icon' => 'fa-times-circle',
+                                                ],
+                                                'marked_claimed' => [
+                                                    'label' => 'Claimed',
+                                                    'color' => 'success',
+                                                    'icon' => 'fa-check-circle',
+                                                ],
+                                                'approved' => [
+                                                    'label' => 'Approved',
+                                                    'color' => 'success',
+                                                    'icon' => 'fa-thumbs-up',
+                                                ],
+                                                'rejected' => [
+                                                    'label' => 'Rejected',
+                                                    'color' => 'danger',
+                                                    'icon' => 'fa-thumbs-down',
+                                                ],
+                                                'exported' => [
+                                                    'label' => 'Exported',
+                                                    'color' => 'info',
+                                                    'icon' => 'fa-file-export',
+                                                ],
+                                                'downloaded' => [
+                                                    'label' => 'Downloaded',
+                                                    'color' => 'info',
+                                                    'icon' => 'fa-download',
+                                                ],
+                                                'viewed' => [
+                                                    'label' => 'Viewed',
+                                                    'color' => 'secondary',
+                                                    'icon' => 'fa-eye',
+                                                ],
+                                                'status_changed' => [
+                                                    'label' => 'Status Changed',
+                                                    'color' => 'warning',
+                                                    'icon' => 'fa-exchange-alt',
+                                                ],
+                                                'supply_added' => [
+                                                    'label' => 'Supply Added',
+                                                    'color' => 'success',
+                                                    'icon' => 'fa-plus',
+                                                ],
+                                                'supply_adjusted' => [
+                                                    'label' => 'Adjusted',
+                                                    'color' => 'warning',
+                                                    'icon' => 'fa-adjust',
+                                                ],
+                                                'supply_loss' => [
+                                                    'label' => 'Supply Loss',
+                                                    'color' => 'danger',
+                                                    'icon' => 'fa-minus-circle',
+                                                ],
+                                                'inspection_completed' => [
+                                                    'label' => 'Inspected',
+                                                    'color' => 'info',
+                                                    'icon' => 'fa-clipboard-check',
+                                                ],
+                                                'annex_uploaded' => [
+                                                    'label' => 'Uploaded',
+                                                    'color' => 'success',
+                                                    'icon' => 'fa-upload',
+                                                ],
+                                                'annex_deleted' => [
+                                                    'label' => 'File Deleted',
+                                                    'color' => 'danger',
+                                                    'icon' => 'fa-file-times',
+                                                ],
+                                                'dss_report_viewed' => [
+                                                    'label' => 'Report Viewed',
+                                                    'color' => 'info',
+                                                    'icon' => 'fa-chart-line',
+                                                ],
+                                                'dss_report_downloaded' => [
+                                                    'label' => 'Report Downloaded',
+                                                    'color' => 'success',
+                                                    'icon' => 'fa-file-download',
+                                                ],
                                             ];
 
-                                            $subjectLabel = $labelMap[$modelType] ?? $modelType;
+                                            $actionData = $actionMap[$action] ?? [
+                                                'label' => ucfirst(str_replace('_', ' ', $action)),
+                                                'color' => 'secondary',
+                                                'icon' => 'fa-circle',
+                                            ];
+                                        @endphp
+                                        <span class="badge bg-{{ $actionData['color'] }}">
+                                            <i class="fas {{ $actionData['icon'] }}"></i> {{ $actionData['label'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            // Map model types to service/module names
+                                            $modelType = class_basename($activity->subject_type ?? 'System');
 
-                                            // Get the display identifier based on model type
-                                            if ($modelType === 'User') {
-                                                // For User model, show name or email
-                                                $userName =
-                                                    $subject->name ??
-                                                    ($subject->first_name && $subject->last_name
-                                                        ? trim($subject->first_name . ' ' . $subject->last_name)
-                                                        : null);
-                                                $subjectName = $userName ?: $subject->email ?? '#' . $subject->id;
-                                            } elseif ($modelType === 'UserRegistration') {
-                                                // For UserRegistration model, show full name or username
-                                                $userName =
-                                                    $subject->first_name && $subject->last_name
-                                                        ? trim($subject->first_name . ' ' . $subject->last_name)
-                                                        : null;
-                                                $subjectName =
-                                                    $userName ?:
-                                                    ($subject->username ?:
-                                                    ($subject->contact_number ?:
-                                                    '#' . $subject->id));
-                                            } elseif ($modelType === 'SeedlingRequestItem') {
-                                                // For SeedlingRequestItem, show item name and quantity
-                                                $itemName =
-                                                    $subject->item_name ??
-                                                    ($subject->categoryItem->item_name ?? 'Unknown Item');
-                                                $quantity =
-                                                    $subject->approved_quantity ?? ($subject->requested_quantity ?? 0);
-                                                $subjectName = $itemName . ' (' . number_format($quantity) . ' pcs)';
-                                            } else {
-                                                // For other models
-                                                $subjectName =
-                                                    $subject->request_number ??
-                                                    ($subject->application_number ??
-                                                        ($subject->name ??
-                                                            ($subject->title ??
-                                                                ($subject->email ?? ('#' . $subject->id ?? '')))));
+                                            // If no subject_type, try to extract from description for old logs
+                                            if (!$activity->subject_type && $activity->description) {
+                                                // Parse description like "marked_claimed - SeedlingRequest (ID: 143)"
+                                                if (preg_match('/- (\w+)/', $activity->description, $matches)) {
+                                                    $modelType = $matches[1];
+                                                }
                                             }
-                                        } else {
-                                            // For old logs without subject, parse from description
-                                            if (
-                                                preg_match('/- (\w+) \(ID: (\d+)\)/', $activity->description, $matches)
-                                            ) {
-                                                $parsedModelType = $matches[1];
-                                                $parsedModelId = $matches[2];
 
+                                            // Special handling for authentication activities without subject
+                                            if (
+                                                !$activity->subject_type &&
+                                                (str_contains($activity->description, 'login') ||
+                                                    str_contains($activity->description, 'logout'))
+                                            ) {
+                                                $modelType = 'Authentication';
+                                            }
+
+                                            $serviceMap = [
+                                                'Event' => [
+                                                    'name' => 'Events',
+                                                    'icon' => 'fa-calendar-alt',
+                                                    'color' => 'info',
+                                                ],
+                                                'SlideshowImage' => [
+                                                    'name' => 'Slideshow Management',
+                                                    'icon' => 'fa-images',
+                                                    'color' => 'warning',
+                                                ],
+                                                'User' => [
+                                                    'name' => 'User Management',
+                                                    'icon' => 'fa-users',
+                                                    'color' => 'primary',
+                                                ],
+                                                'UserRegistration' => [
+                                                    'name' => 'User Management',
+                                                    'icon' => 'fa-users',
+                                                    'color' => 'primary',
+                                                ],
+                                                'Authentication' => [
+                                                    'name' => 'Authentication',
+                                                    'icon' => 'fa-sign-in-alt',
+                                                    'color' => 'secondary',
+                                                ],
+                                                'RsbsaApplication' => [
+                                                    'name' => 'RSBSA Registrations',
+                                                    'icon' => 'fa-file-alt',
+                                                    'color' => 'success',
+                                                ],
+                                                'SeedlingRequest' => [
+                                                    'name' => 'Supplies Requests',
+                                                    'icon' => 'fa-seedling',
+                                                    'color' => 'success',
+                                                ],
+                                                'SeedlingRequestItem' => [
+                                                    'name' => 'Supplies Requests',
+                                                    'icon' => 'fa-seedling',
+                                                    'color' => 'success',
+                                                ],
+                                                'CategoryItem' => [
+                                                    'name' => 'Supply Management',
+                                                    'icon' => 'fa-boxes',
+                                                    'color' => 'warning',
+                                                ],
+                                                'RequestCategory' => [
+                                                    'name' => 'Supply Management',
+                                                    'icon' => 'fa-boxes',
+                                                    'color' => 'warning',
+                                                ],
+                                                'FishrApplication' => [
+                                                    'name' => 'FishR Registrations',
+                                                    'icon' => 'fa-fish',
+                                                    'color' => 'info',
+                                                ],
+                                                'FishrAnnex' => [
+                                                    'name' => 'FishR Registrations',
+                                                    'icon' => 'fa-fish',
+                                                    'color' => 'info',
+                                                ],
+                                                'BoatrApplication' => [
+                                                    'name' => 'BoatR Registrations',
+                                                    'icon' => 'fa-ship',
+                                                    'color' => 'primary',
+                                                ],
+                                                'BoatrAnnex' => [
+                                                    'name' => 'BoatR Registrations',
+                                                    'icon' => 'fa-ship',
+                                                    'color' => 'primary',
+                                                ],
+                                                'TrainingApplication' => [
+                                                    'name' => 'Training Requests',
+                                                    'icon' => 'fa-graduation-cap',
+                                                    'color' => 'danger',
+                                                ],
+                                                'RecycleBin' => [
+                                                    'name' => 'Recycle Bin',
+                                                    'icon' => 'fa-trash-restore',
+                                                    'color' => 'secondary',
+                                                ],
+                                                'Barangay' => [
+                                                    'name' => 'Barangay Management',
+                                                    'icon' => 'fa-map-marker-alt',
+                                                    'color' => 'info',
+                                                ],
+                                                'DSSReport' => [
+                                                    'name' => 'DSS Reports',
+                                                    'icon' => 'fa-chart-line',
+                                                    'color' => 'primary',
+                                                ],
+                                            ];
+
+                                            $service = $serviceMap[$modelType] ?? [
+                                                'name' => $modelType,
+                                                'icon' => 'fa-cog',
+                                                'color' => 'secondary',
+                                            ];
+                                        @endphp
+
+                                        <span>
+                                            <i class="fas {{ $service['icon'] }} text-{{ $service['color'] }}"></i>
+                                            {{ $service['name'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $subject = $activity->subject;
+                                            $properties = $activity->properties->all() ?? [];
+                                            $changes = $properties['attributes'] ?? [];
+                                            $oldValues = $properties['old'] ?? [];
+
+                                            // Get changed fields
+                                            $changedFields = [];
+                                            if (!empty($changes) && !empty($oldValues)) {
+                                                $changedFields = array_keys(array_diff_assoc($changes, $oldValues));
+                                            }
+
+                                            // Get subject identifier with friendly names
+                                            $subjectName = '';
+                                            $subjectLabel = '';
+                                            $parsedModelType = null;
+                                            $parsedModelId = null;
+
+                                            if ($subject) {
+                                                // Map model types to friendly labels
+                                                $modelType = class_basename(get_class($subject));
                                                 $labelMap = [
                                                     'SeedlingRequest' => 'Supply Request',
                                                     'SeedlingRequestItem' => 'Supply Item',
@@ -612,346 +555,407 @@ if ($actionUser) {
                                                     'CategoryItem' => 'Supply Item',
                                                     'User' => 'User',
                                                     'UserRegistration' => 'User Registration',
+                                                    'Event' => 'Event',
                                                 ];
 
-                                                $subjectLabel = $labelMap[$parsedModelType] ?? $parsedModelType;
-                                                $subjectName = '#' . $parsedModelId;
+                                                $subjectLabel = $labelMap[$modelType] ?? $modelType;
 
-                                                // Try to load the actual subject to get proper identifiers
-                                                if ($parsedModelType === 'SeedlingRequest') {
-                                                    try {
-                                                        $subject = \App\Models\SeedlingRequest::withTrashed()->find(
-                                                            $parsedModelId,
-                                                        );
-                                                        // Update subject name with request_number if loaded
-                                                        if ($subject && $subject->request_number) {
-                                                            $subjectName = $subject->request_number;
-                                                        }
-                                                    } catch (\Exception $e) {
-                                                        // Subject not found
-                                                    }
-                                                } elseif (
-                                                    in_array($parsedModelType, [
-                                                        'RsbsaApplication',
-                                                        'FishrApplication',
-                                                        'BoatrApplication',
-                                                        'TrainingApplication',
-                                                    ])
+                                                // Get the display identifier based on model type
+                                                if ($modelType === 'User') {
+                                                    // For User model, show name or email
+                                                    $userName =
+                                                        $subject->name ??
+                                                        ($subject->first_name && $subject->last_name
+                                                            ? trim($subject->first_name . ' ' . $subject->last_name)
+                                                            : null);
+                                                    $subjectName = $userName ?: $subject->email ?? '#' . $subject->id;
+                                                } elseif ($modelType === 'UserRegistration') {
+                                                    // For UserRegistration model, show full name or username
+                                                    $userName =
+                                                        $subject->first_name && $subject->last_name
+                                                            ? trim($subject->first_name . ' ' . $subject->last_name)
+                                                            : null;
+                                                    $subjectName =
+                                                        $userName ?:
+                                                        ($subject->username ?:
+                                                        ($subject->contact_number ?:
+                                                        '#' . $subject->id));
+                                                } elseif ($modelType === 'SeedlingRequestItem') {
+                                                    // For SeedlingRequestItem, show item name and quantity
+                                                    $itemName =
+                                                        $subject->item_name ??
+                                                        ($subject->categoryItem->item_name ?? 'Unknown Item');
+                                                    $quantity =
+                                                        $subject->approved_quantity ?? ($subject->requested_quantity ?? 0);
+                                                    $subjectName = $itemName . ' (' . number_format($quantity) . ' pcs)';
+                                                } else {
+                                                    // For other models
+                                                    $subjectName =
+                                                        $subject->request_number ??
+                                                        ($subject->application_number ??
+                                                            ($subject->name ??
+                                                                ($subject->title ??
+                                                                    ($subject->email ?? ('#' . $subject->id ?? '')))));
+                                                }
+                                            } else {
+                                                // For old logs without subject, parse from description
+                                                if (
+                                                    preg_match('/- (\w+) \(ID: (\d+)\)/', $activity->description, $matches)
                                                 ) {
-                                                    try {
-                                                        $modelClass = "\\App\\Models\\{$parsedModelType}";
-                                                        if (class_exists($modelClass)) {
-                                                            $subject = $modelClass::withTrashed()->find($parsedModelId);
-                                                            // Update subject name with application_number if loaded
-                                                            if ($subject && $subject->application_number) {
-                                                                $subjectName = $subject->application_number;
+                                                    $parsedModelType = $matches[1];
+                                                    $parsedModelId = $matches[2];
+
+                                                    $labelMap = [
+                                                        'SeedlingRequest' => 'Supply Request',
+                                                        'SeedlingRequestItem' => 'Supply Item',
+                                                        'RsbsaApplication' => 'RSBSA Application',
+                                                        'FishrApplication' => 'FishR Application',
+                                                        'BoatrApplication' => 'BoatR Application',
+                                                        'TrainingApplication' => 'Training Application',
+                                                        'CategoryItem' => 'Supply Item',
+                                                        'User' => 'User',
+                                                        'UserRegistration' => 'User Registration',
+                                                    ];
+
+                                                    $subjectLabel = $labelMap[$parsedModelType] ?? $parsedModelType;
+                                                    $subjectName = '#' . $parsedModelId;
+
+                                                    // Try to load the actual subject to get proper identifiers
+                                                    if ($parsedModelType === 'SeedlingRequest') {
+                                                        try {
+                                                            $subject = \App\Models\SeedlingRequest::withTrashed()->find(
+                                                                $parsedModelId,
+                                                            );
+                                                            // Update subject name with request_number if loaded
+                                                            if ($subject && $subject->request_number) {
+                                                                $subjectName = $subject->request_number;
                                                             }
+                                                        } catch (\Exception $e) {
+                                                            // Subject not found
                                                         }
-                                                    } catch (\Exception $e) {
-                                                        // Subject not found
-                                                    }
-                                                } elseif ($parsedModelType === 'UserRegistration') {
-                                                    try {
-                                                        $subject = \App\Models\UserRegistration::withTrashed()->find(
-                                                            $parsedModelId,
-                                                        );
-                                                        if ($subject) {
-                                                            // Show full name or username
-                                                            $userName =
-                                                                $subject->first_name && $subject->last_name
-                                                                    ? trim(
-                                                                        $subject->first_name .
-                                                                            ' ' .
-                                                                            $subject->last_name,
-                                                                    )
-                                                                    : null;
-                                                            $subjectName =
-                                                                $userName ?:
-                                                                ($subject->username ?:
-                                                                ($subject->contact_number ?:
-                                                                '#' . $subject->id));
+                                                    } elseif (
+                                                        in_array($parsedModelType, [
+                                                            'RsbsaApplication',
+                                                            'FishrApplication',
+                                                            'BoatrApplication',
+                                                            'TrainingApplication',
+                                                        ])
+                                                    ) {
+                                                        try {
+                                                            $modelClass = "\\App\\Models\\{$parsedModelType}";
+                                                            if (class_exists($modelClass)) {
+                                                                $subject = $modelClass::withTrashed()->find($parsedModelId);
+                                                                // Update subject name with application_number if loaded
+                                                                if ($subject && $subject->application_number) {
+                                                                    $subjectName = $subject->application_number;
+                                                                }
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            // Subject not found
                                                         }
-                                                    } catch (\Exception $e) {
-                                                        // Subject not found
-                                                    }
-                                                } elseif ($parsedModelType === 'User') {
-                                                    try {
-                                                        $subject = \App\Models\User::withTrashed()->find(
-                                                            $parsedModelId,
-                                                        );
-                                                        if ($subject) {
-                                                            // Show name or email
-                                                            $userName =
-                                                                $subject->name ??
-                                                                ($subject->first_name && $subject->last_name
-                                                                    ? trim(
-                                                                        $subject->first_name .
-                                                                            ' ' .
-                                                                            $subject->last_name,
-                                                                    )
-                                                                    : null);
-                                                            $subjectName =
-                                                                $userName ?: ($subject->email ?: '#' . $subject->id);
+                                                    } elseif ($parsedModelType === 'UserRegistration') {
+                                                        try {
+                                                            $subject = \App\Models\UserRegistration::withTrashed()->find(
+                                                                $parsedModelId,
+                                                            );
+                                                            if ($subject) {
+                                                                // Show full name or username
+                                                                $userName =
+                                                                    $subject->first_name && $subject->last_name
+                                                                        ? trim(
+                                                                            $subject->first_name .
+                                                                                ' ' .
+                                                                                $subject->last_name,
+                                                                        )
+                                                                        : null;
+                                                                $subjectName =
+                                                                    $userName ?:
+                                                                    ($subject->username ?:
+                                                                    ($subject->contact_number ?:
+                                                                    '#' . $subject->id));
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            // Subject not found
                                                         }
-                                                    } catch (\Exception $e) {
-                                                        // Subject not found
-                                                    }
-                                                } elseif ($parsedModelType === 'SeedlingRequestItem') {
-                                                    try {
-                                                        $subject = \App\Models\SeedlingRequestItem::with('categoryItem')
-                                                            ->withTrashed()
-                                                            ->find($parsedModelId);
-                                                        if ($subject) {
-                                                            // Show item name and quantity
-                                                            $itemName =
-                                                                $subject->item_name ??
-                                                                ($subject->categoryItem->item_name ?? 'Unknown Item');
-                                                            $quantity =
-                                                                $subject->approved_quantity ??
-                                                                ($subject->requested_quantity ?? 0);
-                                                            $subjectName =
-                                                                $itemName . ' (' . number_format($quantity) . ' pcs)';
+                                                    } elseif ($parsedModelType === 'User') {
+                                                        try {
+                                                            $subject = \App\Models\User::withTrashed()->find(
+                                                                $parsedModelId,
+                                                            );
+                                                            if ($subject) {
+                                                                // Show name or email
+                                                                $userName =
+                                                                    $subject->name ??
+                                                                    ($subject->first_name && $subject->last_name
+                                                                        ? trim(
+                                                                            $subject->first_name .
+                                                                                ' ' .
+                                                                                $subject->last_name,
+                                                                        )
+                                                                        : null);
+                                                                $subjectName =
+                                                                    $userName ?: ($subject->email ?: '#' . $subject->id);
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            // Subject not found
                                                         }
-                                                    } catch (\Exception $e) {
-                                                        // Subject not found
+                                                    } elseif ($parsedModelType === 'SeedlingRequestItem') {
+                                                        try {
+                                                            $subject = \App\Models\SeedlingRequestItem::with('categoryItem')
+                                                                ->withTrashed()
+                                                                ->find($parsedModelId);
+                                                            if ($subject) {
+                                                                // Show item name and quantity
+                                                                $itemName =
+                                                                    $subject->item_name ??
+                                                                    ($subject->categoryItem->item_name ?? 'Unknown Item');
+                                                                $quantity =
+                                                                    $subject->approved_quantity ??
+                                                                    ($subject->requested_quantity ?? 0);
+                                                                $subjectName =
+                                                                    $itemName . ' (' . number_format($quantity) . ' pcs)';
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            // Subject not found
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                    @endphp
-
-                                    <div class="small">
-                                        @php
-                                            // Check if this is a login/logout activity
-                                            $isAuthActivity =
-                                                stripos($activity->description, 'login') !== false ||
-                                                stripos($activity->description, 'logout') !== false ||
-                                                $activity->event === 'login' ||
-                                                $activity->event === 'logout';
                                         @endphp
 
-                                        @if ($isAuthActivity)
-                                            {{-- For login/logout, show descriptive message instead of User: #1 --}}
-                                            <strong class="text-dark">
-                                                @if (stripos($activity->description, 'login') !== false || $activity->event === 'login')
-                                                    Logged into the system
-                                                @elseif (stripos($activity->description, 'logout') !== false || $activity->event === 'logout')
-                                                    Logged out of the system
-                                                @else
-                                                    {{ $activity->description }}
-                                                @endif
-                                            </strong>
-                                        @elseif ($subjectLabel && $subjectName)
-                                            <strong class="text-dark">{{ $subjectLabel }}: <code
-                                                    class="bg-light px-1">{{ $subjectName }}</code></strong>
+                                        <div class="small">
+                                            @php
+                                                // Check if this is a login/logout activity
+                                                $isAuthActivity =
+                                                    stripos($activity->description, 'login') !== false ||
+                                                    stripos($activity->description, 'logout') !== false ||
+                                                    $activity->event === 'login' ||
+                                                    $activity->event === 'logout';
+                                            @endphp
 
-                                            {{-- Show supply items inline for SeedlingRequest --}}
-                                            @if ($subject && get_class($subject) === 'App\Models\SeedlingRequest')
+                                            @if ($isAuthActivity)
+                                                {{-- For login/logout, show descriptive message instead of User: #1 --}}
+                                                <strong class="text-dark">
+                                                    @if (stripos($activity->description, 'login') !== false || $activity->event === 'login')
+                                                        Logged into the system
+                                                    @elseif (stripos($activity->description, 'logout') !== false || $activity->event === 'logout')
+                                                        Logged out of the system
+                                                    @else
+                                                        {{ $activity->description }}
+                                                    @endif
+                                                </strong>
+                                            @elseif ($subjectLabel && $subjectName)
+                                                <strong class="text-dark">{{ $subjectLabel }}: <code
+                                                        class="bg-light px-1">{{ $subjectName }}</code></strong>
+
+                                                {{-- Show supply items inline for SeedlingRequest --}}
+                                                @if ($subject && get_class($subject) === 'App\Models\SeedlingRequest')
+                                                    @php
+                                                        try {
+                                                            $items = $subject->items()->with('categoryItem')->get();
+                                                        } catch (\Exception $e) {
+                                                            $items = collect();
+                                                        }
+                                                    @endphp
+                                                    @if ($items && $items->count() > 0)
+                                                        <div class="text-muted mt-1 small">
+                                                            @foreach ($items->take(2) as $item)
+                                                                <div>
+                                                                    <i class="fas fa-leaf text-success"></i>
+                                                                    {{ $item->item_name ?? ($item->categoryItem->item_name ?? 'Unknown Item') }}
+                                                                    <span
+                                                                        class="badge bg-secondary">{{ number_format($item->approved_quantity ?? $item->requested_quantity) }}</span>
+                                                                </div>
+                                                            @endforeach
+                                                            @if ($items->count() > 2)
+                                                                <div class="text-primary">
+                                                                    +{{ $items->count() - 2 }} more
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                @endif
+                                            @else
+                                                <strong class="text-dark">{{ $activity->description }}</strong>
+                                            @endif
+
+                                            @if (!empty($changedFields))
+                                                <div class="mt-2 small">
+                                                    @php
+                                                        // Define important fields that should show old → new values
+                                                        $importantFields = [
+                                                            'status',
+                                                            'claimed_by',
+                                                            'approved_by',
+                                                            'rejected_by',
+                                                            'is_active',
+                                                            'role',
+                                                            'email',
+                                                            'quantity',
+                                                        ];
+                                                        $displayCount = 0;
+                                                        $maxDisplay = 4;
+                                                    @endphp
+
+                                                    @foreach ($changedFields as $field)
+                                                        @if ($displayCount < $maxDisplay)
+                                                            @php
+                                                                $fieldLabel = ucfirst(str_replace('_', ' ', $field));
+                                                                $oldVal = $oldValues[$field] ?? 'null';
+                                                                $newVal = $changes[$field] ?? 'null';
+
+                                                                // Helper function to format timestamps
+                                                                $formatValue = function ($val) {
+                                                                    if (is_bool($val)) {
+                                                                        return $val ? 'Yes' : 'No';
+                                                                    }
+                                                                    if (is_null($val)) {
+                                                                        return 'None';
+                                                                    }
+                                                                    // Check if value looks like a timestamp
+                                                                    if (
+                                                                        is_string($val) &&
+                                                                        preg_match(
+                                                                            '/^\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}/',
+                                                                            $val,
+                                                                        )
+                                                                    ) {
+                                                                        try {
+                                                                            $date = new \DateTime($val);
+                                                                            return $date->format('M d, Y H:i');
+                                                                        } catch (\Exception $e) {
+                                                                            return $val;
+                                                                        }
+                                                                    }
+                                                                    // Truncate long strings
+                                                                    if (is_string($val) && strlen($val) > 30) {
+                                                                        return substr($val, 0, 30) . '...';
+                                                                    }
+                                                                    return $val;
+                                                                };
+
+                                                                $oldDisplay = $formatValue($oldVal);
+                                                                $newDisplay = $formatValue($newVal);
+
+                                                                $displayCount++;
+                                                            @endphp
+
+                                                            <div class="text-muted mb-1">
+                                                                @if (in_array($field, $importantFields))
+                                                                    <i class="fas fa-arrow-right text-primary"></i>
+                                                                    <strong class="text-dark">{{ $fieldLabel }}:</strong>
+                                                                    <span class="text-danger">{{ $oldDisplay }}</span>
+                                                                    <i class="fas fa-long-arrow-alt-right mx-1"></i>
+                                                                    <span
+                                                                        class="text-success fw-bold">{{ $newDisplay }}</span>
+                                                                @else
+                                                                    <i class="fas fa-edit"></i>
+                                                                    <strong>{{ $fieldLabel }}:</strong>
+                                                                    <code class="bg-light px-1">{{ $newDisplay }}</code>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+
+                                                    @if (count($changedFields) > $maxDisplay)
+                                                        <div class="text-primary small">
+                                                            <i class="fas fa-plus-circle"></i>
+                                                            {{ count($changedFields) - $maxDisplay }} more field(s) changed
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            {{-- Show login details for authentication activities --}}
+                                            @php
+                                                $isLoginActivity =
+                                                    stripos($activity->description, 'login') !== false ||
+                                                    $activity->event === 'login';
+                                            @endphp
+                                            @if ($isLoginActivity)
                                                 @php
-                                                    try {
-                                                        $items = $subject->items()->with('categoryItem')->get();
-                                                    } catch (\Exception $e) {
-                                                        $items = collect();
+                                                    $ipAddress =
+                                                        $properties['ip_address'] ??
+                                                        ($properties['attributes']['ip_address'] ?? null);
+                                                    $userAgent =
+                                                        $properties['user_agent'] ??
+                                                        ($properties['attributes']['user_agent'] ?? null);
+
+                                                    // Parse user agent to get browser and OS
+                                                    $browser = 'Unknown';
+                                                    $os = 'Unknown';
+                                                    if ($userAgent) {
+                                                        // Detect browser
+                                                        if (stripos($userAgent, 'Edge') !== false) {
+                                                            $browser = 'Edge';
+                                                        } elseif (stripos($userAgent, 'Chrome') !== false) {
+                                                            $browser = 'Chrome';
+                                                        } elseif (stripos($userAgent, 'Firefox') !== false) {
+                                                            $browser = 'Firefox';
+                                                        } elseif (stripos($userAgent, 'Safari') !== false) {
+                                                            $browser = 'Safari';
+                                                        } elseif (stripos($userAgent, 'Opera') !== false) {
+                                                            $browser = 'Opera';
+                                                        }
+
+                                                        // Detect OS
+                                                        if (stripos($userAgent, 'Windows') !== false) {
+                                                            $os = 'Windows';
+                                                        } elseif (stripos($userAgent, 'Mac') !== false) {
+                                                            $os = 'macOS';
+                                                        } elseif (stripos($userAgent, 'Linux') !== false) {
+                                                            $os = 'Linux';
+                                                        } elseif (stripos($userAgent, 'Android') !== false) {
+                                                            $os = 'Android';
+                                                        } elseif (
+                                                            stripos($userAgent, 'iOS') !== false ||
+                                                            stripos($userAgent, 'iPhone') !== false
+                                                        ) {
+                                                            $os = 'iOS';
+                                                        }
                                                     }
                                                 @endphp
-                                                @if ($items && $items->count() > 0)
-                                                    <div class="text-muted mt-1 small">
-                                                        @foreach ($items->take(2) as $item)
-                                                            <div>
-                                                                <i class="fas fa-leaf text-success"></i>
-                                                                {{ $item->item_name ?? ($item->categoryItem->item_name ?? 'Unknown Item') }}
-                                                                <span
-                                                                    class="badge bg-secondary">{{ number_format($item->approved_quantity ?? $item->requested_quantity) }}</span>
+
+                                                @if ($ipAddress || $userAgent)
+                                                    <div class="mt-2 pt-2 border-top small">
+                                                        @if ($ipAddress)
+                                                            <div class="text-muted">
+                                                                <i class="fas fa-map-marker-alt text-info"></i>
+                                                                <strong>IP:</strong> <code
+                                                                    class="bg-light px-1">{{ $ipAddress }}</code>
                                                             </div>
-                                                        @endforeach
-                                                        @if ($items->count() > 2)
-                                                            <div class="text-primary">
-                                                                +{{ $items->count() - 2 }} more
+                                                        @endif
+                                                        @if ($userAgent)
+                                                            <div class="text-muted">
+                                                                <i class="fas fa-desktop text-primary"></i>
+                                                                <strong>Device:</strong> {{ $os }} ·
+                                                                {{ $browser }}
                                                             </div>
                                                         @endif
                                                     </div>
                                                 @endif
                                             @endif
-                                        @else
-                                            <strong class="text-dark">{{ $activity->description }}</strong>
-                                        @endif
-
-                                        @if (!empty($changedFields))
-                                            <div class="mt-2 small">
-                                                @php
-                                                    // Define important fields that should show old → new values
-                                                    $importantFields = [
-                                                        'status',
-                                                        'claimed_by',
-                                                        'approved_by',
-                                                        'rejected_by',
-                                                        'is_active',
-                                                        'role',
-                                                        'email',
-                                                        'quantity',
-                                                    ];
-                                                    $displayCount = 0;
-                                                    $maxDisplay = 4;
-                                                @endphp
-
-                                                @foreach ($changedFields as $field)
-                                                    @if ($displayCount < $maxDisplay)
-                                                        @php
-                                                            $fieldLabel = ucfirst(str_replace('_', ' ', $field));
-                                                            $oldVal = $oldValues[$field] ?? 'null';
-                                                            $newVal = $changes[$field] ?? 'null';
-
-                                                            // Helper function to format timestamps
-                                                            $formatValue = function ($val) {
-                                                                if (is_bool($val)) {
-                                                                    return $val ? 'Yes' : 'No';
-                                                                }
-                                                                if (is_null($val)) {
-                                                                    return 'None';
-                                                                }
-                                                                // Check if value looks like a timestamp
-                                                                if (
-                                                                    is_string($val) &&
-                                                                    preg_match(
-                                                                        '/^\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}/',
-                                                                        $val,
-                                                                    )
-                                                                ) {
-                                                                    try {
-                                                                        $date = new \DateTime($val);
-                                                                        return $date->format('M d, Y H:i');
-                                                                    } catch (\Exception $e) {
-                                                                        return $val;
-                                                                    }
-                                                                }
-                                                                // Truncate long strings
-                                                                if (is_string($val) && strlen($val) > 30) {
-                                                                    return substr($val, 0, 30) . '...';
-                                                                }
-                                                                return $val;
-                                                            };
-
-                                                            $oldDisplay = $formatValue($oldVal);
-                                                            $newDisplay = $formatValue($newVal);
-
-                                                            $displayCount++;
-                                                        @endphp
-
-                                                        <div class="text-muted mb-1">
-                                                            @if (in_array($field, $importantFields))
-                                                                <i class="fas fa-arrow-right text-primary"></i>
-                                                                <strong class="text-dark">{{ $fieldLabel }}:</strong>
-                                                                <span class="text-danger">{{ $oldDisplay }}</span>
-                                                                <i class="fas fa-long-arrow-alt-right mx-1"></i>
-                                                                <span
-                                                                    class="text-success fw-bold">{{ $newDisplay }}</span>
-                                                            @else
-                                                                <i class="fas fa-edit"></i>
-                                                                <strong>{{ $fieldLabel }}:</strong>
-                                                                <code class="bg-light px-1">{{ $newDisplay }}</code>
-                                                            @endif
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-
-                                                @if (count($changedFields) > $maxDisplay)
-                                                    <div class="text-primary small">
-                                                        <i class="fas fa-plus-circle"></i>
-                                                        {{ count($changedFields) - $maxDisplay }} more field(s) changed
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        {{-- Show login details for authentication activities --}}
-                                        @php
-                                            $isLoginActivity =
-                                                stripos($activity->description, 'login') !== false ||
-                                                $activity->event === 'login';
-                                        @endphp
-                                        @if ($isLoginActivity)
-                                            @php
-                                                $ipAddress =
-                                                    $properties['ip_address'] ??
-                                                    ($properties['attributes']['ip_address'] ?? null);
-                                                $userAgent =
-                                                    $properties['user_agent'] ??
-                                                    ($properties['attributes']['user_agent'] ?? null);
-
-                                                // Parse user agent to get browser and OS
-                                                $browser = 'Unknown';
-                                                $os = 'Unknown';
-                                                if ($userAgent) {
-                                                    // Detect browser
-                                                    if (stripos($userAgent, 'Edge') !== false) {
-                                                        $browser = 'Edge';
-                                                    } elseif (stripos($userAgent, 'Chrome') !== false) {
-                                                        $browser = 'Chrome';
-                                                    } elseif (stripos($userAgent, 'Firefox') !== false) {
-                                                        $browser = 'Firefox';
-                                                    } elseif (stripos($userAgent, 'Safari') !== false) {
-                                                        $browser = 'Safari';
-                                                    } elseif (stripos($userAgent, 'Opera') !== false) {
-                                                        $browser = 'Opera';
-                                                    }
-
-                                                    // Detect OS
-                                                    if (stripos($userAgent, 'Windows') !== false) {
-                                                        $os = 'Windows';
-                                                    } elseif (stripos($userAgent, 'Mac') !== false) {
-                                                        $os = 'macOS';
-                                                    } elseif (stripos($userAgent, 'Linux') !== false) {
-                                                        $os = 'Linux';
-                                                    } elseif (stripos($userAgent, 'Android') !== false) {
-                                                        $os = 'Android';
-                                                    } elseif (
-                                                        stripos($userAgent, 'iOS') !== false ||
-                                                        stripos($userAgent, 'iPhone') !== false
-                                                    ) {
-                                                        $os = 'iOS';
-                                                    }
-                                                }
-                                            @endphp
-
-                                            @if ($ipAddress || $userAgent)
-                                                <div class="mt-2 pt-2 border-top small">
-                                                    @if ($ipAddress)
-                                                        <div class="text-muted">
-                                                            <i class="fas fa-map-marker-alt text-info"></i>
-                                                            <strong>IP:</strong> <code
-                                                                class="bg-light px-1">{{ $ipAddress }}</code>
-                                                        </div>
-                                                    @endif
-                                                    @if ($userAgent)
-                                                        <div class="text-muted">
-                                                            <i class="fas fa-desktop text-primary"></i>
-                                                            <strong>Device:</strong> {{ $os }} ·
-                                                            {{ $browser }}
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endif
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary"
-                                        onclick="showDetails({{ $activity->id }})" data-bs-toggle="tooltip"
-                                        title="View details">
-                                        <i class="fas fa-eye"></i> View Details
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-5">
-                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                    <strong>No activity logs found</strong>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            onclick="showDetails({{ $activity->id }})" data-bs-toggle="tooltip"
+                                            title="View details">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-5">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                        <strong>No activity logs found</strong>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Pagination -->
