@@ -548,7 +548,7 @@ Route::middleware('admin')->group(function () {
      * Slideshow Management
      * Manages homepage slideshow images
      */
-    Route::prefix('slideshow')->name('admin.slideshow.')->group(function () {
+    Route::prefix('admin/slideshow')->name('admin.slideshow.')->group(function () {
         Route::get('/', [SlideshowController::class, 'index'])->name('index');
         Route::post('/', [SlideshowController::class, 'store'])->name('store');
         Route::put('/{id}', [SlideshowController::class, 'update'])->name('update');

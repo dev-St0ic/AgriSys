@@ -14,7 +14,8 @@ class SlideshowController extends Controller
      */
     public function index()
     {
-        $slides = SlideshowImage::ordered()->get();
+        // $slides = SlideshowImage::ordered()->get();
+        $slides = SlideshowImage::ordered()->paginate(10);
         return view('admin.slideshow.index', compact('slides'));
     }
 
