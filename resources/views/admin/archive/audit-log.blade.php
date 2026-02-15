@@ -75,6 +75,7 @@
                         <th>Performed By</th>
                         <th class="text-center">Role</th>
                         <th>IP Address</th>
+                        <th>Notes</th>
                         <th class="text-center">Performed At</th>
                     </tr>
                 </thead>
@@ -105,12 +106,17 @@
                             </td>
                             <td class="text-center">
                                 <span class="badge bg-secondary small">
-                                    {{ $log->performed_by_role ?? '—' }}
+                                    {{ ucfirst($log->performed_by_role ?? '—') }}
                                 </span>
                             </td>
                             <td>
                                 <small class="text-muted font-monospace">
                                     {{ $log->performed_by_ip ?? '—' }}
+                                </small>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ $log->notes ?? '—' }}
                                 </small>
                             </td>
                             <td class="text-center">

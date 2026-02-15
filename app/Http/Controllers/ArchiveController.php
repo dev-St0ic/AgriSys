@@ -103,15 +103,16 @@ class ArchiveController extends Controller
     // SHOW
     // ─────────────────────────────────────────────
 
-    public function show($id)
+   public function show($id)
     {   
         $this->requireSuperAdmin();
+        
         try {
             $archive = Archive::with(['archivedBy', 'disposalApprovedBy', 'disposedBy', 'auditLogs.performedBy'])
-                              ->findOrFail($id);
+                            ->findOrFail($id);
 
-            // Log view
-            ArchiveService::log($archive, ArchiveAuditLog::ACTION_VIEWED);
+            // Log view - fix the method call
+            ArchiveService::log($archive, ArchiveAuditLog::ACTION_VIEWED, 'Record viewed');
 
             // Verify integrity on view
             $integrity = ArchiveService::verifyIntegrity($archive);
@@ -123,33 +124,44 @@ class ArchiveController extends Controller
                     'archive_reference_number' => $archive->archive_reference_number,
                     'type_label'               => $archive->type_label,
                     'item_name'                => $archive->item_name,
-                    'archive_reason'           => $archive->archive_reason,
+                    'archive_reason'           => $archive->archive_reason ?? '',
                     'classification'           => $archive->classification,
                     'classification_badge'     => $archive->classification_badge_color,
                     'retention_category'       => $archive->retention_category,
                     'retention_category_label' => $archive->retention_category_label,
                     'retention_years'          => $archive->retention_years,
                     'retention_expires_at'     => $archive->retention_expires_at?->format('M d, Y') ?? 'PERMANENT',
-                    'disposal_authority'       => $archive->disposal_authority,
+                    'disposal_authority'       => $archive->disposal_authority ?? '',
                     'disposal_status'          => $archive->disposal_status,
                     'disposal_status_badge'    => $archive->disposal_status_badge_color,
                     'is_expired'               => $archive->is_expired,
                     'is_locked'                => $archive->is_locked,
                     'archived_by'              => $archive->archivedBy?->name ?? 'Unknown',
                     'archived_at'              => $archive->archived_at->format('M d, Y h:i A'),
-                    'data'                     => $archive->data,
+                    'data'                     => $archive->data ?? [],
                     'integrity'                => $integrity,
                     'audit_logs'               => $archive->auditLogs->map(fn($log) => [
-                        'action'       => $log->action_label,
-                        'action_badge' => $log->action_badge_color,
+                        'action'       => $log->action_label ?? $log->action,
+                        'action_badge' => $log->action_badge_color ?? 'secondary',
                         'performed_by' => $log->performedBy?->name ?? 'System',
                         'performed_at' => $log->performed_at->format('M d, Y h:i A'),
-                        'notes'        => $log->notes,
+                        'notes'        => $log->notes ?? '',
                     ]),
                 ]
             ]);
+            
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Record not found'], 404);
+            \Log::error('Archive show error', [
+                'id' => $id, 
+                'error' => $e->getMessage(), 
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error loading record: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -242,10 +254,14 @@ class ArchiveController extends Controller
     // RETENTION SCHEDULES
     // ─────────────────────────────────────────────
 
-    public function retentionSchedules()
+    public function retentionSchedules(Request $request)
     {
         $this->requireSuperAdmin();
-        $schedules = RetentionSchedule::orderBy('retention_category')->get();
+        
+        $query = RetentionSchedule::orderBy('retention_category')->orderBy('record_label');
+        
+        $schedules = $query->paginate(15)->appends($request->query());
+        
         return view('admin.archive.retention-schedules', compact('schedules'));
     }
 

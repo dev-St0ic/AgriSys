@@ -1061,7 +1061,7 @@
                                         href="{{ route('admin.event.index') }}" data-tooltip="Event Management"
                                         aria-label="Event Management" role="menuitem">
                                         <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                                        <span class="nav-link-text">Events</span>
+                                        <span class="nav-link-text">Event Management</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">

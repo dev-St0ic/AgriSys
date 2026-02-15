@@ -93,6 +93,7 @@ return new class extends Migration
             $table->string('performed_by_ip')->nullable();
             $table->string('performed_by_role')->nullable();
             $table->json('metadata')->nullable();                 // Extra context
+             $table->text('notes')->nullable();
             $table->timestamp('performed_at');
 
             $table->index('archive_id');

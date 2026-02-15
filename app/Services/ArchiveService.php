@@ -181,7 +181,7 @@ class ArchiveService
     /**
      * Log an action on an archive record (immutable audit trail)
      */
-    public static function log(Archive $archive, string $action, array $metadata = []): void
+    public static function log(Archive $archive, string $action, ?string $notes = null): void
     {
         try {
             ArchiveAuditLog::create([
@@ -190,7 +190,8 @@ class ArchiveService
                 'performed_by'     => auth()->id(),
                 'performed_by_ip'  => Request::ip(),
                 'performed_by_role'=> auth()->user()?->role ?? 'unknown',
-                'metadata'         => $metadata,
+                'notes'            => $notes,
+                'metadata'         => [],
                 'performed_at'     => now(),
             ]);
         } catch (\Exception $e) {
