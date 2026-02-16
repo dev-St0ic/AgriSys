@@ -4823,6 +4823,7 @@ body:has(#verification-modal[style*="display: flex"]) {
     align-items: center;
     flex-shrink: 0;
     box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
+    margin-top: 25px;
 }
 
 .verification-alert-modal .step-text {
