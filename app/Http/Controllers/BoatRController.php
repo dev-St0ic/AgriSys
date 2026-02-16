@@ -200,17 +200,24 @@ class BoatRController extends Controller
             $validated['application_number'] = $this->generateApplicationNumber();
 
             // Build full_name
-            $fullName = $validated['first_name'] . ' ' .
-                    ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') .
-                    $validated['last_name'] .
-                    ($validated['name_extension'] ? ' ' . $validated['name_extension'] : '');
+            // $fullName = $validated['first_name'] . ' ' .
+            //         ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') .
+            //         $validated['last_name'] .
+            //         ($validated['name_extension'] ? ' ' . $validated['name_extension'] : '');
 
-            $validated['full_name'] = trim($fullName);
+            // $validated['full_name'] = trim($fullName);
 
             // Calculate boat_dimensions string (Length × Width × Depth)
-            $validated['boat_dimensions'] = $validated['boat_length'] . '×' .
-                                        $validated['boat_width'] . '×' .
-                                        $validated['boat_depth'] . ' ft';
+            // $validated['boat_dimensions'] = $validated['boat_length'] . '×' .
+            //                             $validated['boat_width'] . '×' .
+            //                             $validated['boat_depth'] . ' ft';
+
+
+            // //  Only add engine fields if motorized
+            // if ($validated['boat_classification'] === 'Motorized') {
+            //     $createData['engine_type'] = $validated['engine_type'];
+            //     $createData['engine_horsepower'] = $validated['engine_horsepower'];
+            // }
 
             // Handle document upload
             if ($request->hasFile('user_document')) {
@@ -1662,7 +1669,7 @@ public function validateFishrNumber($fishrNumber)
             ], 200);
         }
 
-        // ✅ CHECK 2: Verify username matches (WITHOUT revealing owner info)
+        // CHECK 2: Verify username matches (WITHOUT revealing owner info)
         if ($currentUser) {
             $currentUsername = strtoupper(trim($currentUser->username ?? ''));
 
@@ -1705,7 +1712,8 @@ public function validateFishrNumber($fishrNumber)
             'barangay' => $fishrApp->barangay ?? '',
             'fishr_app_id' => $fishrApp->id,
             'registration_number' => $fishrApp->registration_number,
-            'boats_count' => $boatCount
+            'boats_count' => $boatCount,
+            'fisher_name' => trim($fishrApp->first_name . ' ' . $fishrApp->last_name) 
         ], 200);
 
     } catch (\Exception $e) {

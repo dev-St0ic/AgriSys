@@ -356,12 +356,12 @@ Route::middleware('admin')->group(function () {
     });
     
     /**
-     * FishR Validation for BoatR Form (Authenticated Users Only)
+     * FishR Validation for BoatR Form ADMIN
      * Validates FishR numbers when creating BoatR applications
      */
-    Route::middleware('auth')->get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
+    Route::middleware('auth')->get('/admin/boatr/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
         ->where('fishrNumber', '.*')
-        ->name('validate.fishr');
+        ->name('admin.boatr.validate-fishr');
 
     // ==============================================
     // TRAINING REGISTRATIONS MANAGEMENT

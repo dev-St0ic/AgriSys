@@ -6455,7 +6455,7 @@
             } else {
                 // For non-motorized boats, send empty values
                 formData.append('engine_type', '');
-                formData.append('engine_horsepower', 0);
+                formData.append('engine_horsepower', '');
 
                 console.log('Engine Info (Non-motorized): EMPTY');
             }
@@ -7026,7 +7026,7 @@
 
                     showToast('success', `✓ Auto-filled: ${data.fisher_name}`);
                 } else {
-                    // ❌ FishR not found
+                    // FishR not found
                     input.classList.remove('is-valid');
                     input.classList.add('is-invalid');
                     showAdminValidationMessage(input, (data.message || 'FishR not found in system'), 'error');
@@ -7383,10 +7383,10 @@
             }
 
             // === STEP 6: Show Errors ===
-            if (!isValid && errors.length > 0) {
-                console.log('Validation errors:', errors);
-                showToast('error', errors[0]);
-            }
+            // if (!isValid && errors.length > 0) {
+            //     console.log('Validation errors:', errors);
+            //     showToast('error', errors[0]);
+            // }
 
             return isValid;
         }
@@ -8323,7 +8323,7 @@
             }
 
             if (!isValid) {
-                showToast('error', errors[0] || 'Please fix all validation errors');
+                showToast('error', errors[0] || 'Please fix all validation errors before submitting');
                 return;
             }
 

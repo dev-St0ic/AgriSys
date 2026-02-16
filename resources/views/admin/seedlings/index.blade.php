@@ -1649,7 +1649,7 @@
     @endif
 
     @if ($requests->hasPages())
-        <div class="d-flex justify-content-center mt-4">
+        <div class="d-flex justify-content-center mt-4" style="padding-left: 50px;">
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm">
                     {{-- Previous Page Link --}}
@@ -1968,109 +1968,7 @@
             </div>
         </div>
     </div>
-
-
-
-    <!-- Date Filter Modal -->
-    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
-                        <i></i>Select Date Range
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-4">
-                        <!-- Date Range Inputs -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
-                                    </h6>
-                                    <div class="mb-3">
-                                        <label for="modal_date_from" class="form-label">From Date</label>
-                                        <input type="date" id="modal_date_from" class="form-control"
-                                            value="{{ request('date_from') }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="modal_date_to" class="form-label">To Date</label>
-                                        <input type="date" id="modal_date_to" class="form-control"
-                                            value="{{ request('date_to') }}">
-                                    </div>
-                                    <button type="button" class="btn btn-primary w-100"
-                                        onclick="applyCustomDateRange()">
-                                        <i class="fas fa-check me-2"></i>Apply Custom Range
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Date Presets -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-clock me-2"></i>Quick Presets
-                                    </h6>
-                                    <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success"
-                                            onclick="setDateRangeModal('today')">
-                                            <i class="fas fa-calendar-day me-2"></i>Today
-                                        </button>
-                                        <button type="button" class="btn btn-outline-info"
-                                            onclick="setDateRangeModal('week')">
-                                            <i class="fas fa-calendar-week me-2"></i>This Week
-                                        </button>
-                                        <button type="button" class="btn btn-outline-warning"
-                                            onclick="setDateRangeModal('month')">
-                                            <i class="fas fa-calendar me-2"></i>This Month
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary"
-                                            onclick="setDateRangeModal('year')">
-                                            <i class="fas fa-calendar-alt me-2"></i>This Year
-                                        </button>
-                                        <hr class="my-3">
-                                        <button type="button" class="btn btn-outline-secondary w-100"
-                                            onclick="clearDateRangeModal()">
-                                            <i class="fas fa-times me-2"></i>Clear Date Filter
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Current Filter Status -->
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="alert alert-info mb-0">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <span id="dateFilterStatus">
-                                    @if (request('date_from') || request('date_to'))
-                                        Current filter:
-                                        @if (request('date_from'))
-                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
-                                        @endif
-                                        @if (request('date_to'))
-                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
-                                        @endif
-                                    @else
-                                        No date filter applied - showing all requests
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
+</div>
 
     <!-- Document Viewer Modal -->
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel"
@@ -3079,8 +2977,125 @@
         .modal.show .modal-dialog {
             z-index: 1060 !important;
         }
-    </style>
+        /* CRITICAL FIX: Force modal to display properly */
+#dateFilterModal {
+    z-index: 1060 !important;
+}
 
+#dateFilterModal.show {
+    display: block !important;
+}
+
+#dateFilterModal .modal-dialog {
+    z-index: 1061 !important;
+}
+
+.modal-backdrop {
+    z-index: 1055 !important;
+}
+    </style>
+    
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100"
+                                            onclick="clearDateRangeModal()">
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="dateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all requests
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endsection
+@section('scripts')
     <script>
         let searchTimeout;
 
@@ -5871,5 +5886,62 @@
                 }, 500);
             }
         });
+// CRITICAL: Ensure date filter modal works
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, initializing date filter...');
+    
+    // Wait for Bootstrap to be fully loaded
+    const initDateFilter = () => {
+        const dateFilterBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
+        const dateFilterModal = document.getElementById('dateFilterModal');
+        
+        console.log('Date filter button found:', !!dateFilterBtn);
+        console.log('Date filter modal found:', !!dateFilterModal);
+        
+        if (dateFilterBtn && dateFilterModal) {
+            // Remove any existing click handlers
+            dateFilterBtn.replaceWith(dateFilterBtn.cloneNode(true));
+            const newBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
+            
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Date filter clicked!');
+                
+                try {
+                    // Ensure any existing modal instance is disposed
+                    const existingModal = bootstrap.Modal.getInstance(dateFilterModal);
+                    if (existingModal) {
+                        existingModal.dispose();
+                    }
+                    
+                    // Create new modal instance
+                    const modal = new bootstrap.Modal(dateFilterModal, {
+                        backdrop: true,
+                        keyboard: true,
+                        focus: true
+                    });
+                    
+                    modal.show();
+                    console.log('Modal show() called');
+                } catch (error) {
+                    console.error('Error showing modal:', error);
+                    alert('Error opening date filter. Please refresh the page.');
+                }
+            });
+            
+            console.log('Date filter initialized successfully');
+        } else {
+            console.error('Date filter elements not found!');
+        }
+    };
+    
+    // Initialize after a short delay to ensure Bootstrap is ready
+    if (typeof bootstrap !== 'undefined') {
+        setTimeout(initDateFilter, 100);
+    } else {
+        console.error('Bootstrap not loaded!');
+    }
+});
     </script>
 @endsection
