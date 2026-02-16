@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -99,6 +100,14 @@ class FishrApplication extends Model
     public function annexes(): HasMany
     {
         return $this->hasMany(FishrAnnex::class, 'fishr_application_id', 'id');
+    }
+
+    /**
+     * Get the first annex for table preview (eager loadable)
+     */
+    public function firstAnnex(): HasOne
+    {
+        return $this->hasOne(FishrAnnex::class, 'fishr_application_id', 'id')->oldestOfMany();
     }
 
     /**

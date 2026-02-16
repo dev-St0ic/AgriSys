@@ -57,9 +57,12 @@ class FishRController extends Controller
             }
 
             // Sort and paginate
-            $registrations = $query->orderBy('created_at', 'desc')
-                                  ->paginate(10)
-                                  ->appends($request->query());
+           $registrations = FishrApplication::query()
+                    ->withCount('annexes') 
+                    ->with('firstAnnex')
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10)
+                    ->appends($request->query());
 
             // Calculate statistics
             $totalRegistrations = FishrApplication::count();

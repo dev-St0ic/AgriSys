@@ -217,9 +217,12 @@ class SeedlingRequestController extends Controller
 
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $seedlingRequest->id,
-                    'category_id' => $categoryItem->category_id,
-                    'category_item_id' => $categoryItem->id,
+                    'category_id' => $categoryItem->category_id, // snapshot
+                    'category_item_id' => $categoryItem->id, // snapshot
+                    'category_name' => $categoryItem->category?->display_name, // snapshot
+                    'category_icon' => $categoryItem->category?->icon,    // snapshot
                     'item_name' => $categoryItem->name,
+                    'item_unit' => $categoryItem->unit,
                     'requested_quantity' => $itemData['quantity'],
                     'status' => 'pending',
                 ]);

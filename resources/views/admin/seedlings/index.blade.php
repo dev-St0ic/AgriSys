@@ -253,11 +253,19 @@
                                             <div class="requested-items-container">
                                                 @foreach ($itemsByCategory as $categoryId => $items)
                                                     @php
-                                                        $category = $items->first()->category;
-                                                        $approvedItems = $items->where('status', 'approved');
-                                                        $rejectedItems = $items->where('status', 'rejected');
-                                                        $pendingItems = $items->where('status', 'pending');
-                                                        $categoryTotal = $items->count();
+                                                        $firstItem = $items->first();
+                                                        // Use snapshot or live data
+                                                        $categoryDisplayName = $firstItem->category_name 
+                                                            ?? $firstItem->category?->display_name 
+                                                            ?? 'Deleted Category';
+                                                        $categoryIcon = $firstItem->category_icon 
+                                                            ?? $firstItem->category?->icon 
+                                                            ?? 'fa-leaf';
+
+                                                            $approvedItems = $items->where('status', 'approved');
+                                                            $rejectedItems = $items->where('status', 'rejected');
+                                                            $pendingItems = $items->where('status', 'pending');
+                                                            $categoryTotal = $items->count();
                                                     @endphp
 
                                                     <div class="category-group mb-2">
@@ -267,10 +275,8 @@
                                                             data-bs-target="#items-{{ $request->id }}-{{ $categoryId }}"
                                                             aria-expanded="false">
                                                             <div class="d-flex align-items-center flex-grow-1">
-                                                                <i class="fas {{ $category->icon ?? 'fa-leaf' }} text-primary me-2"
-                                                                    style="font-size: 0.9rem;"></i>
-                                                                <strong class="text-dark"
-                                                                    style="font-size: 0.85rem;">{{ $category->display_name }}</strong>
+                                                              <i class="fas {{ $categoryIcon }} text-primary me-2"></i>
+                                                                <strong class="text-dark">{{ $categoryDisplayName }}</strong>
                                                                 <span class="badge bg-secondary ms-2"
                                                                     style="font-size: 0.7rem;">{{ $categoryTotal }}</span>
                                                             </div>
@@ -754,14 +760,34 @@
                                                     @php
                                                         $category = $items->first()->category;
                                                     @endphp
+
+                                                    @if(!$category)
+                                                        <div class="mb-4 p-3 border rounded alert alert-warning">
+                                                            <strong class="text-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                Deleted Category
+                                                            </strong>
+                                                            <span class="badge bg-secondary">{{ $items->count() }} items</span>
+                                                            
+                                                            {{-- Show the items even though category is deleted --}}
+                                                            <div class="ms-3 mt-2">
+                                                                @foreach($items as $item)
+                                                                    <span class="badge bg-secondary mb-1">
+                                                                        {{ $item->item_name }} ({{ $item->requested_quantity }})
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                        @continue
+                                                    @endif
+
                                                     <div
                                                         class="mb-4 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
                                                         <div
                                                             class="d-flex justify-content-between align-items-center mb-3">
                                                             <strong class="text-primary">
-                                                                <i
-                                                                    class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                                {{ $category->display_name }}
+                                                                <i class="fas {{ $categoryIcon }} text-primary me-2"></i>
+                                                                {{  $categoryDisplayName  }}
                                                             </strong>
                                                             <span class="badge bg-secondary">{{ $items->count() }}
                                                                 items</span>
@@ -1390,12 +1416,18 @@
 
                                             @foreach ($itemsByCategory as $categoryId => $items)
                                                 @php
-                                                    $category = $items->first()->category;
+                                                    $firstItem = $items->first();
+                                                    $categoryDisplayName = $firstItem->category_name 
+                                                        ?? $firstItem->category?->display_name 
+                                                        ?? 'Deleted Category';
+                                                    $categoryIcon = $firstItem->category_icon 
+                                                        ?? $firstItem->category?->icon 
+                                                        ?? 'fa-leaf';
                                                 @endphp
                                                 <div class="mb-4 p-3 border-0 bg-white rounded-3 shadow-sm">
                                                     <h6 class="mb-3 fw-bold text-primary">
-                                                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                        {{ $category->display_name }}
+                                                        <i class="fas {{ $categoryIcon }} me-2"></i>
+                                                        {{ $categoryDisplayName }}
                                                     </h6>
 
                                                     @foreach ($items as $item)
@@ -4726,12 +4758,13 @@
                 JSON.parse(submitBtn.dataset.changedFields) : [];
 
             const fieldLabels = {
-                'first_name': 'First Name',
+               'first_name': 'First Name',
                 'middle_name': 'Middle Name',
                 'last_name': 'Last Name',
-                'extension_name': 'Extension',
+                'extension_name': 'Name Extension',
                 'contact_number': 'Contact Number',
                 'barangay': 'Barangay',
+                'pickup_date': 'Pickup Date',
                 'supporting_document': 'Supporting Document'
             };
 
