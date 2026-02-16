@@ -766,7 +766,7 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="edit_rsbsa_farmer_land_area" class="form-label fw-semibold">
-                                                Land Area (hectares) <span class="text-danger">*</span>
+                                                Land Area (hectares)</span>
                                             </label>
                                             <input type="number" class="form-control" id="edit_rsbsa_farmer_land_area"
                                                 name="farmer_land_area" step="0.01" min="0" max="1000"
@@ -1867,6 +1867,43 @@
             border-color: #0dcaf0;
             color: white;
         }
+        
+        /* Fix View Document button - center icon and text */
+        #applicationDetails .card.border-secondary .btn-primary {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+        }
+
+        #applicationDetails .card.border-secondary .btn-primary i.fas {
+            margin: 0 !important;
+            line-height: 1 !important;
+            vertical-align: middle !important;
+            font-size: 1em !important;
+        }
+
+        #applicationDetails .card.border-secondary {
+            background-color: #ffffff !important;
+        }
+
+        #applicationDetails .card.border-secondary .card-body {
+            background-color: #ffffff !important;
+        }
+
+        #applicationDetails .card.border-secondary .card-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            color: #ffffff !important;
+        }
+
+        #applicationDetails .card.border-secondary .card-header h6 {
+            color: #ffffff !important;
+        }
+
+        #applicationDetails .card.border-secondary .card-header i {
+            color: #ffffff !important;
+        }
 
         /* Responsive Adjustments */
         @media (max-width: 768px) {
@@ -2847,8 +2884,8 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="rsbsa_farmer_land_area" class="form-label fw-semibold">
-                                                Land Area (hectares) <span class="text-danger" id="farmer_area_req"
-                                                    style="display:none;">*</span>
+                                                Land Area (hectares) <span id="farmer_area_req"
+                                                    style="display:none;"></span>
                                             </label>
                                             <input type="number" class="form-control" id="rsbsa_farmer_land_area"
                                                 name="farmer_land_area" step="0.01" min="0" max="1000"
@@ -3203,17 +3240,15 @@
         }
 
         function applyCustomDateRange() {
-            const dateFrom = document.getElementById('modal_date_from').value;
-            const dateTo = document.getElementById('modal_date_to').value;
+            const fromDate = document.getElementById('modal_date_from').value;
+            const toDate = document.getElementById('modal_date_to').value;
 
-            if (dateFrom && dateTo && dateFrom > dateTo) {
-                agrisysModal.warning('From date cannot be later than To date', {
-                    title: 'Invalid Date Range'
-                });
+            if (fromDate && toDate && fromDate > toDate) {
+                showToast('error', 'From date cannot be later than To date');
                 return;
             }
 
-            applyDateFilter(dateFrom, dateTo);
+            applyDateFilter(fromDate, toDate);
         }
 
         function applyDateFilter(dateFrom, dateTo) {
@@ -6043,9 +6078,9 @@
                 formData.append(field.name, field.value);
 
                 if (field.value !== '') {
-                    console.log(`  ✅ ${field.name.padEnd(35)} = "${field.value}"`);
+                    console.log(`[OK] ${field.name.padEnd(35)} = "${field.value}"`);
                 } else {
-                    console.log(`  ⚠️  ${field.name.padEnd(35)} = [EMPTY]`);
+                    console.log(`[WARN] ${field.name.padEnd(35)} = [EMPTY]`);
                 }
                 fieldCount++;
             });
@@ -7062,5 +7097,61 @@
                 }, 500);
             }
         });
+
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
     </script>
 @endsection
