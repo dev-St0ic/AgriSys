@@ -1649,7 +1649,7 @@
     @endif
 
     @if ($requests->hasPages())
-        <div class="d-flex justify-content-center mt-4" style="padding-left: 50px;">
+        <div class="d-flex justify-content-center mt-4">
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm">
                     {{-- Previous Page Link --}}

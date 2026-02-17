@@ -91,11 +91,35 @@ class BoatRController extends Controller
             }
 
             // Get available barangays for filter dropdown
-            $barangays = BoatrApplication::whereNotNull('barangay')
-                ->where('barangay', '!=', '')
-                ->distinct()
-                ->orderBy('barangay')
-                ->pluck('barangay');
+            $barangays = [
+                'Bagong Silang',
+                'Calendola',
+                'Chrysanthemum',
+                'Cuyab',
+                'Estrella',
+                'Fatima',
+                'G.S.I.S.',
+                'Landayan',
+                'Langgam',
+                'Laram',
+                'Magsaysay',
+                'Maharlika',
+                'Narra',
+                'Nueva',
+                'Pacita 1',
+                'Pacita 2',
+                'Poblacion',
+                'Riverside',
+                'Rosario',
+                'Sampaguita Village',
+                'San Antonio',
+                'San Lorenzo Ruiz',
+                'San Roque',
+                'San Vicente',
+                'Santo Niño',
+                'United Bayanihan',
+                'United Better Living',
+            ];
 
             return view('admin.boatr.index', compact(
                 'registrations',
@@ -338,6 +362,7 @@ public function update(Request $request, $id)
             'inspection_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'replace_inspection_document' => 'nullable|boolean',
         ]);
+        
 
         if ($validated['boat_classification'] === 'Motorized') {
     if (empty($validated['engine_type'])) {

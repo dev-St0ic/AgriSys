@@ -242,20 +242,20 @@
                                                     </div>
                                                 @endif
                                                 @if ($inspectionDocs > 0)
-                                                    <div class="boatr-mini-doc"
+                                                    <div class="boatr-mini-doc boatr-mini-doc-inspection"
                                                         onclick="directPreviewDocument({{ $registration->id }}, 'inspection', 0)"
                                                         title="Inspection Documents">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-file-alt text-primary"></i>
+                                                            <i class="fas fa-clipboard-check text-info"></i>
                                                         </div>
                                                     </div>
                                                 @endif
                                                 @if ($annexesDocs > 0)
-                                                    <div class="boatr-mini-doc"
+                                                    <div class="boatr-mini-doc boatr-mini-doc-annex"
                                                         onclick="directPreviewDocument({{ $registration->id }}, 'annexes', 0)"
                                                         title="Annexes">
                                                         <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-file-alt text-primary"></i>
+                                                            <i class="fas  fa-folder-plus" style="color:#6f42c1;"></i>
                                                         </div>
                                                     </div>
                                                 @endif
@@ -3826,6 +3826,21 @@
         .btn {
             filter: inherit !important;
         }
+        .boatr-mini-doc-inspection {
+            border: 2px solid #0dcaf0 !important;
+        }
+
+        .boatr-mini-doc-inspection:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .boatr-mini-doc-annex {
+            border: 2px solid #6f42c1 !important;
+        }
+
+        .boatr-mini-doc-annex:hover {
+            background-color: rgba(111, 66, 193, 0.1);
+        }
     </style>
 @endsection
 
@@ -5245,7 +5260,7 @@
                 </div>
             `;
 
-            document.getElementById('documentPreviewTitle').innerHTML = '<i class="fas fa-eye me-2"></i>Document Preview';
+            document.getElementById('documentPreviewTitle').innerHTML = '<></i>Document Preview';
 
             fetch(`/admin/boatr/requests/${id}/document-preview`, {
                     method: 'POST',
@@ -5267,7 +5282,7 @@
                     if (!data.success) throw new Error(data.message || 'Failed to load document preview');
 
                     document.getElementById('documentPreviewTitle').innerHTML =
-                        `<i class="fas fa-eye me-2"></i>${data.document_name}`;
+                        `<i></i>${data.document_name}`;
 
                     // FIXED: Extract file extension from filename, NOT from mime type
                     let fileExtension = '';
@@ -5737,7 +5752,7 @@
                 `;
             }
 
-            document.getElementById('documentPreviewTitle').innerHTML = `<i class="fas fa-eye me-2"></i>${fileName}`;
+            document.getElementById('documentPreviewTitle').innerHTML = `<i></i>${fileName}`;
         }
 
         /**
@@ -7906,9 +7921,9 @@
                     engineHp: engineHpVal
                 });
             } else {
-                // For non-motorized boats, send empty values
-                formData.append('engine_type', '');
-                formData.append('engine_horsepower', '');
+                // // For non-motorized boats, send empty values
+                // formData.append('engine_type', '');
+                // formData.append('engine_horsepower', '');
 
                 console.log('Engine Info (Non-motorized): EMPTY');
             }
@@ -9289,7 +9304,7 @@
                         // Update title
                         const titleEl = document.getElementById('documentPreviewTitle');
                         if (titleEl) {
-                            titleEl.innerHTML = `<i class="fas fa-eye me-2"></i>${escapeHtml(fileName)}`;
+                            titleEl.innerHTML = `<i></i>${escapeHtml(fileName)}`;
                         }
 
                         const modal = new bootstrap.Modal(previewModalEl);
@@ -9985,7 +10000,7 @@
 
                     // Update title with generic label
                     document.getElementById('documentPreviewTitle').innerHTML =
-                        `<i class="fas fa-eye me-2"></i>${displayTitle}`;
+                        `<i></i>${displayTitle}`;
 
                     // Determine file path and extension
                     let filePath = '';
@@ -10104,5 +10119,133 @@
                 }, 500);
             }
         });
+
+        // ========== NAME FIELD VALIDATION ==========
+        // Regex: only letters, spaces, hyphens, and apostrophes (common in Filipino names)
+        const NAME_PATTERN = /^[a-zA-ZÀ-ÿñÑ\s\-']+$/;
+
+        /**
+         * Validate a single name input in real-time
+         */
+        function validateNameField(input, label) {
+            const value = input.value.trim();
+            const warningId = input.id + '-name-warning';
+            let warningElement = document.getElementById(warningId);
+
+            // Reset styles
+            input.style.borderColor = '';
+            input.style.backgroundColor = '';
+
+            if (!value) {
+                if (warningElement) warningElement.style.display = 'none';
+                return true;
+            }
+
+            const hasNumbers = /\d/.test(value);
+            const hasSpecial = !NAME_PATTERN.test(value);
+
+            if (!warningElement) {
+                warningElement = document.createElement('span');
+                warningElement.id = warningId;
+                warningElement.style.cssText = 'display:none; font-size:0.8rem; margin-top:4px; display:block;';
+                input.parentNode.appendChild(warningElement);
+            }
+
+            if (hasNumbers) {
+                input.style.borderColor = '#dc3545';
+                input.style.backgroundColor = '#fff8f8';
+                warningElement.style.color = '#dc3545';
+                warningElement.textContent = `${label} must not contain numbers.`;
+                warningElement.style.display = 'block';
+                return false;
+            } else if (hasSpecial) {
+                input.style.borderColor = '#dc3545';
+                input.style.backgroundColor = '#fff8f8';
+                warningElement.style.color = '#dc3545';
+                warningElement.textContent = `${label} must not contain special characters (e.g. @, #, !, etc.).`;
+                warningElement.style.display = 'block';
+                return false;
+            } else {
+                input.style.borderColor = '#28a745';
+                input.style.backgroundColor = '#f8fff8';
+                warningElement.style.display = 'none';
+                return true;
+            }
+        }
+
+        /**
+         * Clear name warning on focus
+         */
+        function clearNameWarning(input) {
+            const warningId = input.id + '-name-warning';
+            const warningElement = document.getElementById(warningId);
+            if (warningElement) warningElement.style.display = 'none';
+            input.style.borderColor = '';
+            input.style.backgroundColor = '';
+        }
+
+        /**
+         * Initialize name validation for ADD modal
+         */
+        function initializeAddModalNameValidation() {
+            const addNameFields = [
+                { id: 'boatr_first_name',   label: 'First Name' },
+                { id: 'boatr_middle_name',  label: 'Middle Name' },
+                { id: 'boatr_last_name',    label: 'Last Name' },
+            ];
+
+            addNameFields.forEach(({ id, label }) => {
+                const input = document.getElementById(id);
+                if (!input) return;
+
+                // Remove old listeners
+                input.removeEventListener('input',  input._nameInputHandler);
+                input.removeEventListener('blur',   input._nameBlurHandler);
+                input.removeEventListener('focus',  input._nameFocusHandler);
+
+                // Attach new ones
+                input._nameInputHandler  = () => validateNameField(input, label);
+                input._nameBlurHandler   = () => {
+                    capitalizeBoatRAddName(input);
+                    validateNameField(input, label);
+                };
+                input._nameFocusHandler  = () => clearNameWarning(input);
+
+                input.addEventListener('input',  input._nameInputHandler);
+                input.addEventListener('blur',   input._nameBlurHandler);
+                input.addEventListener('focus',  input._nameFocusHandler);
+            });
+        }
+
+        /**
+         * Initialize name validation for EDIT modal
+         */
+        function initializeEditModalNameValidation() {
+            const editNameFields = [
+                { id: 'edit_boatr_first_name',   label: 'First Name' },
+                { id: 'edit_boatr_middle_name',  label: 'Middle Name' },
+                { id: 'edit_boatr_last_name',    label: 'Last Name' },
+            ];
+
+            editNameFields.forEach(({ id, label }) => {
+                const input = document.getElementById(id);
+                if (!input) return;
+
+                input.removeEventListener('input',  input._nameInputHandler);
+                input.removeEventListener('blur',   input._nameBlurHandler);
+                input.removeEventListener('focus',  input._nameFocusHandler);
+
+                input._nameInputHandler  = () => validateNameField(input, label);
+                input._nameBlurHandler   = () => {
+                    capitalizeEditBoatRName(input);
+                    validateNameField(input, label);
+                };
+                input._nameFocusHandler  = () => clearNameWarning(input);
+
+                input.addEventListener('input',  input._nameInputHandler);
+                input.addEventListener('blur',   input._nameBlurHandler);
+                input.addEventListener('focus',  input._nameFocusHandler);
+            });
+        }
     </script>
 @endsection
