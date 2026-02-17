@@ -3244,7 +3244,7 @@
             const toDate = document.getElementById('modal_date_to').value;
 
             if (fromDate && toDate && fromDate > toDate) {
-                showToast('error', 'From date cannot be later than To date');
+                showToast('warning', 'From date cannot be later than To date');
                 return;
             }
 

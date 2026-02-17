@@ -210,7 +210,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered align-middle mb-0">
                             <thead class="table-dark">
@@ -507,6 +507,64 @@
                         </table>
                     </div>
                 </div>
+                
+                @if ($requests->hasPages())
+                        <div class="d-flex justify-content-center mt-4">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-sm">
+                                    {{-- Previous Page Link --}}
+                                    @if ($requests->onFirstPage())
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Back</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Pagination Elements --}}
+                                    @php
+                                        $currentPage = $requests->currentPage();
+                                        $lastPage = $requests->lastPage();
+                                        $startPage = max(1, $currentPage - 2);
+                                        $endPage = min($lastPage, $currentPage + 2);
+
+                                        if ($endPage - $startPage < 4) {
+                                            if ($startPage == 1) {
+                                                $endPage = min($lastPage, $startPage + 4);
+                                            } else {
+                                                $startPage = max(1, $endPage - 4);
+                                            }
+                                        }
+                                    @endphp
+
+                                    @for ($page = $startPage; $page <= $endPage; $page++)
+                                        @if ($page == $currentPage)
+                                            <li class="page-item active">
+                                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+
+                                    {{-- Next Page Link --}}
+                                    @if ($requests->hasMorePages())
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
+                                        </li>
+                                    @else
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Next</span>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </nav>
+                        </div>
+                    @endif
             </div>
 
             <!-- Modals Section - OUTSIDE the table -->
@@ -1624,9 +1682,9 @@
                     </div>
                 </div>
             @endforeach
+        </div>
     </div>
-    </div>
-    </div>
+</div>
 @else
     <div class="card">
         <div class="card-body text-center py-5">
@@ -1646,64 +1704,6 @@
             @endif
         </div>
     </div>
-    @endif
-
-    @if ($requests->hasPages())
-        <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm">
-                    {{-- Previous Page Link --}}
-                    @if ($requests->onFirstPage())
-                        <li class="page-item disabled">
-                            <span class="page-link">Back</span>
-                        </li>
-                    @else
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
-                        </li>
-                    @endif
-
-                    {{-- Pagination Elements --}}
-                    @php
-                        $currentPage = $requests->currentPage();
-                        $lastPage = $requests->lastPage();
-                        $startPage = max(1, $currentPage - 2);
-                        $endPage = min($lastPage, $currentPage + 2);
-
-                        if ($endPage - $startPage < 4) {
-                            if ($startPage == 1) {
-                                $endPage = min($lastPage, $startPage + 4);
-                            } else {
-                                $startPage = max(1, $endPage - 4);
-                            }
-                        }
-                    @endphp
-
-                    @for ($page = $startPage; $page <= $endPage; $page++)
-                        @if ($page == $currentPage)
-                            <li class="page-item active">
-                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
-                            </li>
-                        @endif
-                    @endfor
-
-                    {{-- Next Page Link --}}
-                    @if ($requests->hasMorePages())
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
-                        </li>
-                    @else
-                        <li class="page-item disabled">
-                            <span class="page-link">Next</span>
-                        </li>
-                    @endif
-                </ul>
-            </nav>
-        </div>
     @endif
 
     <!-- Add Supply Request Modal - IMPROVED DESIGN -->
