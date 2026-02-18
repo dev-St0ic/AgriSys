@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('record_type');                        // fishr, boatr, rsbsa, etc.
 
             // Record Content (ISO 15489: Integrity)
-            $table->longText('data');                             // Full serialized record (JSON)
+            $table->longText('data')->nullable();                            // Full serialized record (JSON)
             $table->string('data_checksum');                      // SHA-256 hash for integrity verification
             $table->string('data_version')->default('1.0');       // Record version
 
@@ -93,7 +93,7 @@ return new class extends Migration
             $table->string('performed_by_ip')->nullable();
             $table->string('performed_by_role')->nullable();
             $table->json('metadata')->nullable();                 // Extra context
-             $table->text('notes')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamp('performed_at');
 
             $table->index('archive_id');

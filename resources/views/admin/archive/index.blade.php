@@ -275,8 +275,60 @@
 
         {{-- Pagination --}}
         @if($items->hasPages())
-            <div class="d-flex justify-content-center mt-3">
-                {{ $items->appends(request()->query())->links('pagination::bootstrap-5') }}
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm">
+                        {{-- Previous Page Link --}}
+                        @if ($items->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link">Back</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $items->appends(request()->query())->previousPageUrl() }}" rel="prev">Back</a>
+                            </li>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @php
+                            $currentPage = $items->currentPage();
+                            $lastPage = $items->lastPage();
+                            $startPage = max(1, $currentPage - 2);
+                            $endPage = min($lastPage, $currentPage + 2);
+
+                            if ($endPage - $startPage < 4) {
+                                if ($startPage == 1) {
+                                    $endPage = min($lastPage, $startPage + 4);
+                                } else {
+                                    $startPage = max(1, $endPage - 4);
+                                }
+                            }
+                        @endphp
+
+                        @for ($page = $startPage; $page <= $endPage; $page++)
+                            @if ($page == $currentPage)
+                                <li class="page-item active">
+                                    <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $items->appends(request()->query())->url($page) }}">{{ $page }}</a>
+                                </li>
+                            @endif
+                        @endfor
+
+                        {{-- Next Page Link --}}
+                        @if ($items->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $items->appends(request()->query())->nextPageUrl() }}" rel="next">Next</a>
+                            </li>
+                        @else
+                            <li class="page-item disabled">
+                                <span class="page-link">Next</span>
+                            </li>
+                        @endif
+                    </ul>
+                </nav>
             </div>
         @endif
     </div>
@@ -411,6 +463,43 @@
     .audit-log-item:last-child { margin-bottom: 0; }
     table.table { white-space: normal; }
     code { font-size: 0.8rem; }
+    /* Custom Pagination Styles */
+    .pagination {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 8px;
+        margin: 0;
+    }
+    .pagination .page-item .page-link {
+        color: #6c757d;
+        background-color: transparent;
+        border: none;
+        padding: 8px 12px;
+        margin: 0 2px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .pagination .page-item .page-link:hover {
+        color: #495057;
+        background-color: #e9ecef;
+        text-decoration: none;
+    }
+    .pagination .page-item.active .page-link {
+        color: white;
+        background-color: #007bff;
+        border-color: #007bff;
+        font-weight: 600;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #adb5bd;
+        background-color: transparent;
+        cursor: not-allowed;
+    }
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        font-weight: 600;
+    }
 </style>
 
 <script>

@@ -48,6 +48,14 @@ class RecycleBinController extends Controller
                 }
             }
 
+            if ($request->filled('date_from')) {
+                $query->whereDate('deleted_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('deleted_at', '<=', $request->date_to);
+            }
+
             // Search
             if ($request->filled('search')) {
                 $search = $request->search;
