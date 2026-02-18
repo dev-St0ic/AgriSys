@@ -41,7 +41,7 @@
             <a href="{{ route($exportRoute) }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
                class="filter-btn filter-btn-export">
                 <i class="fas fa-download"></i>
-                Export Data
+                Export CSV
             </a>
         </div>
     </form>
