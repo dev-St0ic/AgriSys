@@ -92,15 +92,12 @@
                                             <i class="fas fa-crown me-2"></i><strong>Super Admin Account</strong><br>
                                             This user is the system's Super Admin and cannot be changed.
                                         </div>
-                                        <input type="hidden" name="role" value="superadmin">
-                                        <input type="text" class="form-control" value="Super Admin" disabled readonly>
                                     @else
-                                        <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
-                                            <option value="" disabled>Select Role</option>
-                                            <option value="admin" {{ old('role', $admin->role) === 'admin' ? 'selected' : '' }}>
-                                                Admin
-                                            </option>
-                                        </select>
+                                        <input type="hidden" name="role" value="admin">
+                                        <div class="form-control bg-light d-flex align-items-center" style="cursor: default;">
+                                            <span class="badge bg-primary me-2">Admin</span>
+                                            <span class="text-muted small">Can access admin dashboard and manage basic operations</span>
+                                        </div>
                                     @endif
 
                                     @error('role')
@@ -108,9 +105,6 @@
                                             {{ $message }}
                                         </div>
                                     @enderror
-                                    <div class="form-text">
-                                        <strong>Admin:</strong> Can access admin dashboard and manage basic operations
-                                    </div>
                                 </div>
                             </div>
                         </div>

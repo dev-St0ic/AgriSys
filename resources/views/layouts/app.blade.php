@@ -1187,10 +1187,10 @@
                                 @if(auth()->user()->isSuperAdmin())
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.archive.*') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.archive.index') }}" data-tooltip="Compliance Archive"
-                                        aria-label="Compliance Archive" role="menuitem">
+                                        href="{{ route('admin.archive.index') }}" data-tooltip="Archive"
+                                        aria-label="Archive" role="menuitem">
                                         <i class="fas fa-file-archive" aria-hidden="true"></i>
-                                        <span class="nav-link-text">Compliance Archive</span>
+                                        <span class="nav-link-text">Archive</span>
                                     </a>
                                 </li>
                                 @endif

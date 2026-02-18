@@ -1,9 +1,9 @@
 {{-- resources/views/admin/archive/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Compliance Archive - AgriSys Admin')
+@section('title', 'Archive - AgriSys Admin')
 @section('page-icon', 'fas fa-file-archive')
-@section('page-title', 'Compliance Archive')
+@section('page-title', 'Archive')
 
 @section('content')
 
@@ -13,7 +13,7 @@
     <div class="d-flex align-items-center gap-3">
         <i class="fas fa-shield-alt fa-2x text-warning"></i>
         <div>
-            <strong>ISO 15489 Records Management Compliance Archive</strong>
+            <strong>ISO 15489 Records Management Archive</strong>
             <p class="mb-0 small text-muted">
                 All records in this archive are <strong>immutable and locked</strong>.
                 Disposal requires Super Admin approval and follows the configured retention schedule.
@@ -31,36 +31,28 @@
             <div class="small text-muted">Retained</div>
         </div>
     </div>
-    <div class="col-md-2 col-sm-4 col-6">
+    <div class="col-md col-sm-4 col-6">
         <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-2 fw-bold text-danger">{{ number_format($stats['permanent_records']) }}</div>
             <div class="small text-muted">Permanent</div>
         </div>
     </div>
-    <div class="col-md-2 col-sm-4 col-6">
+    <div class="col-md col-sm-4 col-6">
         <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-2 fw-bold text-warning">{{ number_format($stats['eligible_for_disposal']) }}</div>
             <div class="small text-muted">Eligible for Disposal</div>
         </div>
     </div>
-    <div class="col-md-2 col-sm-4 col-6">
+    <div class="col-md col-sm-4 col-6">
         <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-2 fw-bold text-orange" style="color:#fd7e14">{{ number_format($stats['approved_for_disposal']) }}</div>
             <div class="small text-muted">Disposal Approved</div>
         </div>
     </div>
-    <div class="col-md-2 col-sm-4 col-6">
+    <div class="col-md col-sm-4 col-6">
         <div class="card border-0 shadow-sm text-center py-3">
             <div class="fs-2 fw-bold text-secondary">{{ number_format($stats['total_disposed']) }}</div>
             <div class="small text-muted">Disposed</div>
-        </div>
-    </div>
-    <div class="col-md-2 col-sm-4 col-6">
-        <div class="card border-0 shadow-sm text-center py-3">
-            <a href="{{ route('admin.archive.audit-log') }}" class="text-decoration-none">
-                <div class="fs-2 fw-bold text-primary"><i class="fas fa-history"></i></div>
-                <div class="small text-primary">Audit Log</div>
-            </a>
         </div>
     </div>
 </div>
@@ -141,7 +133,7 @@
             </a>
             <a href="{{ route('admin.archive.audit-log') }}"
                class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-history me-1"></i>Full Audit Log
+                <i class="fas fa-history me-1"></i>Audit Log
             </a>
         </div>
     </div>
@@ -500,6 +492,32 @@
     .pagination .page-item:last-child .page-link {
         font-weight: 600;
     }
+    .toast-container {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 12px; pointer-events: none;
+    }
+    .toast-notification {
+        background: white; border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 380px; max-width: 600px; overflow: hidden;
+        opacity: 0; transform: translateX(400px);
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        pointer-events: auto;
+    }
+    .toast-notification.show { opacity: 1; transform: translateX(0); }
+    .toast-notification .toast-content { display: flex; align-items: center; padding: 20px; font-size: 1.05rem; }
+    .toast-notification .toast-content i { font-size: 1.5rem; }
+    .toast-notification .toast-content span { flex: 1; color: #333; }
+    .toast-notification.toast-success { border-left: 4px solid #28a745; }
+    .toast-notification.toast-success .toast-content i { color: #28a745; }
+    .toast-notification.toast-error   { border-left: 4px solid #dc3545; }
+    .toast-notification.toast-error   .toast-content i { color: #dc3545; }
+    .toast-notification.toast-warning { border-left: 4px solid #ffc107; }
+    .toast-notification.toast-warning .toast-content i { color: #ffc107; }
+    .toast-notification.toast-info    { border-left: 4px solid #17a2b8; }
+    .toast-notification.toast-info    .toast-content i { color: #17a2b8; }
+    .btn-close-toast { background: none; border: none; font-size: 1.1rem; opacity: 0.5; cursor: pointer; padding: 0; margin-left: 10px; }
+    .btn-close-toast:hover { opacity: 1; }
 </style>
 
 <script>
@@ -614,7 +632,7 @@ function openApproveDisposalModal(id, ref) {
 
 function confirmApproveDisposal() {
     const notes = document.getElementById('disposalNotes').value.trim();
-    if (notes.length < 10) { alert('Justification must be at least 10 characters.'); return; }
+    if (notes.length < 10) { showToast('warning', 'Justification must be at least 10 characters.'); return; }
 
     const btn = document.getElementById('confirmApproveBtn');
     setLoadingState(btn, true);
@@ -643,7 +661,7 @@ function openRevokeDisposalModal(id, ref) {
 
 function confirmRevokeDisposal() {
     const reason = document.getElementById('revokeReason').value.trim();
-    if (reason.length < 5) { alert('Reason is required.'); return; }
+    if (reason.length < 5) { showToast('warning', 'Reason is required.'); return; }
 
     const btn = document.getElementById('confirmRevokeBtn');
     setLoadingState(btn, true);
@@ -675,8 +693,8 @@ function confirmDispose() {
     const reason  = document.getElementById('disposeReason').value.trim();
     const confirm = document.getElementById('disposeConfirm').value.trim();
 
-    if (reason.length < 10) { alert('Disposal reason must be at least 10 characters.'); return; }
-    if (confirm !== 'CONFIRM_DISPOSE') { alert('Please type CONFIRM_DISPOSE exactly to proceed.'); return; }
+    if (reason.length < 10) { showToast('warning','Disposal reason must be at least 10 characters.'); return; }
+    if (confirm !== 'CONFIRM_DISPOSE') { showToast('warning', 'Please type CONFIRM_DISPOSE exactly to proceed.'); return; }
 
     const btn = document.getElementById('confirmDisposeBtn');
     setLoadingState(btn, true);
@@ -700,6 +718,44 @@ function setLoadingState(btn, loading) {
     btn.querySelector('.btn-text').classList.toggle('d-none', loading);
     btn.querySelector('.btn-loader').classList.toggle('d-none', !loading);
     btn.disabled = loading;
+}
+// ─── Toast System ─────────────────────────────────────────────────────────────
+function createToastContainer() {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
+function showToast(type, message) {
+    const toastContainer = createToastContainer();
+    const iconMap = {
+        'success': 'fas fa-check-circle',
+        'error':   'fas fa-exclamation-circle',
+        'warning': 'fas fa-exclamation-triangle',
+        'info':    'fas fa-info-circle'
+    };
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="${iconMap[type] || iconMap['info']} me-2"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close-toast ms-auto"
+                onclick="removeToast(this.closest('.toast-notification'))">✕</button>
+        </div>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => { if (document.contains(toast)) removeToast(toast); }, 5000);
+}
+
+function removeToast(toast) {
+    toast.classList.remove('show');
+    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300);
 }
 </script>
 
