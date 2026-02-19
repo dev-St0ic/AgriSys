@@ -3289,10 +3289,8 @@ body:has(#verification-modal[style*="display: flex"]) {
         font-size: 15px;
         border-radius: 10px;
         margin-top: 16px;
-        position: sticky;
-        bottom: 0;
         background: linear-gradient(135deg, #0A6953, #2d6a4f);
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1), 0 4px 12px rgba(10, 105, 83, 0.2);
+        box-shadow: 0 4px 12px rgba(10, 105, 83, 0.2);
     }
 
     .verification-submit-btn:active {
