@@ -6842,7 +6842,7 @@
                     if (data.barangay) document.getElementById('boatr_barangay').value = data.barangay;
                     if (data.fishr_app_id) document.getElementById('boatr_fishr_app_id').value = data.fishr_app_id;
 
-                    showToast('success', `✓ Fisher information auto-filled for: ${data.fisher_name}`);
+                    showToast('success', `Fisher information auto-filled for: ${data.fisher_name}`);
                     return true;
                 } else {
                     input.classList.add('is-invalid');
@@ -7039,7 +7039,7 @@
                     // Auto-fill the form
                     autoFillAdminFisherInfo(data);
 
-                    showToast('success', `✓ Auto-filled: ${data.fisher_name}`);
+                    showToast('success', `Auto-filled: ${data.fisher_name}`);
                 } else {
                     // FishR not found
                     input.classList.remove('is-valid');

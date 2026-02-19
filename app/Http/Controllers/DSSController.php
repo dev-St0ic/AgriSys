@@ -287,42 +287,35 @@ class DSSController extends Controller
     public function refreshData(Request $request)
     {
         try {
-            $month = $request->get('month', now()->format('m'));
-            $year = $request->get('year', now()->format('Y'));
+            $month   = $request->get('month', now()->format('m'));
+            $year    = $request->get('year',  now()->format('Y'));
             $service = $request->get('service', 'comprehensive');
 
-            // Clear cache based on service type
+            // Clear ALL caches once
+            $this->dataService->clearCache($month, $year);
+            \Cache::flush();
+
             if ($service === 'training') {
-                $cacheKey = 'dss_training_data_' . $year . '_' . $month;
-                cache()->forget($cacheKey);
-                $data = $this->dataService->collectTrainingData($month, $year);
+                $data   = $this->dataService->collectTrainingData($month, $year);
                 $report = $this->reportService->generateTrainingReport($data);
             } elseif ($service === 'rsbsa') {
-                $cacheKey = 'dss_rsbsa_data_' . $year . '_' . $month;
-                cache()->forget($cacheKey);
-                $data = $this->dataService->collectRsbsaData($month, $year);
+                $data   = $this->dataService->collectRsbsaData($month, $year);
                 $report = $this->reportService->generateRsbsaReport($data);
             } elseif ($service === 'fishr') {
-                $cacheKey = 'dss_fishr_data_' . $year . '_' . $month;
-                cache()->forget($cacheKey);
-                $data = $this->dataService->collectFishrData($month, $year);
+                $data   = $this->dataService->collectFishrData($month, $year);
                 $report = $this->reportService->generateFishrReport($data);
             } elseif ($service === 'boatr') {
-                $cacheKey = 'dss_boatr_data_' . $year . '_' . $month;
-                cache()->forget($cacheKey);
-                $data = $this->dataService->collectBoatrData($month, $year);
+                $data   = $this->dataService->collectBoatrData($month, $year);
                 $report = $this->reportService->generateBoatrReport($data);
             } else {
-                $cacheKey = 'dss_report_' . md5(serialize([$month, $year]));
-                cache()->forget($cacheKey);
-                $data = $this->dataService->collectMonthlyData($month, $year);
+                $data   = $this->dataService->collectMonthlyData($month, $year);
                 $report = $this->reportService->generateReport($data);
             }
 
             return response()->json([
                 'success' => true,
-                'data' => $data,
-                'report' => $report,
+                'data'    => $data,
+                'report'  => $report,
                 'message' => 'Data refreshed successfully'
             ]);
 
