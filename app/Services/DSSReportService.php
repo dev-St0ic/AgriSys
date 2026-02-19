@@ -120,6 +120,13 @@ Analyze the following data and generate a comprehensive monthly report with both
 - Out of Stock Items: {$supply['out_of_stock_items']}
 - Total Item Categories: {$supply['total_items']}
 
+### SUPPLY HEALTH
+- Supply Health Score: {$supply['supply_health_score']}/100
+- Overall Supply Status: {$supply['supply_summary']['overall_status']}
+- Critical Items: {$supply['critical_items']}
+- Needs Reorder: {$supply['needs_reorder']}
+- Categories Needing Attention: {$this->formatList($supply['supply_summary']['concern_categories'] ?? [])}
+
 ### BARANGAY DEMAND ANALYSIS
 " . $this->formatBarangayData($barangays['barangay_details']) . "
 
@@ -224,10 +231,10 @@ Focus on actionable insights that can help agricultural officers make informed d
             $jsonData = json_decode($matches[1], true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
-                // ALWAYS override confidence to 90-95% range regardless of LLM output
-                $calculatedConfidence = $this->calculateConfidenceLevel($data);
-                $jsonData['confidence_level'] = $calculatedConfidence['level'];
-                $jsonData['confidence_score'] = $calculatedConfidence['score'];
+                // // ALWAYS override confidence to 90-95% range regardless of LLM output
+                // $calculatedConfidence = $this->calculateConfidenceLevel($data);
+                // $jsonData['confidence_level'] = $calculatedConfidence['level'];
+                // $jsonData['confidence_score'] = $calculatedConfidence['score'];
                 $jsonData['confidence_source'] = 'calculated';
 
                 return [
@@ -1422,6 +1429,11 @@ Provide actionable insights focusing on vessel safety, registration compliance, 
         }
 
         return $this->generateBoatrFallbackReport($data);
+    }
+
+    private function formatList(array $items): string
+    {
+        return !empty($items) ? implode(', ', $items) : 'None';
     }
 
     private function generateBoatrFallbackReport(array $data): array

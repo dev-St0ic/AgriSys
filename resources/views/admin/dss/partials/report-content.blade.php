@@ -24,10 +24,8 @@
                                         default => 'secondary',
                                     };
                                 @endphp
-                                <span class="badge bg-{{ $ratingColor }} fs-6">
-
-                                    Overall Rating:
-                                    {{ $report['report_data']['performance_assessment']['overall_rating'] }}
+                                <span class="badge bg-success fs-6">
+                                    Supply Health: {{ $data['supply_data']['supply_health_score'] }}%
                                 </span>
                                 @php
                                     $confidence = $report['report_data']['confidence_level'] ?? 'High';

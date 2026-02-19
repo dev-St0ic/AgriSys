@@ -242,6 +242,12 @@ class SeedlingRequestController extends Controller
 
             NotificationService::seedlingRequestCreated($seedlingRequest);
 
+            // Clear DSS cache before committing
+            app(\App\Services\DSSDataService::class)->clearCache(
+                now()->format('m'),
+                now()->format('Y')
+            );
+
             \DB::commit();
 
             // ✅ CHECK IF AJAX REQUEST FIRST
@@ -399,6 +405,12 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 ->log('Updated supply request personal information');
         }
 
+        // Clear DSS cache before committing
+        app(\App\Services\DSSDataService::class)->clearCache(
+            now()->format('m'),
+            now()->format('Y')
+        );
+
         \DB::commit();
 
         // Return JSON response for AJAX requests
@@ -474,6 +486,11 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 $seedlingRequest,
                 'Deleted from Supply requests'
             );
+
+            app(\App\Services\DSSDataService::class)->clearCache(
+                    now()->format('m'),
+                    now()->format('Y')
+                );
 
             // Send admin notification
             NotificationService::seedlingRequestDeleted($seedlingRequest);
@@ -734,6 +751,12 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             'old_status' => $previousStatus,
             'remarks_changed' => $hasRemarksChange
         ]);
+
+        // Clear DSS cache before committing
+        app(\App\Services\DSSDataService::class)->clearCache(
+            now()->format('m'),
+            now()->format('Y')
+        );
 
         \DB::commit();
 
@@ -1032,6 +1055,12 @@ public function markAsClaimed(SeedlingRequest $seedlingRequest)
             'total_items_deducted' => $totalDeducted,
             'claimed_at' => now()
         ]);
+
+        // Clear DSS cache before committing
+        app(\App\Services\DSSDataService::class)->clearCache(
+            now()->format('m'),
+            now()->format('Y')
+        );
 
         \DB::commit();
 

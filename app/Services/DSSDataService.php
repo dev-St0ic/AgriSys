@@ -314,7 +314,15 @@ class DSSDataService
         foreach ($demandData['top_requested_items'] as $demandItem) {
             // Try to match with available stock
             $matchingStock = collect($supplyData['stock_distribution'])
-                ->firstWhere('name', 'like', '%' . $demandItem['name'] . '%');
+            ->first(function($stock) use ($demandItem) {
+                return str_contains(
+                    strtolower($stock['name']), 
+                    strtolower($demandItem['name'])
+                ) || str_contains(
+                    strtolower($demandItem['name']),
+                    strtolower($stock['name'])
+                );
+            });
 
             if ($matchingStock) {
                 $shortageAmount = $demandItem['total_requested'] - $matchingStock['current_supply'];
