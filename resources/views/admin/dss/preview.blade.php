@@ -300,6 +300,67 @@
                 justify-content: center;
             }
         }
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 320px;
+            max-width: 480px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            gap: 10px;
+        }
+
+        .toast-notification .toast-content i { font-size: 1.25rem; flex-shrink: 0; }
+        .toast-notification .toast-content span { flex: 1; color: #333; line-height: 1.4; }
+
+        .toast-notification.toast-success { border-left: 4px solid #28a745; }
+        .toast-notification.toast-success .toast-content i { color: #28a745; }
+        .toast-notification.toast-error { border-left: 4px solid #dc3545; }
+        .toast-notification.toast-error .toast-content i { color: #dc3545; }
+        .toast-notification.toast-warning { border-left: 4px solid #ffc107; }
+        .toast-notification.toast-warning .toast-content i { color: #ffc107; }
+        .toast-notification.toast-info { border-left: 4px solid #17a2b8; }
+        .toast-notification.toast-info .toast-content i { color: #17a2b8; }
+
+        .btn-close-toast {
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.4;
+            font-size: 1rem;
+            color: #333;
+            flex-shrink: 0;
+            transition: opacity 0.2s;
+        }
+        .btn-close-toast:hover { opacity: 1; }
     </style>
 @endsection
 
@@ -499,7 +560,7 @@
             </div>
         </div>
     </div>
-
+    <div id="toastContainer" class="toast-container"></div>
 @endsection
 
 @section('scripts')
@@ -641,22 +702,28 @@
             }
 
             function showToast(message, type = 'info') {
-                const toast = document.createElement('div');
-                toast.className =
-                    `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
-                toast.style.cssText =
-                    'top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
-                toast.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
+                const iconMap = {
+                    success: 'fas fa-check-circle',
+                    error:   'fas fa-exclamation-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info:    'fas fa-info-circle',
+                };
 
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 5000);
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast-notification toast-${type === 'error' ? 'error' : type}`;
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="${iconMap[type] || iconMap.info}"></i>
+                        <span>${message}</span>
+                        <button type="button" class="btn-close-toast" onclick="this.closest('.toast-notification').classList.remove('show'); setTimeout(() => this.closest('.toast-notification')?.remove(), 300)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>`;
+
+                container.appendChild(toast);
+                requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 5000);
             }
 
             // Period form submission - use AJAX instead of page reload

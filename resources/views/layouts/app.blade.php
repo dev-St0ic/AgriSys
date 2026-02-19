@@ -1150,7 +1150,7 @@
                                     <!-- Admin Section Separator -->
                                     <div class="nav-section-divider">
                                         <div class="divider-line"></div>
-                                        <span class="divider-text">Admin</span>
+                                        <span class="divider-text">Super Admin</span>
                                         <div class="divider-line"></div>
                                     </div>
 

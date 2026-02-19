@@ -105,7 +105,7 @@ Analyze the following data and generate a comprehensive monthly report with both
 ## MONTHLY DATA ANALYSIS
 **Period:** {$period['month']}
 
-### SEEDLING REQUESTS OVERVIEW
+### SUPPLY REQUESTS OVERVIEW
 - Total Requests: {$requests['total_requests']}
 - Approved Requests: {$requests['approved_requests']}
 - Rejected Requests: {$requests['rejected_requests']}
@@ -184,7 +184,7 @@ IMPORTANT:
 - Consider factors like data completeness, sample size, time relevance, and consistency when determining confidence
 - Be honest about limitations in the data or analysis
 
-Focus on actionable insights that can help agricultural officers make informed decisions about seedling distribution, supply management, and resource allocation.
+Focus on actionable insights that can help agricultural officers make informed decisions about supply distribution, supply management, and resource allocation.
 ";
     }
 
@@ -337,7 +337,7 @@ Focus on actionable insights that can help agricultural officers make informed d
         $outOfStock = $data['supply_data']['out_of_stock_items'] ?? 0;
         $criticalShortages = $data['shortage_analysis']['critical_shortages'] ?? 0;
 
-        return "During {$period}, the agricultural system processed {$totalRequests} seedling requests with an approval rate of {$approvalRate}%. " .
+        return "During {$period}, the agricultural system processed {$totalRequests} supply requests with an approval rate of {$approvalRate}%. " .
                "Supply levels show {$outOfStock} out-of-stock items and {$criticalShortages} critical shortages requiring immediate attention.";
     }
 
@@ -1194,7 +1194,7 @@ Provide actionable insights focusing on fisher welfare, sustainable fishing prac
                 if (json_last_error() === JSON_ERROR_NONE && is_array($reportData)) {
                     return [
                         'success' => true,
-                        'source' => 'AI-Generated (Claude via Anthropic API)',
+                        'source' => 'llm',
                         'report_data' => $reportData,
                         'generated_at' => now()->toIso8601String(),
                     ];
@@ -1223,7 +1223,7 @@ Provide actionable insights focusing on fisher welfare, sustainable fishing prac
 
         return [
             'success' => true,
-            'source' => 'System-Generated (Fallback Analysis)',
+            'source' => 'fallback',
             'report_data' => [
                 'executive_summary' => "FISHR registration program processed {$stats['total_applications']} applications with a {$stats['approval_rate']}% approval rate. The program covers {$byBarangay['total_barangays_covered']} barangays and has assigned {$stats['with_fishr_number']} FISHR numbers to registered fisherfolk.",
                 'performance_assessment' => [
@@ -1411,7 +1411,7 @@ Provide actionable insights focusing on vessel safety, registration compliance, 
                 if (json_last_error() === JSON_ERROR_NONE && is_array($reportData)) {
                     return [
                         'success' => true,
-                        'source' => 'AI-Generated (Claude via Anthropic API)',
+                        'source' => 'llm',
                         'report_data' => $reportData,
                         'generated_at' => now()->toIso8601String(),
                     ];
@@ -1440,7 +1440,7 @@ Provide actionable insights focusing on vessel safety, registration compliance, 
 
         return [
             'success' => true,
-            'source' => 'System-Generated (Fallback Analysis)',
+            'source' => 'fallback',
             'report_data' => [
                 'executive_summary' => "BOATR registration program processed {$stats['total_applications']} boat registration applications with a {$stats['approval_rate']}% approval rate. Program covers {$byBarangay['total_barangays_covered']} barangays and has completed {$inspectionAnalysis['inspections_completed']} vessel inspections.",
                 'performance_assessment' => [
