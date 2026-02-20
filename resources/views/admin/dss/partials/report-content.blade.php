@@ -24,9 +24,19 @@
                                         default => 'secondary',
                                     };
                                 @endphp
-                                <span class="badge bg-success fs-6">
-                                    Supply Health: {{ $data['supply_data']['supply_health_score'] }}%
-                                </span>
+                              @php
+    $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
+    $ratingColor = match (strtolower($rating)) {
+        'excellent', 'very good' => 'success',
+        'good' => 'primary',
+        'fair', 'average' => 'warning',
+        'poor', 'critical' => 'danger',
+        default => 'secondary',
+    };
+@endphp
+<span class="badge bg-{{ $ratingColor }} fs-6">
+    Overall Rating: {{ $report['report_data']['performance_assessment']['overall_rating'] ?? 'N/A' }}
+</span>
                                 @php
                                     $confidence = $report['report_data']['confidence_level'] ?? 'High';
                                     $confidenceScore = $report['report_data']['confidence_score'] ?? 92;

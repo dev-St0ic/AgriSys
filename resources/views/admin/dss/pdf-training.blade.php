@@ -193,7 +193,7 @@
             <p style="font-size:9.5px; font-weight:700; color:#444; margin-bottom:6px;">
                 Overall Rating:&nbsp;
                 <span class="badge badge-{{ $ratingClass }}" style="font-size:9.5px; padding:2px 9px;">{{ strtoupper($rating) }}</span>
-                &nbsp;&nbsp; Confidence Level: <strong>{{ $report['report_data']['confidence_level'] ?? 'High' }}</strong>
+                &nbsp;&nbsp; Confidence: <strong>{{ $report['report_data']['confidence_score'] ?? $report['report_data']['confidence_level'] ?? 'N/A' }}%</strong>
             </p>
             <table class="perf-table">
                 <tr>
@@ -340,11 +340,7 @@
                 <td>
                     Generated: {{ $report['generated_at'] }}<br>
                     Source: {{ ucfirst($report['source']) }}@if($report['source'] === 'llm') ({{ $report['model_used'] ?? 'AI Model' }})@endif<br>
-                    Confidence Level:
-                    <strong>
-                        @if(isset($report['report_data']['confidence_score'])){{ $report['report_data']['confidence_score'] }}% @endif
-                        ({{ $report['report_data']['confidence_level'] ?? 'High' }})
-                    </strong>
+                    Confidence: <strong>{{ $report['report_data']['confidence_score'] ?? $report['report_data']['confidence_level'] ?? 'N/A' }}%</strong>
                 </td>
             </tr>
         </table>

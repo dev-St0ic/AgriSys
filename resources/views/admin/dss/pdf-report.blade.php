@@ -294,34 +294,26 @@
             </tr>
         </table>
 
-        <div class="health-wrap">
-            <table class="health-table">
-                <tr>
-                    <td class="health-label">Supply Health</td>
-                    <td class="health-bar-cell">
-                        <div class="health-bar-bg">
-                            <div class="health-bar-fill" style="width:{{ $data['supply_data']['supply_health_score'] }}%;"></div>
-                        </div>
-                    </td>
-                    <td class="health-score">{{ $data['supply_data']['supply_health_score'] }}/100</td>
-                    <td class="health-badge-cell">
-                        <span class="badge badge-{{ $data['supply_data']['supply_summary']['overall_status'] === 'Good' ? 'success' : ($data['supply_data']['supply_summary']['overall_status'] === 'Critical' ? 'danger' : 'warning') }}">
-                            {{ $data['supply_data']['supply_summary']['overall_status'] }}
-                        </span>
-                    </td>
-                    @if(isset($report['report_data']['confidence_level']))
-                    <td class="health-conf-cell">
-                        @php
-                            $cl = $report['report_data']['confidence_level'] ?? null;
-                            $cs = $report['report_data']['confidence_score'] ?? null;
-                            $confNum = is_numeric($cl) ? $cl : (is_numeric($cs) ? $cs : null);
-                        @endphp
-                        Confidence:&nbsp;<strong>{{ $confNum !== null ? $confNum.'%' : $cl }}</strong>
-                    </td>
-                    @endif
-                </tr>
-            </table>
-        </div>
+        @if(isset($report['report_data']['performance_assessment']))
+            @php
+                $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
+                $ratingBadge = match(strtolower($rating)) {
+                    'excellent', 'very good' => 'success',
+                    'good'                   => 'primary',
+                    'fair', 'average'        => 'warning',
+                    'poor', 'critical'       => 'danger',
+                    default                  => 'secondary',
+                };
+                $cl = $report['report_data']['confidence_level'] ?? null;
+                $cs = $report['report_data']['confidence_score'] ?? null;
+                $confNum = is_numeric($cl) ? $cl : (is_numeric($cs) ? $cs : null);
+            @endphp
+            <p style="font-size:9.5px; font-weight:700; color:#444; margin-bottom:8px;">
+                Overall Rating:&nbsp;
+                <span class="badge badge-{{ $ratingBadge }}" style="font-size:9.5px; padding:2px 9px;">{{ strtoupper($rating) }}</span>
+                &nbsp;&nbsp; Confidence: <strong>{{ $report['report_data']['confidence_score'] ?? $report['report_data']['confidence_level'] ?? 'N/A' }}%</strong>
+            </p>
+        @endif
 
         <table class="mini-table">
             <tr>
@@ -712,15 +704,7 @@
                 <td>
                     Generated: {{ $report['generated_at'] }}<br>
                     Source: {{ ucfirst($report['source']) }}@if($report['source'] === 'llm') ({{ $report['model_used'] }})@endif<br>
-                    Confidence:
-                    <strong>
-                        @php
-                            $cl = $report['report_data']['confidence_level'] ?? null;
-                            $cs = $report['report_data']['confidence_score'] ?? null;
-                            $confNum = is_numeric($cl) ? $cl : (is_numeric($cs) ? $cs : null);
-                            echo $confNum !== null ? $confNum.'%' : ($cl ?? 'N/A');
-                        @endphp
-                    </strong>
+                    Confidence: <strong>{{ $report['report_data']['confidence_score'] ?? $report['report_data']['confidence_level'] ?? 'N/A' }}%</strong>
                 </td>
             </tr>
         </table>
