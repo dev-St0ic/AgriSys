@@ -340,6 +340,21 @@ class DSSController extends Controller
         $reportData = $report['report_data'];
         $period = $data['period']['month'];
 
+        // Safely get performance assessment with fallbacks
+        $pa = $reportData['performance_assessment'] ?? [];
+        $overallRating      = $pa['overall_rating']         ?? 'N/A';
+        $approvalEfficiency = $pa['approval_efficiency']    ?? 'N/A';
+        $supplyAdequacy     = $pa['supply_adequacy']        ?? null;
+        $geoCoverage        = $pa['geographic_coverage']    ?? null;
+        $registrationEff    = $pa['registration_efficiency'] ?? null;
+        $agriDiversity      = $pa['agricultural_diversity'] ?? null;
+        $landUtilization    = $pa['land_utilization']       ?? null;
+        $trainingDiversity  = $pa['training_diversity']     ?? null;
+        $geographicReach    = $pa['geographic_reach']       ?? null;
+        $coverageAdequacy   = $pa['coverage_adequacy']      ?? null;
+        $inspectionEffect   = $pa['inspection_effectiveness'] ?? null;
+        $trendAnalysis      = $pa['trend_analysis']         ?? null;
+
         $html = "
         <html>
         <head>
@@ -352,62 +367,50 @@ class DSSController extends Controller
             <hr>
 
             <h3>Executive Summary</h3>
-            <p>{$reportData['executive_summary']}</p>
+            <p>" . ($reportData['executive_summary'] ?? 'N/A') . "</p>
 
             <h3>Performance Assessment</h3>
-            <p><strong>Overall Rating:</strong> {$reportData['performance_assessment']['overall_rating']}</p>
-            <p><strong>Approval Efficiency:</strong> {$reportData['performance_assessment']['approval_efficiency']}</p>
-            <p><strong>Supply Adequacy:</strong> {$reportData['performance_assessment']['supply_adequacy']}</p>
-            <p><strong>Geographic Coverage:</strong> {$reportData['performance_assessment']['geographic_coverage']}</p>
+            <p><strong>Overall Rating:</strong> {$overallRating}</p>
+            <p><strong>Approval Efficiency:</strong> {$approvalEfficiency}</p>";
 
-            <h3>Key Findings</h3>
-            <ul>";
+        // Conditionally add keys depending on which exist
+        if ($supplyAdequacy)    $html .= "<p><strong>Supply Adequacy:</strong> {$supplyAdequacy}</p>";
+        if ($geoCoverage)       $html .= "<p><strong>Geographic Coverage:</strong> {$geoCoverage}</p>";
+        if ($registrationEff)   $html .= "<p><strong>Registration Efficiency:</strong> {$registrationEff}</p>";
+        if ($agriDiversity)     $html .= "<p><strong>Agricultural Diversity:</strong> {$agriDiversity}</p>";
+        if ($landUtilization)   $html .= "<p><strong>Land Utilization:</strong> {$landUtilization}</p>";
+        if ($trainingDiversity) $html .= "<p><strong>Training Diversity:</strong> {$trainingDiversity}</p>";
+        if ($geographicReach)   $html .= "<p><strong>Geographic Reach:</strong> {$geographicReach}</p>";
+        if ($coverageAdequacy)  $html .= "<p><strong>Coverage Adequacy:</strong> {$coverageAdequacy}</p>";
+        if ($inspectionEffect)  $html .= "<p><strong>Inspection Effectiveness:</strong> {$inspectionEffect}</p>";
+        if ($trendAnalysis)     $html .= "<p><strong>Trend Analysis:</strong> {$trendAnalysis}</p>";
 
-        foreach ($reportData['key_findings'] as $finding) {
+        $html .= "<h3>Key Findings</h3><ul>";
+        foreach (($reportData['key_findings'] ?? []) as $finding) {
             $html .= "<li>{$finding}</li>";
         }
 
-        $html .= "</ul>
-
-            <h3>Critical Issues</h3>
-            <ul>";
-
-        foreach ($reportData['critical_issues'] as $issue) {
+        $html .= "</ul><h3>Critical Issues</h3><ul>";
+        foreach (($reportData['critical_issues'] ?? []) as $issue) {
             $html .= "<li>{$issue}</li>";
         }
 
-        $html .= "</ul>
-
-            <h3>Recommendations</h3>
-
-            <h4>Immediate Actions</h4>
-            <ul>";
-
-        if (isset($reportData['recommendations']['immediate_actions'])) {
-            foreach ($reportData['recommendations']['immediate_actions'] as $action) {
-                $html .= "<li>{$action}</li>";
-            }
+        $html .= "</ul><h3>Recommendations</h3><h4>Immediate Actions</h4><ul>";
+        foreach (($reportData['recommendations']['immediate_actions'] ?? []) as $action) {
+            $html .= "<li>{$action}</li>";
         }
 
-        $html .= "</ul>
-
-            <h4>Short-term Strategies</h4>
-            <ul>";
-
-        if (isset($reportData['recommendations']['short_term_strategies'])) {
-            foreach ($reportData['recommendations']['short_term_strategies'] as $strategy) {
-                $html .= "<li>{$strategy}</li>";
-            }
+        $html .= "</ul><h4>Short-term Strategies</h4><ul>";
+        foreach (($reportData['recommendations']['short_term_strategies'] ?? []) as $strategy) {
+            $html .= "<li>{$strategy}</li>";
         }
 
-        $html .= "</ul>
-
+       $html .= "</ul>
             <hr>
             <p style='font-size: 12px; color: #666;'>
                 Report generated on " . now()->format('F j, Y \a\t g:i A') . "<br>
-                Source: {$report['source']}<br>
-                Confidence Level: {$reportData['confidence_level']}" .
-                (isset($reportData['confidence_score']) ? " ({$reportData['confidence_score']}%)" : "") . "
+                Source: " . ($report['source'] ?? 'N/A') . "<br>
+                Confidence Level: " . (isset($reportData['confidence_score']) ? $reportData['confidence_score'] . '%' : ($reportData['confidence_level'] ?? 'N/A')) . "
             </p>
         </body>
         </html>";
