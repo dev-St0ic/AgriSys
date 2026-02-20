@@ -362,50 +362,106 @@ function markAllAsRead() {
     .catch(error => console.error('Error:', error));
 }
 
-// Delete single notification
-function deleteNotification(notificationId) {
-    if (!confirm('Delete this notification?')) return;
+function showConfirmToast(message, onConfirm) {
+    const existing = document.getElementById('confirmToastWrapper');
+    if (existing) existing.remove();
 
-    fetch(`/admin/notifications/${notificationId}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('success', 'Notification deleted');
-            loadAllNotifications();
-            updateCounts();
-        }
-    })
-    .catch(error => console.error('Error:', error));
+    const toast = document.createElement('div');
+    toast.id = 'confirmToastWrapper';
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 99999;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        padding: 16px;
+        border-left: 4px solid #ffc107;
+        min-width: 300px;
+    `;
+    toast.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+            <i class="fas fa-exclamation-triangle" style="color:#ffc107; font-size:1.3rem;"></i>
+            <span style="font-size:0.9rem; color:#333;">${message}</span>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button class="btn btn-sm btn-secondary" id="confirmToastCancel">Cancel</button>
+            <button class="btn btn-sm btn-danger" id="confirmToastOk">Confirm</button>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        document.getElementById('confirmToastCancel')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toast.remove();
+        });
+        document.getElementById('confirmToastOk')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toast.remove();
+            if (typeof onConfirm === 'function') onConfirm();
+        });
+    }, 0);
 }
 
 // Clear all notifications
 function clearAllNotifications() {
-    if (!confirm('Delete all notifications? This cannot be undone.')) return;
+    showConfirmToast('Delete all notifications? This cannot be undone.', function() {
+        fetch('/admin/notifications/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', data.message || 'All notifications cleared');
+                loadAllNotifications();
+                updateCounts();
+            } else {
+                showToast('error', 'Failed to clear notifications');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Something went wrong');
+        });
+    });
+}
 
-    fetch('/admin/notifications/clear-all', {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('success', data.message);
-            loadAllNotifications();
-            updateCounts();
-        }
-    })
-    .catch(error => console.error('Error:', error));
+
+
+// Delete single notification - NOW WITH TOAST CONFIRM
+function deleteNotification(notificationId) {
+    showConfirmToast('Delete this notification?', function() {
+        fetch(`/admin/notifications/${notificationId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', 'Notification deleted');
+                loadAllNotifications();
+                updateCounts();
+            } else {
+                showToast('error', 'Failed to delete notification');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Something went wrong');
+        });
+    });
 }
 
 // Navigate to action URL

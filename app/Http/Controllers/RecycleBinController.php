@@ -181,7 +181,7 @@ class RecycleBinController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "'{$itemName}' has been permanently deleted"
+                'message' => "'{$itemName}' has been deleted"
             ]);
 
         } catch (\Exception $e) {

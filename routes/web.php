@@ -509,25 +509,25 @@ Route::middleware('admin')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])
             ->name('index');
 
-        // Mark single notification as read (doesn't delete)
-        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])
-            ->name('mark-read');
-
-        // Mark all notifications as read (doesn't delete)
+        // Mark all notifications as read (doesn't delete) - MUST BE BEFORE /{id} ROUTES
         Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])
             ->name('mark-all-read');
 
-        // Delete single notification
-        Route::delete('/{id}', [NotificationController::class, 'destroy'])
-            ->name('destroy');
-
-        // Clear/delete all read notifications
+        // Clear/delete all read notifications - MUST BE BEFORE /{id} ROUTES
         Route::delete('/clear-read', [NotificationController::class, 'clearRead'])
             ->name('clear-read');
 
-        // Delete all notifications
+        // Delete all notifications - MUST BE BEFORE /{id} ROUTES
         Route::delete('/clear-all', [NotificationController::class, 'clearAll'])
             ->name('clear-all');
+
+        // Mark single notification as read (doesn't delete) - AFTER specific routes
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])
+            ->name('mark-read');
+
+        // Delete single notification - AFTER specific routes
+        Route::delete('/{id}', [NotificationController::class, 'destroy'])
+            ->name('destroy');
     });
 
     /**
