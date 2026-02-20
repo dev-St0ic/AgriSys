@@ -580,7 +580,9 @@
             const reportCache = {
                 comprehensive: null,
                 training: null,
-                rsbsa: null
+                rsbsa: null,
+                fishr: null,
+                boatr: null
             };
 
             // Service tab switching
@@ -594,6 +596,10 @@
                     // Update hidden input
                     const selectedService = this.dataset.service;
                     serviceInput.value = selectedService;
+                    // persist service in URL
+                    const url = new URL(window.location);
+                    url.searchParams.set('service', selectedService);
+                    window.history.pushState({}, '', url);
 
                     // Show cached report if available, otherwise show "no data"
                     if (reportCache[selectedService]) {
@@ -650,9 +656,14 @@
             }
 
             function getServiceName() {
-                const service = serviceInput.value;
-                return service === 'training' ? 'Training' :
-                    service === 'rsbsa' ? 'RSBSA' : 'Comprehensive';
+                const names = {
+                    comprehensive: 'Comprehensive',
+                    training: 'Training',
+                    rsbsa: 'RSBSA',
+                    fishr: 'FishR',
+                    boatr: 'BoatR'
+                };
+                return names[serviceInput.value] || 'Comprehensive';
             }
 
             async function loadDSSData(month = null, year = null) {
@@ -731,6 +742,16 @@
                 e.preventDefault();
                 const month = document.getElementById('monthSelect').value;
                 const year = document.getElementById('yearSelect').value;
+
+                const service = serviceInput.value;
+
+                // Keep URL in sync with selected filters
+                const url = new URL(window.location);
+                url.searchParams.set('month', month);
+                url.searchParams.set('year', year);
+                url.searchParams.set('service', service);
+                window.history.pushState({}, '', url);
+
                 loadDSSData(month, year);
             });
 
