@@ -6,13 +6,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage; 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Notifications\VerifyAdminEmail;
 
-class User extends Authenticatable
+
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, LogsActivity;
+    use HasFactory, Notifiable, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -95,11 +99,58 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'superadmin']);
     }
 
+
+    public function sendEmailVerificationNotification()
+    {
+        \Log::info('DEBUG: About to send verification email to ' . $this->email);
+        try {
+            $this->notify(new VerifyAdminEmail());
+            \Log::info('DEBUG: Verification email sent successfully to ' . $this->email);
+        } catch (\Exception $e) {
+            \Log::error('DEBUG: Failed to send verification email: ' . $e->getMessage());
+        }
+    }
+
     // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly([]) // Disable automatic logging - use manual controller logging instead
             ->dontSubmitEmptyLogs();
+    }
+
+    /**
+     * Check if superadmin exists
+     */
+    public static function superadminExists(): bool
+    {
+        return self::where('role', 'superadmin')->where('deleted_at', null)->exists();
+    }
+
+    /**
+     * Get current superadmin
+     */
+    public static function getCurrentSuperAdmin(): ?User
+    {
+        return self::where('role', 'superadmin')->where('deleted_at', null)->first();
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if ($model->role === 'superadmin' && User::superadminExists()) {
+                throw new \Exception('A SuperAdmin already exists.');
+            }
+        });
+
+        static::updating(function ($model) {
+            if ($model->isDirty('role') && $model->role === 'superadmin') {
+                if (User::where('id', '!=', $model->id)->where('role', 'superadmin')->where('deleted_at', null)->exists()) {
+                    throw new \Exception('A SuperAdmin already exists.');
+                }
+            }
+        });
     }
 }

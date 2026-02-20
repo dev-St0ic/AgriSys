@@ -19,7 +19,7 @@ use Spatie\Activitylog\Models\Activity;
 
 class AuthController extends Controller
 {
-    /**
+   /**
      * Show the login form
      */
     public function showLoginForm()
@@ -27,78 +27,87 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-/**
- * Handle login request
- */
-public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    /**
+     * Handle login request
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    $credentials = $request->only('email', 'password');
+        $credentials = $request->only('email', 'password');
 
-    // Logout any existing user first
-    Auth::logout();
-    $request->session()->flush();
-    $request->session()->regenerate();
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $user->refresh();
 
-    if (Auth::attempt($credentials)) {
-        /** @var User $user */
-        $user = Auth::user();
-        $user->refresh();
+            if ($user->hasAdminPrivileges()) {
 
-        // Check if user has admin privileges
-        if ($user->hasAdminPrivileges()) {
-            // Regenerate session again to prevent session fixation attacks
-            $request->session()->regenerate();
+                $request->session()->regenerate();
 
-            // Log successful login with proper user tracking
-            activity()
-                ->causedBy($user)
-                ->event('login')
-                ->withProperties([
-                    'role' => $user->role,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'success' => true,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
-                ])
-                ->log('login - User (ID: ' . $user->id . ')');
+                if (!$user->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice')
+                        ->with('status', 'Please verify your email.');
+                }
 
-            return redirect()->intended('/admin/dashboard')
-                ->with('success', 'Welcome back, ' . $user->name . '!');
-        } else {
-            // User exists but doesn't have admin privileges
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+                // This is the correct place — $user is defined, event is 'login'
+                activity()
+                    ->causedBy($user)
+                    ->event('login')
+                    ->withProperties([
+                        'role' => $user->role,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'success' => true,
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('login - User (ID: ' . $user->id . ')');
 
-            // Log failed login attempt (no admin privileges)
-            $this->logActivity('login_failed', 'User', null, [
-                'email' => $credentials['email'],
-                'reason' => 'No admin privileges'
-            ]);
+                return redirect()->intended('/admin/dashboard')
+                    ->with('success', 'Welcome back, ' . $user->name . '!');
 
-            return back()->withErrors([
-                'email' => 'You do not have admin privileges.',
-            ])->onlyInput('email');
+            } else {
+
+                // Log the failed attempt (non-admin tried to log in)
+                activity()
+                    ->event('login_failed')
+                    ->withProperties([
+                        'email' => $request->email,
+                        'reason' => 'no_admin_privileges',
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->log('login_failed - User (ID: ' . $user->id . ')');
+
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'You do not have admin privileges.',
+                ])->onlyInput('email');
+            }
         }
+
+        // Log failed credentials attempt (user not found / wrong password)
+        activity()
+            ->event('login_failed')
+            ->withProperties([
+                'email' => $request->email,
+                'reason' => 'invalid_credentials',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])
+            ->log('login_failed - unknown user');
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
-
-    // Log failed login attempt (invalid credentials)
-    $this->logActivity('login_failed', 'User', null, [
-        'email' => $credentials['email'],
-        'reason' => 'Invalid credentials'
-    ]);
-
-    return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ])->onlyInput('email');
-}
-
+        
     /**
      * Handle logout request
      */

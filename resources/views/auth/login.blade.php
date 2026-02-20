@@ -65,7 +65,7 @@
         }
 
         .login-header {
-            text-align: left;
+            text-align: center;
             margin-bottom: 30px;
         }
 
@@ -95,13 +95,18 @@
             display: none;
         }
 
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
         .form-group i {
             position: absolute;
             left: 0;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 12px;
             color: rgba(255, 255, 255, 0.6);
             font-size: 0.9rem;
+            z-index: 1;
         }
 
         .form-control {
@@ -203,6 +208,20 @@
                 font-size: 1.8rem;
             }
         }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 12px;
+            left: auto !important;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.6);
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
     </style>
 @endsection
 
@@ -213,8 +232,8 @@
         <div class="login-form">
             <div class="form-wrapper">
                 <div class="login-header">
-                    <h2>Welcome!</h2>
-                    <p>Today will be great</p>
+                    <h2>Welcome Back</h2>
+                    <p>Please sign in to continue</p>
                 </div>
 
                 <form method="POST" action="{{ route('login') }}">
@@ -223,7 +242,7 @@
                     <div class="form-group">
                         <i class="fas fa-user"></i>
                         <input type="text" class="form-control @error('email') is-invalid @enderror" id="email"
-                            name="email" value="{{ old('email') }}" placeholder="Username" required autofocus>
+                            name="email" value="{{ old('email') }}" placeholder="Email" required autofocus>
                         @error('email')
                             <div class="invalid-feedback">
                                 {{ $message }}
@@ -235,6 +254,7 @@
                         <i class="fas fa-lock"></i>
                         <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
                             name="password" placeholder="Password" required>
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                         @error('password')
                             <div class="invalid-feedback">
                                 {{ $message }}
@@ -253,4 +273,17 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
+
 @endsection

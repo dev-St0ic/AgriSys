@@ -61,6 +61,14 @@ class RecycleBin extends Model
     // ===== SCOPES =====
 
     /**
+     * Scope to get only User (Admin) items
+     */
+    public function scopeUser($query)
+    {
+        return $query->where('model_type', 'App\Models\User');
+    }
+
+    /**
      * Scope to get only FishR items
      */
     public function scopeFishR($query)
@@ -133,11 +141,20 @@ class RecycleBin extends Model
     }
 
     /**
+     * Scope to get only FishR Annex items
+     */
+    public function scopeFishrAnnex($query)
+    {
+        return $query->where('model_type', 'App\Models\FishrAnnex');
+    }
+
+    /**
      * Get a human-readable type name
      */
     public function getTypeNameAttribute(): string
     {
         return match ($this->model_type) {
+            'App\Models\User' => 'Admin User',
             'App\Models\FishrApplication' => 'FishR Registration',
             'App\Models\FishrAnnex' => 'FishR Annex',
             'App\Models\BoatrAnnex' => 'BoatR Annex',

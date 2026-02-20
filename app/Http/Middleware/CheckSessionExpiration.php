@@ -41,6 +41,8 @@ class CheckSessionExpiration
             '/privacy-policy',
             '/terms-of-service',
             '/debug/',
+            '/email/verify',
+            '/email/verification-notification',
         ];
 
         // Check if current route should skip session check

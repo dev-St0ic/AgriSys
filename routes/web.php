@@ -30,6 +30,7 @@ use App\Http\Controllers\SlideshowController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\RecycleBinController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -80,6 +81,58 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Email Verification Routes (NO AUTH REQUIRED)
+Route::get('/email/verify', function () {
+    // If user is logged in AND email is verified
+    if (auth()->check() && auth()->user()->hasVerifiedEmail()) {
+        // AUTO-REDIRECT (page closes)
+        return redirect('/login')
+            ->with('info', 'Your email is already verified.');
+    }
+    
+    // If email not verified yet
+    // Show the page (page stays open)
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function ($id, $hash, Request $request) {
+    $user = \App\Models\User::findOrFail($id);
+    
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        throw new \Illuminate\Auth\Access\AuthorizationException();
+    }
+    
+    if ($user->markEmailAsVerified()) {
+        event(new \Illuminate\Auth\Events\Verified($user));
+    }
+    
+    return redirect('/login')->with('success', 'Email verified successfully! You can now login.');
+})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function () {
+    auth()->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+// Password Change Verification Route (PUBLIC - no auth required)
+Route::get('/password/change/verify/{user}', [AdminProfileController::class, 'verifyPasswordChange'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('password.change.verify');
+
+// Email Change Confirmation Route (PUBLIC - no auth required)
+Route::get('/email/change/confirm/{user}', [AdminProfileController::class, 'confirmEmailChange'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('email.change.confirm');
+
+// SuperAdmin routes - NO verification required
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::resource('admins', AdminController::class);
+    Route::post('admins/{admin}/resend-verification', [AdminController::class, 'resendVerificationEmail'])
+        ->name('admins.resend-verification');
+});
+
+
 // Service routes for frontend navigation
 Route::get('/services', [HomeController::class, 'index'])->name('services');
 
@@ -108,6 +161,10 @@ Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFi
     Route::get('/admin/profile/edit', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::put('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
     Route::delete('/admin/profile/photo', [AdminProfileController::class, 'deletePhoto'])->name('admin.profile.deletePhoto');
+
+     Route::resource('admins', AdminController::class);
+    Route::post('admins/{admin}/resend-verification', [AdminController::class, 'resendVerificationEmail'])
+        ->name('admins.resend-verification');
 
     // ==============================================
     // RSBSA APPLICATIONS MANAGEMENT

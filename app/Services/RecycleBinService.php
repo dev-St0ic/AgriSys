@@ -13,6 +13,7 @@ use App\Models\CategoryItem;
 use App\Models\RequestCategory;
 use App\Models\TrainingApplication;
 use App\Models\UserRegistration;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class RecycleBinService
@@ -41,7 +42,8 @@ class RecycleBinService
             return true;
         } catch (\Exception $e) {
             Log::error('Error in RecycleBinService::softDelete', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             return false;
         }
@@ -55,7 +57,15 @@ class RecycleBinService
         try {
             $modelClass = $item->model_type;
             
-            if ($modelClass === 'App\Models\FishrApplication') {
+            if ($modelClass === 'App\Models\User') {
+                $restored = User::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            elseif ($modelClass === 'App\Models\FishrApplication') {
                 $restored = FishrApplication::withTrashed()
                     ->find($item->model_id);
                 
@@ -178,6 +188,7 @@ class RecycleBinService
                 'model_type' => $item->model_type,
                 'model_id' => $item->model_id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             return false;
         }
