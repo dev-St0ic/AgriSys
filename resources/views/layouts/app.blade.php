@@ -1593,7 +1593,7 @@
     <script>
         // Add auth info for JavaScript
         window.auth = {
-            isAdmin: @json(auth()->check() && auth()->user()->isAdmin()),
+            isAdmin: @json(auth()->check() && auth()->user()->hasAdminPrivileges()),
             user: @json(auth()->user() ? ['id' => auth()->user()->id, 'name' => auth()->user()->name] : null)
         };
 

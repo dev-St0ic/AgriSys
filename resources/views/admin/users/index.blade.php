@@ -586,7 +586,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="add_contact_number" required
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">09XXXXXXXXX</small>
                                     </div>
                                 </div>
@@ -1042,7 +1042,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_contact_number"
-                                            name="contact_number" required placeholder="09XXXXXXXXX"
+                                            name="contact_number" required
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
@@ -1151,7 +1151,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_emergency_contact_phone"
-                                            name="emergency_contact_phone" required placeholder="09XXXXXXXXX"
+                                            name="emergency_contact_phone" required 
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
@@ -3741,7 +3741,7 @@
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
                             <i></i>Cancel
                         </button>
-                        <button type="button" class="btn btn-sm btn-primary" onclick="confirmToastAction(this)">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
                         </button>
                     </div>

@@ -25,7 +25,7 @@
     <!-- Filter Tabs -->
     <div class="card border-0 shadow-sm mb-3">
         <div class="card-body p-3">
-            <ul class="nav nav-pills" role="tablist">
+            <ul class="nav nav-pills justify-content-center" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ $filterRead === 'all' ? 'active' : '' }}" 
                             onclick="filterNotifications('all')" type="button">
@@ -188,6 +188,32 @@
     color: #999;
     font-size: 1rem;
 }
+
+/* Active tab - ensure text and icons are visible */
+.nav-pills .nav-link.active {
+    background-color: #2196F3;
+    color: #ffffff !important;
+}
+
+.nav-pills .nav-link.active .badge {
+    background-color: #ffffff !important;
+    color: #2196F3 !important;
+}
+
+/* Inactive tabs - clear and readable */
+.nav-pills .nav-link {
+    color: #555;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: #dce9fb;
+    color: #1565c0;
+}
 </style>
 
 <script>
@@ -283,9 +309,15 @@ function showEmptyState() {
 function filterNotifications(filter) {
     currentFilter = filter;
     currentPage = 1;
+
+    // Update active tab visually
+    document.querySelectorAll('.nav-pills .nav-link').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+
     loadAllNotifications();
 }
-
 // Mark single notification as read
 function markAsRead(notificationId) {
     fetch(`/admin/notifications/${notificationId}/read`, {
