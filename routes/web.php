@@ -121,23 +121,27 @@ Route::get('/email/verify', function () {
         return redirect('/login')
             ->with('info', 'Your email is already verified.');
     }
-    
+
     // If email not verified yet - show the page (page stays open)
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', function ($id, $hash, Request $request) {
     $user = \App\Models\User::findOrFail($id);
-    
+
     if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
         throw new \Illuminate\Auth\Access\AuthorizationException();
     }
-    
+
     if ($user->markEmailAsVerified()) {
         event(new \Illuminate\Auth\Events\Verified($user));
     }
-    
-    return redirect('/login')->with('success', 'Email verified successfully! You can now login.');
+
+    // Auto-login the admin after email verification
+    \Illuminate\Support\Facades\Auth::login($user);
+    session()->regenerate();
+
+    return redirect('/admin/dashboard')->with('success', 'Email verified successfully! Welcome, ' . $user->name . '!');
 })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
 Route::post('/email/verification-notification', function () {
@@ -199,7 +203,7 @@ Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFi
 // ==============================================
 
 Route::middleware('admin')->group(function () {
-    
+
     /**
      * Admin Dashboard
      */
@@ -223,7 +227,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // RSBSA APPLICATIONS MANAGEMENT
     // ==============================================
-    
+
     /**
      * RSBSA Applications
      * Manages farmer registration applications
@@ -257,7 +261,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // FISHR REGISTRATIONS MANAGEMENT
     // ==============================================
-    
+
     /**
      * FishR Registrations
      * Manages fisherfolk registration applications
@@ -283,10 +287,10 @@ Route::middleware('admin')->group(function () {
 
         // Update status
         Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
-        
+
         // Download document
         Route::get('/{id}/download', [FishRController::class, 'downloadDocument'])->name('download-document');
-        
+
         // Assign FishR number
         Route::post('/{id}/assign-fishr-number', [FishRController::class, 'assignFishRNumber'])
             ->name('assign-fishr-number');
@@ -302,7 +306,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // BOATR REGISTRATIONS MANAGEMENT
     // ==============================================
-    
+
     /**
      * BoatR Registrations
      * Manages boat registration applications
@@ -316,10 +320,10 @@ Route::middleware('admin')->group(function () {
 
         // Add registration
         Route::post('/requests/create', [BoatRController::class, 'store'])->name('store');
-        
+
         // Edit registration
         Route::put('/requests/{id}', [BoatRController::class, 'update'])->name('update');
-        
+
         // Update status
         Route::patch('/requests/{id}/status', [BoatRController::class, 'updateStatus'])
             ->name('status.update');
@@ -354,7 +358,7 @@ Route::middleware('admin')->group(function () {
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
     });
-    
+
     /**
      * FishR Validation for BoatR Form ADMIN
      * Validates FishR numbers when creating BoatR applications
@@ -366,7 +370,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // TRAINING REGISTRATIONS MANAGEMENT
     // ==============================================
-    
+
     /**
      * Training Applications
      * Manages training program applications
@@ -375,16 +379,16 @@ Route::middleware('admin')->group(function () {
         // Training Applications Management
         Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
         Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
-        
+
         // Add training application
         Route::post('/requests/create', [TrainingController::class, 'store'])->name('requests.store');
-        
+
         // Edit training application
         Route::put('/requests/{id}', [TrainingController::class, 'update'])->name('requests.update');
 
         // Update status
         Route::patch('/requests/{id}/status', [TrainingController::class, 'updateStatus'])->name('requests.update-status');
-        
+
         // Delete application
         Route::delete('/requests/{id}', [TrainingController::class, 'destroy'])->name('requests.destroy');
 
@@ -395,7 +399,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // EVENT MANAGEMENT
     // ==============================================
-    
+
     /**
      * Events Management
      * Manages events and announcements
@@ -422,7 +426,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // SEEDLING REQUESTS MANAGEMENT
     // ==============================================
-    
+
     /**
      * Seedling Requests
      * Manages seedling distribution requests
@@ -430,7 +434,7 @@ Route::middleware('admin')->group(function () {
     Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])->group(function () {
         // List requests
         Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
-        
+
         // Create request
         Route::get('/requests/create', [SeedlingRequestController::class, 'create'])->name('create');
         Route::post('/requests', [SeedlingRequestController::class, 'store'])->name('store');
@@ -439,26 +443,26 @@ Route::middleware('admin')->group(function () {
         Route::patch('/requests/{seedlingRequest}/mark-claimed',
             [SeedlingRequestController::class, 'markAsClaimed'])
             ->name('mark-claimed');
-        
+
         // Export to CSV
         Route::get('/requests/export', [SeedlingRequestController::class, 'export'])->name('export');
 
         // Edit request
         Route::get('/requests/{seedlingRequest}/edit', [SeedlingRequestController::class, 'edit'])->name('edit');
         Route::put('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'update'])->name('update');
-        
+
         // Delete request
         Route::delete('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
-        
+
         // Update status
         Route::patch('/requests/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
-        
+
         // Update items
         Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
-        
+
         // Get supply status
         Route::get('/requests/{seedlingRequest}/supply-status', [SeedlingRequestController::class, 'getSupplyStatus'])->name('supply-status');
-        
+
         // Get category stats
         Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
 
@@ -479,19 +483,19 @@ Route::middleware('admin')->group(function () {
         Route::delete('/items/{item}', [SeedlingCategoryItemController::class, 'destroyItem'])->name('items.destroy');
 
         Route::post('/seedlings/stock-status', [SeedlingCategoryItemController::class, 'getStockStatus']);
-        
-        // Supply Management 
+
+        // Supply Management
         Route::post('/items/{item}/supply/add', [SeedlingCategoryItemController::class, 'addSupply'])->name('items.supply.add');
         Route::post('/items/{item}/supply/adjust', [SeedlingCategoryItemController::class, 'adjustSupply'])->name('items.supply.adjust');
         Route::post('/items/{item}/supply/loss', [SeedlingCategoryItemController::class, 'recordLoss'])->name('items.supply.loss');
         Route::get('/items/{item}/supply/logs', [SeedlingCategoryItemController::class, 'getSupplyLogs'])->name('items.supply.logs');
         Route::get('/supply/stats', [SeedlingCategoryItemController::class, 'getSupplyStats'])->name('supply.stats');
     });
-    
+
     // ==============================================
     // NOTIFICATION ROUTES
     // ==============================================
-    
+
     /**
      * Notifications Management
      * Handles system notifications for admins
@@ -543,7 +547,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // SLIDESHOW MANAGEMENT
     // ==============================================
-    
+
     /**
      * Slideshow Management
      * Manages homepage slideshow images
@@ -556,11 +560,11 @@ Route::middleware('admin')->group(function () {
         Route::post('/update-order', [SlideshowController::class, 'updateOrder'])->name('update-order');
         Route::post('/{id}/toggle-status', [SlideshowController::class, 'toggleStatus'])->name('toggle-status');
     });
-    
+
     // ==============================================
     // ANALYTICS ROUTES
     // ==============================================
-    
+
     /**
      * Analytics Dashboard
      * Provides data visualization and reporting for all modules
@@ -598,7 +602,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // DECISION SUPPORT SYSTEM (DSS)
     // ==============================================
-    
+
     /**
      * Decision Support System
      * Generates comprehensive reports for decision-making
@@ -614,7 +618,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // ADMIN MANAGEMENT (SuperAdmin only)
     // ==============================================
-    
+
     /**
      * Admin User Management
      * Allows SuperAdmin to manage other admin accounts
@@ -626,7 +630,7 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // REPORTS AND ANALYTICS VIEWS
     // ==============================================
-    
+
     /**
      * Report Pages
      * Static report view pages for different modules
@@ -748,10 +752,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 
     // Create new user account
     Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
-    
+
     // Edit user account (with session sync)
     Route::put('/registrations/{id}', [UserRegistrationController::class, 'update'])->name('registrations.update');
-    
+
     // Individual registration management
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
@@ -828,7 +832,7 @@ Route::prefix('auth')->group(function () {
  * Session Validation Endpoint
  * Used by JavaScript session manager to periodically validate user sessions
  * This endpoint updates last_activity timestamp to keep sessions alive
- * 
+ *
  * Flow:
  * 1. JavaScript pings this endpoint every 5 minutes
  * 2. Endpoint checks if session exists and is valid
@@ -936,10 +940,10 @@ Route::middleware(['web', App\Http\Middleware\UserSession::class, App\Http\Middl
     Route::prefix('api/user')->group(function () {
         // Get user profile
         Route::get('/profile', [UserRegistrationController::class, 'getUserProfile'])->name('api.user.profile');
-        
+
         // Get user applications
         Route::get('/applications', [UserRegistrationController::class, 'getUserApplications'])->name('api.user.applications');
-        
+
         // Update user profile
         Route::post('/update-profile', [UserRegistrationController::class, 'updateUserProfile'])->name('api.user.update-profile');
 
@@ -972,7 +976,7 @@ Route::prefix('api')->name('api.')->group(function () {
     // Get all active events (for landing page)
     Route::get('/events', [EventController::class, 'getEvents'])
         ->name('events.public');
-        
+
     // Public registration stats
     Route::get('/registration-stats', [UserRegistrationController::class, 'getPublicStats'])->name('api.registration.stats');
 
@@ -985,7 +989,7 @@ Route::prefix('api')->name('api.')->group(function () {
             'database' => 'connected'
         ]);
     })->name('api.system.status');
-    
+
     // Active slideshow images
     Route::get('/slideshow/active', [SlideshowController::class, 'getActiveSlides'])->name('api.slideshow.active');
 });

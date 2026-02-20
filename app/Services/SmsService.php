@@ -51,12 +51,12 @@ class SmsService
                 'number' => $formattedNumber,
                 'message' => $message,
             ];
-            
+
             // Only add sendername if it's set and not empty
             if (!empty($this->senderName)) {
                 $params['sendername'] = $this->senderName;
             }
-            
+
             $response = Http::timeout($this->timeout)
                 ->asForm()
                 ->post($this->baseUrl . '/messages', $params);
@@ -144,7 +144,7 @@ class SmsService
             if (stripos($applicationType, 'Seedling') !== false || stripos($applicationType, 'Supplies') !== false) {
                 $message = "Good news {$fullName}! Your {$applicationType} application has been APPROVED. You have 30 DAYS to pick up your items from our office (Mon-Fri, 8AM-5PM). Bring a valid ID. - AgriSys";
             } else {
-                $message = "Good news {$fullName}! Your {$applicationType} application has been APPROVED. You can now proceed with the next steps. - AgriSys";
+                $message = "Good news, {$fullName}! Your {$applicationType} application has been APPROVED. You may now proceed to the City Agriculture Office to complete the next steps. - AgriSys";
             }
         } elseif ($status === 'rejected') {
             $reasonText = $reason ? " Reason: {$reason}" : "";

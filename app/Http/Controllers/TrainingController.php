@@ -52,7 +52,7 @@ class TrainingController extends Controller
         $underReviewCount = TrainingApplication::where('status', 'under_review')->count();
         $approvedCount = TrainingApplication::where('status', 'approved')->count();
 
-      
+
         $barangays = [
             'Bagong Silang',
             'Calendola',
@@ -89,7 +89,7 @@ class TrainingController extends Controller
             'pendingCount',
             'underReviewCount',
             'approvedCount',
-            'barangays' 
+            'barangays'
         ));
     }
 
@@ -119,7 +119,7 @@ class TrainingController extends Controller
 
                 // CHANGED: Single document instead of array
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240'
-                
+
             ], [
                 'barangay.required' => 'Barangay is required',
                 'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
@@ -242,10 +242,10 @@ class TrainingController extends Controller
         ]);
     }
 
-  
+
     /**
      * Update training application (personal info + optional document)
-     * 
+     *
      * CRITICAL FIX: Now properly handles file uploads for document replacement
      */
     public function update(Request $request, $id)
@@ -343,7 +343,7 @@ public function updateStatus(Request $request, $id)
 
         // Fetch the training application
         $training = TrainingApplication::findOrFail($id);
-        
+
         if (!$training) {
             return response()->json([
                 'success' => false,
@@ -380,6 +380,16 @@ public function updateStatus(Request $request, $id)
             'remarks' => $updateData['remarks'],
             'application_number' => $training->application_number
         ]);
+
+        // Fire event for SMS notification (approved/rejected only)
+        if ($previousStatus !== $validated['status']) {
+            $training->fireApplicationStatusChanged(
+                $training->getApplicationTypeName(),
+                $previousStatus,
+                $validated['status'],
+                $updateData['remarks'] ?? null
+            );
+        }
 
         // Send notification about status change
         if (method_exists('NotificationService', 'trainingApplicationStatusChanged')) {
@@ -438,9 +448,9 @@ public function updateStatus(Request $request, $id)
 
  /**
  * Move the specified training application to recycle bin
- * 
+ *
  * UPDATED: Changed from permanent deletion to moving to recycle bin
- * 
+ *
  */
 public function destroy($id)
 {
