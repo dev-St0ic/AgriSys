@@ -14,9 +14,12 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
 
             $table->foreignId('seedling_request_id')->nullable()->constrained('seedling_requests')->onDelete('cascade');
-            $table->foreignId('category_id')->nullable()->constrained('request_categories')->onDelete('cascade');
+            $table->foreignId('category_id')->nullable()->constrained('request_categories')->onDelete('set null');
+            $table->string('category_name')->nullable();
+            $table->string('category_icon')->nullable();
             $table->foreignId('category_item_id')->nullable()->constrained('category_items')->onDelete('set null');
             $table->string('item_name')->nullable();
+            $table->string('item_unit', 20)->nullable();
             $table->integer('requested_quantity')->nullable();
             $table->integer('approved_quantity')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');

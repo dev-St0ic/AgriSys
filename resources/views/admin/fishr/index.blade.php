@@ -280,20 +280,60 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="fishr-table-documents">
-                                        @if ($registration->document_path)
+                                        @php
+                                            $totalDocs = 0;
+                                            if ($registration->document_path) $totalDocs++;
+                                            $totalDocs += $registration->annexes_count ?? 0;
+                                        @endphp
+                                        
+                                        @if ($totalDocs > 0)
                                             <div class="fishr-document-previews">
-                                                <button type="button" class="fishr-mini-doc"
-                                                    onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
-                                                    title="Registration Document">
-                                                    <div class="fishr-mini-doc-icon">
-                                                        <i class="fas fa-file-alt text-primary"></i>
-                                                    </div>
-                                                </button>
+                                                {{-- Main Document Icon - NOW directly opens viewer --}}
+                                                @if ($registration->document_path)
+                                                    <button type="button" class="fishr-mini-doc"
+                                                        onclick="viewDocument('{{ $registration->document_path }}', 'Registration Doc - {{ $registration->first_name }} {{ $registration->last_name }}')"
+                                                        title="View Registration Document">
+                                                        <div class="fishr-mini-doc-icon">
+                                                            <i class="fas fa-file-alt text-primary"></i>
+                                                        </div>
+                                                    </button>
+                                                @endif
+                                                
+                                                {{-- First Annex Icon - directly opens first annex --}}
+                                                @if ($registration->annexes_count > 0 && isset($registration->firstAnnex) && $registration->firstAnnex)
+                                                    <button type="button" class="fishr-mini-doc fishr-mini-doc-annex"
+                                                        onclick="viewDocument('{{ $registration->firstAnnex->file_path }}', '{{ addslashes($registration->firstAnnex->title) }}')"
+                                                        title="{{ $registration->firstAnnex->title }}">
+                                                        <div class="fishr-mini-doc-icon">
+                                                            <i class="fas fa-folder-plus text-purple"></i>
+                                                        </div>
+                                                    </button>
+                                                @elseif ($registration->annexes_count > 0 && !$registration->document_path)
+                                                    {{-- No main doc but has annexes: show annex folder icon --}}
+                                                    <button type="button" class="fishr-mini-doc" 
+                                                        onclick="showAnnexesModal({{ $registration->id }})"
+                                                        title="{{ $registration->annexes_count }} Annex{{ $registration->annexes_count > 1 ? 'es' : '' }}">
+                                                        <div class="fishr-mini-doc-icon">
+                                                            <i class="fas fa-folder-plus text-purple"></i>
+                                                        </div>
+                                                    </button>
+                                                @endif
+                                                
+                                                {{-- +N overflow button if more than 2 total docs --}}
+                                                @if ($totalDocs > 2)
+                                                    <button type="button" class="fishr-mini-doc fishr-mini-doc-more"
+                                                        onclick="showAnnexesModal({{ $registration->id }})"
+                                                        title="View all {{ $totalDocs }} documents">
+                                                        <div class="fishr-more-count">+{{ $totalDocs - 2 }}</div>
+                                                    </button>
+                                                @endif
                                             </div>
+                                            
+                                            {{-- Summary click opens annex modal --}}
                                             <button type="button" class="fishr-document-summary"
-                                                onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
+                                                onclick="showAnnexesModal({{ $registration->id }})"
                                                 style="background: none; border: none; padding: 0; cursor: pointer;">
-                                                <small class="text-muted">1 document</small>
+                                                <small class="text-muted">{{ $totalDocs }} document{{ $totalDocs > 1 ? 's' : '' }}</small>
                                             </button>
                                         @else
                                             <div class="fishr-no-documents">
@@ -2647,6 +2687,33 @@
 
         #documentModal .modal-backdrop {
             z-index: 9998 !important;
+        }
+        /* Purple color for annexes icon */
+        .fishr-mini-doc-icon .text-purple {
+            color: #6f42c1 !important;
+        }
+
+        .fishr-mini-doc-annex {
+            border: 2px solid #6f42c1 !important;
+        }
+
+        .fishr-mini-doc[title*="Annex"] {
+            border-color: #6f42c1;
+            background-color: rgba(95, 26, 224, 0.1);
+        }
+
+        .fishr-mini-doc[title*="Annex"]:hover {
+            background-color: rgba(111, 66, 193, 0.1);
+            border-color: #6f42c1;
+        }
+
+        /* Make the document previews wrap if needed */
+        .fishr-document-previews {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
     </style>
 @endsection

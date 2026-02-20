@@ -65,6 +65,7 @@ class SeedlingCategoryItemController extends Controller
 
         return view('admin.supply-management.index', compact(
             'categories',
+            'items', 
             'totalItems',
             'lowSupplyItems',
             'outOfSupplyItems',

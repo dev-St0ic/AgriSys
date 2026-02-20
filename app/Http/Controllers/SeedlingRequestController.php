@@ -217,9 +217,12 @@ class SeedlingRequestController extends Controller
 
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $seedlingRequest->id,
-                    'category_id' => $categoryItem->category_id,
-                    'category_item_id' => $categoryItem->id,
+                    'category_id' => $categoryItem->category_id, // snapshot
+                    'category_item_id' => $categoryItem->id, // snapshot
+                    'category_name' => $categoryItem->category?->display_name, // snapshot
+                    'category_icon' => $categoryItem->category?->icon,    // snapshot
                     'item_name' => $categoryItem->name,
+                    'item_unit' => $categoryItem->unit,
                     'requested_quantity' => $itemData['quantity'],
                     'status' => 'pending',
                 ]);
@@ -238,6 +241,12 @@ class SeedlingRequestController extends Controller
             ]);
 
             NotificationService::seedlingRequestCreated($seedlingRequest);
+
+            // Clear DSS cache before committing
+            app(\App\Services\DSSDataService::class)->clearCache(
+                now()->format('m'),
+                now()->format('Y')
+            );
 
             \DB::commit();
 
@@ -396,6 +405,12 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 ->log('Updated supply request personal information');
         }
 
+        // Clear DSS cache before committing
+        app(\App\Services\DSSDataService::class)->clearCache(
+            now()->format('m'),
+            now()->format('Y')
+        );
+
         \DB::commit();
 
         // Return JSON response for AJAX requests
@@ -471,6 +486,11 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 $seedlingRequest,
                 'Deleted from Supply requests'
             );
+
+            app(\App\Services\DSSDataService::class)->clearCache(
+                    now()->format('m'),
+                    now()->format('Y')
+                );
 
             // Send admin notification
             NotificationService::seedlingRequestDeleted($seedlingRequest);
@@ -731,6 +751,12 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             'old_status' => $previousStatus,
             'remarks_changed' => $hasRemarksChange
         ]);
+
+        // Clear DSS cache before committing
+        app(\App\Services\DSSDataService::class)->clearCache(
+            now()->format('m'),
+            now()->format('Y')
+        );
 
         \DB::commit();
 
@@ -1029,6 +1055,12 @@ public function markAsClaimed(SeedlingRequest $seedlingRequest)
             'total_items_deducted' => $totalDeducted,
             'claimed_at' => now()
         ]);
+
+        // Clear DSS cache before committing
+        app(\App\Services\DSSDataService::class)->clearCache(
+            now()->format('m'),
+            now()->format('Y')
+        );
 
         \DB::commit();
 

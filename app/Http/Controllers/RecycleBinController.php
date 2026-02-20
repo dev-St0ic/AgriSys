@@ -14,6 +14,7 @@ use App\Models\BoatrAnnex;
 use App\Models\RsbsaApplication;
 use App\Models\TrainingApplication;
 use App\Services\RecycleBinService;
+use App\Services\ArchiveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -45,6 +46,14 @@ class RecycleBinController extends Controller
                 if (isset($typeMap[$request->type])) {
                     $query->where('model_type', $typeMap[$request->type]);
                 }
+            }
+
+            if ($request->filled('date_from')) {
+                $query->whereDate('deleted_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('deleted_at', '<=', $request->date_to);
             }
 
             // Search
@@ -163,6 +172,7 @@ class RecycleBinController extends Controller
             $item = RecycleBin::findOrFail($id);
             $itemName = $item->item_name;
 
+            ArchiveService::archiveFromRecycleBin($item, 'Permanently deleted from recycle bin');
             // Delete from recycle bin
             $item->delete();
 
@@ -171,7 +181,7 @@ class RecycleBinController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "'{$itemName}' has been permanently deleted"
+                'message' => "'{$itemName}' has been deleted"
             ]);
 
         } catch (\Exception $e) {
@@ -293,6 +303,7 @@ class RecycleBinController extends Controller
                 $item = RecycleBin::find($id);
                 if ($item) {
                     try {
+                        ArchiveService::archiveFromRecycleBin($item, 'Bulk permanently deleted from recycle bin');
                         // Delete from recycle bin
                         $item->delete();
                         $deleted++;
@@ -404,6 +415,7 @@ class RecycleBinController extends Controller
 
             foreach ($items as $item) {
                 try {
+                    ArchiveService::archiveFromRecycleBin($item, 'Removed during empty bin operation');
                     $item->delete();
                     $deleted++;
                 } catch (\Exception $e) {
@@ -430,4 +442,43 @@ class RecycleBinController extends Controller
             ], 500);
         }
     }
+    /**
+     * Archive item from recycle bin to long-term archive (SuperAdmin only)
+     * ISO 15489 compliant - adds retention schedule, locks record, creates audit trail
+     */
+    public function archiveItem(Request $request, $id)
+    {
+        try {
+            // Gate: SuperAdmin only
+            if (!auth()->user()->isSuperAdmin()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied. SuperAdmin privileges required to archive records.'
+                ], 403);
+            }
+
+            $item   = RecycleBin::findOrFail($id);
+            $reason = $request->input('reason', 'Archived from recycle bin');
+
+            $archive = ArchiveService::archiveFromRecycleBin($item, $reason);
+
+            return response()->json([
+                'success'   => true,
+                'message'   => "'{$item->item_name}' has been archived. Reference: {$archive->archive_reference_number}",
+                'reference' => $archive->archive_reference_number,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error archiving recycle bin item', [
+                'id'    => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error archiving item: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

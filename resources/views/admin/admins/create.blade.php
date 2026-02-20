@@ -51,19 +51,10 @@
                             <label for="role" class="form-label">
                                 <i class="fas fa-user-shield me-2"></i>Role
                             </label>
-                            <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
-                                <option value="" disabled selected>Select Role</option>
-                                <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>
-                                    Admin
-                                </option>
-                            </select>
-                            @error('role')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                            <div class="form-text">
-                                <strong>Admin:</strong> Can access admin dashboard and manage basic operations
+                            <input type="hidden" name="role" value="admin">
+                            <div class="form-control bg-light d-flex align-items-center" style="cursor: default;">
+                                <span class="badge bg-primary me-2">Admin</span>
+                                <span class="text-muted small">Can access admin dashboard and manage basic operations</span>
                             </div>
                         </div>
 

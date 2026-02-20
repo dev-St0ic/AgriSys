@@ -11,6 +11,7 @@
     $barangayPerformance = $barangayPerformance ?? collect();
     $categoryFulfillment = $categoryFulfillment ?? [];
     $processingTimeAnalysis = $processingTimeAnalysis ?? [];
+    $claimAnalysis = $claimAnalysis ?? [];
 
     // ADD THESE NEW DEFAULTS FOR FILTER
     $filterType = $filterType ?? 'preset';
@@ -23,102 +24,21 @@
 
 @section('title', 'Analytics - AgriSys Admin')
 @section('page-icon', 'fas fa-chart-bar')
-@section('page-title', 'Seedling Analytics Dashboard')
+@section('page-title', 'Supply Request Analytics Dashboard')
 
 @section('content')
     <!-- Enhanced Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0 navigation-container">
-                <div class="card-body py-4 px-4">
-                    <div class="d-flex justify-content-center flex-wrap gap-3 align-items-center">
-                        <a href="{{ route('admin.analytics.seedlings') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-seedling"></i>
-                            </div>
-                            <span class="nav-label">Supply Request</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.rsbsa') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-user-check"></i>
-                            </div>
-                            <span class="nav-label">RSBSA</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.fishr') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-fish"></i>
-                            </div>
-                            <span class="nav-label">FISHR</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.boatr') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-ship"></i>
-                            </div>
-                            <span class="nav-label">BOATR</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.training') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <span class="nav-label">Training</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.supply-management') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-boxes"></i>
-                            </div>
-                            <span class="nav-label">Supply Management</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.user-registration') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-user-plus"></i>
-                            </div>
-                            <span class="nav-label">User Registration</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            @include('admin.analytics.partials.nav')
         </div>
     </div> <!-- Date Range Filter -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <form method="GET" action="{{ route('admin.analytics.seedlings') }}" class="row g-3 align-items-end">
-                        <div class="col-lg-3 col-md-6">
-                            <label for="start_date" class="form-label fw-semibold">
-                                <i class="fas fa-calendar-alt text-primary me-1"></i>Start Date
-                            </label>
-                            <input type="date" class="form-control" id="start_date" name="start_date"
-                                value="{{ $startDate }}">
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <label for="end_date" class="form-label fw-semibold">
-                                <i class="fas fa-calendar-check text-primary me-1"></i>End Date
-                            </label>
-                            <input type="date" class="form-control" id="end_date" name="end_date"
-                                value="{{ $endDate }}">
-                        </div>
-                        <div class="col-lg-6 col-md-12">
-                            <div class="d-flex gap-2 flex-wrap">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="fas fa-filter me-2"></i>Apply Filter
-                                </button>
-                                <a href="{{ route('admin.analytics.seedlings.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                                    class="btn btn-success px-4">
-                                    <i class="fas fa-download me-2"></i>Export Data
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            @include('admin.analytics.partials.filter', [
+                'filterRoute' => 'admin.analytics.seedlings',
+                'exportRoute' => 'admin.analytics.seedlings.export',
+            ])
         </div>
     </div>
 
@@ -339,6 +259,198 @@
             </div>
         </div>
     </div>
+
+       {{-- ── CLAIM STATUS SECTION ─────────────────────────────────── --}}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-hand-holding me-2 text-success"></i>Claim Status Overview
+                    </h5>
+                    <small class="text-muted">Pickup tracking for approved &amp; partially approved requests</small>
+                </div>
+                @if(($claimAnalysis['overdue_unclaimed'] ?? 0) > 0)
+                    <span class="badge bg-danger fs-6">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        {{ $claimAnalysis['overdue_unclaimed'] }} Overdue
+                    </span>
+                @endif
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 rounded-3 text-center" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);">
+                            <div class="mb-2"><i class="fas fa-check-circle fa-2x text-success"></i></div>
+                            <h3 class="mb-0 fw-bold text-success">{{ number_format($claimAnalysis['claimed'] ?? 0) }}</h3>
+                            <p class="mb-1 text-muted small fw-semibold">Claimed</p>
+                            <span class="badge bg-success">{{ $claimAnalysis['claim_rate'] ?? 0 }}% claim rate</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 rounded-3 text-center" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
+                            <div class="mb-2"><i class="fas fa-clock fa-2x text-warning"></i></div>
+                            <h3 class="mb-0 fw-bold text-warning">{{ number_format($claimAnalysis['pending_pickup'] ?? 0) }}</h3>
+                            <p class="mb-1 text-muted small fw-semibold">Pending Pickup</p>
+                            <span class="badge bg-warning text-dark">Within deadline</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 rounded-3 text-center" style="background:linear-gradient(135deg,#fee2e2,#fecaca);">
+                            <div class="mb-2"><i class="fas fa-exclamation-circle fa-2x text-danger"></i></div>
+                            <h3 class="mb-0 fw-bold text-danger">{{ number_format($claimAnalysis['overdue_unclaimed'] ?? 0) }}</h3>
+                            <p class="mb-1 text-muted small fw-semibold">Overdue Unclaimed</p>
+                            <span class="badge bg-danger">Past pickup deadline</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="p-3 rounded-3 text-center" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);">
+                            <div class="mb-2"><i class="fas fa-calendar-check fa-2x text-primary"></i></div>
+                            <h3 class="mb-0 fw-bold text-primary">{{ $claimAnalysis['avg_days_to_claim'] ?? 0 }}</h3>
+                            <p class="mb-1 text-muted small fw-semibold">Avg. Days to Claim</p>
+                            <span class="badge bg-primary">After approval</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    {{-- Claim Donut --}}
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-chart-pie me-2 text-success"></i>Claimed vs Unclaimed</h5>
+                <small class="text-muted">Breakdown of approved requests</small>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div style="position:relative;height:200px;">
+                    <canvas id="claimDonutChart"></canvas>
+                </div>
+                <div class="mt-3">
+                    @foreach([
+                        ['color'=>'#10b981','label'=>'Claimed',        'key'=>'claimed'],
+                        ['color'=>'#f59e0b','label'=>'Pending Pickup', 'key'=>'pending_pickup'],
+                        ['color'=>'#ef4444','label'=>'Overdue',        'key'=>'overdue_unclaimed'],
+                    ] as $leg)
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background:#f8fafc;">
+                        <span>
+                            <span style="width:12px;height:12px;border-radius:50%;display:inline-block;background:{{ $leg['color'] }};margin-right:6px;"></span>
+                            {{ $leg['label'] }}
+                        </span>
+                        <strong>{{ $claimAnalysis[$leg['key']] ?? 0 }}</strong>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Monthly Stacked Bar --}}
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-chart-bar me-2 text-primary"></i>Monthly Claimed vs Unclaimed</h5>
+                <small class="text-muted">Track pickup completion rate over time</small>
+            </div>
+            <div class="card-body">
+                <canvas id="claimMonthlyChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    {{-- Barangay Claim Rate --}}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-map-marker-alt me-2 text-info"></i>Claim Rate by Barangay</h5>
+                <small class="text-muted">Which barangays have low pickup completion?</small>
+            </div>
+            <div class="card-body" style="max-height:420px;overflow-y:auto;">
+                @forelse($claimAnalysis['barangay_claim_rate'] ?? [] as $row)
+                    @php $rate = $row->claim_rate ?? 0;
+                         $bc   = $rate >= 80 ? 'success' : ($rate >= 50 ? 'warning' : 'danger'); @endphp
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-semibold">{{ $row->barangay }}</span>
+                            <span class="badge bg-{{ $bc }}">{{ $rate }}%</span>
+                        </div>
+                        <div class="progress" style="height:18px;">
+                            <div class="progress-bar bg-{{ $bc }}" role="progressbar" style="width:{{ $rate }}%">
+                                {{ $row->claimed }}/{{ $row->total }}
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-muted text-center py-4">No data for selected period.</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    {{-- At-Risk Unclaimed Table --}}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>At-Risk Unclaimed Requests</h5>
+                <small class="text-muted">Soonest pickup deadlines — follow up immediately</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Request #</th>
+                                <th>Applicant</th>
+                                <th>Barangay</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($claimAnalysis['unclaimed_list'] ?? [] as $req)
+                                @php
+                                    $isOverdue   = $req->pickup_expired_at && \Carbon\Carbon::parse($req->pickup_expired_at)->isPast();
+                                    $hasDeadline = !empty($req->pickup_expired_at);
+                                @endphp
+                                <tr class="{{ $isOverdue ? 'table-danger' : '' }}">
+                                    <td class="ps-3"><strong class="text-primary">{{ $req->request_number }}</strong></td>
+                                    <td>{{ $req->first_name }} {{ $req->last_name }}</td>
+                                    <td>{{ $req->barangay }}</td>
+                                    <td>
+                                        @if($hasDeadline)
+                                            <span class="badge bg-{{ $isOverdue ? 'danger' : 'warning text-dark' }}">
+                                                {{ \Carbon\Carbon::parse($req->pickup_expired_at)->format('M d, Y') }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted small">No deadline</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $isOverdue ? 'danger' : 'warning text-dark' }}">
+                                            {{ $isOverdue ? 'Overdue' : 'Pending' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-success py-4">
+                                        <i class="fas fa-check-circle me-2"></i>All approved requests claimed!
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- Detailed Performance Table -->
     <div class="row mb-4">
@@ -1002,7 +1114,7 @@
 
             // Barangay Performance Chart
             const barangayCtx = document.getElementById('barangayChart');
-            const barangayData = @json($barangayAnalysis->take(10)->toArray());
+            const barangayData = @json($barangayAnalysis->toArray());
             const barangayLabels = barangayData.map(b => b.barangay.replaceAll('_', ' '));
             const barangayValues = barangayData.map(b => b.total_requests);
 
@@ -1101,7 +1213,7 @@
 
             // Top Items Chart
             const topItemsCtx = document.getElementById('topItemsChart');
-            const topItemsData = @json($topItems->take(10)->toArray());
+            const topItemsData = @json($topItems->toArray());
             const itemLabels = topItemsData.map(item => item.name.replaceAll('_', ' '));
             const itemValues = topItemsData.map(item => item.total_quantity);
 
@@ -1145,6 +1257,111 @@
                 },
                 plugins: [ChartDataLabels]
             });
+                // ── Claim Donut Chart ──────────────────────────────────────────
+                const claimDonutCtx = document.getElementById('claimDonutChart');
+                new Chart(claimDonutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Claimed', 'Pending Pickup', 'Overdue'],
+                        datasets: [{
+                            data: [
+                                {{ $claimAnalysis['claimed'] ?? 0 }},
+                                {{ $claimAnalysis['pending_pickup'] ?? 0 }},
+                                {{ $claimAnalysis['overdue_unclaimed'] ?? 0 }}
+                            ],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                            borderWidth: 3,
+                            borderColor: '#ffffff',
+                            cutout: '65%',
+                            spacing: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => {
+                                        const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                                        const pct   = total > 0 ? ((ctx.parsed/total)*100).toFixed(1) : 0;
+                                        return `${ctx.label}: ${ctx.parsed.toLocaleString()} (${pct}%)`;
+                                    }
+                                }
+                            },
+                            datalabels: false
+                        }
+                    },
+                    plugins: [{
+                        id: 'claimCenter',
+                        beforeDraw(chart) {
+                            const {ctx, chartArea} = chart;
+                            const cx = (chartArea.left + chartArea.right) / 2;
+                            const cy = (chartArea.top  + chartArea.bottom) / 2;
+                            const total = chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+                            ctx.save();
+                            ctx.font = 'bold 22px Inter, sans-serif';
+                            ctx.fillStyle = '#1f2937';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(total.toLocaleString(), cx, cy - 10);
+                            ctx.font = '12px Inter, sans-serif';
+                            ctx.fillStyle = '#64748b';
+                            ctx.fillText('Approved', cx, cy + 12);
+                            ctx.restore();
+                        }
+                    }]
+                });
+
+                // ── Claim Monthly Stacked Bar ──────────────────────────────────
+                const claimMonthlyCtx = document.getElementById('claimMonthlyChart');
+                const claimMonthly    = @json($claimAnalysis['monthly_breakdown'] ?? []);
+                const claimMonthLabels = claimMonthly.map(m => {
+                    const [yr, mo] = m.month.split('-');
+                    return new Date(yr, mo-1).toLocaleDateString('en-US', {month:'short', year:'2-digit'});
+                });
+                new Chart(claimMonthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: claimMonthLabels,
+                        datasets: [
+                            {
+                                label: 'Claimed',
+                                data: claimMonthly.map(m => m.claimed),
+                                backgroundColor: '#10b981',
+                                borderRadius: 4,
+                                stack: 'stack'
+                            },
+                            {
+                                label: 'Unclaimed',
+                                data: claimMonthly.map(m => m.unclaimed),
+                                backgroundColor: '#ef4444',
+                                borderRadius: 4,
+                                stack: 'stack'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            datalabels: {
+                                display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+                                color: '#fff',
+                                font: { weight: 'bold', size: 11 },
+                                formatter: v => v
+                            }
+                        },
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true, beginAtZero: true,
+                                ticks: { callback: v => v.toLocaleString() } }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
         });
     </script>
 @endsection

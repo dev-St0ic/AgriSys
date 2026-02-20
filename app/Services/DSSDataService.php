@@ -85,8 +85,8 @@ class DSSDataService
             ->selectRaw('
                 COUNT(*) as total_requests,
                 SUM(CASE WHEN status IN ("approved", "partially_approved") THEN 1 ELSE 0 END) as approved_requests,
-                SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected_requests,
-                SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending_requests,
+                SUM(CASE WHEN status IN ("rejected", "denied") THEN 1 ELSE 0 END) as rejected_requests,
+                SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending_requests,
                 SUM(total_quantity) as total_items_requested,
                 AVG(CASE WHEN updated_at IS NOT NULL THEN TIMESTAMPDIFF(HOUR, created_at, updated_at) ELSE NULL END) as avg_processing_hours
             ')
@@ -314,7 +314,15 @@ class DSSDataService
         foreach ($demandData['top_requested_items'] as $demandItem) {
             // Try to match with available stock
             $matchingStock = collect($supplyData['stock_distribution'])
-                ->firstWhere('name', 'like', '%' . $demandItem['name'] . '%');
+            ->first(function($stock) use ($demandItem) {
+                return str_contains(
+                    strtolower($stock['name']), 
+                    strtolower($demandItem['name'])
+                ) || str_contains(
+                    strtolower($demandItem['name']),
+                    strtolower($stock['name'])
+                );
+            });
 
             if ($matchingStock) {
                 $shortageAmount = $demandItem['total_requested'] - $matchingStock['current_supply'];

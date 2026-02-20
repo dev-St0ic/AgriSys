@@ -10,99 +10,17 @@
     <!-- Enhanced Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0 navigation-container">
-                <div class="card-body py-4 px-4">
-                    <div class="d-flex justify-content-center flex-wrap gap-3 align-items-center">
-                        <a href="{{ route('admin.analytics.seedlings') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-seedling"></i>
-                            </div>
-                            <span class="nav-label">Supply Request</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.rsbsa') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-user-check"></i>
-                            </div>
-                            <span class="nav-label">RSBSA</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.fishr') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-fish"></i>
-                            </div>
-                            <span class="nav-label">FISHR</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.boatr') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-ship"></i>
-                            </div>
-                            <span class="nav-label">BOATR</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.training') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <span class="nav-label">Training</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.supply-management') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-boxes"></i>
-                            </div>
-                            <span class="nav-label">Supply Management</span>
-                        </a>
-                        <a href="{{ route('admin.analytics.user-registration') }}"
-                            class="analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                            <div class="nav-icon-wrapper">
-                                <i class="fas fa-user-plus"></i>
-                            </div>
-                            <span class="nav-label">User Registration</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            @include('admin.analytics.partials.nav')
         </div>
     </div>
 
     <!-- Date Range Filter -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <form method="GET" action="{{ route('admin.analytics.supply-management') }}"
-                        class="row g-3 align-items-end">
-                        <div class="col-lg-3 col-md-6">
-                            <label for="start_date" class="form-label fw-semibold">
-                                <i class="fas fa-calendar-alt text-primary me-1"></i>Start Date
-                            </label>
-                            <input type="date" class="form-control" id="start_date" name="start_date"
-                                value="{{ $startDate }}">
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <label for="end_date" class="form-label fw-semibold">
-                                <i class="fas fa-calendar-check text-primary me-1"></i>End Date
-                            </label>
-                            <input type="date" class="form-control" id="end_date" name="end_date"
-                                value="{{ $endDate }}">
-                        </div>
-                        <div class="col-lg-6 col-md-12">
-                            <div class="d-flex gap-2 flex-wrap">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="fas fa-filter me-2"></i>Apply Filter
-                                </button>
-                                <a href="{{ route('admin.analytics.supply-management.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                                    class="btn btn-success px-4">
-                                    <i class="fas fa-download me-2"></i>Export Data
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            @include('admin.analytics.partials.filter', [
+                'filterRoute' => 'admin.analytics.supply-management',
+                'exportRoute' => 'admin.analytics.supply-management.export',
+            ])
         </div>
     </div>
 
@@ -597,7 +515,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($restockRecommendations->take(10) as $recommendation)
+                                @forelse ($restockRecommendations as $recommendation)
                                     <tr>
                                         <td class="fw-semibold">{{ $recommendation['item']->name }}</td>
                                         <td>{{ $recommendation['item']->category->display_name ?? 'N/A' }}</td>

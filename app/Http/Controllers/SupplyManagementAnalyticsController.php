@@ -255,12 +255,13 @@ class SupplyManagementAnalyticsController extends Controller
     }
 
     /**
-     * Get supply trends over time
+     * Get supply trends over time - with no missing months
      */
     private function getSupplyTrends($startDate, $endDate)
     {
         try {
-            $trends = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            // Get real data from DB
+            $rawTrends = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->select(
                     DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
                     DB::raw('COUNT(*) as total_transactions'),
@@ -272,9 +273,37 @@ class SupplyManagementAnalyticsController extends Controller
                 )
                 ->groupBy('month')
                 ->orderBy('month')
-                ->get();
+                ->get()
+                ->keyBy('month'); // key by "YYYY-MM" for easy lookup
 
-            return $trends;
+            // Build a complete list of every month in the range
+            $start  = Carbon::parse($startDate)->startOfMonth();
+            $end    = Carbon::parse($endDate)->startOfMonth();
+            $filled = collect();
+
+            while ($start->lte($end)) {
+                $key = $start->format('Y-m');
+
+                if ($rawTrends->has($key)) {
+                    $filled->push($rawTrends->get($key));
+                } else {
+                    // Push a zero-row for months with no activity
+                    $filled->push((object) [
+                        'month'               => $key,
+                        'total_transactions'  => 0,
+                        'supplies_added'      => 0,
+                        'supplies_deducted'   => 0,
+                        'supplies_lost'       => 0,
+                        'adjustments'         => 0,
+                        'items_affected'      => 0,
+                    ]);
+                }
+
+                $start->addMonth();
+            }
+
+            return $filled;
+
         } catch (\Exception $e) {
             Log::error('Supply Trends Error: ' . $e->getMessage());
             return collect([]);
@@ -766,57 +795,178 @@ class SupplyManagementAnalyticsController extends Controller
         ];
     }
 
-    /**
-     * Export analytics data
+/**
+     * Export analytics data as CSV
      */
     public function export(Request $request)
     {
         try {
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate = $request->get('end_date', now()->format('Y-m-d'));
+            $endDate   = $request->get('end_date', now()->format('Y-m-d'));
 
-            // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
-            $endDate = Carbon::parse($endDate)->format('Y-m-d');
+            $endDate   = Carbon::parse($endDate)->format('Y-m-d');
 
-            $data = [
-                'export_info' => [
-                    'generated_at' => now()->format('Y-m-d H:i:s'),
-                    'date_range' => [
-                        'start' => $startDate,
-                        'end' => $endDate
-                    ],
-                    'generated_by' => auth()->user()->name ?? 'System'
-                ],
-                'overview' => $this->getOverviewStatistics(),
-                'supply_level_analysis' => $this->getSupplyLevelAnalysis(),
-                'supply_trends' => $this->getSupplyTrends($startDate, $endDate)->toArray(),
-                'transaction_analysis' => $this->getTransactionAnalysis($startDate, $endDate),
-                'category_performance' => $this->getCategoryPerformance()->toArray(),
-                'top_items_analysis' => $this->getTopItemsAnalysis($startDate, $endDate),
-                'supply_alerts' => $this->getSupplyAlerts(),
-                'fulfillment_analysis' => $this->getFulfillmentAnalysis($startDate, $endDate),
-                'efficiency_metrics' => $this->getEfficiencyMetrics($startDate, $endDate),
-                'turnover_analysis' => $this->getTurnoverAnalysis($startDate, $endDate)->toArray(),
-                'loss_analysis' => $this->getLossAnalysis($startDate, $endDate),
-                'restock_recommendations' => $this->getRestockRecommendations()->toArray()
+            $filename = 'supply-management-analytics-' . $startDate . '-to-' . $endDate . '.csv';
+
+            $headers = [
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma'              => 'no-cache',
+                'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires'             => '0',
             ];
 
-            $filename = 'supply-management-analytics-' . $startDate . '-to-' . $endDate . '.json';
+            $overview            = $this->getOverviewStatistics();
+            $fulfillment         = $this->getFulfillmentAnalysis($startDate, $endDate);
+            $efficiency          = $this->getEfficiencyMetrics($startDate, $endDate);
+            $supplyTrends        = $this->getSupplyTrends($startDate, $endDate);
+            $topItems            = $this->getTopItemsAnalysis($startDate, $endDate);
+            $restockRecs         = $this->getRestockRecommendations();
+            $lossAnalysis        = $this->getLossAnalysis($startDate, $endDate);
+
+            $callback = function () use (
+                $startDate, $endDate, $overview, $fulfillment,
+                $efficiency, $supplyTrends, $topItems, $restockRecs, $lossAnalysis
+            ) {
+                $file = fopen('php://output', 'w');
+
+                // ── Export Info ───────────────────────────────────────
+                fputcsv($file, ['SUPPLY MANAGEMENT ANALYTICS EXPORT']);
+                fputcsv($file, ['Generated At', now()->format('Y-m-d H:i:s')]);
+                fputcsv($file, ['Date Range', $startDate . ' to ' . $endDate]);
+                fputcsv($file, ['Generated By', auth()->user()->name ?? 'System']);
+                fputcsv($file, []);
+
+                // ── Overview ──────────────────────────────────────────
+                fputcsv($file, ['OVERVIEW']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Total Items',          $overview['total_items']]);
+                fputcsv($file, ['Active Items',         $overview['active_items']]);
+                fputcsv($file, ['Inactive Items',       $overview['inactive_items']]);
+                fputcsv($file, ['Total Supply',         $overview['total_supply']]);
+                fputcsv($file, ['Avg Supply Per Item',  $overview['avg_supply_per_item']]);
+                fputcsv($file, ['Total Categories',     $overview['total_categories']]);
+                fputcsv($file, ['Low Supply Items',     $overview['low_supply_items']]);
+                fputcsv($file, ['Out of Stock Items',   $overview['out_of_stock_items']]);
+                fputcsv($file, ['Healthy Stock Items',  $overview['healthy_stock_items']]);
+                fputcsv($file, ['Supply Health Score',  $overview['supply_health_score'] . '%']);
+                fputcsv($file, []);
+
+                // ── Fulfillment Analysis ──────────────────────────────
+                fputcsv($file, ['FULFILLMENT ANALYSIS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Total Items Requested',    $fulfillment['total_requested']]);
+                fputcsv($file, ['Total Items Approved',     $fulfillment['total_approved']]);
+                fputcsv($file, ['Fully Fulfilled',          $fulfillment['fully_fulfilled']]);
+                fputcsv($file, ['Partially Fulfilled',      $fulfillment['partially_fulfilled']]);
+                fputcsv($file, ['Not Fulfilled',            $fulfillment['not_fulfilled']]);
+                fputcsv($file, ['Fulfillment Rate',         $fulfillment['fulfillment_rate'] . '%']);
+                fputcsv($file, ['Full Fulfillment Rate',    $fulfillment['full_fulfillment_rate'] . '%']);
+                fputcsv($file, []);
+
+                // ── Efficiency Metrics ────────────────────────────────
+                fputcsv($file, ['EFFICIENCY METRICS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Supply Added',        $efficiency['supply_added']]);
+                fputcsv($file, ['Supply Distributed',  $efficiency['supply_deducted']]);
+                fputcsv($file, ['Supply Lost',         $efficiency['supply_lost']]);
+                fputcsv($file, ['Net Supply Change',   $efficiency['net_supply_change']]);
+                fputcsv($file, ['Loss Rate',           $efficiency['loss_rate'] . '%']);
+                fputcsv($file, ['Utilization Rate',    $efficiency['utilization_rate'] . '%']);
+                fputcsv($file, []);
+
+                // ── Monthly Supply Trends ─────────────────────────────
+                fputcsv($file, ['MONTHLY SUPPLY TRENDS']);
+                fputcsv($file, ['Month', 'Total Transactions', 'Supplies Added', 'Supplies Distributed', 'Supplies Lost', 'Items Affected']);
+                foreach ($supplyTrends as $trend) {
+                    fputcsv($file, [
+                        $trend->month,
+                        $trend->total_transactions,
+                        $trend->supplies_added,
+                        $trend->supplies_deducted,
+                        $trend->supplies_lost,
+                        $trend->items_affected,
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Top Requested Items ───────────────────────────────
+                fputcsv($file, ['TOP REQUESTED ITEMS']);
+                fputcsv($file, ['Item Name', 'Unit', 'Request Count', 'Total Requested', 'Total Approved', 'Avg Requested']);
+                foreach ($topItems['most_requested'] as $item) {
+                    fputcsv($file, [
+                        $item->name,
+                        $item->unit,
+                        $item->request_count,
+                        $item->total_requested,
+                        $item->total_approved,
+                        round($item->avg_requested, 2),
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Top Supplied Items ────────────────────────────────
+                fputcsv($file, ['TOP SUPPLIED ITEMS']);
+                fputcsv($file, ['Item Name', 'Unit', 'Supply Transactions', 'Total Supplied', 'Avg Supply']);
+                foreach ($topItems['most_supplied'] as $item) {
+                    fputcsv($file, [
+                        $item->name,
+                        $item->unit,
+                        $item->supply_transactions,
+                        $item->total_supplied,
+                        round($item->avg_supply, 2),
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Loss Analysis ─────────────────────────────────────
+                fputcsv($file, ['LOSS ANALYSIS']);
+                fputcsv($file, ['Total Loss', $lossAnalysis['total_loss']]);
+                fputcsv($file, ['Loss Incidents', $lossAnalysis['loss_incidents']]);
+                fputcsv($file, ['Avg Loss Per Incident', $lossAnalysis['avg_loss_per_incident']]);
+                fputcsv($file, []);
+                fputcsv($file, ['Item Name', 'Category', 'Unit', 'Total Loss', 'Loss Incidents', 'Avg Loss']);
+                foreach ($lossAnalysis['loss_by_item'] as $loss) {
+                    fputcsv($file, [
+                        $loss['item_name'],
+                        $loss['category'],
+                        $loss['unit'],
+                        $loss['total_loss'],
+                        $loss['loss_incidents'],
+                        $loss['avg_loss'],
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Restock Recommendations ───────────────────────────
+                fputcsv($file, ['RESTOCK RECOMMENDATIONS']);
+                fputcsv($file, ['Item Name', 'Category', 'Current Supply', 'Status', 'Urgency', 'Recommended Restock Qty']);
+                foreach ($restockRecs as $rec) {
+                    fputcsv($file, [
+                        $rec['item']->name,
+                        $rec['item']->category->display_name ?? 'N/A',
+                        $rec['item']->current_supply,
+                        $rec['status'],
+                        $rec['urgency'],
+                        $rec['recommended_quantity'],
+                    ]);
+                }
+
+                fclose($file);
+            };
 
             // Log activity
             $this->logActivity('exported', 'CategoryItem', null, [
-                'format' => 'JSON',
+                'format'     => 'CSV',
                 'date_range' => ['start' => $startDate, 'end' => $endDate]
             ], 'Exported Supply Management analytics data from ' . $startDate . ' to ' . $endDate);
 
-            return response()->json($data, 200, [
-                'Content-Type' => 'application/json',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
-            ]);
+            return response()->stream($callback, 200, $headers);
+
         } catch (\Exception $e) {
             Log::error('Supply Management Export Error: ' . $e->getMessage());
-            return back()->with('error', 'Error exporting supply management data: ' . $e->getMessage());
+            return back()->with('error', 'Error exporting data: ' . $e->getMessage());
         }
     }
 

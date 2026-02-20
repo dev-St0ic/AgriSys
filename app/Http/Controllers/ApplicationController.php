@@ -9,6 +9,7 @@ use App\Models\CategoryItem;
 use App\Models\BoatrApplication;
 use App\Models\RsbsaApplication;
 use App\Models\TrainingApplication;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -179,6 +180,9 @@ class ApplicationController extends Controller
                 'main_livelihood' => $livelihoodDescription,
                 'secondary_livelihood' => $secondaryLivelihoodDescription
             ]);
+
+            // 🔔 Trigger notification for admins
+            NotificationService::fishrApplicationCreated($fishRRegistration);
 
             // Log activity
             try {
@@ -414,6 +418,9 @@ public function submitSeedlings(Request $request)
             Log::error('Activity logging failed: ' . $e->getMessage());
         }
 
+        // 🔔 Trigger notification for admins
+        NotificationService::seedlingRequestCreated($seedlingRequest);
+
         $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
                         $seedlingRequest->request_number .
                         '. You will receive an SMS notification once your request is processed.';
@@ -646,6 +653,9 @@ public function submitRsbsa(Request $request)
             Log::error('Activity logging failed: ' . $e->getMessage());
         }
 
+        // 🔔 Trigger notification for admins
+        NotificationService::rsbsaApplicationCreated($rsbsaApplication);
+
         $successMessage = 'Your RSBSA application has been submitted successfully! Application Number: ' .
                         $rsbsaApplication->application_number;
 
@@ -820,6 +830,9 @@ try {
             }
         }
 
+        // 🔔 Trigger notification for admins
+        NotificationService::boatrApplicationCreated($boatRRegistration);
+
         return response()->json([
             'success' => true,
             'message' => 'Your BoatR registration has been submitted successfully! Application Number: ' . $boatRRegistration->application_number,
@@ -964,6 +977,9 @@ try {
             } catch (\Exception $e) {
                 Log::error('Activity logging failed: ' . $e->getMessage());
             }
+
+            // 🔔 Trigger notification for admins
+            NotificationService::trainingApplicationCreated($training);
 
             $successMessage = 'Your training application has been submitted successfully! ' .
                              'Application Number: ' . $training->application_number .

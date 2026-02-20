@@ -1061,7 +1061,7 @@
                                         href="{{ route('admin.event.index') }}" data-tooltip="Event Management"
                                         aria-label="Event Management" role="menuitem">
                                         <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                                        <span class="nav-link-text">Events</span>
+                                        <span class="nav-link-text">Event Management</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -1150,7 +1150,7 @@
                                     <!-- Admin Section Separator -->
                                     <div class="nav-section-divider">
                                         <div class="divider-line"></div>
-                                        <span class="divider-text">Admin</span>
+                                        <span class="divider-text">System Administration</span>
                                         <div class="divider-line"></div>
                                     </div>
 
@@ -1184,6 +1184,16 @@
                                         <span class="nav-link-text">Recycle Bin</span>
                                     </a>
                                 </li>
+                                @if(auth()->user()->isSuperAdmin())
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.archive.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.archive.index') }}" data-tooltip="Archive"
+                                        aria-label="Archive" role="menuitem">
+                                        <i class="fas fa-file-archive" aria-hidden="true"></i>
+                                        <span class="nav-link-text">Archive</span>
+                                    </a>
+                                </li>
+                                @endif
                             </ul>
                         </div>
                     </nav>
@@ -1583,7 +1593,7 @@
     <script>
         // Add auth info for JavaScript
         window.auth = {
-            isAdmin: @json(auth()->check() && auth()->user()->isAdmin()),
+            isAdmin: @json(auth()->check() && auth()->user()->hasAdminPrivileges()),
             user: @json(auth()->user() ? ['id' => auth()->user()->id, 'name' => auth()->user()->name] : null)
         };
 
@@ -1785,11 +1795,10 @@
                 });
         }
 
-        // Clear read notifications
-        function clearReadNotifications() {
-            if (!confirm('Clear all read notifications?')) return;
-
-            fetch('/admin/notifications/clear-read', {
+            // Clear read notifications
+            function clearReadNotifications() {
+            showConfirmToast('Clear all read notifications?', function() {
+                fetch('/admin/notifications/clear-read', {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
@@ -1802,12 +1811,15 @@
                     if (data.success) {
                         showToast('success', data.message);
                         loadNotifications();
+                    } else {
+                        showToast('error', 'Failed to clear notifications');
                     }
                 })
                 .catch(error => {
                     console.error('Error clearing notifications:', error);
-                    showToast('error', 'Failed to clear notifications');
+                    showToast('error', 'Something went wrong');
                 });
+            });
         }
         // View all notifications page updated
         function viewAllNotifications(event) {
@@ -1823,6 +1835,50 @@
             window.location.href = '/admin/notifications';
         }
 
+           function showConfirmToast(message, onConfirm) {
+            const existing = document.getElementById('confirmToastWrapper');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'confirmToastWrapper';
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 99999;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                padding: 16px;
+                border-left: 4px solid #ffc107;
+                min-width: 300px;
+            `;
+            toast.innerHTML = `
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <i class="fas fa-exclamation-triangle" style="color:#ffc107; font-size:1.3rem;"></i>
+                    <span style="font-size:0.9rem; color:#333;">${message}</span>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button class="btn btn-sm btn-secondary" id="confirmToastCancel">Cancel</button>
+                    <button class="btn btn-sm btn-danger" id="confirmToastOk">Confirm</button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                document.getElementById('confirmToastCancel')?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toast.remove();
+                });
+                document.getElementById('confirmToastOk')?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toast.remove();
+                    if (typeof onConfirm === 'function') onConfirm();
+                });
+            }, 0);
+        }
+                        
         // // UPDATED handleNotificationClick to NOT mark read when viewing dropdown
         // function handleNotificationClick(notificationId, actionUrl) {
         //     // Mark as read

@@ -1,6 +1,7 @@
 // Enhanced My Applications Modal - User Application Management (Simplified)
 // Fetch and display user's applications with professional styling
 // Updated: Added Under Review filter, Service-based filtering, reduced redundancy
+// FIXED: Philippine Timezone (UTC+8) with proper calendar day comparison
 
 /**
  * Load user applications in modal
@@ -324,26 +325,44 @@ function formatStatus(status) {
 }
 
 /**
- * Format application date
+ * Format application date - PHILIPPINE TIMEZONE (UTC+8) - FIXED VERSION
+ * Uses calendar day comparison and Math.floor() for accurate date display
  */
 function formatApplicationDate(dateString) {
     if (!dateString) return 'Date unknown';
 
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    try {
+        const date = new Date(dateString);
+        const now = new Date();
+        
+        // Convert to Philippine timezone (Asia/Manila = UTC+8)
+        const phDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        const phNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        
+        // Compare only calendar dates (ignore time of day)
+        const phDateOnly = new Date(phDate.getFullYear(), phDate.getMonth(), phDate.getDate());
+        const phNowOnly = new Date(phNow.getFullYear(), phNow.getMonth(), phNow.getDate());
+        
+        // Calculate difference in calendar days
+        const diffTime = phNowOnly - phDateOnly;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // Use Math.floor()
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-    
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+        if (diffDays === 0) return 'Today';        // Same calendar day in PH
+        if (diffDays === 1) return 'Yesterday';    // 1 calendar day ago in PH
+        if (diffDays < 7) return `${diffDays}d ago`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+        
+        // For older dates, show formatted date in Philippine timezone
+        return phDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            timeZone: 'Asia/Manila'
+        });
+    } catch (error) {
+        console.error('Error formatting application date:', error);
+        return 'Invalid date';
+    }
 }
 
 /**
@@ -627,4 +646,3 @@ window.showEmptyServiceFilterMessage = showEmptyServiceFilterMessage;
 window.removeEmptyFilterMessage = removeEmptyFilterMessage;
 window.populateServiceFilters = populateServiceFilters;
 
-console.log('Enhanced My Applications Modal - With Service & Status Filtering Loaded');

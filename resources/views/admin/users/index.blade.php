@@ -91,15 +91,24 @@
                     <div class="col-md-2">
                         <select name="user_type" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Types</option>
-                            <option value="farmer" {{ request('user_type') == 'farmer' ? 'selected' : '' }}>
-                                Farmer
-                            </option>
-                            <option value="fisherfolk" {{ request('user_type') == 'fisherfolk' ? 'selected' : '' }}>
-                                Fisherfolk
-                            </option>
-                            <option value="general" {{ request('user_type') == 'general' ? 'selected' : '' }}>
-                                General Public
-                            </option>
+                                <option value="farmer" {{ request('user_type') == 'farmer' ? 'selected' : '' }}>
+                                    Farmer
+                                </option>
+                                <option value="fisherfolk" {{ request('user_type') == 'fisherfolk' ? 'selected' : '' }}>
+                                    Fisherfolk
+                                </option>
+                                <option value="general" {{ request('user_type') == 'general' ? 'selected' : '' }}>
+                                    General Public
+                                </option>
+                                <option value="agri-entrepreneur" {{ request('user_type') == 'agri-entrepreneur' ? 'selected' : '' }}>
+                                    Agricultural Entrepreneur
+                                </option>
+                                <option value="cooperative-member" {{ request('user_type') == 'cooperative-member' ? 'selected' : '' }}>
+                                    Cooperative Member
+                                </option>
+                                <option value="government-employee" {{ request('user_type') == 'government-employee' ? 'selected' : '' }}>
+                                    Government Employee
+                                </option>
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -168,7 +177,15 @@
                                     <div class="d-flex align-items-center">
                                         <div class="avatar rounded-circle me-2 d-flex align-items-center justify-content-center text-white font-weight-bold"
                                             style="width: 35px; height: 35px;
-                                         background-color: {{ $registration->user_type === 'farmer' ? '#28a745' : ($registration->user_type === 'fisherfolk' ? '#17a2b8' : '#6c757d') }}">
+                                            background-color: 
+                                            @if($registration->user_type === 'farmer') #28a745
+                                                @elseif($registration->user_type === 'fisherfolk') #17a2b8
+                                                @elseif($registration->user_type === 'general') #6c757d
+                                                @elseif($registration->user_type === 'agri-entrepreneur') #007bff
+                                                @elseif($registration->user_type === 'cooperative-member') #ffc107
+                                                @elseif($registration->user_type === 'government-employee') #dc3545
+                                                @else #343a40
+                                                @endif">
                                             {{ strtoupper(substr($registration->username, 0, 2)) }}
                                         </div>
                                         <div>
@@ -191,13 +208,16 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if ($registration->user_type)
-                                        <span
-                                            class="badge fs-6
+                                  @if ($registration->user_type)
+                                        <span class="badge fs-6
                                         @if ($registration->user_type === 'farmer') bg-success
                                         @elseif($registration->user_type === 'fisherfolk') bg-info
-                                        @else bg-secondary @endif">
-                                            {{ ucfirst($registration->user_type) }}
+                                        @elseif($registration->user_type === 'general') bg-secondary
+                                        @elseif($registration->user_type === 'agri-entrepreneur') bg-primary
+                                        @elseif($registration->user_type === 'cooperative-member') bg-warning 
+                                        @elseif($registration->user_type === 'government-employee') bg-danger
+                                        @else bg-dark @endif">
+                                            {{ ucfirst(str_replace('-', ' ', $registration->user_type)) }}
                                         </span>
                                     @else
                                         <span class="badge bg-warning fs-6">Not Selected</span>
@@ -566,7 +586,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="add_contact_number" required
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">09XXXXXXXXX</small>
                                     </div>
                                 </div>
@@ -1022,7 +1042,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_contact_number"
-                                            name="contact_number" required placeholder="09XXXXXXXXX"
+                                            name="contact_number" required
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
@@ -1131,7 +1151,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_emergency_contact_phone"
-                                            name="emergency_contact_phone" required placeholder="09XXXXXXXXX"
+                                            name="emergency_contact_phone" required 
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
@@ -1702,7 +1722,7 @@
         }
 
         .change-indicator::after {
-            content: "●";
+            content: "";
             color: #ffc107;
             font-size: 12px;
             position: absolute;
@@ -1714,7 +1734,7 @@
         }
 
         .change-indicator.changed::after {
-            opacity: 1;
+            opacity: 0;
         }
 
         /* Enhanced document viewer styles */
@@ -3711,7 +3731,7 @@
 
             toast.innerHTML = `
                 <div class="toast-header">
-                    <i class="fas fa-question-circle me-2 text-info"></i>
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
                     <strong class="me-auto">${title}</strong>
                     <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
                 </div>
@@ -3721,7 +3741,7 @@
                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
                             <i></i>Cancel
                         </button>
-                        <button type="button" class="btn btn-sm btn-primary" onclick="confirmToastAction(this)">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
                             <i class="fas fa-check me-1"></i>Confirm
                         </button>
                     </div>
@@ -4464,6 +4484,21 @@
         function validateAddUserForm() {
             let isValid = true;
 
+             // *** NEW: Validate all name fields FIRST ***
+            const nameFieldIds = [
+                'add_first_name',
+                'add_middle_name',
+                'add_last_name',
+                'add_emergency_contact_name'
+            ];
+
+            nameFieldIds.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input && !validateAddNameField(input)) {
+                    isValid = false;
+                }
+            });
+
             // Validate username
             const username = document.getElementById('add_username').value.trim();
             if (!validateAddUsername(username)) {
@@ -4952,7 +4987,7 @@
             const toDate = document.getElementById('modal_date_to').value;
 
             if (fromDate && toDate && fromDate > toDate) {
-                showToast('error', 'From date cannot be later than to date');
+                showToast('warning', 'From date cannot be later than to date');
                 return;
             }
 
@@ -5469,7 +5504,6 @@
                 'name_extension': 'edit_name_extension',
                 'sex': 'edit_sex',
                 'date_of_birth': 'edit_date_of_birth',
-                'age': 'edit_age',
                 'contact_number': 'edit_contact_number',
                 'barangay': 'edit_barangay',
                 'complete_address': 'edit_complete_address',
@@ -5597,46 +5631,44 @@
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
 
-            const requiredFields = [{
-                    elementId: 'edit_first_name',
-                    label: 'First Name'
-                },
-                {
-                    elementId: 'edit_last_name',
-                    label: 'Last Name'
-                },
-                {
-                    elementId: 'edit_contact_number',
-                    label: 'Contact Number'
-                },
-                {
-                    elementId: 'edit_barangay',
-                    label: 'Barangay'
-                },
-                {
-                    elementId: 'edit_user_type',
-                    label: 'User Type'
-                },
-                {
-                    elementId: 'edit_emergency_contact_name',
-                    label: 'Emergency Contact Name'
-                },
-                {
-                    elementId: 'edit_emergency_contact_phone',
-                    label: 'Emergency Contact Phone'
-                }
+            // *** NEW: Validate all name fields FIRST ***
+            const nameFieldIds = [
+                'edit_first_name',
+                'edit_middle_name',
+                'edit_last_name',
+                'edit_emergency_contact_name'
             ];
 
-            // Validate required fields
+            nameFieldIds.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input && !validateEditNameField(input)) {
+                    isValid = false;
+                }
+            });
+
+            const requiredFields = [
+                { elementId: 'edit_first_name', label: 'First Name' },
+                { elementId: 'edit_last_name', label: 'Last Name' },
+                { elementId: 'edit_contact_number', label: 'Contact Number' },
+                { elementId: 'edit_barangay', label: 'Barangay' },
+                { elementId: 'edit_user_type', label: 'User Type' },
+                { elementId: 'edit_emergency_contact_name', label: 'Emergency Contact Name' },
+                { elementId: 'edit_emergency_contact_phone', label: 'Emergency Contact Phone' }
+            ];
+
+            // Validate required fields (skip if already validated by name validation)
             requiredFields.forEach(field => {
                 const input = document.getElementById(field.elementId);
                 if (input && (!input.value || input.value.trim() === '')) {
-                    input.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = field.label + ' is required';
-                    input.parentNode.appendChild(errorDiv);
-                    isValid = false;
+                    // Only add error if not already marked invalid by name validation
+                    if (!input.classList.contains('is-invalid')) {
+                        input.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = field.label + ' is required';
+                        input.parentNode.appendChild(errorDiv);
+                        isValid = false;
+                    }
                 }
             });
 
@@ -5864,20 +5896,33 @@
             // Get changed fields from stored data
             let changedFields = [];
             try {
-                changedFields = JSON.parse(submitBtn.dataset.changedFields || '[]');
+                const storedFields = submitBtn.dataset.changedFields;
+                console.log('Stored changed fields:', storedFields); // Debug log
+                
+                if (storedFields) {
+                    changedFields = JSON.parse(storedFields);
+                }
             } catch (e) {
-                console.warn('Could not parse changed fields:', e);
+                console.error('Could not parse changed fields:', e);
             }
 
-            // If no changed fields could be parsed, rebuild them
-            if (changedFields.length === 0) {
-                changedFields = ['One or more fields'];
+            // DEBUG: Log what we got
+            console.log('Changed fields for confirmation:', changedFields);
+
+            // If no changed fields could be parsed, show generic message
+            if (!changedFields || changedFields.length === 0) {
+                changedFields = ['One or more fields have been modified'];
             }
+
+            // Build a nicer formatted message
+            const changesText = changedFields.length > 0 
+                ? changedFields.map(field => `• ${field}`).join('\n')
+                : '• One or more fields have been modified';
 
             // Show confirmation toast with ALL changes
             showConfirmationToast(
                 'Confirm Update',
-                `Save the following changes to this registration?\n\n• ${changedFields.join('\n• ')}`,
+                `Save the following changes to this registration?\n\n${changesText}`,
                 () => proceedWithEditUser(form, registrationId)
             );
         }
@@ -6057,6 +6102,174 @@
             }
         }
 
+                /**
+         * Sanitize name input - remove numbers and invalid characters
+         */
+        function sanitizeNameInput(input) {
+            if (!input) return;
+            
+            let value = input.value;
+            
+            // Remove numbers
+            value = value.replace(/\d/g, '');
+            
+            // Remove special characters except allowed ones
+            value = value.replace(/[^a-zA-Z\s\-'.ñÑ]/g, '');
+            
+            // Remove consecutive spaces
+            value = value.replace(/\s+/g, ' ');
+            
+            input.value = value;
+        }
+
+        /**
+         * Validate individual name field (no numbers, special chars) - FOR EDIT MODAL
+         */
+        function validateEditNameField(input) {
+            if (!input) return true;
+
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const value = input.value.trim();
+            
+            // Skip validation if field is empty and not required
+            if (!value && input.id === 'edit_middle_name') {
+                return true;
+            }
+
+            // Required field check
+            if (!value && input.id !== 'edit_middle_name') {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'This field is required';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            if (!value) return true;
+
+            let errors = [];
+
+            // Check for numbers
+            if (/\d/.test(value)) {
+                errors.push('Name cannot contain numbers');
+            }
+
+            // Check for special characters (allow spaces, hyphens, apostrophes, periods)
+            if (/[^a-zA-Z\s\-'.ñÑ]/.test(value)) {
+                errors.push('Name can only contain letters, spaces, hyphens, apostrophes, and periods');
+            }
+
+            // Check minimum length (at least 2 characters)
+            if (value.length < 2) {
+                errors.push('Name must be at least 2 characters');
+            }
+
+            // Check maximum length
+            if (value.length > 100) {
+                errors.push('Name cannot exceed 100 characters');
+            }
+
+            // Check for excessive spaces
+            if (/\s{2,}/.test(value)) {
+                errors.push('Name cannot contain consecutive spaces');
+            }
+
+            // Check if name starts with a letter
+            if (!/^[a-zA-ZñÑ]/.test(value)) {
+                errors.push('Name must start with a letter');
+            }
+
+            if (errors.length > 0) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = errors[0];
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        /**
+         * Validate individual name field - FOR ADD MODAL
+         */
+        function validateAddNameField(input) {
+            if (!input) return true;
+
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const value = input.value.trim();
+            
+            // Skip validation if field is empty and not required
+            if (!value && input.id === 'add_middle_name') {
+                return true;
+            }
+
+            // Required field check
+            if (!value && input.id !== 'add_middle_name') {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'This field is required';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            if (!value) return true;
+
+            let errors = [];
+
+            // Check for numbers
+            if (/\d/.test(value)) {
+                errors.push('Name cannot contain numbers');
+            }
+
+            // Check for special characters
+            if (/[^a-zA-Z\s\-'.ñÑ]/.test(value)) {
+                errors.push('Name can only contain letters, spaces, hyphens, apostrophes, and periods');
+            }
+
+            // Check minimum length
+            if (value.length < 2) {
+                errors.push('Name must be at least 2 characters');
+            }
+
+            // Check maximum length
+            if (value.length > 100) {
+                errors.push('Name cannot exceed 100 characters');
+            }
+
+            // Check for excessive spaces
+            if (/\s{2,}/.test(value)) {
+                errors.push('Name cannot contain consecutive spaces');
+            }
+
+            // Check if name starts with a letter
+            if (!/^[a-zA-ZñÑ]/.test(value)) {
+                errors.push('Name must start with a letter');
+            }
+
+            if (errors.length > 0) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = errors[0];
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
         // close the edit modal
         document.addEventListener('DOMContentLoaded', function() {
             const editUserModal = document.getElementById('editUserModal');
@@ -6168,6 +6381,48 @@
                     }
                 });
             }
+
+            // Real-time validation for EDIT modal name fields
+            const editNameFields = [
+                'edit_first_name',
+                'edit_middle_name', 
+                'edit_last_name',
+                'edit_emergency_contact_name'
+            ];
+
+            editNameFields.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        sanitizeNameInput(this);
+                        validateEditNameField(this);
+                    });
+                    input.addEventListener('blur', function() {
+                        validateEditNameField(this);
+                    });
+                }
+            });
+
+            // Real-time validation for ADD modal name fields
+            const addNameFields = [
+                'add_first_name',
+                'add_middle_name',
+                'add_last_name',
+                'add_emergency_contact_name'
+            ];
+
+            addNameFields.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        sanitizeNameInput(this);
+                        validateAddNameField(this);
+                    });
+                    input.addEventListener('blur', function() {
+                        validateAddNameField(this);
+                    });
+                }
+            });
         });
 
         /**

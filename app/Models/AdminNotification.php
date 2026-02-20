@@ -99,9 +99,9 @@ class AdminNotification extends Model
         return $this->created_at->diffForHumans();
     }
 
-    public static function notifyAdmins(string $type, string $title, string $message, ?array $data = null, ?string $actionUrl = null)
+    public static function notifyAdmins(string $type, string $title, string $message, ?array $data = null, ?string $actionUrl = null, ?string $category = null)
     {
-        $admins = User::where('role', 'admin')->orWhere('role', 'super_admin')->get();
+        $admins = User::where('role', 'admin')->orWhere('role', 'superadmin')->get();
 
         foreach ($admins as $admin) {
             static::create([

@@ -16,58 +16,48 @@
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('admin.recycle-bin.index') }}" id="filterForm">
+                <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
+                <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
                 <div class="row g-2">
-                    <div class="col-md-3">
-                        <select name="type" class="form-select form-select-sm" onchange="submitFilterForm()">
-                            <option value="">All Types</option>
-                                <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>
-                                    FishR Registrations
-                                </option>
-                                <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>
-                                    FishR Annexes
-                                </option>
-                                <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>
-                                    BoatR Registrations
-                                </option>
-                                <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>
-                                    BoatR Annexes
-                                </option>
-                                <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>
-                                    RSBSA Registrations
-                                </option>
-                                <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>
-                                    Training Requests
-                                </option>
-                                <option value="seedlings" {{ request('type') == 'seedlings' ? 'selected' : '' }}>
-                                    Supply Requests
-                                </option>
-                                <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>
-                                    User Registrations
-                                </option>
-                                <option value="category_item" {{ request('type') == 'category_item' ? 'selected' : '' }}>
-                                    Supply Items
-                                </option>
-                                <option value="request_category" {{ request('type') == 'request_category' ? 'selected' : '' }}>
-                                    Supply Categories
-                                </option>
-                        </select>
-                    </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-3">
+                            <select name="type" class="form-select form-select-sm" onchange="submitFilterForm()">
+                                <option value="">All Types</option>
+                                <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>FishR Registrations</option>
+                                <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>FishR Annexes</option>
+                                <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR Registrations</option>
+                                <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>BoatR Annexes</option>
+                                <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA Registrations</option>
+                                <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training Requests</option>
+                                <option value="seedlings" {{ request('type') == 'seedlings' ? 'selected' : '' }}>Supply Requests</option>
+                                <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>User Registrations</option>
+                                <option value="category_item" {{ request('type') == 'category_item' ? 'selected' : '' }}>Supply Items</option>
+                                <option value="request_category" {{ request('type') == 'request_category' ? 'selected' : '' }}>Supply Categories</option>
+                            </select>
+                        </div>
 
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control form-control-sm"
-                                placeholder="Search item name or reason..." value="{{ request('search') }}"
-                                oninput="handleSearchInput()" id="searchInput">
-                            <button class="btn btn-outline-secondary btn-sm" type="submit" id="searchButton">
-                                <i class="fas fa-search"></i>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control form-control-sm"
+                                    placeholder="Search item name or reason..." value="{{ request('search') }}"
+                                    oninput="handleSearchInput()" id="searchInput">
+                                <button class="btn btn-outline-secondary btn-sm" type="submit" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#dateFilterModal">
+                                <i class="fas fa-calendar-alt me-1"></i>Date Filter
                             </button>
                         </div>
-                    </div>
 
-                    <div class="col-md-5 text-end">
-                        <a href="{{ route('admin.recycle-bin.index') }}" class="btn btn-secondary btn-sm">
-                            <i></i> Clear Filters
-                        </a>
+                        <div class="col-md-2">
+                            <a href="{{ route('admin.recycle-bin.index') }}" class="btn btn-secondary btn-sm w-100">
+                                Clear 
+                            </a>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -107,8 +97,8 @@
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger"
                             onclick="openBulkDeleteModal()"
-                            title="Permanently Delete Selected Items">
-                        <i class="fas fa-trash-alt me-1"></i>Delete Permanently
+                            title="Delete Selected Items">
+                        <i class="fas fa-trash-alt me-1"></i>Delete
                     </button>
                 </div>
                 <button type="button" class="btn btn-danger btn-sm"
@@ -151,7 +141,7 @@
                                     <strong class="text-dark">{{ $item->item_name }}</strong>
                                 </td>
                                  <td class="text-center">
-                                    <small class="text-muted">{{ $item->deleted_at->format('M d, Y') }}</small>
+                                    <small class="text-muted">{{ $item->deleted_at->format('M d, Y h:i A') }}</small>
                                 </td>
                                 <td class="text-start">
                                     <small class="text-muted">{{ $item->reason ?? 'No reason provided' }}</small>
@@ -173,7 +163,7 @@
                                         </button>
                                         <button class="btn btn-outline-danger"
                                                 onclick="permanentlyDeleteRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
-                                                title="Permanently Delete">
+                                                title="Delete">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -320,20 +310,20 @@
     </div>
 
 
-    <!-- Permanent Delete Single Item Confirmation Modal -->
+    <!-- Delete Single Item Confirmation Modal -->
     <div class="modal fade" id="permanentDeleteModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-trash-alt me-2"></i>Permanently Delete Item
+                        <i class="fas fa-trash-alt me-2"></i>Delete Item
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger mb-3" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. The item will be permanently deleted from the recycle bin.</p>
+                        <p class="mb-0">This action cannot be undone. The item will be deleted from the recycle bin.</p>
                     </div>
                     <div class="alert alert-light border mb-0" role="alert">
                         <small class="text-muted d-block">Item Name:</small>
@@ -344,7 +334,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()"
                             id="confirmDeleteBtn">
-                        <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete Permanently</span>
+                        <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete</span>
                         <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
@@ -386,14 +376,14 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-trash-alt me-2"></i>Permanently Delete Items
+                        <i class="fas fa-trash-alt me-2"></i>Delete Items
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger mb-3" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. You will permanently delete <strong id="bulkDeleteCount">0</strong> item(s).</p>
+                        <p class="mb-0">This action cannot be undone. You will delete <strong id="bulkDeleteCount">0</strong> item(s).</p>
                     </div>
                     <div class="alert alert-light border mb-0" role="alert">
                         <small class="text-muted">Are you sure you want to proceed?</small>
@@ -403,7 +393,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()"
                             id="confirmBulkDeleteBtn">
-                        <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete Permanently</span>
+                        <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete</span>
                         <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
@@ -424,7 +414,7 @@
                 <div class="modal-body">
                     <div class="alert alert-danger mb-3" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This will permanently delete all items in the recycle bin. This action cannot be undone.</p>
+                        <p class="mb-0">This will delete all items in the recycle bin. This action cannot be undone.</p>
                     </div>
                     <div class="alert alert-light border mb-0" role="alert">
                         <small class="text-muted">Total items to delete:</small>
@@ -437,6 +427,51 @@
                             id="confirmEmptyBtn">
                         <span class="btn-text"><i class="fas fa-broom me-2"></i>Empty Bin</span>
                         <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Emptying...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title w-100 text-center">Date Filter</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modal_date_from" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="modal_date_from" value="{{ request('date_from') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_date_to" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="modal_date_to" value="{{ request('date_to') }}">
+                    </div>
+                    @if(request('date_from') || request('date_to'))
+                        <div class="alert alert-info small mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            Current filter:
+                            @if(request('date_from'))
+                                <strong>{{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}</strong>
+                            @else
+                                <strong>Any date</strong>
+                            @endif
+                            to
+                            @if(request('date_to'))
+                                <strong>{{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}</strong>
+                            @else
+                                <strong>Any date</strong>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="clearDateFilter()">Clear</button>
+                    <button type="button" class="btn btn-primary" onclick="applyDateFilter()">
+                        <i class="fas fa-check"></i> Apply Filter
                     </button>
                 </div>
             </div>
@@ -487,7 +522,48 @@
         #detailsDeletedAt {
             color: #dc3545;
         }
+        /* Custom Pagination Styles */
+        .pagination {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 0;
+        }
 
+        .pagination .page-item .page-link {
+            color: #6c757d;
+            background-color: transparent;
+            border: none;
+            padding: 8px 12px;
+            margin: 0 2px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item .page-link:hover {
+            color: #495057;
+            background-color: #e9ecef;
+            text-decoration: none;
+        }
+
+        .pagination .page-item.active .page-link {
+            color: white;
+            background-color: #007bff;
+            border-color: #007bff;
+            font-weight: 600;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-item:first-child .page-link,
+        .pagination .page-item:last-child .page-link {
+            font-weight: 600;
+        }
     </style>
 
     <script>
@@ -677,7 +753,7 @@
             .catch(err => showToast('error', 'Error restoring item'));
         }
 
-        // Permanent delete single item
+        //delete single item
         let currentDeleteId = null;
         function permanentlyDeleteRecycleBinItem(id, name) {
             currentDeleteId = id;
@@ -706,7 +782,7 @@
                 modal.hide();
 
                 if (data.success) {
-                    showToast('success', data.message || 'Item deleted permanently');
+                    showToast('success', data.message || 'Item deleted');
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     showToast('error', data.message || 'Failed to delete item');
@@ -888,6 +964,27 @@
 
         // Submit filter form when dropdowns change
         function submitFilterForm() {
+            document.getElementById('filterForm').submit();
+        }
+
+        function applyDateFilter() {
+            const dateFrom = document.getElementById('modal_date_from').value;
+            const dateTo = document.getElementById('modal_date_to').value;
+
+            document.getElementById('date_from').value = dateFrom;
+            document.getElementById('date_to').value = dateTo;
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            modal.hide();
+
+            document.getElementById('filterForm').submit();
+        }
+
+        function clearDateFilter() {
+            document.getElementById('modal_date_from').value = '';
+            document.getElementById('modal_date_to').value = '';
+            document.getElementById('date_from').value = '';
+            document.getElementById('date_to').value = '';
             document.getElementById('filterForm').submit();
         }
     </script>

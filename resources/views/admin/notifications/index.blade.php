@@ -25,7 +25,7 @@
     <!-- Filter Tabs -->
     <div class="card border-0 shadow-sm mb-3">
         <div class="card-body p-3">
-            <ul class="nav nav-pills" role="tablist">
+            <ul class="nav nav-pills justify-content-center" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ $filterRead === 'all' ? 'active' : '' }}" 
                             onclick="filterNotifications('all')" type="button">
@@ -188,6 +188,75 @@
     color: #999;
     font-size: 1rem;
 }
+
+/* Active tab - ensure text and icons are visible */
+.nav-pills .nav-link.active {
+    background-color: #2196F3;
+    color: #ffffff !important;
+}
+
+.nav-pills .nav-link.active .badge {
+    background-color: #ffffff !important;
+    color: #2196F3 !important;
+}
+
+/* Inactive tabs - clear and readable */
+.nav-pills .nav-link {
+    color: #555;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: #dce9fb;
+    color: #1565c0;
+}
+
+/* Custom Pagination Styles */
+.pagination {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 0;
+}
+
+.pagination .page-item .page-link {
+    color: #6c757d;
+    background-color: transparent;
+    border: none;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-item .page-link:hover {
+    color: #495057;
+    background-color: #e9ecef;
+    text-decoration: none;
+}
+
+.pagination .page-item.active .page-link {
+    color: white;
+    background-color: #007bff;
+    border-color: #007bff;
+    font-weight: 600;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #adb5bd;
+    background-color: transparent;
+    cursor: not-allowed;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    font-weight: 600;
+}
 </style>
 
 <script>
@@ -283,9 +352,15 @@ function showEmptyState() {
 function filterNotifications(filter) {
     currentFilter = filter;
     currentPage = 1;
+
+    // Update active tab visually
+    document.querySelectorAll('.nav-pills .nav-link').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+
     loadAllNotifications();
 }
-
 // Mark single notification as read
 function markAsRead(notificationId) {
     fetch(`/admin/notifications/${notificationId}/read`, {
@@ -330,50 +405,106 @@ function markAllAsRead() {
     .catch(error => console.error('Error:', error));
 }
 
-// Delete single notification
-function deleteNotification(notificationId) {
-    if (!confirm('Delete this notification?')) return;
+function showConfirmToast(message, onConfirm) {
+    const existing = document.getElementById('confirmToastWrapper');
+    if (existing) existing.remove();
 
-    fetch(`/admin/notifications/${notificationId}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('success', 'Notification deleted');
-            loadAllNotifications();
-            updateCounts();
-        }
-    })
-    .catch(error => console.error('Error:', error));
+    const toast = document.createElement('div');
+    toast.id = 'confirmToastWrapper';
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 99999;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        padding: 16px;
+        border-left: 4px solid #ffc107;
+        min-width: 300px;
+    `;
+    toast.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+            <i class="fas fa-exclamation-triangle" style="color:#ffc107; font-size:1.3rem;"></i>
+            <span style="font-size:0.9rem; color:#333;">${message}</span>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button class="btn btn-sm btn-secondary" id="confirmToastCancel">Cancel</button>
+            <button class="btn btn-sm btn-danger" id="confirmToastOk">Confirm</button>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        document.getElementById('confirmToastCancel')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toast.remove();
+        });
+        document.getElementById('confirmToastOk')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toast.remove();
+            if (typeof onConfirm === 'function') onConfirm();
+        });
+    }, 0);
 }
 
 // Clear all notifications
 function clearAllNotifications() {
-    if (!confirm('Delete all notifications? This cannot be undone.')) return;
+    showConfirmToast('Delete all notifications? This cannot be undone.', function() {
+        fetch('/admin/notifications/clear-all', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', data.message || 'All notifications cleared');
+                loadAllNotifications();
+                updateCounts();
+            } else {
+                showToast('error', 'Failed to clear notifications');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Something went wrong');
+        });
+    });
+}
 
-    fetch('/admin/notifications/clear-all', {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('success', data.message);
-            loadAllNotifications();
-            updateCounts();
-        }
-    })
-    .catch(error => console.error('Error:', error));
+
+
+// Delete single notification - NOW WITH TOAST CONFIRM
+function deleteNotification(notificationId) {
+    showConfirmToast('Delete this notification?', function() {
+        fetch(`/admin/notifications/${notificationId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', 'Notification deleted');
+                loadAllNotifications();
+                updateCounts();
+            } else {
+                showToast('error', 'Failed to delete notification');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Something went wrong');
+        });
+    });
 }
 
 // Navigate to action URL

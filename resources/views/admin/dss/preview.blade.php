@@ -49,6 +49,318 @@
             background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%) !important;
             border-color: #2d6a4f !important;
         }
+        /* ─── Wrapper ─────────────────────────────────────────────── */
+        .dss-nav-wrapper {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+            padding: 6px 8px;
+            overflow: hidden;
+        }
+
+        /* ─── Horizontal scroll container ────────────────────────── */
+        .dss-nav-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .dss-nav-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ─── The nav row itself ──────────────────────────────────── */
+        .dss-nav {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            white-space: nowrap;
+            padding: 2px 0;
+            width: 100%;
+        }
+
+        /* ─── Individual pill (button) ───────────────────────────── */
+        .dss-nav-pill {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            border-radius: 10px;
+            border: 1.5px solid transparent;
+            background: transparent;
+            color: #6b7280;
+            font-size: 0.845rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            flex-shrink: 0;
+            white-space: nowrap;
+            transition: color 0.18s ease, background 0.18s ease,
+                        border-color 0.18s ease, box-shadow 0.18s ease,
+                        transform 0.18s ease;
+        }
+
+        .dss-nav-pill:hover {
+            color: #1a7a4a;
+            background: #f0faf4;
+            border-color: #b7e4c7;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.12);
+        }
+
+        /* ─── Active pill ─────────────────────────────────────────── */
+        .dss-nav-pill.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+            border-color: #2d6a4f;
+            box-shadow: 0 3px 12px rgba(45, 106, 79, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .dss-nav-pill.active:hover {
+            background: linear-gradient(135deg, #1e4d38 0%, #40916c 100%);
+            box-shadow: 0 5px 16px rgba(45, 106, 79, 0.4);
+        }
+
+        /* ─── Icon ────────────────────────────────────────────────── */
+        .dss-nav-pill-icon {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .dss-nav-pill.active .dss-nav-pill-icon {
+            color: rgba(255, 255, 255, 0.95);
+        }
+        /* ─── Wrapper ─────────────────────────────────────────────── */
+        .dss-filter-wrapper {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+            padding: 16px 20px;
+        }
+
+        /* ─── Form row ────────────────────────────────────────────── */
+        .dss-filter-form {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        /* ─── Label + input group ─────────────────────────────────── */
+        .dss-filter-form .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .dss-filter-form .filter-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6b7280;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 0;
+        }
+
+        .dss-filter-form .filter-label i {
+            color: #40916c;
+            font-size: 0.75rem;
+        }
+
+        /* ─── Inputs (shared with select) ────────────────────────── */
+        .dss-filter-form .filter-input {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1f2937;
+            background: #f9fafb;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            outline: none;
+            min-width: 150px;
+            appearance: auto; /* keeps native select arrow */
+        }
+
+        .dss-filter-form .filter-input:focus {
+            border-color: #40916c;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.12);
+        }
+
+        /* ─── Arrow divider ───────────────────────────────────────── */
+        .dss-filter-form .filter-divider {
+            color: #d1d5db;
+            font-size: 0.75rem;
+            padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        /* ─── Actions group ───────────────────────────────────────── */
+        .dss-filter-form .filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        /* ─── Base button ─────────────────────────────────────────── */
+        .filter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 0.845rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        /* Generate / Apply */
+        .filter-btn-apply {
+            background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(45, 106, 79, 0.25);
+        }
+        .filter-btn-apply:hover {
+            background: linear-gradient(135deg, #1e4d38 0%, #40916c 100%);
+            box-shadow: 0 4px 14px rgba(45, 106, 79, 0.35);
+            color: #ffffff;
+        }
+
+        /* Refresh */
+        .filter-btn-refresh {
+            background: #f0faf4;
+            color: #2d6a4f;
+            border: 1.5px solid #b7e4c7;
+            box-shadow: 0 1px 4px rgba(45, 106, 79, 0.08);
+        }
+        .filter-btn-refresh:hover {
+            background: #d8f3dc;
+            box-shadow: 0 3px 10px rgba(45, 106, 79, 0.15);
+            color: #1e4d38;
+        }
+        .filter-btn-refresh:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* Export dropdown trigger */
+        .filter-btn-export {
+            background: #f0faf4;
+            color: #2d6a4f;
+            border: 1.5px solid #b7e4c7;
+            box-shadow: 0 1px 4px rgba(45, 106, 79, 0.08);
+        }
+        .filter-btn-export:hover,
+        .filter-btn-export:focus,
+        .filter-btn-export.show {
+            background: #d8f3dc;
+            box-shadow: 0 3px 10px rgba(45, 106, 79, 0.15);
+            color: #1e4d38;
+        }
+
+        /* ─── Responsive ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .dss-filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .dss-filter-form .filter-divider {
+                display: none;
+            }
+            .dss-filter-form .filter-actions {
+                margin-left: 0;
+            }
+            .filter-btn {
+                justify-content: center;
+            }
+        }
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 320px;
+            max-width: 480px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            gap: 10px;
+        }
+
+        .toast-notification .toast-content i { font-size: 1.25rem; flex-shrink: 0; }
+        .toast-notification .toast-content span { flex: 1; color: #333; line-height: 1.4; }
+
+        .toast-notification.toast-success { border-left: 4px solid #28a745; }
+        .toast-notification.toast-success .toast-content i { color: #28a745; }
+        .toast-notification.toast-error { border-left: 4px solid #dc3545; }
+        .toast-notification.toast-error .toast-content i { color: #dc3545; }
+        .toast-notification.toast-warning { border-left: 4px solid #ffc107; }
+        .toast-notification.toast-warning .toast-content i { color: #ffc107; }
+        .toast-notification.toast-info { border-left: 4px solid #17a2b8; }
+        .toast-notification.toast-info .toast-content i { color: #17a2b8; }
+
+        .btn-close-toast {
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.4;
+            font-size: 1rem;
+            color: #333;
+            flex-shrink: 0;
+            transition: opacity 0.2s;
+        }
+        .btn-close-toast:hover { opacity: 1; }
     </style>
 @endsection
 
@@ -71,28 +383,40 @@
         <!-- Service Navigation Tabs -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="d-flex gap-2 justify-content-center flex-wrap">
-                    <button
-                        class="btn {{ $service === 'comprehensive' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
-                        id="comprehensive-tab" data-service="comprehensive" type="button">
-                        <i class="fas fa-boxes me-2"></i>Supplies Request Report
-                    </button>
-                    <button class="btn {{ $service === 'training' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
-                        id="training-tab" data-service="training" type="button">
-                        <i class="fas fa-graduation-cap me-2"></i>Training Request Report
-                    </button>
-                    <button class="btn {{ $service === 'rsbsa' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
-                        id="rsbsa-tab" data-service="rsbsa" type="button">
-                        <i class="fas fa-users me-2"></i>RSBSA Request Report
-                    </button>
-                    <button class="btn {{ $service === 'fishr' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
-                        id="fishr-tab" data-service="fishr" type="button">
-                        <i class="fas fa-fish me-2"></i>FISHR Request Report
-                    </button>
-                    <button class="btn {{ $service === 'boatr' ? 'btn-success' : 'btn-outline-secondary' }} px-4 py-2"
-                        id="boatr-tab" data-service="boatr" type="button">
-                        <i class="fas fa-ship me-2"></i>BOATR Request Report
-                    </button>
+                <div class="dss-nav-wrapper">
+                    <div class="dss-nav-scroll">
+                        <nav class="dss-nav">
+                            <button class="dss-nav-pill {{ $service === 'comprehensive' ? 'active' : '' }}"
+                                id="comprehensive-tab" data-service="comprehensive" type="button">
+                                <span class="dss-nav-pill-icon"><i class="fas fa-boxes"></i></span>
+                                <span class="dss-nav-pill-label">Supplies Report</span>
+                            </button>
+
+                            <button class="dss-nav-pill {{ $service === 'training' ? 'active' : '' }}"
+                                id="training-tab" data-service="training" type="button">
+                                <span class="dss-nav-pill-icon"><i class="fas fa-graduation-cap"></i></span>
+                                <span class="dss-nav-pill-label">Training Report</span>
+                            </button>
+
+                            <button class="dss-nav-pill {{ $service === 'rsbsa' ? 'active' : '' }}"
+                                id="rsbsa-tab" data-service="rsbsa" type="button">
+                                <span class="dss-nav-pill-icon"><i class="fas fa-users"></i></span>
+                                <span class="dss-nav-pill-label">RSBSA Report</span>
+                            </button>
+
+                            <button class="dss-nav-pill {{ $service === 'fishr' ? 'active' : '' }}"
+                                id="fishr-tab" data-service="fishr" type="button">
+                                <span class="dss-nav-pill-icon"><i class="fas fa-fish"></i></span>
+                                <span class="dss-nav-pill-label">FISHR Report</span>
+                            </button>
+
+                            <button class="dss-nav-pill {{ $service === 'boatr' ? 'active' : '' }}"
+                                id="boatr-tab" data-service="boatr" type="button">
+                                <span class="dss-nav-pill-icon"><i class="fas fa-ship"></i></span>
+                                <span class="dss-nav-pill-label">BOATR Report</span>
+                            </button>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,60 +424,85 @@
         <!-- Period Selection -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body">
-                        <form id="periodForm" class="row g-3">
-                            <input type="hidden" id="serviceInput" name="service" value="{{ $service }}">
-                            <div class="col-md-3">
-                                <label for="monthSelect" class="form-label">Month</label>
-                                <select class="form-select" id="monthSelect" name="month">
-                                    @foreach (range(1, 12) as $m)
-                                        <option value="{{ sprintf('%02d', $m) }}" {{ $m == $month ? 'selected' : '' }}>
-                                            {{ DateTime::createFromFormat('!m', $m)->format('F') }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                <div class="dss-filter-wrapper">
+                    <form id="periodForm" class="dss-filter-form">
+                        <input type="hidden" id="serviceInput" name="service" value="{{ $service }}">
+
+                        <!-- Month -->
+                        <div class="filter-group">
+                            <label for="monthSelect" class="filter-label">
+                                <i class="fas fa-calendar-alt"></i>
+                                Month
+                            </label>
+                            <select class="filter-input" id="monthSelect" name="month">
+                                @foreach (range(1, 12) as $m)
+                                    <option value="{{ sprintf('%02d', $m) }}" {{ $m == $month ? 'selected' : '' }}>
+                                        {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="filter-divider">
+                            —
+                        </div>
+
+                        <!-- Year -->
+                        <div class="filter-group">
+                            <label for="yearSelect" class="filter-label">
+                                <i class="fas fa-calendar-check"></i>
+                                Year
+                            </label>
+                            <!-- you can set if you wanted more than 3 showing select in year instead of - 2 -->
+                            <select class="filter-input" id="yearSelect" name="year">
+                                @foreach (range(now()->year - 2, now()->year) as $y)
+                                    <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>
+                                        {{ $y }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="filter-actions">
+                            <button type="submit" class="filter-btn filter-btn-apply">
+                                <i class="fas fa-search"></i>
+                                Generate Report
+                            </button>
+
+                            <button type="button" class="filter-btn filter-btn-refresh" id="refreshDataBtn">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Data
+                            </button>
+
+                            <div class="dropdown">
+                                <button class="filter-btn filter-btn-export dropdown-toggle"
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-download"></i>
+                                    Export Report
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="downloadPdf">
+                                            <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" id="downloadWord">
+                                            <i class="fas fa-file-word me-2 text-primary"></i>Download Word
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="col-md-3">
-                                <label for="yearSelect" class="form-label">Year</label>
-                                <select class="form-select" id="yearSelect" name="year">
-                                    @foreach (range(now()->year - 2, now()->year) as $y)
-                                        <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>
-                                            {{ $y }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">&nbsp;</label>
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i>Generate Report
-                                    </button>
-                                    <button type="button" class="btn btn-outline-primary" id="refreshDataBtn">
-                                        <i class="fas fa-sync-alt me-1"></i>Refresh Data
-                                    </button>
-                                    <div class="dropdown">
-                                        <button class="btn btn-success dropdown-toggle" type="button"
-                                            data-bs-toggle="dropdown">
-                                            <i class="fas fa-download me-1"></i>Export Report
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#" id="downloadPdf">
-                                                    <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
-                                                </a>
-                                            </li>
-                                            <li><a class="dropdown-item" href="#" id="downloadWord">
-                                                    <i class="fas fa-file-word me-2 text-primary"></i>Download Word
-                                                </a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+
+                    </form>
                 </div>
             </div>
         </div>
+
+
 
         <!-- Report Content -->
         <div id="reportContent">
@@ -211,7 +560,7 @@
             </div>
         </div>
     </div>
-
+    <div id="toastContainer" class="toast-container"></div>
 @endsection
 
 @section('scripts')
@@ -231,24 +580,26 @@
             const reportCache = {
                 comprehensive: null,
                 training: null,
-                rsbsa: null
+                rsbsa: null,
+                fishr: null,
+                boatr: null
             };
 
             // Service tab switching
-            const serviceTabs = document.querySelectorAll('[data-service]');
+            const serviceTabs = document.querySelectorAll('.dss-nav-pill');
             serviceTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove active from all tabs
-                    serviceTabs.forEach(t => {
-                        t.classList.remove('btn-success');
-                        t.classList.add('btn-outline-secondary');
-                    });
-                    // Add active to clicked tab
-                    this.classList.remove('btn-outline-secondary');
-                    this.classList.add('btn-success');
+                tab.addEventListener('click', function () {
+                    // Remove active from all pills
+                    serviceTabs.forEach(t => t.classList.remove('active'));
+                    // Add active to clicked pill
+                    this.classList.add('active');
                     // Update hidden input
                     const selectedService = this.dataset.service;
                     serviceInput.value = selectedService;
+                    // persist service in URL
+                    const url = new URL(window.location);
+                    url.searchParams.set('service', selectedService);
+                    window.history.pushState({}, '', url);
 
                     // Show cached report if available, otherwise show "no data"
                     if (reportCache[selectedService]) {
@@ -305,9 +656,14 @@
             }
 
             function getServiceName() {
-                const service = serviceInput.value;
-                return service === 'training' ? 'Training' :
-                    service === 'rsbsa' ? 'RSBSA' : 'Comprehensive';
+                const names = {
+                    comprehensive: 'Comprehensive',
+                    training: 'Training',
+                    rsbsa: 'RSBSA',
+                    fishr: 'FishR',
+                    boatr: 'BoatR'
+                };
+                return names[serviceInput.value] || 'Comprehensive';
             }
 
             async function loadDSSData(month = null, year = null) {
@@ -357,22 +713,28 @@
             }
 
             function showToast(message, type = 'info') {
-                const toast = document.createElement('div');
-                toast.className =
-                    `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
-                toast.style.cssText =
-                    'top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
-                toast.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
+                const iconMap = {
+                    success: 'fas fa-check-circle',
+                    error:   'fas fa-exclamation-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info:    'fas fa-info-circle',
+                };
 
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 5000);
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast-notification toast-${type === 'error' ? 'error' : type}`;
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="${iconMap[type] || iconMap.info}"></i>
+                        <span>${message}</span>
+                        <button type="button" class="btn-close-toast" onclick="this.closest('.toast-notification').classList.remove('show'); setTimeout(() => this.closest('.toast-notification')?.remove(), 300)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>`;
+
+                container.appendChild(toast);
+                requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 5000);
             }
 
             // Period form submission - use AJAX instead of page reload
@@ -380,6 +742,16 @@
                 e.preventDefault();
                 const month = document.getElementById('monthSelect').value;
                 const year = document.getElementById('yearSelect').value;
+
+                const service = serviceInput.value;
+
+                // Keep URL in sync with selected filters
+                const url = new URL(window.location);
+                url.searchParams.set('month', month);
+                url.searchParams.set('year', year);
+                url.searchParams.set('service', service);
+                window.history.pushState({}, '', url);
+
                 loadDSSData(month, year);
             });
 

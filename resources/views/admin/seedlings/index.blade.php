@@ -210,7 +210,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered align-middle mb-0">
                             <thead class="table-dark">
@@ -253,11 +253,19 @@
                                             <div class="requested-items-container">
                                                 @foreach ($itemsByCategory as $categoryId => $items)
                                                     @php
-                                                        $category = $items->first()->category;
-                                                        $approvedItems = $items->where('status', 'approved');
-                                                        $rejectedItems = $items->where('status', 'rejected');
-                                                        $pendingItems = $items->where('status', 'pending');
-                                                        $categoryTotal = $items->count();
+                                                        $firstItem = $items->first();
+                                                        // Use snapshot or live data
+                                                        $categoryDisplayName = $firstItem->category_name 
+                                                            ?? $firstItem->category?->display_name 
+                                                            ?? 'Deleted Category';
+                                                        $categoryIcon = $firstItem->category_icon 
+                                                            ?? $firstItem->category?->icon 
+                                                            ?? 'fa-leaf';
+
+                                                            $approvedItems = $items->where('status', 'approved');
+                                                            $rejectedItems = $items->where('status', 'rejected');
+                                                            $pendingItems = $items->where('status', 'pending');
+                                                            $categoryTotal = $items->count();
                                                     @endphp
 
                                                     <div class="category-group mb-2">
@@ -267,10 +275,8 @@
                                                             data-bs-target="#items-{{ $request->id }}-{{ $categoryId }}"
                                                             aria-expanded="false">
                                                             <div class="d-flex align-items-center flex-grow-1">
-                                                                <i class="fas {{ $category->icon ?? 'fa-leaf' }} text-primary me-2"
-                                                                    style="font-size: 0.9rem;"></i>
-                                                                <strong class="text-dark"
-                                                                    style="font-size: 0.85rem;">{{ $category->display_name }}</strong>
+                                                              <i class="fas {{ $categoryIcon }} text-primary me-2"></i>
+                                                                <strong class="text-dark">{{ $categoryDisplayName }}</strong>
                                                                 <span class="badge bg-secondary ms-2"
                                                                     style="font-size: 0.7rem;">{{ $categoryTotal }}</span>
                                                             </div>
@@ -501,6 +507,64 @@
                         </table>
                     </div>
                 </div>
+                
+                @if ($requests->hasPages())
+                        <div class="d-flex justify-content-center mt-4">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-sm">
+                                    {{-- Previous Page Link --}}
+                                    @if ($requests->onFirstPage())
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Back</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
+                                        </li>
+                                    @endif
+
+                                    {{-- Pagination Elements --}}
+                                    @php
+                                        $currentPage = $requests->currentPage();
+                                        $lastPage = $requests->lastPage();
+                                        $startPage = max(1, $currentPage - 2);
+                                        $endPage = min($lastPage, $currentPage + 2);
+
+                                        if ($endPage - $startPage < 4) {
+                                            if ($startPage == 1) {
+                                                $endPage = min($lastPage, $startPage + 4);
+                                            } else {
+                                                $startPage = max(1, $endPage - 4);
+                                            }
+                                        }
+                                    @endphp
+
+                                    @for ($page = $startPage; $page <= $endPage; $page++)
+                                        @if ($page == $currentPage)
+                                            <li class="page-item active">
+                                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+
+                                    {{-- Next Page Link --}}
+                                    @if ($requests->hasMorePages())
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
+                                        </li>
+                                    @else
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Next</span>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </nav>
+                        </div>
+                    @endif
             </div>
 
             <!-- Modals Section - OUTSIDE the table -->
@@ -754,14 +818,34 @@
                                                     @php
                                                         $category = $items->first()->category;
                                                     @endphp
+
+                                                    @if(!$category)
+                                                        <div class="mb-4 p-3 border rounded alert alert-warning">
+                                                            <strong class="text-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                Deleted Category
+                                                            </strong>
+                                                            <span class="badge bg-secondary">{{ $items->count() }} items</span>
+                                                            
+                                                            {{-- Show the items even though category is deleted --}}
+                                                            <div class="ms-3 mt-2">
+                                                                @foreach($items as $item)
+                                                                    <span class="badge bg-secondary mb-1">
+                                                                        {{ $item->item_name }} ({{ $item->requested_quantity }})
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                        @continue
+                                                    @endif
+
                                                     <div
                                                         class="mb-4 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
                                                         <div
                                                             class="d-flex justify-content-between align-items-center mb-3">
                                                             <strong class="text-primary">
-                                                                <i
-                                                                    class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                                {{ $category->display_name }}
+                                                                <i class="fas {{ $categoryIcon }} text-primary me-2"></i>
+                                                                {{  $categoryDisplayName  }}
                                                             </strong>
                                                             <span class="badge bg-secondary">{{ $items->count() }}
                                                                 items</span>
@@ -1390,12 +1474,18 @@
 
                                             @foreach ($itemsByCategory as $categoryId => $items)
                                                 @php
-                                                    $category = $items->first()->category;
+                                                    $firstItem = $items->first();
+                                                    $categoryDisplayName = $firstItem->category_name 
+                                                        ?? $firstItem->category?->display_name 
+                                                        ?? 'Deleted Category';
+                                                    $categoryIcon = $firstItem->category_icon 
+                                                        ?? $firstItem->category?->icon 
+                                                        ?? 'fa-leaf';
                                                 @endphp
                                                 <div class="mb-4 p-3 border-0 bg-white rounded-3 shadow-sm">
                                                     <h6 class="mb-3 fw-bold text-primary">
-                                                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                        {{ $category->display_name }}
+                                                        <i class="fas {{ $categoryIcon }} me-2"></i>
+                                                        {{ $categoryDisplayName }}
                                                     </h6>
 
                                                     @foreach ($items as $item)
@@ -1592,9 +1682,9 @@
                     </div>
                 </div>
             @endforeach
+        </div>
     </div>
-    </div>
-    </div>
+</div>
 @else
     <div class="card">
         <div class="card-body text-center py-5">
@@ -1614,64 +1704,6 @@
             @endif
         </div>
     </div>
-    @endif
-
-    @if ($requests->hasPages())
-        <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm">
-                    {{-- Previous Page Link --}}
-                    @if ($requests->onFirstPage())
-                        <li class="page-item disabled">
-                            <span class="page-link">Back</span>
-                        </li>
-                    @else
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
-                        </li>
-                    @endif
-
-                    {{-- Pagination Elements --}}
-                    @php
-                        $currentPage = $requests->currentPage();
-                        $lastPage = $requests->lastPage();
-                        $startPage = max(1, $currentPage - 2);
-                        $endPage = min($lastPage, $currentPage + 2);
-
-                        if ($endPage - $startPage < 4) {
-                            if ($startPage == 1) {
-                                $endPage = min($lastPage, $startPage + 4);
-                            } else {
-                                $startPage = max(1, $endPage - 4);
-                            }
-                        }
-                    @endphp
-
-                    @for ($page = $startPage; $page <= $endPage; $page++)
-                        @if ($page == $currentPage)
-                            <li class="page-item active">
-                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
-                            </li>
-                        @endif
-                    @endfor
-
-                    {{-- Next Page Link --}}
-                    @if ($requests->hasMorePages())
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
-                        </li>
-                    @else
-                        <li class="page-item disabled">
-                            <span class="page-link">Next</span>
-                        </li>
-                    @endif
-                </ul>
-            </nav>
-        </div>
     @endif
 
     <!-- Add Supply Request Modal - IMPROVED DESIGN -->
@@ -1936,109 +1968,7 @@
             </div>
         </div>
     </div>
-
-
-
-    <!-- Date Filter Modal -->
-    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
-                        <i></i>Select Date Range
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-4">
-                        <!-- Date Range Inputs -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
-                                    </h6>
-                                    <div class="mb-3">
-                                        <label for="modal_date_from" class="form-label">From Date</label>
-                                        <input type="date" id="modal_date_from" class="form-control"
-                                            value="{{ request('date_from') }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="modal_date_to" class="form-label">To Date</label>
-                                        <input type="date" id="modal_date_to" class="form-control"
-                                            value="{{ request('date_to') }}">
-                                    </div>
-                                    <button type="button" class="btn btn-primary w-100"
-                                        onclick="applyCustomDateRange()">
-                                        <i class="fas fa-check me-2"></i>Apply Custom Range
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Date Presets -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-clock me-2"></i>Quick Presets
-                                    </h6>
-                                    <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success"
-                                            onclick="setDateRangeModal('today')">
-                                            <i class="fas fa-calendar-day me-2"></i>Today
-                                        </button>
-                                        <button type="button" class="btn btn-outline-info"
-                                            onclick="setDateRangeModal('week')">
-                                            <i class="fas fa-calendar-week me-2"></i>This Week
-                                        </button>
-                                        <button type="button" class="btn btn-outline-warning"
-                                            onclick="setDateRangeModal('month')">
-                                            <i class="fas fa-calendar me-2"></i>This Month
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary"
-                                            onclick="setDateRangeModal('year')">
-                                            <i class="fas fa-calendar-alt me-2"></i>This Year
-                                        </button>
-                                        <hr class="my-3">
-                                        <button type="button" class="btn btn-outline-secondary w-100"
-                                            onclick="clearDateRangeModal()">
-                                            <i class="fas fa-times me-2"></i>Clear Date Filter
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Current Filter Status -->
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="alert alert-info mb-0">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <span id="dateFilterStatus">
-                                    @if (request('date_from') || request('date_to'))
-                                        Current filter:
-                                        @if (request('date_from'))
-                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
-                                        @endif
-                                        @if (request('date_to'))
-                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
-                                        @endif
-                                    @else
-                                        No date filter applied - showing all requests
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
+</div>
 
     <!-- Document Viewer Modal -->
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel"
@@ -3047,8 +2977,125 @@
         .modal.show .modal-dialog {
             z-index: 1060 !important;
         }
-    </style>
+        /* CRITICAL FIX: Force modal to display properly */
+#dateFilterModal {
+    z-index: 1060 !important;
+}
 
+#dateFilterModal.show {
+    display: block !important;
+}
+
+#dateFilterModal .modal-dialog {
+    z-index: 1061 !important;
+}
+
+.modal-backdrop {
+    z-index: 1055 !important;
+}
+    </style>
+    
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
+                        <i></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100"
+                                            onclick="clearDateRangeModal()">
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="dateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all requests
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endsection
+@section('scripts')
     <script>
         let searchTimeout;
 
@@ -4726,12 +4773,13 @@
                 JSON.parse(submitBtn.dataset.changedFields) : [];
 
             const fieldLabels = {
-                'first_name': 'First Name',
+               'first_name': 'First Name',
                 'middle_name': 'Middle Name',
                 'last_name': 'Last Name',
-                'extension_name': 'Extension',
+                'extension_name': 'Name Extension',
                 'contact_number': 'Contact Number',
                 'barangay': 'Barangay',
+                'pickup_date': 'Pickup Date',
                 'supporting_document': 'Supporting Document'
             };
 
@@ -5838,5 +5886,62 @@
                 }, 500);
             }
         });
+// CRITICAL: Ensure date filter modal works
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, initializing date filter...');
+    
+    // Wait for Bootstrap to be fully loaded
+    const initDateFilter = () => {
+        const dateFilterBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
+        const dateFilterModal = document.getElementById('dateFilterModal');
+        
+        console.log('Date filter button found:', !!dateFilterBtn);
+        console.log('Date filter modal found:', !!dateFilterModal);
+        
+        if (dateFilterBtn && dateFilterModal) {
+            // Remove any existing click handlers
+            dateFilterBtn.replaceWith(dateFilterBtn.cloneNode(true));
+            const newBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
+            
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Date filter clicked!');
+                
+                try {
+                    // Ensure any existing modal instance is disposed
+                    const existingModal = bootstrap.Modal.getInstance(dateFilterModal);
+                    if (existingModal) {
+                        existingModal.dispose();
+                    }
+                    
+                    // Create new modal instance
+                    const modal = new bootstrap.Modal(dateFilterModal, {
+                        backdrop: true,
+                        keyboard: true,
+                        focus: true
+                    });
+                    
+                    modal.show();
+                    console.log('Modal show() called');
+                } catch (error) {
+                    console.error('Error showing modal:', error);
+                    alert('Error opening date filter. Please refresh the page.');
+                }
+            });
+            
+            console.log('Date filter initialized successfully');
+        } else {
+            console.error('Date filter elements not found!');
+        }
+    };
+    
+    // Initialize after a short delay to ensure Bootstrap is ready
+    if (typeof bootstrap !== 'undefined') {
+        setTimeout(initDateFilter, 100);
+    } else {
+        console.error('Bootstrap not loaded!');
+    }
+});
     </script>
 @endsection

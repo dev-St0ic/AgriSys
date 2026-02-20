@@ -17,7 +17,10 @@ class SeedlingRequestItem extends Model
         'user_id',
         'category_id',
         'category_item_id',
+        'category_name',    
+        'category_icon', 
         'item_name',
+        'item_unit',
         'requested_quantity',
         'approved_quantity',
         'status',
@@ -43,6 +46,24 @@ class SeedlingRequestItem extends Model
     public function category()
     {
         return $this->belongsTo(RequestCategory::class, 'category_id');
+    }
+
+    // Safe category name (snapshot fallback)
+    public function getCategoryNameAttribute()
+    {
+        if (!empty($this->attributes['category_name'])) {
+            return $this->attributes['category_name'];
+        }
+        return $this->category?->display_name ?? 'Deleted Category';
+    }
+
+    // Safe category icon
+    public function getCategoryIconAttribute()
+    {
+        if (!empty($this->attributes['category_icon'])) {
+            return $this->attributes['category_icon'];
+        }
+        return $this->category?->icon ?? 'fa-leaf';
     }
 
     /**
@@ -80,6 +101,38 @@ class SeedlingRequestItem extends Model
         $label = ucfirst($this->status);
 
         return "<span class='badge bg-{$color}'>{$label}</span>";
+    }
+
+      // Always get item name (snapshot or live)
+    public function getItemNameAttribute()
+    {
+        // Return stored snapshot if exists
+        if (!empty($this->attributes['item_name'])) {
+            return $this->attributes['item_name'];
+        }
+        
+        // Fallback to live data if item still exists
+        if ($this->categoryItem) {
+            return $this->categoryItem->name;
+        }
+        
+        return 'Unknown Item';
+    }
+
+    //  Always get item unit
+    public function getItemUnitAttribute()
+    {
+        // Return stored snapshot if exists
+        if (!empty($this->attributes['item_unit'])) {
+            return $this->attributes['item_unit'];
+        }
+        
+        // Fallback to live data
+        if ($this->categoryItem) {
+            return $this->categoryItem->unit;
+        }
+        
+        return 'pcs';
     }
 
     /**

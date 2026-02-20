@@ -32,7 +32,6 @@ class BoatrApplication extends Model
         'boat_length',
         'boat_width',
         'boat_depth',
-        'boat_dimensions',
         'engine_type',
         'engine_horsepower',
         'primary_fishing_gear',
@@ -56,8 +55,7 @@ class BoatrApplication extends Model
         'status_history',
         'inspection_scheduled_at',
         'approved_at',
-        'rejected_at',
-        'full_name'
+        'rejected_at'
     ];
 
     protected $dates = ['deleted_at'];

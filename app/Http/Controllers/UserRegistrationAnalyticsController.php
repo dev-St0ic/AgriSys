@@ -18,7 +18,7 @@ class UserRegistrationAnalyticsController extends Controller
     {
         try {
             // Date range filter with better defaults
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+            $startDate = $request->get('start_date', now()->subYears(2)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
 
             // Validate dates
@@ -659,53 +659,223 @@ class UserRegistrationAnalyticsController extends Controller
     /**
      * Export analytics data
      */
-    public function export(Request $request)
+        public function export(Request $request)
     {
         try {
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate = $request->get('end_date', now()->format('Y-m-d'));
+            $endDate   = $request->get('end_date', now()->format('Y-m-d'));
 
-            // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
-            $endDate = Carbon::parse($endDate)->format('Y-m-d');
+            $endDate   = Carbon::parse($endDate)->format('Y-m-d');
 
             $baseQuery = UserRegistration::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
 
-            $data = [
-                'export_info' => [
-                    'generated_at' => now()->format('Y-m-d H:i:s'),
-                    'date_range' => [
-                        'start' => $startDate,
-                        'end' => $endDate
-                    ],
-                    'generated_by' => auth()->user()->name ?? 'System'
-                ],
-                'overview' => $this->getOverviewStatistics(clone $baseQuery),
-                'status_analysis' => $this->getStatusAnalysis(clone $baseQuery),
-                'monthly_trends' => $this->getMonthlyTrends($startDate, $endDate)->toArray(),
-                'user_type_analysis' => $this->getUserTypeAnalysis(clone $baseQuery)->toArray(),
-                'barangay_analysis' => $this->getBarangayAnalysis(clone $baseQuery)->toArray(),
-                'gender_analysis' => $this->getGenderAnalysis(clone $baseQuery),
-                'processing_time' => $this->getProcessingTimeAnalysis(clone $baseQuery),
-                'registration_patterns' => $this->getRegistrationPatterns(clone $baseQuery),
-                'document_analysis' => $this->getDocumentAnalysis(clone $baseQuery),
-                'performance_metrics' => $this->getPerformanceMetrics(clone $baseQuery),
-                'profile_completion_analysis' => $this->getProfileCompletionAnalysis(clone $baseQuery),
-                'age_analysis' => $this->getAgeAnalysis(clone $baseQuery)->toArray(),
+            $filename = 'user-registration-analytics-' . $startDate . '-to-' . $endDate . '.csv';
+
+            $headers = [
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Pragma'              => 'no-cache',
+                'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires'             => '0',
             ];
 
-            $filename = 'user-registration-analytics-' . $startDate . '-to-' . $endDate . '.json';
+            $overview                  = $this->getOverviewStatistics(clone $baseQuery);
+            $statusAnalysis            = $this->getStatusAnalysis(clone $baseQuery);
+            $monthlyTrends             = $this->getMonthlyTrends($startDate, $endDate);
+            $userTypeAnalysis          = $this->getUserTypeAnalysis(clone $baseQuery);
+            $barangayAnalysis          = $this->getBarangayAnalysis(clone $baseQuery);
+            $genderAnalysis            = $this->getGenderAnalysis(clone $baseQuery);
+            $processingTime            = $this->getProcessingTimeAnalysis(clone $baseQuery);
+            $documentAnalysis          = $this->getDocumentAnalysis(clone $baseQuery);
+            $performanceMetrics        = $this->getPerformanceMetrics(clone $baseQuery);
+            $profileCompletionAnalysis = $this->getProfileCompletionAnalysis(clone $baseQuery);
+            $ageAnalysis               = $this->getAgeAnalysis(clone $baseQuery);
+
+            $callback = function () use (
+                $startDate, $endDate, $overview, $statusAnalysis, $monthlyTrends,
+                $userTypeAnalysis, $barangayAnalysis, $genderAnalysis, $processingTime,
+                $documentAnalysis, $performanceMetrics, $profileCompletionAnalysis, $ageAnalysis
+            ) {
+                $file = fopen('php://output', 'w');
+
+                // ── Export Info ───────────────────────────────────────
+                fputcsv($file, ['USER REGISTRATION ANALYTICS EXPORT']);
+                fputcsv($file, ['Generated At', now()->format('Y-m-d H:i:s')]);
+                fputcsv($file, ['Date Range', $startDate . ' to ' . $endDate]);
+                fputcsv($file, ['Generated By', auth()->user()->name ?? 'System']);
+                fputcsv($file, []);
+
+                // ── Overview ──────────────────────────────────────────
+                fputcsv($file, ['OVERVIEW']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Total Registrations',       $overview['total_registrations']]);
+                fputcsv($file, ['Approved Registrations',    $overview['approved_registrations']]);
+                fputcsv($file, ['Rejected Registrations',    $overview['rejected_registrations']]);
+                fputcsv($file, ['Pending Registrations',     $overview['pending_registrations']]);
+                fputcsv($file, ['Unverified Registrations',  $overview['unverified_registrations']]);
+                fputcsv($file, ['Banned Registrations',      $overview['banned_registrations']]);
+                fputcsv($file, ['Approval Rate',             $overview['approval_rate'] . '%']);
+                fputcsv($file, ['Profile Completed',         $overview['profile_completed']]);
+                fputcsv($file, ['Profile Completion Rate',   $overview['profile_completion_rate'] . '%']);
+                fputcsv($file, ['With Location Document',    $overview['with_location_doc']]);
+                fputcsv($file, ['With ID Front',             $overview['with_id_front']]);
+                fputcsv($file, ['With ID Back',              $overview['with_id_back']]);
+                fputcsv($file, ['With All Documents',        $overview['with_all_documents']]);
+                fputcsv($file, ['Document Completion Rate',  $overview['document_completion_rate'] . '%']);
+                fputcsv($file, ['Active Barangays',          $overview['active_barangays']]);
+                fputcsv($file, ['User Types',                $overview['user_types']]);
+                fputcsv($file, []);
+
+                // ── Status Analysis ───────────────────────────────────
+                fputcsv($file, ['STATUS ANALYSIS']);
+                fputcsv($file, ['Status', 'Count', 'Percentage']);
+                foreach ($statusAnalysis['counts'] as $status => $count) {
+                    fputcsv($file, [
+                        ucfirst($status),
+                        $count,
+                        ($statusAnalysis['percentages'][$status] ?? 0) . '%',
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Monthly Trends ────────────────────────────────────
+                fputcsv($file, ['MONTHLY TRENDS']);
+                fputcsv($file, ['Month', 'Total Registrations', 'Unverified', 'Pending', 'Approved', 'Rejected', 'Banned', 'Profile Completed', 'Unique Barangays', 'Unique User Types']);
+                foreach ($monthlyTrends as $trend) {
+                    fputcsv($file, [
+                        $trend->month,
+                        $trend->total_registrations,
+                        $trend->unverified,
+                        $trend->pending,
+                        $trend->approved,
+                        $trend->rejected,
+                        $trend->banned,
+                        $trend->profile_completed,
+                        $trend->unique_barangays,
+                        $trend->unique_user_types,
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── User Type Analysis ────────────────────────────────
+                fputcsv($file, ['USER TYPE ANALYSIS']);
+                fputcsv($file, ['User Type', 'Total Registrations', 'Approved', 'Rejected', 'Pending', 'Unverified', 'Profile Completed', 'Barangays Represented', 'Avg Processing Days']);
+                foreach ($userTypeAnalysis as $ut) {
+                    fputcsv($file, [
+                        ucfirst(str_replace('_', ' ', $ut->user_type)),
+                        $ut->total_registrations,
+                        $ut->approved,
+                        $ut->rejected,
+                        $ut->pending,
+                        $ut->unverified,
+                        $ut->profile_completed,
+                        $ut->barangays_represented,
+                        round($ut->avg_processing_days ?? 0, 2),
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Barangay Analysis — ALL rows, no limit ────────────
+                fputcsv($file, ['BARANGAY ANALYSIS']);
+                fputcsv($file, ['Barangay', 'Total Registrations', 'Approved', 'Rejected', 'Pending', 'Unverified', 'User Types Count', 'Profile Completed']);
+                foreach ($barangayAnalysis as $b) {
+                    fputcsv($file, [
+                        $b->barangay,
+                        $b->total_registrations,
+                        $b->approved,
+                        $b->rejected,
+                        $b->pending,
+                        $b->unverified,
+                        $b->user_types_count,
+                        $b->profile_completed,
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Gender Analysis ───────────────────────────────────
+                fputcsv($file, ['GENDER ANALYSIS']);
+                fputcsv($file, ['Gender', 'Total Registrations', 'Approved', 'Rejected', 'Barangays Represented', 'Avg Age', 'Percentage']);
+                foreach ($genderAnalysis['stats'] as $g) {
+                    fputcsv($file, [
+                        ucfirst($g->sex),
+                        $g->total_registrations,
+                        $g->approved,
+                        $g->rejected,
+                        $g->barangays_represented,
+                        round($g->avg_age ?? 0, 1),
+                        ($genderAnalysis['percentages'][$g->sex] ?? 0) . '%',
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Age Distribution ──────────────────────────────────
+                fputcsv($file, ['AGE DISTRIBUTION']);
+                fputcsv($file, ['Age Range', 'User Count', 'Approved']);
+                foreach ($ageAnalysis as $age) {
+                    fputcsv($file, [
+                        $age->age_range,
+                        $age->user_count,
+                        $age->approved,
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Profile Completion ────────────────────────────────
+                fputcsv($file, ['PROFILE COMPLETION ANALYSIS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Total',                    $profileCompletionAnalysis['total']]);
+                fputcsv($file, ['Completed',                $profileCompletionAnalysis['completed']]);
+                fputcsv($file, ['Unverified',               $profileCompletionAnalysis['unverified']]);
+                fputcsv($file, ['Completion Rate',          $profileCompletionAnalysis['completion_rate'] . '%']);
+                fputcsv($file, ['Approval Rate Completed',  $profileCompletionAnalysis['approval_rate_completed'] . '%']);
+                fputcsv($file, []);
+
+                // ── Document Analysis ─────────────────────────────────
+                fputcsv($file, ['DOCUMENT ANALYSIS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['With Location Document',       $documentAnalysis['with_location_doc']]);
+                fputcsv($file, ['With ID Front',                $documentAnalysis['with_id_front']]);
+                fputcsv($file, ['With ID Back',                 $documentAnalysis['with_id_back']]);
+                fputcsv($file, ['With All Documents',           $documentAnalysis['with_all_documents']]);
+                fputcsv($file, ['With No Documents',            $documentAnalysis['with_no_documents']]);
+                fputcsv($file, ['Location Doc Rate',            $documentAnalysis['location_doc_rate'] . '%']);
+                fputcsv($file, ['ID Front Rate',                $documentAnalysis['id_front_rate'] . '%']);
+                fputcsv($file, ['ID Back Rate',                 $documentAnalysis['id_back_rate'] . '%']);
+                fputcsv($file, ['Complete Docs Rate',           $documentAnalysis['complete_docs_rate'] . '%']);
+                fputcsv($file, ['Approval Rate With Docs',      $documentAnalysis['approval_rate_with_docs'] . '%']);
+                fputcsv($file, ['Approval Rate Without Docs',   $documentAnalysis['approval_rate_without_docs'] . '%']);
+                fputcsv($file, []);
+
+                // ── Processing Time ───────────────────────────────────
+                fputcsv($file, ['PROCESSING TIME ANALYSIS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Avg Processing Days',    $processingTime['avg_processing_days']]);
+                fputcsv($file, ['Min Processing Days',    $processingTime['min_processing_days']]);
+                fputcsv($file, ['Max Processing Days',    $processingTime['max_processing_days']]);
+                fputcsv($file, ['Median Processing Days', $processingTime['median_processing_days']]);
+                fputcsv($file, ['Processed Count',        $processingTime['processed_count']]);
+                fputcsv($file, []);
+
+                // ── Performance Metrics ───────────────────────────────
+                fputcsv($file, ['PERFORMANCE METRICS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Completion Rate',           $performanceMetrics['completion_rate'] . '%']);
+                fputcsv($file, ['Avg Registrations Per Day', $performanceMetrics['avg_registrations_per_day']]);
+                fputcsv($file, ['Quality Score',             $performanceMetrics['quality_score'] . '%']);
+                fputcsv($file, ['Engagement Rate',           $performanceMetrics['engagement_rate'] . '%']);
+
+                fclose($file);
+            };
 
             // Log activity
             $this->logActivity('exported', 'UserRegistration', null, [
-                'format' => 'JSON',
+                'format'     => 'CSV',
                 'date_range' => ['start' => $startDate, 'end' => $endDate]
             ], 'Exported User Registration analytics data from ' . $startDate . ' to ' . $endDate);
 
-            return response()->json($data, 200, [
-                'Content-Type' => 'application/json',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
-            ]);
+            return response()->stream($callback, 200, $headers);
+
         } catch (\Exception $e) {
             Log::error('User Registration Export Error: ' . $e->getMessage());
             return back()->with('error', 'Error exporting user registration data: ' . $e->getMessage());
