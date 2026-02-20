@@ -14,33 +14,31 @@ class SuperAdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Super Admin
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'agrisys0@gmail.com',
-            'password' => Hash::make('password123'),
-            'role' => 'superadmin',
-        ]);
+        // Create Super Admin (no email verification needed - bypassed by role)
+        User::updateOrCreate(
+            ['role' => 'superadmin'],
+            [
+                'name' => 'Super Admin',
+                'email' => 'reyes05jerald@gmail.com',
+                'password' => Hash::make('password123'),
+                'role' => 'superadmin',
+            ]
+        );
 
         // Create Regular Admin
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@agrisys.com',
-            'password' => Hash::make('password123'),
-            'role' => 'admin',
-        ]);
-
-        // Create Regular User
-        User::create([
-            'name' => 'Regular User',
-            'email' => 'user@agrisys.com',
-            'password' => Hash::make('password123'),
-            'role' => 'user',
-        ]);
+        User::updateOrCreate(
+            ['role' => 'admin'],
+            [
+                'name' => 'Admin User',
+                'email' => 'admin@agrisys.com',
+                'password' => Hash::make('password123'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ]
+        );
 
         $this->command->info('Default users created successfully!');
-        $this->command->info('Super Admin: superadmin@agrisys.com / password123');
+        $this->command->info('Super Admin: reyes05jerald@gmail.com / password123');
         $this->command->info('Admin: admin@agrisys.com / password123');
-        $this->command->info('User: user@agrisys.com / password123');
     }
 }
