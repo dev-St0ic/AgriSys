@@ -76,6 +76,14 @@ class RetentionScheduleSeeder extends Seeder
                 'description'       => 'User account and registration data. Subject to Data Privacy Act compliance.',
             ],
             [
+                'record_type'        => 'admin_user',
+                'record_label'       => 'Admin User',
+                'retention_category' => 'standard',
+                'retention_years'    => 10,
+                'legal_basis'        => 'COA Circular 2009-006',
+                'description'        => 'Admin account records retained for audit and accountability purposes.',
+            ],
+            [
                 'record_type'       => 'category_item',
                 'record_label'      => 'Supply Items',
                 'retention_category'=> Archive::RETENTION_SHORT_TERM,

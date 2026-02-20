@@ -265,34 +265,34 @@ class ArchiveController extends Controller
         return view('admin.archive.retention-schedules', compact('schedules'));
     }
 
-    public function updateRetentionSchedule(Request $request, $id)
-    {
-        $this->requireSuperAdmin();
-        $request->validate([
-            'retention_category' => 'required|in:permanent,long_term,standard,short_term',
-            'retention_years'    => 'required_unless:retention_category,permanent|integer|min:1|max:100',
-            'legal_basis'        => 'nullable|string|max:500',
-            'description'        => 'nullable|string|max:1000',
-        ]);
+    // public function updateRetentionSchedule(Request $request, $id)
+    // {
+    //     $this->requireSuperAdmin();
+    //     $request->validate([
+    //         'retention_category' => 'required|in:permanent,long_term,standard,short_term',
+    //         'retention_years'    => 'required_unless:retention_category,permanent|integer|min:1|max:100',
+    //         'legal_basis'        => 'nullable|string|max:500',
+    //         'description'        => 'nullable|string|max:1000',
+    //     ]);
 
-        try {
-            $schedule = RetentionSchedule::findOrFail($id);
-            $schedule->update($request->only(['retention_category', 'retention_years', 'legal_basis', 'description']));
+    //     try {
+    //         $schedule = RetentionSchedule::findOrFail($id);
+    //         $schedule->update($request->only(['retention_category', 'retention_years', 'legal_basis', 'description']));
 
-            Log::info('Retention schedule updated', [
-                'record_type' => $schedule->record_type,
-                'updated_by'  => auth()->id(),
-                'changes'     => $request->only(['retention_category', 'retention_years']),
-            ]);
+    //         Log::info('Retention schedule updated', [
+    //             'record_type' => $schedule->record_type,
+    //             'updated_by'  => auth()->id(),
+    //             'changes'     => $request->only(['retention_category', 'retention_years']),
+    //         ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => "Retention schedule for '{$schedule->record_label}' updated.",
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => "Retention schedule for '{$schedule->record_label}' updated.",
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+    //     }
+    // }
 
     // ─────────────────────────────────────────────
     // AUDIT LOG

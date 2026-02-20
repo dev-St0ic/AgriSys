@@ -238,6 +238,7 @@ class ArchiveService
             'App\Models\UserRegistration'  => 'user_registration',
             'App\Models\CategoryItem'      => 'category_item',
             'App\Models\RequestCategory'   => 'request_category',
+            'App\Models\User'              => 'admin_user',
             default                        => 'unknown',
         };
     }

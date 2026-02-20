@@ -1022,7 +1022,7 @@ Route::prefix('admin/archive')
         Route::post('/{id}/approve-disposal', [ArchiveController::class, 'approveDisposal'])->name('approve-disposal');
         Route::post('/{id}/revoke-disposal', [ArchiveController::class, 'revokeDisposal'])->name('revoke-disposal');
         Route::post('/{id}/dispose', [ArchiveController::class, 'dispose'])->name('dispose');
-        Route::put('/retention-schedules/{id}', [ArchiveController::class, 'updateRetentionSchedule'])->name('retention-schedules.update');
+        // Route::put('/retention-schedules/{id}', [ArchiveController::class, 'updateRetentionSchedule'])->name('retention-schedules.update');
     });
 /*
 |--------------------------------------------------------------------------

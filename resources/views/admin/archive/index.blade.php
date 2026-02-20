@@ -538,87 +538,268 @@ function viewArchiveRecord(id) {
     })
     .then(r => r.json())
     .then(data => {
-        if (!data.success) { document.getElementById('archiveModalBody').innerHTML = '<p class="text-danger">Error loading record.</p>'; return; }
+        if (!data.success) {
+            document.getElementById('archiveModalBody').innerHTML = '<p class="text-danger text-center py-4">Error loading record.</p>';
+            return;
+        }
         const d = data.data;
 
-        const integrityHtml = d.integrity.valid
-            ? `<div class="archive-integrity-pass"><i class="fas fa-check-circle me-2 text-success"></i><strong>Integrity Check Passed</strong> — Data matches stored checksum.</div>`
-            : `<div class="archive-integrity-fail"><i class="fas fa-times-circle me-2 text-danger"></i><strong>INTEGRITY FAILURE</strong> — Data may have been tampered with!</div>`;
+        // ── Field label mapping (snake_case → human readable) ──
+        const fieldLabels = {
+            id: null, // hide
+            archive_record_id: null,
+            checksum: null,
+            password: null,
+            remember_token: null,
+            created_at: null,
+            updated_at: null,
+            deleted_at: null,
+            // Friendly mappings
+            first_name: 'First Name',
+            last_name: 'Last Name',
+            middle_name: 'Middle Name',
+            full_name: 'Full Name',
+            contact_number: 'Contact Number',
+            email: 'Email Address',
+            address: 'Address',
+            barangay: 'Barangay',
+            municipality: 'Municipality',
+            province: 'Province',
+            region: 'Region',
+            birthdate: 'Date of Birth',
+            birth_date: 'Date of Birth',
+            age: 'Age',
+            sex: 'Sex',
+            gender: 'Gender',
+            civil_status: 'Civil Status',
+            nationality: 'Nationality',
+            occupation: 'Occupation',
+            farm_size: 'Farm Size',
+            farm_location: 'Farm Location',
+            commodity: 'Commodity / Crop',
+            application_number: 'Application No.',
+            request_number: 'Request No.',
+            reference_number: 'Reference No.',
+            status: 'Status',
+            remarks: 'Remarks',
+            is_active: 'Active',
+            role: 'Role',
+            username: 'Username',
+            boat_name: 'Boat Name',
+            boat_type: 'Boat Type',
+            registration_number: 'Registration No.',
+            vessel_type: 'Vessel Type',
+            engine_type: 'Engine Type',
+            gross_tonnage: 'Gross Tonnage',
+            fishing_gear: 'Fishing Gear',
+            fish_type: 'Fish Type',
+            quantity: 'Quantity',
+            unit: 'Unit',
+            training_title: 'Training Title',
+            training_date: 'Training Date',
+            venue: 'Venue',
+            title: 'Title',
+            name: 'Name',
+            description: 'Description',
+            notes: 'Notes',
+            item_name: 'Item Name',
+            approved_quantity: 'Approved Quantity',
+            requested_quantity: 'Requested Quantity',
+        };
 
-        const dataRows = d.data ? Object.entries(d.data)
-            .filter(([k]) => !['created_at','updated_at','deleted_at'].includes(k))
-            .map(([k, v]) => `
-                <tr>
-                    <td class="text-muted small fw-bold" style="width:35%;">${k.replace(/_/g,' ').replace(/\b\w/g, l=>l.toUpperCase())}</td>
-                    <td>${v === null ? '<span class="text-muted">—</span>' : (typeof v === 'object' ? JSON.stringify(v) : String(v))}</td>
-                </tr>`).join('') : '<tr><td colspan="2" class="text-muted text-center">Data has been disposed</td></tr>';
+        // ── Format a single value nicely ──
+        const fmt = (key, val) => {
+            if (val === null || val === undefined || val === '') return '<span class="text-muted">—</span>';
+            if (typeof val === 'boolean' || val === 1 || val === 0) {
+                return val ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>';
+            }
+            if (typeof val === 'string' && val.match(/^\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}/)) {
+                const dt = new Date(val);
+                return `<i class="fas fa-calendar-alt text-muted me-1" style="font-size:0.75rem;"></i>${dt.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })} ${dt.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}`;
+            }
+            if (typeof val === 'string' && val.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                const dt = new Date(val + 'T00:00:00');
+                return dt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+            }
+            if (typeof val === 'object') return `<code class="small text-muted">${JSON.stringify(val)}</code>`;
+            if (typeof val === 'string' && val.length > 120) return `<span title="${val}">${val.substring(0,120)}<span class="text-muted">…</span></span>`;
+            return String(val);
+        };
 
-        const auditHtml = (d.audit_logs || []).map(log => `
-            <div class="audit-log-item">
-                <span class="badge bg-${log.action_badge} me-2">${log.action}</span>
-                <small class="text-muted">${log.performed_at} — <strong>${log.performed_by}</strong></small>
-                ${log.notes ? `<p class="mb-0 small mt-1 text-muted">${log.notes}</p>` : ''}
-            </div>`).join('');
+        // ── Build data rows (only known/mapped fields, skip hidden) ──
+        let dataRowsHtml = '';
+        let unknownRows  = '';
+        if (d.data) {
+            Object.entries(d.data).forEach(([k, v]) => {
+                if (fieldLabels[k] === null) return; // explicitly hidden
+                const label = fieldLabels[k] || k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const row = `
+                    <div class="d-flex py-2 border-bottom align-items-start">
+                        <span class="text-muted small" style="min-width:160px;flex-shrink:0;">${label}</span>
+                        <span class="small fw-semibold text-dark">${fmt(k, v)}</span>
+                    </div>`;
+                if (fieldLabels[k]) {
+                    dataRowsHtml += row;
+                } else {
+                    unknownRows += row;
+                }
+            });
+        }
+
+        const dataSection = (dataRowsHtml || unknownRows)
+            ? (dataRowsHtml + unknownRows)
+            : '<p class="text-muted small text-center py-3">Data has been disposed or is unavailable.</p>';
+
+        // ── Integrity banner ──
+        const integrityHtml = d.integrity?.valid
+            ? `<div class="d-flex align-items-center gap-2 p-3 rounded mb-3" style="background:#d4edda;border-left:4px solid #28a745;">
+                    <i class="fas fa-shield-alt text-success fa-lg"></i>
+                    <div><strong class="text-success">Integrity Verified</strong><br>
+                    <small class="text-muted">Record data matches its stored checksum — not tampered.</small></div>
+               </div>`
+            : `<div class="d-flex align-items-center gap-2 p-3 rounded mb-3" style="background:#f8d7da;border-left:4px solid #dc3545;">
+                    <i class="fas fa-exclamation-triangle text-danger fa-lg"></i>
+                    <div><strong class="text-danger">Integrity Check Failed</strong><br>
+                    <small class="text-muted">Data does not match stored checksum — possible tampering detected.</small></div>
+               </div>`;
+
+        // ── Audit trail ──
+        const auditIcons = {
+            archived:             { icon: 'fa-archive',        color: 'primary'   },
+            approved_for_disposal:{ icon: 'fa-check-circle',   color: 'warning'   },
+            revoked:              { icon: 'fa-undo',           color: 'info'      },
+            disposed:             { icon: 'fa-trash-alt',      color: 'danger'    },
+            viewed:               { icon: 'fa-eye',            color: 'secondary' },
+        };
+        const auditHtml = (d.audit_logs || []).length
+            ? (d.audit_logs.map(log => {
+                const ico = auditIcons[log.action?.toLowerCase()] || { icon:'fa-circle', color:'secondary' };
+                return `
+                    <div class="d-flex gap-3 pb-3 mb-3 border-bottom">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:36px;height:36px;background:var(--bs-${ico.color},#6c757d)15;border:2px solid var(--bs-${ico.color},#6c757d);">
+                            <i class="fas ${ico.icon} text-${ico.color}" style="font-size:0.8rem;"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold small">${log.action?.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase()) || '—'}</div>
+                            <div class="text-muted" style="font-size:0.75rem;"><i class="fas fa-user me-1"></i>${log.performed_by || 'System'} · ${log.performed_at || ''}</div>
+                            ${log.notes ? `<div class="mt-1 p-2 rounded small text-muted" style="background:#f8f9fa;">${log.notes}</div>` : ''}
+                        </div>
+                    </div>`;
+              }).join(''))
+            : '<p class="text-muted small text-center">No audit entries yet.</p>';
+
+        // ── Retention badge color ──
+        const retentionColors = { permanent:'danger', long_term:'primary', standard:'info', short_term:'secondary' };
+        const retColor = retentionColors[d.retention_category] || 'secondary';
 
         document.getElementById('archiveModalBody').innerHTML = `
-            <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <div class="card border-0 bg-light h-100">
-                        <div class="card-body">
-                            <h6 class="text-muted mb-3"><i class="fas fa-info-circle me-2"></i>Record Information</h6>
-                            <table class="table table-sm table-borderless mb-0">
-                                <tr><td class="text-muted" style="width:45%;">Reference</td><td><code class="text-primary">${d.archive_reference_number}</code></td></tr>
-                                <tr><td class="text-muted">Type</td><td>${d.type_label}</td></tr>
-                                <tr><td class="text-muted">Item Name</td><td><strong>${d.item_name}</strong></td></tr>
-                                <tr><td class="text-muted">Classification</td><td><span class="badge bg-${d.classification_badge}">${d.classification}</span></td></tr>
-                                <tr><td class="text-muted">Status</td><td><span class="badge bg-${d.disposal_status_badge}">${d.disposal_status.replace('_',' ')}</span></td></tr>
-                                <tr><td class="text-muted">Archived By</td><td>${d.archived_by}</td></tr>
-                                <tr><td class="text-muted">Archived At</td><td>${d.archived_at}</td></tr>
-                                <tr><td class="text-muted">Locked</td><td>${d.is_locked ? '<i class="fas fa-lock text-danger"></i> Yes (Immutable)' : '<i class="fas fa-lock-open text-muted"></i> No'}</td></tr>
-                            </table>
-                        </div>
-                    </div>
+
+            <!-- Header strip -->
+            <div class="p-3 rounded mb-4 d-flex flex-wrap align-items-center justify-content-between gap-2"
+                 style="background:linear-gradient(135deg,#f0f4ff,#e8eaf6);">
+                <div>
+                    <div class="text-muted small mb-1">Archive Reference</div>
+                    <code class="text-primary fs-6">${d.archive_reference_number || '—'}</code>
                 </div>
-                <div class="col-md-6">
-                    <div class="card border-0 bg-light h-100">
-                        <div class="card-body">
-                            <h6 class="text-muted mb-3"><i class="fas fa-calendar-alt me-2"></i>Retention (ISO 15489)</h6>
-                            <table class="table table-sm table-borderless mb-0">
-                                <tr><td class="text-muted" style="width:45%;">Category</td><td>${d.retention_category_label}</td></tr>
-                                <tr><td class="text-muted">Retention Period</td><td>${d.retention_years > 0 ? d.retention_years + ' years' : 'Permanent'}</td></tr>
-                                <tr><td class="text-muted">Expires</td><td><strong class="${d.is_expired ? 'text-danger' : 'text-dark'}">${d.retention_expires_at}</strong></td></tr>
-                                <tr><td class="text-muted">Legal Basis</td><td><small class="text-muted">${d.disposal_authority || '—'}</small></td></tr>
-                                <tr><td class="text-muted">Archive Reason</td><td><small>${d.archive_reason || '—'}</small></td></tr>
-                            </table>
-                        </div>
-                    </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-secondary px-3 py-2">${d.type_label || '—'}</span>
+                    <span class="badge bg-${d.classification_badge || 'secondary'} px-3 py-2">${d.classification || '—'}</span>
+                    <span class="badge bg-${d.disposal_status_badge || 'secondary'} px-3 py-2">
+                        ${(d.disposal_status || '').replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}
+                    </span>
+                    ${d.is_locked ? '<span class="badge bg-dark px-3 py-2"><i class="fas fa-lock me-1"></i>Immutable</span>' : ''}
                 </div>
             </div>
 
-            <div class="mb-3">${integrityHtml}</div>
+            ${integrityHtml}
 
-            <div class="row g-3">
-                <div class="col-md-7">
-                    <div class="card border-0 bg-light">
-                        <div class="card-header bg-white border-0"><h6 class="mb-0 text-muted"><i class="fas fa-database me-2"></i>Original Data</h6></div>
-                        <div class="card-body p-0" style="max-height:300px;overflow-y:auto;">
-                            <table class="table table-sm table-borderless mb-0"><tbody>${dataRows}</tbody></table>
+            <!-- Two-column layout -->
+            <div class="row g-3 mb-3">
+
+                <!-- LEFT: Record data -->
+                <div class="col-lg-7">
+                    <div class="card border-0 h-100" style="background:#f8f9fa;">
+                        <div class="card-header border-0 bg-white d-flex align-items-center gap-2">
+                            <i class="fas fa-id-card text-primary"></i>
+                            <strong class="small">Record Information</strong>
+                        </div>
+                        <div class="card-body" style="max-height:380px;overflow-y:auto;">
+                            ${dataSection}
                         </div>
                     </div>
                 </div>
-                <div class="col-md-5">
-                    <div class="card border-0 bg-light">
-                        <div class="card-header bg-white border-0"><h6 class="mb-0 text-muted"><i class="fas fa-history me-2"></i>Audit Trail</h6></div>
-                        <div class="card-body" style="max-height:300px;overflow-y:auto;">
-                            ${auditHtml || '<p class="text-muted small">No audit entries.</p>'}
+
+                <!-- RIGHT: Meta + Retention -->
+                <div class="col-lg-5 d-flex flex-column gap-3">
+
+                    <!-- Archive Meta -->
+                    <div class="card border-0" style="background:#f8f9fa;">
+                        <div class="card-header border-0 bg-white d-flex align-items-center gap-2">
+                            <i class="fas fa-archive text-secondary"></i>
+                            <strong class="small">Archive Details</strong>
+                        </div>
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between py-2 border-bottom small">
+                                <span class="text-muted">Archived By</span>
+                                <span class="fw-semibold">${d.archived_by || '—'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom small">
+                                <span class="text-muted">Archived At</span>
+                                <span class="fw-semibold">${d.archived_at || '—'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 small">
+                                <span class="text-muted">Archive Reason</span>
+                                <span class="fw-semibold text-end" style="max-width:60%;">${d.archive_reason || '—'}</span>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Retention -->
+                    <div class="card border-0" style="background:#f8f9fa;">
+                        <div class="card-header border-0 bg-white d-flex align-items-center gap-2">
+                            <i class="fas fa-calendar-check text-warning"></i>
+                            <strong class="small">Retention Schedule</strong>
+                        </div>
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between py-2 border-bottom small">
+                                <span class="text-muted">Category</span>
+                                <span class="badge bg-${retColor}">${d.retention_category_label || '—'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom small">
+                                <span class="text-muted">Period</span>
+                                <span class="fw-semibold">${d.retention_years > 0 ? d.retention_years + ' years' : 'Permanent'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 border-bottom small">
+                                <span class="text-muted">Expires</span>
+                                <span class="fw-semibold ${d.is_expired ? 'text-danger' : 'text-dark'}">${d.retention_expires_at || 'Never'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-2 small">
+                                <span class="text-muted">Legal Basis</span>
+                                <span class="fw-semibold text-end" style="max-width:60%;font-size:0.75rem;">${d.disposal_authority || '—'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Audit Trail -->
+            <div class="card border-0" style="background:#f8f9fa;">
+                <div class="card-header border-0 bg-white d-flex align-items-center gap-2">
+                    <i class="fas fa-history text-info"></i>
+                    <strong class="small">Audit Trail</strong>
+                    <span class="badge bg-light text-muted ms-1">${(d.audit_logs || []).length} entries</span>
+                </div>
+                <div class="card-body" style="max-height:260px;overflow-y:auto;">
+                    ${auditHtml}
                 </div>
             </div>
         `;
     })
     .catch(() => {
-        document.getElementById('archiveModalBody').innerHTML = '<p class="text-danger">Error loading record.</p>';
+        document.getElementById('archiveModalBody').innerHTML =
+            '<div class="alert alert-danger m-3"><i class="fas fa-exclamation-circle me-2"></i>Error loading record. Please try again.</div>';
     });
 }
 

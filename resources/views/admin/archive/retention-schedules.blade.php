@@ -35,7 +35,7 @@
                         <th class="text-center">Retention Period</th>
                         <th>Legal Basis</th>
                         <th>Description</th>
-                        <th class="text-center">Actions</th>
+                        <!-- <th class="text-center">Actions</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -60,13 +60,13 @@
                         </td>
                         <td><small class="text-muted">{{ $s->legal_basis ?? '—' }}</small></td>
                         <td><small class="text-muted">{{ $s->description ?? '—' }}</small></td>
-                        <td class="text-center">
+                        <!-- <td class="text-center">
                             <button class="btn btn-outline-primary btn-sm"
                                     onclick="openEditSchedule({{ $s->id }}, '{{ $s->record_label }}', '{{ $s->retention_category }}', {{ $s->retention_years }}, '{{ addslashes($s->legal_basis ?? '') }}', '{{ addslashes($s->description ?? '') }}')"
                                     title="Edit Retention Schedule">
                                 <i class="fas fa-edit"></i>
                             </button>
-                        </td>
+                        </td> -->
                     </tr>
                     @empty
                     <tr>
@@ -90,7 +90,7 @@
 </div>
 
 <!-- Edit Retention Schedule Modal -->
-<div class="modal fade" id="editScheduleModal" tabindex="-1" data-bs-backdrop="static">
+<!-- <div class="modal fade" id="editScheduleModal" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
@@ -135,7 +135,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <style>
 /* Toast notification styles */

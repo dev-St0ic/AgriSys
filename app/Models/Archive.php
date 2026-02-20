@@ -194,6 +194,7 @@ class Archive extends Model
             'training'          => 'Training Request',
             'user_registration' => 'User Registration',
             'category_item'     => 'Supply Item',
+            'admin_user'        => 'Admin User',
             'request_category'  => 'Supply Category',
             default             => ucfirst(str_replace('_', ' ', $this->record_type)),
         };
