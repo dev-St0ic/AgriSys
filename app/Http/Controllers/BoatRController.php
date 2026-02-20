@@ -362,7 +362,7 @@ public function update(Request $request, $id)
             'inspection_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
             'replace_inspection_document' => 'nullable|boolean',
         ]);
-        
+
 
         if ($validated['boat_classification'] === 'Motorized') {
     if (empty($validated['engine_type'])) {
@@ -600,7 +600,8 @@ private function getChangedFields($original, $updated)
                             'new_status' => $registration->status,
                             'remarks' => $validated['remarks'] ?? null
                         ])
-                        ->log('updated');
+                        ->event('status_changed')
+                        ->log('status_changed - BoatrApplication (ID: ' . $registration->id . ')');
                 })->afterResponse();
             } catch (\Exception $logException) {
                 Log::warning('Activity logging failed', ['error' => $logException->getMessage()]);
@@ -1738,7 +1739,7 @@ public function validateFishrNumber($fishrNumber)
             'fishr_app_id' => $fishrApp->id,
             'registration_number' => $fishrApp->registration_number,
             'boats_count' => $boatCount,
-            'fisher_name' => trim($fishrApp->first_name . ' ' . $fishrApp->last_name) 
+            'fisher_name' => trim($fishrApp->first_name . ' ' . $fishrApp->last_name)
         ], 200);
 
     } catch (\Exception $e) {

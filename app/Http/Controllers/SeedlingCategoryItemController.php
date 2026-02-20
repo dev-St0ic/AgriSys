@@ -65,7 +65,7 @@ class SeedlingCategoryItemController extends Controller
 
         return view('admin.supply-management.index', compact(
             'categories',
-            'items', 
+            'items',
             'totalItems',
             'lowSupplyItems',
             'outOfSupplyItems',
@@ -169,7 +169,8 @@ public function destroyCategory(RequestCategory $category)
         ->performedOn($category)
         ->causedBy(auth()->user())
         ->withProperties(['action' => 'moved_to_recycle_bin'])
-        ->log('deleted');
+        ->event('deleted')
+        ->log('deleted - RequestCategory (ID: ' . $category->id . ')');
 
     \Log::info('Supply category moved to recycle bin', [
         'category_id' => $categoryId,

@@ -193,7 +193,7 @@ class ApplicationController extends Controller
                     'secondary_livelihood' => $secondaryLivelihoodDescription,
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
-                ])->log('submitted - FishrApplication (ID: ' . $fishRRegistration->id . ')');
+                ])->event('submitted')->log('submitted - FishrApplication (ID: ' . $fishRRegistration->id . ')');
             } catch (\Exception $e) {
                 Log::error('Activity logging failed: ' . $e->getMessage());
             }
@@ -262,7 +262,7 @@ class ApplicationController extends Controller
         }
     }
 
- 
+
 
     /**
  * Submit a new seedling request - WITH USER AUTHENTICATION
@@ -413,7 +413,7 @@ public function submitSeedlings(Request $request)
                 'pickup_date' => $seedlingRequest->pickup_date,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
-            ])->log('submitted - SeedlingRequest (ID: ' . $seedlingRequest->id . ')');
+            ])->event('submitted')->log('submitted - SeedlingRequest (ID: ' . $seedlingRequest->id . ')');
         } catch (\Exception $e) {
             Log::error('Activity logging failed: ' . $e->getMessage());
         }
@@ -648,7 +648,7 @@ public function submitRsbsa(Request $request)
                 'main_livelihood' => $rsbsaApplication->main_livelihood,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent()
-            ])->log('submitted - RsbsaApplication (ID: ' . $rsbsaApplication->id . ')');
+            ])->event('submitted')->log('submitted - RsbsaApplication (ID: ' . $rsbsaApplication->id . ')');
         } catch (\Exception $e) {
             Log::error('Activity logging failed: ' . $e->getMessage());
         }
@@ -973,7 +973,7 @@ try {
                     'training_type' => $training->training_type,
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent()
-                ])->log('submitted - TrainingApplication (ID: ' . $training->id . ')');
+                ])->event('submitted')->log('submitted - TrainingApplication (ID: ' . $training->id . ')');
             } catch (\Exception $e) {
                 Log::error('Activity logging failed: ' . $e->getMessage());
             }

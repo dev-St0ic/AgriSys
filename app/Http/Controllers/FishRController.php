@@ -58,7 +58,7 @@ class FishRController extends Controller
 
             // Sort and paginate
            $registrations = FishrApplication::query()
-                    ->withCount('annexes') 
+                    ->withCount('annexes')
                     ->with('firstAnnex')
                     ->orderBy('created_at', 'desc')
                     ->paginate(10)
@@ -358,7 +358,8 @@ class FishRController extends Controller
                         'new_status' => $validated['status'],
                         'remarks' => $validated['remarks']
                     ])
-                    ->log('updated_status');
+                    ->event('status_changed')
+                    ->log('status_changed - FishrApplication (ID: ' . $registration->id . ')');
             })->afterResponse();
 
             // Return success response immediately

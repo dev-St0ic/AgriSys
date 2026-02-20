@@ -400,8 +400,10 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             ]);
 
             activity()
+                ->causedBy(auth()->user())
                 ->performedOn($seedlingRequest)
                 ->withProperties(['changes' => $changes])
+                ->event('updated')
                 ->log('Updated supply request personal information');
         }
 
