@@ -74,56 +74,79 @@
                             <select name="event" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All</option>
                                 <optgroup label="Basic Actions">
-                                    <option value="created" {{ request('event') == 'created' ? 'selected' : '' }}>Created
-                                    </option>
-                                    <option value="updated" {{ request('event') == 'updated' ? 'selected' : '' }}>Updated
-                                    </option>
-                                    <option value="deleted" {{ request('event') == 'deleted' ? 'selected' : '' }}>Deleted
-                                    </option>
+                                    <option value="created" {{ request('event') == 'created' ? 'selected' : '' }}>Created —
+                                        All Services</option>
+                                    <option value="updated" {{ request('event') == 'updated' ? 'selected' : '' }}>Updated —
+                                        All Services</option>
+                                    <option value="deleted" {{ request('event') == 'deleted' ? 'selected' : '' }}>Deleted —
+                                        All Services</option>
                                 </optgroup>
                                 <optgroup label="Authentication">
-                                    <option value="login" {{ request('event') == 'login' ? 'selected' : '' }}>Login
-                                    </option>
-                                    <option value="logout" {{ request('event') == 'logout' ? 'selected' : '' }}>Logout
-                                    </option>
+                                    <option value="login" {{ request('event') == 'login' ? 'selected' : '' }}>Login —
+                                        Admin / User Portal</option>
+                                    <option value="logout" {{ request('event') == 'logout' ? 'selected' : '' }}>Logout —
+                                        Admin / User Portal</option>
                                     <option value="login_failed"
-                                        {{ request('event') == 'login_failed' ? 'selected' : '' }}>Login Failed</option>
+                                        {{ request('event') == 'login_failed' ? 'selected' : '' }}>Login Failed — Admin /
+                                        User Portal</option>
                                 </optgroup>
-                                <optgroup label="Request Actions">
+                                <optgroup label="Submissions">
+                                    <option value="submitted" {{ request('event') == 'submitted' ? 'selected' : '' }}>
+                                        Submitted — FishR / RSBSA / Training / Supply</option>
+                                </optgroup>
+                                <optgroup label="Approvals &amp; Status">
                                     <option value="approved" {{ request('event') == 'approved' ? 'selected' : '' }}>
-                                        Approved</option>
+                                        Approved — RSBSA / Training / User Reg.</option>
                                     <option value="rejected" {{ request('event') == 'rejected' ? 'selected' : '' }}>
-                                        Rejected</option>
+                                        Rejected — RSBSA / Training / User Reg.</option>
+                                    <option value="status_changed"
+                                        {{ request('event') == 'status_changed' ? 'selected' : '' }}>Status Changed — FishR
+                                        / BoatR / RSBSA / Training</option>
+                                    <option value="inspection_completed"
+                                        {{ request('event') == 'inspection_completed' ? 'selected' : '' }}>Inspection
+                                        Completed — BoatR</option>
                                     <option value="marked_claimed"
-                                        {{ request('event') == 'marked_claimed' ? 'selected' : '' }}>Marked as Claimed
-                                    </option>
+                                        {{ request('event') == 'marked_claimed' ? 'selected' : '' }}>Marked as Claimed —
+                                        Supply Request</option>
+                                </optgroup>
+                                <optgroup label="FishR &amp; BoatR">
+                                    <option value="fishr_number_assigned"
+                                        {{ request('event') == 'fishr_number_assigned' ? 'selected' : '' }}>FishR #
+                                        Assigned — FishR</option>
+                                    <option value="annex_uploaded"
+                                        {{ request('event') == 'annex_uploaded' ? 'selected' : '' }}>File Uploaded — FishR
+                                        / BoatR</option>
+                                    <option value="annex_deleted"
+                                        {{ request('event') == 'annex_deleted' ? 'selected' : '' }}>File Deleted — FishR /
+                                        BoatR</option>
                                 </optgroup>
                                 <optgroup label="Supply Management">
                                     <option value="supply_added"
-                                        {{ request('event') == 'supply_added' ? 'selected' : '' }}>Supply Added</option>
+                                        {{ request('event') == 'supply_added' ? 'selected' : '' }}>Supply Added — Supply
+                                        Mgmt.</option>
                                     <option value="supply_adjusted"
-                                        {{ request('event') == 'supply_adjusted' ? 'selected' : '' }}>Supply Adjusted
-                                    </option>
+                                        {{ request('event') == 'supply_adjusted' ? 'selected' : '' }}>Supply Adjusted —
+                                        Supply Mgmt.</option>
                                     <option value="supply_loss" {{ request('event') == 'supply_loss' ? 'selected' : '' }}>
-                                        Supply Loss</option>
+                                        Supply Loss — Supply Mgmt.</option>
+                                    <option value="updated_items"
+                                        {{ request('event') == 'updated_items' ? 'selected' : '' }}>Updated Items — Supply
+                                        Request</option>
                                 </optgroup>
-                                <optgroup label="Other Actions">
-                                    <option value="status_changed"
-                                        {{ request('event') == 'status_changed' ? 'selected' : '' }}>Status Changed
-                                    </option>
-                                    <option value="inspection_completed"
-                                        {{ request('event') == 'inspection_completed' ? 'selected' : '' }}>Inspection
-                                        Completed</option>
+                                <optgroup label="User Management">
+                                    <option value="resent_verification"
+                                        {{ request('event') == 'resent_verification' ? 'selected' : '' }}>Resent
+                                        Verification — Admin</option>
+                                </optgroup>
+                                <optgroup label="Reports &amp; Exports">
                                     <option value="exported" {{ request('event') == 'exported' ? 'selected' : '' }}>
-                                        Exported</option>
-                                    <option value="downloaded" {{ request('event') == 'downloaded' ? 'selected' : '' }}>
-                                        Downloaded</option>
-                                    <option value="viewed" {{ request('event') == 'viewed' ? 'selected' : '' }}>Viewed
-                                    </option>
-                                    <option value="annex_uploaded"
-                                        {{ request('event') == 'annex_uploaded' ? 'selected' : '' }}>File Uploaded</option>
-                                    <option value="annex_deleted"
-                                        {{ request('event') == 'annex_deleted' ? 'selected' : '' }}>File Deleted</option>
+                                        Exported — All Services</option>
+                                    <option value="dss_report_viewed"
+                                        {{ request('event') == 'dss_report_viewed' ? 'selected' : '' }}>Viewed — DSS
+                                        Reports</option>
+                                    <option value="dss_report_downloaded"
+                                        {{ request('event') == 'dss_report_downloaded' ? 'selected' : '' }}>Downloaded —
+                                        DSS Reports</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -131,7 +154,8 @@
                         <div class="col-md-4">
                             <div class="input-group">
                                 <input type="text" name="search" class="form-control form-control-sm"
-                                    placeholder="Search what changed..." value="{{ request('search') }}" id="searchInput" oninput="autoSearch()">
+                                    placeholder="Search what changed..." value="{{ request('search') }}" id="searchInput"
+                                    oninput="autoSearch()">
                                 <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                     id="searchButton">
                                     <i class="fas fa-search"></i>
@@ -205,10 +229,10 @@
 
                                             if ($actionUser) {
                                                 // Check if it's a UserRegistration or User model
-                                                if ($actionUser instanceof \App\Models\UserRegistration) {
-                                                    // UserRegistration: just show username
-                                                    $actionUserName = $actionUser->username ?? 'Unknown User';
-                                                    $actionUserEmail = null; // Don't show secondary info
+    if ($actionUser instanceof \App\Models\UserRegistration) {
+        // UserRegistration: just show username
+        $actionUserName = $actionUser->username ?? 'Unknown User';
+        $actionUserEmail = null; // Don't show secondary info
                                                 } else {
                                                     // User model has: name, email
                                                     $actionUserName = $actionUser->name ?? 'Unknown';
@@ -219,7 +243,8 @@
                                                 $properties = $activity->properties->all() ?? [];
                                                 $actionUserName =
                                                     $properties['name'] ??
-                                                    ($properties['email'] ?? ($properties['username'] ?? 'Unknown User'));
+                                                    ($properties['email'] ??
+                                                        ($properties['username'] ?? 'Unknown User'));
                                                 $actionUserEmail =
                                                     $properties['email'] ?? ($properties['first_name'] ?? 'N/A');
                                             }
@@ -237,33 +262,33 @@
                                     <td>
                                         @php
                                             // Show the ACTUAL user's role, not the current superadmin
-                                            $roleBg = 'secondary';
-                                            $roleText = 'System';
+$roleBg = 'secondary';
+$roleText = 'System';
 
-                                            if ($actionUser) {
-                                                $roleText = ucfirst($actionUser->role ?? 'user');
+if ($actionUser) {
+    $roleText = ucfirst($actionUser->role ?? 'user');
 
-                                                if ($actionUser->role === 'superadmin') {
-                                                    $roleBg = 'danger';
-                                                } elseif ($actionUser->role === 'admin') {
-                                                    $roleBg = 'warning';
-                                                } elseif ($actionUser->role === 'user') {
-                                                    $roleBg = 'info';
-                                                }
-                                            } elseif (
-                                                !$actionUser &&
-                                                in_array($activity->event, ['login', 'logout', 'login_failed'])
-                                            ) {
-                                                // For login/logout without causer, check properties
-                                                $properties = $activity->properties->all() ?? [];
-                                                if (isset($properties['role'])) {
-                                                    $roleText = ucfirst($properties['role']);
-                                                    if ($properties['role'] === 'superadmin') {
-                                                        $roleBg = 'danger';
-                                                    } elseif ($properties['role'] === 'admin') {
-                                                        $roleBg = 'warning';
-                                                    } elseif ($properties['role'] === 'user') {
-                                                        $roleBg = 'info';
+    if ($actionUser->role === 'superadmin') {
+        $roleBg = 'danger';
+    } elseif ($actionUser->role === 'admin') {
+        $roleBg = 'warning';
+    } elseif ($actionUser->role === 'user') {
+        $roleBg = 'info';
+    }
+} elseif (
+    !$actionUser &&
+    in_array($activity->event, ['login', 'logout', 'login_failed'])
+) {
+    // For login/logout without causer, check properties
+    $properties = $activity->properties->all() ?? [];
+    if (isset($properties['role'])) {
+        $roleText = ucfirst($properties['role']);
+        if ($properties['role'] === 'superadmin') {
+            $roleBg = 'danger';
+        } elseif ($properties['role'] === 'admin') {
+            $roleBg = 'warning';
+        } elseif ($properties['role'] === 'user') {
+            $roleBg = 'info';
                                                     }
                                                 }
                                             }
@@ -288,7 +313,11 @@
                                                     'color' => 'success',
                                                     'icon' => 'fa-plus-circle',
                                                 ],
-                                                'updated' => ['label' => 'Updated', 'color' => 'info', 'icon' => 'fa-edit'],
+                                                'updated' => [
+                                                    'label' => 'Updated',
+                                                    'color' => 'info',
+                                                    'icon' => 'fa-edit',
+                                                ],
                                                 'deleted' => [
                                                     'label' => 'Deleted',
                                                     'color' => 'danger',
@@ -586,8 +615,10 @@
                                                         $subject->item_name ??
                                                         ($subject->categoryItem->item_name ?? 'Unknown Item');
                                                     $quantity =
-                                                        $subject->approved_quantity ?? ($subject->requested_quantity ?? 0);
-                                                    $subjectName = $itemName . ' (' . number_format($quantity) . ' pcs)';
+                                                        $subject->approved_quantity ??
+                                                        ($subject->requested_quantity ?? 0);
+                                                    $subjectName =
+                                                        $itemName . ' (' . number_format($quantity) . ' pcs)';
                                                 } else {
                                                     // For other models
                                                     $subjectName =
@@ -600,7 +631,11 @@
                                             } else {
                                                 // For old logs without subject, parse from description
                                                 if (
-                                                    preg_match('/- (\w+) \(ID: (\d+)\)/', $activity->description, $matches)
+                                                    preg_match(
+                                                        '/- (\w+) \(ID: (\d+)\)/',
+                                                        $activity->description,
+                                                        $matches,
+                                                    )
                                                 ) {
                                                     $parsedModelType = $matches[1];
                                                     $parsedModelId = $matches[2];
@@ -644,7 +679,9 @@
                                                         try {
                                                             $modelClass = "\\App\\Models\\{$parsedModelType}";
                                                             if (class_exists($modelClass)) {
-                                                                $subject = $modelClass::withTrashed()->find($parsedModelId);
+                                                                $subject = $modelClass
+                                                                    ::withTrashed()
+                                                                    ->find($parsedModelId);
                                                                 // Update subject name with application_number if loaded
                                                                 if ($subject && $subject->application_number) {
                                                                     $subjectName = $subject->application_number;
@@ -694,26 +731,34 @@
                                                                         )
                                                                         : null);
                                                                 $subjectName =
-                                                                    $userName ?: ($subject->email ?: '#' . $subject->id);
+                                                                    $userName ?:
+                                                                    ($subject->email ?:
+                                                                    '#' . $subject->id);
                                                             }
                                                         } catch (\Exception $e) {
                                                             // Subject not found
                                                         }
                                                     } elseif ($parsedModelType === 'SeedlingRequestItem') {
                                                         try {
-                                                            $subject = \App\Models\SeedlingRequestItem::with('categoryItem')
+                                                            $subject = \App\Models\SeedlingRequestItem::with(
+                                                                'categoryItem',
+                                                            )
                                                                 ->withTrashed()
                                                                 ->find($parsedModelId);
                                                             if ($subject) {
                                                                 // Show item name and quantity
                                                                 $itemName =
                                                                     $subject->item_name ??
-                                                                    ($subject->categoryItem->item_name ?? 'Unknown Item');
+                                                                    ($subject->categoryItem->item_name ??
+                                                                        'Unknown Item');
                                                                 $quantity =
                                                                     $subject->approved_quantity ??
                                                                     ($subject->requested_quantity ?? 0);
                                                                 $subjectName =
-                                                                    $itemName . ' (' . number_format($quantity) . ' pcs)';
+                                                                    $itemName .
+                                                                    ' (' .
+                                                                    number_format($quantity) .
+                                                                    ' pcs)';
                                                             }
                                                         } catch (\Exception $e) {
                                                             // Subject not found
@@ -843,7 +888,8 @@
                                                             <div class="text-muted mb-1">
                                                                 @if (in_array($field, $importantFields))
                                                                     <i class="fas fa-arrow-right text-primary"></i>
-                                                                    <strong class="text-dark">{{ $fieldLabel }}:</strong>
+                                                                    <strong
+                                                                        class="text-dark">{{ $fieldLabel }}:</strong>
                                                                     <span class="text-danger">{{ $oldDisplay }}</span>
                                                                     <i class="fas fa-long-arrow-alt-right mx-1"></i>
                                                                     <span
@@ -1077,8 +1123,7 @@
                     @endif
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="clearDateFilter()"><i
-                           ></i> Clear</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearDateFilter()"><i></i> Clear</button>
                     <button type="button" class="btn btn-primary" onclick="applyDateFilter()"><i
                             class="fas fa-check"></i> Apply Filter</button>
                 </div>
@@ -1325,7 +1370,7 @@
                     modal.show();
                 });
         }
-        
+
         // Auto search
         let searchTimeout;
 

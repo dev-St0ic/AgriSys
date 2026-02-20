@@ -41,6 +41,7 @@ abstract class Controller
 
             // Build activity log
             $activityLog = Activity::causedBy($user)
+                ->event($action)
                 ->withProperties($contextProperties);
 
             // Try to load and attach the actual model instance

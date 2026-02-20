@@ -411,7 +411,7 @@ class RsbsaController extends Controller
                 );
             }
 
-            $this->logActivity('updated_status', 'RsbsaApplication', $application->id, [
+            $this->logActivity('status_changed', 'RsbsaApplication', $application->id, [
                 'old_status' => $originalStatus,
                 'new_status' => $validated['status'],
                 'remarks' => $validated['remarks']

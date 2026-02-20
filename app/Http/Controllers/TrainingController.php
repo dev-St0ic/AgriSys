@@ -375,7 +375,7 @@ public function updateStatus(Request $request, $id)
         $training = $training->fresh(['updatedBy']);
 
         // Log the activity
-        $this->logActivity('updated_status', 'TrainingApplication', $training->id, [
+        $this->logActivity('status_changed', 'TrainingApplication', $training->id, [
             'new_status' => $validated['status'],
             'remarks' => $updateData['remarks'],
             'application_number' => $training->application_number

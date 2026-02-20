@@ -316,7 +316,7 @@ class DSSDataService
             $matchingStock = collect($supplyData['stock_distribution'])
             ->first(function($stock) use ($demandItem) {
                 return str_contains(
-                    strtolower($stock['name']), 
+                    strtolower($stock['name']),
                     strtolower($demandItem['name'])
                 ) || str_contains(
                     strtolower($demandItem['name']),
@@ -488,7 +488,7 @@ class DSSDataService
 
     private function calculateSupplyHealthScore($supplyStats): int
     {
-        $totalItems = $supplyStats->total_items ?? 1;
+        $totalItems = $supplyStats->total_items ?: 1;  // use ?: to treat 0 same as null
 
         // Calculate health score based on stock status
         $outOfStockPenalty = ($supplyStats->out_of_stock_items ?? 0) * 10;
@@ -497,6 +497,10 @@ class DSSDataService
 
         $maxPenalty = $totalItems * 10; // Maximum possible penalty
         $actualPenalty = $outOfStockPenalty + $lowStockPenalty + $criticalPenalty;
+
+        if ($maxPenalty === 0) {
+            return 100; // No items, return perfect score
+        }
 
         $score = max(0, 100 - (($actualPenalty / $maxPenalty) * 100));
 

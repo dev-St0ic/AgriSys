@@ -248,6 +248,7 @@ class UserRegistrationController extends Controller
                         'ip_address' => $request->ip(),
                         'user_agent' => $request->userAgent()
                     ])
+                    ->event('login')
                     ->log('login - UserRegistration');
 
                 $statusMessages = [
@@ -287,6 +288,7 @@ class UserRegistrationController extends Controller
                     'user_agent' => $request->userAgent(),
                     'failed_reason' => 'invalid_credentials'
                 ])
+                ->event('login_failed')
                 ->log('login_failed');
 
             \Log::warning('Failed login attempt', [
@@ -327,6 +329,7 @@ class UserRegistrationController extends Controller
                         'ip_address' => $request->ip(),
                         'user_agent' => $request->userAgent()
                     ])
+                    ->event('logout')
                     ->log('logout - UserRegistration');
             }
         }
