@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RecycleBin;
+use App\Models\User;
 use App\Models\UserRegistration;
 use App\Models\FishrApplication;
 use App\Models\FishrAnnex;
@@ -14,7 +15,6 @@ use App\Models\BoatrAnnex;
 use App\Models\RsbsaApplication;
 use App\Models\TrainingApplication;
 use App\Services\RecycleBinService;
-use App\Services\ArchiveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -171,17 +171,18 @@ class RecycleBinController extends Controller
         try {
             $item = RecycleBin::findOrFail($id);
             $itemName = $item->item_name;
+            $modelType = $item->model_type;
+            $modelId = $item->model_id;
 
-            ArchiveService::archiveFromRecycleBin($item, 'Permanently deleted from recycle bin');
+            // Permanently delete the original soft-deleted model from its table
+            self::forceDeleteModel($modelType, $modelId);
+
             // Delete from recycle bin
             $item->delete();
 
-            // TODO: Optionally also permanently delete the soft-deleted model from the original table
-            // This depends on your business logic - currently we just remove from recycle bin
-
             return response()->json([
                 'success' => true,
-                'message' => "'{$itemName}' has been deleted"
+                'message' => "'{$itemName}' has been permanently deleted"
             ]);
 
         } catch (\Exception $e) {
@@ -303,7 +304,8 @@ class RecycleBinController extends Controller
                 $item = RecycleBin::find($id);
                 if ($item) {
                     try {
-                        ArchiveService::archiveFromRecycleBin($item, 'Bulk permanently deleted from recycle bin');
+                        // Permanently delete the original soft-deleted model
+                        self::forceDeleteModel($item->model_type, $item->model_id);
                         // Delete from recycle bin
                         $item->delete();
                         $deleted++;
@@ -415,7 +417,8 @@ class RecycleBinController extends Controller
 
             foreach ($items as $item) {
                 try {
-                    ArchiveService::archiveFromRecycleBin($item, 'Removed during empty bin operation');
+                    // Permanently delete the original soft-deleted model
+                    self::forceDeleteModel($item->model_type, $item->model_id);
                     $item->delete();
                     $deleted++;
                 } catch (\Exception $e) {
@@ -442,42 +445,88 @@ class RecycleBinController extends Controller
             ], 500);
         }
     }
+
     /**
-     * Archive item from recycle bin to long-term archive (SuperAdmin only)
-     * ISO 15489 compliant - adds retention schedule, locks record, creates audit trail
+     * Permanently delete a model from the database
      */
-    public function archiveItem(Request $request, $id)
+    private static function forceDeleteModel($modelType, $modelId)
     {
         try {
-            // Gate: SuperAdmin only
-            if (!auth()->user()->isSuperAdmin()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied. SuperAdmin privileges required to archive records.'
-                ], 403);
+            $modelClass = $modelType;
+            
+            if ($modelClass === User::class) {
+                User::withTrashed()->where('id', $modelId)->forceDelete();
             }
-
-            $item   = RecycleBin::findOrFail($id);
-            $reason = $request->input('reason', 'Archived from recycle bin');
-
-            $archive = ArchiveService::archiveFromRecycleBin($item, $reason);
-
-            return response()->json([
-                'success'   => true,
-                'message'   => "'{$item->item_name}' has been archived. Reference: {$archive->archive_reference_number}",
-                'reference' => $archive->archive_reference_number,
-            ]);
-
+            elseif ($modelClass === FishrApplication::class) {
+                $model = FishrApplication::withTrashed()->find($modelId);
+                if ($model) {
+                    if (method_exists($model, 'annexes')) {
+                        $model->annexes()->forceDelete();
+                    }
+                    $model->forceDelete();
+                }
+            }
+            elseif ($modelClass === FishrAnnex::class) {
+                FishrAnnex::withTrashed()->where('id', $modelId)->forceDelete();
+            }
+            elseif ($modelClass === SeedlingRequest::class) {
+                $model = SeedlingRequest::withTrashed()->find($modelId);
+                if ($model) {
+                    if (method_exists($model, 'items')) {
+                        $model->items()->forceDelete();
+                    }
+                    $model->forceDelete();
+                }
+            }
+            elseif ($modelClass === CategoryItem::class) {
+                CategoryItem::withTrashed()->where('id', $modelId)->forceDelete();
+            }
+            elseif ($modelClass === RequestCategory::class) {
+                $model = RequestCategory::withTrashed()->find($modelId);
+                if ($model) {
+                    if (method_exists($model, 'items')) {
+                        $model->items()->forceDelete();
+                    }
+                    $model->forceDelete();
+                }
+            }
+            elseif ($modelClass === BoatrApplication::class) {
+                $model = BoatrApplication::withTrashed()->find($modelId);
+                if ($model) {
+                    if (method_exists($model, 'annexes')) {
+                        $model->annexes()->forceDelete();
+                    }
+                    $model->forceDelete();
+                }
+            }
+            elseif ($modelClass === BoatrAnnex::class) {
+                BoatrAnnex::withTrashed()->where('id', $modelId)->forceDelete();
+            }
+            elseif ($modelClass === RsbsaApplication::class) {
+                RsbsaApplication::withTrashed()->where('id', $modelId)->forceDelete();
+            }
+            elseif ($modelClass === TrainingApplication::class) {
+                TrainingApplication::withTrashed()->where('id', $modelId)->forceDelete();
+            }
+            elseif ($modelClass === UserRegistration::class) {
+                UserRegistration::withTrashed()->where('id', $modelId)->forceDelete();
+            }
+            else {
+                // Generic fallback
+                if (class_exists($modelClass)) {
+                    $model = new $modelClass();
+                    if (method_exists($model, 'forceDelete')) {
+                        $modelClass::withTrashed()->where('id', $modelId)->forceDelete();
+                    }
+                }
+            }
         } catch (\Exception $e) {
-            Log::error('Error archiving recycle bin item', [
-                'id'    => $id,
+            Log::error('Error permanently deleting model', [
+                'model_type' => $modelType,
+                'model_id' => $modelId,
                 'error' => $e->getMessage()
             ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error archiving item: ' . $e->getMessage()
-            ], 500);
+            throw $e;
         }
     }
 
