@@ -189,8 +189,8 @@
                             <span class="badge bg-info">{{ $performanceMetrics['completion_rate'] }}%</span>
                         </div>
                         <div class="progress mb-2" style="height: 10px;">
-                            <div class="progress-bar bg-info"
-                                style="width: {{ $performanceMetrics['completion_rate'] }}%"></div>
+                            <div class="progress-bar bg-info" style="width: {{ $performanceMetrics['completion_rate'] }}%">
+                            </div>
                         </div>
                         <small class="text-muted">Applications completed from total submissions</small>
                     </div>
@@ -446,6 +446,133 @@
                             <p class="text-muted mb-0 small">Inspector workload information will appear here once
                                 inspections are assigned.</p>
                         </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motorized / Non-Motorized Analysis -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-cog text-warning me-2"></i>Motorized vs Non-Motorized Boats
+                    </h5>
+                    <span class="badge bg-secondary">{{ $motorizedAnalysis['total'] }} total</span>
+                </div>
+                <div class="card-body">
+                    @if ($motorizedAnalysis['stats']->count() > 0)
+                        <div class="row g-3 mb-4">
+                            @foreach ($motorizedAnalysis['stats'] as $cls)
+                                @php
+                                    $clsColor = $cls->boat_classification === 'Motorized' ? 'primary' : 'secondary';
+                                    $clsIcon = $cls->boat_classification === 'Motorized' ? 'fa-cogs' : 'fa-ship';
+                                @endphp
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded border bg-light h-100">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas {{ $clsIcon }} text-{{ $clsColor }} fa-lg me-2"></i>
+                                            <span class="fw-bold fs-5">{{ $cls->boat_classification }}</span>
+                                        </div>
+                                        <div class="row text-center g-2 mb-2">
+                                            <div class="col-4">
+                                                <div class="fw-bold text-{{ $clsColor }}">
+                                                    {{ $cls->total_applications }}</div>
+                                                <small class="text-muted">Applications</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="fw-bold text-success">{{ $cls->approved }}</div>
+                                                <small class="text-muted">Approved</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="fw-bold text-info">{{ $cls->inspections_completed }}</div>
+                                                <small class="text-muted">Inspected</small>
+                                            </div>
+                                        </div>
+                                        <div class="progress mb-1" style="height: 8px;">
+                                            <div class="progress-bar bg-{{ $clsColor }}"
+                                                style="width: {{ $cls->percentage }}%">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between small text-muted mt-1">
+                                            <span>{{ $cls->percentage }}% of total</span>
+                                            <span>{{ $cls->approval_rate }}% approval</span>
+                                            @if ($cls->boat_classification === 'Motorized')
+                                                <span>Avg {{ round($cls->avg_horsepower ?? 0, 1) }} HP</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        @php
+                            $motorizedPct =
+                                $motorizedAnalysis['total'] > 0
+                                    ? round(
+                                        ($motorizedAnalysis['motorized_count'] / $motorizedAnalysis['total']) * 100,
+                                        1,
+                                    )
+                                    : 0;
+                        @endphp
+                        <div class="progress" style="height: 20px; border-radius: 10px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $motorizedPct }}%">
+                                Motorized {{ $motorizedPct }}%
+                            </div>
+                            <div class="progress-bar bg-secondary" role="progressbar"
+                                style="width: {{ 100 - $motorizedPct }}%">
+                                Non-motorized {{ 100 - $motorizedPct }}%
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-muted mb-0">No boat classification data available for the selected period.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Fishers with Multiple BoatR Registrations -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-layer-group text-danger me-2"></i>Multiple Boat Registrations
+                    </h5>
+                    <small class="text-muted">Fishers with more than one registered boat</small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 text-center mb-3">
+                        <div class="col-6">
+                            <div class="p-3 rounded bg-danger bg-opacity-10 border border-danger border-opacity-20">
+                                <div class="h2 text-danger mb-0 fw-bold">
+                                    {{ $multipleRegistrationsAnalysis['fishers_with_multiple'] }}</div>
+                                <small class="text-muted">Fishers with multiple boats</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded bg-warning bg-opacity-10 border border-warning border-opacity-20">
+                                <div class="h2 text-warning mb-0 fw-bold">
+                                    {{ $multipleRegistrationsAnalysis['max_boats_per_fisher'] }}</div>
+                                <small class="text-muted">Max boats per fisher</small>
+                            </div>
+                        </div>
+                    </div>
+                    @if ($multipleRegistrationsAnalysis['details']->count() > 0)
+                        <h6 class="fw-semibold mb-2 small text-muted">TOP MULTI-BOAT FISHERS</h6>
+                        <div class="list-group list-group-flush">
+                            @foreach ($multipleRegistrationsAnalysis['details']->take(5) as $fisher)
+                                <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                                    <small class="text-dark fw-semibold">{{ $fisher->fishr_number }}</small>
+                                    <span class="badge bg-danger rounded-pill">{{ $fisher->boat_count }} boats</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            No fishers with multiple registrations found.
+                        </p>
                     @endif
                 </div>
             </div>

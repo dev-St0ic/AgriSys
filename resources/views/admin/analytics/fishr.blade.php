@@ -17,7 +17,7 @@
     <!-- Date Range Filter -->
     <div class="row mb-4">
         <div class="col-12">
-           @include('admin.analytics.partials.filter', [
+            @include('admin.analytics.partials.filter', [
                 'filterRoute' => 'admin.analytics.fishr',
                 'exportRoute' => 'admin.analytics.fishr.export',
             ])
@@ -178,8 +178,8 @@
                                 class="badge bg-info text-white px-2 py-1">{{ $performanceMetrics['completion_rate'] }}%</span>
                         </div>
                         <div class="progress mb-2" style="height: 8px;">
-                            <div class="progress-bar bg-info"
-                                style="width: {{ $performanceMetrics['completion_rate'] }}%"></div>
+                            <div class="progress-bar bg-info" style="width: {{ $performanceMetrics['completion_rate'] }}%">
+                            </div>
                         </div>
                         <small class="text-muted">Applications completed</small>
                     </div>
@@ -314,6 +314,58 @@
             </div>
         </div>
     </div>
+
+    <!-- Secondary Livelihood Analysis -->
+    @if ($secondaryLivelihoodAnalysis['total_with_secondary'] > 0)
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-semibold">
+                            <i class="fas fa-layer-group text-info me-2"></i>Secondary Livelihood Breakdown
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-info">
+                                {{ $secondaryLivelihoodAnalysis['total_with_secondary'] }} with secondary livelihood
+                            </span>
+                            <span class="badge bg-primary">
+                                {{ $secondaryLivelihoodAnalysis['total_with_both'] }} have both main &amp; secondary
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @forelse ($secondaryLivelihoodAnalysis['stats'] as $item)
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="p-3 rounded bg-light border h-100">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span
+                                                class="fw-semibold text-dark small">{{ ucfirst(str_replace('_', ' ', $item->secondary_livelihood)) }}</span>
+                                            <span class="badge bg-info">{{ $item->total_applications }}</span>
+                                        </div>
+                                        @php $maxSec = $secondaryLivelihoodAnalysis['stats']->max('total_applications'); @endphp
+                                        <div class="progress mb-1" style="height: 5px;">
+                                            <div class="progress-bar bg-info"
+                                                style="width: {{ $maxSec > 0 ? round(($item->total_applications / $maxSec) * 100) : 0 }}%">
+                                            </div>
+                                        </div>
+                                        <small class="text-success">
+                                            {{ round(($item->approved / max(1, $item->total_applications)) * 100, 1) }}%
+                                            approved
+                                        </small>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <p class="text-muted mb-0">No secondary livelihood data available.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Top Performing Barangays -->
     <div class="row mb-4">

@@ -87,6 +87,14 @@
                                         <small class="text-muted">Pending</small>
                                     </div>
                                 </div>
+                                <div class="col-12">
+                                    <div class="bg-light rounded p-2">
+                                        <div class="h5 text-success mb-0">
+                                            {{ $data['boatr_stats']['documents_verified'] ?? 0 }}</div>
+                                        <small class="text-muted">Docs Verified
+                                            ({{ $data['boatr_stats']['document_verification_rate'] ?? 0 }}%)</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -267,6 +275,13 @@
                                 {{ $data['boatr_stats']['inspection_rate'] }}%
                             </div>
                         </div>
+                        <h6 class="text-muted mt-2">Document Verification Rate</h6>
+                        <div class="progress mb-2" style="height: 25px;">
+                            <div class="progress-bar bg-info" role="progressbar"
+                                style="width: {{ $data['boatr_stats']['document_verification_rate'] ?? 0 }}%">
+                                {{ $data['boatr_stats']['document_verification_rate'] ?? 0 }}%
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -294,6 +309,132 @@
         </div>
     </div>
 </div>
+
+<!-- Fishing Gear Analysis -->
+@if (!empty($data['boatr_fishing_gear']['distribution']))
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>Primary Fishing Gear
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach ($data['boatr_fishing_gear']['distribution'] as $gear)
+                            <div class="col-md-3 col-6 mb-3 text-center">
+                                <div class="bg-light rounded p-2">
+                                    <div class="h5 text-primary mb-0">{{ $gear['total'] }}</div>
+                                    <small
+                                        class="text-muted">{{ ucfirst(str_replace('_', ' ', $gear['gear'])) }}</small>
+                                    <div><small class="text-success">{{ $gear['approval_rate'] }}% approved</small>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
+<!-- Motorized / Non-Motorized Breakdown -->
+@if (!empty($data['boatr_motorized_breakdown']['distribution']))
+    <div class="row mb-4">
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Motorized vs Non-Motorized
+                    </h5>
+                    <span class="badge bg-secondary">{{ $data['boatr_motorized_breakdown']['total'] }} total</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-3">
+                        @foreach ($data['boatr_motorized_breakdown']['distribution'] as $cls)
+                            @php
+                                $clsColor = $cls['classification'] === 'Motorized' ? 'primary' : 'secondary';
+                            @endphp
+                            <div class="col-6 text-center">
+                                <div class="bg-light rounded p-3 border">
+                                    <div class="h4 text-{{ $clsColor }} mb-0">{{ $cls['total'] }}</div>
+                                    <small class="fw-bold">{{ $cls['classification'] }}</small>
+                                    <div><small class="text-muted">{{ $cls['percentage'] }}% of total</small></div>
+                                    <div><small class="text-success">{{ $cls['approval_rate'] }}% approved</small>
+                                    </div>
+                                    @if ($cls['classification'] === 'Motorized')
+                                        <div><small class="text-info">Avg {{ $cls['avg_horsepower'] }} HP</small>
+                                        </div>
+                                    @endif
+                                    <div><small class="text-muted">{{ $cls['inspections_completed'] }}
+                                            inspected</small></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="progress" style="height: 18px; border-radius: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar"
+                            style="width: {{ $data['boatr_motorized_breakdown']['motorized_percentage'] }}%">
+                            {{ $data['boatr_motorized_breakdown']['motorized_percentage'] }}%
+                        </div>
+                        <div class="progress-bar bg-secondary" role="progressbar"
+                            style="width: {{ $data['boatr_motorized_breakdown']['non_motorized_percentage'] }}%">
+                            {{ $data['boatr_motorized_breakdown']['non_motorized_percentage'] }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fishers with Multiple Registrations -->
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-layer-group me-2"></i>Multiple Boat Registrations
+                    </h5>
+                    <small class="text-muted">Fishers with more than one registered boat</small>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="h4 text-danger mb-0">
+                                    {{ $data['boatr_multiple_registrations']['fishers_with_multiple'] }}</div>
+                                <small class="text-muted">Fishers with multiple boats</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="h4 text-warning mb-0">
+                                    {{ $data['boatr_multiple_registrations']['max_boats'] }}</div>
+                                <small class="text-muted">Max boats per fisher</small>
+                            </div>
+                        </div>
+                    </div>
+                    @if (!empty($data['boatr_multiple_registrations']['top_details']))
+                        <h6 class="small fw-bold text-muted">TOP MULTI-BOAT FISHERS</h6>
+                        <ul class="list-unstyled mb-0">
+                            @foreach (array_slice($data['boatr_multiple_registrations']['top_details'], 0, 5) as $fisher)
+                                <li class="d-flex justify-content-between align-items-center mb-1 py-1 border-bottom">
+                                    <small class="fw-semibold">{{ $fisher['fishr_number'] }}</small>
+                                    <span class="badge bg-danger">{{ $fisher['boat_count'] }} boats</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-check-circle text-success me-1"></i>No fishers with multiple registrations
+                            found.
+                        </p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 
 <!-- Report Footer -->
 <div class="row">

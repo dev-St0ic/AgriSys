@@ -64,6 +64,21 @@ class RsbsaAnalyticsController extends Controller
             // 12. Land Area Analysis (specific to RSBSA)
             $landAreaAnalysis = $this->getLandAreaAnalysis(clone $baseQuery);
 
+            // 13. Farmer Details (type of farm, land ownership, special status)
+            $farmerDetails = $this->getFarmerDetails(clone $baseQuery);
+
+            // 14. Farmer Crops breakdown
+            $farmerCrops = $this->getFarmerCrops(clone $baseQuery);
+
+            // 15. Farmworker Type breakdown
+            $farmworkerType = $this->getFarmworkerType(clone $baseQuery);
+
+            // 16. Fisherfolk Activity breakdown
+            $fisherfolkActivity = $this->getFisherfolkActivity(clone $baseQuery);
+
+            // 17. Agri-youth Analysis
+            $agriyouthAnalysis = $this->getAgriyouthAnalysis(clone $baseQuery);
+
             return view('admin.analytics.rsbsa', compact(
                 'overview',
                 'statusAnalysis',
@@ -77,6 +92,11 @@ class RsbsaAnalyticsController extends Controller
                 'performanceMetrics',
                 'commodityAnalysis',
                 'landAreaAnalysis',
+                'farmerDetails',
+                'farmerCrops',
+                'farmworkerType',
+                'fisherfolkActivity',
+                'agriyouthAnalysis',
                 'startDate',
                 'endDate'
             ));
@@ -537,6 +557,172 @@ class RsbsaAnalyticsController extends Controller
     }
 
     /**
+     * Get farmer details (type of farm, land ownership, special status)
+     */
+    private function getFarmerDetails($baseQuery)
+    {
+        try {
+            $farmerQuery = (clone $baseQuery)->where('main_livelihood', 'Farmer');
+
+            $byTypeOfFarm = (clone $farmerQuery)
+                ->select('farmer_type_of_farm', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('farmer_type_of_farm')->where('farmer_type_of_farm', '!=', '')
+                ->groupBy('farmer_type_of_farm')->orderByDesc('count')->get();
+
+            $byLandOwnership = (clone $farmerQuery)
+                ->select('farmer_land_ownership', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('farmer_land_ownership')->where('farmer_land_ownership', '!=', '')
+                ->groupBy('farmer_land_ownership')->orderByDesc('count')->get();
+
+            $bySpecialStatus = (clone $farmerQuery)
+                ->select('farmer_special_status', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('farmer_special_status')->where('farmer_special_status', '!=', '')
+                ->groupBy('farmer_special_status')->orderByDesc('count')->get();
+
+            return [
+                'total_farmers' => (clone $farmerQuery)->count(),
+                'by_type_of_farm' => $byTypeOfFarm,
+                'by_land_ownership' => $byLandOwnership,
+                'by_special_status' => $bySpecialStatus,
+            ];
+        } catch (\Exception $e) {
+            Log::error('RSBSA Farmer Details Error: ' . $e->getMessage());
+            return ['total_farmers' => 0, 'by_type_of_farm' => collect([]), 'by_land_ownership' => collect([]), 'by_special_status' => collect([])];
+        }
+    }
+
+    /**
+     * Get farmer crops breakdown
+     */
+    private function getFarmerCrops($baseQuery)
+    {
+        try {
+            $byCrop = (clone $baseQuery)
+                ->where('main_livelihood', 'Farmer')
+                ->select('farmer_crops', DB::raw('COUNT(*) as count, SUM(COALESCE(farmer_land_area,0)) as total_land, SUM(CASE WHEN status="approved" THEN 1 ELSE 0 END) as approved'))
+                ->whereNotNull('farmer_crops')->where('farmer_crops', '!=', '')
+                ->groupBy('farmer_crops')->orderByDesc('count')->get();
+
+            $otherCrops = (clone $baseQuery)
+                ->where('farmer_crops', 'Other Crops')
+                ->select('farmer_other_crops', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('farmer_other_crops')->where('farmer_other_crops', '!=', '')
+                ->groupBy('farmer_other_crops')->orderByDesc('count')->get();
+
+            return [
+                'distribution' => $byCrop,
+                'other_crops_specified' => $otherCrops,
+                'total_crop_types' => $byCrop->count(),
+            ];
+        } catch (\Exception $e) {
+            Log::error('RSBSA Farmer Crops Error: ' . $e->getMessage());
+            return ['distribution' => collect([]), 'other_crops_specified' => collect([]), 'total_crop_types' => 0];
+        }
+    }
+
+    /**
+     * Get farmworker type breakdown
+     */
+    private function getFarmworkerType($baseQuery)
+    {
+        try {
+            $byType = (clone $baseQuery)
+                ->where('main_livelihood', 'Farmworker/Laborer')
+                ->select('farmworker_type', DB::raw('COUNT(*) as count, SUM(CASE WHEN status="approved" THEN 1 ELSE 0 END) as approved'))
+                ->whereNotNull('farmworker_type')->where('farmworker_type', '!=', '')
+                ->groupBy('farmworker_type')->orderByDesc('count')->get();
+
+            $otherTypes = (clone $baseQuery)
+                ->where('farmworker_type', 'Others')
+                ->select('farmworker_other_type', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('farmworker_other_type')->where('farmworker_other_type', '!=', '')
+                ->groupBy('farmworker_other_type')->orderByDesc('count')->get();
+
+            return [
+                'total_farmworkers' => (clone $baseQuery)->where('main_livelihood', 'Farmworker/Laborer')->count(),
+                'distribution' => $byType,
+                'other_types_specified' => $otherTypes,
+            ];
+        } catch (\Exception $e) {
+            Log::error('RSBSA Farmworker Type Error: ' . $e->getMessage());
+            return ['total_farmworkers' => 0, 'distribution' => collect([]), 'other_types_specified' => collect([])];
+        }
+    }
+
+    /**
+     * Get fisherfolk activity breakdown
+     */
+    private function getFisherfolkActivity($baseQuery)
+    {
+        try {
+            $byActivity = (clone $baseQuery)
+                ->where('main_livelihood', 'Fisherfolk')
+                ->select('fisherfolk_activity', DB::raw('COUNT(*) as count, SUM(CASE WHEN status="approved" THEN 1 ELSE 0 END) as approved'))
+                ->whereNotNull('fisherfolk_activity')->where('fisherfolk_activity', '!=', '')
+                ->groupBy('fisherfolk_activity')->orderByDesc('count')->get();
+
+            $otherActivities = (clone $baseQuery)
+                ->where('fisherfolk_activity', 'Others')
+                ->select('fisherfolk_other_activity', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('fisherfolk_other_activity')->where('fisherfolk_other_activity', '!=', '')
+                ->groupBy('fisherfolk_other_activity')->orderByDesc('count')->get();
+
+            return [
+                'total_fisherfolk' => (clone $baseQuery)->where('main_livelihood', 'Fisherfolk')->count(),
+                'distribution' => $byActivity,
+                'other_activities_specified' => $otherActivities,
+            ];
+        } catch (\Exception $e) {
+            Log::error('RSBSA Fisherfolk Activity Error: ' . $e->getMessage());
+            return ['total_fisherfolk' => 0, 'distribution' => collect([]), 'other_activities_specified' => collect([])];
+        }
+    }
+
+    /**
+     * Get agri-youth analysis
+     */
+    private function getAgriyouthAnalysis($baseQuery)
+    {
+        try {
+            $ayQuery = (clone $baseQuery)->where('main_livelihood', 'Agri-youth');
+            $total = (clone $ayQuery)->count();
+
+            $demographics = (clone $ayQuery)
+                ->selectRaw('SUM(CASE WHEN sex="Male" THEN 1 ELSE 0 END) as male_count, SUM(CASE WHEN sex="Female" THEN 1 ELSE 0 END) as female_count, SUM(CASE WHEN status="approved" THEN 1 ELSE 0 END) as approved')
+                ->first();
+
+            $byFarmingHousehold = (clone $ayQuery)
+                ->select('agriyouth_farming_household', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('agriyouth_farming_household')->where('agriyouth_farming_household', '!=', '')
+                ->groupBy('agriyouth_farming_household')->orderByDesc('count')->get();
+
+            $byTraining = (clone $ayQuery)
+                ->select('agriyouth_training', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('agriyouth_training')->where('agriyouth_training', '!=', '')
+                ->groupBy('agriyouth_training')->orderByDesc('count')->get();
+
+            $byParticipation = (clone $ayQuery)
+                ->select('agriyouth_participation', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('agriyouth_participation')->where('agriyouth_participation', '!=', '')
+                ->groupBy('agriyouth_participation')->orderByDesc('count')->get();
+
+            return [
+                'total' => $total,
+                'male_count' => $demographics->male_count ?? 0,
+                'female_count' => $demographics->female_count ?? 0,
+                'approved' => $demographics->approved ?? 0,
+                'approval_rate' => $total > 0 ? round(($demographics->approved / $total) * 100, 2) : 0,
+                'by_farming_household' => $byFarmingHousehold,
+                'by_training' => $byTraining,
+                'by_participation' => $byParticipation,
+            ];
+        } catch (\Exception $e) {
+            Log::error('RSBSA Agri-youth Analysis Error: ' . $e->getMessage());
+            return ['total' => 0, 'male_count' => 0, 'female_count' => 0, 'approved' => 0, 'approval_rate' => 0, 'by_farming_household' => collect([]), 'by_training' => collect([]), 'by_participation' => collect([])];
+        }
+    }
+
+    /**
      * Get performance metrics
      */
     private function getPerformanceMetrics($baseQuery)
@@ -641,12 +827,18 @@ class RsbsaAnalyticsController extends Controller
             $performanceMetrics = $this->getPerformanceMetrics(clone $baseQuery);
             $commodityAnalysis  = $this->getCommodityAnalysis(clone $baseQuery);
             $landAreaAnalysis   = $this->getLandAreaAnalysis(clone $baseQuery);
+            $farmerDetails      = $this->getFarmerDetails(clone $baseQuery);
+            $farmerCrops        = $this->getFarmerCrops(clone $baseQuery);
+            $farmworkerType     = $this->getFarmworkerType(clone $baseQuery);
+            $fisherfolkActivity = $this->getFisherfolkActivity(clone $baseQuery);
+            $agriyouthAnalysis  = $this->getAgriyouthAnalysis(clone $baseQuery);
 
             $callback = function () use (
                 $startDate, $endDate, $overview, $statusAnalysis, $monthlyTrends,
                 $barangayAnalysis, $livelihoodAnalysis, $genderAnalysis,
                 $processingTime, $documentAnalysis, $performanceMetrics,
-                $commodityAnalysis, $landAreaAnalysis
+                $commodityAnalysis, $landAreaAnalysis, $farmerDetails, $farmerCrops,
+                $farmworkerType, $fisherfolkActivity, $agriyouthAnalysis
             ) {
                 $file = fopen('php://output', 'w');
 
@@ -826,6 +1018,102 @@ class RsbsaAnalyticsController extends Controller
                 fputcsv($file, ['Avg Applications Per Day', $performanceMetrics['avg_applications_per_day']]);
                 fputcsv($file, ['Quality Score',            $performanceMetrics['quality_score'] . '%']);
                 fputcsv($file, ['Total Land Impact (ha)',   $performanceMetrics['total_land_impact']]);
+                fputcsv($file, []);
+
+                // ── Farmer Details ───────────────────────────────────────────────────
+                fputcsv($file, ['FARMER DETAILS (Type of Farm, Land Ownership, Special Status)']);
+                fputcsv($file, ['Type of Farm', 'Count']);
+                foreach ($farmerDetails['by_type_of_farm'] as $item) {
+                    fputcsv($file, [$item->farmer_type_of_farm, $item->count]);
+                }
+                fputcsv($file, []);
+                fputcsv($file, ['Land Ownership', 'Count']);
+                foreach ($farmerDetails['by_land_ownership'] as $item) {
+                    fputcsv($file, [$item->farmer_land_ownership, $item->count]);
+                }
+                fputcsv($file, []);
+                fputcsv($file, ['Special Status', 'Count']);
+                foreach ($farmerDetails['by_special_status'] as $item) {
+                    fputcsv($file, [$item->farmer_special_status, $item->count]);
+                }
+                fputcsv($file, []);
+
+                // ── Farmer Crops ─────────────────────────────────────────────────────
+                fputcsv($file, ['FARMER CROPS BREAKDOWN']);
+                fputcsv($file, ['Crop', 'Count', 'Total Land Area (ha)', 'Approved']);
+                foreach ($farmerCrops['distribution'] as $crop) {
+                    fputcsv($file, [$crop->farmer_crops, $crop->count, round($crop->total_land, 2), $crop->approved]);
+                }
+                if ($farmerCrops['other_crops_specified']->isNotEmpty()) {
+                    fputcsv($file, []);
+                    fputcsv($file, ['Other Crops Specified', 'Count']);
+                    foreach ($farmerCrops['other_crops_specified'] as $other) {
+                        fputcsv($file, [$other->farmer_other_crops, $other->count]);
+                    }
+                }
+                fputcsv($file, []);
+
+                // ── Farmworker Type ─────────────────────────────────────────────────
+                fputcsv($file, ['FARMWORKER TYPE BREAKDOWN']);
+                fputcsv($file, ['Total Farmworkers', $farmworkerType['total_farmworkers']]);
+                fputcsv($file, ['Type', 'Count', 'Approved']);
+                foreach ($farmworkerType['distribution'] as $type) {
+                    fputcsv($file, [$type->farmworker_type, $type->count, $type->approved]);
+                }
+                if ($farmworkerType['other_types_specified']->isNotEmpty()) {
+                    fputcsv($file, []);
+                    fputcsv($file, ['Other Types Specified', 'Count']);
+                    foreach ($farmworkerType['other_types_specified'] as $other) {
+                        fputcsv($file, [$other->farmworker_other_type, $other->count]);
+                    }
+                }
+                fputcsv($file, []);
+
+                // ── Fisherfolk Activity ──────────────────────────────────────────────
+                fputcsv($file, ['FISHERFOLK ACTIVITY BREAKDOWN']);
+                fputcsv($file, ['Total Fisherfolk', $fisherfolkActivity['total_fisherfolk']]);
+                fputcsv($file, ['Activity', 'Count', 'Approved']);
+                foreach ($fisherfolkActivity['distribution'] as $act) {
+                    fputcsv($file, [$act->fisherfolk_activity, $act->count, $act->approved]);
+                }
+                if ($fisherfolkActivity['other_activities_specified']->isNotEmpty()) {
+                    fputcsv($file, []);
+                    fputcsv($file, ['Other Activities Specified', 'Count']);
+                    foreach ($fisherfolkActivity['other_activities_specified'] as $other) {
+                        fputcsv($file, [$other->fisherfolk_other_activity, $other->count]);
+                    }
+                }
+                fputcsv($file, []);
+
+                // ── Agri-youth Analysis ─────────────────────────────────────────────
+                fputcsv($file, ['AGRI-YOUTH ANALYSIS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Total Agri-youth',    $agriyouthAnalysis['total']]);
+                fputcsv($file, ['Male',                $agriyouthAnalysis['male_count']]);
+                fputcsv($file, ['Female',              $agriyouthAnalysis['female_count']]);
+                fputcsv($file, ['Approved',            $agriyouthAnalysis['approved']]);
+                fputcsv($file, ['Approval Rate',       $agriyouthAnalysis['approval_rate'] . '%']);
+                if ($agriyouthAnalysis['by_farming_household']->isNotEmpty()) {
+                    fputcsv($file, []);
+                    fputcsv($file, ['Farming Household', 'Count']);
+                    foreach ($agriyouthAnalysis['by_farming_household'] as $item) {
+                        fputcsv($file, [$item->agriyouth_farming_household, $item->count]);
+                    }
+                }
+                if ($agriyouthAnalysis['by_training']->isNotEmpty()) {
+                    fputcsv($file, []);
+                    fputcsv($file, ['Training', 'Count']);
+                    foreach ($agriyouthAnalysis['by_training'] as $item) {
+                        fputcsv($file, [$item->agriyouth_training, $item->count]);
+                    }
+                }
+                if ($agriyouthAnalysis['by_participation']->isNotEmpty()) {
+                    fputcsv($file, []);
+                    fputcsv($file, ['Participation', 'Count']);
+                    foreach ($agriyouthAnalysis['by_participation'] as $item) {
+                        fputcsv($file, [$item->agriyouth_participation, $item->count]);
+                    }
+                }
 
                 fclose($file);
             };

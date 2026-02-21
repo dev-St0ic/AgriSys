@@ -7,48 +7,62 @@
 @section('styles')
     <style>
         /* Category Tab Styles - From Supplies & Garden Tools */
-        .btn-outline-secondary {
+        .dss-nav-bar .btn {
             padding: 12px 24px;
-            background: #ffffff !important;
-            border: 2px solid #e0e0e0 !important;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             font-size: 0.95rem;
-            color: #555 !important;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            transform: none !important;
+        }
+
+        .dss-nav-bar .btn:hover,
+        .dss-nav-bar .btn:focus,
+        .dss-nav-bar .btn:active,
+        .dss-nav-bar .btn:focus-visible {
+            transform: none !important;
             box-shadow: none !important;
         }
 
-        .btn-outline-secondary:hover {
+        .dss-nav-bar .btn-outline-secondary {
+            background: #ffffff !important;
+            border: 2px solid #e0e0e0 !important;
+            color: #555 !important;
+        }
+
+        .dss-nav-bar .btn-outline-secondary:hover {
             background: #f8f9fa !important;
             border-color: #40916c !important;
             color: #40916c !important;
-            box-shadow: none !important;
         }
 
-        .btn-outline-secondary:focus,
-        .btn-outline-secondary:active,
-        .btn-outline-secondary:focus-visible {
+        .dss-nav-bar .btn-outline-secondary:focus,
+        .dss-nav-bar .btn-outline-secondary:active,
+        .dss-nav-bar .btn-outline-secondary:focus-visible {
             background: #f8f9fa !important;
             border-color: #40916c !important;
             color: #40916c !important;
-            box-shadow: none !important;
         }
 
-        .btn-success {
+        .dss-nav-bar .btn-success {
             background: linear-gradient(135deg, #40916c 0%, #52b788 100%) !important;
             color: #ffffff !important;
             border: 2px solid #40916c !important;
             box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3) !important;
         }
 
-        .btn-success:hover {
+        .dss-nav-bar .btn-success:hover,
+        .dss-nav-bar .btn-success:active,
+        .dss-nav-bar .btn-success:focus {
             background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%) !important;
             border-color: #2d6a4f !important;
+            color: #ffffff !important;
         }
+
         /* ─── Wrapper ─────────────────────────────────────────────── */
         .dss-nav-wrapper {
             background: #ffffff;
@@ -66,6 +80,7 @@
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
+
         .dss-nav-scroll::-webkit-scrollbar {
             display: none;
         }
@@ -100,8 +115,8 @@
             flex-shrink: 0;
             white-space: nowrap;
             transition: color 0.18s ease, background 0.18s ease,
-                        border-color 0.18s ease, box-shadow 0.18s ease,
-                        transform 0.18s ease;
+                border-color 0.18s ease, box-shadow 0.18s ease,
+                transform 0.18s ease;
         }
 
         .dss-nav-pill:hover {
@@ -137,6 +152,7 @@
         .dss-nav-pill.active .dss-nav-pill-icon {
             color: rgba(255, 255, 255, 0.95);
         }
+
         /* ─── Wrapper ─────────────────────────────────────────────── */
         .dss-filter-wrapper {
             background: #ffffff;
@@ -191,7 +207,8 @@
             transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
             outline: none;
             min-width: 150px;
-            appearance: auto; /* keeps native select arrow */
+            appearance: auto;
+            /* keeps native select arrow */
         }
 
         .dss-filter-form .filter-input:focus {
@@ -245,6 +262,7 @@
             color: #ffffff;
             box-shadow: 0 2px 8px rgba(45, 106, 79, 0.25);
         }
+
         .filter-btn-apply:hover {
             background: linear-gradient(135deg, #1e4d38 0%, #40916c 100%);
             box-shadow: 0 4px 14px rgba(45, 106, 79, 0.35);
@@ -258,11 +276,13 @@
             border: 1.5px solid #b7e4c7;
             box-shadow: 0 1px 4px rgba(45, 106, 79, 0.08);
         }
+
         .filter-btn-refresh:hover {
             background: #d8f3dc;
             box-shadow: 0 3px 10px rgba(45, 106, 79, 0.15);
             color: #1e4d38;
         }
+
         .filter-btn-refresh:disabled {
             opacity: 0.6;
             transform: none;
@@ -276,6 +296,7 @@
             border: 1.5px solid #b7e4c7;
             box-shadow: 0 1px 4px rgba(45, 106, 79, 0.08);
         }
+
         .filter-btn-export:hover,
         .filter-btn-export:focus,
         .filter-btn-export.show {
@@ -290,16 +311,20 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+
             .dss-filter-form .filter-divider {
                 display: none;
             }
+
             .dss-filter-form .filter-actions {
                 margin-left: 0;
             }
+
             .filter-btn {
                 justify-content: center;
             }
         }
+
         /* Toast Notification Container */
         .toast-container {
             position: fixed;
@@ -338,17 +363,48 @@
             gap: 10px;
         }
 
-        .toast-notification .toast-content i { font-size: 1.25rem; flex-shrink: 0; }
-        .toast-notification .toast-content span { flex: 1; color: #333; line-height: 1.4; }
+        .toast-notification .toast-content i {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
 
-        .toast-notification.toast-success { border-left: 4px solid #28a745; }
-        .toast-notification.toast-success .toast-content i { color: #28a745; }
-        .toast-notification.toast-error { border-left: 4px solid #dc3545; }
-        .toast-notification.toast-error .toast-content i { color: #dc3545; }
-        .toast-notification.toast-warning { border-left: 4px solid #ffc107; }
-        .toast-notification.toast-warning .toast-content i { color: #ffc107; }
-        .toast-notification.toast-info { border-left: 4px solid #17a2b8; }
-        .toast-notification.toast-info .toast-content i { color: #17a2b8; }
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i {
+            color: #17a2b8;
+        }
 
         .btn-close-toast {
             background: none;
@@ -360,7 +416,10 @@
             flex-shrink: 0;
             transition: opacity 0.2s;
         }
-        .btn-close-toast:hover { opacity: 1; }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
     </style>
 @endsection
 
@@ -383,40 +442,31 @@
         <!-- Service Navigation Tabs -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="dss-nav-wrapper">
-                    <div class="dss-nav-scroll">
-                        <nav class="dss-nav">
-                            <button class="dss-nav-pill {{ $service === 'comprehensive' ? 'active' : '' }}"
-                                id="comprehensive-tab" data-service="comprehensive" type="button">
-                                <span class="dss-nav-pill-icon"><i class="fas fa-boxes"></i></span>
-                                <span class="dss-nav-pill-label">Supplies Report</span>
-                            </button>
+                <div class="dss-nav-bar d-flex flex-wrap gap-2 justify-content-center">
+                    <button class="btn {{ $service === 'comprehensive' ? 'btn-success' : 'btn-outline-secondary' }}"
+                        id="comprehensive-tab" data-service="comprehensive" type="button">
+                        <i class="fas fa-boxes me-1"></i> Supplies Request Report
+                    </button>
 
-                            <button class="dss-nav-pill {{ $service === 'training' ? 'active' : '' }}"
-                                id="training-tab" data-service="training" type="button">
-                                <span class="dss-nav-pill-icon"><i class="fas fa-graduation-cap"></i></span>
-                                <span class="dss-nav-pill-label">Training Report</span>
-                            </button>
+                    <button class="btn {{ $service === 'training' ? 'btn-success' : 'btn-outline-secondary' }}"
+                        id="training-tab" data-service="training" type="button">
+                        <i class="fas fa-graduation-cap me-1"></i> Training Request Report
+                    </button>
 
-                            <button class="dss-nav-pill {{ $service === 'rsbsa' ? 'active' : '' }}"
-                                id="rsbsa-tab" data-service="rsbsa" type="button">
-                                <span class="dss-nav-pill-icon"><i class="fas fa-users"></i></span>
-                                <span class="dss-nav-pill-label">RSBSA Report</span>
-                            </button>
+                    <button class="btn {{ $service === 'rsbsa' ? 'btn-success' : 'btn-outline-secondary' }}" id="rsbsa-tab"
+                        data-service="rsbsa" type="button">
+                        <i class="fas fa-users me-1"></i> RSBSA Request Report
+                    </button>
 
-                            <button class="dss-nav-pill {{ $service === 'fishr' ? 'active' : '' }}"
-                                id="fishr-tab" data-service="fishr" type="button">
-                                <span class="dss-nav-pill-icon"><i class="fas fa-fish"></i></span>
-                                <span class="dss-nav-pill-label">FISHR Report</span>
-                            </button>
+                    <button class="btn {{ $service === 'fishr' ? 'btn-success' : 'btn-outline-secondary' }}" id="fishr-tab"
+                        data-service="fishr" type="button">
+                        <i class="fas fa-fish me-1"></i> FISHR Request Report
+                    </button>
 
-                            <button class="dss-nav-pill {{ $service === 'boatr' ? 'active' : '' }}"
-                                id="boatr-tab" data-service="boatr" type="button">
-                                <span class="dss-nav-pill-icon"><i class="fas fa-ship"></i></span>
-                                <span class="dss-nav-pill-label">BOATR Report</span>
-                            </button>
-                        </nav>
-                    </div>
+                    <button class="btn {{ $service === 'boatr' ? 'btn-success' : 'btn-outline-secondary' }}" id="boatr-tab"
+                        data-service="boatr" type="button">
+                        <i class="fas fa-ship me-1"></i> BOATR Request Report
+                    </button>
                 </div>
             </div>
         </div>
@@ -477,8 +527,8 @@
                             </button>
 
                             <div class="dropdown">
-                                <button class="filter-btn filter-btn-export dropdown-toggle"
-                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="filter-btn filter-btn-export dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-download"></i>
                                     Export Report
                                 </button>
@@ -586,13 +636,17 @@
             };
 
             // Service tab switching
-            const serviceTabs = document.querySelectorAll('.dss-nav-pill');
+            const serviceTabs = document.querySelectorAll('[data-service]');
             serviceTabs.forEach(tab => {
-                tab.addEventListener('click', function () {
-                    // Remove active from all pills
-                    serviceTabs.forEach(t => t.classList.remove('active'));
-                    // Add active to clicked pill
-                    this.classList.add('active');
+                tab.addEventListener('click', function() {
+                    // Reset all tabs to outlined style
+                    serviceTabs.forEach(t => {
+                        t.classList.remove('btn-success');
+                        t.classList.add('btn-outline-secondary');
+                    });
+                    // Set clicked tab to active filled style
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-success');
                     // Update hidden input
                     const selectedService = this.dataset.service;
                     serviceInput.value = selectedService;
@@ -715,9 +769,9 @@
             function showToast(message, type = 'info') {
                 const iconMap = {
                     success: 'fas fa-check-circle',
-                    error:   'fas fa-exclamation-circle',
+                    error: 'fas fa-exclamation-circle',
                     warning: 'fas fa-exclamation-triangle',
-                    info:    'fas fa-info-circle',
+                    info: 'fas fa-info-circle',
                 };
 
                 const container = document.getElementById('toastContainer');
@@ -734,7 +788,10 @@
 
                 container.appendChild(toast);
                 requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
-                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 5000);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
             }
 
             // Period form submission - use AJAX instead of page reload
