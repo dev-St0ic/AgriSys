@@ -299,6 +299,233 @@
         </div>
     </div>
 
+    {{-- ── Farmer Details ─────────────────────────────────────────────── --}}
+    <div class="row g-3 mb-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-tractor me-2 text-success"></i>Type of Farm</h5>
+                    <small class="text-muted">Farmers only &bull; {{ $farmerDetails['total_farmers'] }} total</small>
+                </div>
+                <div class="card-body">
+                    @forelse ($farmerDetails['by_type_of_farm'] as $item)
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium">{{ ucfirst($item->farmer_type_of_farm) }}</span>
+                            <span class="badge bg-success rounded-pill">{{ $item->count }}</span>
+                        </div>
+                    @empty
+                        <p class="text-muted text-center py-3">No data available</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2 text-warning"></i>Land Ownership</h5>
+                    <small class="text-muted">Farmers only</small>
+                </div>
+                <div class="card-body">
+                    @forelse ($farmerDetails['by_land_ownership'] as $item)
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium">{{ ucfirst($item->farmer_land_ownership) }}</span>
+                            <span class="badge bg-warning text-dark rounded-pill">{{ $item->count }}</span>
+                        </div>
+                    @empty
+                        <p class="text-muted text-center py-3">No data available</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-star me-2 text-info"></i>Special Status</h5>
+                    <small class="text-muted">Ancestral Domain / ARB</small>
+                </div>
+                <div class="card-body">
+                    @forelse ($farmerDetails['by_special_status'] as $item)
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium">{{ ucfirst($item->farmer_special_status) }}</span>
+                            <span class="badge bg-info rounded-pill">{{ $item->count }}</span>
+                        </div>
+                    @empty
+                        <p class="text-muted text-center py-3">No data available</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Farmer Crops & Farmworker Type ──────────────────────────────── --}}
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-seedling me-2 text-success"></i>Farmer Crops Breakdown</h5>
+                    <small class="text-muted">By crop type &bull; {{ $farmerCrops['total_crop_types'] }} types</small>
+                </div>
+                <div class="card-body">
+                    @forelse ($farmerCrops['distribution'] as $crop)
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-medium">{{ ucfirst($crop->farmer_crops) }}</span>
+                                <span class="badge bg-success rounded-pill">{{ $crop->count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span>Land: {{ round($crop->total_land, 2) }} ha</span>
+                                <span>Approved: {{ $crop->approved }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted text-center py-3">No crop data available</p>
+                    @endforelse
+                    @if ($farmerCrops['other_crops_specified']->isNotEmpty())
+                        <hr>
+                        <small class="text-muted fw-semibold">Other Crops Specified:</small>
+                        @foreach ($farmerCrops['other_crops_specified'] as $other)
+                            <div class="d-flex justify-content-between small mt-1">
+                                <span>{{ ucfirst($other->farmer_other_crops) }}</span>
+                                <span class="text-muted">{{ $other->count }}</span>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-hard-hat me-2 text-warning"></i>Farmworker Type</h5>
+                    <small class="text-muted">Farmworker/Laborer only &bull; {{ $farmworkerType['total_farmworkers'] }}
+                        total</small>
+                </div>
+                <div class="card-body">
+                    @forelse ($farmworkerType['distribution'] as $type)
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-medium">{{ ucfirst($type->farmworker_type) }}</span>
+                                <span class="badge bg-warning text-dark rounded-pill">{{ $type->count }}</span>
+                            </div>
+                            <div class="small text-muted">Approved: {{ $type->approved }} / {{ $type->count }}</div>
+                        </div>
+                    @empty
+                        <p class="text-muted text-center py-3">No farmworker data available</p>
+                    @endforelse
+                    @if ($farmworkerType['other_types_specified']->isNotEmpty())
+                        <hr>
+                        <small class="text-muted fw-semibold">Other Types Specified:</small>
+                        @foreach ($farmworkerType['other_types_specified'] as $other)
+                            <div class="d-flex justify-content-between small mt-1">
+                                <span>{{ ucfirst($other->farmworker_other_type) }}</span>
+                                <span class="text-muted">{{ $other->count }}</span>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Fisherfolk Activity & Agri-youth ────────────────────────────── --}}
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-fish me-2 text-info"></i>Fisherfolk Activity</h5>
+                    <small class="text-muted">RSBSA Fisherfolk &bull; {{ $fisherfolkActivity['total_fisherfolk'] }}
+                        total</small>
+                </div>
+                <div class="card-body">
+                    @forelse ($fisherfolkActivity['distribution'] as $activity)
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-medium">{{ ucfirst($activity->fisherfolk_activity) }}</span>
+                                <span class="badge bg-info rounded-pill">{{ $activity->count }}</span>
+                            </div>
+                            <div class="small text-muted">Approved: {{ $activity->approved }} / {{ $activity->count }}
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted text-center py-3">No fisherfolk activity data available</p>
+                    @endforelse
+                    @if ($fisherfolkActivity['other_activities_specified']->isNotEmpty())
+                        <hr>
+                        <small class="text-muted fw-semibold">Other Activities Specified:</small>
+                        @foreach ($fisherfolkActivity['other_activities_specified'] as $other)
+                            <div class="d-flex justify-content-between small mt-1">
+                                <span>{{ ucfirst($other->fisherfolk_other_activity) }}</span>
+                                <span class="text-muted">{{ $other->count }}</span>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-user-graduate me-2 text-primary"></i>Agri-Youth Analysis
+                    </h5>
+                    <small class="text-muted">{{ $agriyouthAnalysis['total'] }} total &bull;
+                        {{ $agriyouthAnalysis['approval_rate'] }}% approval</small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <div class="text-center bg-light rounded p-2">
+                                <div class="h5 text-primary mb-0">{{ $agriyouthAnalysis['total'] }}</div>
+                                <small class="text-muted">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center bg-light rounded p-2">
+                                <div class="h5 text-info mb-0">{{ $agriyouthAnalysis['male_count'] }}</div>
+                                <small class="text-muted">Male</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center bg-light rounded p-2">
+                                <div class="h5 text-danger mb-0">{{ $agriyouthAnalysis['female_count'] }}</div>
+                                <small class="text-muted">Female</small>
+                            </div>
+                        </div>
+                    </div>
+                    @if ($agriyouthAnalysis['by_farming_household']->isNotEmpty())
+                        <h6 class="fw-semibold text-muted">Farming Household</h6>
+                        @foreach ($agriyouthAnalysis['by_farming_household'] as $item)
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>{{ ucfirst($item->agriyouth_farming_household) }}</span>
+                                <span class="badge bg-primary rounded-pill">{{ $item->count }}</span>
+                            </div>
+                        @endforeach
+                    @endif
+                    @if ($agriyouthAnalysis['by_training']->isNotEmpty())
+                        <h6 class="fw-semibold text-muted mt-2">Training</h6>
+                        @foreach ($agriyouthAnalysis['by_training'] as $item)
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>{{ ucfirst($item->agriyouth_training) }}</span>
+                                <span class="badge bg-success rounded-pill">{{ $item->count }}</span>
+                            </div>
+                        @endforeach
+                    @endif
+                    @if ($agriyouthAnalysis['by_participation']->isNotEmpty())
+                        <h6 class="fw-semibold text-muted mt-2">Participation</h6>
+                        @foreach ($agriyouthAnalysis['by_participation'] as $item)
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>{{ ucfirst($item->agriyouth_participation) }}</span>
+                                <span class="badge bg-warning text-dark rounded-pill">{{ $item->count }}</span>
+                            </div>
+                        @endforeach
+                    @endif
+                    @if ($agriyouthAnalysis['total'] === 0)
+                        <p class="text-muted text-center py-3">No agri-youth data available</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="rsbsaInsightsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">

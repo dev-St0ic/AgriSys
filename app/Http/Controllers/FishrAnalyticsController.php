@@ -20,50 +20,54 @@ class FishrAnalyticsController extends Controller
             // Date range filter with better defaults
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             // Base query with date range
             $baseQuery = FishrApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
             // 1. Overview Statistics
             $overview = $this->getOverviewStatistics(clone $baseQuery);
-            
+
             // 2. Application Status Analysis
             $statusAnalysis = $this->getStatusAnalysis(clone $baseQuery);
-            
+
             // 3. Monthly Trends
             $monthlyTrends = $this->getMonthlyTrends($startDate, $endDate);
-            
+
             // 4. Barangay Analysis
             $barangayAnalysis = $this->getBarangayAnalysis(clone $baseQuery);
-            
+
             // 5. Livelihood Analysis
             $livelihoodAnalysis = $this->getLivelihoodAnalysis(clone $baseQuery);
-            
+
+            // 5b. Secondary Livelihood Analysis
+            $secondaryLivelihoodAnalysis = $this->getSecondaryLivelihoodAnalysis(clone $baseQuery);
+
             // 6. Gender Distribution Analysis
             $genderAnalysis = $this->getGenderAnalysis(clone $baseQuery);
-            
+
             // 7. Application Processing Time Analysis
             $processingTimeAnalysis = $this->getProcessingTimeAnalysis(clone $baseQuery);
-            
+
             // 8. Registration Patterns
             $registrationPatterns = $this->getRegistrationPatterns(clone $baseQuery);
-            
+
             // 9. Document Submission Analysis
             $documentAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
-            
+
             // 10. Monthly Performance Metrics
             $performanceMetrics = $this->getPerformanceMetrics(clone $baseQuery);
-            
+
             return view('admin.analytics.fishr', compact(
                 'overview',
                 'statusAnalysis',
                 'monthlyTrends',
                 'barangayAnalysis',
                 'livelihoodAnalysis',
+                'secondaryLivelihoodAnalysis',
                 'genderAnalysis',
                 'processingTimeAnalysis',
                 'registrationPatterns',
@@ -79,7 +83,7 @@ class FishrAnalyticsController extends Controller
             return back()->with('error', 'Error loading FISHR analytics data. Please try again.');
         }
     }
-    
+
     /**
      * Get overview statistics
      */
@@ -90,23 +94,23 @@ class FishrAnalyticsController extends Controller
             $approved = (clone $baseQuery)->where('status', 'approved')->count();
             $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
             $pending = (clone $baseQuery)->where('status', 'under_review')->count();
-            
+
             // Count unique applicants safely
             $uniqueApplicants = (clone $baseQuery)
                 ->select(DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"))
                 ->distinct()
                 ->whereNotNull('first_name')
                 ->count();
-                
+
             // Count active barangays
             $activeBarangays = (clone $baseQuery)->whereNotNull('barangay')->distinct()->count('barangay');
-            
+
             // Count applications with documents
             $withDocuments = (clone $baseQuery)->whereNotNull('document_path')->where('document_path', '!=', '')->count();
-            
+
             // Count unique livelihoods
             $uniqueLivelihoods = (clone $baseQuery)->whereNotNull('main_livelihood')->distinct()->count('main_livelihood');
-            
+
             return [
                 'total_applications' => $total,
                 'approved_applications' => $approved,
@@ -124,7 +128,7 @@ class FishrAnalyticsController extends Controller
             return $this->getDefaultOverview();
         }
     }
-    
+
     /**
      * Get status analysis with trends
      */
@@ -135,18 +139,18 @@ class FishrAnalyticsController extends Controller
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray();
-                
+
             // Ensure all statuses are present with default values
             $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'under_review' => 0];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
-                
+
             // Add percentage calculations
             $total = array_sum($statusCounts);
             $statusPercentages = [];
             foreach ($statusCounts as $status => $count) {
                 $statusPercentages[$status] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
             }
-            
+
             return [
                 'counts' => $statusCounts,
                 'percentages' => $statusPercentages,
@@ -161,7 +165,7 @@ class FishrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get monthly trends
      */
@@ -181,14 +185,14 @@ class FishrAnalyticsController extends Controller
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
-                
+
             return $trends;
         } catch (\Exception $e) {
             Log::error('FISHR Monthly Trends Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get barangay analysis
      */
@@ -209,14 +213,55 @@ class FishrAnalyticsController extends Controller
                 ->groupBy('barangay')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $barangayStats;
         } catch (\Exception $e) {
             Log::error('FISHR Barangay Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
+    /**
+     * Get secondary livelihood analysis
+     */
+    private function getSecondaryLivelihoodAnalysis($baseQuery)
+    {
+        try {
+            $stats = (clone $baseQuery)->select(
+                    'secondary_livelihood',
+                    DB::raw('COUNT(*) as total_applications'),
+                    DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
+                    DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected')
+                )
+                ->whereNotNull('secondary_livelihood')
+                ->where('secondary_livelihood', '!=', '')
+                ->groupBy('secondary_livelihood')
+                ->orderBy('total_applications', 'desc')
+                ->get();
+
+            $totalWithSecondary = (clone $baseQuery)
+                ->whereNotNull('secondary_livelihood')
+                ->where('secondary_livelihood', '!=', '')
+                ->count();
+
+            $totalWithBoth = (clone $baseQuery)
+                ->whereNotNull('main_livelihood')
+                ->where('main_livelihood', '!=', '')
+                ->whereNotNull('secondary_livelihood')
+                ->where('secondary_livelihood', '!=', '')
+                ->count();
+
+            return [
+                'stats' => $stats,
+                'total_with_secondary' => $totalWithSecondary,
+                'total_with_both' => $totalWithBoth,
+            ];
+        } catch (\Exception $e) {
+            Log::error('FISHR Secondary Livelihood Analysis Error: ' . $e->getMessage());
+            return ['stats' => collect([]), 'total_with_secondary' => 0, 'total_with_both' => 0];
+        }
+    }
+
     /**
      * Get livelihood analysis
      */
@@ -229,7 +274,7 @@ class FishrAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
                     DB::raw('COUNT(DISTINCT barangay) as barangays_served'),
-                    DB::raw('AVG(CASE WHEN status_updated_at IS NOT NULL AND created_at IS NOT NULL 
+                    DB::raw('AVG(CASE WHEN status_updated_at IS NOT NULL AND created_at IS NOT NULL
                              THEN DATEDIFF(status_updated_at, created_at) END) as avg_processing_days')
                 )
                 ->whereNotNull('main_livelihood')
@@ -237,14 +282,14 @@ class FishrAnalyticsController extends Controller
                 ->groupBy('main_livelihood')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $livelihoodStats;
         } catch (\Exception $e) {
             Log::error('FISHR Livelihood Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get gender distribution analysis
      */
@@ -262,14 +307,14 @@ class FishrAnalyticsController extends Controller
                 ->where('sex', '!=', '')
                 ->groupBy('sex')
                 ->get();
-                
+
             $total = $genderStats->sum('total_applications');
-            
+
             $genderPercentages = [];
             foreach ($genderStats as $stat) {
                 $genderPercentages[$stat->sex] = $total > 0 ? round(($stat->total_applications / $total) * 100, 2) : 0;
             }
-            
+
             return [
                 'stats' => $genderStats,
                 'percentages' => $genderPercentages,
@@ -284,7 +329,7 @@ class FishrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get processing time analysis
      */
@@ -292,7 +337,7 @@ class FishrAnalyticsController extends Controller
     {
         try {
             $processedApplications = (clone $baseQuery)->whereNotNull('status_updated_at')->get();
-            
+
             $processingTimes = [];
             foreach ($processedApplications as $application) {
                 if ($application->status_updated_at && $application->created_at) {
@@ -301,7 +346,7 @@ class FishrAnalyticsController extends Controller
                     $processingTimes[] = $processingTime;
                 }
             }
-            
+
             if (empty($processingTimes)) {
                 return [
                     'avg_processing_days' => 0,
@@ -311,13 +356,13 @@ class FishrAnalyticsController extends Controller
                     'median_processing_days' => 0
                 ];
             }
-            
+
             sort($processingTimes);
             $count = count($processingTimes);
-            $median = $count % 2 === 0 
-                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2 
+            $median = $count % 2 === 0
+                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2
                 : $processingTimes[floor($count/2)];
-            
+
             return [
                 'avg_processing_days' => round(array_sum($processingTimes) / count($processingTimes), 2),
                 'min_processing_days' => min($processingTimes),
@@ -336,7 +381,7 @@ class FishrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get registration patterns (day of week, time patterns)
      */
@@ -351,7 +396,7 @@ class FishrAnalyticsController extends Controller
                 ->groupBy('day_name', 'day_number')
                 ->orderBy('day_number')
                 ->get();
-                
+
             $hourlyStats = (clone $baseQuery)->select(
                     DB::raw('HOUR(created_at) as hour'),
                     DB::raw('COUNT(*) as applications_count')
@@ -359,7 +404,7 @@ class FishrAnalyticsController extends Controller
                 ->groupBy('hour')
                 ->orderBy('hour')
                 ->get();
-                
+
             return [
                 'day_of_week' => $dayOfWeekStats,
                 'hourly' => $hourlyStats
@@ -372,7 +417,7 @@ class FishrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get document submission analysis
      */
@@ -383,23 +428,23 @@ class FishrAnalyticsController extends Controller
             $withoutDocs = (clone $baseQuery)->where(function($q) {
                 $q->whereNull('document_path')->orWhere('document_path', '');
             })->count();
-            
+
             $total = $withDocs + $withoutDocs;
-            
+
             // Approval rates by document submission
             $approvalWithDocs = (clone $baseQuery)
                 ->whereNotNull('document_path')
                 ->where('document_path', '!=', '')
                 ->where('status', 'approved')
                 ->count();
-                
+
             $approvalWithoutDocs = (clone $baseQuery)
                 ->where(function($q) {
                     $q->whereNull('document_path')->orWhere('document_path', '');
                 })
                 ->where('status', 'approved')
                 ->count();
-            
+
             return [
                 'with_documents' => $withDocs,
                 'without_documents' => $withoutDocs,
@@ -420,7 +465,7 @@ class FishrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get performance metrics
      */
@@ -428,25 +473,25 @@ class FishrAnalyticsController extends Controller
     {
         try {
             $metrics = [];
-            
+
             // Overall completion rate
             $total = (clone $baseQuery)->count();
             $completed = (clone $baseQuery)->whereIn('status', ['approved', 'rejected'])->count();
             $metrics['completion_rate'] = $total > 0 ? round(($completed / $total) * 100, 2) : 0;
-            
+
             // Average applications per day
             $dateRange = (clone $baseQuery)->selectRaw('DATEDIFF(MAX(created_at), MIN(created_at)) + 1 as days')->first();
             $totalDays = $dateRange ? $dateRange->days : 1;
             $metrics['avg_applications_per_day'] = round($total / max(1, $totalDays), 2);
-            
+
             // Quality score (based on document submission and approval rates)
             $overview = $this->getOverviewStatistics(clone $baseQuery);
             $docAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
             $metrics['quality_score'] = round(
-                ($overview['approval_rate'] * 0.6) + 
+                ($overview['approval_rate'] * 0.6) +
                 ($docAnalysis['submission_rate'] * 0.4), 2
             );
-            
+
             return $metrics;
         } catch (\Exception $e) {
             Log::error('FISHR Performance Metrics Error: ' . $e->getMessage());
@@ -457,7 +502,7 @@ class FishrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Calculate approval rate
      */
@@ -465,7 +510,7 @@ class FishrAnalyticsController extends Controller
     {
         return $total > 0 ? round(($approved / $total) * 100, 2) : 0;
     }
-    
+
     /**
      * Get default overview when errors occur
      */
@@ -484,7 +529,7 @@ class FishrAnalyticsController extends Controller
             'unique_livelihoods' => 0
         ];
     }
-    
+
     /**
      * Export analytics data
      */
@@ -514,6 +559,7 @@ class FishrAnalyticsController extends Controller
             $monthlyTrends       = $this->getMonthlyTrends($startDate, $endDate);
             $barangayAnalysis    = $this->getBarangayAnalysis(clone $baseQuery);
             $livelihoodAnalysis  = $this->getLivelihoodAnalysis(clone $baseQuery);
+            $secondaryLivelihoodAnalysis = $this->getSecondaryLivelihoodAnalysis(clone $baseQuery);
             $genderAnalysis      = $this->getGenderAnalysis(clone $baseQuery);
             $processingTime      = $this->getProcessingTimeAnalysis(clone $baseQuery);
             $documentAnalysis    = $this->getDocumentAnalysis(clone $baseQuery);
@@ -521,8 +567,8 @@ class FishrAnalyticsController extends Controller
 
             $callback = function () use (
                 $startDate, $endDate, $overview, $statusAnalysis, $monthlyTrends,
-                $barangayAnalysis, $livelihoodAnalysis, $genderAnalysis,
-                $processingTime, $documentAnalysis, $performanceMetrics
+                $barangayAnalysis, $livelihoodAnalysis, $secondaryLivelihoodAnalysis,
+                $genderAnalysis, $processingTime, $documentAnalysis, $performanceMetrics
             ) {
                 $file = fopen('php://output', 'w');
 
@@ -606,7 +652,21 @@ class FishrAnalyticsController extends Controller
                     ]);
                 }
                 fputcsv($file, []);
-
+                // ── Secondary Livelihood Analysis ───────────────────────
+                fputcsv($file, ['SECONDARY LIVELIHOOD ANALYSIS']);
+                fputcsv($file, ['Fishers with Secondary Livelihood', $secondaryLivelihoodAnalysis['total_with_secondary']]);
+                fputcsv($file, ['Fishers with Both Main & Secondary', $secondaryLivelihoodAnalysis['total_with_both']]);
+                fputcsv($file, []);
+                fputcsv($file, ['Secondary Livelihood', 'Total Applications', 'Approved', 'Rejected']);
+                foreach ($secondaryLivelihoodAnalysis['stats'] as $item) {
+                    fputcsv($file, [
+                        $item->secondary_livelihood,
+                        $item->total_applications,
+                        $item->approved,
+                        $item->rejected,
+                    ]);
+                }
+                fputcsv($file, []);
                 // ── Gender Analysis ───────────────────────────────────
                 fputcsv($file, ['GENDER ANALYSIS']);
                 fputcsv($file, ['Gender', 'Total Applications', 'Approved', 'Rejected', 'Barangays Represented', 'Percentage']);

@@ -20,50 +20,56 @@ class BoatrAnalyticsController extends Controller
             // Date range filter with better defaults
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             // Base query with date range
             $baseQuery = BoatrApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
             // 1. Overview Statistics
             $overview = $this->getOverviewStatistics(clone $baseQuery);
-            
+
             // 2. Application Status Analysis
             $statusAnalysis = $this->getStatusAnalysis(clone $baseQuery);
-            
+
             // 3. Monthly Trends
             $monthlyTrends = $this->getMonthlyTrends($startDate, $endDate);
-            
+
             // 4. Boat Type Analysis
             $boatTypeAnalysis = $this->getBoatTypeAnalysis(clone $baseQuery);
-            
+
             // 5. Fishing Gear Analysis
             $fishingGearAnalysis = $this->getFishingGearAnalysis(clone $baseQuery);
-            
+
             // 6. Vessel Size Analysis
             $vesselSizeAnalysis = $this->getVesselSizeAnalysis(clone $baseQuery);
-            
+
             // 7. Application Processing Time Analysis
             $processingTimeAnalysis = $this->getProcessingTimeAnalysis(clone $baseQuery);
-            
+
             // 8. Registration Patterns
             $registrationPatterns = $this->getRegistrationPatterns(clone $baseQuery);
-            
+
             // 9. Document Submission Analysis
             $documentAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
-            
+
             // 10. Monthly Performance Metrics
             $performanceMetrics = $this->getPerformanceMetrics(clone $baseQuery);
-            
+
             // 11. Inspection Analysis
             $inspectionAnalysis = $this->getInspectionAnalysis(clone $baseQuery);
-            
+
             // 12. Engine Analysis
             $engineAnalysis = $this->getEngineAnalysis(clone $baseQuery);
-            
+
+            // 13. Motorized / Non-Motorized Analysis
+            $motorizedAnalysis = $this->getMotorizedAnalysis(clone $baseQuery);
+
+            // 14. Fishers with Multiple BoatR Registrations
+            $multipleRegistrationsAnalysis = $this->getMultipleRegistrationsAnalysis(clone $baseQuery);
+
             return view('admin.analytics.boatr', compact(
                 'overview',
                 'statusAnalysis',
@@ -77,6 +83,8 @@ class BoatrAnalyticsController extends Controller
                 'performanceMetrics',
                 'inspectionAnalysis',
                 'engineAnalysis',
+                'motorizedAnalysis',
+                'multipleRegistrationsAnalysis',
                 'startDate',
                 'endDate'
             ));
@@ -87,7 +95,7 @@ class BoatrAnalyticsController extends Controller
             return back()->with('error', 'Error loading BOATR analytics data. Please try again.');
         }
     }
-    
+
     /**
      * Get overview statistics
      */
@@ -98,26 +106,26 @@ class BoatrAnalyticsController extends Controller
             $approved = (clone $baseQuery)->where('status', 'approved')->count();
             $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
             $pending = (clone $baseQuery)->whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count();
-            
+
             // Count unique applicants safely
             $uniqueApplicants = (clone $baseQuery)
                 ->select(DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"))
                 ->distinct()
                 ->whereNotNull('first_name')
                 ->count();
-                
+
             // Count unique vessels
             $uniqueVessels = (clone $baseQuery)->whereNotNull('vessel_name')->distinct()->count('vessel_name');
-            
+
             // Count applications with user documents
             $withUserDocuments = (clone $baseQuery)->whereNotNull('user_document_path')->where('user_document_path', '!=', '')->count();
-            
+
             // Count inspections completed
             $inspectionsCompleted = (clone $baseQuery)->where('inspection_completed', true)->count();
-            
+
             // Count unique boat types
             $uniqueBoatTypes = (clone $baseQuery)->whereNotNull('boat_type')->distinct()->count('boat_type');
-            
+
             return [
                 'total_applications' => $total,
                 'approved_applications' => $approved,
@@ -137,7 +145,7 @@ class BoatrAnalyticsController extends Controller
             return $this->getDefaultOverview();
         }
     }
-    
+
     /**
      * Get status analysis with trends
      */
@@ -148,26 +156,26 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray();
-                
+
             // Ensure all statuses are present with default values
             $defaultStatuses = [
-                'pending' => 0, 
-                'under_review' => 0, 
+                'pending' => 0,
+                'under_review' => 0,
                 'inspection_scheduled' => 0,
                 'inspection_required' => 0,
                 'documents_pending' => 0,
-                'approved' => 0, 
+                'approved' => 0,
                 'rejected' => 0
             ];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
-                
+
             // Add percentage calculations
             $total = array_sum($statusCounts);
             $statusPercentages = [];
             foreach ($statusCounts as $status => $count) {
                 $statusPercentages[$status] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
             }
-            
+
             return [
                 'counts' => $statusCounts,
                 'percentages' => $statusPercentages,
@@ -190,7 +198,7 @@ class BoatrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get monthly trends
      */
@@ -211,14 +219,89 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
-                
+
             return $trends;
         } catch (\Exception $e) {
             Log::error('BOATR Monthly Trends Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
+    /**
+     * Get motorized vs non-motorized analysis by boat_classification
+     */
+    private function getMotorizedAnalysis($baseQuery)
+    {
+        try {
+            $classificationStats = (clone $baseQuery)->select(
+                    'boat_classification',
+                    DB::raw('COUNT(*) as total_applications'),
+                    DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
+                    DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
+                    DB::raw('SUM(CASE WHEN inspection_completed = 1 THEN 1 ELSE 0 END) as inspections_completed'),
+                    DB::raw('AVG(engine_horsepower) as avg_horsepower')
+                )
+                ->whereNotNull('boat_classification')
+                ->where('boat_classification', '!=', '')
+                ->groupBy('boat_classification')
+                ->orderBy('total_applications', 'desc')
+                ->get();
+
+            $total = $classificationStats->sum('total_applications');
+
+            $classificationStats = $classificationStats->map(function ($item) use ($total) {
+                $item->percentage = $total > 0 ? round(($item->total_applications / $total) * 100, 1) : 0;
+                $item->approval_rate = $item->total_applications > 0
+                    ? round(($item->approved / $item->total_applications) * 100, 1)
+                    : 0;
+                return $item;
+            });
+
+            return [
+                'stats' => $classificationStats,
+                'total' => $total,
+                'motorized_count' => $classificationStats->where('boat_classification', 'Motorized')->sum('total_applications'),
+                'non_motorized_count' => $classificationStats->where('boat_classification', 'Non-motorized')->sum('total_applications'),
+            ];
+        } catch (\Exception $e) {
+            Log::error('BOATR Motorized Analysis Error: ' . $e->getMessage());
+            return ['stats' => collect([]), 'total' => 0, 'motorized_count' => 0, 'non_motorized_count' => 0];
+        }
+    }
+
+    /**
+     * Get fishers with multiple BoatR registrations
+     */
+    private function getMultipleRegistrationsAnalysis($baseQuery)
+    {
+        try {
+            // Group by fishr_number to find fishers with >1 boat registration
+            $byFishrNumber = (clone $baseQuery)
+                ->whereNotNull('fishr_number')
+                ->where('fishr_number', '!=', '')
+                ->select('fishr_number', DB::raw('COUNT(*) as boat_count'))
+                ->groupBy('fishr_number')
+                ->having('boat_count', '>', 1)
+                ->orderBy('boat_count', 'desc')
+                ->get();
+
+            $fishersWithMultiple = $byFishrNumber->count();
+            $totalExtraBoats = $byFishrNumber->sum(function ($row) {
+                return $row->boat_count - 1;
+            });
+
+            return [
+                'fishers_with_multiple' => $fishersWithMultiple,
+                'total_extra_boats' => $totalExtraBoats,
+                'details' => $byFishrNumber->take(10),
+                'max_boats_per_fisher' => $byFishrNumber->max('boat_count') ?? 0,
+            ];
+        } catch (\Exception $e) {
+            Log::error('BOATR Multiple Registrations Analysis Error: ' . $e->getMessage());
+            return ['fishers_with_multiple' => 0, 'total_extra_boats' => 0, 'details' => collect([]), 'max_boats_per_fisher' => 0];
+        }
+    }
+
     /**
      * Get boat type analysis
      */
@@ -242,14 +325,14 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('boat_type')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $boatTypeStats;
         } catch (\Exception $e) {
             Log::error('BOATR Boat Type Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get fishing gear analysis - simplified version
      */
@@ -257,7 +340,7 @@ class BoatrAnalyticsController extends Controller
     {
         try {
             Log::info('BOATR Fishing Gear Analysis - Starting analysis');
-            
+
             // Get the main fishing gear statistics
             $fishingGearStats = (clone $baseQuery)->select(
                     'primary_fishing_gear',
@@ -271,9 +354,9 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('primary_fishing_gear')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-            
+
             Log::info('BOATR Fishing Gear Analysis - Found ' . $fishingGearStats->count() . ' gear types');
-            
+
             // Add percentage calculations for each gear type
             $totalApplications = $fishingGearStats->sum('total_applications');
             $fishingGearStats = $fishingGearStats->map(function($gear) use ($totalApplications) {
@@ -281,19 +364,19 @@ class BoatrAnalyticsController extends Controller
                 $gear->approval_rate = $gear->total_applications > 0 ? round(($gear->approved / $gear->total_applications) * 100, 1) : 0;
                 return $gear;
             });
-            
+
             return $fishingGearStats;
-            
+
         } catch (\Exception $e) {
             Log::error('BOATR Fishing Gear Analysis Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Return empty collection on error
             return collect([]);
         }
     }
-    
+
     /**
      * Get vessel size analysis
      */
@@ -306,7 +389,7 @@ class BoatrAnalyticsController extends Controller
                 ->whereNotNull('boat_depth')
                 ->select(
                     DB::raw('
-                        CASE 
+                        CASE
                             WHEN boat_length <= 10 THEN "Small (≤10ft)"
                             WHEN boat_length <= 20 THEN "Medium (11-20ft)"
                             WHEN boat_length <= 30 THEN "Large (21-30ft)"
@@ -324,14 +407,14 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('size_category')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $vesselSizeStats;
         } catch (\Exception $e) {
             Log::error('BOATR Vessel Size Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get processing time analysis
      */
@@ -339,7 +422,7 @@ class BoatrAnalyticsController extends Controller
     {
         try {
             $processedApplications = (clone $baseQuery)->whereNotNull('reviewed_at')->get();
-            
+
             $processingTimes = [];
             foreach ($processedApplications as $application) {
                 if ($application->reviewed_at && $application->created_at) {
@@ -348,7 +431,7 @@ class BoatrAnalyticsController extends Controller
                     $processingTimes[] = $processingTime;
                 }
             }
-            
+
             if (empty($processingTimes)) {
                 return [
                     'avg_processing_days' => 0,
@@ -358,13 +441,13 @@ class BoatrAnalyticsController extends Controller
                     'median_processing_days' => 0
                 ];
             }
-            
+
             sort($processingTimes);
             $count = count($processingTimes);
-            $median = $count % 2 === 0 
-                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2 
+            $median = $count % 2 === 0
+                ? ($processingTimes[$count/2 - 1] + $processingTimes[$count/2]) / 2
                 : $processingTimes[floor($count/2)];
-            
+
             return [
                 'avg_processing_days' => round(array_sum($processingTimes) / count($processingTimes), 2),
                 'min_processing_days' => min($processingTimes),
@@ -383,7 +466,7 @@ class BoatrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get registration patterns (day of week, time patterns)
      */
@@ -398,7 +481,7 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('day_name', 'day_number')
                 ->orderBy('day_number')
                 ->get();
-                
+
             $hourlyStats = (clone $baseQuery)->select(
                     DB::raw('HOUR(created_at) as hour'),
                     DB::raw('COUNT(*) as applications_count')
@@ -406,7 +489,7 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('hour')
                 ->orderBy('hour')
                 ->get();
-                
+
             return [
                 'day_of_week' => $dayOfWeekStats,
                 'hourly' => $hourlyStats
@@ -419,7 +502,7 @@ class BoatrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get document submission analysis
      */
@@ -430,26 +513,26 @@ class BoatrAnalyticsController extends Controller
             $withoutUserDocs = (clone $baseQuery)->where(function($q) {
                 $q->whereNull('user_document_path')->orWhere('user_document_path', '');
             })->count();
-            
+
             $withInspectionDocs = (clone $baseQuery)->whereNotNull('inspection_documents')->count();
             $withoutInspectionDocs = (clone $baseQuery)->whereNull('inspection_documents')->count();
-            
+
             $total = $withUserDocs + $withoutUserDocs;
-            
+
             // Approval rates by document submission
             $approvalWithUserDocs = (clone $baseQuery)
                 ->whereNotNull('user_document_path')
                 ->where('user_document_path', '!=', '')
                 ->where('status', 'approved')
                 ->count();
-                
+
             $approvalWithoutUserDocs = (clone $baseQuery)
                 ->where(function($q) {
                     $q->whereNull('user_document_path')->orWhere('user_document_path', '');
                 })
                 ->where('status', 'approved')
                 ->count();
-            
+
             return [
                 'with_user_documents' => $withUserDocs,
                 'without_user_documents' => $withoutUserDocs,
@@ -476,7 +559,7 @@ class BoatrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get inspection analysis
      */
@@ -487,7 +570,7 @@ class BoatrAnalyticsController extends Controller
             $inspectionsCompleted = (clone $baseQuery)->where('inspection_completed', true)->count();
             $inspectionsScheduled = (clone $baseQuery)->where('status', 'inspection_scheduled')->count();
             $inspectionsRequired = (clone $baseQuery)->where('status', 'inspection_required')->count();
-            
+
             // Average inspection time
             $inspectionTimes = (clone $baseQuery)
                 ->whereNotNull('inspection_date')
@@ -496,9 +579,9 @@ class BoatrAnalyticsController extends Controller
                 ->pluck('days_to_inspection')
                 ->filter()
                 ->toArray();
-            
+
             $avgInspectionTime = !empty($inspectionTimes) ? round(array_sum($inspectionTimes) / count($inspectionTimes), 2) : 0;
-            
+
             // Inspector workload
             $inspectorWorkload = (clone $baseQuery)
                 ->whereNotNull('inspected_by')
@@ -507,7 +590,7 @@ class BoatrAnalyticsController extends Controller
                 ->with('inspector:id,name')
                 ->orderBy('inspections_count', 'desc')
                 ->get();
-            
+
             return [
                 'total_inspectable' => $totalInspectable,
                 'inspections_completed' => $inspectionsCompleted,
@@ -530,7 +613,7 @@ class BoatrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get engine analysis
      */
@@ -552,14 +635,14 @@ class BoatrAnalyticsController extends Controller
                 ->groupBy('engine_type')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+
             return $engineStats;
         } catch (\Exception $e) {
             Log::error('BOATR Engine Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get performance metrics
      */
@@ -567,34 +650,34 @@ class BoatrAnalyticsController extends Controller
     {
         try {
             $metrics = [];
-            
+
             // Overall completion rate
             $total = (clone $baseQuery)->count();
             $completed = (clone $baseQuery)->whereIn('status', ['approved', 'rejected'])->count();
             $metrics['completion_rate'] = $total > 0 ? round(($completed / $total) * 100, 2) : 0;
-            
+
             // Average applications per day
             $dateRange = (clone $baseQuery)->selectRaw('DATEDIFF(MAX(created_at), MIN(created_at)) + 1 as days')->first();
             $totalDays = $dateRange ? $dateRange->days : 1;
             $metrics['avg_applications_per_day'] = round($total / max(1, $totalDays), 2);
-            
+
             // Quality score (based on document submission, inspection completion, and approval rates)
             $overview = $this->getOverviewStatistics(clone $baseQuery);
             $docAnalysis = $this->getDocumentAnalysis(clone $baseQuery);
             $inspectionAnalysis = $this->getInspectionAnalysis(clone $baseQuery);
-            
+
             $metrics['quality_score'] = round(
-                ($overview['approval_rate'] * 0.4) + 
+                ($overview['approval_rate'] * 0.4) +
                 ($docAnalysis['user_doc_submission_rate'] * 0.3) +
                 ($inspectionAnalysis['completion_rate'] * 0.3), 2
             );
-            
+
             // Efficiency score
             $metrics['efficiency_score'] = round(
-                ($metrics['completion_rate'] * 0.5) + 
+                ($metrics['completion_rate'] * 0.5) +
                 (min(100, (14 - $this->getProcessingTimeAnalysis(clone $baseQuery)['avg_processing_days']) / 14 * 100) * 0.5), 2
             );
-            
+
             return $metrics;
         } catch (\Exception $e) {
             Log::error('BOATR Performance Metrics Error: ' . $e->getMessage());
@@ -606,7 +689,7 @@ class BoatrAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Calculate approval rate
      */
@@ -614,7 +697,7 @@ class BoatrAnalyticsController extends Controller
     {
         return $total > 0 ? round(($approved / $total) * 100, 2) : 0;
     }
-    
+
     /**
      * Get default overview when errors occur
      */
@@ -635,7 +718,7 @@ class BoatrAnalyticsController extends Controller
             'inspection_completion_rate' => 0
         ];
     }
-    
+
     /**
      * Export analytics data
      */
@@ -671,12 +754,15 @@ class BoatrAnalyticsController extends Controller
             $inspectionAnalysis = $this->getInspectionAnalysis(clone $baseQuery);
             $engineAnalysis     = $this->getEngineAnalysis(clone $baseQuery);
             $performanceMetrics = $this->getPerformanceMetrics(clone $baseQuery);
+            $motorizedAnalysis  = $this->getMotorizedAnalysis(clone $baseQuery);
+            $multipleRegistrationsAnalysis = $this->getMultipleRegistrationsAnalysis(clone $baseQuery);
 
             $callback = function () use (
                 $startDate, $endDate, $overview, $statusAnalysis, $monthlyTrends,
                 $boatTypeAnalysis, $fishingGearAnalysis, $vesselSizeAnalysis,
                 $processingTime, $documentAnalysis, $inspectionAnalysis,
-                $engineAnalysis, $performanceMetrics
+                $engineAnalysis, $performanceMetrics, $motorizedAnalysis,
+                $multipleRegistrationsAnalysis
             ) {
                 $file = fopen('php://output', 'w');
 
@@ -841,6 +927,37 @@ class BoatrAnalyticsController extends Controller
                 fputcsv($file, ['Avg Applications Per Day', $performanceMetrics['avg_applications_per_day']]);
                 fputcsv($file, ['Quality Score',            $performanceMetrics['quality_score'] . '%']);
                 fputcsv($file, ['Efficiency Score',         $performanceMetrics['efficiency_score'] . '%']);
+                fputcsv($file, []);
+
+                // ── Motorized / Non-Motorized ─────────────────────────
+                fputcsv($file, ['MOTORIZED / NON-MOTORIZED ANALYSIS']);
+                fputcsv($file, ['Classification', 'Total Applications', 'Approved', 'Rejected', 'Inspections Completed', 'Avg Horsepower', 'Percentage', 'Approval Rate']);
+                foreach ($motorizedAnalysis['stats'] as $cls) {
+                    fputcsv($file, [
+                        $cls->boat_classification,
+                        $cls->total_applications,
+                        $cls->approved,
+                        $cls->rejected,
+                        $cls->inspections_completed,
+                        round($cls->avg_horsepower ?? 0, 2),
+                        $cls->percentage . '%',
+                        $cls->approval_rate . '%',
+                    ]);
+                }
+                fputcsv($file, []);
+
+                // ── Fishers with Multiple Registrations ───────────────
+                fputcsv($file, ['FISHERS WITH MULTIPLE BOATR REGISTRATIONS']);
+                fputcsv($file, ['Metric', 'Value']);
+                fputcsv($file, ['Fishers with Multiple Registrations', $multipleRegistrationsAnalysis['fishers_with_multiple']]);
+                fputcsv($file, ['Max Boats per Fisher',               $multipleRegistrationsAnalysis['max_boats_per_fisher']]);
+                fputcsv($file, []);
+                if ($multipleRegistrationsAnalysis['details']->count() > 0) {
+                    fputcsv($file, ['FishR Number', 'Boat Count']);
+                    foreach ($multipleRegistrationsAnalysis['details'] as $row) {
+                        fputcsv($file, [$row->fishr_number, $row->boat_count]);
+                    }
+                }
 
                 fclose($file);
             };
