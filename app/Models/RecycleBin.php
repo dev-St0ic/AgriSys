@@ -149,6 +149,22 @@ class RecycleBin extends Model
     }
 
     /**
+     * Scope to get only Event items
+     */
+    public function scopeEvent($query)
+    {
+        return $query->where('model_type', 'App\Models\Event');
+    }
+
+    /**
+     * Scope to get only Slideshow items
+     */
+    public function scopeSlideshow($query)
+    {
+        return $query->where('model_type', 'App\Models\SlideshowImage');
+    }
+
+    /**
      * Get a human-readable type name
      */
     public function getTypeNameAttribute(): string
@@ -165,6 +181,8 @@ class RecycleBin extends Model
             'App\Models\RequestCategory' => 'Supply Category',   
             'App\Models\TrainingApplication' => 'Training Request',
             'App\Models\UserRegistration' => 'User Registration',
+            'App\Models\Event' => 'Event',
+            'App\Models\SlideshowImage' => 'Slideshow Image',
             default => 'Unknown Item'
         };
     }

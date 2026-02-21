@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SlideshowImage;
+use App\Services\RecycleBinService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -138,29 +139,32 @@ class SlideshowController extends Controller
     }
 
     /**
-     * Remove the specified slideshow image
+     * Remove the specified slideshow image (soft delete - move to recycle bin)
      */
     public function destroy($id)
     {
-        $slideshow_image = SlideshowImage::findOrFail($id);
         try {
-            // Delete the image file from storage
-            if ($slideshow_image->image_path && Storage::disk('public')->exists($slideshow_image->image_path)) {
-                Storage::disk('public')->delete($slideshow_image->image_path);
-            }
-
+            $slideshow_image = SlideshowImage::findOrFail($id);
             $title = $slideshow_image->title;
-            $slideshow_image->delete();
+            $reason = 'Deleted from Slideshow management';
 
-            // Log activity
-            $this->logActivity('deleted', 'SlideshowImage', $id, [
-                'title' => $title
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Slideshow image deleted successfully!'
-            ]);
+            // Use RecycleBinService to soft delete the slideshow image
+            if (RecycleBinService::softDelete($slideshow_image, $reason)) {
+                // Log activity
+                $this->logActivity('deleted', 'SlideshowImage', $id, [
+                    'title' => $title
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Slideshow image moved to recycle bin successfully!'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete slideshow image'
+                ], 500);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

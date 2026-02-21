@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Services\RecycleBinService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -508,8 +509,8 @@ class EventController extends Controller
     }
 
     /**
-     * Permanently delete an event
-     * SAFETY: Prevents deleting last active event
+     * Delete an event (soft delete - move to recycle bin)
+     * SAFETY: Prevents deleting active events
      */
     public function destroy(Event $event)
     {
@@ -523,29 +524,26 @@ class EventController extends Controller
                 ], 422);
             }
 
-            DB::beginTransaction();
-
             $eventTitle = $event->title;
             $eventId = $event->id;
+            $reason = 'Deleted from Events management';
 
-            if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
-                Storage::disk('public')->delete($event->image_path);
+            // Use RecycleBinService to soft delete the event
+            if (RecycleBinService::softDelete($event, $reason)) {
+                \Log::info(' [Events] Event moved to recycle bin', ['id' => $eventId, 'title' => $eventTitle]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Event "' . $eventTitle . '" has been moved to recycle bin'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete event'
+                ], 500);
             }
 
-            $event->forceDelete();
-
-            DB::commit();
-
-            \Log::info(' [Events] Event permanently deleted', ['id' => $eventId, 'title' => $eventTitle]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Event "' . $eventTitle . '" has been permanently deleted'
-            ]);
-
         } catch (\Exception $e) {
-            DB::rollBack();
-
             \Log::error(' [Events] Failed to delete event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
@@ -553,7 +551,7 @@ class EventController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete event'
+                'message' => 'Failed to delete event: ' . $e->getMessage()
             ], 500);
         }
     }

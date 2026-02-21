@@ -41,6 +41,8 @@ class RecycleBinController extends Controller
                     'user_registration' => 'App\Models\UserRegistration',
                     'category_item' => 'App\Models\CategoryItem',
                     'request_category' => 'App\Models\RequestCategory',
+                    'event' => 'App\Models\Event',
+                    'slideshow' => 'App\Models\SlideshowImage',
                 ];
 
                 if (isset($typeMap[$request->type])) {

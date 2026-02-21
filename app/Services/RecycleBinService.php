@@ -13,6 +13,8 @@ use App\Models\CategoryItem;
 use App\Models\RequestCategory;
 use App\Models\TrainingApplication;
 use App\Models\UserRegistration;
+use App\Models\Event;
+use App\Models\SlideshowImage;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
@@ -152,6 +154,22 @@ class RecycleBinService
             }
             elseif ($modelClass === 'App\Models\TrainingApplication') {
                 $restored = TrainingApplication::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            elseif ($modelClass === 'App\Models\Event') {
+                $restored = Event::withTrashed()
+                    ->find($item->model_id);
+                
+                if ($restored) {
+                    $restored->restore();
+                }
+            }
+            elseif ($modelClass === 'App\Models\SlideshowImage') {
+                $restored = SlideshowImage::withTrashed()
                     ->find($item->model_id);
                 
                 if ($restored) {

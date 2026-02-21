@@ -719,19 +719,19 @@
                 <div class="modal-header bg-danger text-white">
                     <div style="flex: 1;"></div>
                     <h5 class="modal-title w-100 text-center">
-                        <i></i>Permanently Delete Slide
+                        <i></i>Delete Slide
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_slide_name"></strong> will:</p>
+                        <p class="mb-0">Are you sure you want to delete this Slide? <strong id="delete_slide_name"></strong> will be moved to the Recycle Bin.</p>
                     </div>
                     <ul class="mb-0">
-                        <li>Remove the slide from the database</li>
-                        <li>Delete the associated image</li>
-                        <li>Cannot be recovered</li>
+                        <li>Remove the slide from active records</li>
+                        <li>Hide it from users and administrators</li>
+                        <li><strong>Can be restored from the Recycle Bin</strong></li>
                     </ul>
                 </div>
                 <div class="modal-footer">
@@ -739,7 +739,7 @@
                         <i></i>Cancel
                     </button>
                     <button type="button" class="btn btn-danger" onclick="confirmDeleteSlide()" id="confirm_delete_slide_btn">
-                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-text">Move to Recycle Bin</span>
                         <span class="btn-loader" style="display: none;">
                             <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
                         </span>

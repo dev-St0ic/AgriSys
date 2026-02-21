@@ -316,7 +316,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-trash-alt me-2"></i>Delete Item
+                        <i class="fas fa-trash-alt me-2"></i>Delete Item Permanently
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -376,7 +376,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title w-100 text-center">
-                        <i class="fas fa-trash-alt me-2"></i>Delete Items
+                        <i class="fas fa-trash-alt me-2"></i>Delete Items Permanently
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
