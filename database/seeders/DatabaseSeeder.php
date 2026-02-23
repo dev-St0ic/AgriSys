@@ -25,8 +25,7 @@ class DatabaseSeeder extends Seeder
             TrainingApplicationSeeder::class,
             UserRegistrationSeeder::class,
             EventSeeder::class,
-            SlideshowImagesSeeder::class,
-            RetentionScheduleSeeder::class,
+            SlideshowImagesSeeder::class
         ]);
     }
 }

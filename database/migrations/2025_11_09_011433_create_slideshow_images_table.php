@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('description')->nullable(); // Optional description
             $table->integer('order')->default(0); // Order/position in slideshow
             $table->boolean('is_active')->default(true); // Enable/disable slide
+            
+            $table->softDeletes();
             $table->timestamps();
         });
     }

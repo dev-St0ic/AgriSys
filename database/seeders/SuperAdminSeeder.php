@@ -30,7 +30,7 @@ class SuperAdminSeeder extends Seeder
             ['role' => 'admin'],
             [
                 'name' => 'Admin User',
-                'email' => 'admin@agrisys.com',
+                'email' => 'agrisys0@gmail.com',
                 'password' => Hash::make('password123'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
@@ -39,6 +39,6 @@ class SuperAdminSeeder extends Seeder
 
         $this->command->info('Default users created successfully!');
         $this->command->info('Super Admin: reyes05jerald@gmail.com / password123');
-        $this->command->info('Admin: admin@agrisys.com / password123');
+        $this->command->info('Admin: agrisys0@gmail.com / password123');
     }
 }
