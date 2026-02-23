@@ -50,79 +50,73 @@
 
             <div class="training-form-group">
                 <label for="training_first_name">First Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_first_name" name="first_name" placeholder="From your profile"
-                    pattern="[a-zA-Z\s'\-]+" title="First name from your registered profile" readonly required
-                    style="background-color: #f5f5f5; cursor: not-allowed;">
-                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile</small>
+                <input type="text" id="training_first_name" name="first_name" placeholder="Enter your first name"
+                    pattern="[a-zA-Z\s'\-]+"
+                    title="First name can only contain letters, spaces, hyphens, and apostrophes" required
+                    value="{{ isset($user['first_name']) ? $user['first_name'] : '' }}">
+                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile if available</small>
             </div>
 
             <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
-                <input type="text" id="training_middle_name" name="middle_name" placeholder="From your profile"
-                    pattern="[a-zA-Z\s'\-]+" title="Middle name from your registered profile" readonly
-                    style="background-color: #f5f5f5; cursor: not-allowed;">
+                <input type="text" id="training_middle_name" name="middle_name"
+                    placeholder="Enter your middle name (optional)" pattern="[a-zA-Z\s'\-]+"
+                    title="Middle name can only contain letters, spaces, hyphens, and apostrophes"
+                    value="{{ isset($user['middle_name']) ? $user['middle_name'] : '' }}">
             </div>
 
             <div class="training-form-group">
                 <label for="training_last_name">Last Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_last_name" name="last_name" placeholder="From your profile"
-                    pattern="[a-zA-Z\s'\-]+" title="Last name from your registered profile" readonly required
-                    style="background-color: #f5f5f5; cursor: not-allowed;">
-                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile</small>
+                <input type="text" id="training_last_name" name="last_name" placeholder="Enter your last name"
+                    pattern="[a-zA-Z\s'\-]+"
+                    title="Last name can only contain letters, spaces, hyphens, and apostrophes" required
+                    value="{{ isset($user['last_name']) ? $user['last_name'] : '' }}">
+                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile if available</small>
             </div>
 
             <div class="training-form-group">
                 <label for="training_name_extension">Name Extension (Optional)</label>
-                <select id="training_name_extension" name="name_extension" disabled
-                    style="background-color: #f5f5f5; cursor: not-allowed;">
-                    <option value="" selected>Select Extension</option>
-                    <option value="Jr.">Jr.</option>
-                    <option value="Sr.">Sr.</option>
-                    <option value="II">II</option>
-                    <option value="III">III</option>
-                    <option value="IV">IV</option>
-                    <option value="V">V</option>
+                <select id="training_name_extension" name="name_extension">
+                    <option value=""
+                        {{ !isset($user['name_extension']) || !$user['name_extension'] ? 'selected' : '' }}>Select
+                        Extension</option>
+                    <option value="Jr."
+                        {{ isset($user['name_extension']) && $user['name_extension'] === 'Jr.' ? 'selected' : '' }}>Jr.
+                    </option>
+                    <option value="Sr."
+                        {{ isset($user['name_extension']) && $user['name_extension'] === 'Sr.' ? 'selected' : '' }}>Sr.
+                    </option>
+                    <option value="II"
+                        {{ isset($user['name_extension']) && $user['name_extension'] === 'II' ? 'selected' : '' }}>II
+                    </option>
+                    <option value="III"
+                        {{ isset($user['name_extension']) && $user['name_extension'] === 'III' ? 'selected' : '' }}>III
+                    </option>
+                    <option value="IV"
+                        {{ isset($user['name_extension']) && $user['name_extension'] === 'IV' ? 'selected' : '' }}>IV
+                    </option>
+                    <option value="V"
+                        {{ isset($user['name_extension']) && $user['name_extension'] === 'V' ? 'selected' : '' }}>V
+                    </option>
                 </select>
             </div>
 
             <div class="training-form-group">
                 <label for="training_contact_number">Contact Number <span class="required-asterisk">*</span></label>
-                <input type="tel" id="training_contact_number" name="contact_number" placeholder="From your profile"
-                    pattern="^09\d{9}$" title="Contact number from your registered profile" readonly required
-                    style="background-color: #f5f5f5; cursor: not-allowed;">
-                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile</small>
+                <input type="tel" id="training_contact_number" name="contact_number" placeholder="e.g. 09123456789"
+                    pattern="^09\d{9}$" title="Contact number must be in format 09XXXXXXXXX" required
+                    value="{{ isset($user['contact_number']) ? $user['contact_number'] : '' }}">
+                <small style="color: #666; font-size: 0.875rem;">Auto-filled from your profile if available</small>
             </div>
 
             <div class="training-form-group">
                 <label for="training_barangay">Barangay <span class="required-asterisk">*</span></label>
+                @php $userBarangay = isset($user['barangay']) ? $user['barangay'] : ''; @endphp
                 <select id="training_barangay" name="barangay" required>
-                    <option value="Bagong Silang">Bagong Silang</option>
-                    <option value="Calendola">Calendola</option>
-                    <option value="Chrysanthemum">Chrysanthemum</option>
-                    <option value="Cuyab">Cuyab</option>
-                    <option value="Estrella">Estrella</option>
-                    <option value="Fatima">Fatima</option>
-                    <option value="G.S.I.S.">G.S.I.S.</option>
-                    <option value="Landayan">Landayan</option>
-                    <option value="Langgam">Langgam</option>
-                    <option value="Laram">Laram</option>
-                    <option value="Magsaysay">Magsaysay</option>
-                    <option value="Maharlika">Maharlika</option>
-                    <option value="Narra">Narra</option>
-                    <option value="Nueva">Nueva</option>
-                    <option value="Pacita 1">Pacita 1</option>
-                    <option value="Pacita 2">Pacita 2</option>
-                    <option value="Poblacion">Poblacion</option>
-                    <option value="Riverside">Riverside</option>
-                    <option value="Rosario">Rosario</option>
-                    <option value="Sampaguita Village">Sampaguita Village</option>
-                    <option value="San Antonio">San Antonio</option>
-                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                    <option value="San Roque">San Roque</option>
-                    <option value="San Vicente">San Vicente</option>
-                    <option value="Santo Niño">Santo Niño</option>
-                    <option value="United Bayanihan">United Bayanihan</option>
-                    <option value="United Better Living">United Better Living</option>
+                    @foreach (['Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Estrella', 'Fatima', 'G.S.I.S.', 'Landayan', 'Langgam', 'Laram', 'Magsaysay', 'Maharlika', 'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion', 'Riverside', 'Rosario', 'Sampaguita Village', 'San Antonio', 'San Lorenzo Ruiz', 'San Roque', 'San Vicente', 'Santo Niño', 'United Bayanihan', 'United Better Living'] as $brgy)
+                        <option value="{{ $brgy }}" {{ $userBarangay === $brgy ? 'selected' : '' }}>
+                            {{ $brgy }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -212,7 +206,8 @@
                         <div
                             style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 6px; backdrop-filter: blur(10px);">
                             <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 5px;">🤖 Analysis Source</div>
-                            <div style="font-weight: 600; font-size: 0.95rem;">{{ ucfirst($trainingReport['source']) }}
+                            <div style="font-weight: 600; font-size: 0.95rem;">
+                                {{ ucfirst($trainingReport['source']) }}
                             </div>
                         </div>
                         <div

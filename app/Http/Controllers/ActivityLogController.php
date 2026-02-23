@@ -59,37 +59,64 @@ class ActivityLogController extends Controller
                 $query->where('description', 'like', '%' . $request->search . '%');
             }
 
-            // Filter by event type (created, updated, deleted, login, logout, etc.)
+            // Filter by event type
             if ($request->filled('event')) {
-                $query->where(function($q) use ($request) {
-                    // Check both the event column and the description
-                    $q->where('event', $request->event)
-                      ->orWhere('description', 'like', $request->event . '%')
-                      ->orWhere('description', 'like', '%' . $request->event . ' -%');
-                });
+                $event = $request->event;
+                if ($event === 'login_admin') {
+                    $query->where('event', 'login')->where('causer_type', 'App\\Models\\User');
+                } elseif ($event === 'logout_admin') {
+                    $query->where('event', 'logout')->where('causer_type', 'App\\Models\\User');
+                } elseif ($event === 'login_user') {
+                    $query->where('event', 'login')->where('causer_type', 'App\\Models\\UserRegistration');
+                } elseif ($event === 'logout_user') {
+                    $query->where('event', 'logout')->where('causer_type', 'App\\Models\\UserRegistration');
+                } elseif ($event === 'status_changed_approved') {
+                    $query->where('event', 'status_changed')
+                          ->where('properties', 'like', '%"new_status":"approved"%');
+                } elseif ($event === 'status_changed_rejected') {
+                    $query->where('event', 'status_changed')
+                          ->where('properties', 'like', '%"new_status":"rejected"%');
+                } else {
+                    $query->where(function($q) use ($event) {
+                        $q->where('event', $event)
+                          ->orWhere('description', 'like', $event . '%')
+                          ->orWhere('description', 'like', '%' . $event . ' -%');
+                    });
+                }
             }
 
-            // Filter by module/service (subject_type)
+            // Filter by actor role or service module
             if ($request->filled('module')) {
-                if ($request->module === 'Authentication') {
-                    // Special case: filter authentication activities (login/logout without subject)
-                    $query->where(function($q) {
-                        $q->whereNull('subject_type')
-                          ->where(function($q2) {
-                              $q2->where('description', 'like', '%login%')
-                                 ->orWhere('description', 'like', '%logout%');
+                $module = $request->module;
+                if ($module === 'role_admin') {
+                    $query->where('causer_type', 'App\\Models\\User')
+                          ->whereExists(function($q) {
+                              $q->selectRaw('1')->from('users')
+                                ->whereColumn('users.id', 'activity_log.causer_id')
+                                ->where('users.role', 'admin');
                           });
+                } elseif ($module === 'role_superadmin') {
+                    $query->where('causer_type', 'App\\Models\\User')
+                          ->whereExists(function($q) {
+                              $q->selectRaw('1')->from('users')
+                                ->whereColumn('users.id', 'activity_log.causer_id')
+                                ->where('users.role', 'superadmin');
+                          });
+                } elseif ($module === 'role_user') {
+                    $query->where('causer_type', 'App\\Models\\UserRegistration');
+                } elseif ($module === 'Supply') {
+                    $query->where(function($q) {
+                        $q->where('subject_type', 'like', '%SeedlingRequest%')
+                          ->orWhere('subject_type', 'like', '%CategoryItem%');
                     });
-                } elseif ($request->module === 'DSSReport') {
-                    // Special case: filter DSS report activities
+                } elseif ($module === 'DSSReport') {
                     $query->where(function($q) {
                         $q->where('event', 'dss_report_viewed')
                           ->orWhere('event', 'dss_report_downloaded')
                           ->orWhere('description', 'like', '%DSS Report%');
                     });
                 } else {
-                    // Normal case: filter by subject_type containing the module name
-                    $query->where('subject_type', 'like', '%' . $request->module . '%');
+                    $query->where('subject_type', 'like', '%' . $module . '%');
                 }
             }
 
@@ -162,7 +189,7 @@ class ActivityLogController extends Controller
                 // Check if it's a UserRegistration or User model
                 if ($user instanceof \App\Models\UserRegistration) {
                     $userName = $user->username ?? 'Unknown User';
-                    $userEmail = ucfirst($user->user_type ?? 'Portal User');    
+                    $userEmail = ucfirst($user->user_type ?? 'Portal User');
                     $userRole = ucfirst($user->user_type ?? 'user');
                 } else {
                     $userName = $user->name;
@@ -266,37 +293,64 @@ class ActivityLogController extends Controller
             $query->where('description', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by event type (created, updated, deleted, login, logout, etc.)
+        // Filter by event type
         if ($request->filled('event')) {
-            $query->where(function($q) use ($request) {
-                // Check both the event column and the description
-                $q->where('event', $request->event)
-                  ->orWhere('description', 'like', $request->event . '%')
-                  ->orWhere('description', 'like', '%' . $request->event . ' -%');
-            });
+            $event = $request->event;
+            if ($event === 'login_admin') {
+                $query->where('event', 'login')->where('causer_type', 'App\\Models\\User');
+            } elseif ($event === 'logout_admin') {
+                $query->where('event', 'logout')->where('causer_type', 'App\\Models\\User');
+            } elseif ($event === 'login_user') {
+                $query->where('event', 'login')->where('causer_type', 'App\\Models\\UserRegistration');
+            } elseif ($event === 'logout_user') {
+                $query->where('event', 'logout')->where('causer_type', 'App\\Models\\UserRegistration');
+            } elseif ($event === 'status_changed_approved') {
+                $query->where('event', 'status_changed')
+                      ->where('properties', 'like', '%"new_status":"approved"%');
+            } elseif ($event === 'status_changed_rejected') {
+                $query->where('event', 'status_changed')
+                      ->where('properties', 'like', '%"new_status":"rejected"%');
+            } else {
+                $query->where(function($q) use ($event) {
+                    $q->where('event', $event)
+                      ->orWhere('description', 'like', $event . '%')
+                      ->orWhere('description', 'like', '%' . $event . ' -%');
+                });
+            }
         }
 
-        // Filter by module/service (subject_type)
+        // Filter by actor role or service module
         if ($request->filled('module')) {
-            if ($request->module === 'Authentication') {
-                // Special case: filter authentication activities (login/logout without subject)
-                $query->where(function($q) {
-                    $q->whereNull('subject_type')
-                      ->where(function($q2) {
-                          $q2->where('description', 'like', '%login%')
-                             ->orWhere('description', 'like', '%logout%');
+            $module = $request->module;
+            if ($module === 'role_admin') {
+                $query->where('causer_type', 'App\\Models\\User')
+                      ->whereExists(function($q) {
+                          $q->selectRaw('1')->from('users')
+                            ->whereColumn('users.id', 'activity_log.causer_id')
+                            ->where('users.role', 'admin');
                       });
+            } elseif ($module === 'role_superadmin') {
+                $query->where('causer_type', 'App\\Models\\User')
+                      ->whereExists(function($q) {
+                          $q->selectRaw('1')->from('users')
+                            ->whereColumn('users.id', 'activity_log.causer_id')
+                            ->where('users.role', 'superadmin');
+                      });
+            } elseif ($module === 'role_user') {
+                $query->where('causer_type', 'App\\Models\\UserRegistration');
+            } elseif ($module === 'Supply') {
+                $query->where(function($q) {
+                    $q->where('subject_type', 'like', '%SeedlingRequest%')
+                      ->orWhere('subject_type', 'like', '%CategoryItem%');
                 });
-            } elseif ($request->module === 'DSSReport') {
-                // Special case: filter DSS report activities
+            } elseif ($module === 'DSSReport') {
                 $query->where(function($q) {
                     $q->where('event', 'dss_report_viewed')
                       ->orWhere('event', 'dss_report_downloaded')
                       ->orWhere('description', 'like', '%DSS Report%');
                 });
             } else {
-                // Normal case: filter by subject_type containing the module name
-                $query->where('subject_type', 'like', '%' . $request->module . '%');
+                $query->where('subject_type', 'like', '%' . $module . '%');
             }
         }
 
