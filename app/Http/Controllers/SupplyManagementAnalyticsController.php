@@ -19,6 +19,21 @@ class SupplyManagementAnalyticsController extends Controller
     public function index(Request $request)
     {
         try {
+            // Log analytics view
+            if (auth()->check()) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->withProperties([
+                        'analytics_type' => 'SupplyManagementAnalytics',
+                        'start_date' => $request->get('start_date', now()->subMonths(6)->format('Y-m-d')),
+                        'end_date' => $request->get('end_date', now()->format('Y-m-d')),
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->event('viewed')
+                    ->log('viewed - SupplyManagementAnalytics Dashboard');
+            }
+
             // Date range filter with better defaults
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));

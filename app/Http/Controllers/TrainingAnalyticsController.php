@@ -17,6 +17,21 @@ class TrainingAnalyticsController extends Controller
     public function index(Request $request)
     {
         try {
+            // Log analytics view
+            if (auth()->check()) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->withProperties([
+                        'analytics_type' => 'TrainingAnalytics',
+                        'start_date' => $request->get('start_date', now()->subYears(2)->format('Y-m-d')),
+                        'end_date' => $request->get('end_date', now()->format('Y-m-d')),
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent()
+                    ])
+                    ->event('viewed')
+                    ->log('viewed - TrainingAnalytics Dashboard');
+            }
+
             // Date range filter with better defaults (2 years back to capture all dummy data)
             $startDate = $request->get('start_date', now()->subYears(2)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
