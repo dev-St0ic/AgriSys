@@ -363,11 +363,11 @@
                 <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Agri-Youth Summary</h5>
             </div>
             <div class="card-body">
-                @if ($data['rsbsa_agriyouth_analysis']['total'] > 0)
+                @if ($data['rsbsa_agriyouth_analysis']['total_agriyouth'] > 0)
                     <div class="row g-2 mb-3">
                         <div class="col-4">
                             <div class="bg-light rounded p-2 text-center">
-                                <div class="h5 mb-0">{{ $data['rsbsa_agriyouth_analysis']['total'] }}</div><small
+                                <div class="h5 mb-0">{{ $data['rsbsa_agriyouth_analysis']['total_agriyouth'] }}</div><small
                                     class="text-muted">Total</small>
                             </div>
                         </div>
