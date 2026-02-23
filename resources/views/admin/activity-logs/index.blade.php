@@ -232,7 +232,7 @@
                                             if ($actionUser instanceof \App\Models\UserRegistration) {
                                                 // UserRegistration: just show username
                                                 $actionUserName = $actionUser->username ?? 'Unknown User';
-                                                $actionUserEmail = null; // Don't show secondary info
+                                                $actionUserEmail = ucfirst($actionUser->user_type ?? 'Portal User'); // shows "Farmer", "Fisherfolk", etc.
                                                 } else {
                                                     // User model has: name, email
                                                     $actionUserName = $actionUser->name ?? 'Unknown';

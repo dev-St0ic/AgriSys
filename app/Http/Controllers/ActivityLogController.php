@@ -162,7 +162,7 @@ class ActivityLogController extends Controller
                 // Check if it's a UserRegistration or User model
                 if ($user instanceof \App\Models\UserRegistration) {
                     $userName = $user->username ?? 'Unknown User';
-                    $userEmail = '-';
+                    $userEmail = ucfirst($user->user_type ?? 'Portal User');    
                     $userRole = ucfirst($user->user_type ?? 'user');
                 } else {
                     $userName = $user->name;
@@ -332,7 +332,7 @@ class ActivityLogController extends Controller
                     // Check if it's a UserRegistration or User model
                     if ($user instanceof \App\Models\UserRegistration) {
                         $userName = $user->username ?? 'Unknown User';
-                        $userEmail = '-';
+                        $userEmail = ucfirst($user->user_type ?? 'Portal User'); // shows "Farmer", "Fisherfolk", etc.
                         $userRole = ucfirst($user->user_type ?? 'user');
                     } else {
                         $userName = $user->name;
