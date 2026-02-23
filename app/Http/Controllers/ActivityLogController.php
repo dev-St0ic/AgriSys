@@ -30,14 +30,27 @@ class ActivityLogController extends Controller
 
             // Role-based filtering: Admin sees only admin activities, Superadmin sees everything
             if (Auth::user()->isAdmin()) {
-                // Only show activities from User models with role='admin'
-                $query->where('causer_type', 'App\\Models\\User')
-                      ->whereExists(function($q) {
-                          $q->selectRaw('1')
-                            ->from('users')
-                            ->whereColumn('users.id', 'activity_log.causer_id')
-                            ->where('users.role', 'admin');
-                      });
+                // Show activities from admin Users OR activities about UserRegistration
+                $query->where(function($q) {
+                    $q->where(function($q2) {
+                        // Admin-caused activities
+                        $q2->where('causer_type', 'App\\Models\\User')
+                           ->whereExists(function($q3) {
+                               $q3->selectRaw('1')
+                                 ->from('users')
+                                 ->whereColumn('users.id', 'activity_log.causer_id')
+                                 ->where('users.role', 'admin');
+                           });
+                    })
+                    ->orWhere(function($q2) {
+                        // Activities about UserRegistration (registrations being approved/rejected)
+                        $q2->where('subject_type', 'App\\Models\\UserRegistration');
+                    })
+                    ->orWhere(function($q2) {
+                        // UserRegistration login/logout activities
+                        $q2->where('causer_type', 'App\\Models\\UserRegistration');
+                    });
+                });
             }
             // Superadmin sees all activities (no additional filter)
 
@@ -107,15 +120,28 @@ class ActivityLogController extends Controller
         }
 
         try {
-            // Role-based access: Admin can only view admin activities
+            // Role-based access: Admin can view admin activities and UserRegistration activities
             if (Auth::user()->isAdmin()) {
-                $activity = Activity::with('causer')
-                    ->where('causer_type', 'App\\Models\\User')
-                    ->whereExists(function($q) {
-                        $q->selectRaw('1')
-                          ->from('users')
-                          ->whereColumn('users.id', 'activity_log.causer_id')
-                          ->where('users.role', 'admin');
+                $activity = Activity::with(['causer', 'subject'])
+                    ->where(function($q) {
+                        $q->where(function($q2) {
+                            // Admin-caused activities
+                            $q2->where('causer_type', 'App\\Models\\User')
+                               ->whereExists(function($q3) {
+                                   $q3->selectRaw('1')
+                                     ->from('users')
+                                     ->whereColumn('users.id', 'activity_log.causer_id')
+                                     ->where('users.role', 'admin');
+                               });
+                        })
+                        ->orWhere(function($q2) {
+                            // Activities about UserRegistration
+                            $q2->where('subject_type', 'App\\Models\\UserRegistration');
+                        })
+                        ->orWhere(function($q2) {
+                            // UserRegistration login/logout activities
+                            $q2->where('causer_type', 'App\\Models\\UserRegistration');
+                        });
                     })->find($id);
 
                 if (!$activity) {
@@ -123,7 +149,7 @@ class ActivityLogController extends Controller
                 }
             } else {
                 // Superadmin can view all activities
-                $activity = Activity::with('causer')->findOrFail($id);
+                $activity = Activity::with(['causer', 'subject'])->findOrFail($id);
             }
 
             // Get user who performed the action
@@ -136,7 +162,7 @@ class ActivityLogController extends Controller
                 // Check if it's a UserRegistration or User model
                 if ($user instanceof \App\Models\UserRegistration) {
                     $userName = $user->username ?? 'Unknown User';
-                    $userEmail = '-';
+                    $userEmail = ucfirst($user->user_type ?? 'Portal User');    
                     $userRole = ucfirst($user->user_type ?? 'user');
                 } else {
                     $userName = $user->name;
@@ -151,6 +177,20 @@ class ActivityLogController extends Controller
                 $userRole = isset($properties['role']) ? ucfirst($properties['role']) : 'User';
             }
 
+            // Get subject information (what was affected)
+            $subject = $activity->subject;
+            $subjectName = null;
+            $subjectType = null;
+            $subjectUserType = null;
+
+            if ($subject) {
+                $subjectType = class_basename(get_class($subject));
+                if ($subject instanceof \App\Models\UserRegistration) {
+                    $subjectName = $subject->username ?? 'Unknown User';
+                    $subjectUserType = ucfirst($subject->user_type ?? 'user');
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -162,6 +202,8 @@ class ActivityLogController extends Controller
                     'action' => ucfirst($activity->event),
                     'description' => $activity->description,
                     'model' => class_basename($activity->subject_type),
+                    'subject_name' => $subjectName, // The UserRegistration username/name being acted upon
+                    'subject_type' => $subjectUserType, // The UserRegistration user_type
                     'ip' => $activity->properties['ip_address'] ?? 'N/A',
                     // NEW: Include properties for before/after comparison
                     'properties' => $activity->properties ?? [],
@@ -196,14 +238,27 @@ class ActivityLogController extends Controller
 
         // Role-based filtering: Admin exports only admin activities, Superadmin exports everything
         if (Auth::user()->isAdmin()) {
-            // Only export activities from User models with role='admin'
-            $query->where('causer_type', 'App\\Models\\User')
-                  ->whereExists(function($q) {
-                      $q->selectRaw('1')
-                        ->from('users')
-                        ->whereColumn('users.id', 'activity_log.causer_id')
-                        ->where('users.role', 'admin');
-                  });
+            // Show activities from admin Users OR activities about UserRegistration
+            $query->where(function($q) {
+                $q->where(function($q2) {
+                    // Admin-caused activities
+                    $q2->where('causer_type', 'App\\Models\\User')
+                       ->whereExists(function($q3) {
+                           $q3->selectRaw('1')
+                             ->from('users')
+                             ->whereColumn('users.id', 'activity_log.causer_id')
+                             ->where('users.role', 'admin');
+                       });
+                })
+                ->orWhere(function($q2) {
+                    // Activities about UserRegistration
+                    $q2->where('subject_type', 'App\\Models\\UserRegistration');
+                })
+                ->orWhere(function($q2) {
+                    // UserRegistration login/logout activities
+                    $q2->where('causer_type', 'App\\Models\\UserRegistration');
+                });
+            });
         }
 
         // Search by description
@@ -277,7 +332,7 @@ class ActivityLogController extends Controller
                     // Check if it's a UserRegistration or User model
                     if ($user instanceof \App\Models\UserRegistration) {
                         $userName = $user->username ?? 'Unknown User';
-                        $userEmail = '-';
+                        $userEmail = ucfirst($user->user_type ?? 'Portal User'); // shows "Farmer", "Fisherfolk", etc.
                         $userRole = ucfirst($user->user_type ?? 'user');
                     } else {
                         $userName = $user->name;

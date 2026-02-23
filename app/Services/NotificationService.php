@@ -780,4 +780,28 @@ class NotificationService
             route('admin.rsbsa.applications')
         );
     }
+
+    // ==========================================
+    // USER REGISTRATION NOTIFICATIONS
+    // ==========================================
+
+    public static function userVerificationSubmitted($userRegistration)
+    {
+        $title = "New User Verification Submission";
+        $message = "{$userRegistration->username} has submitted their profile for verification";
+        
+        AdminNotification::notifyAdmins(
+            'user_verification_submitted',
+            $title,
+            $message,
+            [
+                'user_id' => $userRegistration->id,
+                'username' => $userRegistration->username,
+                'contact_number' => $userRegistration->contact_number,
+                'user_type' => $userRegistration->user_type,
+                'barangay' => $userRegistration->barangay
+            ],
+            url('/admin/users?status=pending&search=' . urlencode($userRegistration->username))
+        );
+    }
 }

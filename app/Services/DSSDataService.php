@@ -854,6 +854,8 @@ class DSSDataService
     private function getRsbsaByCommodity(Carbon $startDate, Carbon $endDate): array
     {
         $byCommodity = RsbsaApplication::whereBetween('created_at', [$startDate, $endDate])
+            ->whereNotNull('commodity')
+            ->where('commodity', '!=', '')
             ->select('commodity')
             ->selectRaw('
                 COUNT(*) as count,

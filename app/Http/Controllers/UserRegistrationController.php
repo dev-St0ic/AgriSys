@@ -15,6 +15,7 @@ use Illuminate\Validation\Rule;
 use App\Notifications\RegistrationApprovedNotification;
 use App\Notifications\RegistrationRejectedNotification;
 use Laravel\Socialite\Facades\Socialite;
+use App\Services\NotificationService;
 
 
 class UserRegistrationController extends Controller
@@ -485,7 +486,10 @@ class UserRegistrationController extends Controller
                 $updateData['location_document_path'] = $locationProofPath;
             }
 
-            $userRegistration->update($updateData);
+           $userRegistration->update($updateData);
+
+            //  Refresh model so full_name accessor has the new first/last name data
+            $userRegistration = UserRegistration::find($userId);
 
             $request->session()->put('user', [
                 'id' => $userRegistration->id,
@@ -499,6 +503,14 @@ class UserRegistrationController extends Controller
                 'user_id' => $userId,
                 'user_type' => $request->role,
             ]);
+
+            // ✅ Notify AFTER refresh so full_name is correct
+            try {
+                NotificationService::userVerificationSubmitted($userRegistration);
+            } catch (\Exception $e) {
+                // Don't let notification failure break the submission
+                \Log::error('Verification notification failed: ' . $e->getMessage());
+            }
 
             return response()->json([
                 'success' => true,

@@ -229,10 +229,10 @@
 
                                             if ($actionUser) {
                                                 // Check if it's a UserRegistration or User model
-    if ($actionUser instanceof \App\Models\UserRegistration) {
-        // UserRegistration: just show username
-        $actionUserName = $actionUser->username ?? 'Unknown User';
-        $actionUserEmail = null; // Don't show secondary info
+                                            if ($actionUser instanceof \App\Models\UserRegistration) {
+                                                // UserRegistration: just show username
+                                                $actionUserName = $actionUser->username ?? 'Unknown User';
+                                                $actionUserEmail = ucfirst($actionUser->user_type ?? 'Portal User'); // shows "Farmer", "Fisherfolk", etc.
                                                 } else {
                                                     // User model has: name, email
                                                     $actionUserName = $actionUser->name ?? 'Unknown';
@@ -262,33 +262,33 @@
                                     <td>
                                         @php
                                             // Show the ACTUAL user's role, not the current superadmin
-$roleBg = 'secondary';
-$roleText = 'System';
+                                            $roleBg = 'secondary';
+                                            $roleText = 'System';
 
-if ($actionUser) {
-    $roleText = ucfirst($actionUser->role ?? 'user');
+                                            if ($actionUser) {
+                                                $roleText = ucfirst($actionUser->role ?? 'user');
 
-    if ($actionUser->role === 'superadmin') {
-        $roleBg = 'danger';
-    } elseif ($actionUser->role === 'admin') {
-        $roleBg = 'warning';
-    } elseif ($actionUser->role === 'user') {
-        $roleBg = 'info';
-    }
-} elseif (
-    !$actionUser &&
-    in_array($activity->event, ['login', 'logout', 'login_failed'])
-) {
-    // For login/logout without causer, check properties
-    $properties = $activity->properties->all() ?? [];
-    if (isset($properties['role'])) {
-        $roleText = ucfirst($properties['role']);
-        if ($properties['role'] === 'superadmin') {
-            $roleBg = 'danger';
-        } elseif ($properties['role'] === 'admin') {
-            $roleBg = 'warning';
-        } elseif ($properties['role'] === 'user') {
-            $roleBg = 'info';
+                                                if ($actionUser->role === 'superadmin') {
+                                                    $roleBg = 'danger';
+                                                } elseif ($actionUser->role === 'admin') {
+                                                    $roleBg = 'warning';
+                                                } elseif ($actionUser->role === 'user') {
+                                                    $roleBg = 'info';
+                                                }
+                                            } elseif (
+                                                !$actionUser &&
+                                                in_array($activity->event, ['login', 'logout', 'login_failed'])
+                                            ) {
+                                                // For login/logout without causer, check properties
+                                                $properties = $activity->properties->all() ?? [];
+                                                if (isset($properties['role'])) {
+                                                    $roleText = ucfirst($properties['role']);
+                                                    if ($properties['role'] === 'superadmin') {
+                                                        $roleBg = 'danger';
+                                                    } elseif ($properties['role'] === 'admin') {
+                                                        $roleBg = 'warning';
+                                                    } elseif ($properties['role'] === 'user') {
+                                                        $roleBg = 'info';
                                                     }
                                                 }
                                             }
