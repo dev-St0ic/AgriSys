@@ -686,7 +686,7 @@ function generateEventDetailsHTML(event) {
 
             <!-- Footer -->
             <div class="footer-section">
-                <p>&copy; 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
+                <p>&copy; 2026 City Agriculture Office of San Pedro. All rights reserved.</p>
             </div>
         </div>
     </body>
