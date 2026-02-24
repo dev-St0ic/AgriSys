@@ -16,6 +16,15 @@ function openFormTraining(event) {
         return false;
     }
 
+    // Block if user already has a pending/under-review application
+    if (window.pendingApplications && window.pendingApplications.training) {
+        agrisysModal.warning(
+            'You already have a pending Training application. Please wait for your current application to be processed before submitting a new one.',
+            { title: 'Application Already Submitted' }
+        );
+        return false;
+    }
+
     console.log('Opening Training form');
 
     // Hide all main sections and forms first

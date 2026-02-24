@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SlideshowImage;
 use App\Models\UserRegistration;
+use App\Models\FishrApplication;
+use App\Models\RsbsaApplication;
+use App\Models\TrainingApplication;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -45,6 +48,24 @@ class HomeController extends Controller
             }
         }
 
+        // Check for pending/under-review applications for the logged-in user
+        $hasPendingFishr = false;
+        $hasPendingRsbsa = false;
+        $hasPendingTraining = false;
+
+        if ($userSession && isset($userSession['id'])) {
+            $uid = $userSession['id'];
+            $hasPendingFishr = FishrApplication::where('user_id', $uid)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->exists();
+            $hasPendingRsbsa = RsbsaApplication::where('user_id', $uid)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->exists();
+            $hasPendingTraining = TrainingApplication::where('user_id', $uid)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->exists();
+        }
+
         // Get DSS report metadata for all services
         $rsbsaReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('rsbsa');
         $seedlingReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('comprehensive');
@@ -56,7 +77,7 @@ class HomeController extends Controller
         session()->forget('error');
         session()->forget('errors');
 
-        return view('landingPage.landing', compact('slides', 'user', 'rsbsaReport', 'seedlingReport', 'trainingReport', 'fishrReport', 'boatrReport'));
+        return view('landingPage.landing', compact('slides', 'user', 'rsbsaReport', 'seedlingReport', 'trainingReport', 'fishrReport', 'boatrReport', 'hasPendingFishr', 'hasPendingRsbsa', 'hasPendingTraining'));
     }
 
     /**
@@ -109,6 +130,24 @@ class HomeController extends Controller
         // Use database images if available, otherwise use fallback
         $slides = $slideshowImages->count() > 0 ? $slideshowImages : collect($fallbackImages);
 
+        // Check for pending/under-review applications for the logged-in user
+        $hasPendingFishr = false;
+        $hasPendingRsbsa = false;
+        $hasPendingTraining = false;
+
+        if ($userSession && isset($userSession['id'])) {
+            $uid = $userSession['id'];
+            $hasPendingFishr = FishrApplication::where('user_id', $uid)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->exists();
+            $hasPendingRsbsa = RsbsaApplication::where('user_id', $uid)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->exists();
+            $hasPendingTraining = TrainingApplication::where('user_id', $uid)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->exists();
+        }
+
         // Get DSS report metadata for all services
         $rsbsaReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('rsbsa');
         $seedlingReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('comprehensive');
@@ -120,6 +159,6 @@ class HomeController extends Controller
         session()->forget('error');
         session()->forget('errors');
 
-        return view('landingPage.landing', compact('slides', 'user', 'rsbsaReport', 'seedlingReport', 'trainingReport', 'fishrReport', 'boatrReport'));
+        return view('landingPage.landing', compact('slides', 'user', 'rsbsaReport', 'seedlingReport', 'trainingReport', 'fishrReport', 'boatrReport', 'hasPendingFishr', 'hasPendingRsbsa', 'hasPendingTraining'));
     }
 }

@@ -224,6 +224,15 @@ function openFormFishR(event) {
         return false;
     }
 
+    // Block if user already has a pending/under-review application
+    if (window.pendingApplications && window.pendingApplications.fishr) {
+        agrisysModal.warning(
+            'You already have a pending FishR application. Please wait for your current application to be processed before submitting a new one.',
+            { title: 'Application Already Submitted' }
+        );
+        return false;
+    }
+
     console.log('Opening FishR form');
 
     // Hide all main sections and forms first
@@ -349,7 +358,7 @@ function resetFishRForm() {
 
         // Show normal state - properly show text and hide loading
         if (btnText) btnText.style.display = 'inline';
-        if (btnLoading) btnLoading.style.display = 'none';  
+        if (btnLoading) btnLoading.style.display = 'none';
         submitBtn.disabled = false;
 
         console.log('FishR form reset to initial state');
@@ -406,22 +415,22 @@ function updateDocumentsRequirement(livelihoodType) {
     if (docsInput && docsLabel) {
         // Supporting document is ALWAYS optional now
         docsInput.removeAttribute('required');
-        
+
         // Hide asterisk
         if (asterisk) {
             asterisk.style.display = 'none';
         }
-        
+
         // Keep consistent text for ALL livelihood types
         if (labelText) {
             labelText.textContent = 'Supporting Document (Optional)';
         }
-        
+
         if (docsHelp) {
             docsHelp.textContent = 'Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB)';
         }
     }
-    
+
     console.log('Documents requirement updated - remains optional for all livelihood types:', livelihoodType);
 }
 
@@ -509,17 +518,17 @@ function validateFishRForm() {
 
     // === CHECK FOR ANY FIELDS WITH RED BORDER (Real-time validation errors) ===
     const fieldsWithErrors = form.querySelectorAll('input[style*="border-color: rgb(255, 107, 107)"], select[style*="border-color: rgb(255, 107, 107)"]');
-    
+
     if (fieldsWithErrors.length > 0) {
         errors.push('Please fix the validation errors in red before submitting');
         if (typeof displayValidationErrors === 'function') {
             displayValidationErrors(errors);
         }
-        
+
         // Scroll to first field with error
         fieldsWithErrors[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
         fieldsWithErrors[0].focus();
-        
+
         return false;
     }
 
@@ -640,7 +649,7 @@ function validateFishRForm() {
             isValid = false;
         }
     }
-    
+
         //  Validate special characters in other_livelihood
         if (otherLivelihoodInput && otherLivelihoodInput.value.trim()) {
             if (!isValidOthersLivelihoodText(otherLivelihoodInput.value)) {
@@ -653,10 +662,10 @@ function validateFishRForm() {
         }
 
     // ✓ ONLY ONE CHECK FOR SECONDARY LIVELIHOOD MATCH (with defined variables)
-    if (livelihoodSelect && secondaryLivelihoodSelect && 
+    if (livelihoodSelect && secondaryLivelihoodSelect &&
         livelihoodSelect.value && secondaryLivelihoodSelect.value) {
-        
-        if (livelihoodSelect.value === secondaryLivelihoodSelect.value && 
+
+        if (livelihoodSelect.value === secondaryLivelihoodSelect.value &&
             livelihoodSelect.value !== 'others') {
             errors.push('Secondary livelihood cannot be the same as main livelihood');
             if (typeof markFieldError === 'function') {
@@ -672,12 +681,12 @@ function validateFishRForm() {
         errors.push('Secondary livelihood cannot be similar to main livelihood');
         isValid = false;
     }
-    
+
       // If both are "others", check if the text is the same
     if (livelihoodSelect.value === 'others' && secondaryLivelihoodSelect.value === 'others') {
         const mainOthersText = (otherLivelihoodInput?.value || '').trim().toLowerCase();
         const secondaryOthersText = (otherSecondaryLivelihoodInput?.value || '').trim().toLowerCase();
-        
+
         if (mainOthersText && secondaryOthersText && mainOthersText === secondaryOthersText) {
             errors.push('Secondary livelihood cannot be the same as main livelihood');
             if (typeof markFieldError === 'function') {
@@ -838,7 +847,7 @@ function initializeFishRFormSubmission() {
                 } else {
                     agrisysModal.error(data.message || 'There was an error submitting your request.', { title: 'Submission Failed' });
                 }
-                
+
                 // Reset button state on error so user can retry
                 if (btnText) btnText.style.display = 'inline';
                 if (btnLoading) btnLoading.style.display = 'none';
@@ -852,7 +861,7 @@ function initializeFishRFormSubmission() {
             } else {
                 agrisysModal.error('There was an error submitting your request. Please try again.', { title: 'Submission Error' });
             }
-            
+
             // Reset button state on error so user can retry
             if (btnText) btnText.style.display = 'inline';
             if (btnLoading) btnLoading.style.display = 'none';
@@ -941,7 +950,7 @@ function validateSecondaryLivelihoodTextMatch() {
             showWarning = true;
         }
     }
-    
+
     // Keep only the mismatches between "others" text and standard livelihood types
     // Case 1: Secondary is "others" and its text matches the main livelihood type
     if (secondaryValue === 'others' && mainValue !== 'others' && mainValue) {
@@ -953,7 +962,7 @@ function validateSecondaryLivelihoodTextMatch() {
         };
 
         const mainLivelihoodTexts = livelihoodTextMap[mainValue] || [];
-        const hasMatch = mainLivelihoodTexts.some(text => 
+        const hasMatch = mainLivelihoodTexts.some(text =>
             secondaryOthersValue.includes(text)
         );
 
@@ -961,7 +970,7 @@ function validateSecondaryLivelihoodTextMatch() {
             showWarning = true;
         }
     }
-    
+
     // Case 2: Secondary is "others" and its text matches the main livelihood type
     else if (secondaryValue === 'others' && mainValue !== 'others' && mainValue) {
         const livelihoodTextMap = {
@@ -972,7 +981,7 @@ function validateSecondaryLivelihoodTextMatch() {
         };
 
         const mainLivelihoodTexts = livelihoodTextMap[mainValue] || [];
-        const hasMatch = mainLivelihoodTexts.some(text => 
+        const hasMatch = mainLivelihoodTexts.some(text =>
             secondaryOthersValue.includes(text)
         );
 
@@ -990,7 +999,7 @@ function validateSecondaryLivelihoodTextMatch() {
         };
 
         const secondaryTexts = livelihoodTextMap[secondaryValue] || [];
-        const hasMatch = secondaryTexts.some(text => 
+        const hasMatch = secondaryTexts.some(text =>
             mainOthersValue.includes(text)
         );
 
@@ -1224,7 +1233,7 @@ function toggleOtherSecondaryLivelihood(select) {
 
     // ✓ NEW: Validate secondary livelihood text match
     validateSecondaryLivelihoodTextMatch();
-    
+
     // Keep existing validation
     if (typeof validateSecondaryLivelihoodMatch === 'function') {
         validateSecondaryLivelihoodMatch();
@@ -1478,12 +1487,12 @@ document.addEventListener('DOMContentLoaded', function() {
         otherSecondaryLivelihoodInput.addEventListener('input', function(e) {
             const mainLivelihood = document.getElementById('fishr-main_livelihood');
             const secondaryLivelihood = document.getElementById('fishr-secondary_livelihood');
-            
+
             // Check if both are "others"
             if (mainLivelihood.value === 'others' && secondaryLivelihood.value === 'others') {
                 const mainOthersText = (otherLivelihoodInput?.value || '').trim().toLowerCase();
                 const secondaryOthersText = (e.target.value || '').trim().toLowerCase();
-                
+
                 if (mainOthersText && secondaryOthersText && mainOthersText === secondaryOthersText) {
                     e.target.style.borderColor = '#ff6b6b';
                     e.target.style.backgroundColor = '#ffe6e6';
@@ -1497,11 +1506,11 @@ document.addEventListener('DOMContentLoaded', function() {
         otherSecondaryLivelihoodInput.addEventListener('blur', function(e) {
             const mainLivelihood = document.getElementById('fishr-main_livelihood');
             const secondaryLivelihood = document.getElementById('fishr-secondary_livelihood');
-            
+
             if (mainLivelihood.value === 'others' && secondaryLivelihood.value === 'others') {
                 const mainOthersText = (otherLivelihoodInput?.value || '').trim().toLowerCase();
                 const secondaryOthersText = (e.target.value || '').trim().toLowerCase();
-                
+
                 if (mainOthersText && secondaryOthersText && mainOthersText === secondaryOthersText) {
                     e.target.style.borderColor = '#ff6b6b';
                     e.target.style.backgroundColor = '#ffe6e6';
@@ -1512,8 +1521,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    
+
+
     // Small delay to ensure all elements are ready
     setTimeout(initializeFishRModule, 100);
 });
@@ -1528,7 +1537,7 @@ window.closeFormFishR = closeFormFishR;
 window.showFishrTab = showFishrTab;
 window.toggleOtherLivelihood = toggleOtherLivelihood;
 window.fillSampleFishRData = fillSampleFishRData;
-window.toggleOtherSecondaryLivelihood = toggleOtherSecondaryLivelihood; 
+window.toggleOtherSecondaryLivelihood = toggleOtherSecondaryLivelihood;
 window.validateSecondaryLivelihoodMatch = validateSecondaryLivelihoodMatch;
 window.validateFishRForm = validateFishRForm;
 
