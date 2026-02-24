@@ -8,8 +8,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class SendAccountVerificationSms
+class SendAccountVerificationSms implements ShouldQueue
 {
+    use InteractsWithQueue;
+
 
     protected SmsService $smsService;
 
