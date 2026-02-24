@@ -15,17 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SuperAdminSeeder::class,
-            BarangaySeeder::class,
-            FishrRequestSeeder::class,
-            RequestCategorySeeder::class,
-            SupplyManagementSeeder::class,  // Run before SeedlingRequestSeeder to ensure supplies are available
-            SeedlingRequestSeeder::class,
-            BoatrRequestSeeder::class,
-            RsbsaApplicationSeeder::class,
-            TrainingApplicationSeeder::class,
-            UserRegistrationSeeder::class,
             EventSeeder::class,
-            SlideshowImagesSeeder::class
+            SlideshowImagesSeeder::class,
         ]);
     }
 }
