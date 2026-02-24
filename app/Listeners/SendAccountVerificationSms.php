@@ -8,9 +8,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class SendAccountVerificationSms // Removed ShouldQueue for immediate processing
+class SendAccountVerificationSms implements ShouldQueue
 {
-    // Removed InteractsWithQueue trait
+    use InteractsWithQueue;
 
     protected SmsService $smsService;
 
