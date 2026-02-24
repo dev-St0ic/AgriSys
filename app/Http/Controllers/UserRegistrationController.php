@@ -1230,8 +1230,20 @@ class UserRegistrationController extends Controller
             // Use model methods that trigger SMS notifications
             if ($newStatus === 'approved') {
                 $registration->approve(auth()->id());
+                $this->logActivity('approved', 'UserRegistration', $registration->id, [
+                    'username' => $registration->username,
+                    'contact_number' => $registration->contact_number,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                ]);
             } elseif ($newStatus === 'rejected') {
                 $registration->reject($request->remarks ?? 'No reason provided', auth()->id());
+                $this->logActivity('rejected', 'UserRegistration', $registration->id, [
+                    'username' => $registration->username,
+                    'reason' => $request->remarks ?? 'No reason provided',
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                ]);
             } else {
                 $updateData = [
                     'status' => $newStatus,
@@ -1243,6 +1255,13 @@ class UserRegistrationController extends Controller
                 }
 
                 $registration->update($updateData);
+
+                $this->logActivity('status_changed', 'UserRegistration', $registration->id, [
+                    'username' => $registration->username,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'remarks' => $request->remarks,
+                ]);
             }
 
             // FIXED: Refresh registration from database to get latest data

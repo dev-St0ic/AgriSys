@@ -589,24 +589,6 @@ private function getChangedFields($original, $updated)
                 'applicant_name' => $registration->getApplicantName()
             ]);
 
-            try {
-                dispatch(function() use ($registration, $oldStatus, $validated) {
-                    activity()
-                        ->performedOn($registration)
-                        ->causedBy(auth()->user())
-                        ->withProperties([
-                            'application_number' => $registration->application_number,
-                            'old_status' => $oldStatus,
-                            'new_status' => $registration->status,
-                            'remarks' => $validated['remarks'] ?? null
-                        ])
-                        ->event('status_changed')
-                        ->log('status_changed - BoatrApplication (ID: ' . $registration->id . ')');
-                })->afterResponse();
-            } catch (\Exception $logException) {
-                Log::warning('Activity logging failed', ['error' => $logException->getMessage()]);
-            }
-
             // Build and return response immediately
             $response = [
                 'success' => true,

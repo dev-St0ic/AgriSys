@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SlideshowImage;
+use App\Models\UserRegistration;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -26,7 +27,23 @@ class HomeController extends Controller
         $slides = $slideshowImages->count() > 0 ? $slideshowImages : collect($fallbackImages);
 
         // Get user session - set to null if not available (don't pass errors)
-        $user = session('user', null);
+        $userSession = session('user', null);
+        $user = $userSession;
+
+        // Extend session user with full profile data from database
+        if ($userSession && isset($userSession['id'])) {
+            $userModel = UserRegistration::find($userSession['id']);
+            if ($userModel) {
+                $user = array_merge($userSession, [
+                    'first_name'    => $userModel->first_name,
+                    'middle_name'   => $userModel->middle_name,
+                    'last_name'     => $userModel->last_name,
+                    'name_extension'=> $userModel->name_extension,
+                    'contact_number'=> $userModel->contact_number,
+                    'barangay'      => $userModel->barangay,
+                ]);
+            }
+        }
 
         // Get DSS report metadata for all services
         $rsbsaReport = \App\Http\Controllers\DSSController::getLatestReportMetadata('rsbsa');
@@ -47,7 +64,23 @@ class HomeController extends Controller
      */
     public function dashboard()
     {
-        $user = session('user', null);
+        $userSession = session('user', null);
+        $user = $userSession;
+
+        // Extend session user with full profile data from database
+        if ($userSession && isset($userSession['id'])) {
+            $userModel = UserRegistration::find($userSession['id']);
+            if ($userModel) {
+                $user = array_merge($userSession, [
+                    'first_name'    => $userModel->first_name,
+                    'middle_name'   => $userModel->middle_name,
+                    'last_name'     => $userModel->last_name,
+                    'name_extension'=> $userModel->name_extension,
+                    'contact_number'=> $userModel->contact_number,
+                    'barangay'      => $userModel->barangay,
+                ]);
+            }
+        }
 
         if (!$user) {
             // Return JSON for AJAX requests without triggering notifications

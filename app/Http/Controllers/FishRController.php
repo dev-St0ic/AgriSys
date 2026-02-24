@@ -349,19 +349,6 @@ class FishRController extends Controller
                 'applicant_name' => $registration->applicant_name
             ]);
 
-            dispatch(function() use ($registration, $previousStatus, $validated) {
-                activity()
-                    ->performedOn($registration)
-                    ->causedBy(auth()->user())
-                    ->withProperties([
-                        'old_status' => $previousStatus,
-                        'new_status' => $validated['status'],
-                        'remarks' => $validated['remarks']
-                    ])
-                    ->event('status_changed')
-                    ->log('status_changed - FishrApplication (ID: ' . $registration->id . ')');
-            })->afterResponse();
-
             // Return success response immediately
             return response()->json([
                 'success' => true,

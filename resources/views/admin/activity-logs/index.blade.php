@@ -31,116 +31,102 @@
                     <div class="row g-2">
                         <div class="col-md-3">
                             <select name="module" class="form-select form-select-sm" onchange="submitFilterForm()">
-                                <option value="">All Modules</option>
-                                <option value="Event" {{ request('module') == 'Event' ? 'selected' : '' }}>Events</option>
-                                <option value="SlideshowImage"
-                                    {{ request('module') == 'SlideshowImage' ? 'selected' : '' }}>
-                                    Slideshow Management</option>
-                                <option value="User" {{ request('module') == 'User' ? 'selected' : '' }}>User Management
-                                </option>
-                                <option value="Authentication"
-                                    {{ request('module') == 'Authentication' ? 'selected' : '' }}>
-                                    Authentication (Login/Logout)</option>
-                                <option value="RsbsaApplication"
-                                    {{ request('module') == 'RsbsaApplication' ? 'selected' : '' }}>RSBSA Registrations
-                                </option>
-                                <option value="SeedlingRequest"
-                                    {{ request('module') == 'SeedlingRequest' ? 'selected' : '' }}>
-                                    Supply Requests</option>
-                                <option value="CategoryItem" {{ request('module') == 'CategoryItem' ? 'selected' : '' }}>
-                                    Supply
-                                    Management</option>
-                                <option value="FishrApplication"
-                                    {{ request('module') == 'FishrApplication' ? 'selected' : '' }}>FishR Registrations
-                                </option>
-                                <option value="BoatrApplication"
-                                    {{ request('module') == 'BoatrApplication' ? 'selected' : '' }}>BoatR Registrations
-                                </option>
-                                <option value="TrainingApplication"
-                                    {{ request('module') == 'TrainingApplication' ? 'selected' : '' }}>Training Requests
-                                </option>
-                                <option value="RecycleBin" {{ request('module') == 'RecycleBin' ? 'selected' : '' }}>
-                                    Recycle
-                                    Bin</option>
-                                <option value="Barangay" {{ request('module') == 'Barangay' ? 'selected' : '' }}>Barangay
-                                    Management</option>
-                                <option value="DSSReport" {{ request('module') == 'DSSReport' ? 'selected' : '' }}>DSS
-                                    Reports
-                                </option>
+                                <option value="">All</option>
+                                <optgroup label="By Role">
+                                    <option value="role_admin" {{ request('module') == 'role_admin' ? 'selected' : '' }}>
+                                        Admin</option>
+                                    @if (auth()->user()->isSuperAdmin())
+                                        <option value="role_superadmin"
+                                            {{ request('module') == 'role_superadmin' ? 'selected' : '' }}>SuperAdmin
+                                        </option>
+                                    @endif
+                                    <option value="role_user" {{ request('module') == 'role_user' ? 'selected' : '' }}>User
+                                        (Portal)</option>
+                                </optgroup>
+                                <optgroup label="By Service">
+                                    <option value="Supply" {{ request('module') == 'Supply' ? 'selected' : '' }}>Supply
+                                        Request</option>
+                                    <option value="FishrApplication"
+                                        {{ request('module') == 'FishrApplication' ? 'selected' : '' }}>FishR</option>
+                                    <option value="BoatrApplication"
+                                        {{ request('module') == 'BoatrApplication' ? 'selected' : '' }}>BoatR</option>
+                                    <option value="RsbsaApplication"
+                                        {{ request('module') == 'RsbsaApplication' ? 'selected' : '' }}>RSBSA</option>
+                                    <option value="TrainingApplication"
+                                        {{ request('module') == 'TrainingApplication' ? 'selected' : '' }}>Training
+                                    </option>
+                                    <option value="DSSReport" {{ request('module') == 'DSSReport' ? 'selected' : '' }}>DSS
+                                        Report</option>
+                                </optgroup>
                             </select>
                         </div>
 
                         <div class="col-md-2">
                             <select name="event" class="form-select form-select-sm" onchange="submitFilterForm()">
-                                <option value="">All</option>
-                                <optgroup label="Basic Actions">
+                                <option value="">All Actions</option>
+                                <optgroup label="Approvals &amp; Status">
+                                    <option value="status_changed"
+                                        {{ request('event') == 'status_changed' ? 'selected' : '' }}>Status Changed — All
+                                        Services</option>
+                                    <option value="status_changed_approved"
+                                        {{ request('event') == 'status_changed_approved' ? 'selected' : '' }}>Status
+                                        Changed → Approved</option>
+                                    <option value="status_changed_rejected"
+                                        {{ request('event') == 'status_changed_rejected' ? 'selected' : '' }}>Status
+                                        Changed → Rejected</option>
+                                </optgroup>
+                                <optgroup label="Submissions">
+                                    <option value="submitted" {{ request('event') == 'submitted' ? 'selected' : '' }}>
+                                        Submitted — All Services</option>
+                                </optgroup>
+                                <optgroup label="Login / Logout">
+                                    <option value="login_admin" {{ request('event') == 'login_admin' ? 'selected' : '' }}>
+                                        Login — Admin / Superadmin</option>
+                                    <option value="logout_admin"
+                                        {{ request('event') == 'logout_admin' ? 'selected' : '' }}>Logout — Admin /
+                                        Superadmin</option>
+                                    <option value="login_user" {{ request('event') == 'login_user' ? 'selected' : '' }}>
+                                        Login — User Portal</option>
+                                    <option value="logout_user" {{ request('event') == 'logout_user' ? 'selected' : '' }}>
+                                        Logout — User Portal</option>
+                                </optgroup>
+                                <optgroup label="Other Actions">
                                     <option value="created" {{ request('event') == 'created' ? 'selected' : '' }}>Created —
                                         All Services</option>
                                     <option value="updated" {{ request('event') == 'updated' ? 'selected' : '' }}>Updated —
                                         All Services</option>
                                     <option value="deleted" {{ request('event') == 'deleted' ? 'selected' : '' }}>Deleted —
                                         All Services</option>
-                                </optgroup>
-                                <optgroup label="Authentication">
-                                    <option value="login" {{ request('event') == 'login' ? 'selected' : '' }}>Login —
-                                        Admin / User Portal</option>
-                                    <option value="logout" {{ request('event') == 'logout' ? 'selected' : '' }}>Logout —
-                                        Admin / User Portal</option>
-                                    <option value="login_failed"
-                                        {{ request('event') == 'login_failed' ? 'selected' : '' }}>Login Failed — Admin /
-                                        User Portal</option>
-                                </optgroup>
-                                <optgroup label="Submissions">
-                                    <option value="submitted" {{ request('event') == 'submitted' ? 'selected' : '' }}>
-                                        Submitted — FishR / RSBSA / Training / Supply</option>
-                                </optgroup>
-                                <optgroup label="Approvals &amp; Status">
-                                    <option value="approved" {{ request('event') == 'approved' ? 'selected' : '' }}>
-                                        Approved — RSBSA / Training / User Reg.</option>
-                                    <option value="rejected" {{ request('event') == 'rejected' ? 'selected' : '' }}>
-                                        Rejected — RSBSA / Training / User Reg.</option>
-                                    <option value="status_changed"
-                                        {{ request('event') == 'status_changed' ? 'selected' : '' }}>Status Changed — FishR
-                                        / BoatR / RSBSA / Training</option>
+                                    <option value="exported" {{ request('event') == 'exported' ? 'selected' : '' }}>
+                                        Exported — All Services</option>
+                                    <option value="marked_claimed"
+                                        {{ request('event') == 'marked_claimed' ? 'selected' : '' }}>Marked as Claimed —
+                                        Supply</option>
+                                    <option value="updated_items"
+                                        {{ request('event') == 'updated_items' ? 'selected' : '' }}>Updated Items — Supply
+                                    </option>
+                                    <option value="supply_added"
+                                        {{ request('event') == 'supply_added' ? 'selected' : '' }}>Supply Added</option>
+                                    <option value="supply_adjusted"
+                                        {{ request('event') == 'supply_adjusted' ? 'selected' : '' }}>Supply Adjusted
+                                    </option>
+                                    <option value="supply_loss" {{ request('event') == 'supply_loss' ? 'selected' : '' }}>
+                                        Supply Loss</option>
                                     <option value="inspection_completed"
                                         {{ request('event') == 'inspection_completed' ? 'selected' : '' }}>Inspection
                                         Completed — BoatR</option>
-                                    <option value="marked_claimed"
-                                        {{ request('event') == 'marked_claimed' ? 'selected' : '' }}>Marked as Claimed —
-                                        Supply Request</option>
-                                </optgroup>
-                                <optgroup label="FishR &amp; BoatR">
                                     <option value="fishr_number_assigned"
                                         {{ request('event') == 'fishr_number_assigned' ? 'selected' : '' }}>FishR #
-                                        Assigned — FishR</option>
+                                        Assigned</option>
                                     <option value="annex_uploaded"
                                         {{ request('event') == 'annex_uploaded' ? 'selected' : '' }}>File Uploaded — FishR
                                         / BoatR</option>
                                     <option value="annex_deleted"
                                         {{ request('event') == 'annex_deleted' ? 'selected' : '' }}>File Deleted — FishR /
                                         BoatR</option>
-                                </optgroup>
-                                <optgroup label="Supply Management">
-                                    <option value="supply_added"
-                                        {{ request('event') == 'supply_added' ? 'selected' : '' }}>Supply Added — Supply
-                                        Mgmt.</option>
-                                    <option value="supply_adjusted"
-                                        {{ request('event') == 'supply_adjusted' ? 'selected' : '' }}>Supply Adjusted —
-                                        Supply Mgmt.</option>
-                                    <option value="supply_loss" {{ request('event') == 'supply_loss' ? 'selected' : '' }}>
-                                        Supply Loss — Supply Mgmt.</option>
-                                    <option value="updated_items"
-                                        {{ request('event') == 'updated_items' ? 'selected' : '' }}>Updated Items — Supply
-                                        Request</option>
-                                </optgroup>
-                                <optgroup label="User Management">
                                     <option value="resent_verification"
                                         {{ request('event') == 'resent_verification' ? 'selected' : '' }}>Resent
-                                        Verification — Admin</option>
-                                </optgroup>
-                                <optgroup label="Reports &amp; Exports">
-                                    <option value="exported" {{ request('event') == 'exported' ? 'selected' : '' }}>
-                                        Exported — All Services</option>
+                                        Verification</option>
                                     <option value="dss_report_viewed"
                                         {{ request('event') == 'dss_report_viewed' ? 'selected' : '' }}>Viewed — DSS
                                         Reports</option>
@@ -229,24 +215,24 @@
 
                                             if ($actionUser) {
                                                 // Check if it's a UserRegistration or User model
-                                            if ($actionUser instanceof \App\Models\UserRegistration) {
-                                                // UserRegistration: just show username
-                                                $actionUserName = $actionUser->username ?? 'Unknown User';
-                                                $actionUserEmail = ucfirst($actionUser->user_type ?? 'Portal User'); // shows "Farmer", "Fisherfolk", etc.
-                                                } else {
-                                                    // User model has: name, email
-                                                    $actionUserName = $actionUser->name ?? 'Unknown';
-                                                    $actionUserEmail = $actionUser->email ?? 'N/A';
-                                                }
-                                            } elseif (in_array($activity->event, ['login', 'logout', 'login_failed'])) {
-                                                // Fallback: check properties for login/logout activities without causer
-                                                $properties = $activity->properties->all() ?? [];
-                                                $actionUserName =
-                                                    $properties['name'] ??
-                                                    ($properties['email'] ??
-                                                        ($properties['username'] ?? 'Unknown User'));
-                                                $actionUserEmail =
-                                                    $properties['email'] ?? ($properties['first_name'] ?? 'N/A');
+    if ($actionUser instanceof \App\Models\UserRegistration) {
+        // UserRegistration: just show username
+        $actionUserName = $actionUser->username ?? 'Unknown User';
+        $actionUserEmail = ucfirst($actionUser->user_type ?? 'Portal User'); // shows "Farmer", "Fisherfolk", etc.
+    } else {
+        // User model has: name, email
+        $actionUserName = $actionUser->name ?? 'Unknown';
+        $actionUserEmail = $actionUser->email ?? 'N/A';
+    }
+} elseif (in_array($activity->event, ['login', 'logout', 'login_failed'])) {
+    // Fallback: check properties for login/logout activities without causer
+    $properties = $activity->properties->all() ?? [];
+    $actionUserName =
+        $properties['name'] ??
+        ($properties['email'] ??
+            ($properties['username'] ?? 'Unknown User'));
+    $actionUserEmail =
+        $properties['email'] ?? ($properties['first_name'] ?? 'N/A');
                                             }
                                         @endphp
 
@@ -262,38 +248,53 @@
                                     <td>
                                         @php
                                             // Show the ACTUAL user's role, not the current superadmin
-                                            $roleBg = 'secondary';
-                                            $roleText = 'System';
+$roleBg = 'secondary';
+$roleText = 'System';
+$roleOutline = false;
 
-                                            if ($actionUser) {
-                                                $roleText = ucfirst($actionUser->role ?? 'user');
+if ($actionUser) {
+    if ($actionUser instanceof \App\Models\UserRegistration) {
+        // Portal user: show user_type (Farmer, Fisherfolk, etc.)
+        $roleText = ucfirst($actionUser->user_type ?? 'User');
+        $roleBg = 'info';
+        $roleOutline = true;
+    } else {
+        $roleText = ucfirst($actionUser->role ?? 'user');
 
-                                                if ($actionUser->role === 'superadmin') {
-                                                    $roleBg = 'danger';
-                                                } elseif ($actionUser->role === 'admin') {
-                                                    $roleBg = 'warning';
-                                                } elseif ($actionUser->role === 'user') {
-                                                    $roleBg = 'info';
-                                                }
-                                            } elseif (
-                                                !$actionUser &&
-                                                in_array($activity->event, ['login', 'logout', 'login_failed'])
-                                            ) {
-                                                // For login/logout without causer, check properties
-                                                $properties = $activity->properties->all() ?? [];
-                                                if (isset($properties['role'])) {
-                                                    $roleText = ucfirst($properties['role']);
-                                                    if ($properties['role'] === 'superadmin') {
-                                                        $roleBg = 'danger';
-                                                    } elseif ($properties['role'] === 'admin') {
-                                                        $roleBg = 'warning';
-                                                    } elseif ($properties['role'] === 'user') {
-                                                        $roleBg = 'info';
+        if ($actionUser->role === 'superadmin') {
+            $roleBg = 'danger';
+        } elseif ($actionUser->role === 'admin') {
+            $roleBg = 'primary';
+            $roleOutline = true;
+        } elseif ($actionUser->role === 'user') {
+            $roleBg = 'info';
+        }
+    }
+} elseif (
+    !$actionUser &&
+    in_array($activity->event, ['login', 'logout', 'login_failed'])
+) {
+    // For login/logout without causer, check properties
+    $properties = $activity->properties->all() ?? [];
+    if (isset($properties['role'])) {
+        $roleText = ucfirst($properties['role']);
+        if ($properties['role'] === 'superadmin') {
+            $roleBg = 'danger';
+        } elseif ($properties['role'] === 'admin') {
+            $roleBg = 'primary';
+            $roleOutline = true;
+        } elseif ($properties['role'] === 'user') {
+            $roleBg = 'info';
                                                     }
                                                 }
                                             }
                                         @endphp
-                                        <span class="badge bg-{{ $roleBg }}">{{ $roleText }}</span>
+                                        @if ($roleOutline)
+                                            <span
+                                                class="badge border border-{{ $roleBg }} text-{{ $roleBg }} bg-transparent">{{ $roleText }}</span>
+                                        @else
+                                            <span class="badge bg-{{ $roleBg }}">{{ $roleText }}</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @php
@@ -420,10 +421,35 @@
                                                 'color' => 'secondary',
                                                 'icon' => 'fa-circle',
                                             ];
+
+                                            // For status_changed, read new_status from properties
+                                            $newStatus = null;
+                                            if ($action === 'status_changed') {
+                                                $props = $activity->properties->all() ?? [];
+                                                $newStatus = $props['new_status'] ?? null;
+                                            }
                                         @endphp
-                                        <span class="badge bg-{{ $actionData['color'] }}">
-                                            <i class="fas {{ $actionData['icon'] }}"></i> {{ $actionData['label'] }}
-                                        </span>
+                                        @if ($newStatus)
+                                            @php
+                                                $statusColor = match ($newStatus) {
+                                                    'approved' => 'success',
+                                                    'rejected' => 'danger',
+                                                    'under_review' => 'info',
+                                                    'pending' => 'warning',
+                                                    default => 'secondary',
+                                                };
+                                            @endphp
+                                            <span
+                                                class="badge border border-{{ $statusColor }} text-{{ $statusColor }} bg-transparent">
+                                                <i class="fas fa-exchange-alt"></i>
+                                                {{ ucfirst(str_replace('_', ' ', $newStatus)) }}
+                                            </span>
+                                        @else
+                                            <span
+                                                class="badge border border-{{ $actionData['color'] }} text-{{ $actionData['color'] }} bg-transparent">
+                                                <i class="fas {{ $actionData['icon'] }}"></i> {{ $actionData['label'] }}
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>
                                         @php
@@ -623,10 +649,12 @@
                                                     // For other models
                                                     $subjectName =
                                                         $subject->request_number ??
-                                                        ($subject->application_number ??
-                                                            ($subject->name ??
-                                                                ($subject->title ??
-                                                                    ($subject->email ?? ('#' . $subject->id ?? '')))));
+                                                        ($subject->registration_number ??
+                                                            ($subject->application_number ??
+                                                                ($subject->name ??
+                                                                    ($subject->title ??
+                                                                        ($subject->email ??
+                                                                            ('#' . $subject->id ?? ''))))));
                                                 }
                                             } else {
                                                 // For old logs without subject, parse from description
@@ -682,9 +710,11 @@
                                                                 $subject = $modelClass
                                                                     ::withTrashed()
                                                                     ->find($parsedModelId);
-                                                                // Update subject name with application_number if loaded
-                                                                if ($subject && $subject->application_number) {
-                                                                    $subjectName = $subject->application_number;
+                                                                // FishrApplication uses registration_number; others use application_number
+                                                                if ($subject) {
+                                                                    $subjectName =
+                                                                        $subject->registration_number ??
+                                                                        ($subject->application_number ?? $subjectName);
                                                                 }
                                                             }
                                                         } catch (\Exception $e) {
