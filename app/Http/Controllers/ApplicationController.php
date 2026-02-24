@@ -86,6 +86,21 @@ class ApplicationController extends Controller
                 'username' => $userExists->username
             ]);
 
+            // ✅ DUPLICATE CHECK: prevent re-submission if pending/under_review
+            $hasPending = FishrApplication::where('user_id', $userId)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->exists();
+            if ($hasPending) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You already have a pending FishR application. Please wait for it to be processed.'
+                    ], 422);
+                }
+                return redirect()->route('landing.page')
+                    ->with('error', 'You already have a pending FishR application. Please wait for it to be processed.');
+            }
+
             // ✅ FIXED: All validation rules in correct place
             $validated = $request->validate([
                 'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
@@ -512,6 +527,21 @@ public function submitRsbsa(Request $request)
             'username' => $userExists->username,
         ]);
 
+        // ✅ DUPLICATE CHECK: prevent re-submission if pending/under_review
+        $hasPending = RsbsaApplication::where('user_id', $userId)
+            ->whereIn('status', ['pending', 'under_review'])
+            ->exists();
+        if ($hasPending) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You already have a pending RSBSA application. Please wait for it to be processed.'
+                ], 422);
+            }
+            return redirect()->route('landing.page')
+                ->with('error', 'You already have a pending RSBSA application. Please wait for it to be processed.');
+        }
+
         // ✅ COMPLETE VALIDATION WITH ALL FIELDS
         $validated = $request->validate([
             // Basic info
@@ -921,6 +951,18 @@ try {
             'has_csrf' => $request->has('_token'),
             'content_type' => $request->header('Content-Type')
         ]);
+
+        // ✅ DUPLICATE CHECK: prevent re-submission if pending/under_review
+        $hasPending = TrainingApplication::where('user_id', $userId)
+            ->whereIn('status', ['pending', 'under_review'])
+            ->exists();
+        if ($hasPending) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You already have a pending Training application. Please wait for it to be processed.'
+            ], 422);
+        }
+
             // Enhanced validation with better error messages
             $validated = $request->validate([
                 'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],

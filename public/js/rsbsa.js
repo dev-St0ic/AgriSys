@@ -111,6 +111,15 @@ function openRSBSAForm(event) {
         return false;
     }
 
+    // Block if user already has a pending/under-review application
+    if (window.pendingApplications && window.pendingApplications.rsbsa) {
+        agrisysModal.warning(
+            'You already have a pending RSBSA application. Please wait for your current application to be processed before submitting a new one.',
+            { title: 'Application Already Submitted' }
+        );
+        return false;
+    }
+
     console.log('Opening RSBSA form');
 
     if (typeof hideAllMainSections === 'function') hideAllMainSections();
@@ -1298,7 +1307,7 @@ if (addressInput) {
 const farmLocationInput = document.querySelector('#rsbsa-form [name="farm_location"]');
 if (farmLocationInput) {
     const farmLocationWarning = document.getElementById('rsbsa-farm_location-warning');
-    
+
     farmLocationInput.addEventListener('input', function(e) {
         const value = e.target.value;
         const pattern = /^[a-zA-Z0-9\s,.\'-]*$/;

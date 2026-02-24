@@ -484,26 +484,31 @@
                             </div>
 
                             <div class="dropdown-menu">
-                                <button type="button" class="dropdown-item" onclick="showMyApplicationsModal(event)">
-                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button type="button" class="dropdown-item"
+                                    onclick="showMyApplicationsModal(event)">
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     My Applications
                                 </button>
-                                
+
                                 <button type="button" class="dropdown-item" onclick="showProfileModal(event)">
-                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                     View Profile
                                 </button>
-                                
+
                                 <div class="dropdown-divider"></div>
-                                
-                                <button type="button" class="dropdown-item logout" onclick="showLogoutConfirmation(event)">
-                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                <button type="button" class="dropdown-item logout"
+                                    onclick="showLogoutConfirmation(event)">
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
@@ -984,9 +989,11 @@
                     <!-- Status Filter Bar -->
                     <div class="filter-bar">
                         <span class="filter-label">Filter by Status:</span>
-                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All Applications</button>
+                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All
+                            Applications</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('pending')">Pending</button>
-                        <button class="filter-btn" onclick="filterApplicationsByStatus('under_review')">Under Review</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('under_review')">Under
+                            Review</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('approved')">Approved</button>
                         <button class="filter-btn" onclick="filterApplicationsByStatus('rejected')">Rejected</button>
                     </div>
@@ -2683,6 +2690,16 @@
     <script src="{{ asset('js/landing.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/submission-service.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/seedlings.js') }}?v={{ config('app.asset_version') }}"></script>
+
+    <!-- Pending application flags (server-side) -->
+    <script>
+        window.pendingApplications = {
+            fishr: {{ $hasPendingFishr ?? false ? 'true' : 'false' }},
+            rsbsa: {{ $hasPendingRsbsa ?? false ? 'true' : 'false' }},
+            training: {{ $hasPendingTraining ?? false ? 'true' : 'false' }}
+        };
+    </script>
+
     <script src="{{ asset('js/rsbsa.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/fishr.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/boatr.js') }}?v={{ config('app.asset_version') }}"></script>
