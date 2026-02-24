@@ -105,8 +105,8 @@ Route::post('/submit-boatr', [ApplicationController::class, 'submitBoatR'])->nam
  * Authentication Routes (Public)
  * Basic login/logout functionality
  */
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::get('/admin/portal', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/admin/portal', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 /**
