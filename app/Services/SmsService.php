@@ -140,11 +140,18 @@ class SmsService
     public function sendApplicationStatusNotification($phoneNumber, $fullName, $applicationType, $status, $reason = null)
     {
         if ($status === 'approved') {
-            // Special message for Supplies/Seedling requests with pickup information
             if (stripos($applicationType, 'Seedling') !== false || stripos($applicationType, 'Supplies') !== false) {
-                $message = "Good news {$fullName}! Your {$applicationType} application has been APPROVED. You have 30 DAYS to pick up your items from our office (Mon-Fri, 8AM-5PM). Bring a valid ID. - AgriSys";
+                $message = "Good news, {$fullName}! Your {$applicationType} request has been APPROVED. You have 30 DAYS to claim your items at the City Agriculture Office (Mon-Fri, 8AM-5PM). Bring: 1) Valid Government ID, 2) Proof of Residency. - AgriSys";
+            } elseif (stripos($applicationType, 'RSBSA') !== false) {
+                $message = "Good news, {$fullName}! Your RSBSA application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Barangay Certificate, 2) Recent 2x2 ID Picture (white background). - AgriSys";
+            } elseif (stripos($applicationType, 'FishR') !== false) {
+                $message = "Good news, {$fullName}! Your FishR application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Barangay Certificate, 2) Recent 1x1 ID Picture (white background). - AgriSys";
+            } elseif (stripos($applicationType, 'BoatR') !== false) {
+                $message = "Good news, {$fullName}! Your BoatR application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Valid Government ID, 2) Proof of Boat Ownership, 3) FishR Registration Certificate, 4) Engine Details/Receipt (if motorized). An on-site boat inspection will be scheduled. - AgriSys";
+            } elseif (stripos($applicationType, 'Training') !== false) {
+                $message = "Good news, {$fullName}! Your Training application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Valid Government ID, 2) Proof of Residency in San Pedro City. Training schedule will be announced. - AgriSys";
             } else {
-                $message = "Good news, {$fullName}! Your {$applicationType} application has been APPROVED. You may now proceed to the City Agriculture Office to complete the next steps. - AgriSys";
+                $message = "Good news, {$fullName}! Your {$applicationType} application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) to complete the next steps. Bring a valid ID. - AgriSys";
             }
         } elseif ($status === 'rejected') {
             $reasonText = $reason ? " Reason: {$reason}" : "";
