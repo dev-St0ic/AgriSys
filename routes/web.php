@@ -79,7 +79,7 @@ Route::get('/download/{file}', function($file) {
         abort(403, 'Unauthorized file');
     }
 
-    $filePath = storage_path('app/public/documents/' . $file . '.pdf');
+    $filePath = storage_path('app/public/rsbsa_documents/' . $file . '.pdf');
 
     if (!file_exists($filePath)) {
         abort(404, 'File not found');
