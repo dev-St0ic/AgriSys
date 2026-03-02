@@ -809,6 +809,19 @@ Route::prefix('auth')->group(function () {
     // Contact number availability checking
     Route::post('/check-contact', [UserRegistrationController::class, 'checkContactNumber'])->name('auth.check.contact');
 
+    // Dedicated verification page (GET)
+    Route::get('/verify-profile', function () {
+        $user = session('user');
+        if (!$user) {
+            return redirect('/')->with('error', 'Please log in to access profile verification.');
+        }
+        $status = strtolower($user['status'] ?? 'unverified');
+        if (in_array($status, ['approved', 'verified', 'pending', 'pending_verification'])) {
+            return redirect('/')->with('info', 'Your account is already submitted or verified.');
+        }
+        return view('landingPage.verify-profile', compact('user'));
+    })->name('auth.verify.profile.page');
+
     // Enhanced profile verification with file uploads
     Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])
         ->middleware('web')

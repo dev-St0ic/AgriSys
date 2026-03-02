@@ -21,6 +21,15 @@ function openAuthModal(type = 'login') {
     }
 }
 
+function hideAuthModal() {
+    // Hides the modal WITHOUT resetting form data (used for click-outside & Escape key)
+    const modal = document.getElementById('auth-modal');
+    if (!modal) return;
+
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
 function closeAuthModal() {
     const modal = document.getElementById('auth-modal');
     if (!modal) return;
@@ -303,27 +312,27 @@ function showProfileModal(event) {
         event.preventDefault();
         event.stopPropagation();
     }
-    
+
     // Close user dropdown first
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
-    
+
     // Navigate to home if not already there
     const currentPath = window.location.pathname;
     if (currentPath !== '/' && currentPath !== '') {
         // Hide all forms and show main sections
         if (typeof hideAllForms === 'function') hideAllForms();
         if (typeof showAllMainSections === 'function') showAllMainSections();
-        
+
         // Update URL to home
         history.pushState({page: 'home'}, 'Home', '/');
-        
+
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
+
     // Open modal after navigation (with small delay for smooth transition)
     setTimeout(() => {
         const modal = document.getElementById('profile-modal');
@@ -1514,16 +1523,8 @@ function previewImage(input, previewId) {
 }
 
 function showVerificationModal() {
-    const modal = document.getElementById('verification-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-
-        // Initialize validations when modal opens
-        setTimeout(() => {
-            initializeVerificationFormValidations();
-        }, 100);
-    }
+    // Redirect to dedicated verification page instead of showing a modal
+    window.location.href = '/auth/verify-profile';
 }
 
 // ==============================================
@@ -2139,27 +2140,27 @@ function showMyApplicationsModal(event) {
         event.preventDefault();
         event.stopPropagation();
     }
-    
+
     // Close user dropdown first
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
-    
+
     // Navigate to home if not already there
     const currentPath = window.location.pathname;
     if (currentPath !== '/' && currentPath !== '') {
         // Hide all forms and show main sections
         if (typeof hideAllForms === 'function') hideAllForms();
         if (typeof showAllMainSections === 'function') showAllMainSections();
-        
+
         // Update URL to home
         history.pushState({page: 'home'}, 'Home', '/');
-        
+
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
+
     // Open modal after navigation (with small delay for smooth transition)
     setTimeout(() => {
         const modal = document.getElementById('applications-modal');
@@ -4446,12 +4447,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Auth modal close functionality
+    // Auth modal close functionality (click outside just hides, does not reset form)
     const authModal = document.getElementById('auth-modal');
     if (authModal) {
         authModal.addEventListener('click', function(event) {
             if (event.target === authModal) {
-                closeAuthModal();
+                hideAuthModal();
             }
         });
     }
@@ -4531,7 +4532,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Escape') {
             const authModal = document.getElementById('auth-modal');
             if (authModal && authModal.style.display !== 'none') {
-                closeAuthModal();
+                hideAuthModal();
             }
 
             const applicationsModal = document.getElementById('applications-modal');
