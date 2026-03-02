@@ -2744,6 +2744,47 @@ if (!document.querySelector('#logout-fadeout-animation')) {
     document.head.appendChild(fadeOutStyle);
 }
 
+/**
+ * Perform the actual logout — submits the hidden logout form
+ */
+async function confirmLogoutEnhanced() {
+    const confirmBtn = document.querySelector('.btn-confirm-logout');
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        const btnText = confirmBtn.querySelector('.btn-text');
+        const btnLoader = confirmBtn.querySelector('.btn-loader');
+        if (btnText) btnText.textContent = 'Logging out...';
+        if (btnLoader) btnLoader.style.display = 'inline-flex';
+    }
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        const response = await fetch('/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+
+        // Whether JSON or redirect, navigate to home
+        closeLogoutConfirmation();
+        window.location.href = '/';
+    } catch (error) {
+        // Fallback: submit the form directly
+        const logoutForm = document.getElementById('logout-form');
+        if (logoutForm) {
+            closeLogoutConfirmation();
+            logoutForm.submit();
+        } else {
+            window.location.href = '/';
+        }
+    }
+}
+
 console.log('✅ Enhanced Logout functions loaded');
 // ==============================================
 // USERNAME AVAILABILITY CHECKER
@@ -5905,8 +5946,8 @@ window.changePassword = changePassword;
 // window.logoutUser = logoutUser;
 window.showLogoutConfirmation = showLogoutConfirmation;
 window.closeLogoutConfirmation = closeLogoutConfirmation;
-window.confirmLogout = confirmLogout;
-window.confirmLogout = window.confirmLogoutEnhanced;
+window.confirmLogout = confirmLogoutEnhanced;
+window.confirmLogoutEnhanced = confirmLogoutEnhanced;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;
