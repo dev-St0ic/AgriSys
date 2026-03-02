@@ -2016,7 +2016,7 @@
                 if (item.image_path) {
                     imagePreview.innerHTML = `
                 <label class="form-label">Current Image:</label><br>
-                <img src="/storage/${item.image_path}" alt="${item.name}"
+                <img src="/${item.image_path}" alt="${item.name}"
                     class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
             `;
                 } else {
