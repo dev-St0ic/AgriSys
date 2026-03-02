@@ -199,7 +199,7 @@ function refreshProfileVerifyButton() {
                 </svg>
                 <span>Verify Again</span>
             `;
-            verifyBtn.onclick = () => showVerificationModal();
+            verifyBtn.onclick = () => window.location.href = '/auth/verify-profile';
             break;
 
         case 'unverified':
@@ -217,7 +217,7 @@ function refreshProfileVerifyButton() {
                 </svg>
                 <span>Verify Account</span>
             `;
-            verifyBtn.onclick = () => showVerificationModal();
+            verifyBtn.onclick = () => window.location.href = '/auth/verify-profile';
             break;
     }
 

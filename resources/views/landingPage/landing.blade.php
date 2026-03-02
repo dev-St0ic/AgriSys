@@ -444,25 +444,37 @@
                             </div>
                             <div class="user-status" id="header-user-status">
                                 @if (isset($user['status']))
-                                    <span id="status-text" class="status-badge-text">
-                                        @php
-                                            $statusLower = strtolower($user['status']);
-                                            if ($statusLower === 'approved' || $statusLower === 'verified') {
-                                                echo 'Verified';
-                                            } elseif (
-                                                $statusLower === 'pending' ||
-                                                $statusLower === 'pending_verification'
-                                            ) {
-                                                echo 'Under Review';
-                                            } elseif ($statusLower === 'rejected') {
-                                                echo 'Verification Failed';
-                                            } elseif ($statusLower === 'unverified') {
-                                                echo 'Not Verified';
-                                            } else {
-                                                echo ucfirst($user['status']);
-                                            }
-                                        @endphp
-                                    </span>
+                                    @php
+                                        $statusLower = strtolower($user['status']);
+                                        $isClickable = in_array($statusLower, ['unverified', 'rejected']);
+                                    @endphp
+                                    @if ($isClickable)
+                                        <a href="/auth/verify-profile" id="status-text" class="status-badge-text"
+                                            style="text-decoration:none;cursor:pointer;">
+                                            @php
+                                                if ($statusLower === 'rejected') {
+                                                    echo 'Verification Failed';
+                                                } else {
+                                                    echo 'Not Verified';
+                                                }
+                                            @endphp
+                                        </a>
+                                    @else
+                                        <span id="status-text" class="status-badge-text">
+                                            @php
+                                                if ($statusLower === 'approved' || $statusLower === 'verified') {
+                                                    echo 'Verified';
+                                                } elseif (
+                                                    $statusLower === 'pending' ||
+                                                    $statusLower === 'pending_verification'
+                                                ) {
+                                                    echo 'Under Review';
+                                                } else {
+                                                    echo ucfirst($user['status']);
+                                                }
+                                            @endphp
+                                        </span>
+                                    @endif
                                 @else
                                     <span id="status-text" class="status-badge-text">Active</span>
                                 @endif
