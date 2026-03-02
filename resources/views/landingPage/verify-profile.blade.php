@@ -573,16 +573,6 @@
 
         <div class="mobile-nav-items">
             <a href="{{ url('/') }}" class="mobile-nav-item"><i class="fas fa-home"></i> Home</a>
-            <a href="{{ url('/') }}#services" class="mobile-nav-item"><i class="fas fa-tools"></i> Supplies &amp;
-                Garden Tools</a>
-            <a href="{{ url('/') }}#services" class="mobile-nav-item"><i class="fas fa-file-alt"></i> RSBSA
-                Application</a>
-            <a href="{{ url('/') }}#services" class="mobile-nav-item"><i class="fas fa-fish"></i> FishR
-                Registration</a>
-            <a href="{{ url('/') }}#services" class="mobile-nav-item"><i class="fas fa-ship"></i> BoatR
-                Registration</a>
-            <a href="{{ url('/') }}#services" class="mobile-nav-item"><i class="fas fa-chalkboard-teacher"></i>
-                Training Request</a>
 
             @if (isset($user))
                 <div class="mobile-nav-divider"></div>
@@ -605,11 +595,6 @@
             <!-- Desktop Navigation -->
             <div class="header-center nav-buttons">
                 <a href="{{ url('/') }}" class="btn">Home</a>
-                <a href="{{ url('/') }}#services" class="btn">Supplies &amp; Garden Tools</a>
-                <a href="{{ url('/') }}#services" class="btn">RSBSA</a>
-                <a href="{{ url('/') }}#services" class="btn">FishR</a>
-                <a href="{{ url('/') }}#services" class="btn">BoatR</a>
-                <a href="{{ url('/') }}#services" class="btn">Training</a>
             </div>
 
             <div class="header-right auth-buttons">
@@ -1168,7 +1153,7 @@
             formData.append('completeAddress', f.querySelector('[name="completeAddress"]').value.trim());
             formData.append('emergencyContactName', f.querySelector('[name="emergencyContactName"]').value.trim());
             formData.append('emergencyContactPhone', f.querySelector('[name="emergencyContactPhone"]').value
-        .trim());
+                .trim());
 
             const idFront = f.querySelector('[name="idFront"]').files[0];
             const idBack = f.querySelector('[name="idBack"]').files[0];
