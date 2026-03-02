@@ -1017,309 +1017,6 @@
                 </div>
             </div>
         </div>
-        <!-- PROFILE VERIFICATION MODAL - UPDATED WITH AGE AND EMERGENCY CONTACT -->
-        <div id="verification-modal" class="modal-overlay" style="display: none;">
-            <div class="modal-content verification-modal">
-                <div class="modal-header">
-                    <h3>Profile Verification</h3>
-                    <span class="modal-close" onclick="closeVerificationModal()">&times;</span>
-                </div>
-
-                <div class="modal-body">
-                    <div class="verification-content">
-                        <div class="verification-header">
-                            <div class="verification-header-icon">
-                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20-8.95-20-20-20z"
-                                        stroke="#0A6953" stroke-width="2" fill="none" />
-                                    <path d="M20 32l-6-6 1.41-1.41L20 29.18l10.59-10.59L32 20l-12 12z"
-                                        fill="#0A6953" />
-                                </svg>
-                            </div>
-                            <h4>Complete Your Profile Verification</h4>
-                            <p>Please provide the following information to verify your account and access all services.
-                            </p>
-                        </div>
-
-                        <form id="verification-form">
-                            <!-- Personal Information -->
-                            <div class="verification-section">
-                                <div class="section-header">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
-                                    <h5>Personal Information</h5>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="firstName">First Name</label>
-                                        <input type="text" id="firstName" name="firstName" required
-                                            placeholder="Enter your first name">
-                                        <small>Letters and spaces only</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="middleName">Middle Name (Optional)</label>
-                                        <input type="text" id="middleName" name="middleName"
-                                            placeholder="Enter your middle name">
-                                        <small>Letters and spaces only</small>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="lastName">Last Name</label>
-                                        <input type="text" id="lastName" name="lastName" required
-                                            placeholder="Enter your last name">
-                                        <small>Letters and spaces only</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="extensionName">Name Extension</label>
-                                        <select id="extensionName" name="extensionName">
-                                            <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="dateOfBirth">Date of Birth</label>
-                                        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="age">Age</label>
-                                        <input type="number" id="age" name="age" min="18"
-                                            max="100" readonly placeholder="Auto-calculated">
-                                        <small>Calculated automatically from date of birth</small>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="sex">Sex</label>
-                                        <select id="sex" name="sex" required>
-                                            <option value="">Select Sex</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Preferred not to say">Preferred not to say</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="role">Sector</label>
-                                        <select id="role" name="role" required>
-                                            <option value="" disabled selected>Select your sector</option>
-                                            <option value="farmer">Farmer</option>
-                                            <option value="fisherfolk">Fisherfolk</option>
-                                            <option value="general">General Public</option>
-                                            <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
-                                            <option value="cooperative-member">Cooperative Member</option>
-                                            <option value="government-employee">Government Employee</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Address Information -->
-                            <div class="verification-section">
-                                <div class="section-header">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2">
-                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                        <circle cx="12" cy="10" r="3"></circle>
-                                    </svg>
-                                    <h5>Address Information</h5>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="barangay">Barangay</label>
-                                    <select id="barangay" name="barangay" required>
-                                        <option value="">Select Barangay</option>
-                                        <option value="Bagong Silang">Bagong Silang</option>
-                                        <option value="Calendola">Calendola</option>
-                                        <option value="Chrysanthemum">Chrysanthemum</option>
-                                        <option value="Cuyab">Cuyab</option>
-                                        <option value="Estrella">Estrella</option>
-                                        <option value="Fatima">Fatima</option>
-                                        <option value="G.S.I.S.">G.S.I.S.</option>
-                                        <option value="Landayan">Landayan</option>
-                                        <option value="Langgam">Langgam</option>
-                                        <option value="Laram">Laram</option>
-                                        <option value="Magsaysay">Magsaysay</option>
-                                        <option value="Maharlika">Maharlika</option>
-                                        <option value="Narra">Narra</option>
-                                        <option value="Nueva">Nueva</option>
-                                        <option value="Pacita 1">Pacita 1</option>
-                                        <option value="Pacita 2">Pacita 2</option>
-                                        <option value="Poblacion">Poblacion</option>
-                                        <option value="Riverside">Riverside</option>
-                                        <option value="Rosario">Rosario</option>
-                                        <option value="Sampaguita Village">Sampaguita Village</option>
-                                        <option value="San Antonio">San Antonio</option>
-                                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                                        <option value="San Roque">San Roque</option>
-                                        <option value="San Vicente">San Vicente</option>
-                                        <option value="Santo Niño">Santo Niño</option>
-                                        <option value="United Bayanihan">United Bayanihan</option>
-                                        <option value="United Better Living">United Better Living</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="completeAddress">Complete Address</label>
-                                    <textarea id="completeAddress" name="completeAddress" required rows="3"
-                                        placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Emergency Contact Information -->
-                            <div class="verification-section">
-                                <div class="section-header">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                                        </path>
-                                    </svg>
-                                    <h5>Emergency Contact</h5>
-                                </div>
-                                <p class="section-description">Provide a contact person we can reach in case of
-                                    emergency</p>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="emergencyContactName">Emergency Contact Name</label>
-                                        <input type="text" id="emergencyContactName" name="emergencyContactName"
-                                            required placeholder="Full name of emergency contact">
-                                        <small>Letters and spaces only</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="emergencyContactPhone">Emergency Contact Phone</label>
-                                        <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone"
-                                            required placeholder="09123456789" pattern="[0-9]{11}">
-                                        <small>11-digit Philippine mobile number (numbers only)</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Document Uploads -->
-                            <div class="verification-section">
-                                <div class="section-header">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                    </svg>
-                                    <h5>Required Documents</h5>
-                                </div>
-                                <p class="section-description">Please upload clear, high-quality images of the required
-                                    documents. Supported formats: JPG, PNG, PDF (Max 10MB)</p>
-
-                                <div class="form-row">
-                                    <div class="form-group file-upload-group">
-                                        <label for="idFront">Government ID (Front)</label>
-                                        <input type="file" id="idFront" name="idFront" required
-                                            accept="image/*" class="file-input"
-                                            onchange="previewImage(this, 'idFrontPreview')">
-                                        <div class="file-upload-area"
-                                            onclick="document.getElementById('idFront').click()">
-                                            <div class="upload-icon">
-                                                <svg width="32" height="32" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <rect x="3" y="4" width="18" height="14" rx="2">
-                                                    </rect>
-                                                    <path d="M3 18h18"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="upload-text">Click to upload ID front</div>
-                                        </div>
-                                        <div id="idFrontPreview" class="image-preview" style="display: none;"></div>
-                                    </div>
-
-                                    <div class="form-group file-upload-group">
-                                        <label for="idBack">Government ID (Back)</label>
-                                        <input type="file" id="idBack" name="idBack" required
-                                            accept="image/*" class="file-input"
-                                            onchange="previewImage(this, 'idBackPreview')">
-                                        <div class="file-upload-area"
-                                            onclick="document.getElementById('idBack').click()">
-                                            <div class="upload-icon">
-                                                <svg width="32" height="32" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2">
-                                                    <rect x="3" y="4" width="18" height="14" rx="2">
-                                                    </rect>
-                                                    <path d="M3 18h18"></path>
-                                                </svg>
-                                            </div>
-                                            <div class="upload-text">Click to upload ID back</div>
-                                        </div>
-                                        <div id="idBackPreview" class="image-preview" style="display: none;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group file-upload-group">
-                                    <label for="locationProof">Location/Role Proof</label>
-                                    <input type="file" id="locationProof" name="locationProof" required
-                                        accept="image/*" class="file-input"
-                                        onchange="previewImage(this, 'locationProofPreview')">
-                                    <div class="file-upload-area"
-                                        onclick="document.getElementById('locationProof').click()">
-                                        <div class="upload-icon">
-                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                                stroke="currentColor" stroke-width="2">
-                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                                <circle cx="12" cy="10" r="3"></circle>
-                                            </svg>
-                                        </div>
-                                        <div class="upload-text">Click to upload location/role proof</div>
-                                    </div>
-                                    <div id="locationProofPreview" class="image-preview" style="display: none;">
-                                    </div>
-                                    <div class="form-text">
-                                        <strong>Farmers:</strong> Photo of your farm or agricultural land<br>
-                                        <strong>Fisherfolk:</strong> Photo of fishing area or boat<br>
-                                        <strong>Others:</strong> Any document or photo that proves your livelihood or
-                                        business
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Verification Notice -->
-                            <div class="verification-notice">
-                                <div class="notice-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                    </svg>
-                                </div>
-                                <div class="notice-content">
-                                    <h6>Verification Process</h6>
-                                    <p>Your submitted documents will be reviewed. You will
-                                        receive an SMS notification once your verification is approved or if additional
-                                        documents are required.</p>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="verification-submit-btn">
-                                <span class="btn-text">Submit for Verification</span>
-                                <span class="btn-loader" style="display: none;">Submitting...</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     @endif
 
     @if (!isset($user))
@@ -1569,8 +1266,8 @@
                             <div class="form-group">
                                 <label for="new-password">New Password</label>
                                 <div class="password-input-container">
-                                    <input type="password" id="new-password" name="password" required
-                                        minlength="8" placeholder="Create a strong password"
+                                    <input type="password" id="new-password" name="password" required minlength="8"
+                                        placeholder="Create a strong password"
                                         oninput="checkResetPasswordStrength(this.value)">
                                     <button type="button" class="password-toggle"
                                         onclick="togglePasswordVisibility('new-password')">
@@ -1610,10 +1307,9 @@
                     <div id="forgot-step-4" class="forgot-step" style="display: none;">
                         <div class="success-icon">
                             <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                                <circle cx="40" cy="40" r="38" stroke="#10b981"
-                                    stroke-width="4" />
-                                <path d="M24 40L35 51L56 30" stroke="#10b981" stroke-width="4"
-                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="40" cy="40" r="38" stroke="#10b981" stroke-width="4" />
+                                <path d="M24 40L35 51L56 30" stroke="#10b981" stroke-width="4" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                         </div>
                         <h2 class="step-header success-header">Password Reset Successful!</h2>
@@ -1700,8 +1396,7 @@
                         <div class="form-group">
                             <label for="edit-complete-address">Complete Address</label>
                             <textarea id="edit-complete-address" name="complete_address"
-                                placeholder="Enter your complete address (House No., Street, Subdivision, etc.)" rows="3"
-                                maxlength="500"></textarea>
+                                placeholder="Enter your complete address (House No., Street, Subdivision, etc.)" rows="3" maxlength="500"></textarea>
                             <small>Include house number, street name, and subdivision/barangay details</small>
                         </div>
 
@@ -1798,9 +1493,8 @@
                         <div class="form-group">
                             <label for="new-password">New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="new-password" name="new_password" required
-                                    minlength="8" autocomplete="new-password"
-                                    placeholder="Enter your new password"
+                                <input type="password" id="new-password" name="new_password" required minlength="8"
+                                    autocomplete="new-password" placeholder="Enter your new password"
                                     oninput="checkNewPasswordStrength(this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('new-password')">
@@ -1819,8 +1513,8 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="confirm-new-password" name="confirm_new_password"
-                                    required autocomplete="new-password" placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
+                                    autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('confirm-new-password')">

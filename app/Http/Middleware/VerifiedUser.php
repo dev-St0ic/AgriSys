@@ -55,10 +55,10 @@ class VerifiedUser
 
         // Check if user has approved/verified status
         $userStatus = strtolower($user['status'] ?? 'unverified');
-        
+
         // Allow approved and verified statuses
         $allowedStatuses = ['approved', 'verified'];
-        
+
         if (!in_array($userStatus, $allowedStatuses)) {
             // Log the failed verification attempt
             \Log::warning('Unverified user attempted to access restricted service', [
@@ -76,11 +76,11 @@ class VerifiedUser
                     'message' => 'Your account must be verified to access this service. Please complete your profile verification.',
                     'status' => $user['status'] ?? 'unverified',
                     'required_status' => 'approved',
-                    'redirect' => '/?verification_required=true'
+                    'redirect' => '/auth/verify-profile'
                 ], 403);
             }
 
-            return redirect('/?verification_required=true')
+            return redirect('/auth/verify-profile')
                 ->with('error', 'Your account must be verified to access this service. Please complete your profile verification.');
         }
 
