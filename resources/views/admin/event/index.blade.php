@@ -1613,12 +1613,12 @@
             const isActive = document.querySelector('select[name="is_active"]').value;
 
             // FRONTEND VALIDATION: Announcements are always active
-            if (category === 'announcement' && isActive === '0') {
-                showToast('warning',
-                    'Announcements must always be active. Status has been automatically set to Active.');
-                document.querySelector('select[name="is_active"]').value = '1';
-                return;
-            }
+            // if (category === 'announcement' && isActive === '0') {
+            //     showToast('warning',
+            //         'Announcements must always be active. Status has been automatically set to Active.');
+            //     document.querySelector('select[name="is_active"]').value = '1';
+            //     return;
+            // }
 
             const formData = new FormData(this);
             const details = collectDetails(document.getElementById('detailsContainer'));

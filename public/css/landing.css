@@ -1402,6 +1402,205 @@ header {
         transform: none;
     }
 }
+
+/* =================================================================
+   EVENTS SLIDER STYLES
+   Add these styles to your landing.css file, replacing or
+   after the existing .events-grid-top styles
+   ================================================================= */
+
+/* === SLIDER WRAPPER === */
+.events-slider-wrapper {
+    margin-bottom: 50px;
+    position: relative;
+}
+
+/* === SLIDER HEADER: prev button | dots | next button === */
+.events-slider-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* === NAVIGATION BUTTONS === */
+.events-slider-nav {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #40916c;
+    background: white;
+    color: #40916c;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(64, 145, 108, 0.15);
+}
+
+.events-slider-nav:hover {
+    background: #40916c;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(64, 145, 108, 0.35);
+}
+
+.events-slider-nav:active {
+    transform: scale(0.95);
+}
+
+.events-slider-nav.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* === DOTS === */
+.events-slider-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 300px;
+}
+
+.event-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(45, 106, 79, 0.25);
+    border: 2px solid rgba(45, 106, 79, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.event-dot:hover {
+    background: rgba(45, 106, 79, 0.5);
+    transform: scale(1.2);
+}
+
+.event-dot.active {
+    background: #2d6a4f;
+    border-color: #2d6a4f;
+    transform: scale(1.3);
+    box-shadow: 0 0 8px rgba(45, 106, 79, 0.5);
+}
+
+/* === VIEWPORT (clips the cards) === */
+.events-slider-viewport {
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+/* === TRACK (holds all cards in a row) === */
+.events-slider-track {
+    display: flex;
+    gap: 30px;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+/* Cards inside the slider - enforce equal width */
+.events-slider-track .event-card {
+    flex: 0 0 calc((100% - 60px) / 3); /* 3 per row desktop, minus 2 gaps */
+    min-width: 0;
+}
+
+/* === COUNTER (e.g. "1 / 5") === */
+.events-slider-counter {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* === RESPONSIVE: tablet (2 per row) === */
+@media (max-width: 1024px) {
+    .events-slider-track .event-card {
+        flex: 0 0 calc((100% - 30px) / 2); /* 2 per row */
+    }
+
+    .events-slider-track {
+        gap: 25px;
+    }
+}
+
+/* === RESPONSIVE: mobile (1 per row) === */
+@media (max-width: 768px) {
+    .events-slider-track .event-card {
+        flex: 0 0 100%; /* 1 per row */
+    }
+
+    .events-slider-track {
+        gap: 20px;
+    }
+
+    .events-slider-nav {
+        width: 38px;
+        height: 38px;
+        font-size: 14px;
+    }
+
+    .events-slider-header {
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .event-dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .events-slider-dots {
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .events-slider-nav {
+        width: 34px;
+        height: 34px;
+        font-size: 12px;
+    }
+
+    .events-slider-header {
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .event-dot {
+        width: 7px;
+        height: 7px;
+    }
+
+    .events-slider-dots {
+        max-width: 160px;
+        gap: 6px;
+    }
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+    .events-slider-track {
+        transition: none;
+    }
+
+    .events-slider-nav:hover {
+        transform: none;
+    }
+
+    .event-dot.active {
+        transform: none;
+    }
+}
 /* --- Services Section --- */
 .services {
     padding: 80px 40px;

@@ -1,24 +1,27 @@
 // ===================================
-// DYNAMIC EVENTS LOADING SYSTEM (WITH SAFETY FALLBACK)
+// DYNAMIC EVENTS LOADING SYSTEM (WITH SLIDER SUPPORT)
 // ===================================
-// CRITICAL: Landing page NEVER shows empty state
-// Shows actual number of non-announcement events (no duplication)
-// Featured section shows announcements only
+// Layout rules:
+//   ≤ 3 non-announcement events  → static grid  (announcement in featured section below)
+//   ≥ 4 total events (any mix)   → ONE unified slider for everything
+//   0 non-announcement events    → just the featured announcement / fallback
 
 let allEvents = [];
-let currentFilter = 'all';
+let sliderCurrentIndex = 0;
+let sliderAutoInterval = null;
+const CARDS_PER_VIEW_DESKTOP = 3;
+const CARDS_PER_VIEW_TABLET = 2;
+const CARDS_PER_VIEW_MOBILE = 1;
 
-/**
- * Load events from API with retry mechanism
- */
+function getCardsPerView() {
+    if (window.innerWidth <= 768) return CARDS_PER_VIEW_MOBILE;
+    if (window.innerWidth <= 1024) return CARDS_PER_VIEW_TABLET;
+    return CARDS_PER_VIEW_DESKTOP;
+}
+
 async function loadEvents(retryCount = 0) {
-    console.log('🔄 [Events] Loading... Attempt:', retryCount + 1);
-
     try {
-        const url = '/api/events?category=all';
-        console.log(`📡 [Events] Fetching: ${url}`);
-
-        const response = await fetch(url, {
+        const response = await fetch('/api/events?category=all', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -27,49 +30,21 @@ async function loadEvents(retryCount = 0) {
             }
         });
 
-        console.log(`📊 [Events] Response status: ${response.status}`);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
-        console.log('✅ [Events] API Response:', data);
+        if (!data.success) throw new Error(data.message || 'API returned error');
+        if (!Array.isArray(data.events)) throw new Error('Invalid events data format');
 
-        if (!data.success) {
-            throw new Error(data.message || 'API returned error');
-        }
-
-        if (!Array.isArray(data.events)) {
-            throw new Error('Invalid events data format');
-        }
-
-        console.log(`✅ [Events] Loaded ${data.events.length} active events`);
-
-        allEvents = data.events;
-
-        // SAFETY CHECK: Use fallback if no active events
-        if (allEvents.length === 0) {
-            console.warn('⚠️ [Events] No active events found - using fallback event');
-            allEvents = [getFallbackEvent()];
-        }
-
-        // Update section header
+        allEvents = data.events.length > 0 ? data.events : [getFallbackEvent()];
         updateEventsSectionHeader();
-
-        // Render events
         renderEventsLayout();
 
     } catch (error) {
-        console.error('❌ [Events] Loading failed:', error.message);
-
-        // Retry logic (max 3 attempts)
+        console.error('Events loading failed:', error.message);
         if (retryCount < 2) {
-            console.log('🔄 [Events] Retrying in 2 seconds...');
             setTimeout(() => loadEvents(retryCount + 1), 2000);
         } else {
-            // Even on error, use fallback to prevent empty page
-            console.warn('⚠️ [Events] All retries failed - using fallback event');
             allEvents = [getFallbackEvent()];
             updateEventsSectionHeader();
             renderEventsLayout();
@@ -77,15 +52,11 @@ async function loadEvents(retryCount = 0) {
     }
 }
 
-/**
- * Get fallback event when no active events exist
- * This ensures the landing page NEVER shows empty state
- */
 function getFallbackEvent() {
     return {
         id: 0,
         title: 'City Agriculture Office Programs',
-        description: 'The City Agriculture Office is committed to promoting sustainable farming practices, supporting local farmers, and developing agricultural programs that benefit our community. We continuously work on initiatives to enhance food security, improve agricultural productivity, and foster environmental stewardship. Stay tuned for announcements about upcoming events, training sessions, and community programs designed to strengthen our agricultural sector.',
+        description: 'The City Agriculture Office is committed to promoting sustainable farming practices, supporting local farmers, and developing agricultural programs that benefit our community.',
         short_description: 'Dedicated to promoting sustainable agriculture and supporting our farming community.',
         category: 'announcement',
         category_label: 'Announcement',
@@ -94,113 +65,228 @@ function getFallbackEvent() {
         location: 'City Agriculture Office',
         is_active: true,
         display_order: 0,
-        is_fallback: true // Flag to identify fallback event
+        is_fallback: true
     };
 }
 
-/**
- * Update section header with dynamic content
- */
 function updateEventsSectionHeader() {
-    console.log('📝 [Events] Updating section header');
-
     const titleEl = document.querySelector('#events-title');
     const subtitleEl = document.querySelector('#events-subtitle');
+    if (!titleEl || !subtitleEl) return;
 
-    if (!titleEl || !subtitleEl) {
-        console.warn('⚠️ [Events] Header elements not found');
-        return;
-    }
-
-    // Dynamic title
     titleEl.innerHTML = 'City <span class="highlight">Agriculture Office Events</span>';
 
-    // Dynamic subtitle
-    const eventCount = allEvents.length;
     const hasFallback = allEvents.some(e => e.is_fallback);
-
     if (hasFallback) {
-        subtitleEl.innerHTML = '<i class="fas fa-info-circle me-2"></i>Stay updated with our ongoing agricultural programs and initiatives. New events will be announced here.';
+        subtitleEl.innerHTML = '<i class="fas fa-info-circle"></i> Stay updated with our ongoing agricultural programs and initiatives. New events will be announced here.';
         subtitleEl.style.color = '#6c757d';
-    } else if (eventCount > 0) {
-        subtitleEl.textContent = `Explore our agricultural events and initiatives dedicated to promoting agricultural growth and community development.`;
+    } else {
+        subtitleEl.textContent = 'Explore our agricultural events and initiatives dedicated to promoting agricultural growth and community development.';
         subtitleEl.style.color = '';
     }
-
-    console.log('✅ [Events] Header updated');
 }
 
-/**
- * Get non-announcement events (for top cards)
- */
 function getNonAnnouncementEvents() {
     return allEvents.filter(e => e.category !== 'announcement');
 }
 
-/**
- * Get announcement events (for featured bottom section)
- */
 function getAnnouncementEvents() {
     return allEvents.filter(e => e.category === 'announcement');
 }
 
 /**
- * Main render function - Shows actual events without duplication
- * ALWAYS displays content (never empty)
+ * Layout decision:
+ *   - If total events > 4  → unified slider (ALL events, announcements included)
+ *   - If total events ≤ 4  → original layout:
+ *       top: non-announcement grid (up to 3)
+ *       bottom: first announcement as featured section
  */
 function renderEventsLayout() {
-    console.log('🎨 [Events] Rendering events layout');
-
     const container = document.querySelector('.events-container');
-    if (!container) {
-        console.error('❌ [Events] Container not found');
-        return;
-    }
+    if (!container) return;
 
-    // SAFETY: Should never reach here due to fallback, but double-check
-    if (!allEvents || allEvents.length === 0) {
-        console.error('❌ [Events] Critical: No events available and no fallback loaded');
-        allEvents = [getFallbackEvent()];
-    }
+    if (!allEvents || allEvents.length === 0) allEvents = [getFallbackEvent()];
 
     let html = '';
 
-    // === TOP ROW: ACTUAL NON-ANNOUNCEMENT EVENTS (No duplication) ===
-    const nonAnnouncementEvents = getNonAnnouncementEvents();
-    
-    if (nonAnnouncementEvents.length > 0) {
-        // Show only actual events - 1, 2, 3, or more cards
-        html += '<div class="events-grid-top">';
-        nonAnnouncementEvents.forEach((event, index) => {
-            html += createEventCard(event, index);
-        });
-        html += '</div>';
-        
-        console.log(`✅ [Events] Rendered ${nonAnnouncementEvents.length} non-announcement event(s)`);
-    } else {
-        // No non-announcement events - show informative message or skip top section
-        console.log('ℹ️ [Events] No non-announcement events to display');
-    }
+    if (allEvents.length > 4) {
+        // ── Unified slider: everything in one place ──────────────────────
+        html += createEventsSlider(allEvents);
 
-    // === FEATURED EVENT: Large section (Announcement only) ===
-    const announcementEvents = getAnnouncementEvents();
-    if (announcementEvents.length > 0) {
-        const featuredEvent = announcementEvents[0];
-        html += createFeaturedEvent(featuredEvent);
-        console.log('✅ [Events] Rendered featured announcement');
-    } else if (nonAnnouncementEvents.length === 0) {
-        // Only show fallback if there are NO events at all
-        html += createFeaturedEvent(getFallbackEvent());
-        console.log('⚠️ [Events] No events available - showing fallback');
+    } else {
+        // ── Original layout ──────────────────────────────────────────────
+        const nonAnnouncementEvents = getNonAnnouncementEvents();
+
+        if (nonAnnouncementEvents.length > 0) {
+            html += '<div class="events-grid-top">';
+            nonAnnouncementEvents.forEach((event, index) => {
+                html += createEventCard(event, index);
+            });
+            html += '</div>';
+        }
+
+        const announcementEvents = getAnnouncementEvents();
+        if (announcementEvents.length > 0) {
+            html += createFeaturedEvent(announcementEvents[0]);
+        } else if (nonAnnouncementEvents.length === 0) {
+            html += createFeaturedEvent(getFallbackEvent());
+        }
     }
 
     container.innerHTML = html;
-    console.log('✅ [Events] Layout rendered with ' + allEvents.length + ' event(s)');
+
+    if (allEvents.length > 4) {
+        initEventsSlider(allEvents);
+    }
 }
 
-/**
- * Create event card (for top row)
- */
+// ─── SLIDER ────────────────────────────────────────────────────────────────
+
+function createEventsSlider(events) {
+    const dots = events.map((_, i) =>
+        `<span class="event-dot ${i === 0 ? 'active' : ''}" onclick="goToEventSlide(${i})"></span>`
+    ).join('');
+
+    const cards = events.map((event, index) => createEventCard(event, index)).join('');
+
+    return `
+        <div class="events-slider-wrapper">
+            <div class="events-slider-header">
+                <button class="events-slider-nav prev" id="eventsSliderPrev" onclick="prevEventSlide()" aria-label="Previous events">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="events-slider-dots" id="eventsSliderDots">
+                    ${dots}
+                </div>
+                <button class="events-slider-nav next" id="eventsSliderNext" onclick="nextEventSlide()" aria-label="Next events">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="events-slider-viewport" id="eventsSliderViewport">
+                <div class="events-slider-track" id="eventsSliderTrack">
+                    ${cards}
+                </div>
+            </div>
+            <div class="events-slider-counter" id="eventsSliderCounter"></div>
+        </div>
+    `;
+}
+
+function initEventsSlider(events) {
+    sliderCurrentIndex = 0;
+
+    requestAnimationFrame(() => {
+        updateSliderPosition(events.length);
+    });
+
+    startSliderAuto(events.length);
+    addSwipeSupport(events.length);
+
+    const viewport = document.getElementById('eventsSliderViewport');
+    if (viewport) {
+        viewport.addEventListener('mouseenter', stopSliderAuto);
+        viewport.addEventListener('mouseleave', () => startSliderAuto(events.length));
+    }
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => updateSliderPosition(events.length), 100);
+    });
+}
+
+function updateSliderPosition(totalEvents) {
+    const track = document.getElementById('eventsSliderTrack');
+    const viewport = document.getElementById('eventsSliderViewport');
+    const counter = document.getElementById('eventsSliderCounter');
+    const prevBtn = document.getElementById('eventsSliderPrev');
+    const nextBtn = document.getElementById('eventsSliderNext');
+    const dots = document.querySelectorAll('.event-dot');
+
+    if (!track || !viewport) return;
+
+    const cardsPerView = getCardsPerView();
+    const maxIndex = Math.max(0, totalEvents - cardsPerView);
+
+    sliderCurrentIndex = Math.max(0, Math.min(sliderCurrentIndex, maxIndex));
+
+    const firstCard = track.querySelector('.event-card');
+    if (!firstCard) return;
+
+    const gap = cardsPerView === 1 ? 20 : cardsPerView === 2 ? 25 : 30;
+    const cardWidth = firstCard.offsetWidth;
+    const translateX = sliderCurrentIndex * (cardWidth + gap);
+
+    track.style.transform = `translateX(-${translateX}px)`;
+
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === sliderCurrentIndex));
+
+    if (counter) counter.textContent = `${sliderCurrentIndex + 1} / ${maxIndex + 1}`;
+
+    if (prevBtn) prevBtn.classList.toggle('disabled', sliderCurrentIndex === 0);
+    if (nextBtn) nextBtn.classList.toggle('disabled', sliderCurrentIndex >= maxIndex);
+}
+
+function goToEventSlide(index) {
+    const total = allEvents.length;
+    const maxIndex = Math.max(0, total - getCardsPerView());
+    sliderCurrentIndex = Math.min(index, maxIndex);
+    updateSliderPosition(total);
+    stopSliderAuto();
+    startSliderAuto(total);
+}
+
+function nextEventSlide() {
+    const total = allEvents.length;
+    const maxIndex = Math.max(0, total - getCardsPerView());
+    sliderCurrentIndex = sliderCurrentIndex < maxIndex ? sliderCurrentIndex + 1 : 0;
+    updateSliderPosition(total);
+    stopSliderAuto();
+    startSliderAuto(total);
+}
+
+function prevEventSlide() {
+    const total = allEvents.length;
+    const maxIndex = Math.max(0, total - getCardsPerView());
+    sliderCurrentIndex = sliderCurrentIndex > 0 ? sliderCurrentIndex - 1 : maxIndex;
+    updateSliderPosition(total);
+    stopSliderAuto();
+    startSliderAuto(total);
+}
+
+function startSliderAuto(totalEvents) {
+    stopSliderAuto();
+    sliderAutoInterval = setInterval(nextEventSlide, 4000);
+}
+
+function stopSliderAuto() {
+    if (sliderAutoInterval) {
+        clearInterval(sliderAutoInterval);
+        sliderAutoInterval = null;
+    }
+}
+
+function addSwipeSupport(totalEvents) {
+    const viewport = document.getElementById('eventsSliderViewport');
+    if (!viewport) return;
+
+    let startX = 0;
+
+    viewport.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+        const diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) nextEventSlide();
+            else prevEventSlide();
+        }
+    }, { passive: true });
+}
+
+// ─── CARD & FEATURED ───────────────────────────────────────────────────────
+
 function createEventCard(event, index = 0) {
     const imageUrl = event.image && event.image.trim()
         ? event.image
@@ -209,17 +295,11 @@ function createEventCard(event, index = 0) {
     const title = event.title || 'Untitled Event';
     const description = event.short_description || event.description || 'No description';
     const category = event.category_label || 'Event';
-
-    // Truncate description
-    const truncated = description.length > 100
-        ? description.substring(0, 100) + '...'
-        : description;
+    const truncated = description.length > 100 ? description.substring(0, 100) + '...' : description;
 
     return `
         <div class="event-card" onclick="handleEventCardClick(${event.id}, ${event.is_fallback || false})">
-            <img src="${imageUrl}"
-                 alt="${title}"
-                 class="event-card-image"
+            <img src="${imageUrl}" alt="${title}" class="event-card-image"
                  onerror="this.src='${createPlaceholder(400, 220, 'Event')}'">
             <div class="event-card-content">
                 <span class="event-card-category">${category}</span>
@@ -231,9 +311,6 @@ function createEventCard(event, index = 0) {
     `;
 }
 
-/**
- * Create featured event section (large bottom section - announcements only)
- */
 function createFeaturedEvent(event) {
     const imageUrl = event.image && event.image.trim()
         ? event.image
@@ -246,18 +323,15 @@ function createFeaturedEvent(event) {
     const category = event.category_label || 'Announcement';
     const isFallback = event.is_fallback || false;
 
-    // Show notification badge if fallback
     const notificationBadge = isFallback
-        ? '<div class="alert alert-info mb-3"><i class="fas fa-info-circle me-2"></i><strong>Notice:</strong> New announcements will be posted here. Check back soon for updates on upcoming agricultural programs and activities.</div>'
+        ? '<div class="alert alert-info mb-3"><i class="fas fa-info-circle me-2"></i><strong>Notice:</strong> New announcements will be posted here soon.</div>'
         : '';
 
     return `
         <div class="events-featured">
             <div class="featured-layout">
                 <div class="featured-image-section">
-                    <img src="${imageUrl}"
-                         alt="${title}"
-                         class="featured-image"
+                    <img src="${imageUrl}" alt="${title}" class="featured-image"
                          onerror="this.src='${createPlaceholder(800, 400, 'Featured')}'">
                 </div>
                 <div class="featured-content-section">
@@ -265,23 +339,24 @@ function createFeaturedEvent(event) {
                     <span class="featured-badge">${category}</span>
                     <h3 class="featured-title">${title}</h3>
                     <p class="featured-description">${description}</p>
-
                     <div class="featured-meta">
                         <div class="featured-meta-item">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             <span>${date}</span>
                         </div>
                         <div class="featured-meta-item">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             <span>${location}</span>
                         </div>
                     </div>
-
                     <button class="featured-cta" onclick="handleLearnMoreClick(event, ${event.id}, ${isFallback})">
                         ${isFallback ? 'Contact Us' : 'View Full Details'}
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,78 +369,38 @@ function createFeaturedEvent(event) {
     `;
 }
 
-/**
- * Handle event card click (for card itself, not button)
- */
-function handleEventCardClick(eventId, isFallback = false) {
-    console.log('📋 [Events] Event card clicked:', eventId, 'Is fallback:', isFallback);
+// ─── EVENT HANDLERS ────────────────────────────────────────────────────────
 
+function handleEventCardClick(eventId, isFallback = false) {
     if (isFallback) {
         agrisysModal.info('For more information about our agricultural programs, please contact the City Agriculture Office.', { title: 'Contact Information' });
         return;
     }
-
     const event = allEvents.find(e => e.id === eventId);
-
-    if (event) {
-        console.log('Event Details:', event);
-    }
+    if (event) openEventDetailsInNewTab(event);
 }
 
-/**
- * Handle "Learn More" / "View Full Details" button click
- * Opens event details in a new tab
- */
 function handleLearnMoreClick(clickEvent, eventId, isFallback = false) {
-    clickEvent.stopPropagation(); // Prevent triggering parent card click
-
-    console.log('📖 [Events] Learn More clicked for event:', eventId, 'Is fallback:', isFallback);
-
+    clickEvent.stopPropagation();
     if (isFallback) {
-        // For fallback events, show contact info or redirect to contact page
-        console.log('ℹ️ [Events] Fallback event - showing contact info');
-        agrisysModal.info('For more information about our agricultural programs, please contact the City Agriculture Office.\n\nContact: (02) 8808-2020, Local 109\nEmail: agriculture.sanpedrocity@gmail.com', { title: 'Contact Information' });
+        agrisysModal.info('Contact: (02) 8808-2020, Local 109\nEmail: agriculture.sanpedrocity@gmail.com', { title: 'Contact Information' });
         return;
     }
-
-    // Get the full event data
     const event = allEvents.find(e => e.id === eventId);
-
     if (!event) {
-        console.error('❌ [Events] Event not found:', eventId);
         agrisysModal.error('Event details could not be found.', { title: 'Event Not Found' });
         return;
     }
-
-    // Open event details in a new tab
     openEventDetailsInNewTab(event);
 }
 
-/**
- * Open event details in a new tab with full information
- */
 function openEventDetailsInNewTab(event) {
-    console.log('🔗 [Events] Opening event details in new tab:', event.id);
-
-    // Create a data URL or redirect to a details page
-    // Option 1: If you have a dedicated event details page
-    // window.open(`/events/${event.id}`, '_blank');
-
-    // Option 2: Create an HTML page dynamically in a new tab
-    const detailsHTML = generateEventDetailsHTML(event);
-
-    // Open in new tab using blob URL (doesn't require a server route)
-    const blob = new Blob([detailsHTML], { type: 'text/html' });
+    const blob = new Blob([generateEventDetailsHTML(event)], { type: 'text/html' });
     const url = window.URL.createObjectURL(blob);
     window.open(url, '_blank');
-
-    // Clean up the blob URL after a short delay
     setTimeout(() => window.URL.revokeObjectURL(url), 100);
 }
 
-/**
- * Generate comprehensive HTML for event details page
- */
 function generateEventDetailsHTML(event) {
     const title = event.title || 'Event Details';
     const description = event.description || 'No description available';
@@ -374,10 +409,9 @@ function generateEventDetailsHTML(event) {
     const category = event.category_label || 'Event';
     const imageUrl = (event.image && event.image.trim()) ? event.image : createPlaceholder(800, 400, event.title);
 
-    // Format details if they exist
     let detailsHTML = '';
     if (event.details && Object.keys(event.details).length > 0) {
-        detailsHTML = '<div class="details-section"><h3>Additional Details</h3><ul>';
+        detailsHTML = '<div class="details"><h3>Additional Details</h3><ul>';
         for (const [key, value] of Object.entries(event.details)) {
             const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
             detailsHTML += `<li><strong>${displayKey}:</strong> ${value}</li>`;
@@ -385,333 +419,62 @@ function generateEventDetailsHTML(event) {
         detailsHTML += '</ul></div>';
     }
 
-    return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    return `<!DOCTYPE html><html lang="en"><head>
+        <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title} - AgriSys Events</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                min-height: 100vh;
-                padding: 20px;
-            }
-
-            .event-details-container {
-                max-width: 900px;
-                margin: 0 auto;
-                background: white;
-                border-radius: 12px;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-                overflow: hidden;
-            }
-
-            .event-header {
-                position: relative;
-                overflow: hidden;
-            }
-
-            .event-image {
-                width: 100%;
-                height: 400px;
-                object-fit: cover;
-                display: block;
-            }
-
-            .event-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 100%);
-                display: flex;
-                align-items: flex-end;
-                padding: 40px 30px;
-                color: white;
-            }
-
-            .event-overlay h1 {
-                font-size: 2.5em;
-                margin-bottom: 10px;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            }
-
-            .event-category-badge {
-                display: inline-block;
-                background: #0A6953;
-                color: white;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-size: 0.9em;
-                font-weight: 600;
-                margin-bottom: 10px;
-            }
-
-            .event-content {
-                padding: 40px;
-            }
-
-            .event-meta {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-                padding-bottom: 30px;
-                border-bottom: 2px solid #f0f0f0;
-            }
-
-            .meta-item {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .meta-icon {
-                width: 50px;
-                height: 50px;
-                background: #f0f0f0;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5em;
-                color: #0A6953;
-            }
-
-            .meta-text h4 {
-                color: #666;
-                font-size: 0.85em;
-                margin-bottom: 4px;
-            }
-
-            .meta-text p {
-                color: #333;
-                font-weight: 600;
-                font-size: 1.1em;
-            }
-
-            .description-section {
-                margin-bottom: 30px;
-            }
-
-            .description-section h3 {
-                color: #0A6953;
-                margin-bottom: 15px;
-                font-size: 1.5em;
-            }
-
-            .description-section p {
-                color: #555;
-                line-height: 1.8;
-                font-size: 1.05em;
-            }
-
-            .details-section {
-                background: #f9f9f9;
-                padding: 25px;
-                border-radius: 8px;
-                margin-bottom: 30px;
-            }
-
-            .details-section h3 {
-                color: #0A6953;
-                margin-bottom: 15px;
-            }
-
-            .details-section ul {
-                list-style: none;
-            }
-
-            .details-section li {
-                padding: 10px 0;
-                border-bottom: 1px solid #e0e0e0;
-                color: #555;
-            }
-
-            .details-section li:last-child {
-                border-bottom: none;
-            }
-
-            .details-section strong {
-                color: #0A6953;
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 15px;
-                margin-top: 30px;
-                padding-top: 30px;
-                border-top: 2px solid #f0f0f0;
-            }
-
-            .btn {
-                padding: 12px 30px;
-                border: none;
-                border-radius: 6px;
-                font-size: 1em;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-decoration: none;
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .btn-primary {
-                background: #0A6953;
-                color: white;
-            }
-
-            .btn-primary:hover {
-                background: #084a3d;
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(10, 105, 83, 0.3);
-            }
-
-            .btn-secondary {
-                background: #f0f0f0;
-                color: #333;
-            }
-
-            .btn-secondary:hover {
-                background: #e0e0e0;
-            }
-
-            .footer-section {
-                background: #f9f9f9;
-                padding: 20px 40px;
-                border-top: 1px solid #e0e0e0;
-                text-align: center;
-                color: #666;
-                font-size: 0.9em;
-            }
-
-            @media (max-width: 768px) {
-                .event-overlay h1 {
-                    font-size: 1.8em;
-                }
-
-                .event-content {
-                    padding: 25px;
-                }
-
-                .event-meta {
-                    grid-template-columns: 1fr;
-                }
-
-                .action-buttons {
-                    flex-direction: column;
-                }
-
-                .btn {
-                    justify-content: center;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="event-details-container">
-            <!-- Event Header with Image -->
-            <div class="event-header">
-                <img src="${imageUrl}" alt="${title}" class="event-image">
-                <div class="event-overlay">
-                    <div>
-                        <span class="event-category-badge">${category}</span>
-                        <h1>${title}</h1>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Event Content -->
-            <div class="event-content">
-                <!-- Event Metadata -->
-                <div class="event-meta">
-                    <div class="meta-item">
-                        <div class="meta-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <div class="meta-text">
-                            <h4>Date & Time</h4>
-                            <p>${date}</p>
-                        </div>
-                    </div>
-
-                    <div class="meta-item">
-                        <div class="meta-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="meta-text">
-                            <h4>Location</h4>
-                            <p>${location}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Description -->
-                <div class="description-section">
-                    <h3>About This Event</h3>
-                    <p>${description}</p>
-                </div>
-
-                <!-- Additional Details -->
-                ${detailsHTML}
-
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="window.close();">
-                        <i class="fas fa-arrow-left"></i> Back to Home
-                    </button>
-                </div>
-
-                <script>
-                    window.addEventListener('beforeunload', function() {
-                        if (window.opener) {
-                            window.opener.focus();
-                        }
-                    });
-                </script>
-            </div>
-
-            <!-- Footer -->
-            <div class="footer-section">
-                <p>&copy; 2026 City Agriculture Office of San Pedro. All rights reserved.</p>
-            </div>
+            *{margin:0;padding:0;box-sizing:border-box}
+            body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#f5f7fa,#c3cfe2);min-height:100vh;padding:20px}
+            .wrap{max-width:900px;margin:0 auto;background:white;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.15);overflow:hidden}
+            .hdr{position:relative}.img{width:100%;height:400px;object-fit:cover;display:block}
+            .overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent,rgba(0,0,0,.5));display:flex;align-items:flex-end;padding:40px 30px;color:white}
+            .badge{background:#0A6953;color:white;padding:6px 12px;border-radius:20px;font-size:.9em;font-weight:600;margin-bottom:10px;display:inline-block}
+            h1{font-size:2.2em;text-shadow:0 2px 4px rgba(0,0,0,.3)}
+            .body{padding:40px}
+            .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;padding-bottom:30px;border-bottom:2px solid #f0f0f0}
+            .mi{display:flex;align-items:center;gap:15px}
+            .icon{width:50px;height:50px;background:#f0f0f0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5em;color:#0A6953}
+            .mt h4{color:#666;font-size:.85em}.mt p{color:#333;font-weight:600}
+            h3{color:#0A6953;margin-bottom:15px;font-size:1.4em}
+            p{color:#555;line-height:1.8;margin-bottom:20px}
+            .details{background:#f9f9f9;padding:25px;border-radius:8px;margin-bottom:30px}
+            .details ul{list-style:none}.details li{padding:10px 0;border-bottom:1px solid #e0e0e0;color:#555}
+            .details li:last-child{border-bottom:none}
+            .actions{padding-top:30px;border-top:2px solid #f0f0f0}
+            .btn{padding:12px 30px;background:#0A6953;color:white;border:none;border-radius:6px;font-size:1em;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+            .btn:hover{background:#084a3d}
+            footer{background:#f9f9f9;padding:20px;text-align:center;color:#666;font-size:.9em;border-top:1px solid #e0e0e0}
+        </style></head>
+    <body><div class="wrap">
+        <div class="hdr">
+            <img src="${imageUrl}" alt="${title}" class="img">
+            <div class="overlay"><div><span class="badge">${category}</span><h1>${title}</h1></div></div>
         </div>
-    </body>
-    </html>
-    `;
+        <div class="body">
+            <div class="meta">
+                <div class="mi"><div class="icon"><i class="fas fa-calendar-alt"></i></div><div class="mt"><h4>Date & Time</h4><p>${date}</p></div></div>
+                <div class="mi"><div class="icon"><i class="fas fa-map-marker-alt"></i></div><div class="mt"><h4>Location</h4><p>${location}</p></div></div>
+            </div>
+            <h3>About This Event</h3><p>${description}</p>
+            ${detailsHTML}
+            <div class="actions"><button class="btn" onclick="window.close()"><i class="fas fa-arrow-left"></i> Back to Home</button></div>
+        </div>
+        <footer><p>&copy; 2026 City Agriculture Office of San Pedro. All rights reserved.</p></footer>
+    </div></body></html>`;
 }
 
-/**
- * Create placeholder image as SVG data URL
- */
 function createPlaceholder(width, height, text) {
     return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}'%3E%3Crect fill='%23f0f0f0' width='${width}' height='${height}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='%23999'%3E${text}%3C/text%3E%3C/svg%3E`;
 }
 
-/**
- * Initialize on DOM ready
- */
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 [Events] DOM loaded, initializing...');
-    loadEvents();
-});
+// ─── INIT ──────────────────────────────────────────────────────────────────
 
-// Make functions globally accessible
+document.addEventListener('DOMContentLoaded', () => loadEvents());
+
 window.loadEvents = loadEvents;
 window.handleEventCardClick = handleEventCardClick;
 window.handleLearnMoreClick = handleLearnMoreClick;
-
-console.log('✅ [Events] Enhanced loader script - shows actual events only (no duplication)');
+window.goToEventSlide = goToEventSlide;
+window.nextEventSlide = nextEventSlide;
+window.prevEventSlide = prevEventSlide;
