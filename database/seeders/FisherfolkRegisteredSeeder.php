@@ -388,7 +388,7 @@ class FisherfolkRegisteredSeeder extends Seeder
                 'first_name' => 'RASID',
                 'middle_name' => 'USMAN',
                 'last_name' => 'JACARIA',
-                'barangay' => 'Cuyab',
+                'barangay' => 'Landayan',
                 'main_livelihood' => 'aquaculture',
                 'secondary_livelihood' => null,
                 'fishr_number' => '2025-043425000-00679', // From boat data - MATCHED
