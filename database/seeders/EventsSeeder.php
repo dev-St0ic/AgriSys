@@ -154,8 +154,8 @@ class EventSeeder extends Seeder
             // ===== EVENT 6: ACTIVE (Past) =====
             [
                 'title' => 'AgriSys Digital Services Seminar',
-                'short_description' => 'A seminar where PUP San Pedro Campus researchers from the AgriSys team proposed the Agricultural System to streamline digital services for the City Agriculture Office of San Pedro, Laguna.',
-                'description' => 'Researchers from the Polytechnic University of the Philippines (PUP) San Pedro Campus, under the AgriSys team, formally proposed the Agricultural System — a digital platform designed to optimize and streamline service delivery for the City Agriculture Office of San Pedro, Laguna. The seminar presented the system\'s core features including online service requests, faster processing of farmer support, and centralized access to city agriculture programs. The proposal highlighted how AgriSys aims to reduce manual processes, eliminate unnecessary paperwork, and ensure that local farmers receive timely assistance and government support more efficiently.',
+                'short_description' => 'A seminar where PUP San Pedro Campus researchers from the AgriSys team proposed the Agricultural Service System to streamline digital services for the City Agriculture Office of San Pedro, Laguna — serving all agricultural stakeholders.',
+                'description' => 'Researchers from the Polytechnic University of the Philippines (PUP) San Pedro Campus, under the AgriSys team, formally proposed the Agricultural Service System — a digital platform designed to optimize and streamline service delivery for the City Agriculture Office of San Pedro, Laguna. The seminar presented the system\'s core features including online service requests, faster processing of support, and centralized access to city agriculture programs for all agricultural stakeholders. The proposal highlighted how AgriSys aims to reduce manual processes, eliminate unnecessary paperwork, and ensure that agricultural stakeholders receive timely assistance and government support more efficiently.',
                 'category' => 'past',
                 'category_label' => 'Past',
                 'date' => 'March 3, 2026 | 8:00 PM - 11:00 AM',
@@ -163,7 +163,7 @@ class EventSeeder extends Seeder
                 'image_path' => 'events/placeholder-6.jpg',
                 'image_alt_text' => 'AgriSys Digital Streamlining Seminar',
                 'details' => [
-                    'participants' => 'Farmers, agricultural workers, and local officials',
+                    'participants' => 'PUP San Pedro Campus - AgriSys Team, City Agriculture Office officials, and agricultural stakeholders',
                     'cost' => 'Free',
                     'requirement' => 'None',
                     'contact' => '(02) 8808-2020, Local 109',
