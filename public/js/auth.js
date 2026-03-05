@@ -21,6 +21,15 @@ function openAuthModal(type = 'login') {
     }
 }
 
+function hideAuthModal() {
+    // Hides the modal WITHOUT resetting form data (used for click-outside & Escape key)
+    const modal = document.getElementById('auth-modal');
+    if (!modal) return;
+
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
 function closeAuthModal() {
     const modal = document.getElementById('auth-modal');
     if (!modal) return;
@@ -190,7 +199,7 @@ function refreshProfileVerifyButton() {
                 </svg>
                 <span>Verify Again</span>
             `;
-            verifyBtn.onclick = () => showVerificationModal();
+            verifyBtn.onclick = () => window.location.href = '/auth/verify-profile';
             break;
 
         case 'unverified':
@@ -208,7 +217,7 @@ function refreshProfileVerifyButton() {
                 </svg>
                 <span>Verify Account</span>
             `;
-            verifyBtn.onclick = () => showVerificationModal();
+            verifyBtn.onclick = () => window.location.href = '/auth/verify-profile';
             break;
     }
 
@@ -303,27 +312,27 @@ function showProfileModal(event) {
         event.preventDefault();
         event.stopPropagation();
     }
-    
+
     // Close user dropdown first
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
-    
+
     // Navigate to home if not already there
     const currentPath = window.location.pathname;
     if (currentPath !== '/' && currentPath !== '') {
         // Hide all forms and show main sections
         if (typeof hideAllForms === 'function') hideAllForms();
         if (typeof showAllMainSections === 'function') showAllMainSections();
-        
+
         // Update URL to home
         history.pushState({page: 'home'}, 'Home', '/');
-        
+
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
+
     // Open modal after navigation (with small delay for smooth transition)
     setTimeout(() => {
         const modal = document.getElementById('profile-modal');
@@ -1514,16 +1523,8 @@ function previewImage(input, previewId) {
 }
 
 function showVerificationModal() {
-    const modal = document.getElementById('verification-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-
-        // Initialize validations when modal opens
-        setTimeout(() => {
-            initializeVerificationFormValidations();
-        }, 100);
-    }
+    // Redirect to dedicated verification page instead of showing a modal
+    window.location.href = '/auth/verify-profile';
 }
 
 // ==============================================
@@ -2139,27 +2140,27 @@ function showMyApplicationsModal(event) {
         event.preventDefault();
         event.stopPropagation();
     }
-    
+
     // Close user dropdown first
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
-    
+
     // Navigate to home if not already there
     const currentPath = window.location.pathname;
     if (currentPath !== '/' && currentPath !== '') {
         // Hide all forms and show main sections
         if (typeof hideAllForms === 'function') hideAllForms();
         if (typeof showAllMainSections === 'function') showAllMainSections();
-        
+
         // Update URL to home
         history.pushState({page: 'home'}, 'Home', '/');
-        
+
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
+
     // Open modal after navigation (with small delay for smooth transition)
     setTimeout(() => {
         const modal = document.getElementById('applications-modal');
@@ -2741,6 +2742,47 @@ if (!document.querySelector('#logout-fadeout-animation')) {
         }
     `;
     document.head.appendChild(fadeOutStyle);
+}
+
+/**
+ * Perform the actual logout — submits the hidden logout form
+ */
+async function confirmLogoutEnhanced() {
+    const confirmBtn = document.querySelector('.btn-confirm-logout');
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        const btnText = confirmBtn.querySelector('.btn-text');
+        const btnLoader = confirmBtn.querySelector('.btn-loader');
+        if (btnText) btnText.textContent = 'Logging out...';
+        if (btnLoader) btnLoader.style.display = 'inline-flex';
+    }
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        const response = await fetch('/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+
+        // Whether JSON or redirect, navigate to home
+        closeLogoutConfirmation();
+        window.location.href = '/';
+    } catch (error) {
+        // Fallback: submit the form directly
+        const logoutForm = document.getElementById('logout-form');
+        if (logoutForm) {
+            closeLogoutConfirmation();
+            logoutForm.submit();
+        } else {
+            window.location.href = '/';
+        }
+    }
 }
 
 console.log('✅ Enhanced Logout functions loaded');
@@ -4446,12 +4488,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Auth modal close functionality
+    // Auth modal close functionality (click outside just hides, does not reset form)
     const authModal = document.getElementById('auth-modal');
     if (authModal) {
         authModal.addEventListener('click', function(event) {
             if (event.target === authModal) {
-                closeAuthModal();
+                hideAuthModal();
             }
         });
     }
@@ -4531,7 +4573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Escape') {
             const authModal = document.getElementById('auth-modal');
             if (authModal && authModal.style.display !== 'none') {
-                closeAuthModal();
+                hideAuthModal();
             }
 
             const applicationsModal = document.getElementById('applications-modal');
@@ -5904,8 +5946,8 @@ window.changePassword = changePassword;
 // window.logoutUser = logoutUser;
 window.showLogoutConfirmation = showLogoutConfirmation;
 window.closeLogoutConfirmation = closeLogoutConfirmation;
-window.confirmLogout = confirmLogout;
-window.confirmLogout = window.confirmLogoutEnhanced;
+window.confirmLogout = confirmLogoutEnhanced;
+window.confirmLogoutEnhanced = confirmLogoutEnhanced;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;

@@ -809,6 +809,39 @@ Route::prefix('auth')->group(function () {
     // Contact number availability checking
     Route::post('/check-contact', [UserRegistrationController::class, 'checkContactNumber'])->name('auth.check.contact');
 
+    // Dedicated verification page (GET)
+    Route::get('/verify-profile', function () {
+        $user = session('user');
+
+        // Fallback: reload user from DB if session('user') is missing but user_id exists
+        if (!$user) {
+            $userId = session('user_id');
+            if ($userId) {
+                $userRecord = \App\Models\UserRegistration::find($userId);
+                if ($userRecord) {
+                    $user = [
+                        'id'        => $userRecord->id,
+                        'username'  => $userRecord->username,
+                        'name'      => $userRecord->full_name ?? $userRecord->username,
+                        'user_type' => $userRecord->user_type,
+                        'status'    => $userRecord->status,
+                    ];
+                    // Restore the full session data
+                    session(['user' => $user]);
+                }
+            }
+        }
+
+        if (!$user) {
+            return redirect('/')->with('error', 'Please log in to access profile verification.');
+        }
+        $status = strtolower($user['status'] ?? 'unverified');
+        if (in_array($status, ['approved', 'verified', 'pending', 'pending_verification'])) {
+            return redirect('/')->with('info', 'Your account is already submitted or verified.');
+        }
+        return view('landingPage.verify-profile', compact('user'));
+    })->name('auth.verify.profile.page');
+
     // Enhanced profile verification with file uploads
     Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])
         ->middleware('web')
