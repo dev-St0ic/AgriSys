@@ -232,17 +232,47 @@
 
         <!-- Events Table -->
         <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <div></div>
+            <div class="card-header py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex gap-2 align-items-center">
+                    {{-- Select / Deselect All --}}
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="selectAllEvents()" id="selectAllEventsBtn"
+                            title="Select All Events on This Page">
+                        <i class="fas fa-check-square me-1"></i>Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="deselectAllEvents()" id="deselectAllEventsBtn"
+                            title="Deselect All" style="display: none;">
+                        <i class="fas fa-square me-1"></i>Deselect All
+                    </button>
+
+                    {{-- Bulk Actions (hidden until items are selected) --}}
+                    <div class="btn-group" role="group" id="eventBulkActionsGroup" style="display: none;">
+                        <button type="button" class="btn btn-sm btn-outline-success"
+                                onclick="openBulkActivateModal()" title="Activate Selected">
+                            <i class="fas fa-power-off me-1"></i>Activate
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-warning"
+                                onclick="openBulkDeactivateModal()" title="Deactivate Selected">
+                            <i class="fas fa-ban me-1"></i>Deactivate
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-dark"
+                                onclick="openBulkArchiveModal()" title="Archive Selected">
+                            <i class="fas fa-archive me-1"></i>Archive
+                        </button>
+                    </div>
+                </div>
+
                 <h6 class="m-0 font-weight-bold text-primary">
                     <i class="fas fa-calendar-day me-2"></i>Events List
                 </h6>
-                <div class="btn-group gap-2">
+
+                <div class="d-flex gap-2">
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                         data-bs-target="#createEventModal">
                         <i class="fas fa-plus me-2"></i>Add Event
                     </button>
-                    <a href="{{ route('admin.event.archived') }}" class="btn btn-info btn-sm me-2">
+                    <a href="{{ route('admin.event.archived') }}" class="btn btn-info btn-sm">
                         <i class="fas fa-archive me-2"></i>View Archive ({{ $stats['archived'] ?? 0 }})
                     </a>
                 </div>
@@ -253,6 +283,10 @@
                     <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                         <thead class="table-dark">
                             <tr>
+                                <th class="text-center" style="width: 40px;">
+                                    <input type="checkbox" id="checkboxHeaderEvents"
+                                        onchange="toggleAllEventCheckboxes(this)">
+                                </th>
                                 <th class="text-center">Image</th>
                                 <th class="text-center">Title</th>
                                 <th class="text-center">Category</th>
@@ -262,7 +296,14 @@
                         </thead>
                         <tbody>
                             @forelse($events as $event)
-                                <tr data-id="{{ $event->id }}">
+                                <tr data-id="{{ $event->id }}" class="event-table-row">
+                                    <td class="text-center align-middle">
+                                        <input type="checkbox" class="event-checkbox"
+                                            value="{{ $event->id }}"
+                                            data-title="{{ $event->title }}"
+                                            data-active="{{ $event->is_active ? '1' : '0' }}"
+                                            onchange="updateEventBulkVisibility()">
+                                    </td>
                                     <td>
                                         @if ($event->image_path)
                                             <img src="{{ Storage::url($event->image_path) }}" alt="{{ $event->title }}"
@@ -413,6 +454,94 @@
                         </nav>
                     </div>
                 @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK ACTIVATE MODAL -->
+    <div class="modal fade" id="bulkActivateModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-power-off me-2"></i>Activate Events
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        You are about to <strong>activate</strong> <strong id="bulkActivateCount">0</strong> event(s).
+                        They will become visible to users.
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="confirmBulkActivate()" id="confirmBulkActivateBtn">
+                        <span class="btn-text"><i class="fas fa-power-off me-1"></i>Activate</span>
+                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Activating...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK DEACTIVATE MODAL -->
+    <div class="modal fade" id="bulkDeactivateModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-ban me-2"></i>Deactivate Events
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning mb-3">
+                        You are about to <strong>deactivate</strong> <strong id="bulkDeactivateCount">0</strong> event(s).
+                        They will be hidden from users.
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" onclick="confirmBulkDeactivate()" id="confirmBulkDeactivateBtn">
+                        <span class="btn-text"><i class="fas fa-ban me-1"></i>Deactivate</span>
+                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Deactivating...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK ARCHIVE MODAL -->
+    <div class="modal fade" id="bulkArchiveModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-archive me-2"></i>Archive Events
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        You are about to <strong>archive</strong> <strong id="bulkArchiveCount">0</strong> event(s).
+                        <br><small class="text-muted">Only <strong>inactive</strong> events can be archived. Active events in your selection will be skipped.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason for archiving (optional)</label>
+                        <textarea id="bulkArchiveReason" class="form-control" rows="2"
+                                placeholder="e.g., Events completed, Seasonal cleanup..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-info" onclick="confirmBulkArchive()" id="confirmBulkArchiveBtn">
+                        <span class="btn-text"><i class="fas fa-archive me-1"></i>Archive</span>
+                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Archiving...</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2035,6 +2164,176 @@
                     statusText += `To ${toDate}`;
                 }
                 statusElement.innerHTML = statusText;
+            }
+        }
+
+        // ===== BULK SELECTION FOR EVENTS =====
+
+        function toggleAllEventCheckboxes(headerCheckbox) {
+            document.querySelectorAll('.event-checkbox').forEach(cb => {
+                cb.checked = headerCheckbox.checked;
+            });
+            updateEventBulkVisibility();
+        }
+
+        function selectAllEvents() {
+            document.querySelectorAll('.event-checkbox').forEach(cb => cb.checked = true);
+            const header = document.getElementById('checkboxHeaderEvents');
+            if (header) header.checked = true;
+            updateEventBulkVisibility();
+        }
+
+        function deselectAllEvents() {
+            document.querySelectorAll('.event-checkbox').forEach(cb => cb.checked = false);
+            const header = document.getElementById('checkboxHeaderEvents');
+            if (header) header.checked = false;
+            updateEventBulkVisibility();
+        }
+
+        function updateEventBulkVisibility() {
+            const checked = document.querySelectorAll('.event-checkbox:checked').length;
+            const bulkGroup = document.getElementById('eventBulkActionsGroup');
+            const selectAllBtn = document.getElementById('selectAllEventsBtn');
+            const deselectAllBtn = document.getElementById('deselectAllEventsBtn');
+            const headerCheckbox = document.getElementById('checkboxHeaderEvents');
+
+            if (checked > 0) {
+                bulkGroup.style.display = 'flex';
+                selectAllBtn.style.display = 'none';
+                deselectAllBtn.style.display = 'block';
+                if (headerCheckbox) headerCheckbox.checked = true;
+
+                // Highlight selected rows
+                document.querySelectorAll('.event-table-row').forEach(row => {
+                    const cb = row.querySelector('.event-checkbox');
+                    row.classList.toggle('table-active', cb && cb.checked);
+                });
+            } else {
+                bulkGroup.style.display = 'none';
+                selectAllBtn.style.display = 'block';
+                deselectAllBtn.style.display = 'none';
+                if (headerCheckbox) headerCheckbox.checked = false;
+                document.querySelectorAll('.event-table-row').forEach(row => row.classList.remove('table-active'));
+            }
+        }
+
+        function getSelectedEventIds() {
+            return Array.from(document.querySelectorAll('.event-checkbox:checked')).map(cb => cb.value);
+        }
+
+        // --- Bulk Activate ---
+        function openBulkActivateModal() {
+            const ids = getSelectedEventIds();
+            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            document.getElementById('bulkActivateCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkActivateModal')).show();
+        }
+
+        async function confirmBulkActivate() {
+            const ids = getSelectedEventIds();
+            const btn = document.getElementById('confirmBulkActivateBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/events/bulk/activate', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkActivateModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to activate events');
+                }
+            } catch (e) {
+                showToast('error', 'Error activating events');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // --- Bulk Deactivate ---
+        function openBulkDeactivateModal() {
+            const ids = getSelectedEventIds();
+            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            document.getElementById('bulkDeactivateCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkDeactivateModal')).show();
+        }
+
+        async function confirmBulkDeactivate() {
+            const ids = getSelectedEventIds();
+            const btn = document.getElementById('confirmBulkDeactivateBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/events/bulk/deactivate', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkDeactivateModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to deactivate events');
+                }
+            } catch (e) {
+                showToast('error', 'Error deactivating events');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // --- Bulk Archive ---
+        function openBulkArchiveModal() {
+            const ids = getSelectedEventIds();
+            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            document.getElementById('bulkArchiveCount').textContent = ids.length;
+            document.getElementById('bulkArchiveReason').value = '';
+            new bootstrap.Modal(document.getElementById('bulkArchiveModal')).show();
+        }
+
+        async function confirmBulkArchive() {
+            const ids = getSelectedEventIds();
+            const reason = document.getElementById('bulkArchiveReason').value;
+            const btn = document.getElementById('confirmBulkArchiveBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/events/bulk/archive', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ ids, reason })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkArchiveModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to archive events');
+                }
+            } catch (e) {
+                showToast('error', 'Error archiving events');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
             }
         }
 

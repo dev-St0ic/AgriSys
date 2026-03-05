@@ -408,6 +408,11 @@ Route::middleware('admin')->group(function () {
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
 
+        // select all
+        Route::post('/bulk/activate',   [EventController::class, 'bulkActivate'])->name('admin.event.bulk.activate');
+        Route::post('/bulk/deactivate', [EventController::class, 'bulkDeactivate'])->name('admin.event.bulk.deactivate');
+        Route::post('/bulk/archive',    [EventController::class, 'bulkArchive'])->name('admin.event.bulk.archive');
+
         // Special/Specific routes BEFORE generic {id} routes
         Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
         Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');

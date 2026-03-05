@@ -60,7 +60,7 @@ function getFallbackEvent() {
         short_description: 'Dedicated to promoting sustainable agriculture and supporting our farming community.',
         category: 'announcement',
         category_label: 'Announcement',
-        image: createPlaceholder(800, 400, 'Agriculture Office'),
+        image: '/images/logos/cago_web.png',
         date: 'Ongoing',
         location: 'City Agriculture Office',
         is_active: true,

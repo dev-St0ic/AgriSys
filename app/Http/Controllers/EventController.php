@@ -514,4 +514,79 @@ class EventController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to fetch statistics'], 500);
         }
     }
+
+    /**
+     * Bulk activate events.
+     */
+    public function bulkActivate(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No events selected'], 422);
+        }
+
+        $updated = Event::notArchived()->whereIn('id', $ids)->update([
+            'is_active'  => true,
+            'updated_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$updated} event(s) activated successfully",
+        ]);
+    }
+
+    /**
+     * Bulk deactivate events.
+     */
+    public function bulkDeactivate(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No events selected'], 422);
+        }
+
+        $updated = Event::notArchived()->whereIn('id', $ids)->update([
+            'is_active'  => false,
+            'updated_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$updated} event(s) deactivated successfully",
+        ]);
+    }
+
+    /**
+     * Bulk archive events (only inactive ones).
+     */
+    public function bulkArchive(Request $request)
+    {
+        $ids    = $request->input('ids', []);
+        $reason = $request->input('reason');
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No events selected'], 422);
+        }
+
+        $events  = Event::notArchived()->whereIn('id', $ids)->get();
+        $archived = 0;
+        $skipped  = 0;
+
+        foreach ($events as $event) {
+            if ($event->is_active) {
+                $skipped++;
+                continue; // skip active events
+            }
+            $event->archive(auth()->id(), $reason);
+            $archived++;
+        }
+
+        $message = "{$archived} event(s) archived successfully";
+        if ($skipped > 0) {
+            $message .= ". {$skipped} active event(s) were skipped (deactivate them first).";
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
+    }
 }
