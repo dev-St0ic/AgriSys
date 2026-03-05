@@ -412,6 +412,7 @@ Route::middleware('admin')->group(function () {
         Route::post('/bulk/activate',   [EventController::class, 'bulkActivate'])->name('admin.event.bulk.activate');
         Route::post('/bulk/deactivate', [EventController::class, 'bulkDeactivate'])->name('admin.event.bulk.deactivate');
         Route::post('/bulk/archive',    [EventController::class, 'bulkArchive'])->name('admin.event.bulk.archive');
+        Route::delete('/bulk/destroy', [EventController::class, 'bulkDelete'])->name('bulk.destroy');
 
         // Bulk restore and delete for archived page
         Route::post('/bulk/restore',    [EventController::class, 'bulkRestore'])->name('bulk.restore');

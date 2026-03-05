@@ -615,7 +615,8 @@ class EventController extends Controller
     }
 
     /**
-     * Bulk delete archived events (move to recycle bin).
+     * Bulk delete events (move to recycle bin).
+     * Works from both the main index and archived page.
      */
     public function bulkDelete(Request $request)
     {
@@ -624,7 +625,8 @@ class EventController extends Controller
             return response()->json(['success' => false, 'message' => 'No events selected'], 422);
         }
 
-        $events  = Event::archived()->whereIn('id', $ids)->get();
+        // Use whereIn without scope restriction so it works from both pages
+        $events  = Event::whereIn('id', $ids)->get();
         $deleted = 0;
         $skipped = 0;
 
@@ -633,14 +635,14 @@ class EventController extends Controller
                 $skipped++;
                 continue;
             }
-            if (RecycleBinService::softDelete($event, 'Bulk deleted from Archived Events')) {
+            if (RecycleBinService::softDelete($event, 'Bulk deleted from Events management')) {
                 $deleted++;
             }
         }
 
         $message = "{$deleted} event(s) moved to recycle bin";
         if ($skipped > 0) {
-            $message .= ". {$skipped} active event(s) were skipped.";
+            $message .= ". {$skipped} active event(s) were skipped (deactivate them first).";
         }
 
         return response()->json(['success' => true, 'message' => $message]);

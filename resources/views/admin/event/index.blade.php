@@ -260,6 +260,10 @@
                                 onclick="openBulkArchiveModal()" title="Archive Selected">
                             <i class="fas fa-archive me-1"></i>Archive
                         </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                onclick="openBulkDeleteModal()" title="Delete Selected">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
                     </div>
                 </div>
 
@@ -540,6 +544,35 @@
                     <button type="button" class="btn btn-info" onclick="confirmBulkArchive()" id="confirmBulkArchiveBtn">
                         <span class="btn-text"><i class="fas fa-archive me-1"></i>Archive</span>
                         <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Archiving...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK DELETE MODAL (Main Index) -->
+    <div class="modal fade" id="bulkDeleteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash me-2"></i>Delete Events
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-3">
+                        You are about to <strong>delete</strong> <strong id="bulkDeleteCount">0</strong> event(s).
+                        They will be moved to the Recycle Bin.
+                        <br><small class="text-muted">Only <strong>inactive</strong> events can be deleted. Active events will be skipped.</small>
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()" id="confirmBulkDeleteBtn">
+                        <span class="btn-text"><i class="fas fa-trash me-1"></i>Move to Recycle Bin</span>
+                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -2330,6 +2363,44 @@
                 }
             } catch (e) {
                 showToast('error', 'Error archiving events');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // --- Bulk Delete ---
+        function openBulkDeleteModal() {
+            const ids = getSelectedEventIds();
+            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            document.getElementById('bulkDeleteCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkDeleteModal')).show();
+        }
+
+        async function confirmBulkDelete() {
+            const ids = getSelectedEventIds();
+            const btn = document.getElementById('confirmBulkDeleteBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/events/bulk/delete', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to delete events');
+                }
+            } catch (e) {
+                showToast('error', 'Error deleting events');
             } finally {
                 btn.querySelector('.btn-text').style.display = 'inline';
                 btn.querySelector('.btn-loader').style.display = 'none';
