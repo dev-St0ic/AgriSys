@@ -107,8 +107,8 @@ function renderEventsLayout() {
     // - Total events >= 4, OR
     // - Non-announcement events >= 3 (fills a full desktop row), OR
     // - Announcements alone >= 2
-    const useSlider = allEvents.length >= 4
-        || nonAnnouncementEvents.length >= 3
+    const useSlider = allEvents.length > 4
+        || nonAnnouncementEvents.length >3
         || announcementEvents.length >= 2;
 
     let html = '';

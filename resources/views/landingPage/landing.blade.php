@@ -2337,7 +2337,7 @@
                 <div class="footer-logo">
                     <h2>AgriSys</h2>
                 </div>
-                <p>The Agricultural Service System (AgriSys) is designed to optimize service delivery for the City
+                <p>The Agricultural System (AgriSys) is designed to optimize service delivery for the City
                     Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support
                     local farmers.</p>
 
