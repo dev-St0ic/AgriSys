@@ -2,9 +2,9 @@
 // DYNAMIC EVENTS LOADING SYSTEM (WITH SLIDER SUPPORT)
 // ===================================
 // Layout rules:
-//   ≤ 3 non-announcement events  → static grid  (announcement in featured section below)
-//   ≥ 4 total events (any mix)   → ONE unified slider for everything
-//   0 non-announcement events    → just the featured announcement / fallback
+//   2+ announcements OR 3+ non-announcement OR 4+ total  → slider
+//   otherwise → static grid + featured announcement below
+//   0 events → fallback featured section
 
 let allEvents = [];
 let sliderCurrentIndex = 0;
@@ -94,29 +94,28 @@ function getAnnouncementEvents() {
     return allEvents.filter(e => e.category === 'announcement');
 }
 
-/**
- * Layout decision:
- *   - If total events > 4  → unified slider (ALL events, announcements included)
- *   - If total events ≤ 4  → original layout:
- *       top: non-announcement grid (up to 3)
- *       bottom: first announcement as featured section
- */
 function renderEventsLayout() {
     const container = document.querySelector('.events-container');
     if (!container) return;
 
     if (!allEvents || allEvents.length === 0) allEvents = [getFallbackEvent()];
 
+    const nonAnnouncementEvents = getNonAnnouncementEvents();
+    const announcementEvents = getAnnouncementEvents();
+
+    // Use slider when:
+    // - Total events >= 4, OR
+    // - Non-announcement events >= 3 (fills a full desktop row), OR
+    // - Announcements alone >= 2
+    const useSlider = allEvents.length >= 4
+        || nonAnnouncementEvents.length >= 3
+        || announcementEvents.length >= 2;
+
     let html = '';
 
-    if (allEvents.length > 4) {
-        // ── Unified slider: everything in one place ──────────────────────
+    if (useSlider) {
         html += createEventsSlider(allEvents);
-
     } else {
-        // ── Original layout ──────────────────────────────────────────────
-        const nonAnnouncementEvents = getNonAnnouncementEvents();
-
         if (nonAnnouncementEvents.length > 0) {
             html += '<div class="events-grid-top">';
             nonAnnouncementEvents.forEach((event, index) => {
@@ -125,7 +124,6 @@ function renderEventsLayout() {
             html += '</div>';
         }
 
-        const announcementEvents = getAnnouncementEvents();
         if (announcementEvents.length > 0) {
             html += createFeaturedEvent(announcementEvents[0]);
         } else if (nonAnnouncementEvents.length === 0) {
@@ -135,7 +133,7 @@ function renderEventsLayout() {
 
     container.innerHTML = html;
 
-    if (allEvents.length > 4) {
+    if (useSlider) {
         initEventsSlider(allEvents);
     }
 }

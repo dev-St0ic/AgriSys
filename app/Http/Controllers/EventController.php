@@ -589,4 +589,60 @@ class EventController extends Controller
 
         return response()->json(['success' => true, 'message' => $message]);
     }
+
+    /**
+     * Bulk restore archived events.
+     */
+    public function bulkRestore(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No events selected'], 422);
+        }
+
+        $events = Event::archived()->whereIn('id', $ids)->get();
+        $restored = 0;
+
+        foreach ($events as $event) {
+            $event->unarchive(auth()->id());
+            $restored++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$restored} event(s) restored successfully",
+        ]);
+    }
+
+    /**
+     * Bulk delete archived events (move to recycle bin).
+     */
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No events selected'], 422);
+        }
+
+        $events  = Event::archived()->whereIn('id', $ids)->get();
+        $deleted = 0;
+        $skipped = 0;
+
+        foreach ($events as $event) {
+            if ($event->is_active) {
+                $skipped++;
+                continue;
+            }
+            if (RecycleBinService::softDelete($event, 'Bulk deleted from Archived Events')) {
+                $deleted++;
+            }
+        }
+
+        $message = "{$deleted} event(s) moved to recycle bin";
+        if ($skipped > 0) {
+            $message .= ". {$skipped} active event(s) were skipped.";
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
+    }
 }

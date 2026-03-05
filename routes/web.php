@@ -408,10 +408,14 @@ Route::middleware('admin')->group(function () {
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
 
-        // select all
+        // Bulk actions for main listing page
         Route::post('/bulk/activate',   [EventController::class, 'bulkActivate'])->name('admin.event.bulk.activate');
         Route::post('/bulk/deactivate', [EventController::class, 'bulkDeactivate'])->name('admin.event.bulk.deactivate');
         Route::post('/bulk/archive',    [EventController::class, 'bulkArchive'])->name('admin.event.bulk.archive');
+
+        // Bulk restore and delete for archived page
+        Route::post('/bulk/restore',    [EventController::class, 'bulkRestore'])->name('bulk.restore');
+        Route::post('/bulk/delete',     [EventController::class, 'bulkDelete'])->name('bulk.delete');
 
         // Special/Specific routes BEFORE generic {id} routes
         Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
