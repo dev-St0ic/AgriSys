@@ -151,7 +151,12 @@ function createEventsSlider(events) {
 
     return `
         <div class="events-slider-wrapper">
-            <div class="events-slider-header">
+            <div class="events-slider-viewport" id="eventsSliderViewport">
+                <div class="events-slider-track" id="eventsSliderTrack">
+                    ${cards}
+                </div>
+            </div>
+            <div class="events-slider-footer">
                 <button class="events-slider-nav prev" id="eventsSliderPrev" onclick="prevEventSlide()" aria-label="Previous events">
                     <i class="fas fa-chevron-left"></i>
                 </button>
@@ -161,11 +166,6 @@ function createEventsSlider(events) {
                 <button class="events-slider-nav next" id="eventsSliderNext" onclick="nextEventSlide()" aria-label="Next events">
                     <i class="fas fa-chevron-right"></i>
                 </button>
-            </div>
-            <div class="events-slider-viewport" id="eventsSliderViewport">
-                <div class="events-slider-track" id="eventsSliderTrack">
-                    ${cards}
-                </div>
             </div>
             <div class="events-slider-counter" id="eventsSliderCounter"></div>
         </div>
