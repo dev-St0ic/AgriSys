@@ -5032,9 +5032,25 @@
                         classificationBadge.textContent = 'N/A';
                     }
                     // Populate Boat Specifications
-                    const dimensions =
-                        `${data.boat_length || '0'} x ${data.boat_width || '0'} x ${data.boat_depth || '0'} ft`;
-                    document.getElementById('viewRegDimensions').textContent = dimensions;
+                    const dimensions = `
+                    <div class="d-flex gap-3 flex-wrap mt-1">
+                        <div class="text-center px-3 py-2 rounded" style="background:#f0f4ff; border:1px solid #c7d4f5; min-width:80px;">
+                            <div style="font-size:0.7rem; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Length</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:#0d6efd;">${data.boat_length || '0'}</div>
+                            <div style="font-size:0.7rem; color:#6c757d;">ft</div>
+                        </div>
+                        <div class="text-center px-3 py-2 rounded" style="background:#f0fff4; border:1px solid #b7e4c7; min-width:80px;">
+                            <div style="font-size:0.7rem; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Width</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:#198754;">${data.boat_width || '0'}</div>
+                            <div style="font-size:0.7rem; color:#6c757d;">ft</div>
+                        </div>
+                        <div class="text-center px-3 py-2 rounded" style="background:#fff8f0; border:1px solid #f5d4a0; min-width:80px;">
+                            <div style="font-size:0.7rem; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Depth</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:#fd7e14;">${data.boat_depth || '0'}</div>
+                            <div style="font-size:0.7rem; color:#6c757d;">ft</div>
+                        </div>
+                    </div>`;
+                document.getElementById('viewRegDimensions').innerHTML = dimensions;
                     document.getElementById('viewRegEngineType').textContent = data.engine_type || 'N/A';
                     document.getElementById('viewRegEngineHP').textContent = (data.engine_horsepower || 'N/A') + ' HP';
 
