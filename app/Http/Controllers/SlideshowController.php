@@ -145,16 +145,23 @@ class SlideshowController extends Controller
     {
         try {
             $slideshow_image = SlideshowImage::findOrFail($id);
+
+            // Cannot delete while active
+            if ($slideshow_image->is_active) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot delete an active slide. Please deactivate it first.'
+                ], 422);
+            }
+
             $title = $slideshow_image->title;
             $reason = 'Deleted from Slideshow management';
 
-            // Use RecycleBinService to soft delete the slideshow image
             if (RecycleBinService::softDelete($slideshow_image, $reason)) {
-                // Log activity
                 $this->logActivity('deleted', 'SlideshowImage', $id, [
                     'title' => $title
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Slideshow image moved to recycle bin successfully!'
@@ -247,5 +254,76 @@ class SlideshowController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error fetching slides: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Bulk activate slideshow images
+     */
+    public function bulkActivate(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No slides selected'], 422);
+        }
+
+        $updated = SlideshowImage::whereIn('id', $ids)->update(['is_active' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$updated} slide(s) activated successfully",
+        ]);
+    }
+
+    /**
+     * Bulk deactivate slideshow images
+     */
+    public function bulkDeactivate(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No slides selected'], 422);
+        }
+
+        $updated = SlideshowImage::whereIn('id', $ids)->update(['is_active' => false]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$updated} slide(s) deactivated successfully",
+        ]);
+    }
+
+    /**
+     * Bulk delete slideshow images (move to recycle bin)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No slides selected'], 422);
+        }
+
+        $slides  = SlideshowImage::whereIn('id', $ids)->get();
+        $deleted = 0;
+        $skipped = 0;
+
+        foreach ($slides as $slide) {
+            if ($slide->is_active) {
+                $skipped++;
+                continue; // skip active slides
+            }
+            if (RecycleBinService::softDelete($slide, 'Bulk deleted from Slideshow management')) {
+                $deleted++;
+            }
+        }
+
+        $message = "{$deleted} slide(s) moved to recycle bin";
+        if ($skipped > 0) {
+            $message .= ". {$skipped} active slide(s) were skipped (deactivate them first).";
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
     }
 }

@@ -568,6 +568,10 @@ Route::middleware('admin')->group(function () {
         Route::delete('/{id}', [SlideshowController::class, 'destroy'])->name('destroy');
         Route::post('/update-order', [SlideshowController::class, 'updateOrder'])->name('update-order');
         Route::post('/{id}/toggle-status', [SlideshowController::class, 'toggleStatus'])->name('toggle-status');
+        // Bulk actions
+        Route::post('/bulk-activate', [SlideshowController::class, 'bulkActivate'])->name('bulk-activate');
+        Route::post('/bulk-deactivate', [SlideshowController::class, 'bulkDeactivate'])->name('bulk-deactivate');
+        Route::post('/bulk-delete', [SlideshowController::class, 'bulkDelete'])->name('bulk-delete');            
     });
 
     // ==============================================
