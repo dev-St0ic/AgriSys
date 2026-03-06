@@ -391,7 +391,7 @@
                                                             <a class="dropdown-item" href="javascript:void(0)"
                                                                 onclick="toggleStatus({{ $slide->id }})">
                                                                 <i
-                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 " style="color: #ffc107;"></i>
+                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 " style="color: {{ $slide->is_active ? '#ffc107' : '#28a745' }};"></i>
                                                                 {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
                                                             </a>
                                                         </li>

@@ -368,7 +368,7 @@
                                                     <li>
                                                         <a class="dropdown-item" href="javascript:void(0)"
                                                             onclick="toggleEvent({{ $event->id }})">
-                                                            <i class="fas fa-power-off text-warning me-2"></i>
+                                                            <i class="fas fa-power-off me-2" style="color: {{ $event->is_active ? '#ffc107' : '#28a745' }};"></i>
                                                             {{ $event->is_active ? 'Deactivate' : 'Activate' }}
                                                         </a>
                                                     </li>

@@ -266,12 +266,22 @@ class SlideshowController extends Controller
             return response()->json(['success' => false, 'message' => 'No slides selected'], 422);
         }
 
-        $updated = SlideshowImage::whereIn('id', $ids)->update(['is_active' => true]);
+        $alreadyActive = SlideshowImage::whereIn('id', $ids)->where('is_active', true)->count();
+        $updated = SlideshowImage::whereIn('id', $ids)->where('is_active', false)->update(['is_active' => true]);
 
-        return response()->json([
-            'success' => true,
-            'message' => "{$updated} slide(s) activated successfully",
-        ]);
+        if ($updated === 0 && $alreadyActive > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "All selected slides are already active. No changes made."
+            ]);
+        }
+
+        $message = "{$updated} slide(s) activated successfully.";
+        if ($alreadyActive > 0) {
+            $message .= " {$alreadyActive} slide(s) were already active and skipped.";
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 
     /**
@@ -284,12 +294,22 @@ class SlideshowController extends Controller
             return response()->json(['success' => false, 'message' => 'No slides selected'], 422);
         }
 
-        $updated = SlideshowImage::whereIn('id', $ids)->update(['is_active' => false]);
+        $alreadyInactive = SlideshowImage::whereIn('id', $ids)->where('is_active', false)->count();
+        $updated = SlideshowImage::whereIn('id', $ids)->where('is_active', true)->update(['is_active' => false]);
 
-        return response()->json([
-            'success' => true,
-            'message' => "{$updated} slide(s) deactivated successfully",
-        ]);
+        if ($updated === 0 && $alreadyInactive > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "All selected slides are already inactive. No changes made."
+            ]);
+        }
+
+        $message = "{$updated} slide(s) deactivated successfully.";
+        if ($alreadyInactive > 0) {
+            $message .= " {$alreadyInactive} slide(s) were already inactive and skipped.";
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 
     /**

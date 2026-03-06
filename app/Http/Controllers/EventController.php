@@ -525,20 +525,24 @@ class EventController extends Controller
             return response()->json(['success' => false, 'message' => 'No events selected'], 422);
         }
 
-        $updated = Event::notArchived()->whereIn('id', $ids)->update([
-            'is_active'  => true,
-            'updated_by' => auth()->id(),
-        ]);
+        $alreadyActive = Event::whereIn('id', $ids)->where('is_active', true)->count();
+        $updated = Event::whereIn('id', $ids)->where('is_active', false)->update(['is_active' => true]);
 
-        return response()->json([
-            'success' => true,
-            'message' => "{$updated} event(s) activated successfully",
-        ]);
+        if ($updated === 0 && $alreadyActive > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "All selected events are already active. No changes made."
+            ]);
+        }
+
+        $message = "{$updated} event(s) activated successfully.";
+        if ($alreadyActive > 0) {
+            $message .= " {$alreadyActive} event(s) were already active and skipped.";
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 
-    /**
-     * Bulk deactivate events.
-     */
     public function bulkDeactivate(Request $request)
     {
         $ids = $request->input('ids', []);
@@ -546,15 +550,22 @@ class EventController extends Controller
             return response()->json(['success' => false, 'message' => 'No events selected'], 422);
         }
 
-        $updated = Event::notArchived()->whereIn('id', $ids)->update([
-            'is_active'  => false,
-            'updated_by' => auth()->id(),
-        ]);
+        $alreadyInactive = Event::whereIn('id', $ids)->where('is_active', false)->count();
+        $updated = Event::whereIn('id', $ids)->where('is_active', true)->update(['is_active' => false]);
 
-        return response()->json([
-            'success' => true,
-            'message' => "{$updated} event(s) deactivated successfully",
-        ]);
+        if ($updated === 0 && $alreadyInactive > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "All selected events are already inactive. No changes made."
+            ]);
+        }
+
+        $message = "{$updated} event(s) deactivated successfully.";
+        if ($alreadyInactive > 0) {
+            $message .= " {$alreadyInactive} event(s) were already inactive and skipped.";
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 
     /**
