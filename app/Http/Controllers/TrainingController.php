@@ -253,6 +253,12 @@ class TrainingController extends Controller
             try {
                 $training = TrainingApplication::findOrFail($id);
 
+                $original = $training->only([
+                    'first_name', 'middle_name', 'last_name', 'name_extension',
+                    'contact_number', 'barangay', 'training_type', 'document_path',
+                ]);
+
+
                 // Validate the incoming data - NOW INCLUDES FILE UPLOAD
                 $validated = $request->validate([
                     'first_name' => 'required|string|max:100',
@@ -294,6 +300,10 @@ class TrainingController extends Controller
                     'application_number' => $training->application_number,
                     'document_updated' => $request->hasFile('supporting_document')
                 ]);
+
+                $changes = $this->getChangedFields($original, $training->fresh()->only(array_keys($original)));
+
+                \App\Services\NotificationService::trainingApplicationUpdated($training, $changes);
 
                 Log::info('Training application updated', [
                     'application_id' => $id,
@@ -392,7 +402,7 @@ public function updateStatus(Request $request, $id)
         }
 
         // Send notification about status change
-        if (method_exists('NotificationService', 'trainingApplicationStatusChanged')) {
+        if ($previousStatus !== $validated['status']) {
             NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
         }
 
@@ -445,6 +455,17 @@ public function updateStatus(Request $request, $id)
         ], 500);
     }
 }
+
+    private function getChangedFields($original, $updated)
+    {
+            $changed = [];
+            foreach ($original as $key => $value) {
+                if (isset($updated[$key]) && $updated[$key] != $value) {
+                    $changed[$key] = ['from' => $value, 'to' => $updated[$key]];
+                }
+            }
+            return $changed;
+    }
 
  /**
  * Move the specified training application to recycle bin

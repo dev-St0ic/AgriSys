@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SlideshowImage;
 use App\Services\RecycleBinService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -56,6 +57,8 @@ class SlideshowController extends Controller
                 'order' => $order,
                 'is_active' => (bool) $request->input('is_active', 0)
             ]);
+
+            NotificationService::slideshowCreated($slideshow);
 
             // Log activity
             $this->logActivity('created', 'SlideshowImage', $slideshow->id, [
@@ -118,6 +121,7 @@ class SlideshowController extends Controller
             }
 
             $slideshow_image->update($updateData);
+            NotificationService::slideshowUpdated($slideshow_image);
 
             // Log activity
             $this->logActivity('updated', 'SlideshowImage', $slideshow_image->id, [
@@ -158,6 +162,7 @@ class SlideshowController extends Controller
             $reason = 'Deleted from Slideshow management';
 
             if (RecycleBinService::softDelete($slideshow_image, $reason)) {
+                NotificationService::slideshowDeleted($title);
                 $this->logActivity('deleted', 'SlideshowImage', $id, [
                     'title' => $title
                 ]);
@@ -215,6 +220,7 @@ class SlideshowController extends Controller
         $slideshow_image = SlideshowImage::findOrFail($id);
         try {
             $slideshow_image->update(['is_active' => !$slideshow_image->is_active]);
+            NotificationService::slideshowStatusToggled($slideshow_image);
             $status = $slideshow_image->is_active ? 'activated' : 'deactivated';
 
             // Log activity
@@ -266,8 +272,16 @@ class SlideshowController extends Controller
             return response()->json(['success' => false, 'message' => 'No slides selected'], 422);
         }
 
+        $slidesToNotify = SlideshowImage::whereIn('id', $ids)->where('is_active', false)->get();
         $alreadyActive = SlideshowImage::whereIn('id', $ids)->where('is_active', true)->count();
         $updated = SlideshowImage::whereIn('id', $ids)->where('is_active', false)->update(['is_active' => true]);
+
+        if ($updated > 0) {
+            foreach ($slidesToNotify as $slide) {
+                $slide->is_active = true;
+                NotificationService::slideshowStatusToggled($slide);
+            }
+        }
 
         if ($updated === 0 && $alreadyActive > 0) {
             return response()->json([
@@ -294,8 +308,16 @@ class SlideshowController extends Controller
             return response()->json(['success' => false, 'message' => 'No slides selected'], 422);
         }
 
+        $slidesToNotify = SlideshowImage::whereIn('id', $ids)->where('is_active', true)->get();
         $alreadyInactive = SlideshowImage::whereIn('id', $ids)->where('is_active', false)->count();
         $updated = SlideshowImage::whereIn('id', $ids)->where('is_active', true)->update(['is_active' => false]);
+
+        if ($updated > 0) {
+            foreach ($slidesToNotify as $slide) {
+                $slide->is_active = false;
+                NotificationService::slideshowStatusToggled($slide);
+            }
+        }
 
         if ($updated === 0 && $alreadyInactive > 0) {
             return response()->json([
@@ -332,6 +354,7 @@ class SlideshowController extends Controller
                 continue; // skip active slides
             }
             if (RecycleBinService::softDelete($slide, 'Bulk deleted from Slideshow management')) {
+                NotificationService::slideshowDeleted($slide->title);
                 $deleted++;
             }
         }

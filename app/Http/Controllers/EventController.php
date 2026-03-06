@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Services\RecycleBinService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -189,6 +190,7 @@ class EventController extends Controller
             ]);
 
             DB::commit();
+            NotificationService::eventCreated($event);
 
             \Log::info('Event created', [
                 'id'        => $event->id,
@@ -322,6 +324,7 @@ class EventController extends Controller
             ]);
 
             DB::commit();
+            NotificationService::eventUpdated($event->fresh());
 
             \Log::info('Event updated', ['id' => $event->id]);
 
@@ -357,6 +360,7 @@ class EventController extends Controller
             DB::beginTransaction();
             $event->archive(auth()->id(), $request->input('reason'));
             DB::commit();
+            NotificationService::eventArchived($event);
 
             \Log::info('Event archived', ['id' => $event->id]);
 
@@ -380,6 +384,7 @@ class EventController extends Controller
             DB::beginTransaction();
             $event->unarchive(auth()->id());
             DB::commit();
+            NotificationService::eventRestored($event);
 
             return response()->json([
                 'success' => true,
@@ -411,6 +416,7 @@ class EventController extends Controller
             $eventId    = $event->id;
 
             if (RecycleBinService::softDelete($event, 'Deleted from Events management')) {
+                NotificationService::eventDeleted($eventTitle);
                 \Log::info('Event moved to recycle bin', ['id' => $eventId, 'title' => $eventTitle]);
 
                 return response()->json([
@@ -440,6 +446,7 @@ class EventController extends Controller
                 'updated_by' => auth()->id(),
             ]);
 
+            NotificationService::eventStatusToggled($event->fresh());
             \Log::info('Event status toggled', [
                 'id'         => $event->id,
                 'category'   => $event->category,
@@ -528,6 +535,13 @@ class EventController extends Controller
         $alreadyActive = Event::whereIn('id', $ids)->where('is_active', true)->count();
         $updated = Event::whereIn('id', $ids)->where('is_active', false)->update(['is_active' => true]);
 
+        if ($updated > 0) {
+            $events = Event::whereIn('id', $ids)->get();
+            foreach ($events as $event) {
+                NotificationService::eventStatusToggled($event);
+            }
+        }
+
         if ($updated === 0 && $alreadyActive > 0) {
             return response()->json([
                 'success' => true,
@@ -552,6 +566,13 @@ class EventController extends Controller
 
         $alreadyInactive = Event::whereIn('id', $ids)->where('is_active', false)->count();
         $updated = Event::whereIn('id', $ids)->where('is_active', true)->update(['is_active' => false]);
+
+        if ($updated > 0) {
+            $events = Event::whereIn('id', $ids)->get();
+            foreach ($events as $event) {
+                NotificationService::eventStatusToggled($event);
+            }
+        }
 
         if ($updated === 0 && $alreadyInactive > 0) {
             return response()->json([
@@ -590,6 +611,7 @@ class EventController extends Controller
                 continue; // skip active events
             }
             $event->archive(auth()->id(), $reason);
+            NotificationService::eventArchived($event);
             $archived++;
         }
 
@@ -616,6 +638,7 @@ class EventController extends Controller
 
         foreach ($events as $event) {
             $event->unarchive(auth()->id());
+            NotificationService::eventRestored($event);
             $restored++;
         }
 
@@ -647,6 +670,7 @@ class EventController extends Controller
                 continue;
             }
             if (RecycleBinService::softDelete($event, 'Bulk deleted from Events management')) {
+                NotificationService::eventDeleted($event->title);
                 $deleted++;
             }
         }

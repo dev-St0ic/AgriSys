@@ -388,7 +388,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">
+                                    <td colspan="6" class="text-center text-muted py-4">
                                         <i class="fas fa-calendar-times fa-3x mb-3"></i>
                                         <p>No events found matching your criteria.</p>
                                     </td>

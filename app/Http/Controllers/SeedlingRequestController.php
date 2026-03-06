@@ -415,6 +415,10 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 
         \DB::commit();
 
+        if (!empty($changes)) {
+            NotificationService::seedlingRequestUpdated($seedlingRequest, $changes);
+        }
+
         // Return JSON response for AJAX requests
         if ($request->expectsJson()) {
             $changeCount = count($changes);
