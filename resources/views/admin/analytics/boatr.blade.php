@@ -19,7 +19,7 @@
         <div class="col-12">
             @include('admin.analytics.partials.filter', [
                 'filterRoute' => 'admin.analytics.boatr',
-                'exportRoute' => 'admin.analytics.boatr.export',
+                // 'exportRoute' => 'admin.analytics.boatr.export',
             ])
         </div>
     </div>

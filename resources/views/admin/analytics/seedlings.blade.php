@@ -37,7 +37,7 @@
         <div class="col-12">
             @include('admin.analytics.partials.filter', [
                 'filterRoute' => 'admin.analytics.seedlings',
-                'exportRoute' => 'admin.analytics.seedlings.export',
+                // 'exportRoute' => 'admin.analytics.seedlings.export',
             ])
         </div>
     </div>

@@ -1051,292 +1051,292 @@ class SeedlingAnalyticsController extends Controller
         ];
     }
 
-    /**
-     * Export analytics data
-     */
-    public function export(Request $request)
-    {
-        try {
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate   = $request->get('end_date', now()->format('Y-m-d'));
+    // /**
+    //  * Export analytics data
+    //  */
+    // public function export(Request $request)
+    // {
+    //     try {
+    //         $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+    //         $endDate   = $request->get('end_date', now()->format('Y-m-d'));
 
-            $startDate = Carbon::parse($startDate)->format('Y-m-d');
-            $endDate   = Carbon::parse($endDate)->format('Y-m-d');
+    //         $startDate = Carbon::parse($startDate)->format('Y-m-d');
+    //         $endDate   = Carbon::parse($endDate)->format('Y-m-d');
 
-            $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+    //         $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
 
-            $filename = 'seedling-analytics-' . $startDate . '-to-' . $endDate . '.csv';
+    //         $filename = 'seedling-analytics-' . $startDate . '-to-' . $endDate . '.csv';
 
-            $headers = [
-                'Content-Type'        => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-                'Pragma'              => 'no-cache',
-                'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
-                'Expires'             => '0',
-            ];
+    //         $headers = [
+    //             'Content-Type'        => 'text/csv',
+    //             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    //             'Pragma'              => 'no-cache',
+    //             'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+    //             'Expires'             => '0',
+    //         ];
 
-            $overview             = $this->getOverviewStatistics(clone $baseQuery, $startDate, $endDate);
-            $statusAnalysis       = $this->getStatusAnalysis(clone $baseQuery);
-            $monthlyTrends        = $this->getMonthlyTrends($startDate, $endDate);
-            $barangayAnalysis     = $this->getBarangayAnalysis(clone $baseQuery);
-            $topItems             = $this->getTopRequestedItems(clone $baseQuery);
-            $leastItems           = $this->getLeastRequestedItems(clone $baseQuery);
-            $processingTime       = $this->getProcessingTimeAnalysis(clone $baseQuery);
-            $seasonalAnalysis     = $this->getSeasonalAnalysis(clone $baseQuery);
-            $supplyImpact         = $this->getSupplyImpactAnalysis(clone $baseQuery);
-            $supplyDemand         = $this->getSupplyDemandAnalysis(clone $baseQuery);
-            $barangayPerformance  = $this->getBarangayPerformanceScore($barangayAnalysis);
-            $categoryFulfillment  = $this->getCategoryFulfillmentRate(clone $baseQuery);
-            $requestVelocity      = $this->getRequestVelocity($startDate, $endDate);
-            $supplyAlerts         = $this->getSupplyAlerts();
-            $rejectionAnalysis    = $this->getRejectionAnalysis(clone $baseQuery);
-            $claimAnalysis        = $this->getClaimAnalysis(clone $baseQuery);
+    //         $overview             = $this->getOverviewStatistics(clone $baseQuery, $startDate, $endDate);
+    //         $statusAnalysis       = $this->getStatusAnalysis(clone $baseQuery);
+    //         $monthlyTrends        = $this->getMonthlyTrends($startDate, $endDate);
+    //         $barangayAnalysis     = $this->getBarangayAnalysis(clone $baseQuery);
+    //         $topItems             = $this->getTopRequestedItems(clone $baseQuery);
+    //         $leastItems           = $this->getLeastRequestedItems(clone $baseQuery);
+    //         $processingTime       = $this->getProcessingTimeAnalysis(clone $baseQuery);
+    //         $seasonalAnalysis     = $this->getSeasonalAnalysis(clone $baseQuery);
+    //         $supplyImpact         = $this->getSupplyImpactAnalysis(clone $baseQuery);
+    //         $supplyDemand         = $this->getSupplyDemandAnalysis(clone $baseQuery);
+    //         $barangayPerformance  = $this->getBarangayPerformanceScore($barangayAnalysis);
+    //         $categoryFulfillment  = $this->getCategoryFulfillmentRate(clone $baseQuery);
+    //         $requestVelocity      = $this->getRequestVelocity($startDate, $endDate);
+    //         $supplyAlerts         = $this->getSupplyAlerts();
+    //         $rejectionAnalysis    = $this->getRejectionAnalysis(clone $baseQuery);
+    //         $claimAnalysis        = $this->getClaimAnalysis(clone $baseQuery);
 
-            $callback = function () use (
-                $startDate, $endDate, $overview, $statusAnalysis, $monthlyTrends,
-                $barangayAnalysis, $topItems, $leastItems, $processingTime,
-                $seasonalAnalysis, $supplyImpact, $supplyDemand, $barangayPerformance,
-                $categoryFulfillment, $requestVelocity, $supplyAlerts,
-                $rejectionAnalysis, $claimAnalysis
-            ) {
-                $file = fopen('php://output', 'w');
+    //         $callback = function () use (
+    //             $startDate, $endDate, $overview, $statusAnalysis, $monthlyTrends,
+    //             $barangayAnalysis, $topItems, $leastItems, $processingTime,
+    //             $seasonalAnalysis, $supplyImpact, $supplyDemand, $barangayPerformance,
+    //             $categoryFulfillment, $requestVelocity, $supplyAlerts,
+    //             $rejectionAnalysis, $claimAnalysis
+    //         ) {
+    //             $file = fopen('php://output', 'w');
 
-                // ── Export Info ───────────────────────────────────────
-                fputcsv($file, ['SUPPLY REQUEST ANALYTICS EXPORT']);
-                fputcsv($file, ['Generated At', now()->format('Y-m-d H:i:s')]);
-                fputcsv($file, ['Date Range', $startDate . ' to ' . $endDate]);
-                fputcsv($file, ['Generated By', auth()->user()->name ?? 'System']);
-                fputcsv($file, []);
+    //             // ── Export Info ───────────────────────────────────────
+    //             fputcsv($file, ['SUPPLY REQUEST ANALYTICS EXPORT']);
+    //             fputcsv($file, ['Generated At', now()->format('Y-m-d H:i:s')]);
+    //             fputcsv($file, ['Date Range', $startDate . ' to ' . $endDate]);
+    //             fputcsv($file, ['Generated By', auth()->user()->name ?? 'System']);
+    //             fputcsv($file, []);
 
-                // ── Overview ──────────────────────────────────────────
-                fputcsv($file, ['OVERVIEW']);
-                fputcsv($file, ['Metric', 'Value']);
-                fputcsv($file, ['Total Requests',            $overview['total_requests']]);
-                fputcsv($file, ['Approved Requests',         $overview['approved_requests']]);
-                fputcsv($file, ['Rejected Requests',         $overview['rejected_requests']]);
-                fputcsv($file, ['Pending Requests',          $overview['pending_requests']]);
-                fputcsv($file, ['Approval Rate',             $overview['approval_rate'] . '%']);
-                fputcsv($file, ['Total Quantity Requested',  $overview['total_quantity_requested']]);
-                fputcsv($file, ['Total Quantity Approved',   $overview['total_quantity_approved']]);
-                fputcsv($file, ['Fulfillment Rate',          $overview['fulfillment_rate'] . '%']);
-                fputcsv($file, ['Avg Request Size',          $overview['avg_request_size']]);
-                fputcsv($file, ['Unique Applicants',         $overview['unique_applicants']]);
-                fputcsv($file, ['Active Barangays',          $overview['active_barangays']]);
-                fputcsv($file, ['Change vs Previous Period', $overview['change_percentage'] . '%']);
-                fputcsv($file, []);
+    //             // ── Overview ──────────────────────────────────────────
+    //             fputcsv($file, ['OVERVIEW']);
+    //             fputcsv($file, ['Metric', 'Value']);
+    //             fputcsv($file, ['Total Requests',            $overview['total_requests']]);
+    //             fputcsv($file, ['Approved Requests',         $overview['approved_requests']]);
+    //             fputcsv($file, ['Rejected Requests',         $overview['rejected_requests']]);
+    //             fputcsv($file, ['Pending Requests',          $overview['pending_requests']]);
+    //             fputcsv($file, ['Approval Rate',             $overview['approval_rate'] . '%']);
+    //             fputcsv($file, ['Total Quantity Requested',  $overview['total_quantity_requested']]);
+    //             fputcsv($file, ['Total Quantity Approved',   $overview['total_quantity_approved']]);
+    //             fputcsv($file, ['Fulfillment Rate',          $overview['fulfillment_rate'] . '%']);
+    //             fputcsv($file, ['Avg Request Size',          $overview['avg_request_size']]);
+    //             fputcsv($file, ['Unique Applicants',         $overview['unique_applicants']]);
+    //             fputcsv($file, ['Active Barangays',          $overview['active_barangays']]);
+    //             fputcsv($file, ['Change vs Previous Period', $overview['change_percentage'] . '%']);
+    //             fputcsv($file, []);
 
-                // ── Status Analysis ───────────────────────────────────
-                fputcsv($file, ['STATUS ANALYSIS']);
-                fputcsv($file, ['Status', 'Count', 'Percentage']);
-                foreach ($statusAnalysis['counts'] as $status => $count) {
-                    fputcsv($file, [
-                        ucfirst(str_replace('_', ' ', $status)),
-                        $count,
-                        ($statusAnalysis['percentages'][$status] ?? 0) . '%',
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Status Analysis ───────────────────────────────────
+    //             fputcsv($file, ['STATUS ANALYSIS']);
+    //             fputcsv($file, ['Status', 'Count', 'Percentage']);
+    //             foreach ($statusAnalysis['counts'] as $status => $count) {
+    //                 fputcsv($file, [
+    //                     ucfirst(str_replace('_', ' ', $status)),
+    //                     $count,
+    //                     ($statusAnalysis['percentages'][$status] ?? 0) . '%',
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Monthly Trends ────────────────────────────────────
-                fputcsv($file, ['MONTHLY TRENDS']);
-                fputcsv($file, ['Month', 'Total Requests', 'Approved', 'Rejected', 'Pending', 'Total Quantity', 'Avg Quantity']);
-                foreach ($monthlyTrends as $trend) {
-                    fputcsv($file, [
-                        $trend->month,
-                        $trend->total_requests,
-                        $trend->approved,
-                        $trend->rejected,
-                        $trend->pending,
-                        $trend->total_quantity,
-                        $trend->avg_quantity,
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Monthly Trends ────────────────────────────────────
+    //             fputcsv($file, ['MONTHLY TRENDS']);
+    //             fputcsv($file, ['Month', 'Total Requests', 'Approved', 'Rejected', 'Pending', 'Total Quantity', 'Avg Quantity']);
+    //             foreach ($monthlyTrends as $trend) {
+    //                 fputcsv($file, [
+    //                     $trend->month,
+    //                     $trend->total_requests,
+    //                     $trend->approved,
+    //                     $trend->rejected,
+    //                     $trend->pending,
+    //                     $trend->total_quantity,
+    //                     $trend->avg_quantity,
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Barangay Analysis ─────────────────────────────────
-                fputcsv($file, ['BARANGAY ANALYSIS']);
-                fputcsv($file, ['Barangay', 'Total Requests', 'Approved', 'Total Quantity', 'Avg Quantity', 'Unique Applicants']);
-                foreach ($barangayAnalysis as $b) {
-                    fputcsv($file, [
-                        $b->barangay,
-                        $b->total_requests,
-                        $b->approved,
-                        $b->total_quantity,
-                        $b->avg_quantity,
-                        $b->unique_applicants,
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Barangay Analysis ─────────────────────────────────
+    //             fputcsv($file, ['BARANGAY ANALYSIS']);
+    //             fputcsv($file, ['Barangay', 'Total Requests', 'Approved', 'Total Quantity', 'Avg Quantity', 'Unique Applicants']);
+    //             foreach ($barangayAnalysis as $b) {
+    //                 fputcsv($file, [
+    //                     $b->barangay,
+    //                     $b->total_requests,
+    //                     $b->approved,
+    //                     $b->total_quantity,
+    //                     $b->avg_quantity,
+    //                     $b->unique_applicants,
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Barangay Performance Score ────────────────────────
-                fputcsv($file, ['BARANGAY PERFORMANCE SCORES']);
-                fputcsv($file, ['Barangay', 'Score', 'Grade', 'Approval Rate', 'Total Requests']);
-                foreach ($barangayPerformance as $bp) {
-                    fputcsv($file, [
-                        $bp['barangay'],
-                        $bp['score'],
-                        $bp['grade'],
-                        $bp['approval_rate'] . '%',
-                        $bp['total_requests'],
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Barangay Performance Score ────────────────────────
+    //             fputcsv($file, ['BARANGAY PERFORMANCE SCORES']);
+    //             fputcsv($file, ['Barangay', 'Score', 'Grade', 'Approval Rate', 'Total Requests']);
+    //             foreach ($barangayPerformance as $bp) {
+    //                 fputcsv($file, [
+    //                     $bp['barangay'],
+    //                     $bp['score'],
+    //                     $bp['grade'],
+    //                     $bp['approval_rate'] . '%',
+    //                     $bp['total_requests'],
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Top Requested Items ───────────────────────────────
-                fputcsv($file, ['TOP REQUESTED ITEMS']);
-                fputcsv($file, ['Item Name', 'Category', 'Total Quantity', 'Request Count']);
-                foreach ($topItems as $item) {
-                    fputcsv($file, [
-                        $item['name'],
-                        $item['category'],
-                        $item['total_quantity'],
-                        $item['request_count'],
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Top Requested Items ───────────────────────────────
+    //             fputcsv($file, ['TOP REQUESTED ITEMS']);
+    //             fputcsv($file, ['Item Name', 'Category', 'Total Quantity', 'Request Count']);
+    //             foreach ($topItems as $item) {
+    //                 fputcsv($file, [
+    //                     $item['name'],
+    //                     $item['category'],
+    //                     $item['total_quantity'],
+    //                     $item['request_count'],
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Least Requested Items ─────────────────────────────
-                fputcsv($file, ['LEAST REQUESTED ITEMS']);
-                fputcsv($file, ['Item Name', 'Category', 'Total Quantity', 'Request Count']);
-                foreach ($leastItems as $item) {
-                    fputcsv($file, [
-                        $item['name'],
-                        $item['category'],
-                        $item['total_quantity'],
-                        $item['request_count'],
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Least Requested Items ─────────────────────────────
+    //             fputcsv($file, ['LEAST REQUESTED ITEMS']);
+    //             fputcsv($file, ['Item Name', 'Category', 'Total Quantity', 'Request Count']);
+    //             foreach ($leastItems as $item) {
+    //                 fputcsv($file, [
+    //                     $item['name'],
+    //                     $item['category'],
+    //                     $item['total_quantity'],
+    //                     $item['request_count'],
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Category Fulfillment ──────────────────────────────
-                fputcsv($file, ['CATEGORY FULFILLMENT RATE']);
-                fputcsv($file, ['Category', 'Requested', 'Approved', 'Fulfillment Rate']);
-                foreach ($categoryFulfillment as $category => $data) {
-                    fputcsv($file, [
-                        ucfirst(str_replace('_', ' ', $category)),
-                        $data['requested'],
-                        $data['approved'],
-                        $data['rate'] . '%',
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Category Fulfillment ──────────────────────────────
+    //             fputcsv($file, ['CATEGORY FULFILLMENT RATE']);
+    //             fputcsv($file, ['Category', 'Requested', 'Approved', 'Fulfillment Rate']);
+    //             foreach ($categoryFulfillment as $category => $data) {
+    //                 fputcsv($file, [
+    //                     ucfirst(str_replace('_', ' ', $category)),
+    //                     $data['requested'],
+    //                     $data['approved'],
+    //                     $data['rate'] . '%',
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Supply vs Demand ──────────────────────────────────
-                fputcsv($file, ['SUPPLY VS DEMAND ANALYSIS']);
-                fputcsv($file, ['Category', 'Total Demand', 'Unique Items', 'Top Demand Item']);
-                foreach ($supplyDemand as $category => $data) {
-                    fputcsv($file, [
-                        ucfirst(str_replace('_', ' ', $category)),
-                        $data['total_demand'],
-                        $data['unique_items'],
-                        $data['top_demand_item'],
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Supply vs Demand ──────────────────────────────────
+    //             fputcsv($file, ['SUPPLY VS DEMAND ANALYSIS']);
+    //             fputcsv($file, ['Category', 'Total Demand', 'Unique Items', 'Top Demand Item']);
+    //             foreach ($supplyDemand as $category => $data) {
+    //                 fputcsv($file, [
+    //                     ucfirst(str_replace('_', ' ', $category)),
+    //                     $data['total_demand'],
+    //                     $data['unique_items'],
+    //                     $data['top_demand_item'],
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Seasonal Analysis ─────────────────────────────────
-                fputcsv($file, ['SEASONAL ANALYSIS']);
-                fputcsv($file, ['Season', 'Total Requests', 'Total Quantity']);
-                foreach ($seasonalAnalysis as $season => $data) {
-                    fputcsv($file, [
-                        $season,
-                        $data['requests'],
-                        $data['quantity'],
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Seasonal Analysis ─────────────────────────────────
+    //             fputcsv($file, ['SEASONAL ANALYSIS']);
+    //             fputcsv($file, ['Season', 'Total Requests', 'Total Quantity']);
+    //             foreach ($seasonalAnalysis as $season => $data) {
+    //                 fputcsv($file, [
+    //                     $season,
+    //                     $data['requests'],
+    //                     $data['quantity'],
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Processing Time ───────────────────────────────────
-                fputcsv($file, ['PROCESSING TIME ANALYSIS']);
-                fputcsv($file, ['Metric', 'Value']);
-                fputcsv($file, ['Avg Processing Days', $processingTime['avg_processing_days']]);
-                fputcsv($file, ['Min Processing Days', $processingTime['min_processing_days']]);
-                fputcsv($file, ['Max Processing Days', $processingTime['max_processing_days']]);
-                fputcsv($file, ['Processed Count',     $processingTime['processed_count']]);
-                fputcsv($file, []);
+    //             // ── Processing Time ───────────────────────────────────
+    //             fputcsv($file, ['PROCESSING TIME ANALYSIS']);
+    //             fputcsv($file, ['Metric', 'Value']);
+    //             fputcsv($file, ['Avg Processing Days', $processingTime['avg_processing_days']]);
+    //             fputcsv($file, ['Min Processing Days', $processingTime['min_processing_days']]);
+    //             fputcsv($file, ['Max Processing Days', $processingTime['max_processing_days']]);
+    //             fputcsv($file, ['Processed Count',     $processingTime['processed_count']]);
+    //             fputcsv($file, []);
 
-                // ── Supply Impact ─────────────────────────────────────
-                fputcsv($file, ['SUPPLY IMPACT']);
-                fputcsv($file, ['Metric', 'Value']);
-                fputcsv($file, ['Total Items Distributed',   $supplyImpact['total_items_distributed']]);
-                fputcsv($file, ['Requests Fulfilled',        $supplyImpact['requests_fulfilled']]);
-                fputcsv($file, ['Avg Fulfillment Quantity',  $supplyImpact['avg_fulfillment_quantity']]);
-                fputcsv($file, []);
+    //             // ── Supply Impact ─────────────────────────────────────
+    //             fputcsv($file, ['SUPPLY IMPACT']);
+    //             fputcsv($file, ['Metric', 'Value']);
+    //             fputcsv($file, ['Total Items Distributed',   $supplyImpact['total_items_distributed']]);
+    //             fputcsv($file, ['Requests Fulfilled',        $supplyImpact['requests_fulfilled']]);
+    //             fputcsv($file, ['Avg Fulfillment Quantity',  $supplyImpact['avg_fulfillment_quantity']]);
+    //             fputcsv($file, []);
 
-                // ── Claim Analysis ────────────────────────────────────
-                fputcsv($file, ['CLAIM ANALYSIS']);
-                fputcsv($file, ['Metric', 'Value']);
-                fputcsv($file, ['Total Claimable',   $claimAnalysis['total_claimable']]);
-                fputcsv($file, ['Claimed',           $claimAnalysis['claimed']]);
-                fputcsv($file, ['Unclaimed',         $claimAnalysis['unclaimed']]);
-                fputcsv($file, ['Overdue Unclaimed', $claimAnalysis['overdue_unclaimed']]);
-                fputcsv($file, ['Pending Pickup',    $claimAnalysis['pending_pickup']]);
-                fputcsv($file, ['Claim Rate',        $claimAnalysis['claim_rate'] . '%']);
-                fputcsv($file, ['Avg Days To Claim', $claimAnalysis['avg_days_to_claim']]);
-                fputcsv($file, []);
+    //             // ── Claim Analysis ────────────────────────────────────
+    //             fputcsv($file, ['CLAIM ANALYSIS']);
+    //             fputcsv($file, ['Metric', 'Value']);
+    //             fputcsv($file, ['Total Claimable',   $claimAnalysis['total_claimable']]);
+    //             fputcsv($file, ['Claimed',           $claimAnalysis['claimed']]);
+    //             fputcsv($file, ['Unclaimed',         $claimAnalysis['unclaimed']]);
+    //             fputcsv($file, ['Overdue Unclaimed', $claimAnalysis['overdue_unclaimed']]);
+    //             fputcsv($file, ['Pending Pickup',    $claimAnalysis['pending_pickup']]);
+    //             fputcsv($file, ['Claim Rate',        $claimAnalysis['claim_rate'] . '%']);
+    //             fputcsv($file, ['Avg Days To Claim', $claimAnalysis['avg_days_to_claim']]);
+    //             fputcsv($file, []);
 
-                fputcsv($file, ['CLAIM RATE BY BARANGAY']);
-                fputcsv($file, ['Barangay', 'Total', 'Claimed', 'Claim Rate']);
-                foreach ($claimAnalysis['barangay_claim_rate'] as $bcr) {
-                    fputcsv($file, [
-                        $bcr->barangay,
-                        $bcr->total,
-                        $bcr->claimed,
-                        $bcr->claim_rate . '%',
-                    ]);
-                }
-                fputcsv($file, []);
+    //             fputcsv($file, ['CLAIM RATE BY BARANGAY']);
+    //             fputcsv($file, ['Barangay', 'Total', 'Claimed', 'Claim Rate']);
+    //             foreach ($claimAnalysis['barangay_claim_rate'] as $bcr) {
+    //                 fputcsv($file, [
+    //                     $bcr->barangay,
+    //                     $bcr->total,
+    //                     $bcr->claimed,
+    //                     $bcr->claim_rate . '%',
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Request Velocity ──────────────────────────────────
-                fputcsv($file, ['WEEKLY REQUEST VELOCITY']);
-                fputcsv($file, ['Week', 'Request Count', 'Change %', 'Trend']);
-                foreach ($requestVelocity as $v) {
-                    fputcsv($file, [
-                        $v['week'],
-                        $v['count'],
-                        $v['change'] . '%',
-                        $v['trend'],
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Request Velocity ──────────────────────────────────
+    //             fputcsv($file, ['WEEKLY REQUEST VELOCITY']);
+    //             fputcsv($file, ['Week', 'Request Count', 'Change %', 'Trend']);
+    //             foreach ($requestVelocity as $v) {
+    //                 fputcsv($file, [
+    //                     $v['week'],
+    //                     $v['count'],
+    //                     $v['change'] . '%',
+    //                     $v['trend'],
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Supply Alerts ─────────────────────────────────────
-                fputcsv($file, ['SUPPLY ALERTS (LOW STOCK)']);
-                fputcsv($file, ['Item Name', 'Category', 'Current Supply', 'Reorder Point', 'Minimum', 'Stock %', 'Status']);
-                foreach ($supplyAlerts as $alert) {
-                    fputcsv($file, [
-                        $alert['name'],
-                        $alert['category'],
-                        $alert['current'],
-                        $alert['reorder_point'],
-                        $alert['minimum'],
-                        $alert['percentage'] . '%',
-                        ucfirst($alert['status']),
-                    ]);
-                }
-                fputcsv($file, []);
+    //             // ── Supply Alerts ─────────────────────────────────────
+    //             fputcsv($file, ['SUPPLY ALERTS (LOW STOCK)']);
+    //             fputcsv($file, ['Item Name', 'Category', 'Current Supply', 'Reorder Point', 'Minimum', 'Stock %', 'Status']);
+    //             foreach ($supplyAlerts as $alert) {
+    //                 fputcsv($file, [
+    //                     $alert['name'],
+    //                     $alert['category'],
+    //                     $alert['current'],
+    //                     $alert['reorder_point'],
+    //                     $alert['minimum'],
+    //                     $alert['percentage'] . '%',
+    //                     ucfirst($alert['status']),
+    //                 ]);
+    //             }
+    //             fputcsv($file, []);
 
-                // ── Rejection Analysis ────────────────────────────────
-                fputcsv($file, ['REJECTION ANALYSIS']);
-                fputcsv($file, ['Rejection Reason', 'Count']);
-                foreach ($rejectionAnalysis as $r) {
-                    fputcsv($file, [$r->rejection_reason, $r->count]);
-                }
+    //             // ── Rejection Analysis ────────────────────────────────
+    //             fputcsv($file, ['REJECTION ANALYSIS']);
+    //             fputcsv($file, ['Rejection Reason', 'Count']);
+    //             foreach ($rejectionAnalysis as $r) {
+    //                 fputcsv($file, [$r->rejection_reason, $r->count]);
+    //             }
 
-                fclose($file);
-            };
+    //             fclose($file);
+    //         };
 
-            // Log activity
-            $this->logActivity('exported', 'SeedlingRequest', null, [
-                'format'     => 'CSV',
-                'date_range' => ['start' => $startDate, 'end' => $endDate]
-            ], 'Exported Seedling analytics data from ' . $startDate . ' to ' . $endDate);
+    //         // Log activity
+    //         $this->logActivity('exported', 'SeedlingRequest', null, [
+    //             'format'     => 'CSV',
+    //             'date_range' => ['start' => $startDate, 'end' => $endDate]
+    //         ], 'Exported Seedling analytics data from ' . $startDate . ' to ' . $endDate);
 
-            return response()->stream($callback, 200, $headers);
+    //         return response()->stream($callback, 200, $headers);
 
-        } catch (\Exception $e) {
-            Log::error('Seedling Analytics Export Error: ' . $e->getMessage());
-            return back()->with('error', 'Error exporting seedling analytics data: ' . $e->getMessage());
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         Log::error('Seedling Analytics Export Error: ' . $e->getMessage());
+    //         return back()->with('error', 'Error exporting seedling analytics data: ' . $e->getMessage());
+    //     }
+    // }
 }

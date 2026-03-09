@@ -19,7 +19,7 @@
         <div class="col-12">
             @include('admin.analytics.partials.filter', [
                 'filterRoute' => 'admin.analytics.training',
-                'exportRoute' => 'admin.analytics.training.export',
+                // 'exportRoute' => 'admin.analytics.training.export',
             ])
         </div>
     </div>
