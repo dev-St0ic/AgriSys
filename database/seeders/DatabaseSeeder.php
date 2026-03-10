@@ -28,7 +28,8 @@ class DatabaseSeeder extends Seeder
             RsbsaSpecificDataSeeder::class, // Run after RsbsaApplicationSeeder to link specific data to applications
             TrainingApplicationSeeder::class,
             UserRegistrationSeeder::class,
-            EventsSeeder::class,
+            
+            EventSeeder::class,
             SlideshowImagesSeeder::class
         ]);
     }
