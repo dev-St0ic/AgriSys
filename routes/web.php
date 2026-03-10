@@ -377,6 +377,13 @@ Route::middleware('admin')->group(function () {
     Route::prefix('admin/training')->name('admin.training.')->group(function () {
         // Training Applications Management
         Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
+
+        
+        // Get Template for Bulk Import
+        Route::get('/requests/import/template', [TrainingController::class, 'importTemplate'])->name('import.template');
+        // Handle Bulk Import
+        Route::post('/requests/import', [TrainingController::class, 'import'])->name('import');
+
         Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
 
         // Add training application

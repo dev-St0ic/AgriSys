@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Services\NotificationService;
+use App\Services\TrainingImportService;
 
 class TrainingController extends Controller
 {
@@ -604,6 +605,179 @@ public function destroy($id)
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // 1.  GET  Streams a pre-filled CSV template for the user to download
+    // ----------------------------------------------------------------
+    public function importTemplate()
+    {
+        $filename = 'training_import_template.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            // UTF-8 BOM so Excel opens it correctly
+            fputs($file, "\xEF\xBB\xBF");
+
+            // ── Column headers ──────────────────────────────────────────
+            fputcsv($file, [
+                'first_name',
+                'middle_name',
+                'last_name',
+                'name_extension',
+                'contact_number',
+                'barangay',
+                'training_type',
+                'status',
+                'remarks',
+            ]);
+
+            // ── Example row 1 ───────────────────────────────────────────
+            fputcsv($file, [
+                'Juan',
+                'Dela',
+                'Cruz',
+                '',
+                '09171234567',
+                'Poblacion',
+                'Hydroponics',
+                'pending',
+                '',
+            ]);
+
+            // ── Example row 2 ───────────────────────────────────────────
+            fputcsv($file, [
+                'Maria',
+                '',
+                'Santos',
+                'Jr.',
+                '09281234567',
+                'Bagong Silang',
+                'Tilapia and Hito',
+                'pending',
+                'Walk-in applicant',
+            ]);
+
+            // ── Reference sheet: valid values ───────────────────────────
+            fputcsv($file, []);
+            fputcsv($file, ['=== VALID VALUES REFERENCE ===']);
+            fputcsv($file, []);
+
+            fputcsv($file, ['--- Training Types (use exact text or slug) ---']);
+            fputcsv($file, ['Tilapia and Hito',   'or: tilapia_hito']);
+            fputcsv($file, ['Hydroponics',        'or: hydroponics']);
+            fputcsv($file, ['Aquaponics',         'or: aquaponics']);
+            fputcsv($file, ['Mushrooms Production','or: mushrooms']);
+            fputcsv($file, ['Livestock and Poultry','or: livestock_poultry']);
+            fputcsv($file, ['High Value Crops',   'or: high_value_crops']);
+            fputcsv($file, ['Sampaguita Propagation','or: sampaguita_propagation']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Statuses ---']);
+            fputcsv($file, ['pending']);
+            fputcsv($file, ['under_review']);
+            fputcsv($file, ['approved']);
+            fputcsv($file, ['rejected']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Valid Barangays ---']);
+            $barangays = [
+                'Bagong Silang','Calendola','Chrysanthemum','Cuyab','Estrella',
+                'Fatima','G.S.I.S.','Landayan','Langgam','Laram','Magsaysay',
+                'Maharlika','Narra','Nueva','Pacita 1','Pacita 2','Poblacion',
+                'Riverside','Rosario','Sampaguita Village','San Antonio',
+                'San Lorenzo Ruiz','San Roque','San Vicente','Santo Niño',
+                'United Bayanihan','United Better Living',
+            ];
+            foreach ($barangays as $b) {
+                fputcsv($file, [$b]);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Notes ---']);
+            fputcsv($file, ['middle_name, name_extension, status, and remarks are optional.']);
+            fputcsv($file, ['If status is left blank, it defaults to "pending".']);
+            fputcsv($file, ['Contact number must be 11 digits starting with 09 (e.g. 09171234567).']);
+            fputcsv($file, ['Delete the example rows (rows 2 and 3) before uploading.']);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // ----------------------------------------------------------------
+    // 2.  POST   Validates + imports the uploaded CSV/Excel file
+    // ----------------------------------------------------------------
+    public function import(Request $request)
+    {
+        // ── Basic file validation ────────────────────────────────────
+        $request->validate([
+            'import_file' => 'required|file|mimes:csv,txt,xlsx,xls|max:5120', // 5 MB max
+        ], [
+            'import_file.required' => 'Please select a file to import.',
+            'import_file.mimes'    => 'Only CSV and Excel (.xlsx / .xls) files are accepted.',
+            'import_file.max'      => 'The file must not exceed 5 MB.',
+        ]);
+
+        try {
+            $file     = $request->file('import_file');
+            $filePath = $file->getRealPath();
+            $extension = $file->getClientOriginalExtension(); //get original extension
+
+            $service = new TrainingImportService();
+            $result  = $service->import($filePath, $extension);// Process the import and get results
+
+            // ── Log the activity ────────────────────────────────────
+            $this->logActivity('bulk_imported', 'TrainingApplication', null, [
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'filename' => $file->getClientOriginalName(),
+            ]);
+
+            Log::info('Training bulk import completed', [
+                'imported'  => $result['imported'],
+                'skipped'   => $result['skipped'],
+                'filename'  => $file->getClientOriginalName(),
+                'by'        => auth()->user()->name ?? 'System',
+            ]);
+
+            // ── Return JSON result ───────────────────────────────────
+            return response()->json([
+                'success'  => true,
+                'message'  => "{$result['imported']} record(s) imported successfully." .
+                            ($result['skipped'] > 0 ? " {$result['skipped']} row(s) were skipped due to errors." : ''),
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'errors'   => $result['errors'],
+            ]);
+
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Training bulk import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred during import: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }
