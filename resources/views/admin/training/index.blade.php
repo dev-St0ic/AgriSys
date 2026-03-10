@@ -159,6 +159,9 @@
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddTrainingModal()">
                     <i class="fas fa-user-plus me-2"></i>Add Requests
                 </button>
+                <button type="button" class="btn btn-warning btn-sm" onclick="showImportModal()">
+                    <i class="fas fa-file-upload me-2"></i>Bulk Import
+                </button>
                 <a href="{{ route('admin.training.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
@@ -1129,6 +1132,172 @@
             </div>
         </div>
     </div>
+
+    {{-- FILE UPLOAD IMPORT BULK MODAL --}}
+    <div class="modal fade" id="importTrainingModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title w-100 text-center fw-bold">
+                    <i class="fas fa-file-upload me-2"></i>Bulk Import Training Requests
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Step indicator -->
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="d-flex align-items-center gap-2" id="importStep1Indicator">
+                        <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">1</span>
+                        <small class="fw-semibold">Download Template</small>
+                    </div>
+                    <div class="mx-3 text-muted align-self-center">→</div>
+                    <div class="d-flex align-items-center gap-2" id="importStep2Indicator">
+                        <span class="badge rounded-pill bg-secondary px-3 py-2 fw-bold">2</span>
+                        <small class="fw-semibold text-muted">Fill &amp; Upload</small>
+                    </div>
+                    <div class="mx-3 text-muted align-self-center">→</div>
+                    <div class="d-flex align-items-center gap-2" id="importStep3Indicator">
+                        <span class="badge rounded-pill bg-secondary px-3 py-2 fw-bold">3</span>
+                        <small class="fw-semibold text-muted">Review Results</small>
+                    </div>
+                </div>
+
+                <!-- ── PANEL 1: Instructions + template download ── -->
+                <div id="importPanel1">
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-body">
+                            <h6 class="text-primary fw-semibold mb-3">
+                                <i class="fas fa-info-circle me-2"></i>How to use bulk import
+                            </h6>
+                            <ol class="mb-0 ps-3">
+                                <li class="mb-2">Click <strong>Download Template</strong> below to get a pre-formatted CSV file.</li>
+                                <li class="mb-2">Open the file in Excel, Google Sheets, or any spreadsheet application.</li>
+                                <li class="mb-2">Fill in the rows with applicant data. <em>Delete the sample rows before uploading.</em></li>
+                                <li class="mb-2">Save the file as <strong>CSV</strong> (.csv) or <strong>Excel</strong> (.xlsx).</li>
+                                <li>Upload the file using the form below and click <strong>Import</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Required / optional columns -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="card border-danger h-100">
+                                <div class="card-header bg-danger text-white py-2">
+                                    <small class="fw-bold"><i class="fas fa-asterisk me-1"></i>Required Columns</small>
+                                </div>
+                                <div class="card-body py-2">
+                                    <ul class="mb-0 ps-3 small">
+                                        <li><code>first_name</code></li>
+                                        <li><code>last_name</code></li>
+                                        <li><code>contact_number</code> <small class="text-muted">(09XXXXXXXXX)</small></li>
+                                        <li><code>barangay</code></li>
+                                        <li><code>training_type</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-success h-100">
+                                <div class="card-header bg-success text-white py-2">
+                                    <small class="fw-bold"><i class="fas fa-check me-1"></i>Optional Columns</small>
+                                </div>
+                                <div class="card-body py-2">
+                                    <ul class="mb-0 ps-3 small">
+                                        <li><code>middle_name</code></li>
+                                        <li><code>name_extension</code> <small class="text-muted">(Jr., Sr., etc.)</small></li>
+                                        <li><code>status</code> <small class="text-muted">(defaults to pending)</small></li>
+                                        <li><code>remarks</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('admin.training.import.template') }}"
+                       class="btn btn-outline-warning w-100 mb-3" id="downloadTemplateBtn">
+                        <i class="fas fa-download me-2"></i>Download CSV Template
+                    </a>
+
+                    <!-- File upload form -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <label for="import_file_input" class="form-label fw-semibold">
+                                Upload your completed file <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="import_file_input"
+                                       accept=".csv,.xlsx,.xls,.txt"
+                                       onchange="onImportFileSelected(this)">
+                                <button class="btn btn-warning" type="button"
+                                        onclick="submitImport()" id="importSubmitBtn" disabled>
+                                    <i class="fas fa-upload me-1"></i>Import
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                Accepted formats: CSV (.csv) or Excel (.xlsx / .xls) — Max 5 MB
+                            </div>
+                            <div id="importFileError" class="text-danger small mt-1" style="display:none;"></div>
+
+                            <!-- Progress bar (hidden until upload starts) -->
+                            <div id="importProgressWrap" class="mt-3" style="display:none;">
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                                         id="importProgressBar" role="progressbar" style="width:0%"></div>
+                                </div>
+                                <small class="text-muted mt-1 d-block text-center" id="importProgressLabel">
+                                    Uploading…
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /importPanel1 -->
+
+                <!-- ── PANEL 2: Results ── (hidden until import done) -->
+                <div id="importPanel2" style="display:none;">
+                    <!-- Summary cards -->
+                    <div class="row g-3 mb-4" id="importSummaryCards"></div>
+
+                    <!-- Error table -->
+                    <div id="importErrorSection" style="display:none;">
+                        <h6 class="text-danger fw-semibold mb-2">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Rows with Errors
+                            <small class="text-muted fw-normal">(these were skipped)</small>
+                        </h6>
+                        <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-danger sticky-top">
+                                    <tr>
+                                        <th style="width:60px;">Row</th>
+                                        <th>Name</th>
+                                        <th>Issues</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="importErrorTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /importPanel2 -->
+
+            </div><!-- /modal-body -->
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="importCancelBtn">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="importDoneBtn"
+                        style="display:none;" onclick="finishImport()">
+                    <i class="fas fa-check me-1"></i>Done – Reload Page
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 
     <style>
@@ -4366,5 +4535,223 @@
                 }, 500);
             }
         });
+
+
+        function showImportModal() {
+            // Reset to step 1 every time we open
+            resetImportModal();
+            new bootstrap.Modal(document.getElementById('importTrainingModal')).show();
+        }
+
+        function resetImportModal() {
+            // Panels
+            document.getElementById('importPanel1').style.display = 'block';
+            document.getElementById('importPanel2').style.display = 'none';
+
+            // Buttons
+            document.getElementById('importSubmitBtn').disabled = true;
+            document.getElementById('importCancelBtn').style.display = 'inline-block';
+            document.getElementById('importDoneBtn').style.display   = 'none';
+
+            // File input
+            document.getElementById('import_file_input').value = '';
+
+            // Progress
+            document.getElementById('importProgressWrap').style.display = 'none';
+            document.getElementById('importProgressBar').style.width    = '0%';
+            document.getElementById('importProgressLabel').textContent  = 'Uploading…';
+
+            // Errors
+            document.getElementById('importFileError').style.display = 'none';
+            document.getElementById('importFileError').textContent   = '';
+
+            // Step indicators
+            setImportStep(1);
+        }
+
+        function setImportStep(step) {
+            const badges = [
+                document.querySelector('#importStep1Indicator .badge'),
+                document.querySelector('#importStep2Indicator .badge'),
+                document.querySelector('#importStep3Indicator .badge'),
+            ];
+            const labels = [
+                document.querySelector('#importStep1Indicator small'),
+                document.querySelector('#importStep2Indicator small'),
+                document.querySelector('#importStep3Indicator small'),
+            ];
+
+            badges.forEach((b, i) => {
+                const active = i < step;
+                b.classList.toggle('bg-warning', active);
+                b.classList.toggle('text-dark',  active);
+                b.classList.toggle('bg-secondary', !active);
+                b.classList.remove('text-white');
+                if (active) b.classList.remove('text-white');
+            });
+            labels.forEach((l, i) => {
+                l.classList.toggle('text-muted', i >= step);
+                l.classList.toggle('fw-semibold', i < step);
+            });
+        }
+
+        function onImportFileSelected(input) {
+            const errEl  = document.getElementById('importFileError');
+            const btn    = document.getElementById('importSubmitBtn');
+
+            errEl.style.display = 'none';
+            errEl.textContent   = '';
+            btn.disabled        = true;
+
+            if (!input.files || !input.files[0]) return;
+
+            const file = input.files[0];
+            const ext  = file.name.split('.').pop().toLowerCase();
+            const allowed = ['csv', 'xlsx', 'xls', 'txt'];
+
+            if (!allowed.includes(ext)) {
+                errEl.textContent   = 'Invalid file type. Please upload a CSV or Excel file.';
+                errEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                errEl.textContent   = 'File is too large. Maximum size is 5 MB.';
+                errEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
+
+            btn.disabled = false;
+            setImportStep(2);
+        }
+
+        function submitImport() {
+            const fileInput = document.getElementById('import_file_input');
+            if (!fileInput.files || !fileInput.files[0]) {
+                showToast('error', 'Please select a file first.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('importSubmitBtn');
+            const progressWrap = document.getElementById('importProgressWrap');
+            const progressBar  = document.getElementById('importProgressBar');
+            const progressLbl  = document.getElementById('importProgressLabel');
+
+            // Disable controls
+            submitBtn.disabled                              = true;
+            document.getElementById('import_file_input').disabled = true;
+            progressWrap.style.display                      = 'block';
+
+            // Animate progress (fake – XHR doesn't give upload progress for small files)
+            let fakeProgress = 0;
+            const progressInterval = setInterval(() => {
+                fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
+                progressBar.style.width = fakeProgress + '%';
+            }, 200);
+
+            const formData = new FormData();
+            formData.append('import_file', fileInput.files[0]);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+            fetch('{{ route("admin.training.import") }}', {
+                method: 'POST',
+                body:   formData,
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressLbl.textContent = 'Processing complete!';
+
+                setTimeout(() => {
+                    progressWrap.style.display = 'none';
+                    showImportResults(data);
+                }, 400);
+            })
+            .catch(err => {
+                clearInterval(progressInterval);
+                progressWrap.style.display = 'none';
+                submitBtn.disabled         = false;
+                document.getElementById('import_file_input').disabled = false;
+                showToast('error', 'Upload failed: ' + err.message);
+                console.error('Import error:', err);
+            });
+        }
+
+        function showImportResults(data) {
+            // Switch panels
+            document.getElementById('importPanel1').style.display = 'none';
+            document.getElementById('importPanel2').style.display = 'block';
+
+            document.getElementById('importCancelBtn').style.display = 'none';
+            document.getElementById('importDoneBtn').style.display   = 'inline-block';
+
+            setImportStep(3);
+
+            // ── Summary cards ────────────────────────────────────────
+            const cardsEl = document.getElementById('importSummaryCards');
+            if (data.success || data.imported > 0) {
+                cardsEl.innerHTML = `
+                    <div class="col-6">
+                        <div class="card border-success text-center">
+                            <div class="card-body py-3">
+                                <div style="font-size:2rem; font-weight:700; color:#198754;">${data.imported ?? 0}</div>
+                                <small class="text-success fw-semibold">Successfully Imported</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-${(data.skipped ?? 0) > 0 ? 'warning' : 'secondary'} text-center">
+                            <div class="card-body py-3">
+                                <div style="font-size:2rem; font-weight:700; color:${(data.skipped ?? 0) > 0 ? '#ffc107' : '#6c757d'};">${data.skipped ?? 0}</div>
+                                <small class="fw-semibold" style="color:${(data.skipped ?? 0) > 0 ? '#ffc107' : '#6c757d'};">Skipped (Errors)</small>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                cardsEl.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger mb-0">
+                            <i class="fas fa-times-circle me-2"></i>
+                            <strong>Import failed:</strong> ${escapeHtml(data.message)}
+                        </div>
+                    </div>`;
+            }
+
+            // ── Error rows table ────────────────────────────────────
+            const errorSection = document.getElementById('importErrorSection');
+            const errorBody    = document.getElementById('importErrorTableBody');
+
+            if (data.errors && data.errors.length > 0) {
+                errorSection.style.display = 'block';
+                errorBody.innerHTML = data.errors.map(e => {
+                    const name = [e.data?.first_name, e.data?.last_name].filter(Boolean).join(' ') || '(unknown)';
+                    const msgs = Object.values(e.errors || {}).join(' · ');
+                    return `<tr>
+                        <td class="text-center fw-bold">${e.row}</td>
+                        <td>${escapeHtml(name)}</td>
+                        <td><small class="text-danger">${escapeHtml(msgs)}</small></td>
+                    </tr>`;
+                }).join('');
+            } else {
+                errorSection.style.display = 'none';
+            }
+
+            // Toast notification
+            if (data.imported > 0) {
+                showToast('success', data.message);
+            } else {
+                showToast('error', data.message);
+            }
+        }
+
+        function finishImport() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('importTrainingModal'));
+            if (modal) modal.hide();
+            window.location.reload();
+        }
     </script>
 @endsection

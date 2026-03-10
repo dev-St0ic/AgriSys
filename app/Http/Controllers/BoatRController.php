@@ -382,8 +382,15 @@ public function update(Request $request, $id)
     $validated['engine_horsepower'] = null;
 }
 
-        // ✅ FIXED: Use correct model class name
+        //FIXED: Use correct model class name
         $boatr = BoatrApplication::findOrFail($id);
+
+        $original = $boatr->only([
+            'first_name', 'middle_name', 'last_name', 'contact_number',
+            'barangay', 'vessel_name', 'boat_type', 'boat_classification',
+            'boat_length', 'boat_width', 'boat_depth', 'engine_type',
+            'engine_horsepower', 'primary_fishing_gear', 'inspection_notes',
+        ]);
 
         // Update basic fields
         $boatr->update([
@@ -468,6 +475,10 @@ public function update(Request $request, $id)
             'has_supporting_doc' => $request->hasFile('supporting_document'),
             'has_inspection_doc' => $request->hasFile('inspection_document')
         ]);
+
+        $changes = $this->getChangedFields($original, $boatr->fresh()->only(array_keys($original)));
+
+        NotificationService::boatrApplicationUpdated($boatr, $changes);
 
         Log::info("BoatR registration {$boatr->id} updated by " . auth()->user()->name);
 

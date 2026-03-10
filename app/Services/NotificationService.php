@@ -6,13 +6,14 @@ use App\Models\AdminNotification;
 use App\Models\SeedlingRequest;
 use App\Models\TrainingApplication;
 use App\Models\CategoryItem;
+use App\Models\Event;
 
 class NotificationService
 {
     public static function seedlingRequestCreated(SeedlingRequest $request)
     {
-        $title = "New Seedling Request";
-        $message = "{$request->full_name} has submitted a new seedling request ({$request->request_number})";
+        $title = "New Supply Request";
+        $message = "{$request->full_name} has submitted a new supply request ({$request->request_number})";
         
         AdminNotification::notifyAdmins(
             'seedling_request_new',
@@ -39,7 +40,7 @@ class NotificationService
 
         $action = $statusMessages[$request->status] ?? "updated";
         
-        $title = "Seedling Request " . ucfirst($action);
+        $title = "Supply Request " . ucfirst($action);
         $message = "Request {$request->request_number} from {$request->full_name} has been {$action}";
         
         $type = match($request->status) {
@@ -104,9 +105,37 @@ class NotificationService
         }
     }
 
+    public static function seedlingRequestUpdated($seedlingRequest, array $changes = [])
+    {
+        $changedFields = !empty($changes) ? implode(', ', array_keys($changes)) : 'general info';
+
+        $title   = "Supply Request Updated";
+        $message = "Request {$seedlingRequest->request_number} ({$seedlingRequest->full_name}) has been updated ({$changedFields})";
+
+        $type = match(true) {
+            isset($changes['document_path']) => 'seedling_request_document_updated',
+            default                          => 'seedling_request_updated',
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'request_id'     => $seedlingRequest->id,
+                'request_number' => $seedlingRequest->request_number,
+                'applicant_name' => $seedlingRequest->full_name,
+                'barangay'       => $seedlingRequest->barangay,
+                'changes'        => $changes,
+                'updated_by'     => auth()->user()->name ?? 'System',
+            ],
+            route('admin.seedlings.requests') . '?search=' . $seedlingRequest->request_number
+        );
+    }
+
     public static function seedlingRequestDeleted(SeedlingRequest $request)
     {
-        $title = "Seedling Request Deleted";
+        $title = "Supply Request Deleted";
         $message = "Request {$request->request_number} from {$request->full_name} has been deleted";
         
         AdminNotification::notifyAdmins(
@@ -172,6 +201,34 @@ class NotificationService
                 'application_number' => $training->application_number,
                 'old_status' => $oldStatus,
                 'new_status' => $training->status
+            ],
+            route('admin.training.requests') . '?search=' . $training->application_number
+        );
+    }
+
+    public static function trainingApplicationUpdated($training, array $changes = [])
+    {
+        $changedFields = !empty($changes) ? implode(', ', array_keys($changes)) : 'general info';
+
+        $title   = "Training Application Updated";
+        $message = "Application {$training->application_number} ({$training->full_name}) has been updated ({$changedFields})";
+
+        $type = match(true) {
+            isset($changes['document_path']) => 'training_application_document_updated',
+            default                          => 'training_application_updated',
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'application_id'     => $training->id,
+                'application_number' => $training->application_number,
+                'applicant_name'     => $training->full_name,
+                'training_type'      => $training->training_type_display,
+                'changes'            => $changes,
+                'updated_by'         => auth()->user()->name ?? 'System',
             ],
             route('admin.training.requests') . '?search=' . $training->application_number
         );
@@ -618,6 +675,34 @@ class NotificationService
         );
     }
 
+    public static function fishrApplicationUpdated($fishr, array $changes = [])
+    {
+        $changedFields = !empty($changes) ? implode(', ', array_keys($changes)) : 'general info';
+
+        $title   = "FishR Registration Updated";
+        $message = "Registration {$fishr->registration_number} ({$fishr->full_name}) has been updated ({$changedFields})";
+
+        $type = match(true) {
+            isset($changes['document_path']) => 'fishr_application_document_updated',
+            default                          => 'fishr_application_updated',
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'application_id'      => $fishr->id,
+                'registration_number' => $fishr->registration_number,
+                'applicant_name'      => $fishr->full_name,
+                'changes'             => $changes,
+                'updated_by'          => auth()->user()->name ?? 'System',
+            ],
+            route('admin.fishr.requests') . '?search=' . $fishr->registration_number
+        );
+    }
+
+
     public static function fishrApplicationDeleted($registrationNumber, $fullName)
     {
         $title = "FishR Registration Deleted";
@@ -686,6 +771,28 @@ class NotificationService
                 'application_number' => $boatr->application_number,
                 'old_status' => $oldStatus,
                 'new_status' => $boatr->status
+            ],
+            route('admin.boatr.requests') . '?search=' . $boatr->application_number
+        );
+    }
+
+    public static function boatrApplicationUpdated($boatr, array $changes = [])
+    {
+        $changedFields = !empty($changes) ? implode(', ', array_keys($changes)) : 'general info';
+
+        $title   = "BoatR Registration Updated";
+        $message = "Registration {$boatr->application_number} ({$boatr->vessel_name}) has been updated ({$changedFields})";
+
+        AdminNotification::notifyAdmins(
+            'boatr_application_updated',
+            $title,
+            $message,
+            [
+                'application_id'     => $boatr->id,
+                'application_number' => $boatr->application_number,
+                'vessel_name'        => $boatr->vessel_name,
+                'changes'            => $changes,
+                'updated_by'         => auth()->user()->name ?? 'System',
             ],
             route('admin.boatr.requests') . '?search=' . $boatr->application_number
         );
@@ -764,6 +871,33 @@ class NotificationService
         );
     }
 
+    public static function rsbsaApplicationUpdated($rsbsa, array $changes = [])
+    {
+        $changedFields = !empty($changes) ? implode(', ', array_keys($changes)) : 'general info';
+
+        $title   = "RSBSA Application Updated";
+        $message = "Application {$rsbsa->application_number} ({$rsbsa->full_name_with_extension}) has been updated ({$changedFields})";
+
+        $type = match(true) {
+            isset($changes['supporting_document_path']) => 'rsbsa_application_document_updated',
+            default                                     => 'rsbsa_application_updated',
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'application_id'     => $rsbsa->id,
+                'application_number' => $rsbsa->application_number,
+                'applicant_name'     => $rsbsa->full_name_with_extension,
+                'changes'            => $changes,
+                'updated_by'         => auth()->user()->name ?? 'System',
+            ],
+            route('admin.rsbsa.applications') . '?search=' . $rsbsa->application_number
+        );
+    }
+
     public static function rsbsaApplicationDeleted($applicationNumber, $fullName)
     {
         $title = "RSBSA Registration Deleted";
@@ -802,6 +936,128 @@ class NotificationService
                 'barangay' => $userRegistration->barangay
             ],
             url('/admin/users?status=pending&search=' . urlencode($userRegistration->username))
+        );
+    }
+
+    // ==========================================
+    // EVENT NOTIFICATIONS
+    // ==========================================
+
+    public static function eventCreated(Event $event)
+    {
+        AdminNotification::notifyAdmins(
+            'event_created',
+            'New Event Created',
+            "Event \"{$event->title}\" ({$event->category}) has been created",
+            ['event_id' => $event->id, 'category' => $event->category],
+            route('admin.event.index')
+        );
+    }
+
+    public static function eventUpdated(Event $event)
+    {
+        AdminNotification::notifyAdmins(
+            'event_updated',
+            'Event Updated',
+            "Event \"{$event->title}\" has been updated",
+            ['event_id' => $event->id, 'category' => $event->category],
+            route('admin.event.index')
+        );
+    }
+
+    public static function eventDeleted(string $title)
+    {
+        AdminNotification::notifyAdmins(
+            'event_deleted',
+            'Event Moved to Recycle Bin',
+            "Event \"{$title}\" has been moved to the recycle bin",
+            ['deleted_by' => auth()->user()->name ?? 'System'],
+            url('/admin/recycle-bin')
+        );
+    }
+
+    public static function eventArchived(Event $event)
+    {
+        AdminNotification::notifyAdmins(
+            'event_archived',
+            'Event Archived',
+            "Event \"{$event->title}\" has been archived",
+            ['event_id' => $event->id],
+            route('admin.event.archived')
+        );
+    }
+
+    public static function eventRestored(Event $event)
+    {
+        AdminNotification::notifyAdmins(
+            'event_restored',
+            'Event Restored',
+            "Event \"{$event->title}\" has been restored from archive",
+            ['event_id' => $event->id],
+            route('admin.event.index')
+        );
+    }
+
+    public static function eventStatusToggled(Event $event)
+    {
+        $status = $event->is_active ? 'activated' : 'deactivated';
+
+        AdminNotification::notifyAdmins(
+            'event_status_changed',
+            'Event Status Changed',
+            "Event \"{$event->title}\" has been {$status}",
+            ['event_id' => $event->id, 'is_active' => $event->is_active],
+            route('admin.event.index')
+        );
+    }
+
+    // ==========================================
+    // SLIDESHOW NOTIFICATIONS
+    // ==========================================
+
+    public static function slideshowCreated($slide)
+    {
+        AdminNotification::notifyAdmins(
+            'slideshow_created',
+            'New Slideshow Image Added',
+            "Slideshow image \"" . ($slide->title ?: 'Untitled') . "\" has been added",
+            ['slide_id' => $slide->id],
+            route('admin.slideshow.index')
+        );
+    }
+
+    public static function slideshowUpdated($slide)
+    {
+        AdminNotification::notifyAdmins(
+            'slideshow_updated',
+            'Slideshow Image Updated',
+            "Slideshow image \"" . ($slide->title ?: 'Untitled') . "\" has been updated",
+            ['slide_id' => $slide->id],
+            route('admin.slideshow.index')
+        );
+    }
+
+    public static function slideshowDeleted(string $title)
+    {
+        AdminNotification::notifyAdmins(
+            'slideshow_deleted',
+            'Slideshow Image Moved to Recycle Bin',
+            "Slideshow image \"" . ($title ?: 'Untitled') . "\" has been moved to the recycle bin",
+            ['deleted_by' => auth()->user()->name ?? 'System'],
+            url('/admin/recycle-bin')
+        );
+    }
+
+    public static function slideshowStatusToggled($slide)
+    {
+        $status = $slide->is_active ? 'activated' : 'deactivated';
+
+        AdminNotification::notifyAdmins(
+            'slideshow_status_changed',
+            'Slideshow Image Status Changed',
+            "Slideshow image \"" . ($slide->title ?: 'Untitled') . "\" has been {$status}",
+            ['slide_id' => $slide->id, 'is_active' => $slide->is_active],
+            route('admin.slideshow.index')
         );
     }
 }

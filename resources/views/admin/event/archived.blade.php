@@ -35,6 +35,28 @@
         <!-- Archived Events Table -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-2 align-items-center">
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="selectAllArchived()" id="selectAllArchivedBtn">
+                        <i class="fas fa-check-square me-1"></i>Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="deselectAllArchived()" id="deselectAllArchivedBtn"
+                            style="display: none;">
+                        <i class="fas fa-square me-1"></i>Deselect All
+                    </button>
+
+                    <div class="btn-group" role="group" id="archivedBulkActionsGroup" style="display: none;">
+                        <button type="button" class="btn btn-sm btn-outline-success"
+                                onclick="openBulkRestoreModal()" title="Restore Selected">
+                            <i class="fas fa-redo me-1"></i>Restore
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                onclick="openBulkDeleteModal()" title="Delete Selected">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
                 <h5 class="mb-0"><i class="fas fa-list me-2"></i>Archived Events ({{ $events->total() }})</h5>
             </div>
             <div class="card-body p-0">
@@ -42,6 +64,10 @@
                     <table class="table table-hover table-bordered align-middle mb-0">
                         <thead class="table-dark">
                             <tr>
+                                <th style="width: 40px;" class="text-center">
+                                    <input type="checkbox" id="checkboxHeaderArchived"
+                                        onchange="toggleAllArchivedCheckboxes(this)">
+                                </th>
                                 <th style="width: 80px;">Image</th>
                                 <th>Title</th>
                                 <th style="width: 100px;">Category</th>
@@ -53,7 +79,13 @@
                         </thead>
                         <tbody>
                             @forelse($events as $event)
-                                <tr class="archived-event-row">
+                                <tr class="archived-event-row" data-id="{{ $event->id }}">
+                                    <td class="text-center align-middle">
+                                        <input type="checkbox" class="archived-checkbox"
+                                            value="{{ $event->id }}"
+                                            data-title="{{ $event->title }}"
+                                            onchange="updateArchivedBulkVisibility()">
+                                    </td>
                                     <td>
                                         @if ($event->image_path)
                                             <img src="{{ Storage::url($event->image_path) }}" alt="{{ $event->title }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
@@ -115,7 +147,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5">
+                                    <td colspan="8" class="text-center py-5">
                                         <i class="fas fa-inbox fa-3x text-muted mb-3" style="display: block;"></i>
                                         <p class="text-muted mb-0">No archived events found.</p>
                                         <small class="text-muted">Archived events will appear here.</small>
@@ -243,6 +275,62 @@
                     <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()" id="confirm_delete_btn">
                         <span class="btn-text">Move to Recycle Bin</span>
                         <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK RESTORE MODAL -->
+    <div class="modal fade" id="bulkRestoreModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-redo me-2"></i>Restore Events
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success mb-3">
+                        You are about to <strong>restore</strong> <strong id="bulkRestoreCount">0</strong> event(s).
+                        They will be unarchived and set to inactive.
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="confirmBulkRestore()" id="confirmBulkRestoreBtn">
+                        <span class="btn-text"><i class="fas fa-redo me-1"></i>Restore</span>
+                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Restoring...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK DELETE MODAL -->
+    <div class="modal fade" id="bulkDeleteModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash me-2"></i>Delete Events
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-3">
+                        You are about to <strong>delete</strong> <strong id="bulkDeleteCount">0</strong> event(s).
+                        They will be moved to the Recycle Bin.
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()" id="confirmBulkDeleteBtn">
+                        <span class="btn-text"><i class="fas fa-trash me-1"></i>Delete</span>
+                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -655,6 +743,134 @@
             } finally {
                 document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
                 document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
+            }
+        }
+
+        // ===== BULK SELECTION FOR ARCHIVED EVENTS =====
+
+        function toggleAllArchivedCheckboxes(headerCheckbox) {
+            document.querySelectorAll('.archived-checkbox').forEach(cb => {
+                cb.checked = headerCheckbox.checked;
+            });
+            updateArchivedBulkVisibility();
+        }
+
+        function selectAllArchived() {
+            document.querySelectorAll('.archived-checkbox').forEach(cb => cb.checked = true);
+            const header = document.getElementById('checkboxHeaderArchived');
+            if (header) header.checked = true;
+            updateArchivedBulkVisibility();
+        }
+
+        function deselectAllArchived() {
+            document.querySelectorAll('.archived-checkbox').forEach(cb => cb.checked = false);
+            const header = document.getElementById('checkboxHeaderArchived');
+            if (header) header.checked = false;
+            updateArchivedBulkVisibility();
+        }
+
+        function updateArchivedBulkVisibility() {
+            const checked = document.querySelectorAll('.archived-checkbox:checked').length;
+            const bulkGroup = document.getElementById('archivedBulkActionsGroup');
+            const selectAllBtn = document.getElementById('selectAllArchivedBtn');
+            const deselectAllBtn = document.getElementById('deselectAllArchivedBtn');
+            const headerCheckbox = document.getElementById('checkboxHeaderArchived');
+
+            if (checked > 0) {
+                bulkGroup.style.display = 'flex';
+                selectAllBtn.style.display = 'none';
+                deselectAllBtn.style.display = 'block';
+                if (headerCheckbox) headerCheckbox.checked = true;
+                document.querySelectorAll('.archived-event-row').forEach(row => {
+                    const cb = row.querySelector('.archived-checkbox');
+                    row.classList.toggle('table-active', cb && cb.checked);
+                });
+            } else {
+                bulkGroup.style.display = 'none';
+                selectAllBtn.style.display = 'block';
+                deselectAllBtn.style.display = 'none';
+                if (headerCheckbox) headerCheckbox.checked = false;
+                document.querySelectorAll('.archived-event-row').forEach(row => row.classList.remove('table-active'));
+            }
+        }
+
+        function getSelectedArchivedIds() {
+            return Array.from(document.querySelectorAll('.archived-checkbox:checked')).map(cb => cb.value);
+        }
+
+        // --- Bulk Restore ---
+        function openBulkRestoreModal() {
+            const ids = getSelectedArchivedIds();
+            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            document.getElementById('bulkRestoreCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkRestoreModal')).show();
+        }
+
+        async function confirmBulkRestore() {
+            const ids = getSelectedArchivedIds();
+            const btn = document.getElementById('confirmBulkRestoreBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/events/bulk/restore', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkRestoreModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to restore events');
+                }
+            } catch (e) {
+                showToast('error', 'Error restoring events');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // --- Bulk Delete ---
+        function openBulkDeleteModal() {
+            const ids = getSelectedArchivedIds();
+            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            document.getElementById('bulkDeleteCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkDeleteModal')).show();
+        }
+
+        async function confirmBulkDelete() {
+            const ids = getSelectedArchivedIds();
+            const btn = document.getElementById('confirmBulkDeleteBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/events/bulk/delete', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to delete events');
+                }
+            } catch (e) {
+                showToast('error', 'Error deleting events');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
             }
         }
     </script>

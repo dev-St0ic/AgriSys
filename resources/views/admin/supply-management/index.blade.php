@@ -69,9 +69,6 @@
                     <!-- Category tabs with horizontal scroll -->
                     <div class="category-tabs-nav d-flex gap-2 align-items-center flex-grow-1" id="categoryTabsNav"
                         style="flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;">
-                        <button class="category-tab-btn active" data-category="all" onclick="switchCategory('all', event)">
-                            <i class="fas fa-th-large"></i> All Categories
-                        </button>
                         @foreach ($categories as $cat)
                             <button class="category-tab-btn category-btn" data-category="{{ $cat->id }}"
                                 onclick="switchCategory('{{ $cat->id }}', event)"
@@ -147,221 +144,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-
-        <!-- All Categories View -->
-        <div class="category-content active" id="category-all">
-            <div class="row">
-                @foreach ($categories as $category)
-                    <div class="col-md-6 mb-4">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-0">
-                                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                        <a href="#" class="text-decoration-none text-dark category-name"
-                                            title="Click to view all {{ $category->display_name }}"
-                                            onclick="event.preventDefault(); switchCategory('{{ $category->id }}', event)">
-                                            {{ $category->display_name }}
-                                        </a>
-                                        @if (!$category->is_active)
-                                            <span class="badge bg-warning">Inactive</span>
-                                        @endif
-                                        <span class="badge bg-secondary ms-1">{{ $category->items->count() }}</span>
-                                        @php
-                                            $lowSupplyCount = $category->items
-                                                ->filter(function ($item) {
-                                                    return $item->needsReorder();
-                                                })
-                                                ->count();
-                                        @endphp
-                                        @if ($lowSupplyCount > 0)
-                                            <span class="badge bg-danger ms-1" title="Items need attention">
-                                                <i class="fas fa-exclamation-triangle"></i> {{ $lowSupplyCount }}
-                                            </span>
-                                        @endif
-                                    </h5>
-                                    <small class="text-muted">{{ $category->description }}</small>
-                                </div>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal"
-                                        data-bs-target="#createItemModal" onclick="setItemCategory({{ $category->id }})"
-                                        title="Add new item to this category">
-                                        <i class="fas fa-plus me-1"></i><span class="d-none d-sm-inline">Add Item</span>
-                                    </button>
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                            data-bs-toggle="dropdown" aria-expanded="false" title="More actions">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="event.preventDefault(); editCategory({{ $category->id }})">
-                                                    <i class="fas fa-edit text-primary me-2"></i>Edit Category
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="event.preventDefault(); toggleCategory({{ $category->id }})">
-                                                    <i
-                                                        class="fas fa-{{ $category->is_active ? 'eye-slash' : 'eye' }} text-{{ $category->is_active ? 'warning' : 'success' }} me-2"></i>
-                                                    {{ $category->is_active ? 'Deactivate' : 'Activate' }}
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <hr class="dropdown-divider">
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-danger" href="#"
-                                                    onclick="event.preventDefault(); deleteCategory({{ $category->id }})">
-                                                    <i class="fas fa-trash me-2"></i>Delete Category
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body p-0">
-                                @if ($category->items->count() > 0)
-                                    @php
-                                        $sortedItems = $category->items->sortBy('name');
-                                        $displayItems = $sortedItems->take(5);
-                                        $remainingCount = $sortedItems->count() - 5;
-                                    @endphp
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th style="width: 70px;">Image</th>
-                                                    <th>Name</th>
-                                                    <th style="width: 80px;">Unit</th>
-                                                    <th style="width: 100px;">Supply</th>
-                                                    <th style="width: 90px;">Status</th>
-                                                    <th style="width: 150px;">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($displayItems as $item)
-                                                    <tr class="item-row" data-item-id="{{ $item->id }}">
-                                                        <td>
-                                                            @if ($item->image_path)
-                                                                <img src="{{ Storage::url($item->image_path) }}"
-                                                                    alt="{{ $item->name }}" class="rounded"
-                                                                    style="width: 50px; height: 50px; object-fit: cover;">
-                                                            @else
-                                                                <div class="bg-light rounded d-flex align-items-center justify-content-center"
-                                                                    style="width: 50px; height: 50px;">
-                                                                    <i class="fas fa-image text-muted"></i>
-                                                                </div>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <strong class="item-name"
-                                                                title="{{ $item->name }}">{{ $item->name }}</strong>
-                                                            @if ($item->needsReorder())
-                                                                <br><small class="text-warning"><i
-                                                                        class="fas fa-exclamation-triangle"></i> Needs
-                                                                    Reorder</small>
-                                                            @endif
-                                                            <br><small class="text-muted description-truncate"
-                                                                title="{{ $item->description }}">
-                                                                {{ $item->description ? Str::limit($item->description, 40) : 'N/A' }}
-                                                            </small>
-                                                        </td>
-                                                        <td><span class="badge bg-secondary">{{ $item->unit }}</span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-{{ $item->supply_status_color }}">
-                                                                {{ $item->current_supply }}
-                                                            </span>
-                                                            @if ($item->reorder_point)
-                                                                <br><small class="text-muted">Min:
-                                                                    {{ $item->reorder_point }}</small>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <span
-                                                                class="badge bg-{{ $item->is_active ? 'success' : 'danger' }}">
-                                                                {{ $item->is_active ? 'Active' : 'Inactive' }}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex gap-1 justify-content-center flex-wrap">
-                                                                <button class="btn btn-sm btn-success position-relative"
-                                                                    onclick="manageSupply({{ $item->id }})"
-                                                                    title="Manage Supply" data-bs-toggle="tooltip"
-                                                                    data-bs-placement="top">
-                                                                    <i class="fas fa-warehouse"></i>
-                                                                    @if ($item->needsReorder())
-                                                                        <span
-                                                                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                                                                            <span class="visually-hidden">Needs
-                                                                                reorder</span>
-                                                                        </span>
-                                                                    @endif
-                                                                </button>
-                                                                <button class="btn btn-sm btn-outline-primary"
-                                                                    onclick="editItem({{ $item->id }})"
-                                                                    title="Edit Item" data-bs-toggle="tooltip"
-                                                                    data-bs-placement="top">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <div class="btn-group btn-group-sm">
-                                                                    <button type="button"
-                                                                        class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
-                                                                        data-bs-toggle="dropdown" aria-expanded="false"
-                                                                        title="More actions">
-                                                                        <span class="visually-hidden">Toggle
-                                                                            Dropdown</span>
-                                                                    </button>
-                                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                                        <li>
-                                                                            <a class="dropdown-item" href="#"
-                                                                                onclick="event.preventDefault(); toggleItem({{ $item->id }})">
-                                                                                <i
-                                                                                    class="fas fa-{{ $item->is_active ? 'eye-slash' : 'eye' }} text-{{ $item->is_active ? 'warning' : 'success' }} me-2"></i>
-                                                                                {{ $item->is_active ? 'Deactivate' : 'Activate' }}
-                                                                            </a>
-                                                                        </li>
-                                                                        <li>
-                                                                            <hr class="dropdown-divider">
-                                                                        </li>
-                                                                        <li>
-                                                                            <a class="dropdown-item text-danger"
-                                                                                href="#"
-                                                                                onclick="event.preventDefault(); deleteItem({{ $item->id }})">
-                                                                                <i class="fas fa-trash me-2"></i>Delete
-                                                                                Item
-                                                                            </a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    @if ($remainingCount > 0)
-                                        <div class="card-footer bg-light text-center py-2">
-                                            <button class="btn btn-link btn-sm text-primary text-decoration-none"
-                                                onclick="switchCategory('{{ $category->id }}', event)">
-                                                <i class="fas fa-eye me-1"></i>View More ({{ $remainingCount }} more
-                                                {{ Str::plural('item', $remainingCount) }})
-                                            </button>
-                                        </div>
-                                    @endif
-                                @else
-                                    <p class="text-muted text-center py-3">No items in this category yet.</p>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
             </div>
         </div>
 
@@ -1223,11 +1005,10 @@
             if (shouldReload) {
                 // Get the currently active category BEFORE reload
                 const activeCategory = document.querySelector('.category-content.active');
-                const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
+                const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : null;
 
                 setTimeout(() => {
-                    // Store the category ID in sessionStorage temporarily
-                    sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
+                    if (activeCategoryId) sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
                     location.reload();
                 }, 1500);
             }
@@ -1568,7 +1349,8 @@
 
                 // If deleted category is active, redirect to "All Categories"
                 if (activeCategoryId === categoryId.toString()) {
-                    sessionStorage.setItem('pendingCategorySwitch', 'all');
+                    const firstBtn = document.querySelector('.category-tab-btn.category-btn');
+                    sessionStorage.setItem('pendingCategorySwitch', firstBtn ? firstBtn.dataset.category : '');
                 }
 
                 showSuccess(data.message);
@@ -1920,10 +1702,10 @@
         document.getElementById('supplyModal').addEventListener('hidden.bs.modal', function() {
             // Get the currently active category BEFORE reload
             const activeCategory = document.querySelector('.category-content.active');
-            const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : 'all';
-
-            // Store the category ID in sessionStorage temporarily
-            sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
+            const activeCategoryId = activeCategory ? activeCategory.id.replace('category-', '') : null;
+            if (activeCategoryId) {
+                sessionStorage.setItem('pendingCategorySwitch', activeCategoryId);
+            }
 
             // Reload the page
             location.reload();
@@ -2397,12 +2179,6 @@
             const stockStatusFilter = document.querySelector('select[name="stock_status"]').value;
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-            // FIXED: Handle 'All Categories' view differently
-            if (categoryId === 'all') {
-                handleAllCategoriesFilter(statusFilter, stockStatusFilter, searchTerm);
-                return;
-            }
-
             // Original logic for individual categories
             const rows = activeCategory.querySelectorAll('.item-row');
             const filteredRows = [];
@@ -2634,16 +2410,9 @@
                     <p class="text-muted">Try adjusting your filters or search terms.</p>
                 `;
 
-                if (container.id === 'category-all') {
-                    const rowContainer = container.querySelector('.row');
-                    if (rowContainer) {
-                        rowContainer.parentElement.insertBefore(noResults, rowContainer.nextSibling);
-                    }
-                } else {
-                    const table = container.querySelector('table');
-                    if (table) {
-                        table.parentElement.parentElement.insertBefore(noResults, table.parentElement.nextSibling);
-                    }
+            const table = container.querySelector('table');
+                if (table) {
+                    table.parentElement.parentElement.insertBefore(noResults, table.parentElement.nextSibling);
                 }
             }
         }
@@ -2778,7 +2547,8 @@
 
             // If no pending category from an action, check localStorage for last viewed category
             if (!pendingCategory) {
-                pendingCategory = localStorage.getItem('lastViewedCategory') || 'all';
+                const firstBtn = document.querySelector('.category-tab-btn.category-btn');
+                pendingCategory = localStorage.getItem('lastViewedCategory') || (firstBtn ? firstBtn.dataset.category : null);
             }
 
             if (pendingCategory) {
@@ -2817,7 +2587,7 @@
             // Initialize pagination for all individual categories
             document.querySelectorAll('.category-content[id^="category-"]').forEach(container => {
                 const categoryId = container.id.replace('category-', '');
-                if (categoryId !== 'all') {
+                if (categoryId) {
                     const filteredRows = filteredRowsCache[categoryId] || [];
                     displayPageItems(categoryId, 1, filteredRows);
                 }

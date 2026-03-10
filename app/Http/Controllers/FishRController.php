@@ -208,6 +208,13 @@ class FishRController extends Controller
             // Find the registration
             $registration = FishrApplication::findOrFail($id);
 
+            $original = $registration->only([
+                'first_name', 'middle_name', 'last_name', 'name_extension',
+                'sex', 'contact_number', 'barangay', 'main_livelihood',
+                'other_livelihood', 'secondary_livelihood', 'other_secondary_livelihood',
+                'document_path',
+            ]);
+
             // Handle document upload
             if ($request->hasFile('supporting_document')) {
                 // Delete old document if exists
@@ -255,6 +262,10 @@ class FishRController extends Controller
                 'registration_number' => $registration->registration_number
             ]);
 
+            $changes = $this->getChangedFields($original, $registration->fresh()->only(array_keys($original)));
+
+            \App\Services\NotificationService::fishrApplicationUpdated($registration, $changes);
+
             Log::info('FishR registration updated by admin', [
                 'registration_id' => $registration->id,
                 'registration_number' => $registration->registration_number,
@@ -295,6 +306,17 @@ class FishRController extends Controller
                 'message' => 'Error updating registration: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function getChangedFields($original, $updated)
+    {
+        $changed = [];
+        foreach ($original as $key => $value) {
+            if (isset($updated[$key]) && $updated[$key] != $value) {
+                $changed[$key] = ['from' => $value, 'to' => $updated[$key]];
+            }
+        }
+        return $changed;
     }
 
     /**

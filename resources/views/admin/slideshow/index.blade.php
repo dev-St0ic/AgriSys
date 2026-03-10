@@ -273,7 +273,32 @@
         <div class="col-12"> <!-- Slideshow Images Table -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <div style="flex: 1;"></div>
+                    <!-- LEFT: Bulk Selection Controls -->
+                    <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                onclick="selectAllSlides()" id="selectAllSlidesBtn">
+                            <i class="fas fa-check-square me-1"></i>Select All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                onclick="deselectAllSlides()" id="deselectAllSlidesBtn"
+                                style="display: none;">
+                            <i class="fas fa-square me-1"></i>Deselect All
+                        </button>
+                        <div class="btn-group" id="slideBulkActionsGroup" style="display: none;">
+                            <button type="button" class="btn btn-sm btn-outline-success"
+                                    onclick="openBulkActivateSlideModal()">
+                                <i class="fas fa-power-off me-1"></i>Activate
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning"
+                                    onclick="openBulkDeactivateSlideModal()">
+                                <i class="fas fa-ban me-1"></i>Deactivate
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="openBulkDeleteSlideModal()">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
                     <h6 class="m-0 font-weight-bold text-primary text-center" style="flex: 1;">
                         <i class="fas fa-list me-2"></i>Slideshow Images
                     </h6>
@@ -293,6 +318,10 @@
                         <table class="table table-bordered" id="slideshowTable">
                             <thead class="table-dark">
                                 <tr>
+                                    <th class="text-center" style="width: 40px;">
+                                        <input type="checkbox" id="checkboxHeaderSlides"
+                                            onchange="toggleAllSlideCheckboxes(this)">
+                                    </th>
                                     <th class="text-center" width="50">Order</th>
                                     <th class="text-center" width="120">Preview</th>
                                     <th class="text-center">Title</th>
@@ -304,7 +333,14 @@
                             </thead>
                             <tbody id="sortableSlides">
                                 @foreach ($slides as $slide)
-                                    <tr data-slide-id="{{ $slide->id }}">
+                                    <tr data-slide-id="{{ $slide->id }}" class="slide-table-row">
+                                        <td class="text-center align-middle">
+                                            <input type="checkbox" class="slide-checkbox"
+                                                value="{{ $slide->id }}"
+                                                data-title="{{ $slide->title }}"
+                                                data-active="{{ $slide->is_active ? '1' : '0' }}"
+                                                onchange="updateSlideBulkVisibility()">
+                                        </td>
                                         <td class="text-center">
                                             <div class="drag-handle" style="cursor: move;">
                                                 <i class="fas fa-grip-vertical text-muted"></i>
@@ -355,7 +391,7 @@
                                                             <a class="dropdown-item" href="javascript:void(0)"
                                                                 onclick="toggleStatus({{ $slide->id }})">
                                                                 <i
-                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 " style="color: #ffc107;"></i>
+                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 " style="color: {{ $slide->is_active ? '#ffc107' : '#28a745' }};"></i>
                                                                 {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
                                                             </a>
                                                         </li>
@@ -726,21 +762,117 @@
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">Are you sure you want to delete this Slide? <strong id="delete_slide_name"></strong> will be moved to the Recycle Bin.</p>
+                        <p class="mb-0">Are you sure you want to delete <strong id="delete_slide_name"></strong>? It will be moved to the Recycle Bin.</p>
                     </div>
                     <ul class="mb-0">
                         <li>Remove the slide from active records</li>
                         <li>Hide it from users and administrators</li>
                         <li><strong>Can be restored from the Recycle Bin</strong></li>
+                        <li class="text-danger"><strong>Note: Only inactive slides can be deleted</strong></li>
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i></i>Cancel
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmDeleteSlide()" id="confirm_delete_slide_btn">
                         <span class="btn-text">Move to Recycle Bin</span>
                         <span class="btn-loader" style="display: none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK ACTIVATE SLIDES MODAL -->
+    <div class="modal fade" id="bulkActivateSlideModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-power-off me-2"></i>Activate Slides
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        You are about to <strong>activate</strong>
+                        <strong id="bulkActivateSlideCount">0</strong> slide(s).
+                        They will become visible in the slideshow.
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="confirmBulkActivateSlides()"
+                            id="confirmBulkActivateSlideBtn">
+                        <span class="btn-text"><i class="fas fa-power-off me-1"></i>Activate</span>
+                        <span class="btn-loader" style="display:none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Activating...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK DEACTIVATE SLIDES MODAL -->
+    <div class="modal fade" id="bulkDeactivateSlideModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-ban me-2"></i>Deactivate Slides
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning mb-3">
+                        You are about to <strong>deactivate</strong>
+                        <strong id="bulkDeactivateSlideCount">0</strong> slide(s).
+                        They will be hidden from the slideshow.
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" onclick="confirmBulkDeactivateSlides()"
+                            id="confirmBulkDeactivateSlideBtn">
+                        <span class="btn-text"><i class="fas fa-ban me-1"></i>Deactivate</span>
+                        <span class="btn-loader" style="display:none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Deactivating...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK DELETE SLIDES MODAL -->
+    <div class="modal fade" id="bulkDeleteSlideModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title w-100 text-center">
+                        <i class="fas fa-trash me-2"></i>Delete Slides
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger mb-3">
+                        You are about to <strong>delete</strong>
+                        <strong id="bulkDeleteSlideCount">0</strong> slide(s).
+                        They will be moved to the Recycle Bin.
+                        <br><small class="text-muted">Only <strong>inactive</strong> slides can be deleted. Active slides in your selection will be skipped.</small>
+                    </div>
+                    <p class="mb-0">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkDeleteSlides()"
+                            id="confirmBulkDeleteSlideBtn">
+                        <span class="btn-text"><i class="fas fa-trash me-1"></i>Move to Recycle Bin</span>
+                        <span class="btn-loader" style="display:none;">
                             <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
                         </span>
                     </button>
@@ -1617,6 +1749,184 @@
                 currentSlide = (currentSlide + 1) % slides.length;
                 $('.preview-slide').eq(currentSlide).css('opacity', '1');
             }, 3000);
+        }
+
+        // ===== BULK SELECTION FOR SLIDES =====
+
+        function toggleAllSlideCheckboxes(headerCheckbox) {
+            document.querySelectorAll('.slide-checkbox').forEach(cb => {
+                cb.checked = headerCheckbox.checked;
+            });
+            updateSlideBulkVisibility();
+        }
+
+        function selectAllSlides() {
+            document.querySelectorAll('.slide-checkbox').forEach(cb => cb.checked = true);
+            const header = document.getElementById('checkboxHeaderSlides');
+            if (header) header.checked = true;
+            updateSlideBulkVisibility();
+        }
+
+        function deselectAllSlides() {
+            document.querySelectorAll('.slide-checkbox').forEach(cb => cb.checked = false);
+            const header = document.getElementById('checkboxHeaderSlides');
+            if (header) header.checked = false;
+            updateSlideBulkVisibility();
+        }
+
+        function updateSlideBulkVisibility() {
+            const checked = document.querySelectorAll('.slide-checkbox:checked').length;
+            const bulkGroup = document.getElementById('slideBulkActionsGroup');
+            const selectAllBtn = document.getElementById('selectAllSlidesBtn');
+            const deselectAllBtn = document.getElementById('deselectAllSlidesBtn');
+            const headerCheckbox = document.getElementById('checkboxHeaderSlides');
+
+            if (checked > 0) {
+                bulkGroup.style.display = 'flex';
+                selectAllBtn.style.display = 'none';
+                deselectAllBtn.style.display = 'block';
+                if (headerCheckbox) headerCheckbox.checked = true;
+                document.querySelectorAll('.slide-table-row').forEach(row => {
+                    const cb = row.querySelector('.slide-checkbox');
+                    row.classList.toggle('table-active', cb && cb.checked);
+                });
+            } else {
+                bulkGroup.style.display = 'none';
+                selectAllBtn.style.display = 'block';
+                deselectAllBtn.style.display = 'none';
+                if (headerCheckbox) headerCheckbox.checked = false;
+                document.querySelectorAll('.slide-table-row').forEach(row => row.classList.remove('table-active'));
+            }
+        }
+
+        function getSelectedSlideIds() {
+            return Array.from(document.querySelectorAll('.slide-checkbox:checked')).map(cb => cb.value);
+        }
+
+        // --- Bulk Activate ---
+        function openBulkActivateSlideModal() {
+            const ids = getSelectedSlideIds();
+            if (!ids.length) { showToast('warning', 'No slides selected'); return; }
+            document.getElementById('bulkActivateSlideCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkActivateSlideModal')).show();
+        }
+
+        async function confirmBulkActivateSlides() {
+            const ids = getSelectedSlideIds();
+            const btn = document.getElementById('confirmBulkActivateSlideBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('{{ route("admin.slideshow.bulk-activate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkActivateSlideModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to activate slides');
+                }
+            } catch (e) {
+                showToast('error', 'Error activating slides');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // --- Bulk Deactivate ---
+        function openBulkDeactivateSlideModal() {
+            const ids = getSelectedSlideIds();
+            if (!ids.length) { showToast('warning', 'No slides selected'); return; }
+            document.getElementById('bulkDeactivateSlideCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkDeactivateSlideModal')).show();
+        }
+
+        async function confirmBulkDeactivateSlides() {
+            const ids = getSelectedSlideIds();
+            const btn = document.getElementById('confirmBulkDeactivateSlideBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('{{ route("admin.slideshow.bulk-deactivate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkDeactivateSlideModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to deactivate slides');
+                }
+            } catch (e) {
+                showToast('error', 'Error deactivating slides');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        // --- Bulk Delete ---
+        function openBulkDeleteSlideModal() {
+            const ids = getSelectedSlideIds();
+            if (!ids.length) { showToast('warning', 'No slides selected'); return; }
+            document.getElementById('bulkDeleteSlideCount').textContent = ids.length;
+            new bootstrap.Modal(document.getElementById('bulkDeleteSlideModal')).show();
+        }
+
+        async function confirmBulkDeleteSlides() {
+            const ids = getSelectedSlideIds();
+            const btn = document.getElementById('confirmBulkDeleteSlideBtn');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('{{ route("admin.slideshow.bulk-delete") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ ids })
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkDeleteSlideModal')).hide();
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', data.message || 'Failed to delete slides');
+                }
+            } catch (e) {
+                showToast('error', 'Error deleting slides');
+            } finally {
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+                btn.disabled = false;
+            }
         }
     </script>
 @endsection

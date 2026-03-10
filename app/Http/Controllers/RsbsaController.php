@@ -301,6 +301,8 @@ class RsbsaController extends Controller
                 'application_number' => $application->application_number
             ]);
 
+            \App\Services\NotificationService::rsbsaApplicationUpdated($application, $changes);
+
             Log::info('RSBSA application updated by admin', [
                 'application_id' => $id,
                 'application_number' => $application->application_number,
@@ -549,6 +551,8 @@ class RsbsaController extends Controller
                 'main_livelihood' => $application->main_livelihood,
                 'barangay' => $application->barangay
             ]);
+
+            NotificationService::rsbsaApplicationCreated($application);
 
             Log::info('RSBSA application created', [
                 'application_id' => $application->id,

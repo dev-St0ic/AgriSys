@@ -38,11 +38,11 @@
                 <i class="fas fa-filter"></i>
                 Apply Filter
             </button>
-            <a href="{{ route($exportRoute) }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
+            {{-- <a href="{{ route($exportRoute) }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
                class="filter-btn filter-btn-export">
                 <i class="fas fa-download"></i>
                 Export CSV
-            </a>
+            </a> --}}
         </div>
     </form>
 </div>
@@ -152,7 +152,7 @@
     color: #ffffff;
 }
 
-.filter-btn-export {
+/* .filter-btn-export {
     background: #f0faf4;
     color: #2d6a4f;
     border: 1.5px solid #b7e4c7;
@@ -163,7 +163,7 @@
     background: #d8f3dc;
     box-shadow: 0 3px 10px rgba(45, 106, 79, 0.15);
     color: #1e4d38;
-}
+} */
 
 @media (max-width: 768px) {
     .analytics-filter-form {

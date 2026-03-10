@@ -377,6 +377,13 @@ Route::middleware('admin')->group(function () {
     Route::prefix('admin/training')->name('admin.training.')->group(function () {
         // Training Applications Management
         Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
+
+        
+        // Get Template for Bulk Import
+        Route::get('/requests/import/template', [TrainingController::class, 'importTemplate'])->name('import.template');
+        // Handle Bulk Import
+        Route::post('/requests/import', [TrainingController::class, 'import'])->name('import');
+
         Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
 
         // Add training application
@@ -407,6 +414,16 @@ Route::middleware('admin')->group(function () {
         // General routes first
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
+
+        // Bulk actions for main listing page
+        Route::post('/bulk/activate',   [EventController::class, 'bulkActivate'])->name('admin.event.bulk.activate');
+        Route::post('/bulk/deactivate', [EventController::class, 'bulkDeactivate'])->name('admin.event.bulk.deactivate');
+        Route::post('/bulk/archive',    [EventController::class, 'bulkArchive'])->name('admin.event.bulk.archive');
+        Route::delete('/bulk/destroy', [EventController::class, 'bulkDelete'])->name('bulk.destroy');
+
+        // Bulk restore and delete for archived page
+        Route::post('/bulk/restore',    [EventController::class, 'bulkRestore'])->name('bulk.restore');
+        Route::post('/bulk/delete',     [EventController::class, 'bulkDelete'])->name('bulk.delete');
 
         // Special/Specific routes BEFORE generic {id} routes
         Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
@@ -558,6 +575,10 @@ Route::middleware('admin')->group(function () {
         Route::delete('/{id}', [SlideshowController::class, 'destroy'])->name('destroy');
         Route::post('/update-order', [SlideshowController::class, 'updateOrder'])->name('update-order');
         Route::post('/{id}/toggle-status', [SlideshowController::class, 'toggleStatus'])->name('toggle-status');
+        // Bulk actions
+        Route::post('/bulk-activate', [SlideshowController::class, 'bulkActivate'])->name('bulk-activate');
+        Route::post('/bulk-deactivate', [SlideshowController::class, 'bulkDeactivate'])->name('bulk-deactivate');
+        Route::post('/bulk-delete', [SlideshowController::class, 'bulkDelete'])->name('bulk-delete');            
     });
 
     // ==============================================
