@@ -20,10 +20,10 @@ class DatabaseSeeder extends Seeder
             VegetableSeedlingsDispersalSeeder::class,
             BoatrRegisteredSeeder::class,
             RsbsaSpecificDataSeeder::class,
-            TrainingApplicationSeeder::class,
-            UserRegistrationSeeder::class,
+            TrainingSeeder::class,
+            // UserRegistrationSeeder::class,
             
-            EventSeeder::class,
+            EventsSeeder::class,
             SlideshowImagesSeeder::class
         ]);
     }

@@ -1234,12 +1234,12 @@
                                        accept=".csv,.xlsx,.xls,.txt"
                                        onchange="onImportFileSelected(this)">
                                 <button class="btn btn-warning" type="button"
-                                        onclick="submitImport()" id="importSubmitBtn" disabled>
+                                        onclick="submitImport()" id="importSubmitBtn" disabled data-import-url="{{ route('admin.training.import') }}">
                                     <i class="fas fa-upload me-1"></i>Import
                                 </button>
                             </div>
                             <div class="form-text">
-                                Accepted formats: CSV (.csv) or Excel (.xlsx / .xls) — Max 5 MB
+                                Accepted formats: CSV (.csv) or Excel (.xlsx / .xls) — Max 10 MB
                             </div>
                             <div id="importFileError" class="text-danger small mt-1" style="display:none;"></div>
 
@@ -1287,7 +1287,7 @@
 
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="importCancelBtn">
-                    <i class="fas fa-times me-1"></i>Cancel
+                    <i></i>Cancel
                 </button>
                 <button type="button" class="btn btn-success" id="importDoneBtn"
                         style="display:none;" onclick="finishImport()">
@@ -4617,7 +4617,7 @@
             }
 
             if (file.size > 5 * 1024 * 1024) {
-                errEl.textContent   = 'File is too large. Maximum size is 5 MB.';
+                errEl.textContent   = 'File is too large. Maximum size is 10 MB.';
                 errEl.style.display = 'block';
                 input.value = '';
                 return;
@@ -4667,9 +4667,9 @@
                 progressLbl.textContent = 'Processing complete!';
 
                 setTimeout(() => {
-                    progressWrap.style.display = 'none';
-                    showImportResults(data);
-                }, 400);
+                progressWrap.style.display = 'none';
+                showImportResults(data);
+            }, 400);
             })
             .catch(err => {
                 clearInterval(progressInterval);
@@ -4682,7 +4682,6 @@
         }
 
         function showImportResults(data) {
-            // Switch panels
             document.getElementById('importPanel1').style.display = 'none';
             document.getElementById('importPanel2').style.display = 'block';
 
@@ -4691,7 +4690,6 @@
 
             setImportStep(3);
 
-            // ── Summary cards ────────────────────────────────────────
             const cardsEl = document.getElementById('importSummaryCards');
             if (data.success || data.imported > 0) {
                 cardsEl.innerHTML = `
@@ -4721,7 +4719,7 @@
                     </div>`;
             }
 
-            // ── Error rows table ────────────────────────────────────
+            // Error rows table
             const errorSection = document.getElementById('importErrorSection');
             const errorBody    = document.getElementById('importErrorTableBody');
 
@@ -4740,7 +4738,7 @@
                 errorSection.style.display = 'none';
             }
 
-            // Toast notification
+            // Show toast message
             if (data.imported > 0) {
                 showToast('success', data.message);
             } else {
@@ -4751,7 +4749,7 @@
         function finishImport() {
             const modal = bootstrap.Modal.getInstance(document.getElementById('importTrainingModal'));
             if (modal) modal.hide();
-            window.location.reload();
+            window.location.href = '{{ route("admin.training.requests") }}';
         }
     </script>
 @endsection

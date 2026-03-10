@@ -70,9 +70,9 @@ class TrainingImportService
      *   rows: array
      * }
      */
-    public function import(string $filePath): array
+    public function import(string $filePath, string $extension = ''): array
     {
-        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $extension = strtolower($extension ?: pathinfo($filePath, PATHINFO_EXTENSION));
 
         if (in_array($extension, ['csv', 'txt', ''])) {
             $rows = $this->parseCsv($filePath);
@@ -81,7 +81,7 @@ class TrainingImportService
         } else {
             throw new \InvalidArgumentException('Unsupported file type. Please upload a CSV or Excel file.');
         }
-        
+
         return $this->processRows($rows);
     }
 

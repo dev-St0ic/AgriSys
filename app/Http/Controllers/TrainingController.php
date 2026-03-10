@@ -723,11 +723,11 @@ public function destroy($id)
     {
         // ── Basic file validation ────────────────────────────────────
         $request->validate([
-            'import_file' => 'required|file|mimes:csv,txt,xlsx,xls|max:5120', // 5 MB max
+            'import_file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240', // 10 MB max
         ], [
             'import_file.required' => 'Please select a file to import.',
             'import_file.mimes'    => 'Only CSV and Excel (.xlsx / .xls) files are accepted.',
-            'import_file.max'      => 'The file must not exceed 5 MB.',
+            'import_file.max'      => 'The file must not exceed 10 MB.',
         ]);
 
         try {
@@ -735,8 +735,17 @@ public function destroy($id)
             $filePath = $file->getRealPath();
             $extension = $file->getClientOriginalExtension(); //get original extension
 
+             Log::info('Import debug', [
+            'original_name' => $file->getClientOriginalName(),
+            'extension'     => $extension,
+            'real_path'     => $filePath,
+            'file_exists'   => file_exists($filePath),
+            'file_size'     => filesize($filePath),
+            ]);
+
             $service = new TrainingImportService();
-            $result  = $service->import($filePath, $extension);// Process the import and get results
+            $result  = $service->import($filePath, $extension); // Process the file and get results
+            Log::info('Import result', $result);
 
             // ── Log the activity ────────────────────────────────────
             $this->logActivity('bulk_imported', 'TrainingApplication', null, [
