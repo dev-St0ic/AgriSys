@@ -15,8 +15,22 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SuperAdminSeeder::class,
+            // BarangaySeeder::class,
+            // FishrRequestSeeder::class,
+            FisherfolkRegisteredSeeder::class,
+            SuppliesSeeder::class,
+            // SupplyManagementSeeder::class,  // Run before SeedlingRequestSeeder to ensure supplies are available
+            // SeedlingRequestSeeder::class,
+            VegetableSeedlingsDispersalSeeder::class,
+            // BoatrRequestSeeder::class,
+            BoatrRegisteredSeeder::class,
+            // RsbsaApplicationSeeder::class,
+            RsbsaSpecificDataSeeder::class, // Run after RsbsaApplicationSeeder to link specific data to applications
+            TrainingApplicationSeeder::class,
+            UserRegistrationSeeder::class,
+            
             EventSeeder::class,
-            SlideshowImagesSeeder::class,
+            SlideshowImagesSeeder::class
         ]);
     }
 }
