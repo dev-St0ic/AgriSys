@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             RsbsaSpecificDataSeeder::class,
             TrainingApplicationSeeder::class,
             UserRegistrationSeeder::class,
-            EventsSeeder::class,
+            
+            EventSeeder::class,
             SlideshowImagesSeeder::class
         ]);
     }
