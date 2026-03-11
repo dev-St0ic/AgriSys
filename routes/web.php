@@ -238,6 +238,12 @@ Route::middleware('admin')->group(function () {
         // Export applications (must be before /{id} to avoid conflict)
         Route::get('/export', [RsbsaController::class, 'export'])->name('export');
 
+        // Get Template for Bulk Import 
+        Route::get('/import/template', [RsbsaController::class, 'importTemplate'])->name('import.template');
+
+        // Handle Bulk Import 
+        Route::post('/import', [RsbsaController::class, 'import'])->name('import');
+
         // Create new registration
         Route::post('/create', [RsbsaController::class, 'store'])->name('store');
 
