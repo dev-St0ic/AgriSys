@@ -272,6 +272,15 @@ Route::middleware('admin')->group(function () {
      * Manages fisherfolk registration applications
      */
     Route::prefix('admin/fishr-registrations')->name('admin.fishr.')->group(function () {
+        // GET by ID
+        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
+
+        // Get Template for Bulk Import
+        Route::get('/import/template', [FishRController::class, 'importTemplate'])->name('import.template');
+
+        // Handle Bulk Import
+        Route::post('/import', [FishRController::class, 'import'])->name('import');
+
         // Static routes FIRST (to avoid conflicts with /{id})
         Route::get('/export', [FishRController::class, 'export'])->name('export');
 
@@ -286,9 +295,6 @@ Route::middleware('admin')->group(function () {
 
         // Index route
         Route::get('/', [FishRController::class, 'index'])->name('requests');
-
-        // GET by ID
-        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
 
         // Update status
         Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
