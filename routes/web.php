@@ -326,6 +326,11 @@ Route::middleware('admin')->group(function () {
         // Main listing page
         Route::get('/requests', [BoatRController::class, 'index'])->name('requests');
 
+        // Get Template for Bulk Import
+        Route::get('/requests/import/template', [BoatRController::class, 'importTemplate'])->name('import.template');
+        // Handle Bulk Import
+        Route::post('/requests/import', [BoatRController::class, 'import'])->name('import');
+
         // Individual application routes
         Route::get('/requests/{id}', [BoatRController::class, 'show'])->name('show');
 

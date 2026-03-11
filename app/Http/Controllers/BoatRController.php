@@ -8,6 +8,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Services\BoatrImportService;
 
 class BoatRController extends Controller
 {
@@ -1747,4 +1748,207 @@ public function validateFishrNumber($fishrNumber)
         ], 200);
     }
 }
+
+    // Download CSV template for imports
+    public function importTemplate()
+    {
+        $filename = 'boatr_import_template.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            // UTF-8 BOM so Excel opens correctly
+            fputs($file, "\xEF\xBB\xBF");
+
+            // Column headers
+            fputcsv($file, [
+                'first_name',
+                'middle_name',
+                'last_name',
+                'name_extension',
+                'contact_number',
+                'barangay',
+                'fishr_number',
+                'vessel_name',
+                'boat_type',
+                'boat_classification',
+                'boat_length',
+                'boat_width',
+                'boat_depth',
+                'engine_type',
+                'engine_horsepower',
+                'primary_fishing_gear',
+                'status',
+                'remarks',
+            ]);
+
+            // Example row 1 – Motorized
+            fputcsv($file, [
+                'Juan', 'Dela', 'Cruz', '',
+                '09171234567', 'Poblacion',
+                'FISHR-ABCD1234', 'Mahal Kong Banca',
+                'Banca', 'Motorized',
+                '10.50', '2.00', '1.50',
+                'Diesel', '16',
+                'Hook and Line',
+                'pending', '',
+            ]);
+
+            // Example row 2 – Non-motorized
+            fputcsv($file, [
+                'Maria', '', 'Santos', 'Jr.',
+                '09281234567', 'Bagong Silang',
+                'FISHR-XY987654', 'Pagasa',
+                'Spoon', 'Non-motorized',
+                '8.00', '1.50', '1.00',
+                '', '',
+                'Fish Trap',
+                'pending', 'Walk-in applicant',
+            ]);
+
+            // ── Reference sheet ──────────────────────────────────
+            fputcsv($file, []);
+            fputcsv($file, ['=== VALID VALUES REFERENCE ===']);
+            fputcsv($file, []);
+
+            fputcsv($file, ['--- Boat Types (use exact text) ---']);
+            foreach ([
+                'Spoon', 'Plumb', 'Banca',
+                'Rake Stem - Rake Stern',
+                'Rake Stem - Transom/Spoon/Plumb Stern',
+                'Skiff (Typical Design)',
+            ] as $bt) {
+                fputcsv($file, [$bt]);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Boat Classification ---']);
+            fputcsv($file, ['Motorized']);
+            fputcsv($file, ['Non-motorized']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Primary Fishing Gear ---']);
+            foreach ([
+                'Hook and Line', 'Bottom Set Gill Net',
+                'Fish Trap', 'Fish Coral', 'Not Applicable',
+            ] as $g) {
+                fputcsv($file, [$g]);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Statuses ---']);
+            foreach ([
+                'pending', 'under_review', 'inspection_required',
+                'inspection_scheduled', 'documents_pending',
+                'approved', 'rejected',
+            ] as $s) {
+                fputcsv($file, [$s]);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Valid Barangays ---']);
+            $barangays = [
+                'Bagong Silang','Calendola','Chrysanthemum','Cuyab','Estrella',
+                'Fatima','G.S.I.S.','Landayan','Langgam','Laram','Magsaysay',
+                'Maharlika','Narra','Nueva','Pacita 1','Pacita 2','Poblacion',
+                'Riverside','Rosario','Sampaguita Village','San Antonio',
+                'San Lorenzo Ruiz','San Roque','San Vicente','Santo Niño',
+                'United Bayanihan','United Better Living',
+            ];
+            foreach ($barangays as $b) {
+                fputcsv($file, [$b]);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Notes ---']);
+            fputcsv($file, ['middle_name, name_extension, status, and remarks are optional.']);
+            fputcsv($file, ['engine_type and engine_horsepower are required ONLY for Motorized boats.']);
+            fputcsv($file, ['If status is left blank it defaults to "pending".']);
+            fputcsv($file, ['Contact number must be 11 digits starting with 09 (e.g. 09171234567).']);
+            fputcsv($file, ['Delete the example rows (rows 2 and 3) before uploading.']);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // Import registrations from uploaded CSV/Excel file
+    public function import(Request $request)
+    {
+        $request->validate([
+            'import_file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240',
+        ], [
+            'import_file.required' => 'Please select a file to import.',
+            'import_file.mimes'    => 'Only CSV and Excel (.xlsx / .xls) files are accepted.',
+            'import_file.max'      => 'The file must not exceed 10 MB.',
+        ]);
+
+        try {
+            $file      = $request->file('import_file');
+            $filePath  = $file->getRealPath();
+            $extension = $file->getClientOriginalExtension();
+
+            Log::info('BoatR import debug', [
+                'original_name' => $file->getClientOriginalName(),
+                'extension'     => $extension,
+                'real_path'     => $filePath,
+                'file_exists'   => file_exists($filePath),
+                'file_size'     => filesize($filePath),
+            ]);
+
+            $service = new \App\Services\BoatrImportService();
+            $result  = $service->import($filePath, $extension);
+
+            Log::info('BoatR import result', $result);
+
+            $this->logActivity('bulk_imported', 'BoatrApplication', null, [
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'filename' => $file->getClientOriginalName(),
+            ]);
+
+            Log::info('BoatR bulk import completed', [
+                'imported'  => $result['imported'],
+                'skipped'   => $result['skipped'],
+                'filename'  => $file->getClientOriginalName(),
+                'by'        => auth()->user()->name ?? 'System',
+            ]);
+
+            return response()->json([
+                'success'  => true,
+                'message'  => "{$result['imported']} record(s) imported successfully." .
+                              ($result['skipped'] > 0 ? " {$result['skipped']} row(s) were skipped due to errors." : ''),
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'errors'   => $result['errors'],
+            ]);
+
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('BoatR bulk import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred during import: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }
