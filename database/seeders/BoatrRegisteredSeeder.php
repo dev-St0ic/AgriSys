@@ -34,6 +34,8 @@ class BoatrRegisteredSeeder extends Seeder
 
         $fishrExists = fn($n) => !empty($n) && in_array($n, $existingFishrNumbers);
 
+        $pc = fn(?string $v) => $v !== null ? ucwords(strtolower($v)) : null;
+
         $make = function (
             string  $appNo,
             ?string $fn, ?string $mn, ?string $ln, ?string $ext,
@@ -47,13 +49,13 @@ class BoatrRegisteredSeeder extends Seeder
             string  $remarks,
             Carbon  $createdAt,
             Carbon  $approvedAt
-        ): array {
+        ) use ($pc): array {
             return [
                 'application_number'          => $appNo,
-                'first_name'                  => $fn,
-                'middle_name'                 => $mn,
-                'last_name'                   => $ln,
-                'name_extension'              => $ext,
+                'first_name'                  => $pc($fn),
+                'middle_name'                 => $pc($mn),
+                'last_name'                   => $pc($ln),
+                'name_extension'              => $pc($ext),
                 'contact_number'              => null,
                 'barangay'                    => $barangay,
                 'fishr_number'                => $fishrNo,

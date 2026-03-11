@@ -238,6 +238,12 @@ Route::middleware('admin')->group(function () {
         // Export applications (must be before /{id} to avoid conflict)
         Route::get('/export', [RsbsaController::class, 'export'])->name('export');
 
+        // Get Template for Bulk Import 
+        Route::get('/import/template', [RsbsaController::class, 'importTemplate'])->name('import.template');
+
+        // Handle Bulk Import 
+        Route::post('/import', [RsbsaController::class, 'import'])->name('import');
+
         // Create new registration
         Route::post('/create', [RsbsaController::class, 'store'])->name('store');
 
@@ -266,6 +272,15 @@ Route::middleware('admin')->group(function () {
      * Manages fisherfolk registration applications
      */
     Route::prefix('admin/fishr-registrations')->name('admin.fishr.')->group(function () {
+        // GET by ID
+        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
+
+        // Get Template for Bulk Import
+        Route::get('/import/template', [FishRController::class, 'importTemplate'])->name('import.template');
+
+        // Handle Bulk Import
+        Route::post('/import', [FishRController::class, 'import'])->name('import');
+
         // Static routes FIRST (to avoid conflicts with /{id})
         Route::get('/export', [FishRController::class, 'export'])->name('export');
 
@@ -280,9 +295,6 @@ Route::middleware('admin')->group(function () {
 
         // Index route
         Route::get('/', [FishRController::class, 'index'])->name('requests');
-
-        // GET by ID
-        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
 
         // Update status
         Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
@@ -313,6 +325,11 @@ Route::middleware('admin')->group(function () {
     Route::prefix('admin/boatr')->name('admin.boatr.')->group(function () {
         // Main listing page
         Route::get('/requests', [BoatRController::class, 'index'])->name('requests');
+
+        // Get Template for Bulk Import
+        Route::get('/requests/import/template', [BoatRController::class, 'importTemplate'])->name('import.template');
+        // Handle Bulk Import
+        Route::post('/requests/import', [BoatRController::class, 'import'])->name('import');
 
         // Individual application routes
         Route::get('/requests/{id}', [BoatRController::class, 'show'])->name('show');
@@ -450,6 +467,11 @@ Route::middleware('admin')->group(function () {
     Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])->group(function () {
         // List requests
         Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
+
+        // Get Template for Bulk Import
+        Route::get('/requests/import/template', [SeedlingRequestController::class, 'importTemplate'])->name('import.template');
+        // Handle Bulk Import
+        Route::post('/requests/import', [SeedlingRequestController::class, 'import'])->name('import');
 
         // Create request
         Route::get('/requests/create', [SeedlingRequestController::class, 'create'])->name('create');

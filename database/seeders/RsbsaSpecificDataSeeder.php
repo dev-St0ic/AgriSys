@@ -213,11 +213,11 @@ class RsbsaSpecificDataSeeder extends Seeder
 
             RsbsaApplication::create([
                 'application_number' => $applicationNumber,
-                'first_name' => $data['first_name'],
-                'middle_name' => $data['middle_name'],
-                'last_name' => $data['last_name'],
+                'first_name' => $this->toProperCase($data['first_name']),
+                'middle_name' => $this->toProperCase($data['middle_name']),
+                'last_name' => $this->toProperCase($data['last_name']),
                 'name_extension' => null,
-                'sex' => $this->guessSex($data['first_name']), // Simple guess based on name
+                'sex' => $this->guessSex($data['first_name']),
                 'contact_number' => '09' . rand(100000000, 999999999), // Random contact number
                 'barangay' => $data['barangay'],
                 'address' => $data['barangay'] . ', ' . $data['municipality'],
@@ -243,6 +243,17 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'number_assigned_at' => $approvedAt,
             ]);
         }
+    }
+
+    /**
+     * Convert a string to proper/title case.
+     */
+    private function toProperCase(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        return ucwords(strtolower($value));
     }
 
     /**

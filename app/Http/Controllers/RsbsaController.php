@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\RsbsaApplication;
 use App\Services\NotificationService;
+use App\Services\RsbsaImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 
 class RsbsaController extends Controller
 {
@@ -784,6 +786,251 @@ class RsbsaController extends Controller
             ]);
 
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
+        }
+    }
+
+    // Download import template
+    public function importTemplate()
+    {
+        $filename = 'rsbsa_import_template.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            // UTF-8 BOM so Excel opens it correctly
+            fputs($file, "\xEF\xBB\xBF");
+
+            // ── Column headers ──────────────────────────────────────────
+            fputcsv($file, [
+                'first_name',
+                'middle_name',
+                'last_name',
+                'name_extension',
+                'sex',
+                'contact_number',
+                'barangay',
+                'address',
+                'main_livelihood',
+                'status',
+                'commodity',
+                // Farmer-specific
+                'farmer_crops',
+                'farmer_land_area',
+                'farmer_type_of_farm',
+                'farmer_land_ownership',
+                'farmer_special_status',
+                'farm_location',
+                // Farmworker-specific
+                'farmworker_type',
+                // Fisherfolk-specific
+                'fisherfolk_activity',
+                // Agri-youth-specific
+                'agriyouth_farming_household',
+                'agriyouth_training',
+                'agriyouth_participation',
+            ]);
+
+            // ── Example row 1 (Farmer) ─────────────────────────────────
+            fputcsv($file, [
+                'Juan',
+                'Dela',
+                'Cruz',
+                '',
+                'Male',
+                '09171234567',
+                'Poblacion',
+                '123 Rizal Street, Poblacion',
+                'Farmer',
+                'pending',
+                'Rice',
+                'Rice, Corn',
+                '1.5',
+                'Irrigated',
+                'Owner',
+                'None',
+                'Brgy. Poblacion Farm',
+                '', // farmworker_type
+                '', // fisherfolk_activity
+                '', // agriyouth_farming_household
+                '', // agriyouth_training
+                '', // agriyouth_participation
+            ]);
+
+            // ── Example row 2 (Fisherfolk) ─────────────────────────────
+            fputcsv($file, [
+                'Maria',
+                '',
+                'Santos',
+                'Jr.',
+                'Female',
+                '09281234567',
+                'Bagong Silang',
+                '45 Rizal Ave, Bagong Silang',
+                'Fisherfolk',
+                'pending',
+                'Bangus',
+                '', '', '', '', '', '', // farmer fields
+                '', // farmworker_type
+                'Bangus Aquaculture',
+                '', '', '', // agri-youth fields
+            ]);
+
+            // ── Reference sheet ────────────────────────────────────────
+            fputcsv($file, []);
+            fputcsv($file, ['=== VALID VALUES REFERENCE ===']);
+            fputcsv($file, []);
+
+            fputcsv($file, ['--- Main Livelihood ---']);
+            fputcsv($file, ['Farmer']);
+            fputcsv($file, ['Farmworker/Laborer']);
+            fputcsv($file, ['Fisherfolk']);
+            fputcsv($file, ['Agri-youth']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Sex ---']);
+            fputcsv($file, ['Male']);
+            fputcsv($file, ['Female']);
+            fputcsv($file, ['Preferred not to say']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Statuses ---']);
+            fputcsv($file, ['pending']);
+            fputcsv($file, ['under_review']);
+            fputcsv($file, ['approved']);
+            fputcsv($file, ['rejected']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Farmer: Type of Farm ---']);
+            fputcsv($file, ['Irrigated']);
+            fputcsv($file, ['Rainfed Upland']);
+            fputcsv($file, ['Rainfed Lowland']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Farmer: Land Ownership ---']);
+            fputcsv($file, ['Owner']);
+            fputcsv($file, ['Tenant']);
+            fputcsv($file, ['Lessee']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Farmer: Special Status ---']);
+            fputcsv($file, ['Ancestral Domain']);
+            fputcsv($file, ['Agrarian Reform Beneficiary']);
+            fputcsv($file, ['None']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Agri-youth: Farming Household ---']);
+            fputcsv($file, ['Yes']);
+            fputcsv($file, ['No']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Agri-youth: Participation ---']);
+            fputcsv($file, ['Participated']);
+            fputcsv($file, ['Not Participated']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Valid Barangays ---']);
+            $barangays = [
+                'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Estrella',
+                'Fatima', 'G.S.I.S.', 'Landayan', 'Langgam', 'Laram', 'Magsaysay',
+                'Maharlika', 'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion',
+                'Riverside', 'Rosario', 'Sampaguita Village', 'San Antonio',
+                'San Lorenzo Ruiz', 'San Roque', 'San Vicente', 'Santo Niño',
+                'United Bayanihan', 'United Better Living',
+            ];
+            foreach ($barangays as $b) {
+                fputcsv($file, [$b]);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Notes ---']);
+            fputcsv($file, ['middle_name, name_extension, status, commodity, and livelihood-specific fields are optional.']);
+            fputcsv($file, ['If status is left blank, it defaults to "pending".']);
+            fputcsv($file, ['Contact number must be 11 digits starting with 09 (e.g. 09171234567).']);
+            fputcsv($file, ['Only fill in fields relevant to the selected main_livelihood.']);
+            fputcsv($file, ['Delete the example rows (rows 2 and 3) before uploading.']);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // Process the uploaded CSV/Excel file and import applications in bulk
+    public function import(Request $request)
+    {
+        // ── Basic file validation ────────────────────────────────────
+        $request->validate([
+            'import_file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240',
+        ], [
+            'import_file.required' => 'Please select a file to import.',
+            'import_file.mimes'    => 'Only CSV and Excel (.xlsx / .xls) files are accepted.',
+            'import_file.max'      => 'The file must not exceed 10 MB.',
+        ]);
+
+        try {
+            $file      = $request->file('import_file');
+            $filePath  = $file->getRealPath();
+            $extension = $file->getClientOriginalExtension();
+
+            Log::info('RSBSA Import debug', [
+                'original_name' => $file->getClientOriginalName(),
+                'extension'     => $extension,
+                'real_path'     => $filePath,
+                'file_exists'   => file_exists($filePath),
+                'file_size'     => filesize($filePath),
+            ]);
+
+            $service = new \App\Services\RsbsaImportService();
+            $result  = $service->import($filePath, $extension);
+
+            Log::info('RSBSA Import result', $result);
+
+            $this->logActivity('bulk_imported', 'RsbsaApplication', null, [
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'filename' => $file->getClientOriginalName(),
+            ]);
+
+            Log::info('RSBSA bulk import completed', [
+                'imported'  => $result['imported'],
+                'skipped'   => $result['skipped'],
+                'filename'  => $file->getClientOriginalName(),
+                'by'        => auth()->user()->name ?? 'System',
+            ]);
+
+            return response()->json([
+                'success'  => true,
+                'message'  => "{$result['imported']} record(s) imported successfully." .
+                    ($result['skipped'] > 0 ? " {$result['skipped']} row(s) were skipped due to errors." : ''),
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'errors'   => $result['errors'],
+            ]);
+
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('RSBSA bulk import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred during import: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }

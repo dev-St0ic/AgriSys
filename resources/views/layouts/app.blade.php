@@ -2353,6 +2353,24 @@
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
     </script>
+
+    <script>
+    console.log(
+        '%cStop!',
+        'color: red; font-size: 50px; font-weight: bold;'
+    );
+    console.log(
+        '%cThis browser feature is for developers only. If someone told you to paste something here, it is a scam.',
+        'font-size: 16px;'
+    );
+
+    // Suppress all other console output after the warning
+    console.log = function() {};
+    console.warn = function() {};
+    console.error = function() {};
+    console.info = function() {};
+    console.debug = function() {};
+    </script>
 </body>
 
 </html>

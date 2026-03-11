@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Services\FishrImportService;
 
 class FishRController extends Controller
 {
@@ -1099,4 +1100,180 @@ public function destroy($id)
             ], 500);
         }
     }
+
+
+    
+    // Download CSV template for bulk import
+    public function importTemplate()
+    {
+        $filename = 'fishr_import_template.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            // UTF-8 BOM so Excel opens correctly
+            fputs($file, "\xEF\xBB\xBF");
+
+            // ── Column headers ──────────────────────────────────────
+            fputcsv($file, [
+                'first_name',
+                'middle_name',
+                'last_name',
+                'name_extension',
+                'sex',
+                'contact_number',
+                'barangay',
+                'main_livelihood',
+                'other_livelihood',
+                'secondary_livelihood',
+                'other_secondary_livelihood',
+                'status',
+                'remarks',
+            ]);
+
+            // ── Example row 1 ───────────────────────────────────────
+            fputcsv($file, [
+                'Juan', 'Dela', 'Cruz', '', 'Male', '09171234567',
+                'Poblacion', 'Capture Fishing', '', '', '', 'pending', '',
+            ]);
+
+            // ── Example row 2 ───────────────────────────────────────
+            fputcsv($file, [
+                'Maria', '', 'Santos', 'Jr.', 'Female', '09281234567',
+                'Bagong Silang', 'Aquaculture', '', 'Fish Vending', '', 'pending', 'Walk-in applicant',
+            ]);
+
+            // ── Reference sheet ─────────────────────────────────────
+            fputcsv($file, []);
+            fputcsv($file, ['=== VALID VALUES REFERENCE ===']);
+            fputcsv($file, []);
+
+            fputcsv($file, ['--- Sex ---']);
+            fputcsv($file, ['Male']);
+            fputcsv($file, ['Female']);
+            fputcsv($file, ['Preferred not to say']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Main / Secondary Livelihood (use exact text or slug) ---']);
+            fputcsv($file, ['Capture Fishing',  'or: capture']);
+            fputcsv($file, ['Aquaculture',       'or: aquaculture']);
+            fputcsv($file, ['Fish Vending',      'or: vending']);
+            fputcsv($file, ['Fish Processing',   'or: processing']);
+            fputcsv($file, ['Others',            'or: others  (fill other_livelihood column)']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Statuses ---']);
+            fputcsv($file, ['pending']);
+            fputcsv($file, ['under_review']);
+            fputcsv($file, ['approved']);
+            fputcsv($file, ['rejected']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Valid Barangays ---']);
+            $barangays = [
+                'Bagong Silang','Calendola','Chrysanthemum','Cuyab','Estrella',
+                'Fatima','G.S.I.S.','Landayan','Langgam','Laram','Magsaysay',
+                'Maharlika','Narra','Nueva','Pacita 1','Pacita 2','Poblacion',
+                'Riverside','Rosario','Sampaguita Village','San Antonio',
+                'San Lorenzo Ruiz','San Roque','San Vicente','Santo Niño',
+                'United Bayanihan','United Better Living',
+            ];
+            foreach ($barangays as $b) {
+                fputcsv($file, [$b]);
+            }
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Notes ---']);
+            fputcsv($file, ['middle_name, name_extension, secondary_livelihood, status, and remarks are optional.']);
+            fputcsv($file, ['If status is left blank, it defaults to "pending".']);
+            fputcsv($file, ['other_livelihood is required only when main_livelihood = others.']);
+            fputcsv($file, ['other_secondary_livelihood is required only when secondary_livelihood = others.']);
+            fputcsv($file, ['Secondary livelihood cannot be the same as main livelihood.']);
+            fputcsv($file, ['Contact number must be 11 digits starting with 09 (e.g. 09171234567).']);
+            fputcsv($file, ['Delete the example rows (rows 2 and 3) before uploading.']);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // Import registrations from uploaded CSV/Excel file
+    public function import(Request $request)
+    {
+        $request->validate([
+            'import_file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240',
+        ], [
+            'import_file.required' => 'Please select a file to import.',
+            'import_file.mimes'    => 'Only CSV and Excel (.xlsx / .xls) files are accepted.',
+            'import_file.max'      => 'The file must not exceed 10 MB.',
+        ]);
+
+        try {
+            $file      = $request->file('import_file');
+            $filePath  = $file->getRealPath();
+            $extension = $file->getClientOriginalExtension();
+
+            Log::info('FishR import debug', [
+                'original_name' => $file->getClientOriginalName(),
+                'extension'     => $extension,
+                'real_path'     => $filePath,
+                'file_exists'   => file_exists($filePath),
+                'file_size'     => filesize($filePath),
+            ]);
+
+            $service = new \App\Services\FishrImportService();
+            $result  = $service->import($filePath, $extension);
+
+            Log::info('FishR import result', $result);
+
+            $this->logActivity('bulk_imported', 'FishrApplication', null, [
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'filename' => $file->getClientOriginalName(),
+            ]);
+
+            Log::info('FishR bulk import completed', [
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'filename' => $file->getClientOriginalName(),
+                'by'       => auth()->user()->name ?? 'System',
+            ]);
+
+            return response()->json([
+                'success'  => true,
+                'message'  => "{$result['imported']} record(s) imported successfully." .
+                              ($result['skipped'] > 0 ? " {$result['skipped']} row(s) were skipped due to errors." : ''),
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'errors'   => $result['errors'],
+            ]);
+
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('FishR bulk import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred during import: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

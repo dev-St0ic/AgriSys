@@ -204,6 +204,9 @@
                         <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
                             <i class="fas fa-user-plus me-2"></i>Add Request
                         </button>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="showSeedlingImportModal()">
+                            <i class="fas fa-file-upload me-2"></i>Bulk Import
+                        </button>
                         <a href="{{ route('admin.seedlings.export', request()->query()) }}"
                             class="btn btn-success btn-sm">
                             <i class="fas fa-download"></i> Export CSV
@@ -1600,7 +1603,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- ✅ NEW: Pickup Date Section in Edit Modal -->
+                                    <!-- NEW: Pickup Date Section in Edit Modal -->
                                     @if ($request->status === 'approved' || $request->status === 'partially_approved')
                                         <div class="card border-0 bg-light mb-3">
                                             <div class="card-header bg-white border-0 pb-0">
@@ -1991,6 +1994,168 @@
                         <i></i>Close
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+    {{-- BULK IMPORT MODAL --}}
+    <div class="modal fade" id="importSeedlingModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title w-100 text-center fw-bold">
+                        <i class="fas fa-file-upload me-2"></i>Bulk Import Supply Requests
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Step indicator -->
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="d-flex align-items-center gap-2" id="seedlingImportStep1Indicator">
+                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">1</span>
+                            <small class="fw-semibold">Download Template</small>
+                        </div>
+                        <div class="mx-3 text-muted align-self-center">→</div>
+                        <div class="d-flex align-items-center gap-2" id="seedlingImportStep2Indicator">
+                            <span class="badge rounded-pill bg-secondary px-3 py-2 fw-bold">2</span>
+                            <small class="fw-semibold text-muted">Fill &amp; Upload</small>
+                        </div>
+                        <div class="mx-3 text-muted align-self-center">→</div>
+                        <div class="d-flex align-items-center gap-2" id="seedlingImportStep3Indicator">
+                            <span class="badge rounded-pill bg-secondary px-3 py-2 fw-bold">3</span>
+                            <small class="fw-semibold text-muted">Review Results</small>
+                        </div>
+                    </div>
+
+                    <!-- Panel 1: Instructions + upload -->
+                    <div id="seedlingImportPanel1">
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body">
+                                <h6 class="text-primary fw-semibold mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>How to use bulk import
+                                </h6>
+                                <ol class="mb-0 ps-3">
+                                    <li class="mb-2">Click <strong>Download Template</strong> to get a pre-formatted CSV file.</li>
+                                    <li class="mb-2">Fill in the rows with applicant data. <em>To add multiple items for one request, repeat rows with the same name &amp; contact number.</em></li>
+                                    <li class="mb-2">Save as <strong>CSV</strong> (.csv) or <strong>Excel</strong> (.xlsx).</li>
+                                    <li>Upload the file and click <strong>Import</strong>.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="card border-danger h-100">
+                                    <div class="card-header bg-danger text-white py-2">
+                                        <small class="fw-bold"><i class="fas fa-asterisk me-1"></i>Required Columns</small>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 ps-3 small">
+                                            <li><code>first_name</code></li>
+                                            <li><code>last_name</code></li>
+                                            <li><code>contact_number</code> <small class="text-muted">(09XXXXXXXXX)</small></li>
+                                            <li><code>barangay</code></li>
+                                            <li><code>item_name</code></li>
+                                            <li><code>quantity</code></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-success h-100">
+                                    <div class="card-header bg-success text-white py-2">
+                                        <small class="fw-bold"><i class="fas fa-check me-1"></i>Optional Columns</small>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 ps-3 small">
+                                            <li><code>middle_name</code></li>
+                                            <li><code>extension_name</code> <small class="text-muted">(Jr., Sr., etc.)</small></li>
+                                            <li><code>pickup_date</code> <small class="text-muted">(YYYY-MM-DD)</small></li>
+                                            <li><code>status</code> <small class="text-muted">(defaults to pending)</small></li>
+                                            <li><code>remarks</code></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('admin.seedlings.import.template') }}"
+                        class="btn btn-outline-warning w-100 mb-3">
+                            <i class="fas fa-download me-2"></i>Download CSV Template
+                        </a>
+
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <label for="seedling_import_file_input" class="form-label fw-semibold">
+                                    Upload your completed file <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" id="seedling_import_file_input"
+                                        accept=".csv,.xlsx,.xls,.txt"
+                                        onchange="onSeedlingImportFileSelected(this)">
+                                    <button class="btn btn-warning" type="button"
+                                            onclick="submitSeedlingImport()"
+                                            id="seedlingImportSubmitBtn" disabled
+                                            data-import-url="{{ route('admin.seedlings.import') }}">
+                                        <i class="fas fa-upload me-1"></i>Import
+                                    </button>
+                                </div>
+                                <div class="form-text">Accepted: CSV (.csv) or Excel (.xlsx / .xls) — Max 10 MB</div>
+                                <div id="seedlingImportFileError" class="text-danger small mt-1" style="display:none;"></div>
+
+                                <div id="seedlingImportProgressWrap" class="mt-3" style="display:none;">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                                            id="seedlingImportProgressBar" role="progressbar" style="width:0%"></div>
+                                    </div>
+                                    <small class="text-muted mt-1 d-block text-center" id="seedlingImportProgressLabel">
+                                        Uploading…
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Results -->
+                    <div id="seedlingImportPanel2" style="display:none;">
+                        <div class="row g-3 mb-4" id="seedlingImportSummaryCards"></div>
+
+                        <div id="seedlingImportErrorSection" style="display:none;">
+                            <h6 class="text-danger fw-semibold mb-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Rows with Errors
+                                <small class="text-muted fw-normal">(these were skipped)</small>
+                            </h6>
+                            <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-danger sticky-top">
+                                        <tr>
+                                            <th style="width:60px;">Row</th>
+                                            <th>Name</th>
+                                            <th>Issues</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="seedlingImportErrorTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="seedlingImportCancelBtn">
+                        <i></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" id="seedlingImportDoneBtn"
+                            style="display:none;" onclick="finishSeedlingImport()">
+                        <i class="fas fa-check me-1"></i>Done – Reload Page
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -5943,5 +6108,207 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Bootstrap not loaded!');
     }
 });
+
+// =============================================
+// BULK IMPORT FOR SEEDLINGS
+// =============================================
+
+function showSeedlingImportModal() {
+    resetSeedlingImportModal();
+    new bootstrap.Modal(document.getElementById('importSeedlingModal')).show();
+}
+
+function resetSeedlingImportModal() {
+    document.getElementById('seedlingImportPanel1').style.display    = 'block';
+    document.getElementById('seedlingImportPanel2').style.display    = 'none';
+    document.getElementById('seedlingImportSubmitBtn').disabled      = true;
+    document.getElementById('seedlingImportCancelBtn').style.display = 'inline-block';
+    document.getElementById('seedlingImportDoneBtn').style.display   = 'none';
+    document.getElementById('seedling_import_file_input').value      = '';
+    document.getElementById('seedlingImportProgressWrap').style.display = 'none';
+    document.getElementById('seedlingImportProgressBar').style.width    = '0%';
+    document.getElementById('seedlingImportProgressLabel').textContent  = 'Uploading…';
+    document.getElementById('seedlingImportFileError').style.display    = 'none';
+    document.getElementById('seedlingImportFileError').textContent      = '';
+    setSeedlingImportStep(1);
+}
+
+function setSeedlingImportStep(step) {
+    const badges = [
+        document.querySelector('#seedlingImportStep1Indicator .badge'),
+        document.querySelector('#seedlingImportStep2Indicator .badge'),
+        document.querySelector('#seedlingImportStep3Indicator .badge'),
+    ];
+    const labels = [
+        document.querySelector('#seedlingImportStep1Indicator small'),
+        document.querySelector('#seedlingImportStep2Indicator small'),
+        document.querySelector('#seedlingImportStep3Indicator small'),
+    ];
+    badges.forEach((b, i) => {
+        const active = i < step;
+        b.classList.toggle('bg-warning', active);
+        b.classList.toggle('text-dark', active);
+        b.classList.toggle('bg-secondary', !active);
+    });
+    labels.forEach((l, i) => {
+        l.classList.toggle('text-muted', i >= step);
+        l.classList.toggle('fw-semibold', i < step);
+    });
+}
+
+function onSeedlingImportFileSelected(input) {
+    const errEl = document.getElementById('seedlingImportFileError');
+    const btn   = document.getElementById('seedlingImportSubmitBtn');
+
+    errEl.style.display = 'none';
+    errEl.textContent   = '';
+    btn.disabled        = true;
+
+    if (!input.files || !input.files[0]) return;
+
+    const file    = input.files[0];
+    const ext     = file.name.split('.').pop().toLowerCase();
+    const allowed = ['csv', 'xlsx', 'xls', 'txt'];
+
+    if (!allowed.includes(ext)) {
+        errEl.textContent   = 'Invalid file type. Please upload a CSV or Excel file.';
+        errEl.style.display = 'block';
+        input.value = '';
+        return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+        errEl.textContent   = 'File is too large. Maximum size is 10 MB.';
+        errEl.style.display = 'block';
+        input.value = '';
+        return;
+    }
+
+    btn.disabled = false;
+    setSeedlingImportStep(2);
+}
+
+function submitSeedlingImport() {
+    const fileInput = document.getElementById('seedling_import_file_input');
+    if (!fileInput.files || !fileInput.files[0]) {
+        showToast('error', 'Please select a file first.');
+        return;
+    }
+
+    const submitBtn     = document.getElementById('seedlingImportSubmitBtn');
+    const progressWrap  = document.getElementById('seedlingImportProgressWrap');
+    const progressBar   = document.getElementById('seedlingImportProgressBar');
+    const progressLbl   = document.getElementById('seedlingImportProgressLabel');
+
+    submitBtn.disabled                                              = true;
+    document.getElementById('seedling_import_file_input').disabled = true;
+    progressWrap.style.display                                      = 'block';
+
+    let fakeProgress = 0;
+    const progressInterval = setInterval(() => {
+        fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
+        progressBar.style.width = fakeProgress + '%';
+    }, 200);
+
+    const formData = new FormData();
+    formData.append('import_file', fileInput.files[0]);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+    const importUrl = submitBtn.dataset.importUrl;
+
+    fetch(importUrl, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        clearInterval(progressInterval);
+        progressBar.style.width    = '100%';
+        progressLbl.textContent    = 'Processing complete!';
+        setTimeout(() => {
+            progressWrap.style.display = 'none';
+            showSeedlingImportResults(data);
+        }, 400);
+    })
+    .catch(err => {
+        clearInterval(progressInterval);
+        progressWrap.style.display                                      = 'none';
+        submitBtn.disabled                                              = false;
+        document.getElementById('seedling_import_file_input').disabled = false;
+        showToast('error', 'Upload failed: ' + err.message);
+        console.error('Seedling import error:', err);
+    });
+}
+
+function showSeedlingImportResults(data) {
+    document.getElementById('seedlingImportPanel1').style.display    = 'none';
+    document.getElementById('seedlingImportPanel2').style.display    = 'block';
+    document.getElementById('seedlingImportCancelBtn').style.display = 'none';
+    document.getElementById('seedlingImportDoneBtn').style.display   = 'inline-block';
+
+    setSeedlingImportStep(3);
+
+    const cardsEl = document.getElementById('seedlingImportSummaryCards');
+
+    if (data.success || (data.imported ?? 0) > 0) {
+        cardsEl.innerHTML = `
+            <div class="col-6">
+                <div class="card border-success text-center">
+                    <div class="card-body py-3">
+                        <div style="font-size:2rem; font-weight:700; color:#198754;">${data.imported ?? 0}</div>
+                        <small class="text-success fw-semibold">Successfully Imported</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card border-${(data.skipped ?? 0) > 0 ? 'warning' : 'secondary'} text-center">
+                    <div class="card-body py-3">
+                        <div style="font-size:2rem; font-weight:700; color:${(data.skipped ?? 0) > 0 ? '#ffc107' : '#6c757d'};">${data.skipped ?? 0}</div>
+                        <small class="fw-semibold" style="color:${(data.skipped ?? 0) > 0 ? '#ffc107' : '#6c757d'};">Skipped (Errors)</small>
+                    </div>
+                </div>
+            </div>`;
+    } else {
+        cardsEl.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger mb-0">
+                    <i class="fas fa-times-circle me-2"></i>
+                    <strong>Import failed:</strong> ${data.message ?? 'Unknown error'}
+                </div>
+            </div>`;
+    }
+
+    // Error rows table
+    const errorSection = document.getElementById('seedlingImportErrorSection');
+    const errorBody    = document.getElementById('seedlingImportErrorTableBody');
+
+    if (data.errors && data.errors.length > 0) {
+        errorSection.style.display = 'block';
+        errorBody.innerHTML = data.errors.map(e => {
+            const name = [e.data?.first_name, e.data?.last_name].filter(Boolean).join(' ') || '(unknown)';
+            const msgs = Object.values(e.errors || {}).join(' · ');
+            return `<tr>
+                <td class="text-center fw-bold">${e.row}</td>
+                <td>${name}</td>
+                <td><small class="text-danger">${msgs}</small></td>
+            </tr>`;
+        }).join('');
+    } else {
+        errorSection.style.display = 'none';
+    }
+
+    if ((data.imported ?? 0) > 0) {
+        showToast('success', data.message);
+    } else {
+        showToast('error', data.message);
+    }
+}
+
+function finishSeedlingImport() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('importSeedlingModal'));
+    if (modal) modal.hide();
+    window.location.reload();
+}
     </script>
 @endsection

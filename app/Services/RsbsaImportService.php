@@ -2,35 +2,31 @@
 
 namespace App\Services;
 
-use App\Models\TrainingApplication;
+use App\Models\RsbsaApplication;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class TrainingImportService
+class RsbsaImportService
 {
     /**
-     * Valid training types mapped from human-readable labels
+     * Valid main livelihoods (case-insensitive mapping)
      */
-    const TRAINING_TYPE_MAP = [
-        'tilapia and hito'        => 'tilapia_hito',
-        'tilapia_hito'            => 'tilapia_hito',
-        'tilapia'                 => 'tilapia_hito',
-        'hydroponics'             => 'hydroponics',
-        'aquaponics'              => 'aquaponics',
-        'mushrooms production'    => 'mushrooms',
-        'mushrooms'               => 'mushrooms',
-        'livestock and poultry'   => 'livestock_poultry',
-        'livestock_poultry'       => 'livestock_poultry',
-        'livestock'               => 'livestock_poultry',
-        'high value crops'        => 'high_value_crops',
-        'high_value_crops'        => 'high_value_crops',
-        'sampaguita propagation'  => 'sampaguita_propagation',
-        'sampaguita_propagation'  => 'sampaguita_propagation',
-        'sampaguita'              => 'sampaguita_propagation',
+    const LIVELIHOOD_MAP = [
+        'farmer'              => 'Farmer',
+        'farmworker'          => 'Farmworker/Laborer',
+        'farmworker/laborer'  => 'Farmworker/Laborer',
+        'farmworker laborer'  => 'Farmworker/Laborer',
+        'laborer'             => 'Farmworker/Laborer',
+        'fisherfolk'          => 'Fisherfolk',
+        'fisher'              => 'Fisherfolk',
+        'agri-youth'          => 'Agri-youth',
+        'agri youth'          => 'Agri-youth',
+        'agriyouth'           => 'Agri-youth',
+        'youth'               => 'Agri-youth',
     ];
 
     /**
-     * Valid statuses mapped from human-readable labels
+     * Valid statuses
      */
     const STATUS_MAP = [
         'pending'      => 'pending',
@@ -53,22 +49,26 @@ class TrainingImportService
     ];
 
     /**
-     * Expected CSV column headers (case-insensitive)
+     * Valid sex values
      */
-    const REQUIRED_HEADERS = [
-        'first_name', 'last_name', 'contact_number', 'barangay', 'training_type'
+    const SEX_MAP = [
+        'male'                 => 'Male',
+        'female'               => 'Female',
+        'preferred not to say' => 'Preferred not to say',
+        'n/a'                  => 'Preferred not to say',
+        'other'                => 'Preferred not to say',
     ];
 
     /**
-     * Process uploaded import file (CSV or Excel via CSV export)
-     *
-     * @param  string  $filePath  Absolute path to the uploaded file
-     * @return array{
-     *   imported: int,
-     *   skipped: int,
-     *   errors: array,
-     *   rows: array
-     * }
+     * Required CSV column headers
+     */
+    const REQUIRED_HEADERS = [
+        'first_name', 'last_name', 'sex', 'contact_number',
+        'barangay', 'address', 'main_livelihood',
+    ];
+
+    /**
+     * Process uploaded import file (CSV or Excel)
      */
     public function import(string $filePath, string $extension = ''): array
     {
@@ -85,9 +85,10 @@ class TrainingImportService
         return $this->processRows($rows);
     }
 
-    /**
-     * Parse CSV file into an array of associative rows
-     */
+    // ----------------------------------------------------------------
+    // Parsing helpers
+    // ----------------------------------------------------------------
+
     private function parseCsv(string $filePath): array
     {
         $handle = fopen($filePath, 'r');
@@ -99,18 +100,15 @@ class TrainingImportService
         $headers = null;
 
         while (($line = fgetcsv($handle, 0, ',')) !== false) {
-            // Skip completely empty lines
             if (count(array_filter($line, fn($v) => trim($v) !== '')) === 0) {
                 continue;
             }
 
             if ($headers === null) {
-                // First non-empty line = headers; normalise to snake_case lowercase
                 $headers = array_map(fn($h) => $this->normaliseHeader($h), $line);
                 continue;
             }
 
-            // Pad short lines to match header count
             while (count($line) < count($headers)) {
                 $line[] = '';
             }
@@ -122,9 +120,6 @@ class TrainingImportService
         return $rows;
     }
 
-    /**
-     * Parse Excel file using PhpSpreadsheet (if available) or fall back to CSV conversion
-     */
     private function parseExcel(string $filePath): array
     {
         if (!class_exists('\PhpOffice\PhpSpreadsheet\IOFactory')) {
@@ -142,40 +137,35 @@ class TrainingImportService
             return [];
         }
 
-        $headers = array_map(fn($h) => $this->normaliseHeader((string)$h), array_shift($data));
+        $headers = array_map(fn($h) => $this->normaliseHeader((string) $h), array_shift($data));
         $rows    = [];
 
         foreach ($data as $line) {
-            if (count(array_filter($line, fn($v) => trim((string)$v) !== '')) === 0) {
+            if (count(array_filter($line, fn($v) => trim((string) $v) !== '')) === 0) {
                 continue;
             }
-
             while (count($line) < count($headers)) {
                 $line[] = '';
             }
-
             $rows[] = array_combine($headers, array_slice($line, 0, count($headers)));
         }
 
         return $rows;
     }
 
-    /**
-     * Normalise a header string to snake_case lowercase
-     */
     private function normaliseHeader(string $header): string
     {
-        // Strip BOM, trim whitespace, lower-case, replace spaces/dashes with underscore
-        $header = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header); // strip non-printable
+        $header = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header);
         $header = trim($header);
         $header = strtolower($header);
         $header = preg_replace('/[\s\-]+/', '_', $header);
         return $header;
     }
 
-    /**
-     * Validate headers; throws if required columns are missing
-     */
+    // ----------------------------------------------------------------
+    // Validation helpers
+    // ----------------------------------------------------------------
+
     private function validateHeaders(array $headers): void
     {
         $missing = array_diff(self::REQUIRED_HEADERS, $headers);
@@ -187,16 +177,12 @@ class TrainingImportService
         }
     }
 
-    /**
-     * Validate and import all rows
-     */
     private function processRows(array $rows): array
     {
         if (empty($rows)) {
             throw new \InvalidArgumentException('The file is empty or contains no data rows.');
         }
 
-        // Validate headers using the first row's keys
         $this->validateHeaders(array_keys($rows[0]));
 
         $imported = 0;
@@ -204,7 +190,7 @@ class TrainingImportService
         $errors   = [];
 
         foreach ($rows as $index => $row) {
-            $rowNumber = $index + 2; // +2 because row 1 is headers, arrays are 0-indexed
+            $rowNumber = $index + 2;
             $rowErrors = $this->validateRow($row, $rowNumber);
 
             if (!empty($rowErrors)) {
@@ -228,7 +214,7 @@ class TrainingImportService
                     'errors' => ['system' => 'Failed to save: ' . $e->getMessage()],
                 ];
 
-                Log::error('Training import row failed', [
+                Log::error('RSBSA import row failed', [
                     'row'   => $rowNumber,
                     'error' => $e->getMessage(),
                 ]);
@@ -238,9 +224,6 @@ class TrainingImportService
         return compact('imported', 'skipped', 'errors');
     }
 
-    /**
-     * Validate a single row; returns array of field => message errors
-     */
     private function validateRow(array $row, int $rowNumber): array
     {
         $errors = [];
@@ -259,6 +242,14 @@ class TrainingImportService
             $errors['last_name'] = 'Last name is required.';
         } elseif (!preg_match("/^[a-zA-Z\s\-']+$/", $lastName)) {
             $errors['last_name'] = 'Last name contains invalid characters.';
+        }
+
+        // Sex
+        $sexRaw = strtolower(trim($row['sex'] ?? ''));
+        if ($sexRaw === '') {
+            $errors['sex'] = 'Sex is required.';
+        } elseif (!isset(self::SEX_MAP[$sexRaw])) {
+            $errors['sex'] = "Invalid sex value: \"{$row['sex']}\". Use Male, Female, or Preferred not to say.";
         }
 
         // Contact number
@@ -281,30 +272,35 @@ class TrainingImportService
             }
         }
 
-        // Training type
-        $typeRaw = strtolower(trim($row['training_type'] ?? ''));
-        if ($typeRaw === '') {
-            $errors['training_type'] = 'Training type is required.';
-        } elseif (!isset(self::TRAINING_TYPE_MAP[$typeRaw])) {
-            $errors['training_type'] = "Unrecognised training type: \"{$row['training_type']}\".";
+        // Address
+        $address = trim($row['address'] ?? '');
+        if ($address === '') {
+            $errors['address'] = 'Address is required.';
+        }
+
+        // Main livelihood
+        $livelihoodRaw = strtolower(trim($row['main_livelihood'] ?? ''));
+        if ($livelihoodRaw === '') {
+            $errors['main_livelihood'] = 'Main livelihood is required.';
+        } elseif (!isset(self::LIVELIHOOD_MAP[$livelihoodRaw])) {
+            $errors['main_livelihood'] = "Unrecognised livelihood: \"{$row['main_livelihood']}\".";
         }
 
         return $errors;
     }
 
-    /**
-     * Create a TrainingApplication from a validated row
-     */
-    private function createApplication(array $row): TrainingApplication
+    // ----------------------------------------------------------------
+    // Record creation
+    // ----------------------------------------------------------------
+
+    private function createApplication(array $row): RsbsaApplication
     {
-        // Resolve training type
-        $trainingType = self::TRAINING_TYPE_MAP[strtolower(trim($row['training_type']))];
+        $livelihood = self::LIVELIHOOD_MAP[strtolower(trim($row['main_livelihood']))];
+        $sex        = self::SEX_MAP[strtolower(trim($row['sex']))];
+        $statusRaw  = strtolower(trim($row['status'] ?? ''));
+        $status     = self::STATUS_MAP[$statusRaw] ?? 'pending';
 
-        // Resolve status (default: pending)
-        $statusRaw = strtolower(trim($row['status'] ?? ''));
-        $status    = self::STATUS_MAP[$statusRaw] ?? 'pending';
-
-        // Resolve barangay (use properly-cased version from our list)
+        // Resolve properly-cased barangay
         $barangayInput = trim($row['barangay']);
         $barangay = collect(self::VALID_BARANGAYS)
             ->first(fn($b) => strcasecmp($b, $barangayInput) === 0, $barangayInput);
@@ -312,36 +308,61 @@ class TrainingImportService
         // Sanitise contact number
         $contact = preg_replace('/\D/', '', trim($row['contact_number']));
 
-        return TrainingApplication::create([
-            'application_number' => $this->generateApplicationNumber(),
-            'first_name'         => $this->capitaliseName(trim($row['first_name'])),
-            'middle_name'        => $this->capitaliseName(trim($row['middle_name'] ?? '')),
-            'last_name'          => $this->capitaliseName(trim($row['last_name'])),
-            'name_extension'     => trim($row['name_extension'] ?? '') ?: null,
-            'contact_number'     => $contact,
-            'barangay'           => $barangay,
-            'training_type'      => $trainingType,
-            'status'             => $status,
-            'remarks'            => trim($row['remarks'] ?? '') ?: null,
-            'document_path'      => null,
-        ]);
+        $data = [
+            'application_number'       => $this->generateApplicationNumber(),
+            'first_name'               => $this->capitaliseName(trim($row['first_name'])),
+            'middle_name'              => $this->capitaliseName(trim($row['middle_name'] ?? '')),
+            'last_name'                => $this->capitaliseName(trim($row['last_name'])),
+            'name_extension'           => trim($row['name_extension'] ?? '') ?: null,
+            'sex'                      => $sex,
+            'contact_number'           => $contact,
+            'barangay'                 => $barangay,
+            'address'                  => trim($row['address']),
+            'main_livelihood'          => $livelihood,
+            'commodity'                => trim($row['commodity'] ?? '') ?: null,
+            'status'                   => $status,
+            'supporting_document_path' => null,
+        ];
+
+        // Farmer-specific fields
+        if ($livelihood === 'Farmer') {
+            $data['farmer_crops']         = trim($row['farmer_crops'] ?? '') ?: null;
+            $data['farmer_land_area']     = is_numeric($row['farmer_land_area'] ?? '') ? (float) $row['farmer_land_area'] : null;
+            $data['farmer_type_of_farm']  = trim($row['farmer_type_of_farm'] ?? '') ?: null;
+            $data['farmer_land_ownership']= trim($row['farmer_land_ownership'] ?? '') ?: null;
+            $data['farmer_special_status']= trim($row['farmer_special_status'] ?? '') ?: null;
+            $data['farm_location']        = trim($row['farm_location'] ?? '') ?: null;
+        }
+
+        // Farmworker-specific fields
+        if ($livelihood === 'Farmworker/Laborer') {
+            $data['farmworker_type'] = trim($row['farmworker_type'] ?? '') ?: null;
+        }
+
+        // Fisherfolk-specific fields
+        if ($livelihood === 'Fisherfolk') {
+            $data['fisherfolk_activity'] = trim($row['fisherfolk_activity'] ?? '') ?: null;
+        }
+
+        // Agri-youth-specific fields
+        if ($livelihood === 'Agri-youth') {
+            $data['agriyouth_farming_household'] = trim($row['agriyouth_farming_household'] ?? '') ?: null;
+            $data['agriyouth_training']          = trim($row['agriyouth_training'] ?? '') ?: null;
+            $data['agriyouth_participation']     = trim($row['agriyouth_participation'] ?? '') ?: null;
+        }
+
+        return RsbsaApplication::create($data);
     }
 
-    /**
-     * Generate a unique application number
-     */
     private function generateApplicationNumber(): string
     {
         do {
-            $number = 'TRAIN-' . strtoupper(Str::random(8));
-        } while (TrainingApplication::where('application_number', $number)->exists());
+            $number = 'RSBSA-' . strtoupper(Str::random(8));
+        } while (RsbsaApplication::where('application_number', $number)->exists());
 
         return $number;
     }
 
-    /**
-     * Title-case a name string
-     */
     private function capitaliseName(string $name): string
     {
         if ($name === '') {

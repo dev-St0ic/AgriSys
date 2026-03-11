@@ -2,42 +2,25 @@
 
 namespace App\Services;
 
-use App\Models\TrainingApplication;
+use App\Models\SeedlingRequest;
+use App\Models\Category;
+use App\Models\CategoryItem;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class TrainingImportService
+class SeedlingImportService
 {
     /**
-     * Valid training types mapped from human-readable labels
-     */
-    const TRAINING_TYPE_MAP = [
-        'tilapia and hito'        => 'tilapia_hito',
-        'tilapia_hito'            => 'tilapia_hito',
-        'tilapia'                 => 'tilapia_hito',
-        'hydroponics'             => 'hydroponics',
-        'aquaponics'              => 'aquaponics',
-        'mushrooms production'    => 'mushrooms',
-        'mushrooms'               => 'mushrooms',
-        'livestock and poultry'   => 'livestock_poultry',
-        'livestock_poultry'       => 'livestock_poultry',
-        'livestock'               => 'livestock_poultry',
-        'high value crops'        => 'high_value_crops',
-        'high_value_crops'        => 'high_value_crops',
-        'sampaguita propagation'  => 'sampaguita_propagation',
-        'sampaguita_propagation'  => 'sampaguita_propagation',
-        'sampaguita'              => 'sampaguita_propagation',
-    ];
-
-    /**
-     * Valid statuses mapped from human-readable labels
+     * Valid statuses
      */
     const STATUS_MAP = [
-        'pending'      => 'pending',
-        'under review' => 'under_review',
-        'under_review' => 'under_review',
-        'approved'     => 'approved',
-        'rejected'     => 'rejected',
+        'pending'            => 'pending',
+        'under review'       => 'under_review',
+        'under_review'       => 'under_review',
+        'approved'           => 'approved',
+        'partially approved' => 'partially_approved',
+        'partially_approved' => 'partially_approved',
+        'rejected'           => 'rejected',
     ];
 
     /**
@@ -53,22 +36,15 @@ class TrainingImportService
     ];
 
     /**
-     * Expected CSV column headers (case-insensitive)
+     * Required CSV column headers
      */
     const REQUIRED_HEADERS = [
-        'first_name', 'last_name', 'contact_number', 'barangay', 'training_type'
+        'first_name', 'last_name', 'contact_number', 'barangay',
+        'item_name', 'quantity',
     ];
 
     /**
-     * Process uploaded import file (CSV or Excel via CSV export)
-     *
-     * @param  string  $filePath  Absolute path to the uploaded file
-     * @return array{
-     *   imported: int,
-     *   skipped: int,
-     *   errors: array,
-     *   rows: array
-     * }
+     * Process uploaded import file (CSV or Excel)
      */
     public function import(string $filePath, string $extension = ''): array
     {
@@ -85,9 +61,6 @@ class TrainingImportService
         return $this->processRows($rows);
     }
 
-    /**
-     * Parse CSV file into an array of associative rows
-     */
     private function parseCsv(string $filePath): array
     {
         $handle = fopen($filePath, 'r');
@@ -99,18 +72,15 @@ class TrainingImportService
         $headers = null;
 
         while (($line = fgetcsv($handle, 0, ',')) !== false) {
-            // Skip completely empty lines
             if (count(array_filter($line, fn($v) => trim($v) !== '')) === 0) {
                 continue;
             }
 
             if ($headers === null) {
-                // First non-empty line = headers; normalise to snake_case lowercase
                 $headers = array_map(fn($h) => $this->normaliseHeader($h), $line);
                 continue;
             }
 
-            // Pad short lines to match header count
             while (count($line) < count($headers)) {
                 $line[] = '';
             }
@@ -122,15 +92,11 @@ class TrainingImportService
         return $rows;
     }
 
-    /**
-     * Parse Excel file using PhpSpreadsheet (if available) or fall back to CSV conversion
-     */
     private function parseExcel(string $filePath): array
     {
         if (!class_exists('\PhpOffice\PhpSpreadsheet\IOFactory')) {
             throw new \RuntimeException(
-                'PhpSpreadsheet is not installed. Please use a CSV file instead, ' .
-                'or run: composer require phpoffice/phpspreadsheet'
+                'PhpSpreadsheet is not installed. Please use a CSV file instead.'
             );
         }
 
@@ -138,44 +104,29 @@ class TrainingImportService
         $sheet       = $spreadsheet->getActiveSheet();
         $data        = $sheet->toArray(null, true, true, false);
 
-        if (empty($data)) {
-            return [];
-        }
+        if (empty($data)) return [];
 
         $headers = array_map(fn($h) => $this->normaliseHeader((string)$h), array_shift($data));
         $rows    = [];
 
         foreach ($data as $line) {
-            if (count(array_filter($line, fn($v) => trim((string)$v) !== '')) === 0) {
-                continue;
-            }
-
-            while (count($line) < count($headers)) {
-                $line[] = '';
-            }
-
+            if (count(array_filter($line, fn($v) => trim((string)$v) !== '')) === 0) continue;
+            while (count($line) < count($headers)) $line[] = '';
             $rows[] = array_combine($headers, array_slice($line, 0, count($headers)));
         }
 
         return $rows;
     }
 
-    /**
-     * Normalise a header string to snake_case lowercase
-     */
     private function normaliseHeader(string $header): string
     {
-        // Strip BOM, trim whitespace, lower-case, replace spaces/dashes with underscore
-        $header = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header); // strip non-printable
+        $header = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header);
         $header = trim($header);
         $header = strtolower($header);
         $header = preg_replace('/[\s\-]+/', '_', $header);
         return $header;
     }
 
-    /**
-     * Validate headers; throws if required columns are missing
-     */
     private function validateHeaders(array $headers): void
     {
         $missing = array_diff(self::REQUIRED_HEADERS, $headers);
@@ -187,48 +138,50 @@ class TrainingImportService
         }
     }
 
-    /**
-     * Validate and import all rows
-     */
     private function processRows(array $rows): array
     {
         if (empty($rows)) {
             throw new \InvalidArgumentException('The file is empty or contains no data rows.');
         }
 
-        // Validate headers using the first row's keys
         $this->validateHeaders(array_keys($rows[0]));
 
         $imported = 0;
         $skipped  = 0;
         $errors   = [];
 
-        foreach ($rows as $index => $row) {
-            $rowNumber = $index + 2; // +2 because row 1 is headers, arrays are 0-indexed
-            $rowErrors = $this->validateRow($row, $rowNumber);
+        // Group rows by person (same first+last+contact = same request)
+        $grouped = $this->groupRowsByPerson($rows);
+
+        foreach ($grouped as $index => $group) {
+            $rowNumber = $group['row_number'];
+            $personRow = $group['person'];
+            $items     = $group['items'];
+
+            $rowErrors = $this->validatePersonRow($personRow, $rowNumber);
 
             if (!empty($rowErrors)) {
                 $skipped++;
                 $errors[] = [
                     'row'    => $rowNumber,
-                    'data'   => $row,
+                    'data'   => $personRow,
                     'errors' => $rowErrors,
                 ];
                 continue;
             }
 
             try {
-                $this->createApplication($row);
+                $this->createRequest($personRow, $items);
                 $imported++;
             } catch (\Exception $e) {
                 $skipped++;
                 $errors[] = [
                     'row'    => $rowNumber,
-                    'data'   => $row,
+                    'data'   => $personRow,
                     'errors' => ['system' => 'Failed to save: ' . $e->getMessage()],
                 ];
 
-                Log::error('Training import row failed', [
+                Log::error('Seedling import row failed', [
                     'row'   => $rowNumber,
                     'error' => $e->getMessage(),
                 ]);
@@ -239,9 +192,44 @@ class TrainingImportService
     }
 
     /**
-     * Validate a single row; returns array of field => message errors
+     * Group multiple item rows belonging to the same person into one request.
+     * A person is identified by: first_name + last_name + contact_number.
+     * If each row has a unique person, each row becomes its own request.
      */
-    private function validateRow(array $row, int $rowNumber): array
+    private function groupRowsByPerson(array $rows): array
+    {
+        $groups = [];
+        $keyMap = []; // key => index in $groups
+
+        foreach ($rows as $index => $row) {
+            $key = strtolower(trim($row['first_name'] ?? '')) . '|' .
+                   strtolower(trim($row['last_name']  ?? '')) . '|' .
+                   preg_replace('/\D/', '', trim($row['contact_number'] ?? ''));
+
+            $itemName = trim($row['item_name'] ?? '');
+            $quantity = trim($row['quantity']  ?? '');
+
+            if (!isset($keyMap[$key])) {
+                $keyMap[$key]  = count($groups);
+                $groups[]      = [
+                    'row_number' => $index + 2,
+                    'person'     => $row,
+                    'items'      => [],
+                ];
+            }
+
+            if ($itemName !== '') {
+                $groups[$keyMap[$key]]['items'][] = [
+                    'item_name' => $itemName,
+                    'quantity'  => $quantity,
+                ];
+            }
+        }
+
+        return $groups;
+    }
+
+    private function validatePersonRow(array $row, int $rowNumber): array
     {
         $errors = [];
 
@@ -281,72 +269,104 @@ class TrainingImportService
             }
         }
 
-        // Training type
-        $typeRaw = strtolower(trim($row['training_type'] ?? ''));
-        if ($typeRaw === '') {
-            $errors['training_type'] = 'Training type is required.';
-        } elseif (!isset(self::TRAINING_TYPE_MAP[$typeRaw])) {
-            $errors['training_type'] = "Unrecognised training type: \"{$row['training_type']}\".";
+        // Item name
+        $itemName = trim($row['item_name'] ?? '');
+        if ($itemName === '') {
+            $errors['item_name'] = 'Item name is required.';
+        }
+
+        // Quantity
+        $quantity = trim($row['quantity'] ?? '');
+        if ($quantity === '') {
+            $errors['quantity'] = 'Quantity is required.';
+        } elseif (!is_numeric($quantity) || (int)$quantity < 1) {
+            $errors['quantity'] = 'Quantity must be a positive number.';
         }
 
         return $errors;
     }
 
     /**
-     * Create a TrainingApplication from a validated row
+     * Create a SeedlingRequest with its items from validated row data
      */
-    private function createApplication(array $row): TrainingApplication
+    private function createRequest(array $row, array $itemsData): \App\Models\SeedlingRequest
     {
-        // Resolve training type
-        $trainingType = self::TRAINING_TYPE_MAP[strtolower(trim($row['training_type']))];
-
-        // Resolve status (default: pending)
+        // Resolve status
         $statusRaw = strtolower(trim($row['status'] ?? ''));
         $status    = self::STATUS_MAP[$statusRaw] ?? 'pending';
 
-        // Resolve barangay (use properly-cased version from our list)
+        // Resolve barangay
         $barangayInput = trim($row['barangay']);
         $barangay = collect(self::VALID_BARANGAYS)
             ->first(fn($b) => strcasecmp($b, $barangayInput) === 0, $barangayInput);
 
-        // Sanitise contact number
+        // Sanitise contact
         $contact = preg_replace('/\D/', '', trim($row['contact_number']));
 
-        return TrainingApplication::create([
-            'application_number' => $this->generateApplicationNumber(),
-            'first_name'         => $this->capitaliseName(trim($row['first_name'])),
-            'middle_name'        => $this->capitaliseName(trim($row['middle_name'] ?? '')),
-            'last_name'          => $this->capitaliseName(trim($row['last_name'])),
-            'name_extension'     => trim($row['name_extension'] ?? '') ?: null,
-            'contact_number'     => $contact,
-            'barangay'           => $barangay,
-            'training_type'      => $trainingType,
-            'status'             => $status,
-            'remarks'            => trim($row['remarks'] ?? '') ?: null,
-            'document_path'      => null,
+        // Resolve pickup date
+        $pickupDate = null;
+        if (!empty(trim($row['pickup_date'] ?? ''))) {
+            try {
+                $pickupDate = \Carbon\Carbon::parse(trim($row['pickup_date']))->format('Y-m-d');
+            } catch (\Exception $e) {
+                $pickupDate = null;
+            }
+        }
+
+        // Create the seedling request
+        $request = \App\Models\SeedlingRequest::create([
+            'request_number' => $this->generateRequestNumber(),
+            'first_name'     => $this->capitaliseName(trim($row['first_name'])),
+            'middle_name'    => $this->capitaliseName(trim($row['middle_name'] ?? '')),
+            'last_name'      => $this->capitaliseName(trim($row['last_name'])),
+            'extension_name' => trim($row['extension_name'] ?? '') ?: null,
+            'contact_number' => $contact,
+            'barangay'       => $barangay,
+            'status'         => $status,
+            'remarks'        => trim($row['remarks'] ?? '') ?: null,
+            'pickup_date'    => $pickupDate,
+            'document_path'  => null,
         ]);
+
+        // Create items — try to match each item to a CategoryItem
+        foreach ($itemsData as $itemData) {
+            $itemName = trim($itemData['item_name']);
+            $quantity = (int) $itemData['quantity'];
+
+            // Try to find matching CategoryItem by name (case-insensitive)
+            $categoryItem = CategoryItem::whereRaw('LOWER(name) = ?', [strtolower($itemName)])->first();
+
+            $request->items()->create([
+                'category_item_id' => $categoryItem?->id,
+                'category_id'      => $categoryItem?->category_id,
+                'item_name'        => $categoryItem ? $categoryItem->name : $itemName,
+                'category_name'    => $categoryItem?->category?->display_name,
+                'category_icon'    => $categoryItem?->category?->icon,
+                'requested_quantity' => $quantity,
+                'status'           => 'pending',
+            ]);
+        }
+
+        // Update total_quantity on the request
+        $request->update([
+            'total_quantity' => $request->items()->sum('requested_quantity'),
+        ]);
+
+        return $request;
     }
 
-    /**
-     * Generate a unique application number
-     */
-    private function generateApplicationNumber(): string
+    private function generateRequestNumber(): string
     {
         do {
-            $number = 'TRAIN-' . strtoupper(Str::random(8));
-        } while (TrainingApplication::where('application_number', $number)->exists());
+            $number = 'REQ-' . strtoupper(Str::random(8));
+        } while (\App\Models\SeedlingRequest::where('request_number', $number)->exists());
 
         return $number;
     }
 
-    /**
-     * Title-case a name string
-     */
     private function capitaliseName(string $name): string
     {
-        if ($name === '') {
-            return '';
-        }
+        if ($name === '') return '';
 
         return implode(' ', array_map(
             fn($word) => mb_strtoupper(mb_substr($word, 0, 1)) . mb_strtolower(mb_substr($word, 1)),

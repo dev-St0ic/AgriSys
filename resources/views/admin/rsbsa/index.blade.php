@@ -235,6 +235,9 @@
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddRsbsaModal()">
                     <i class="fas fa-user-plus me-2"></i>Add Registration
                 </button>
+                <button type="button" class="btn btn-warning btn-sm" onclick="showRsbsaImportModal()">
+                    <i class="fas fa-file-upload me-2"></i>Bulk Import
+                </button>
                 <a href="{{ route('admin.rsbsa.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
@@ -1063,6 +1066,178 @@
         </div>
     </div>
 
+    {{-- FILE UPLOAD IMPORT BULK MODAL --}}
+    <div class="modal fade" id="importRsbsaModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Header -->
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title w-100 text-center fw-bold">
+                        <i class="fas fa-file-upload me-2"></i>Bulk Import RSBSA Registrations
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Step indicator -->
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="d-flex align-items-center gap-2" id="rsbsaImportStep1Indicator">
+                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">1</span>
+                            <small class="fw-semibold">Download Template</small>
+                        </div>
+                        <div class="mx-3 text-muted align-self-center">→</div>
+                        <div class="d-flex align-items-center gap-2" id="rsbsaImportStep2Indicator">
+                            <span class="badge rounded-pill bg-secondary px-3 py-2 fw-bold">2</span>
+                            <small class="fw-semibold text-muted">Fill &amp; Upload</small>
+                        </div>
+                        <div class="mx-3 text-muted align-self-center">→</div>
+                        <div class="d-flex align-items-center gap-2" id="rsbsaImportStep3Indicator">
+                            <span class="badge rounded-pill bg-secondary px-3 py-2 fw-bold">3</span>
+                            <small class="fw-semibold text-muted">Review Results</small>
+                        </div>
+                    </div>
+
+                    <!-- Panel 1: Instructions + template download -->
+                    <div id="rsbsaImportPanel1">
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body">
+                                <h6 class="text-primary fw-semibold mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>How to use bulk import
+                                </h6>
+                                <ol class="mb-0 ps-3">
+                                    <li class="mb-2">Click <strong>Download Template</strong> below to get a pre-formatted CSV file.</li>
+                                    <li class="mb-2">Open the file in Excel, Google Sheets, or any spreadsheet application.</li>
+                                    <li class="mb-2">Fill in the rows with applicant data. <em>Delete the sample rows before uploading.</em></li>
+                                    <li class="mb-2">Save the file as <strong>CSV</strong> (.csv) or <strong>Excel</strong> (.xlsx).</li>
+                                    <li>Upload the file using the form below and click <strong>Import</strong>.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Required / optional columns -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="card border-danger h-100">
+                                    <div class="card-header bg-danger text-white py-2">
+                                        <small class="fw-bold"><i class="fas fa-asterisk me-1"></i>Required Columns</small>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 ps-3 small">
+                                            <li><code>first_name</code></li>
+                                            <li><code>last_name</code></li>
+                                            <li><code>sex</code> <small class="text-muted">(Male / Female)</small></li>
+                                            <li><code>contact_number</code> <small class="text-muted">(09XXXXXXXXX)</small></li>
+                                            <li><code>barangay</code></li>
+                                            <li><code>address</code></li>
+                                            <li><code>main_livelihood</code></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-success h-100">
+                                    <div class="card-header bg-success text-white py-2">
+                                        <small class="fw-bold"><i class="fas fa-check me-1"></i>Optional Columns</small>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 ps-3 small">
+                                            <li><code>middle_name</code>, <code>name_extension</code></li>
+                                            <li><code>status</code> <small class="text-muted">(defaults to pending)</small></li>
+                                            <li><code>commodity</code></li>
+                                            <li><code>farmer_crops</code>, <code>farmer_land_area</code>, etc.</li>
+                                            <li><code>farmworker_type</code></li>
+                                            <li><code>fisherfolk_activity</code></li>
+                                            <li><code>agriyouth_training</code>, etc.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('admin.rsbsa.import.template') }}"
+                           class="btn btn-outline-warning w-100 mb-3">
+                            <i class="fas fa-download me-2"></i>Download CSV Template
+                        </a>
+
+                        <!-- File upload form -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <label for="rsbsa_import_file_input" class="form-label fw-semibold">
+                                    Upload your completed file <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" id="rsbsa_import_file_input"
+                                           accept=".csv,.xlsx,.xls,.txt"
+                                           onchange="onRsbsaImportFileSelected(this)">
+                                    <button class="btn btn-warning" type="button"
+                                            onclick="submitRsbsaImport()"
+                                            id="rsbsaImportSubmitBtn"
+                                            disabled
+                                            data-import-url="{{ route('admin.rsbsa.import') }}">
+                                        <i class="fas fa-upload me-1"></i>Import
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    Accepted formats: CSV (.csv) or Excel (.xlsx / .xls) — Max 10 MB
+                                </div>
+                                <div id="rsbsaImportFileError" class="text-danger small mt-1" style="display:none;"></div>
+
+                                <!-- Progress bar -->
+                                <div id="rsbsaImportProgressWrap" class="mt-3" style="display:none;">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                                             id="rsbsaImportProgressBar" role="progressbar" style="width:0%"></div>
+                                    </div>
+                                    <small class="text-muted mt-1 d-block text-center" id="rsbsaImportProgressLabel">
+                                        Uploading…
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /rsbsaImportPanel1 -->
+
+                    <!-- Panel 2: Results (hidden until import done) -->
+                    <div id="rsbsaImportPanel2" style="display:none;">
+                        <div class="row g-3 mb-4" id="rsbsaImportSummaryCards"></div>
+
+                        <div id="rsbsaImportErrorSection" style="display:none;">
+                            <h6 class="text-danger fw-semibold mb-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Rows with Errors
+                                <small class="text-muted fw-normal">(these were skipped)</small>
+                            </h6>
+                            <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-danger sticky-top">
+                                        <tr>
+                                            <th style="width:60px;">Row</th>
+                                            <th>Name</th>
+                                            <th>Issues</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rsbsaImportErrorTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div><!-- /rsbsaImportPanel2 -->
+
+                </div><!-- /modal-body -->
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="rsbsaImportCancelBtn">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-success" id="rsbsaImportDoneBtn"
+                            style="display:none;" onclick="finishRsbsaImport()">
+                        <i class="fas fa-check me-1"></i>Done – Reload Page
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <style>
         /* Modern Statistics Cards */
         .stat-card {
@@ -1688,11 +1863,6 @@
                 max-width: 100%;
             }
         }
-
-        /* Application Details Modal - Simple Professional Look */
-        /* ============================================
-                                                    VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
-                                                    ============================================ */
 
         /* Application Details Modal - Enhanced Card-Based Styling */
         #applicationModal .modal-content {
@@ -7153,5 +7323,227 @@
                 }
             }, 300);
         }
+
+    // Bulk Import 
+    function showRsbsaImportModal() {
+        resetRsbsaImportModal();
+        new bootstrap.Modal(document.getElementById('importRsbsaModal')).show();
+    }
+
+    function resetRsbsaImportModal() {
+        document.getElementById('rsbsaImportPanel1').style.display = 'block';
+        document.getElementById('rsbsaImportPanel2').style.display = 'none';
+
+        document.getElementById('rsbsaImportSubmitBtn').disabled = true;
+        document.getElementById('rsbsaImportCancelBtn').style.display = 'inline-block';
+        document.getElementById('rsbsaImportDoneBtn').style.display   = 'none';
+
+        document.getElementById('rsbsa_import_file_input').value = '';
+
+        document.getElementById('rsbsaImportProgressWrap').style.display = 'none';
+        document.getElementById('rsbsaImportProgressBar').style.width    = '0%';
+        document.getElementById('rsbsaImportProgressLabel').textContent  = 'Uploading…';
+
+        document.getElementById('rsbsaImportFileError').style.display = 'none';
+        document.getElementById('rsbsaImportFileError').textContent   = '';
+
+        setRsbsaImportStep(1);
+    }
+
+    function setRsbsaImportStep(step) {
+        const badges = [
+            document.querySelector('#rsbsaImportStep1Indicator .badge'),
+            document.querySelector('#rsbsaImportStep2Indicator .badge'),
+            document.querySelector('#rsbsaImportStep3Indicator .badge'),
+        ];
+        const labels = [
+            document.querySelector('#rsbsaImportStep1Indicator small'),
+            document.querySelector('#rsbsaImportStep2Indicator small'),
+            document.querySelector('#rsbsaImportStep3Indicator small'),
+        ];
+
+        badges.forEach((b, i) => {
+            const active = i < step;
+            b.classList.toggle('bg-warning', active);
+            b.classList.toggle('text-dark',  active);
+            b.classList.toggle('bg-secondary', !active);
+        });
+        labels.forEach((l, i) => {
+            l.classList.toggle('text-muted',   i >= step);
+            l.classList.toggle('fw-semibold',  i < step);
+        });
+    }
+
+    function onRsbsaImportFileSelected(input) {
+        const errEl = document.getElementById('rsbsaImportFileError');
+        const btn   = document.getElementById('rsbsaImportSubmitBtn');
+
+        errEl.style.display = 'none';
+        errEl.textContent   = '';
+        btn.disabled        = true;
+
+        if (!input.files || !input.files[0]) return;
+
+        const file    = input.files[0];
+        const ext     = file.name.split('.').pop().toLowerCase();
+        const allowed = ['csv', 'xlsx', 'xls', 'txt'];
+
+        if (!allowed.includes(ext)) {
+            errEl.textContent   = 'Invalid file type. Please upload a CSV or Excel file.';
+            errEl.style.display = 'block';
+            input.value = '';
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            errEl.textContent   = 'File is too large. Maximum size is 10 MB.';
+            errEl.style.display = 'block';
+            input.value = '';
+            return;
+        }
+
+        btn.disabled = false;
+        setRsbsaImportStep(2);
+    }
+
+    function submitRsbsaImport() {
+        const fileInput = document.getElementById('rsbsa_import_file_input');
+        if (!fileInput.files || !fileInput.files[0]) {
+            showToast('error', 'Please select a file first.');
+            return;
+        }
+
+        const submitBtn     = document.getElementById('rsbsaImportSubmitBtn');
+        const progressWrap  = document.getElementById('rsbsaImportProgressWrap');
+        const progressBar   = document.getElementById('rsbsaImportProgressBar');
+        const progressLbl   = document.getElementById('rsbsaImportProgressLabel');
+
+        submitBtn.disabled                                       = true;
+        document.getElementById('rsbsa_import_file_input').disabled = true;
+        progressWrap.style.display                               = 'block';
+
+        let fakeProgress = 0;
+        const progressInterval = setInterval(() => {
+            fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
+            progressBar.style.width = fakeProgress + '%';
+        }, 200);
+
+        const importUrl = submitBtn.dataset.importUrl;
+        const formData  = new FormData();
+        formData.append('import_file', fileInput.files[0]);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+        fetch(importUrl, {
+            method:  'POST',
+            body:    formData,
+            headers: { 'Accept': 'application/json' },
+        })
+        .then(r => r.json())
+        .then(data => {
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            progressLbl.textContent = 'Processing complete!';
+            setTimeout(() => {
+                progressWrap.style.display = 'none';
+                showRsbsaImportResults(data);
+            }, 400);
+        })
+        .catch(err => {
+            clearInterval(progressInterval);
+            progressWrap.style.display = 'none';
+            submitBtn.disabled         = false;
+            document.getElementById('rsbsa_import_file_input').disabled = false;
+            showToast('error', 'Upload failed: ' + err.message);
+            console.error('RSBSA Import error:', err);
+        });
+    }
+
+  function showRsbsaImportResults(data) {
+        document.getElementById('rsbsaImportPanel1').style.display = 'none';
+        document.getElementById('rsbsaImportPanel2').style.display = 'block';
+
+        document.getElementById('rsbsaImportCancelBtn').style.display = 'none';
+        document.getElementById('rsbsaImportDoneBtn').style.display   = 'inline-block';
+
+        setRsbsaImportStep(3);
+
+        // ── Summary cards ──────────────────────────────────────────────────────
+        const cardsEl = document.getElementById('rsbsaImportSummaryCards');
+        if (data.success || (data.imported ?? 0) > 0) {
+            const skipped = data.skipped ?? 0;
+            cardsEl.innerHTML =
+                '<div class="col-6">' +
+                  '<div class="card border-success text-center">' +
+                    '<div class="card-body py-3">' +
+                      '<div style="font-size:2rem;font-weight:700;color:#198754;">' + (data.imported ?? 0) + '</div>' +
+                      '<small class="text-success fw-semibold">Successfully Imported</small>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="col-6">' +
+                  '<div class="card border-' + (skipped > 0 ? 'warning' : 'secondary') + ' text-center">' +
+                    '<div class="card-body py-3">' +
+                      '<div style="font-size:2rem;font-weight:700;color:' + (skipped > 0 ? '#ffc107' : '#6c757d') + ';">' + skipped + '</div>' +
+                      '<small class="fw-semibold" style="color:' + (skipped > 0 ? '#ffc107' : '#6c757d') + ';">Skipped (Errors)</small>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>';
+        } else {
+            const msg = (data.message || 'Import failed.').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            cardsEl.innerHTML =
+                '<div class="col-12">' +
+                  '<div class="alert alert-danger mb-0">' +
+                    '<i class="fas fa-times-circle me-2"></i>' +
+                    '<strong>Import failed:</strong> ' + msg +
+                  '</div>' +
+                '</div>';
+        }
+
+        // ── Error rows ─────────────────────────────────────────────────────────
+        const errorSection = document.getElementById('rsbsaImportErrorSection');
+        const errorBody    = document.getElementById('rsbsaImportErrorTableBody');
+        const errorsArr    = Array.isArray(data.errors) ? data.errors : [];
+
+        if (errorsArr.length > 0) {
+            errorSection.style.display = 'block';
+            var rows = '';
+            for (var i = 0; i < errorsArr.length; i++) {
+                var e        = errorsArr[i];
+                var rowData  = e.data  || {};
+                var firstName = rowData.first_name || '';
+                var lastName  = rowData.last_name  || '';
+                var name      = (firstName + ' ' + lastName).trim() || '(unknown)';
+                var rawErrors = e.errors || {};
+                var msgParts  = Array.isArray(rawErrors) ? rawErrors : Object.values(rawErrors);
+                var msgs      = msgParts.join(' · ') || 'Unknown error';
+
+                // safe-encode for HTML
+                name = name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                msgs = msgs.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+                rows += '<tr>' +
+                    '<td class="text-center fw-bold">' + (e.row || (i + 2)) + '</td>' +
+                    '<td>' + name + '</td>' +
+                    '<td><small class="text-danger">' + msgs + '</small></td>' +
+                    '</tr>';
+            }
+            errorBody.innerHTML = rows;
+        } else {
+            errorSection.style.display = 'none';
+        }
+
+        // ── Toast ──────────────────────────────────────────────────────────────
+        if ((data.imported ?? 0) > 0) {
+            showToast('success', data.message);
+        } else {
+            showToast('error', data.message || 'Import completed with errors.');
+        }
+    }
+
+    function finishRsbsaImport() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('importRsbsaModal'));
+        if (modal) modal.hide();
+        window.location.reload();
+    }
     </script>
 @endsection
