@@ -451,6 +451,11 @@ Route::middleware('admin')->group(function () {
         // List requests
         Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
 
+        // Get Template for Bulk Import
+        Route::get('/requests/import/template', [SeedlingRequestController::class, 'importTemplate'])->name('import.template');
+        // Handle Bulk Import
+        Route::post('/requests/import', [SeedlingRequestController::class, 'import'])->name('import');
+
         // Create request
         Route::get('/requests/create', [SeedlingRequestController::class, 'create'])->name('create');
         Route::post('/requests', [SeedlingRequestController::class, 'store'])->name('store');
