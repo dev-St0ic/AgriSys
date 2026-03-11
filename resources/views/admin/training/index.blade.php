@@ -4616,7 +4616,7 @@
                 return;
             }
 
-            if (file.size > 5 * 1024 * 1024) {
+            if (file.size > 10 * 1024 * 1024) {
                 errEl.textContent   = 'File is too large. Maximum size is 10 MB.';
                 errEl.style.display = 'block';
                 input.value = '';
@@ -4749,7 +4749,7 @@
         function finishImport() {
             const modal = bootstrap.Modal.getInstance(document.getElementById('importTrainingModal'));
             if (modal) modal.hide();
-            window.location.href = '{{ route("admin.training.requests") }}';
+            window.location.reload();
         }
     </script>
 @endsection

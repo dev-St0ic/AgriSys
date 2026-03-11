@@ -2118,7 +2118,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div><!-- /seedlingImportPanel1 -->
+                    </div>
 
                     <!-- Panel 2: Results -->
                     <div id="seedlingImportPanel2" style="display:none;">
