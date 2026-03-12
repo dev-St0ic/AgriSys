@@ -6,6 +6,27 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>AgriSys - San Pedro City Agriculture Office</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logos/cago_web.png') }}">
+    
+      <script>
+        console.log(
+            '%cStop!',
+            'color: red; font-size: 50px; font-weight: bold;'
+        );
+        console.log(
+            '%cThis browser feature is for developers only. If someone told you to paste something here, it is a scam.',
+            'font-size: 16px;'
+        );
+
+        @if(app()->environment('local'))
+        // Suppress all other console output after the warning
+        console.log = function() {};
+        console.warn = function() {};
+        console.error = function() {};
+        console.info = function() {};
+        console.debug = function() {};
+        @endif
+    </script>
+
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/seedlings.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/fishr.css') }}?v={{ config('app.asset_version') }}">
