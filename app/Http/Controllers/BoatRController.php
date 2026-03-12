@@ -1916,6 +1916,8 @@ public function validateFishrNumber($fishrNumber)
                 'filename' => $file->getClientOriginalName(),
             ]);
 
+            NotificationService::boatrBulkImported($result['imported'], $result['skipped'], $file->getClientOriginalName());
+
             Log::info('BoatR bulk import completed', [
                 'imported'  => $result['imported'],
                 'skipped'   => $result['skipped'],
