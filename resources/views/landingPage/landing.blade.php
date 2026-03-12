@@ -17,7 +17,7 @@
             'font-size: 16px;'
         );
 
-        @if(app()->environment('local'))
+        @if(app()->environment('production'))
         // Suppress all other console output after the warning
         console.log = function() {};
         console.warn = function() {};
