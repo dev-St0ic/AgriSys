@@ -1220,6 +1220,14 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             $service = new SeedlingImportService();
             $result  = $service->import($filePath, $extension);
 
+            $this->logActivity('bulk_imported', 'SeedlingRequest', null, [
+                'imported' => $result['imported'],
+                'skipped'  => $result['skipped'],
+                'filename' => $file->getClientOriginalName(),
+            ]);
+
+            NotificationService::seedlingBulkImported($result['imported'], $result['skipped'], $file->getClientOriginalName());
+
             Log::info('Seedling import completed', [
                 'imported' => $result['imported'],
                 'skipped'  => $result['skipped'],

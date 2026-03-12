@@ -8,6 +8,26 @@
     <title>@yield('title', 'AgriSys Admin')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logos/cago_web.png') }}">
 
+       <script>
+        console.log(
+            '%cStop!',
+            'color: red; font-size: 50px; font-weight: bold;'
+        );
+        console.log(
+            '%cThis browser feature is for developers only. If someone told you to paste something here, it is a scam.',
+            'font-size: 16px;'
+        );
+
+        @if(app()->environment('production'))
+        // Suppress all other console output after the warning
+        console.log = function() {};
+        console.warn = function() {};
+        console.error = function() {};
+        console.info = function() {};
+        console.debug = function() {};
+        @endif
+    </script>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -2352,24 +2372,6 @@
         }
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
-    </script>
-
-    <script>
-    console.log(
-        '%cStop!',
-        'color: red; font-size: 50px; font-weight: bold;'
-    );
-    console.log(
-        '%cThis browser feature is for developers only. If someone told you to paste something here, it is a scam.',
-        'font-size: 16px;'
-    );
-
-    // Suppress all other console output after the warning
-    console.log = function() {};
-    console.warn = function() {};
-    console.error = function() {};
-    console.info = function() {};
-    console.debug = function() {};
     </script>
 </body>
 

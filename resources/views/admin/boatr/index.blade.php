@@ -6440,8 +6440,8 @@
             showAnnexesModal,
             uploadAnnex,
             previewAnnex,
-            downloadAnnex,
-            deleteAnnex,
+            downloadBoatrAnnexFixed,
+            deleteBoatrAnnex,
             updateRegistrationStatus,
             completeInspection
         };

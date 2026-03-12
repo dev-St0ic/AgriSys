@@ -999,6 +999,8 @@ class RsbsaController extends Controller
                 'filename' => $file->getClientOriginalName(),
             ]);
 
+            NotificationService::rsbsaBulkImported($result['imported'], $result['skipped'], $file->getClientOriginalName());
+
             Log::info('RSBSA bulk import completed', [
                 'imported'  => $result['imported'],
                 'skipped'   => $result['skipped'],

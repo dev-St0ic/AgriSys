@@ -5988,6 +5988,8 @@
             });
 
             console.log('Submitting FormData with files and all fields');
+            
+            formData.append('_method', 'PUT');
 
             // Submit to backend with FormData
             fetch(`/admin/registrations/${registrationId}`, {
@@ -5996,7 +5998,7 @@
                         'X-CSRF-TOKEN': getCSRFToken(),
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
-                        'X-HTTP-Method-Override': 'PUT' // Tell backend this is actually a PUT request
+                        // 'X-HTTP-Method-Override': 'PUT' // Tell backend this is actually a PUT request
                     },
                     body: formData
                 })

@@ -1075,9 +1075,9 @@ window.backToSeedlingsChoice = backToSeedlingsChoice;
 //     return false;
 // }
 
-// Export quick view functions
-window.showQuickView = showQuickView;
-window.closeQuickView = closeQuickView;
+// // Export quick view functions
+// window.showQuickView = showQuickView;
+// window.closeQuickView = closeQuickView;
 
 // Export cart modal functions
 window.toggleCartExpansion = toggleCartExpansion;
@@ -1353,6 +1353,6 @@ window.changePage = changePage;
 window.updatePagination = updatePagination;
 window.initCategoryTabs = initCategoryTabs;
 window.applyFilters = applyFilters;
-window.showPickupDateField = showPickupDateField;
+// window.showPickupDateField = showPickupDateField;
 
 console.log('Modern Seedlings module loaded successfully');

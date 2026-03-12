@@ -272,8 +272,15 @@ Route::middleware('admin')->group(function () {
      * Manages fisherfolk registration applications
      */
     Route::prefix('admin/fishr-registrations')->name('admin.fishr.')->group(function () {
-        // GET by ID
-        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
+
+        // Index route
+        Route::get('/', [FishRController::class, 'index'])->name('requests');
+
+        // Create new registration
+        Route::post('/create', [FishRController::class, 'store'])->name('store');
+
+        // Static routes FIRST (to avoid conflicts with /{id})
+        Route::get('/export', [FishRController::class, 'export'])->name('export');
 
         // Get Template for Bulk Import
         Route::get('/import/template', [FishRController::class, 'importTemplate'])->name('import.template');
@@ -281,11 +288,8 @@ Route::middleware('admin')->group(function () {
         // Handle Bulk Import
         Route::post('/import', [FishRController::class, 'import'])->name('import');
 
-        // Static routes FIRST (to avoid conflicts with /{id})
-        Route::get('/export', [FishRController::class, 'export'])->name('export');
-
-        // Create new registration
-        Route::post('/create', [FishRController::class, 'store'])->name('store');
+        // GET by ID
+        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
 
         // DELETE route BEFORE GET/{id}
         Route::delete('/{id}', [FishRController::class, 'destroy'])->name('destroy');
@@ -293,8 +297,7 @@ Route::middleware('admin')->group(function () {
         // Edit registration
         Route::put('/{id}', [FishRController::class, 'update'])->name('update');
 
-        // Index route
-        Route::get('/', [FishRController::class, 'index'])->name('requests');
+        Route::post('/{id}', [FishRController::class, 'update'])->name('update.post');
 
         // Update status
         Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
@@ -793,26 +796,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
 
     // Create new user account
-    Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
-
-    // Edit user account (with session sync)
-    Route::put('/registrations/{id}', [UserRegistrationController::class, 'update'])->name('registrations.update');
-
-    // Individual registration management
-    Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
-    Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
-
-    // Enhanced status management with auto-refresh
-    Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
-    Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
-
-    // Status update with session sync
-    Route::post('/registrations/{id}/update-status', [UserRegistrationController::class, 'updateStatus'])->name('registrations.update-status');
-
-    // Enhanced document viewing - supports images and files
-    Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'viewDocument'])
-        ->name('registrations.document')
-        ->where('type', 'location|id_front|id_back');
+    Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('registrations.create');
 
     // Statistics
     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
@@ -820,9 +804,28 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Export functionality
     Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
 
-    // Bulk operations
+     // Bulk operations
     Route::post('/registrations/bulk-approve', [UserRegistrationController::class, 'bulkApprove'])->name('registrations.bulk-approve');
     Route::post('/registrations/bulk-reject', [UserRegistrationController::class, 'bulkReject'])->name('registrations.bulk-reject');
+    
+    // Get registration details (for modal or details page)
+    Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
+
+    // Enhanced document viewing - supports images and files
+    Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'viewDocument'])->name('registrations.document')->where('type', 'location|id_front|id_back');
+
+    // Approve or reject registration
+    Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
+    Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
+
+    // Status update 
+    Route::post('/registrations/{id}/update-status', [UserRegistrationController::class, 'updateStatus'])->name('registrations.update-status');
+
+    // Edit user account (with session sync)
+    Route::put('/registrations/{id}', [UserRegistrationController::class, 'update'])->name('registrations.update');
+
+    Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
+
 });
 
 /**

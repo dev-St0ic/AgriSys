@@ -754,6 +754,13 @@ public function destroy($id)
                 'filename' => $file->getClientOriginalName(),
             ]);
 
+            // Send admin notification about bulk import
+            NotificationService::trainingBulkImported(
+                $result['imported'],
+                $result['skipped'],
+                $file->getClientOriginalName()
+            );
+
             Log::info('Training bulk import completed', [
                 'imported'  => $result['imported'],
                 'skipped'   => $result['skipped'],

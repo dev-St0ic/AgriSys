@@ -1180,20 +1180,20 @@ function initializeFishRModule() {
     // Handle browser back/forward buttons
     window.addEventListener('popstate', handlePopState);
 
-    // Add keyboard shortcuts for development
-    document.addEventListener('keydown', function(e) {
-        // Ctrl + Shift + F = Fill sample data
-        if (e.ctrlKey && e.shiftKey && e.key === 'F') {
-            e.preventDefault();
-            fillSampleFishRData();
-        }
+    // // Add keyboard shortcuts for development
+    // document.addEventListener('keydown', function(e) {
+    //     // Ctrl + Shift + F = Fill sample data
+    //     if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+    //         e.preventDefault();
+    //         fillSampleFishRData();
+    //     }
 
-        // Ctrl + Shift + C = Clear form
-        if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-            e.preventDefault();
-            clearFishRForm();
-        }
-    });
+    //     // Ctrl + Shift + C = Clear form
+    //     if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+    //         e.preventDefault();
+    //         clearFishRForm();
+    //     }
+    // });
 
     console.log('FishR module initialized successfully');
 
@@ -1536,7 +1536,7 @@ window.openFormFishR = openFormFishR;
 window.closeFormFishR = closeFormFishR;
 window.showFishrTab = showFishrTab;
 window.toggleOtherLivelihood = toggleOtherLivelihood;
-window.fillSampleFishRData = fillSampleFishRData;
+// window.fillSampleFishRData = fillSampleFishRData;
 window.toggleOtherSecondaryLivelihood = toggleOtherSecondaryLivelihood;
 window.validateSecondaryLivelihoodMatch = validateSecondaryLivelihoodMatch;
 window.validateFishRForm = validateFishRForm;

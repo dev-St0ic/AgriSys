@@ -150,6 +150,26 @@ class NotificationService
         );
     }
 
+    public static function seedlingBulkImported(int $imported, int $skipped, string $filename)
+    {
+        $title = "Supply Request Bulk Import Completed";
+        $message = "{$imported} supply request(s) imported from \"{$filename}\"" .
+                ($skipped > 0 ? ", {$skipped} row(s) skipped" : '');
+
+        AdminNotification::notifyAdmins(
+            'seedling_bulk_imported',
+            $title,
+            $message,
+            [
+                'imported'     => $imported,
+                'skipped'      => $skipped,
+                'filename'     => $filename,
+                'imported_by'  => auth()->user()->name ?? 'System',
+            ],
+            route('admin.seedlings.requests')
+        );
+    }
+
     // ==========================================
     // TRAINING APPLICATION NOTIFICATIONS
     // ==========================================
@@ -246,6 +266,26 @@ class NotificationService
             [
                 'application_number' => $applicationNumber,
                 'deleted_by' => auth()->user()->name ?? 'System'
+            ],
+            route('admin.training.requests')
+        );
+    }
+
+    public static function trainingBulkImported(int $imported, int $skipped, string $filename)
+    {
+        $title = "Training Bulk Import Completed";
+        $message = "{$imported} training application(s) imported from \"{$filename}\"" .
+                ($skipped > 0 ? ", {$skipped} row(s) skipped" : '');
+
+        AdminNotification::notifyAdmins(
+            'training_bulk_imported',
+            $title,
+            $message,
+            [
+                'imported'  => $imported,
+                'skipped'   => $skipped,
+                'filename'  => $filename,
+                'imported_by' => auth()->user()->name ?? 'System',
             ],
             route('admin.training.requests')
         );
@@ -720,6 +760,26 @@ class NotificationService
         );
     }
 
+    public static function fishrBulkImported(int $imported, int $skipped, string $filename)
+    {
+        $title = "FishR Bulk Import Completed";
+        $message = "{$imported} FishR registration(s) imported from \"{$filename}\"" .
+                ($skipped > 0 ? ", {$skipped} row(s) skipped" : '');
+
+        AdminNotification::notifyAdmins(
+            'fishr_bulk_imported',
+            $title,
+            $message,
+            [
+                'imported'    => $imported,
+                'skipped'     => $skipped,
+                'filename'    => $filename,
+                'imported_by' => auth()->user()->name ?? 'System',
+            ],
+            route('admin.fishr.requests')
+        );
+    }
+
     // ==========================================
     // BOATR APPLICATION NOTIFICATIONS
     // ==========================================
@@ -810,6 +870,26 @@ class NotificationService
             [
                 'application_number' => $applicationNumber,
                 'deleted_by' => auth()->user()->name ?? 'System'
+            ],
+            route('admin.boatr.requests')
+        );
+    }
+
+    public static function boatrBulkImported(int $imported, int $skipped, string $filename)
+    {
+        $title = "BoatR Bulk Import Completed";
+        $message = "{$imported} BoatR registration(s) imported from \"{$filename}\"" .
+                ($skipped > 0 ? ", {$skipped} row(s) skipped" : '');
+
+        AdminNotification::notifyAdmins(
+            'boatr_bulk_imported',
+            $title,
+            $message,
+            [
+                'imported'    => $imported,
+                'skipped'     => $skipped,
+                'filename'    => $filename,
+                'imported_by' => auth()->user()->name ?? 'System',
             ],
             route('admin.boatr.requests')
         );
@@ -910,6 +990,26 @@ class NotificationService
             [
                 'application_number' => $applicationNumber,
                 'deleted_by' => auth()->user()->name ?? 'System'
+            ],
+            route('admin.rsbsa.applications')
+        );
+    }
+
+    public static function rsbsaBulkImported(int $imported, int $skipped, string $filename)
+    {
+        $title = "RSBSA Bulk Import Completed";
+        $message = "{$imported} RSBSA application(s) imported from \"{$filename}\"" .
+                ($skipped > 0 ? ", {$skipped} row(s) skipped" : '');
+
+        AdminNotification::notifyAdmins(
+            'rsbsa_bulk_imported',
+            $title,
+            $message,
+            [
+                'imported'    => $imported,
+                'skipped'     => $skipped,
+                'filename'    => $filename,
+                'imported_by' => auth()->user()->name ?? 'System',
             ],
             route('admin.rsbsa.applications')
         );

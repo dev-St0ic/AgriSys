@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Services\FishrImportService;
+use  App\Services\NotificationService;
 
 class FishRController extends Controller
 {
@@ -23,47 +24,40 @@ class FishRController extends Controller
                 'request_data' => $request->all(),
             ]);
 
-            $query = FishrApplication::query();
+            $query = FishrApplication::query()
+                ->withCount('annexes')
+                ->with('firstAnnex');
 
             // Apply filters
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
-
             if ($request->filled('barangay')) {
                 $query->where('barangay', $request->barangay);
             }
-
             if ($request->filled('livelihood')) {
                 $query->where('main_livelihood', $request->livelihood);
             }
-
-            // Date range filtering
             if ($request->filled('date_from')) {
                 $query->whereDate('created_at', '>=', $request->date_from);
             }
-
             if ($request->filled('date_to')) {
                 $query->whereDate('created_at', '<=', $request->date_to);
             }
-
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('registration_number', 'like', "%{$search}%")
-                      ->orWhere('first_name', 'like', "%{$search}%")
-                      ->orWhere('last_name', 'like', "%{$search}%")
-                      ->orWhere('contact_number', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%");
                 });
             }
 
-            // Sort and paginate
-           $registrations = FishrApplication::query()
-                    ->withCount('annexes')
-                    ->with('firstAnnex')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(10)
-                    ->appends($request->query());
+            $registrations = $query->orderBy('created_at', 'desc')
+                ->paginate(10)
+                ->appends($request->query());
+
 
             // Calculate statistics
             $totalRegistrations = FishrApplication::count();
@@ -1240,6 +1234,8 @@ public function destroy($id)
                 'skipped'  => $result['skipped'],
                 'filename' => $file->getClientOriginalName(),
             ]);
+
+            NotificationService::fishrBulkImported($result['imported'], $result['skipped'], $file->getClientOriginalName());
 
             Log::info('FishR bulk import completed', [
                 'imported' => $result['imported'],
