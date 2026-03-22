@@ -189,7 +189,7 @@ class SeedlingRequestController extends Controller
                 $documentPath = $request->file('document')->store('seedling-requests', 'public');
             }
 
-             // ✅ PARSE AND FORMAT PICKUP DATE
+             // PARSE AND FORMAT PICKUP DATE
             $pickupDate = null;
             $pickupExpiredAt = null;
             if (!empty($validated['pickup_date'])) {
@@ -253,7 +253,7 @@ class SeedlingRequestController extends Controller
 
             \DB::commit();
 
-            // ✅ CHECK IF AJAX REQUEST FIRST
+            // CHECK IF AJAX REQUEST FIRST
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
@@ -504,7 +504,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             // Send admin notification
             NotificationService::seedlingRequestDeleted($seedlingRequest);
 
-            // ✅ FIXED: Accurate log activity
+            // FIXED: Accurate log activity
             $this->logActivity('deleted', 'SeedlingRequest', $seedlingRequest->id, [
                 'request_number' => $requestNumber,
                 'action' => 'moved_to_recycle_bin',
@@ -512,7 +512,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 'supplies_returned' => ($approvedItems->count() > 0 && !$seedlingRequest->claimed_at)
             ]);
 
-            // ✅ FIXED: Accurate log message
+            //  FIXED: Accurate log message
             \Log::info('Supply request moved to recycle bin', [
                 'request_id' => $seedlingRequest->id,
                 'request_number' => $requestNumber,
@@ -521,7 +521,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 'supplies_returned' => ($approvedItems->count() > 0 && !$seedlingRequest->claimed_at) ? 'Yes' : 'No'
             ]);
 
-            // ✅ FIXED: Non-contradictory message
+            //  FIXED: Non-contradictory message
             $message = "Request {$requestNumber} has been moved to recycle bin";
 
             if ($seedlingRequest->claimed_at) {
@@ -595,7 +595,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             ->get()
             ->keyBy('id');
 
-        // ✅ CHECK IF ANY ITEMS ACTUALLY CHANGED STATUS
+        //  CHECK IF ANY ITEMS ACTUALLY CHANGED STATUS
         $hasItemChanges = false;
         foreach ($itemStatuses as $itemId => $status) {
             $item = $items->get((int) $itemId);
@@ -605,7 +605,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             }
         }
 
-        // ✅ ALSO CHECK IF REMARKS CHANGED
+        // ALSO CHECK IF REMARKS CHANGED
         $currentRemarks = $seedlingRequest->remarks ?? '';
         $newRemarks = $validated['remarks'] ?? '';
         $hasRemarksChange = $currentRemarks !== $newRemarks;
@@ -659,7 +659,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 $item->save();
                 $approvedCount++;
 
-                // // ✅ SUPPLY DEDUCTION + STOCK NOTIFICATIONS
+                // //  SUPPLY DEDUCTION + STOCK NOTIFICATIONS
                 // if (!$wasApproved && $item->categoryItem) {
                 //     $success = $item->categoryItem->distributeSupply(
                 //         $item->requested_quantity,
@@ -673,7 +673,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 //         throw new \Exception("Failed to distribute supply for {$item->item_name}");
                 //     }
 
-                //     // ✅ CHECK STOCK LEVELS AFTER DISTRIBUTION
+                //     //  CHECK STOCK LEVELS AFTER DISTRIBUTION
                 //     $item->categoryItem->refresh();
                 //     if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
                 //         NotificationService::seedlingStockLow($item->categoryItem);
@@ -740,14 +740,14 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             'rejected_at' => $overallStatus === 'rejected' ? now() : null,
         ]);
 
-        // ✅ SET PICKUP DATE (30 days from approval) for approved/partially approved requests
+        // SET PICKUP DATE (30 days from approval) for approved/partially approved requests
         if (($overallStatus === 'approved' || $overallStatus === 'partially_approved') && !$seedlingRequest->pickup_date) {
             $seedlingRequest->pickup_date = now()->addDays(30);
             $seedlingRequest->pickup_expired_at = $seedlingRequest->pickup_date->copy()->addDay();
             $seedlingRequest->save();
         }
 
-        // ✅ STATUS CHANGE NOTIFICATION
+        // STATUS CHANGE NOTIFICATION
         if ($previousStatus !== $overallStatus) {
             NotificationService::seedlingRequestStatusChanged($seedlingRequest, $previousStatus);
         }

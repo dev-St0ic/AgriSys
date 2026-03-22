@@ -357,11 +357,21 @@ class SeedlingImportService
 
     private function generateRequestNumber(): string
     {
-        do {
-            $number = 'REQ-' . strtoupper(Str::random(8));
-        } while (\App\Models\SeedlingRequest::where('request_number', $number)->exists());
+    $year = now()->year;
 
-        return $number;
+    $last = \App\Models\SeedlingRequest::where('request_number', 'like', "REQ-{$year}-%")
+        ->orderByDesc('request_number')
+        ->value('request_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("Seedling request number limit reached for year {$year}.");
+    }
+
+    return "REQ-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
     }
 
     private function capitaliseName(string $name): string

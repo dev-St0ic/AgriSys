@@ -1151,15 +1151,25 @@ try {
     }
 
     /**
-     * Generate unique request number for Seedling requests
+     * Generate unique request number for Supply requests
      */
     private function generateUniqueRequestNumber(): string
     {
-        do {
-            $requestNumber = 'SEED-' . strtoupper(Str::random(8));
-        } while (SeedlingRequest::where('request_number', $requestNumber)->exists());
+     $year = now()->year;
 
-        return $requestNumber;
+    $last = SeedlingRequest::where('request_number', 'like', "REQ-{$year}-%")
+        ->orderByDesc('request_number')
+        ->value('request_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("Seedling request number limit reached for year {$year}.");
+    }
+
+    return "REQ-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
     }
 
     /**

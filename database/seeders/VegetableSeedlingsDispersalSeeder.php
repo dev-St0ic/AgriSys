@@ -152,12 +152,17 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
                 $totalQuantity = array_sum(array_column($items, 'quantity'));
 
                 // Handle duplicate control numbers
-                $requestNumber = $data['control_no'];
-                if (isset($usedControlNumbers[$requestNumber])) {
-                    $usedControlNumbers[$requestNumber]++;
-                    $requestNumber = $requestNumber . '-' . $usedControlNumbers[$requestNumber];
+                // Format control number as REQ-YYYY-XXXXX
+                $rawControlNo = $data['control_no'];
+                $formatted = $this->formatControlNumber($rawControlNo);
+
+                // Handle duplicate control numbers
+                if (isset($usedControlNumbers[$formatted])) {
+                    $usedControlNumbers[$formatted]++;
+                    $requestNumber = $formatted . '-' . $usedControlNumbers[$formatted];
                 } else {
-                    $usedControlNumbers[$requestNumber] = 1;
+                    $usedControlNumbers[$formatted] = 1;
+                    $requestNumber = $formatted;
                 }
 
                 // Calculate approval date (1-3 days after creation)
@@ -196,6 +201,19 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
                 $this->command->error("Failed to create request for {$data['name']}: " . $e->getMessage());
             }
         }
+    }
+
+    private function formatControlNumber(string $controlNo): string
+    {
+        // Handles both "2025-00114" and "2026-001" formats
+        if (preg_match('/^(\d{4})-0*(\d+)$/', $controlNo, $matches)) {
+            $year = $matches[1];
+            $seq  = str_pad($matches[2], 4, '0', STR_PAD_LEFT);
+            return "REQ-{$year}-{$seq}";
+        }
+
+        // Fallback: just prepend REQ- if format is unrecognized
+        return "REQ-{$controlNo}";
     }
 
     private function parseName($fullName)
