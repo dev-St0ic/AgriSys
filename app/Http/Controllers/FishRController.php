@@ -522,11 +522,21 @@ class FishRController extends Controller
      */
     private function generateRegistrationNumber()
     {
-        do {
-            $number = 'FISHR-' . strtoupper(Str::random(8));
-        } while (FishrApplication::where('registration_number', $number)->exists());
+    $year = now()->year;
 
-        return $number;
+    $last = FishrApplication::where('registration_number', 'like', "FISHR-{$year}-%")
+        ->orderByDesc('registration_number')
+        ->value('registration_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("FishR registration number limit reached for year {$year}.");
+    }
+
+    return "FISHR-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
     }
 
     // /**
