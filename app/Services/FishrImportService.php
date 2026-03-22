@@ -419,7 +419,7 @@ class FishrImportService
         throw new \Exception("FishR registration number limit reached for year {$year}.");
     }
 
-    return "FISHR-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+    return "FISHR-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     private function capitaliseName(string $name): string
