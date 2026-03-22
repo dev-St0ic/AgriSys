@@ -2040,7 +2040,7 @@
                                 </h6>
                                 <ol class="mb-0 ps-3">
                                     <li class="mb-2">Click <strong>Download Template</strong> to get a pre-formatted CSV file.</li>
-                                    <li class="mb-2">Fill in the rows with applicant data. <em>To add multiple items for one request, repeat rows with the same name &amp; contact number.</em></li>
+                                    <li class="mb-2">Fill in the rows with applicant data. <em>Each row = ONE request. Add up to 5 items per row using item_1 through item_5 columns.</em></li>
                                     <li class="mb-2">Save as <strong>CSV</strong> (.csv) or <strong>Excel</strong> (.xlsx).</li>
                                     <li>Upload the file and click <strong>Import</strong>.</li>
                                 </ol>
@@ -2059,8 +2059,9 @@
                                             <li><code>last_name</code></li>
                                             <li><code>contact_number</code> <small class="text-muted">(09XXXXXXXXX)</small></li>
                                             <li><code>barangay</code></li>
-                                            <li><code>item_name</code></li>
-                                            <li><code>quantity</code></li>
+                                            <li><code>category_1</code></li>
+                                            <li><code>item_1</code></li>
+                                            <li><code>quantity_1</code></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -2074,6 +2075,9 @@
                                         <ul class="mb-0 ps-3 small">
                                             <li><code>middle_name</code></li>
                                             <li><code>extension_name</code> <small class="text-muted">(Jr., Sr., etc.)</small></li>
+                                            <li><code>category_2</code> to <code>category_5</code></li>
+                                            <li><code>item_2</code> to <code>item_5</code></li>
+                                            <li><code>quantity_2</code> to <code>quantity_5</code></li>
                                             <li><code>pickup_date</code> <small class="text-muted">(YYYY-MM-DD)</small></li>
                                             <li><code>status</code> <small class="text-muted">(defaults to pending)</small></li>
                                             <li><code>remarks</code></li>
