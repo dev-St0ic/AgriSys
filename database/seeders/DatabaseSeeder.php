@@ -15,13 +15,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SuperAdminSeeder::class,
+            UserRegistrationSeeder::class,
             FisherfolkRegisteredSeeder::class,
             SuppliesSeeder::class, // Run before VegetableSeedlingsSeeder to ensure supplies are available
             VegetableSeedlingsDispersalSeeder::class,
             BoatrRegisteredSeeder::class,
             RsbsaSpecificDataSeeder::class,
             TrainingSeeder::class,
-            // UserRegistrationSeeder::class,
             
             EventsSeeder::class,
             SlideshowImagesSeeder::class
