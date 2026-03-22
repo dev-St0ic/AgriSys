@@ -201,11 +201,21 @@ class TrainingController extends Controller
      */
     private function generateApplicationNumber()
     {
-        do {
-            $number = 'TRAIN-' . strtoupper(\Illuminate\Support\Str::random(8));
-        } while (TrainingApplication::where('application_number', $number)->exists());
+    $year = now()->year;
 
-        return $number;
+    $last = TrainingApplication::where('application_number', 'like', "TRAIN-{$year}-%")
+        ->orderByDesc('application_number')
+        ->value('application_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("Training application number limit reached for year {$year}.");
+    }
+
+    return "TRAIN-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
     }
 
    /**

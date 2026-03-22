@@ -952,7 +952,7 @@ try {
             'content_type' => $request->header('Content-Type')
         ]);
 
-        // ✅ DUPLICATE CHECK: prevent re-submission if pending/under_review
+        //  DUPLICATE CHECK: prevent re-submission if pending/under_review
         $hasPending = TrainingApplication::where('user_id', $userId)
             ->whereIn('status', ['pending', 'under_review'])
             ->exists();
@@ -990,7 +990,7 @@ try {
             ]);
 
             // Generate unique application number
-            $applicationNumber = 'TRAIN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
+            $applicationNumber = $this->generateUniqueTrainingApplicationNumber();
 
             // Handle document uploads with better error handling
             $documentPaths = [];
@@ -1170,6 +1170,29 @@ try {
     }
 
     return "REQ-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+    }
+
+    
+    /**
+     * Generate unique request number for Training requests
+     */
+    private function generateUniqueTrainingApplicationNumber(): string
+    {
+        $year = now()->year;
+
+        $last = TrainingApplication::where('application_number', 'like', "TRAIN-{$year}-%")
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("Training application number limit reached for year {$year}.");
+        }
+
+        return "TRAIN-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
     }
 
     /**
