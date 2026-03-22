@@ -617,7 +617,7 @@ class RsbsaController extends Controller
             throw new \Exception("RSBSA application number limit reached for year {$year}.");
         }
 
-        return "RSBSA-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+        return "RSBSA-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     /**
