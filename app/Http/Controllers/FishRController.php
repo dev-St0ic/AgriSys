@@ -55,6 +55,7 @@ class FishRController extends Controller
             }
 
             $registrations = $query->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->paginate(10)
                 ->appends($request->query());
 
@@ -705,7 +706,7 @@ public function destroy($id)
                 $query->where('main_livelihood', $request->livelihood);
             }
 
-            $registrations = $query->orderBy('created_at', 'desc')->get();
+            $registrations = $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->get();
 
             $this->logActivity('exported', 'FishrApplication', null, [
                 'records_count' => $registrations->count(),
