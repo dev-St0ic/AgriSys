@@ -539,7 +539,7 @@
                                             FishR Number <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" class="form-control" id="boatr_fishr_number" required
-                                            maxlength="50" placeholder="FISHR-XXXXXXXX">
+                                            maxlength="50" placeholder="FISHR-XXXX-XXX">
                                         <input type="hidden" id="boatr_fishr_app_id" value="">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>FishR registration number
@@ -7164,12 +7164,12 @@
             }
 
             // Validate format: FISHR-XXXXXXXX (8 alphanumeric characters)
-            const formatValid = /^FISHR-[A-Z0-9]{8}$/i.test(value);
+            const formatValid = /^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i.test(value);
 
-            if (!formatValid) {
+           if (!formatValid) {
                 input.classList.add('is-invalid');
                 input.classList.remove('is-valid');
-                showAdminValidationMessage(input, 'Invalid format. Use: FISHR-XXXXXXXX', 'error');
+                showAdminValidationMessage(input, 'Invalid format. Use: FISHR-XXXX-XXX', 'error');
                 console.log('Invalid format');
                 return;
             }
@@ -7189,7 +7189,7 @@
         function handleAdminFishRFocus(event) {
             const input = event.target;
             if (!input.value.trim()) {
-                showAdminValidationMessage(input, 'Format: FISHR-XXXXXXXX', 'info');
+                showAdminValidationMessage(input, 'Format: FISHR-XXXX-XXX', 'info');
             }
         }
 
@@ -7488,9 +7488,9 @@
                 fishr?.classList.add('is-invalid');
                 errors.push('FishR number is required');
                 isValid = false;
-            } else if (!/^FISHR-[A-Z0-9]{8}$/i.test(fishr.value.trim())) {
+            } else if (!/^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i.test(fishr.value.trim())) {
                 fishr?.classList.add('is-invalid');
-                errors.push('Invalid FishR format (use FISHR-XXXXXXXX)');
+                errors.push('Invalid FishR format (use FISHR-XXXX-XXX)');
                 isValid = false;
             }
 

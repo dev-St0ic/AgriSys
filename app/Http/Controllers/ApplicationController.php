@@ -1101,24 +1101,25 @@ try {
      */
     private function generateUniqueApplicationNumber(): string
     {
-        do {
-            $applicationNumber = 'BOATR-' . strtoupper(Str::random(8));
-        } while (BoatrApplication::where('application_number', $applicationNumber)->exists());
+    $year = now()->year;
+    $prefix = $boatClassification === 'Motorized' ? 'M' : 'NM';
+    $pattern = "BOATR-{$year}-{$prefix}-%";
 
-        return $applicationNumber;
+    $last = BoatrApplication::where('application_number', 'like', $pattern)
+        ->orderByDesc('application_number')
+        ->value('application_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("BoatR application number limit reached for {$prefix} classification in year {$year}.");
     }
 
-    // /**
-    //  * Generate unique application number for RSBSA applications
-    //  */
-    // private function generateUniqueRsbsaApplicationNumber(): string
-    // {
-    //     do {
-    //         $applicationNumber = 'RSBSA-' . strtoupper(Str::random(8));
-    //     } while (RsbsaApplication::where('application_number', $applicationNumber)->exists());
+    return "BOATR-{$year}-{$prefix}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+    }
 
-    //     return $applicationNumber;
-    // }
     private function generateUniqueRsbsaApplicationNumber(): string
     {
         $year = now()->year;
