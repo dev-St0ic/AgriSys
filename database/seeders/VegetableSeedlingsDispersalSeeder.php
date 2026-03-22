@@ -151,12 +151,11 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
                 // Calculate total quantity
                 $totalQuantity = array_sum(array_column($items, 'quantity'));
 
-                // Handle duplicate control numbers
-                // Format control number as REQ-YYYY-XXXXX
-                $rawControlNo = $data['control_no'];
-                $formatted = $this->formatControlNumber($rawControlNo);
+                // Format control number to match generateUniqueRequestNumber() format:
+                // REQ-{YYYY}-{00000} — always 5-digit zero-padded sequence
+                $formatted = $this->formatControlNumber($data['control_no']);
 
-                // Handle duplicate control numbers
+                // Handle duplicate control numbers by appending a suffix
                 if (isset($usedControlNumbers[$formatted])) {
                     $usedControlNumbers[$formatted]++;
                     $requestNumber = $formatted . '-' . $usedControlNumbers[$formatted];
@@ -203,16 +202,27 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
         }
     }
 
+    /**
+     * Format a raw control number into the standard request number format.
+     *
+     * Matches the format produced by generateUniqueRequestNumber():
+     *   REQ-{YYYY}-{00000}  (5-digit zero-padded sequence)
+     *
+     * Examples:
+     *   "2025-00114" → "REQ-2025-00114"
+     *   "2026-001"   → "REQ-2026-00001"
+     *   "2026-20"    → "REQ-2026-00020"
+     */
     private function formatControlNumber(string $controlNo): string
     {
-        // Handles both "2025-00114" and "2026-001" formats
         if (preg_match('/^(\d{4})-0*(\d+)$/', $controlNo, $matches)) {
-            $year = $matches[1];
-            $seq  = str_pad($matches[2], 4, '0', STR_PAD_LEFT);
-            return "REQ-{$year}-{$seq}";
+            $year     = $matches[1];
+            $sequence = str_pad($matches[2], 5, '0', STR_PAD_LEFT);
+
+            return "REQ-{$year}-{$sequence}";
         }
 
-        // Fallback: just prepend REQ- if format is unrecognized
+        // Fallback: prepend REQ- if format is unrecognized
         return "REQ-{$controlNo}";
     }
 
