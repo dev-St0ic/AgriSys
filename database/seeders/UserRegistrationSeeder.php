@@ -76,7 +76,7 @@ class UserRegistrationSeeder extends Seeder
                 'privacy_accepted' => true,
             ],
             [
-                'username' => 'jose_flores',
+                'username' => 'user',
                 'contact_number' => '09171234509',
                 'password' => Hash::make('password123'),
                 'status' => UserRegistration::STATUS_UNVERIFIED,
@@ -84,8 +84,8 @@ class UserRegistrationSeeder extends Seeder
                 'privacy_accepted' => true,
             ],
             [
-                'username' => 'ana_ramos',
-                'contact_number' => '09171234510',
+                'username' => 'lex',
+                'contact_number' => '09217861710',
                 'password' => Hash::make('password123'),
                 'status' => UserRegistration::STATUS_UNVERIFIED,
                 'terms_accepted' => true,

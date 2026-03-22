@@ -206,10 +206,18 @@ class RsbsaSpecificDataSeeder extends Seeder
             }
 
             // Generate application number based on year
-            $applicationNumber = 'RSBSA-' . $data['year'] . '-' . str_pad(rand(1, 9999), 3, '0', STR_PAD_LEFT);
+            static $counter = [];
+            static $dateOffset = [];
 
-            // Set approved date based on year
-            $approvedAt = Carbon::createFromDate($data['year'], rand(1, 12), rand(1, 28));
+            $year = $data['year'];
+            $counter[$year] = ($counter[$year] ?? 0) + 1;
+            $dateOffset[$year] = ($dateOffset[$year] ?? 0) + 14;
+
+            $applicationNumber = 'RSBSA-' . $year . '-' . str_pad($counter[$year], 3, '0', STR_PAD_LEFT);
+
+            $approvedAt = Carbon::createFromDate($year, 1, 1)->addDays($dateOffset[$year]);
+
+   
 
             RsbsaApplication::create([
                 'application_number' => $applicationNumber,
@@ -238,7 +246,7 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'status' => 'approved',
                 'approved_at' => $approvedAt,
                 'reviewed_at' => $approvedAt->copy()->subDays(rand(1, 30)),
-                'created_at' => $approvedAt->copy()->subMonths(rand(1, 3)),
+                'created_at' => $approvedAt,
                 'updated_at' => $approvedAt,
                 'number_assigned_at' => $approvedAt,
             ]);

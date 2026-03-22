@@ -23,7 +23,7 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
         ['date' => '09/09/2025', 'name' => 'Cristina Q. Gonzales', 'barangay' => 'Rosario', 'contact' => '094789679', 'seedlings' => 'Okra - 3', 'control_no' => '2025-00131'],
         ['date' => '09/09/2025', 'name' => 'Johanns Ruiz', 'barangay' => 'Rosario', 'contact' => '09177044067', 'seedlings' => 'Cacao - 3', 'control_no' => '2025-00132'],
         ['date' => '09/09/2025', 'name' => 'Merry Jane G. Aberia', 'barangay' => 'Nueva', 'contact' => '09481095392', 'seedlings' => 'Sili Labuyo - 3, Talong - 5, Okra - 5', 'control_no' => '2025-00132'],
-        ['date' => '09/10/2025', 'name' => 'Eyarno C. Dajito', 'barangay' => 'Fatima', 'contact' => '0995893226', 'seedlings' => null, 'control_no' => '2025-00131'],
+        ['date' => '09/10/2025', 'name' => 'Eyarno C. Dajito', 'barangay' => 'Fatima', 'contact' => '0995893226', 'seedlings' => 'Sili Labuyo - 3, Talong - 5, Okra - 5', 'control_no' => '2025-00131'],
         ['date' => '09/12/2025', 'name' => 'Duay Anough', 'barangay' => 'Pacita 1', 'contact' => '09235446450', 'seedlings' => 'Talong - 5, Okra - 5', 'control_no' => '2025-00132'],
         ['date' => '09/19/2025', 'name' => 'Raul N. Santos', 'barangay' => 'Pacita 1', 'contact' => '09151801135', 'seedlings' => 'Talong - 5, Okra - 5, Sili Panigang - 5', 'control_no' => '2025-00133'],
         ['date' => '09/24/2025', 'name' => 'Marivic Catalan', 'barangay' => 'San Roque', 'contact' => '09702716168', 'seedlings' => 'Okra - 5, Talong - 5', 'control_no' => '2025-00134'],
