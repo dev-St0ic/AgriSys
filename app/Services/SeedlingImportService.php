@@ -371,7 +371,7 @@ class SeedlingImportService
         throw new \Exception("Seedling request number limit reached for year {$year}.");
     }
 
-    return "REQ-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+    return "REQ-{$year}-" . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
     }
 
     private function capitaliseName(string $name): string

@@ -375,7 +375,7 @@ class SeedlingRequest extends Model
         throw new \Exception("Request number limit reached for year {$year}.");
     }
 
-    return "REQ-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+    return "REQ-{$year}-" . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
     }
 
     /**
