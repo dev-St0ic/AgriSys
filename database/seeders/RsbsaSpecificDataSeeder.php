@@ -206,7 +206,7 @@ class RsbsaSpecificDataSeeder extends Seeder
             }
 
             // Generate application number based on year
-            $applicationNumber = 'RSBSA-' . $data['year'] . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            $applicationNumber = 'RSBSA-' . $data['year'] . '-' . str_pad(rand(1, 9999), 3, '0', STR_PAD_LEFT);
 
             // Set approved date based on year
             $approvedAt = Carbon::createFromDate($data['year'], rand(1, 12), rand(1, 28));
