@@ -97,6 +97,6 @@ class UserRegistrationSeeder extends Seeder
             UserRegistration::create($user);
         }
 
-        $this->command->info('10 unverified users seeded successfully..');
+        $this->command->info('10 unverified users seeded successfully.');
     }
 }

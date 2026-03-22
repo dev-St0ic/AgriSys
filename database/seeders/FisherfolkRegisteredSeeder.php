@@ -648,7 +648,7 @@ class FisherfolkRegisteredSeeder extends Seeder
         $this->command->info("Records updated: {$updatedCount}");
         $this->command->info('Total records in database: ' . FishrApplication::count());
         
-        $this->command->info("\n📊 FishR Number Statistics:");
+        $this->command->info("\n FishR Number Statistics:");
         $this->command->info("Matched from boat data: {$matchedCount}");
         $this->command->info("Sequential FISHR numbers: {$sequentialCount}");
     }

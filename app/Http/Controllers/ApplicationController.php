@@ -487,7 +487,7 @@ public function submitSeedlings(Request $request)
 public function submitRsbsa(Request $request)
 {
     try {
-        // ✅ Authentication check
+        // Authentication check
         $userId = session('user.id');
 
         if (!$userId) {
@@ -527,7 +527,7 @@ public function submitRsbsa(Request $request)
             'username' => $userExists->username,
         ]);
 
-        // ✅ DUPLICATE CHECK: prevent re-submission if pending/under_review
+        // DUPLICATE CHECK: prevent re-submission if pending/under_review
         $hasPending = RsbsaApplication::where('user_id', $userId)
             ->whereIn('status', ['pending', 'under_review'])
             ->exists();
@@ -542,7 +542,7 @@ public function submitRsbsa(Request $request)
                 ->with('error', 'You already have a pending RSBSA application. Please wait for it to be processed.');
         }
 
-        // ✅ COMPLETE VALIDATION WITH ALL FIELDS
+        // COMPLETE VALIDATION WITH ALL FIELDS
         $validated = $request->validate([
             // Basic info
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
@@ -554,7 +554,7 @@ public function submitRsbsa(Request $request)
             // Contact & location
             'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:255',
-            'address' => 'required|string|max:500',  // ✅ NOW VALIDATED
+            'address' => 'required|string|max:500',  // NOW VALIDATED
 
             // Main livelihood
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
@@ -614,7 +614,7 @@ public function submitRsbsa(Request $request)
         // Normalize mobile number
         $normalizedMobile = $this->normalizeMobileNumber($validated['contact_number']);
 
-        // ✅ CREATE APPLICATION WITH ALL CORRECT FIELD NAMES
+        // CREATE APPLICATION WITH ALL CORRECT FIELD NAMES
         $applicationData = [
             'user_id' => $userId,
             'application_number' => $applicationNumber,
@@ -629,7 +629,7 @@ public function submitRsbsa(Request $request)
             // Contact & location
             'contact_number' => $normalizedMobile,
             'barangay' => $validated['barangay'],
-            'address' => $validated['address'],  // ✅ NOW SAVED
+            'address' => $validated['address'],  //  NOW SAVED
 
             // Main livelihood
             'main_livelihood' => $validated['main_livelihood'],
@@ -638,7 +638,7 @@ public function submitRsbsa(Request $request)
             'farmer_crops' => $validated['farmer_crops'] ?? null,
             'farmer_other_crops' => $validated['farmer_other_crops'] ?? null,
             'farmer_livestock' => $validated['farmer_livestock'] ?? null,
-            'farmer_land_area' => $validated['farmer_land_area'] ?? null,  // ✅ CORRECT FIELD NAME
+            'farmer_land_area' => $validated['farmer_land_area'] ?? null,  //  CORRECT FIELD NAME
             'farmer_type_of_farm' => $validated['farmer_type_of_farm'] ?? null,
             'farmer_land_ownership' => $validated['farmer_land_ownership'] ?? null,
             'farmer_special_status' => $validated['farmer_special_status'] ?? null,
@@ -689,7 +689,7 @@ public function submitRsbsa(Request $request)
             Log::error('Activity logging failed: ' . $e->getMessage());
         }
 
-        // 🔔 Trigger notification for admins
+        //  Trigger notification for admins
         NotificationService::rsbsaApplicationCreated($rsbsaApplication);
 
         $successMessage = 'Your RSBSA application has been submitted successfully! Application Number: ' .
@@ -1108,16 +1108,34 @@ try {
         return $applicationNumber;
     }
 
-    /**
-     * Generate unique application number for RSBSA applications
-     */
+    // /**
+    //  * Generate unique application number for RSBSA applications
+    //  */
+    // private function generateUniqueRsbsaApplicationNumber(): string
+    // {
+    //     do {
+    //         $applicationNumber = 'RSBSA-' . strtoupper(Str::random(8));
+    //     } while (RsbsaApplication::where('application_number', $applicationNumber)->exists());
+
+    //     return $applicationNumber;
+    // }
     private function generateUniqueRsbsaApplicationNumber(): string
     {
-        do {
-            $applicationNumber = 'RSBSA-' . strtoupper(Str::random(8));
-        } while (RsbsaApplication::where('application_number', $applicationNumber)->exists());
+        $year = now()->year;
 
-        return $applicationNumber;
+        $last = RsbsaApplication::where('application_number', 'like', "RSBSA-{$year}-%")
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("RSBSA application number limit reached for year {$year}.");
+        }
+
+        return "RSBSA-{$year}-" . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
     }
 
     /**
