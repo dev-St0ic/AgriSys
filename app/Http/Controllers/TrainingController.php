@@ -42,7 +42,7 @@ class TrainingController extends Controller
         }
 
         // Order by latest first
-        $query->orderBy('created_at', 'desc');
+        $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
 
         // Paginate results
         $trainings = $query->paginate(10)->withQueryString();

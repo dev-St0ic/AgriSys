@@ -62,6 +62,7 @@ class RsbsaController extends Controller
 
             // Sort and paginate
             $applications = $query->orderBy('created_at', 'desc')
+                                  ->orderBy('id', 'desc')
                                   ->paginate(10)
                                   ->appends($request->query());
 
@@ -731,7 +732,7 @@ class RsbsaController extends Controller
                 $query->where('main_livelihood', $request->main_livelihood);
             }
 
-            $applications = $query->orderBy('created_at', 'desc')->get();
+            $applications = $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->get();
 
             $this->logActivity('exported', 'RsbsaApplication', null, [
                 'records_count' => $applications->count(),
