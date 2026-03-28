@@ -189,7 +189,7 @@ class SeedlingRequestController extends Controller
                 $documentPath = $request->file('document')->store('seedling-requests', 'public');
             }
 
-             // ✅ PARSE AND FORMAT PICKUP DATE
+             // PARSE AND FORMAT PICKUP DATE
             $pickupDate = null;
             $pickupExpiredAt = null;
             if (!empty($validated['pickup_date'])) {
@@ -253,7 +253,7 @@ class SeedlingRequestController extends Controller
 
             \DB::commit();
 
-            // ✅ CHECK IF AJAX REQUEST FIRST
+            // CHECK IF AJAX REQUEST FIRST
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
@@ -504,7 +504,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             // Send admin notification
             NotificationService::seedlingRequestDeleted($seedlingRequest);
 
-            // ✅ FIXED: Accurate log activity
+            // FIXED: Accurate log activity
             $this->logActivity('deleted', 'SeedlingRequest', $seedlingRequest->id, [
                 'request_number' => $requestNumber,
                 'action' => 'moved_to_recycle_bin',
@@ -512,7 +512,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 'supplies_returned' => ($approvedItems->count() > 0 && !$seedlingRequest->claimed_at)
             ]);
 
-            // ✅ FIXED: Accurate log message
+            //  FIXED: Accurate log message
             \Log::info('Supply request moved to recycle bin', [
                 'request_id' => $seedlingRequest->id,
                 'request_number' => $requestNumber,
@@ -521,7 +521,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 'supplies_returned' => ($approvedItems->count() > 0 && !$seedlingRequest->claimed_at) ? 'Yes' : 'No'
             ]);
 
-            // ✅ FIXED: Non-contradictory message
+            //  FIXED: Non-contradictory message
             $message = "Request {$requestNumber} has been moved to recycle bin";
 
             if ($seedlingRequest->claimed_at) {
@@ -595,7 +595,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             ->get()
             ->keyBy('id');
 
-        // ✅ CHECK IF ANY ITEMS ACTUALLY CHANGED STATUS
+        //  CHECK IF ANY ITEMS ACTUALLY CHANGED STATUS
         $hasItemChanges = false;
         foreach ($itemStatuses as $itemId => $status) {
             $item = $items->get((int) $itemId);
@@ -605,7 +605,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             }
         }
 
-        // ✅ ALSO CHECK IF REMARKS CHANGED
+        // ALSO CHECK IF REMARKS CHANGED
         $currentRemarks = $seedlingRequest->remarks ?? '';
         $newRemarks = $validated['remarks'] ?? '';
         $hasRemarksChange = $currentRemarks !== $newRemarks;
@@ -659,7 +659,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 $item->save();
                 $approvedCount++;
 
-                // // ✅ SUPPLY DEDUCTION + STOCK NOTIFICATIONS
+                // //  SUPPLY DEDUCTION + STOCK NOTIFICATIONS
                 // if (!$wasApproved && $item->categoryItem) {
                 //     $success = $item->categoryItem->distributeSupply(
                 //         $item->requested_quantity,
@@ -673,7 +673,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 //         throw new \Exception("Failed to distribute supply for {$item->item_name}");
                 //     }
 
-                //     // ✅ CHECK STOCK LEVELS AFTER DISTRIBUTION
+                //     //  CHECK STOCK LEVELS AFTER DISTRIBUTION
                 //     $item->categoryItem->refresh();
                 //     if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
                 //         NotificationService::seedlingStockLow($item->categoryItem);
@@ -740,14 +740,14 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             'rejected_at' => $overallStatus === 'rejected' ? now() : null,
         ]);
 
-        // ✅ SET PICKUP DATE (30 days from approval) for approved/partially approved requests
+        // SET PICKUP DATE (30 days from approval) for approved/partially approved requests
         if (($overallStatus === 'approved' || $overallStatus === 'partially_approved') && !$seedlingRequest->pickup_date) {
             $seedlingRequest->pickup_date = now()->addDays(30);
             $seedlingRequest->pickup_expired_at = $seedlingRequest->pickup_date->copy()->addDay();
             $seedlingRequest->save();
         }
 
-        // ✅ STATUS CHANGE NOTIFICATION
+        // STATUS CHANGE NOTIFICATION
         if ($previousStatus !== $overallStatus) {
             NotificationService::seedlingRequestStatusChanged($seedlingRequest, $previousStatus);
         }
@@ -1105,7 +1105,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
     // Getting the import template
     public function importTemplate()
     {
-        $filename = 'seedling_requests_import_template.csv';
+        $filename = 'supply_requests_import_template.csv';
 
         $headers = [
             'Content-Type'        => 'text/csv; charset=UTF-8',
@@ -1117,58 +1117,62 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 
         $callback = function () {
             $file = fopen('php://output', 'w');
-
-            // UTF-8 BOM for Excel compatibility
             fputs($file, "\xEF\xBB\xBF");
 
             // Column headers
             fputcsv($file, [
-                'first_name',
-                'middle_name',
-                'last_name',
-                'extension_name',
-                'contact_number',
-                'barangay',
-                'item_name',
-                'quantity',
-                'pickup_date',
-                'status',
-                'remarks',
+                'first_name', 'middle_name', 'last_name', 'extension_name',
+                'contact_number', 'barangay',
+                'category_1', 'item_1', 'quantity_1',
+                'category_2', 'item_2', 'quantity_2',
+                'category_3', 'item_3', 'quantity_3',
+                'category_4', 'item_4', 'quantity_4',
+                'category_5', 'item_5', 'quantity_5',
+                'pickup_date', 'status', 'remarks',
             ]);
 
-            // Example row 1 — person with one item
+            // Example row 1 — 3 items
             fputcsv($file, [
-                'Juan', 'Dela', 'Cruz', '', '09171234567',
-                'Poblacion', 'Rice Seeds', '10', '2025-04-15', 'pending', '',
+                'Juan', 'Dela', 'Cruz', '', '09171234567', 'Poblacion',
+                'Seedlings', 'Kamatis', '10',
+                'Seeds',     'Pechay',  '5',
+                'Seedlings', 'Okra',    '8',
+                '', '', '',
+                '', '', '',
+                '2026-04-07', 'pending', '',
             ]);
 
-            // Example row 2 — same person, second item (same name/contact = same request)
+            // Example row 2 — 1 item
             fputcsv($file, [
-                'Juan', 'Dela', 'Cruz', '', '09171234567',
-                'Poblacion', 'Fertilizer', '5', '2025-04-15', 'pending', '',
+                'Mariano', '', 'Santos', 'Jr.', '09281234567', 'Bagong Silang',
+                'Seedlings', 'Talong', '20',
+                '', '', '',
+                '', '', '',
+                '', '', '',
+                '', '', '',
+                '', 'pending', 'Walk-in applicant',
             ]);
 
-            // Example row 3 — different person
-            fputcsv($file, [
-                'Maria', '', 'Santos', 'Jr.', '09281234567',
-                'Bagong Silang', 'Vegetable Seedlings', '20', '', 'pending', 'Walk-in applicant',
-            ]);
-
-            // Reference section
             fputcsv($file, []);
             fputcsv($file, ['=== VALID VALUES REFERENCE ===']);
             fputcsv($file, []);
 
             fputcsv($file, ['--- Notes ---']);
-            fputcsv($file, ['To add multiple items for ONE request: repeat rows with the same first_name + last_name + contact_number.']);
+            fputcsv($file, ['Each row = ONE request. Add up to 5 items per row using item_1 through item_5.']);
+            fputcsv($file, ['Leave unused item columns (category_N, item_N, quantity_N) blank.']);
             fputcsv($file, ['middle_name, extension_name, pickup_date, status, and remarks are optional.']);
             fputcsv($file, ['If status is left blank, it defaults to "pending".']);
-            fputcsv($file, ['pickup_date format: YYYY-MM-DD (e.g. 2025-04-15). Must be a weekday.']);
+            fputcsv($file, ['pickup_date format: YYYY-MM-DD (e.g. 2026-04-15). Must be a weekday.']);
             fputcsv($file, ['Contact number must be 11 digits starting with 09 (e.g. 09171234567).']);
-            fputcsv($file, ['Delete the example rows (rows 2-4) before uploading.']);
+            fputcsv($file, ['Delete the example rows before uploading.']);
 
             fputcsv($file, []);
-            fputcsv($file, ['--- Statuses ---']);
+            fputcsv($file, ['--- Valid Categories ---']);
+            fputcsv($file, ['Seeds']);
+            fputcsv($file, ['Seedlings']);
+
+            fputcsv($file, []);
+            fputcsv($file, ['--- Valid Statuses ---']);
             fputcsv($file, ['pending']);
             fputcsv($file, ['under_review']);
             fputcsv($file, ['approved']);
@@ -1178,12 +1182,12 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             fputcsv($file, []);
             fputcsv($file, ['--- Valid Barangays ---']);
             $barangays = [
-                'Bagong Silang','Calendola','Chrysanthemum','Cuyab','Estrella',
-                'Fatima','G.S.I.S.','Landayan','Langgam','Laram','Magsaysay',
-                'Maharlika','Narra','Nueva','Pacita 1','Pacita 2','Poblacion',
-                'Riverside','Rosario','Sampaguita Village','San Antonio',
-                'San Lorenzo Ruiz','San Roque','San Vicente','Santo Niño',
-                'United Bayanihan','United Better Living',
+                'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Estrella',
+                'Fatima', 'G.S.I.S.', 'Landayan', 'Langgam', 'Laram', 'Magsaysay',
+                'Maharlika', 'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion',
+                'Riverside', 'Rosario', 'Sampaguita Village', 'San Antonio',
+                'San Lorenzo Ruiz', 'San Roque', 'San Vicente', 'Santo Niño',
+                'United Bayanihan', 'United Better Living',
             ];
             foreach ($barangays as $b) {
                 fputcsv($file, [$b]);

@@ -62,6 +62,7 @@ class RsbsaController extends Controller
 
             // Sort and paginate
             $applications = $query->orderBy('created_at', 'desc')
+                                  ->orderBy('id', 'desc')
                                   ->paginate(10)
                                   ->appends($request->query());
 
@@ -602,11 +603,21 @@ class RsbsaController extends Controller
      */
     private function generateApplicationNumber()
     {
-        do {
-            $number = 'RSBSA-' . strtoupper(Str::random(8));
-        } while (RsbsaApplication::where('application_number', $number)->exists());
+        $year = now()->year;
 
-        return $number;
+        $last = RsbsaApplication::where('application_number', 'like', "RSBSA-{$year}-%")
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("RSBSA application number limit reached for year {$year}.");
+        }
+
+        return "RSBSA-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -721,7 +732,7 @@ class RsbsaController extends Controller
                 $query->where('main_livelihood', $request->main_livelihood);
             }
 
-            $applications = $query->orderBy('created_at', 'desc')->get();
+            $applications = $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->get();
 
             $this->logActivity('exported', 'RsbsaApplication', null, [
                 'records_count' => $applications->count(),

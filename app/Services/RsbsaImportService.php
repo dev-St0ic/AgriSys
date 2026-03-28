@@ -356,11 +356,21 @@ class RsbsaImportService
 
     private function generateApplicationNumber(): string
     {
-        do {
-            $number = 'RSBSA-' . strtoupper(Str::random(8));
-        } while (RsbsaApplication::where('application_number', $number)->exists());
+        $year = now()->year;
 
-        return $number;
+        $last = RsbsaApplication::where('application_number', 'like', "RSBSA-{$year}-%")
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("RSBSA application number limit reached for year {$year}.");
+        }
+
+        return "RSBSA-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     private function capitaliseName(string $name): string

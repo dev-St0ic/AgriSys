@@ -301,7 +301,7 @@ function handleFishRInput(event) {
     }
 
     // Check format in real-time
-    const formatValid = /^FISHR-[A-Z0-9]{8}$/i.test(number);
+    const formatValid = /^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i.test(number);
 
     if (number.length < 6) {
         // Too short - neutral state
@@ -312,7 +312,7 @@ function handleFishRInput(event) {
         // Invalid format
         fishRInput.style.borderColor = '#dc3545';
         fishRInput.style.backgroundColor = '#fff8f8';
-        showValidationMessage(fishRInput, 'Format should be FISHR-XXXXXXXX', 'error');
+        showValidationMessage(fishRInput, 'Format should be FISHR-XXXX-XXX', 'error');
     } else if (formatValid) {
         // Valid format - show pending validation
         fishRInput.style.borderColor = '#ffc107';
@@ -839,8 +839,8 @@ function validateBoatRForm(form) {
 
     // Validate FishR number format
     const fishRNumber = formData.get('fishr_number');
-    if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
-        agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)', { title: 'Invalid Format' });
+    if (!fishRNumber.match(/^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i)) {
+        agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXX-XXX)', { title: 'Invalid Format' });
         const fishRInput = form.querySelector('#boatr_fishr_number');
         if (fishRInput) fishRInput.focus();
         return false;
@@ -987,8 +987,8 @@ function validateBoatRFormUpdated(form) {
 
     // Validate FishR number format
     const fishRNumber = formData.get('fishr_number');
-    if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
-        agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)', { title: 'Invalid Format' });
+    if (!fishRNumber.match(/^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i)) {
+        agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXX-XXX)', { title: 'Invalid Format' });
         const fishRInput = form.querySelector('#boatr_fishr_number');
         if (fishRInput) fishRInput.focus();
         return false;

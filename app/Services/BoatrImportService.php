@@ -353,7 +353,7 @@ class BoatrImportService
         }
 
         return BoatrApplication::create([
-            'application_number'   => $this->generateApplicationNumber(),
+            'application_number'   => $this->generateApplicationNumber($classification),
             'first_name'           => $this->capitaliseName(trim($row['first_name'])),
             'middle_name'          => $this->capitaliseName(trim($row['middle_name'] ?? '')),
             'last_name'            => $this->capitaliseName(trim($row['last_name'])),
@@ -375,13 +375,25 @@ class BoatrImportService
         ]);
     }
 
-    private function generateApplicationNumber(): string
+    private function generateApplicationNumber(string $boatClassification): string
     {
-        do {
-            $number = 'BOATR-' . strtoupper(Str::random(8));
-        } while (BoatrApplication::where('application_number', $number)->exists());
+        $year = now()->year;
+        $prefix = $boatClassification === 'Motorized' ? 'M' : 'NM';
+        $pattern = "BOATR-{$year}-{$prefix}-%";
 
-        return $number;
+        $last = BoatrApplication::where('application_number', 'like', $pattern)
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 999) {
+            throw new \Exception("BoatR application number limit reached for {$prefix} classification in year {$year}.");
+        }
+
+        return "BOATR-{$year}-{$prefix}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     private function capitaliseName(string $name): string

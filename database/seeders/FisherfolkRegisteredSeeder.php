@@ -10,657 +10,284 @@ class FisherfolkRegisteredSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * FishR number format: FISHR-YYYY-NNN (sequential, no -B- distinction).
+     * Boat owners are simply the next numbers after the non-boat fisherfolk
+     * within the same year. The BoatrRegisteredSeeder references these same numbers.
+     *
+     * 2024: non-boat = 001–009, boat owners = 010–123
+     * 2025: non-boat = 001–038, boat owners = 039–068
+     * 2026: non-boat = 001–005, boat owners = 006–012
      */
     public function run(): void
     {
         $this->command->info('Starting FisherfolkRegisteredSeeder...');
 
         $fisherfolkData = [
+
+            // =========================================================
+            // ORIGINAL REGISTERED FISHERFOLK (non-boat)
+            // =========================================================
+
             // ==================== 2024 DATA ====================
-            // No matches found in boat data - use sequential FISHR numbers
-            [
-                'first_name' => 'MOHAMMAD MUSA',
-                'middle_name' => 'ENGKENG',
-                'last_name' => 'AHMAD',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-001', // Sequential
-                'registration_number' => 'FISHR-2024-001',
-                'created_at' => Carbon::create(2024, 1, 15),
-            ],
-            [
-                'first_name' => 'GLORIA',
-                'middle_name' => 'MARQUEZ',
-                'last_name' => 'APILAN',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-002', // Sequential
-                'registration_number' => 'FISHR-2024-002',
-                'created_at' => Carbon::create(2024, 1, 20),
-            ],
-            [
-                'first_name' => 'MERLINDA',
-                'middle_name' => 'PADILLA',
-                'last_name' => 'BORJA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-003', // Sequential
-                'registration_number' => 'FISHR-2024-003',
-                'created_at' => Carbon::create(2024, 2, 5),
-            ],
-            [
-                'first_name' => 'LUISITO',
-                'middle_name' => 'ORPEL',
-                'last_name' => 'CASILAG',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-004', // Sequential
-                'registration_number' => 'FISHR-2024-004',
-                'created_at' => Carbon::create(2024, 2, 10),
-            ],
-            [
-                'first_name' => 'APRONIANO',
-                'middle_name' => 'TRASMIL',
-                'last_name' => 'FILIPINAS',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-005', // Sequential
-                'registration_number' => 'FISHR-2024-005',
-                'created_at' => Carbon::create(2024, 3, 5),
-            ],
-            [
-                'first_name' => 'ALFONSO',
-                'middle_name' => 'ABUNDO',
-                'last_name' => 'TEMPROZA',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-006', // Sequential
-                'registration_number' => 'FISHR-2024-006',
-                'created_at' => Carbon::create(2024, 3, 12),
-            ],
-            [
-                'first_name' => 'NURMIN',
-                'middle_name' => 'ASLIM',
-                'last_name' => 'TOTOH',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-007', // Sequential
-                'registration_number' => 'FISHR-2024-007',
-                'created_at' => Carbon::create(2024, 4, 8),
-            ],
-            [
-                'first_name' => 'SOFIA',
-                'middle_name' => 'AMAGO',
-                'last_name' => 'TRONO',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-008', // Sequential
-                'registration_number' => 'FISHR-2024-008',
-                'created_at' => Carbon::create(2024, 4, 15),
-            ],
-            [
-                'first_name' => 'MELCHOR',
-                'middle_name' => 'ROBLES',
-                'last_name' => 'YARIS',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => 'vending',
-                'other_secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2024-009', // Sequential
-                'registration_number' => 'FISHR-2024-009',
-                'created_at' => Carbon::create(2024, 5, 3),
-            ],
+            ['first_name'=>'MOHAMMAD MUSA', 'middle_name'=>'ENGKENG',       'last_name'=>'AHMAD',           'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-001','registration_number'=>'FISHR-2024-001','created_at'=>Carbon::create(2024,1,15)],
+            ['first_name'=>'GLORIA',         'middle_name'=>'MARQUEZ',       'last_name'=>'APILAN',          'barangay'=>'Cuyab',    'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-002','registration_number'=>'FISHR-2024-002','created_at'=>Carbon::create(2024,1,20)],
+            ['first_name'=>'MERLINDA',       'middle_name'=>'PADILLA',       'last_name'=>'BORJA',           'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-003','registration_number'=>'FISHR-2024-003','created_at'=>Carbon::create(2024,2,5)],
+            ['first_name'=>'LUISITO',        'middle_name'=>'ORPEL',         'last_name'=>'CASILAG',         'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-004','registration_number'=>'FISHR-2024-004','created_at'=>Carbon::create(2024,2,10)],
+            ['first_name'=>'APRONIANO',      'middle_name'=>'TRASMIL',       'last_name'=>'FILIPINAS',       'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-005','registration_number'=>'FISHR-2024-005','created_at'=>Carbon::create(2024,3,5)],
+            ['first_name'=>'ALFONSO',        'middle_name'=>'ABUNDO',        'last_name'=>'TEMPROZA',        'barangay'=>'Cuyab',    'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-006','registration_number'=>'FISHR-2024-006','created_at'=>Carbon::create(2024,3,12)],
+            ['first_name'=>'NURMIN',         'middle_name'=>'ASLIM',         'last_name'=>'TOTOH',           'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-007','registration_number'=>'FISHR-2024-007','created_at'=>Carbon::create(2024,4,8)],
+            ['first_name'=>'SOFIA',          'middle_name'=>'AMAGO',         'last_name'=>'TRONO',           'barangay'=>'Cuyab',    'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2024-008','registration_number'=>'FISHR-2024-008','created_at'=>Carbon::create(2024,4,15)],
+            ['first_name'=>'MELCHOR',        'middle_name'=>'ROBLES',        'last_name'=>'YARIS',           'barangay'=>'Cuyab',    'main_livelihood'=>'capture',    'secondary_livelihood'=>'vending','fishr_number'=>'FISHR-2024-009','registration_number'=>'FISHR-2024-009','created_at'=>Carbon::create(2024,5,3)],
+
+            // ==================== 2024 BOAT OWNERS (continuing from 010) ====================
+            ['first_name'=>'TEODORO',        'middle_name'=>null,   'last_name'=>'CLEMENTE',        'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-010','registration_number'=>'FISHR-2024-010','created_at'=>Carbon::create(2024,1,14)],
+            ['first_name'=>'RONALD',         'middle_name'=>'E.',   'last_name'=>'CURAMPEZ',        'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-011','registration_number'=>'FISHR-2024-011','created_at'=>Carbon::create(2024,1,17)],
+            ['first_name'=>'ARTEMIO',        'middle_name'=>'B.',   'last_name'=>'GUAB',            'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-012','registration_number'=>'FISHR-2024-012','created_at'=>Carbon::create(2024,1,23)],
+            ['first_name'=>'CHRISTIAN',      'middle_name'=>'P.',   'last_name'=>'MAGO',            'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-013','registration_number'=>'FISHR-2024-013','created_at'=>Carbon::create(2024,2,1)],
+            ['first_name'=>'FREDDIE',        'middle_name'=>'H.',   'last_name'=>'JUANERIO',        'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-014','registration_number'=>'FISHR-2024-014','created_at'=>Carbon::create(2024,2,4)],
+            ['first_name'=>'DARYL',          'middle_name'=>null,   'last_name'=>'ILAGAN',          'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-015','registration_number'=>'FISHR-2024-015','created_at'=>Carbon::create(2024,2,7)],
+            ['first_name'=>'CRISPIN',        'middle_name'=>'A.',   'last_name'=>'VILLADIEGO',      'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-016','registration_number'=>'FISHR-2024-016','created_at'=>Carbon::create(2024,2,10)],
+            ['first_name'=>'DEMETRIO',       'middle_name'=>'C.',   'last_name'=>'MORENO',          'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-017','registration_number'=>'FISHR-2024-017','created_at'=>Carbon::create(2024,2,13)],
+            ['first_name'=>'RYAN',           'middle_name'=>'B.',   'last_name'=>'ANGELES',         'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-018','registration_number'=>'FISHR-2024-018','created_at'=>Carbon::create(2024,2,16)],
+            ['first_name'=>'EDGAR',          'middle_name'=>'A.',   'last_name'=>'ALAMO',           'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-019','registration_number'=>'FISHR-2024-019','created_at'=>Carbon::create(2024,2,19)],
+            ['first_name'=>'MARIANO',        'middle_name'=>'M.',   'last_name'=>'MACALINAO',       'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-020','registration_number'=>'FISHR-2024-020','created_at'=>Carbon::create(2024,2,22)],
+            ['first_name'=>'RICO',           'middle_name'=>'O.',   'last_name'=>'MACHADO',         'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-021','registration_number'=>'FISHR-2024-021','created_at'=>Carbon::create(2024,2,25)],
+            ['first_name'=>'ALFREDO',        'middle_name'=>'T.',   'last_name'=>'CAOYONG',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-022','registration_number'=>'FISHR-2024-022','created_at'=>Carbon::create(2024,3,5)],
+            ['first_name'=>'LORENZO',        'middle_name'=>'R.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-023','registration_number'=>'FISHR-2024-023','created_at'=>Carbon::create(2024,3,8)],
+            ['first_name'=>'RUEL',           'middle_name'=>'M.',   'last_name'=>'GUMAL',           'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-024','registration_number'=>'FISHR-2024-024','created_at'=>Carbon::create(2024,3,11)],
+            ['first_name'=>'RODITO',         'middle_name'=>'M.',   'last_name'=>'GUMAL',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-025','registration_number'=>'FISHR-2024-025','created_at'=>Carbon::create(2024,3,14)],
+            ['first_name'=>'NOLLIE',         'middle_name'=>'Q.',   'last_name'=>'CAOYONG',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-026','registration_number'=>'FISHR-2024-026','created_at'=>Carbon::create(2024,3,17)],
+            ['first_name'=>'ARIEL',          'middle_name'=>'N.',   'last_name'=>'DELOS REYES',     'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-027','registration_number'=>'FISHR-2024-027','created_at'=>Carbon::create(2024,3,20)],
+            ['first_name'=>'MICHAEL',        'middle_name'=>'S.',   'last_name'=>'HEREDIA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-028','registration_number'=>'FISHR-2024-028','created_at'=>Carbon::create(2024,3,23)],
+            ['first_name'=>'ENRICO',         'middle_name'=>'S.',   'last_name'=>'DELOS REYES SR.', 'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-029','registration_number'=>'FISHR-2024-029','created_at'=>Carbon::create(2024,3,26)],
+            ['first_name'=>'RENATO',         'middle_name'=>'B.',   'last_name'=>'OLIVAREZ',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-030','registration_number'=>'FISHR-2024-030','created_at'=>Carbon::create(2024,3,29)],
+            ['first_name'=>'RODRIGO',        'middle_name'=>'B.',   'last_name'=>'DOROTEO',         'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-031','registration_number'=>'FISHR-2024-031','created_at'=>Carbon::create(2024,4,1)],
+            ['first_name'=>'JERICKSON',      'middle_name'=>'C.',   'last_name'=>'SILVANO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-032','registration_number'=>'FISHR-2024-032','created_at'=>Carbon::create(2024,4,10)],
+            ['first_name'=>'CESAR',          'middle_name'=>null,   'last_name'=>'ABUNDO',          'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-033','registration_number'=>'FISHR-2024-033','created_at'=>Carbon::create(2024,4,13)],
+            ['first_name'=>'ELISEO',         'middle_name'=>'C.',   'last_name'=>'ESCUDERO',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-034','registration_number'=>'FISHR-2024-034','created_at'=>Carbon::create(2024,4,16)],
+            ['first_name'=>'MARCIAL',        'middle_name'=>'L.',   'last_name'=>'TORRES',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-035','registration_number'=>'FISHR-2024-035','created_at'=>Carbon::create(2024,4,19)],
+            ['first_name'=>'PELAGIO',        'middle_name'=>'A.',   'last_name'=>'GARCIA',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-036','registration_number'=>'FISHR-2024-036','created_at'=>Carbon::create(2024,4,22)],
+            ['first_name'=>'FERDINAND',      'middle_name'=>'P.',   'last_name'=>'GARCIA',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-037','registration_number'=>'FISHR-2024-037','created_at'=>Carbon::create(2024,4,25)],
+            ['first_name'=>'RICKY',          'middle_name'=>'C.',   'last_name'=>'CURAMPES',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-038','registration_number'=>'FISHR-2024-038','created_at'=>Carbon::create(2024,4,28)],
+            ['first_name'=>'EDUARDO',        'middle_name'=>'E.',   'last_name'=>'GONZALES',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-039','registration_number'=>'FISHR-2024-039','created_at'=>Carbon::create(2024,5,1)],
+            ['first_name'=>'BERLIN',         'middle_name'=>'P.',   'last_name'=>'OLIVAREZ',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-040','registration_number'=>'FISHR-2024-040','created_at'=>Carbon::create(2024,5,4)],
+            ['first_name'=>'MANUEL',         'middle_name'=>'R.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-041','registration_number'=>'FISHR-2024-041','created_at'=>Carbon::create(2024,5,7)],
+            ['first_name'=>'CRISPIN',        'middle_name'=>'R.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-042','registration_number'=>'FISHR-2024-042','created_at'=>Carbon::create(2024,5,10)],
+            ['first_name'=>'LARIO',          'middle_name'=>'J.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-043','registration_number'=>'FISHR-2024-043','created_at'=>Carbon::create(2024,5,13)],
+            ['first_name'=>'ROBERT',         'middle_name'=>'T.',   'last_name'=>'CORDOVA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-044','registration_number'=>'FISHR-2024-044','created_at'=>Carbon::create(2024,5,16)],
+            ['first_name'=>'FLORENTINO',     'middle_name'=>'R.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-045','registration_number'=>'FISHR-2024-045','created_at'=>Carbon::create(2024,5,19)],
+            ['first_name'=>'ROGER',          'middle_name'=>'A.',   'last_name'=>'TEÑIDO',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-046','registration_number'=>'FISHR-2024-046','created_at'=>Carbon::create(2024,5,22)],
+            ['first_name'=>'VENANCIO',       'middle_name'=>'C.',   'last_name'=>'SARIO',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-047','registration_number'=>'FISHR-2024-047','created_at'=>Carbon::create(2024,5,25)],
+            ['first_name'=>'FERNAND',        'middle_name'=>'C.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-048','registration_number'=>'FISHR-2024-048','created_at'=>Carbon::create(2024,5,28)],
+            ['first_name'=>'FERNANDO',       'middle_name'=>'R.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-049','registration_number'=>'FISHR-2024-049','created_at'=>Carbon::create(2024,5,31)],
+            ['first_name'=>'DANILO',         'middle_name'=>'V.',   'last_name'=>'MACHADO',         'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-050','registration_number'=>'FISHR-2024-050','created_at'=>Carbon::create(2024,6,3)],
+            ['first_name'=>'DOMINGO',        'middle_name'=>'Q.',   'last_name'=>'RONCALES',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-051','registration_number'=>'FISHR-2024-051','created_at'=>Carbon::create(2024,6,6)],
+            ['first_name'=>'GERMAN',         'middle_name'=>'M.',   'last_name'=>'HALAYAHAY',       'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-052','registration_number'=>'FISHR-2024-052','created_at'=>Carbon::create(2024,6,9)],
+            ['first_name'=>'ROMAR',          'middle_name'=>'S.',   'last_name'=>'AMION',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-053','registration_number'=>'FISHR-2024-053','created_at'=>Carbon::create(2024,6,12)],
+            ['first_name'=>'JAIMEE',         'middle_name'=>'V.',   'last_name'=>'MACHADO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-054','registration_number'=>'FISHR-2024-054','created_at'=>Carbon::create(2024,6,15)],
+            ['first_name'=>'ROMEO',          'middle_name'=>'R.',   'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-055','registration_number'=>'FISHR-2024-055','created_at'=>Carbon::create(2024,6,18)],
+            ['first_name'=>'JIMSON',         'middle_name'=>'M.',   'last_name'=>'BACHECHA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-056','registration_number'=>'FISHR-2024-056','created_at'=>Carbon::create(2024,6,21)],
+            ['first_name'=>'JULIUS',         'middle_name'=>'P.',   'last_name'=>'ODERO',           'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-057','registration_number'=>'FISHR-2024-057','created_at'=>Carbon::create(2024,6,24)],
+            ['first_name'=>'RICARDO',        'middle_name'=>'R.',   'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-058','registration_number'=>'FISHR-2024-058','created_at'=>Carbon::create(2024,6,27)],
+            ['first_name'=>'JAVIER',         'middle_name'=>'M.',   'last_name'=>'BUCALAN',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-059','registration_number'=>'FISHR-2024-059','created_at'=>Carbon::create(2024,6,30)],
+            ['first_name'=>'ROBERTO',        'middle_name'=>'S.',   'last_name'=>'TEMPROSA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-060','registration_number'=>'FISHR-2024-060','created_at'=>Carbon::create(2024,7,3)],
+            ['first_name'=>'AERON BRIAN',    'middle_name'=>'S.',   'last_name'=>'INSORIO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-061','registration_number'=>'FISHR-2024-061','created_at'=>Carbon::create(2024,7,6)],
+            ['first_name'=>'DONATO',         'middle_name'=>'N.',   'last_name'=>'MARISTANEZ',      'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-062','registration_number'=>'FISHR-2024-062','created_at'=>Carbon::create(2024,7,9)],
+            ['first_name'=>'GRACIANO',       'middle_name'=>'R.',   'last_name'=>'INSORIO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-063','registration_number'=>'FISHR-2024-063','created_at'=>Carbon::create(2024,7,12)],
+            ['first_name'=>'AQUILINO',       'middle_name'=>'L.',   'last_name'=>'YAMBAO',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-064','registration_number'=>'FISHR-2024-064','created_at'=>Carbon::create(2024,7,15)],
+            ['first_name'=>'SENANDO',        'middle_name'=>'A.',   'last_name'=>'BACHECHA JR',     'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-065','registration_number'=>'FISHR-2024-065','created_at'=>Carbon::create(2024,7,18)],
+            ['first_name'=>'EDEJIE',         'middle_name'=>'D.',   'last_name'=>'CABANLIT',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-066','registration_number'=>'FISHR-2024-066','created_at'=>Carbon::create(2024,7,21)],
+            ['first_name'=>'CRISPIN',        'middle_name'=>'A.',   'last_name'=>'TEMPROSA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-067','registration_number'=>'FISHR-2024-067','created_at'=>Carbon::create(2024,7,24)],
+            ['first_name'=>'ELBERTO',        'middle_name'=>'E.',   'last_name'=>'CURAMPES',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-068','registration_number'=>'FISHR-2024-068','created_at'=>Carbon::create(2024,7,27)],
+            ['first_name'=>'MAR',            'middle_name'=>'A.',   'last_name'=>'LIMOSA',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-069','registration_number'=>'FISHR-2024-069','created_at'=>Carbon::create(2024,7,30)],
+            ['first_name'=>'AGNES',          'middle_name'=>'S.',   'last_name'=>'LIMOSA',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-070','registration_number'=>'FISHR-2024-070','created_at'=>Carbon::create(2024,8,2)],
+            ['first_name'=>'JAYMEE',         'middle_name'=>'M.',   'last_name'=>'LAZARO',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-071','registration_number'=>'FISHR-2024-071','created_at'=>Carbon::create(2024,8,8)],
+            ['first_name'=>'ROBERTO',        'middle_name'=>'B.',   'last_name'=>'RAGUIT',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-072','registration_number'=>'FISHR-2024-072','created_at'=>Carbon::create(2024,8,11)],
+            ['first_name'=>'JASPER',         'middle_name'=>'I.',   'last_name'=>'SARIO',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-073','registration_number'=>'FISHR-2024-073','created_at'=>Carbon::create(2024,8,17)],
+            ['first_name'=>'MOHAMMAD MUSA',  'middle_name'=>'E.',   'last_name'=>'AHMAD',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-074','registration_number'=>'FISHR-2024-074','created_at'=>Carbon::create(2024,8,20)],
+            ['first_name'=>'RONALD',         'middle_name'=>'A.',   'last_name'=>'LIM',             'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-075','registration_number'=>'FISHR-2024-075','created_at'=>Carbon::create(2024,8,29)],
+            ['first_name'=>'JENNER',         'middle_name'=>'E.',   'last_name'=>'AMAGO',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-076','registration_number'=>'FISHR-2024-076','created_at'=>Carbon::create(2024,9,1)],
+            ['first_name'=>'JOSE',           'middle_name'=>'A.',   'last_name'=>'TEMPROSA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-077','registration_number'=>'FISHR-2024-077','created_at'=>Carbon::create(2024,9,4)],
+            ['first_name'=>'ALBIN',          'middle_name'=>'A.',   'last_name'=>'ALVIAR',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-078','registration_number'=>'FISHR-2024-078','created_at'=>Carbon::create(2024,9,7)],
+            ['first_name'=>'FERDINAND',      'middle_name'=>'D.',   'last_name'=>'GUILLERMO',       'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-079','registration_number'=>'FISHR-2024-079','created_at'=>Carbon::create(2024,9,10)],
+            ['first_name'=>'DARWIN',         'middle_name'=>'B.',   'last_name'=>'CASINOS',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-080','registration_number'=>'FISHR-2024-080','created_at'=>Carbon::create(2024,9,13)],
+            ['first_name'=>'RANILLO',        'middle_name'=>'N.',   'last_name'=>'SANTAÑEZ',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-081','registration_number'=>'FISHR-2024-081','created_at'=>Carbon::create(2024,9,25)],
+            ['first_name'=>'ARTEMIO',        'middle_name'=>'V.',   'last_name'=>'ORTEGA',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-082','registration_number'=>'FISHR-2024-082','created_at'=>Carbon::create(2024,9,28)],
+            ['first_name'=>'MELCHOR',        'middle_name'=>'R.',   'last_name'=>'YARIS',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-083','registration_number'=>'FISHR-2024-083','created_at'=>Carbon::create(2024,10,1)],
+            ['first_name'=>'GENARO',         'middle_name'=>'G.',   'last_name'=>'DE BORJA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-084','registration_number'=>'FISHR-2024-084','created_at'=>Carbon::create(2024,10,4)],
+            ['first_name'=>'JONATHAN',       'middle_name'=>'S.',   'last_name'=>'ESPARAGOZA',      'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-085','registration_number'=>'FISHR-2024-085','created_at'=>Carbon::create(2024,10,7)],
+
+            // ---------- 2024 NON-MOTORIZED boat owners (continuing from 086) ----------
+            ['first_name'=>'JERRY',          'middle_name'=>'P.',   'last_name'=>'URIARTE',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-086','registration_number'=>'FISHR-2024-086','created_at'=>Carbon::create(2024,1,15)],
+            ['first_name'=>'ARIEL',          'middle_name'=>'S.',   'last_name'=>'DELOS REYES SR.', 'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-087','registration_number'=>'FISHR-2024-087','created_at'=>Carbon::create(2024,1,17)],
+            ['first_name'=>'DANILO',         'middle_name'=>'F.',   'last_name'=>'HILARIO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-088','registration_number'=>'FISHR-2024-088','created_at'=>Carbon::create(2024,1,19)],
+            ['first_name'=>'RONALDO',        'middle_name'=>'E.',   'last_name'=>'AJEDO',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-089','registration_number'=>'FISHR-2024-089','created_at'=>Carbon::create(2024,1,21)],
+            ['first_name'=>'SILVERIO',       'middle_name'=>'P.',   'last_name'=>'FLAMIANO',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-090','registration_number'=>'FISHR-2024-090','created_at'=>Carbon::create(2024,1,23)],
+            ['first_name'=>'RONALDO',        'middle_name'=>'M.',   'last_name'=>'LOS BAÑOS',       'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-091','registration_number'=>'FISHR-2024-091','created_at'=>Carbon::create(2024,1,25)],
+            ['first_name'=>'MARCOS',         'middle_name'=>'B.',   'last_name'=>'CORDIS',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-092','registration_number'=>'FISHR-2024-092','created_at'=>Carbon::create(2024,1,27)],
+            ['first_name'=>'ARMANDO',        'middle_name'=>'G.',   'last_name'=>'BAUSO',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-093','registration_number'=>'FISHR-2024-093','created_at'=>Carbon::create(2024,1,29)],
+            ['first_name'=>'ALEJANDRO',      'middle_name'=>'G.',   'last_name'=>'BAUSO',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-094','registration_number'=>'FISHR-2024-094','created_at'=>Carbon::create(2024,1,31)],
+            ['first_name'=>'ENRICO',         'middle_name'=>'G.',   'last_name'=>'DELOS REYES JR.', 'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-095','registration_number'=>'FISHR-2024-095','created_at'=>Carbon::create(2024,2,2)],
+            ['first_name'=>'VIRGILIO',       'middle_name'=>'S.',   'last_name'=>'AVELINA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-096','registration_number'=>'FISHR-2024-096','created_at'=>Carbon::create(2024,2,4)],
+            ['first_name'=>'JAY-AR',         'middle_name'=>'V.',   'last_name'=>'AVELINA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-097','registration_number'=>'FISHR-2024-097','created_at'=>Carbon::create(2024,2,6)],
+            ['first_name'=>'ALEXANDER',      'middle_name'=>'B.',   'last_name'=>'CARAN',           'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-098','registration_number'=>'FISHR-2024-098','created_at'=>Carbon::create(2024,2,8)],
+            ['first_name'=>'ROBERTO',        'middle_name'=>'R.',   'last_name'=>'ALON-ALON',       'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-099','registration_number'=>'FISHR-2024-099','created_at'=>Carbon::create(2024,2,10)],
+            ['first_name'=>'BRIAN',          'middle_name'=>'P.',   'last_name'=>'NAZARENO',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-100','registration_number'=>'FISHR-2024-100','created_at'=>Carbon::create(2024,2,12)],
+            ['first_name'=>'LAURO',          'middle_name'=>'O.',   'last_name'=>'VIERNEZA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-101','registration_number'=>'FISHR-2024-101','created_at'=>Carbon::create(2024,2,14)],
+            ['first_name'=>'EFREN',          'middle_name'=>'M.',   'last_name'=>'VERGARA',         'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-102','registration_number'=>'FISHR-2024-102','created_at'=>Carbon::create(2024,2,16)],
+            ['first_name'=>'NICANOR',        'middle_name'=>'A.',   'last_name'=>'BERON',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-103','registration_number'=>'FISHR-2024-103','created_at'=>Carbon::create(2024,2,18)],
+            ['first_name'=>'EDGAR',          'middle_name'=>'M.',   'last_name'=>'NAVALES',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-104','registration_number'=>'FISHR-2024-104','created_at'=>Carbon::create(2024,2,20)],
+            ['first_name'=>'BENJAMIN',       'middle_name'=>'S.',   'last_name'=>'BRICENIO',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-105','registration_number'=>'FISHR-2024-105','created_at'=>Carbon::create(2024,2,24)],
+            ['first_name'=>'EMMANUEL',       'middle_name'=>'P.',   'last_name'=>'CORPUZ',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-106','registration_number'=>'FISHR-2024-106','created_at'=>Carbon::create(2024,2,26)],
+            ['first_name'=>'GERARDO',        'middle_name'=>'A.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-107','registration_number'=>'FISHR-2024-107','created_at'=>Carbon::create(2024,2,28)],
+            ['first_name'=>'ROMEO',          'middle_name'=>'B.',   'last_name'=>'ALMEIDA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-108','registration_number'=>'FISHR-2024-108','created_at'=>Carbon::create(2024,3,1)],
+            ['first_name'=>'ONOPRE',         'middle_name'=>'V.',   'last_name'=>'DELA CRUZ',       'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-109','registration_number'=>'FISHR-2024-109','created_at'=>Carbon::create(2024,3,3)],
+            ['first_name'=>'VIRGILIO',       'middle_name'=>'V.',   'last_name'=>'CASULLA',         'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-110','registration_number'=>'FISHR-2024-110','created_at'=>Carbon::create(2024,3,7)],
+            ['first_name'=>'ALMARIO',        'middle_name'=>'C.',   'last_name'=>'PERBER',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-111','registration_number'=>'FISHR-2024-111','created_at'=>Carbon::create(2024,3,9)],
+            ['first_name'=>'CARLITO',        'middle_name'=>'O.',   'last_name'=>'AVELINA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-112','registration_number'=>'FISHR-2024-112','created_at'=>Carbon::create(2024,3,11)],
+            ['first_name'=>'ROGELIO',        'middle_name'=>'R.',   'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-113','registration_number'=>'FISHR-2024-113','created_at'=>Carbon::create(2024,3,13)],
+            ['first_name'=>'MARVIC',         'middle_name'=>'B.',   'last_name'=>'MEJIAS',          'barangay'=>'Cuyab',    'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-114','registration_number'=>'FISHR-2024-114','created_at'=>Carbon::create(2024,3,15)],
+            ['first_name'=>'VENANCIO',       'middle_name'=>'O.',   'last_name'=>'AVELINA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-115','registration_number'=>'FISHR-2024-115','created_at'=>Carbon::create(2024,3,19)],
+            ['first_name'=>'LARRY',          'middle_name'=>'C.',   'last_name'=>'MARQUEZ',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-116','registration_number'=>'FISHR-2024-116','created_at'=>Carbon::create(2024,3,21)],
+            ['first_name'=>'ROMANO',         'middle_name'=>'B.',   'last_name'=>'AVELINA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-117','registration_number'=>'FISHR-2024-117','created_at'=>Carbon::create(2024,3,23)],
+            ['first_name'=>'JAIME',          'middle_name'=>'R.',   'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-118','registration_number'=>'FISHR-2024-118','created_at'=>Carbon::create(2024,3,25)],
+            ['first_name'=>'RICO',           'middle_name'=>'L.',   'last_name'=>'PASCASIO',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-119','registration_number'=>'FISHR-2024-119','created_at'=>Carbon::create(2024,3,27)],
+            ['first_name'=>'VLADIMIR',       'middle_name'=>'M.',   'last_name'=>'ALAIZA',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-120','registration_number'=>'FISHR-2024-120','created_at'=>Carbon::create(2024,3,31)],
+            ['first_name'=>'ALMARIO',        'middle_name'=>'V.',   'last_name'=>'VIDAL JR',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-121','registration_number'=>'FISHR-2024-121','created_at'=>Carbon::create(2024,4,2)],
+            ['first_name'=>'ROMEO',          'middle_name'=>'A.',   'last_name'=>'VIERNEZA JR',     'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-122','registration_number'=>'FISHR-2024-122','created_at'=>Carbon::create(2024,4,4)],
+            ['first_name'=>'ALBERTO',        'middle_name'=>'G.',   'last_name'=>'IZON',            'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2024-123','registration_number'=>'FISHR-2024-123','created_at'=>Carbon::create(2024,4,6)],
 
             // ==================== 2025 DATA ====================
-            [
-                'first_name' => 'SUSAN',
-                'middle_name' => 'LEYVA',
-                'last_name' => 'AGUILAR',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-001', // Sequential
-                'registration_number' => 'FISHR-2025-001',
-                'created_at' => Carbon::create(2025, 1, 10),
-            ],
-            [
-                'first_name' => 'JEROME',
-                'middle_name' => 'FRANCISCO',
-                'last_name' => 'ANDRADA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-002', // Sequential
-                'registration_number' => 'FISHR-2025-002',
-                'created_at' => Carbon::create(2025, 1, 15),
-            ],
-            [
-                'first_name' => 'MARICAR',
-                'middle_name' => 'GUTIERES',
-                'last_name' => 'ANDRADA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-003', // Sequential
-                'registration_number' => 'FISHR-2025-003',
-                'created_at' => Carbon::create(2025, 1, 20),
-            ],
-            [
-                'first_name' => 'MICHELLE',
-                'middle_name' => 'GONZALO',
-                'last_name' => 'ANDRADA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-004', // Sequential
-                'registration_number' => 'FISHR-2025-004',
-                'created_at' => Carbon::create(2025, 2, 5),
-            ],
-            [
-                'first_name' => 'RENANTE',
-                'middle_name' => 'BALAGOT',
-                'last_name' => 'ANDRADA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-005', // Sequential
-                'registration_number' => 'FISHR-2025-005',
-                'created_at' => Carbon::create(2025, 2, 8),
-            ],
-            [
-                'first_name' => 'WILLIE',
-                'middle_name' => 'REYES',
-                'last_name' => 'ANDRADA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-006', // Sequential
-                'registration_number' => 'FISHR-2025-006',
-                'created_at' => Carbon::create(2025, 2, 12),
-            ],
-            [
-                'first_name' => 'ALDAM',
-                'middle_name' => 'ALPHA',
-                'last_name' => 'ARQUIZA',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-007', // Sequential
-                'registration_number' => 'FISHR-2025-007',
-                'created_at' => Carbon::create(2025, 3, 3),
-            ],
-            [
-                'first_name' => 'ALMA',
-                'middle_name' => 'TAJA',
-                'last_name' => 'AVELINA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-008', // Sequential
-                'registration_number' => 'FISHR-2025-008',
-                'created_at' => Carbon::create(2025, 3, 10),
-            ],
-            [
-                'first_name' => 'ROMMEL',
-                'middle_name' => 'AQUINO',
-                'last_name' => 'BLANCA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-009', // Sequential
-                'registration_number' => 'FISHR-2025-009',
-                'created_at' => Carbon::create(2025, 3, 18),
-            ],
-            [
-                'first_name' => 'FRANCISCO',
-                'middle_name' => 'LUMANTAS',
-                'last_name' => 'CANILLIAS',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => '2025-043425000-00712', // From boat data - MATCHED
-                'registration_number' => 'FISHR-2025-010',
-                'created_at' => Carbon::create(2025, 4, 2),
-            ],
-            [
-                'first_name' => 'JOJIE',
-                'middle_name' => 'PRODISIMO',
-                'last_name' => 'CATALON',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => '27-043425000-00339', // From boat data - MATCHED
-                'registration_number' => 'FISHR-2025-011',
-                'created_at' => Carbon::create(2025, 4, 12),
-            ],
-            [
-                'first_name' => 'SADJID',
-                'middle_name' => 'BRILLANTES',
-                'last_name' => 'CASALIN',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-012', // Sequential
-                'registration_number' => 'FISHR-2025-012',
-                'created_at' => Carbon::create(2025, 4, 22),
-            ],
-            [
-                'first_name' => 'ARNOLD',
-                'middle_name' => 'PEREZ',
-                'last_name' => 'DELA CRUZ',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-013', // Sequential
-                'registration_number' => 'FISHR-2025-013',
-                'created_at' => Carbon::create(2025, 5, 5),
-            ],
-            [
-                'first_name' => 'RONILO',
-                'middle_name' => 'TURING',
-                'last_name' => 'DESTOPA',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-014', // Sequential
-                'registration_number' => 'FISHR-2025-014',
-                'created_at' => Carbon::create(2025, 5, 15),
-            ],
-            [
-                'first_name' => 'JOHN NORMAN',
-                'middle_name' => 'SANTOS',
-                'last_name' => 'DITABLAN',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-015', // Sequential
-                'registration_number' => 'FISHR-2025-015',
-                'created_at' => Carbon::create(2025, 5, 25),
-            ],
-            [
-                'first_name' => 'JOEL',
-                'middle_name' => 'LEDIO',
-                'last_name' => 'DOMENGUIS',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-016', // Sequential
-                'registration_number' => 'FISHR-2025-016',
-                'created_at' => Carbon::create(2025, 6, 3),
-            ],
-            [
-                'first_name' => 'RHONA',
-                'middle_name' => 'RUTAQUIO',
-                'last_name' => 'DORADO',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-017', // Sequential
-                'registration_number' => 'FISHR-2025-017',
-                'created_at' => Carbon::create(2025, 6, 10),
-            ],
-            [
-                'first_name' => 'ALBERTO',
-                'middle_name' => 'VILLAMOR',
-                'last_name' => 'FRANCISCO',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => '2025-043425000-00719', // From boat data - MATCHED
-                'registration_number' => 'FISHR-2025-018',
-                'created_at' => Carbon::create(2025, 6, 18),
-            ],
-            [
-                'first_name' => 'ERICKA MAE',
-                'middle_name' => 'JOCSON',
-                'last_name' => 'FUENTES',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-019', // Sequential
-                'registration_number' => 'FISHR-2025-019',
-                'created_at' => Carbon::create(2025, 7, 2),
-            ],
-            [
-                'first_name' => 'JAY',
-                'middle_name' => 'MARCHADO',
-                'last_name' => 'FUENTES',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-020', // Sequential
-                'registration_number' => 'FISHR-2025-020',
-                'created_at' => Carbon::create(2025, 7, 12),
-            ],
-            [
-                'first_name' => 'DAISYLYN',
-                'middle_name' => 'DEO',
-                'last_name' => 'GRANADO',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-021', // Sequential
-                'registration_number' => 'FISHR-2025-021',
-                'created_at' => Carbon::create(2025, 7, 22),
-            ],
-            [
-                'first_name' => 'MARILYN',
-                'middle_name' => 'LOZADA',
-                'last_name' => 'GONZALES',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-022', // Sequential
-                'registration_number' => 'FISHR-2025-022',
-                'created_at' => Carbon::create(2025, 8, 5),
-            ],
-            [
-                'first_name' => 'PAULINO',
-                'middle_name' => 'OMBIYANG',
-                'last_name' => 'GUMIAL',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-023', // Sequential
-                'registration_number' => 'FISHR-2025-023',
-                'created_at' => Carbon::create(2025, 8, 15),
-            ],
-            [
-                'first_name' => 'ASMIL',
-                'middle_name' => 'TOTOH',
-                'last_name' => 'HASAN',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-024', // Sequential
-                'registration_number' => 'FISHR-2025-024',
-                'created_at' => Carbon::create(2025, 8, 25),
-            ],
-            [
-                'first_name' => 'RASID',
-                'middle_name' => 'USMAN',
-                'last_name' => 'JACARIA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => '2025-043425000-00679', // From boat data - MATCHED
-                'registration_number' => 'FISHR-2025-025',
-                'created_at' => Carbon::create(2025, 9, 3),
-            ],
-            [
-                'first_name' => 'ALBERT',
-                'middle_name' => 'DAVID',
-                'last_name' => 'MANALO',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-026', // Sequential
-                'registration_number' => 'FISHR-2025-026',
-                'created_at' => Carbon::create(2025, 9, 12),
-            ],
-            [
-                'first_name' => 'REBECCA',
-                'middle_name' => 'AMIL',
-                'last_name' => 'MARMETO',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-027', // Sequential
-                'registration_number' => 'FISHR-2025-027',
-                'created_at' => Carbon::create(2025, 9, 22),
-            ],
-            [
-                'first_name' => 'LUZVIMINDA',
-                'middle_name' => 'RAMOS',
-                'last_name' => 'MORALES',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-028', // Sequential
-                'registration_number' => 'FISHR-2025-028',
-                'created_at' => Carbon::create(2025, 10, 5),
-            ],
-            [
-                'first_name' => 'ISAIAS',
-                'middle_name' => 'BAUSO',
-                'last_name' => 'NUEZ',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => 'vending',
-                'other_secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-029', // Sequential
-                'registration_number' => 'FISHR-2025-029',
-                'created_at' => Carbon::create(2025, 10, 15),
-            ],
-            [
-                'first_name' => 'JHON JOSEPH',
-                'middle_name' => 'BAUSO',
-                'last_name' => 'NUEZ',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => 'vending',
-                'other_secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-030', // Sequential
-                'registration_number' => 'FISHR-2025-030',
-                'created_at' => Carbon::create(2025, 10, 25),
-            ],
-            [
-                'first_name' => 'ARLYN',
-                'middle_name' => 'LUCAS',
-                'last_name' => 'ORTEGA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-031', // Sequential
-                'registration_number' => 'FISHR-2025-031',
-                'created_at' => Carbon::create(2025, 11, 3),
-            ],
-            [
-                'first_name' => 'RICHARD',
-                'middle_name' => 'LASCANO',
-                'last_name' => 'PASCASIO',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-032', // Sequential
-                'registration_number' => 'FISHR-2025-032',
-                'created_at' => Carbon::create(2025, 11, 12),
-            ],
-            [
-                'first_name' => 'MARGARITO',
-                'middle_name' => 'GERONG',
-                'last_name' => 'ROA',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-033', // Sequential
-                'registration_number' => 'FISHR-2025-033',
-                'created_at' => Carbon::create(2025, 11, 22),
-            ],
-            [
-                'first_name' => 'RODEL',
-                'middle_name' => 'MARTINEZ',
-                'last_name' => 'SADIAN',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-034', // Sequential
-                'registration_number' => 'FISHR-2025-034',
-                'created_at' => Carbon::create(2025, 12, 2),
-            ],
-            [
-                'first_name' => 'MOHAMMAD',
-                'middle_name' => 'PAWADJI',
-                'last_name' => 'SAHI',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'aquaculture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-035', // Sequential
-                'registration_number' => 'FISHR-2025-035',
-                'created_at' => Carbon::create(2025, 12, 8),
-            ],
-            [
-                'first_name' => 'HECTOR',
-                'middle_name' => 'LAURIO',
-                'last_name' => 'SAUQUILLO',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-036', // Sequential
-                'registration_number' => 'FISHR-2025-036',
-                'created_at' => Carbon::create(2025, 12, 15),
-            ],
-            [
-                'first_name' => 'ANTHONY',
-                'middle_name' => 'BAUSO',
-                'last_name' => 'TOMAGAN',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-037', // Sequential
-                'registration_number' => 'FISHR-2025-037',
-                'created_at' => Carbon::create(2025, 12, 20),
-            ],
-            [
-                'first_name' => 'JOANNE',
-                'middle_name' => 'LABINE',
-                'last_name' => 'VIBAR',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2025-038', // Sequential
-                'registration_number' => 'FISHR-2025-038',
-                'created_at' => Carbon::create(2025, 12, 28),
-            ],
+            ['first_name'=>'SUSAN',          'middle_name'=>'LEYVA',         'last_name'=>'AGUILAR',         'barangay'=>'Cuyab',    'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-001','registration_number'=>'FISHR-2025-001','created_at'=>Carbon::create(2025,1,10)],
+            ['first_name'=>'JEROME',         'middle_name'=>'FRANCISCO',     'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-002','registration_number'=>'FISHR-2025-002','created_at'=>Carbon::create(2025,1,15)],
+            ['first_name'=>'MARICAR',        'middle_name'=>'GUTIERES',      'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-003','registration_number'=>'FISHR-2025-003','created_at'=>Carbon::create(2025,1,20)],
+            ['first_name'=>'MICHELLE',       'middle_name'=>'GONZALO',       'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-004','registration_number'=>'FISHR-2025-004','created_at'=>Carbon::create(2025,2,5)],
+            ['first_name'=>'RENANTE',        'middle_name'=>'BALAGOT',       'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-005','registration_number'=>'FISHR-2025-005','created_at'=>Carbon::create(2025,2,8)],
+            ['first_name'=>'WILLIE',         'middle_name'=>'REYES',         'last_name'=>'ANDRADA',         'barangay'=>'Landayan', 'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-006','registration_number'=>'FISHR-2025-006','created_at'=>Carbon::create(2025,2,12)],
+            ['first_name'=>'ALDAM',          'middle_name'=>'ALPHA',         'last_name'=>'ARQUIZA',         'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-007','registration_number'=>'FISHR-2025-007','created_at'=>Carbon::create(2025,3,3)],
+            ['first_name'=>'ALMA',           'middle_name'=>'TAJA',          'last_name'=>'AVELINA',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-008','registration_number'=>'FISHR-2025-008','created_at'=>Carbon::create(2025,3,10)],
+            ['first_name'=>'ROMMEL',         'middle_name'=>'AQUINO',        'last_name'=>'BLANCA',          'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-009','registration_number'=>'FISHR-2025-009','created_at'=>Carbon::create(2025,3,18)],
+            ['first_name'=>'FRANCISCO',      'middle_name'=>'LUMANTAS',      'last_name'=>'CANILLIAS',       'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-010','registration_number'=>'FISHR-2025-010','created_at'=>Carbon::create(2025,4,2)],
+            ['first_name'=>'JOJIE',          'middle_name'=>'PRODISIMO',     'last_name'=>'CATALON',         'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-011','registration_number'=>'FISHR-2025-011','created_at'=>Carbon::create(2025,4,12)],
+            ['first_name'=>'SADJID',         'middle_name'=>'BRILLANTES',    'last_name'=>'CASALIN',         'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-012','registration_number'=>'FISHR-2025-012','created_at'=>Carbon::create(2025,4,22)],
+            ['first_name'=>'ARNOLD',         'middle_name'=>'PEREZ',         'last_name'=>'DELA CRUZ',       'barangay'=>'Landayan', 'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-013','registration_number'=>'FISHR-2025-013','created_at'=>Carbon::create(2025,5,5)],
+            ['first_name'=>'RONILO',         'middle_name'=>'TURING',        'last_name'=>'DESTOPA',         'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-014','registration_number'=>'FISHR-2025-014','created_at'=>Carbon::create(2025,5,15)],
+            ['first_name'=>'JOHN NORMAN',    'middle_name'=>'SANTOS',        'last_name'=>'DITABLAN',        'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-015','registration_number'=>'FISHR-2025-015','created_at'=>Carbon::create(2025,5,25)],
+            ['first_name'=>'JOEL',           'middle_name'=>'LEDIO',         'last_name'=>'DOMENGUIS',       'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-016','registration_number'=>'FISHR-2025-016','created_at'=>Carbon::create(2025,6,3)],
+            ['first_name'=>'RHONA',          'middle_name'=>'RUTAQUIO',      'last_name'=>'DORADO',          'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-017','registration_number'=>'FISHR-2025-017','created_at'=>Carbon::create(2025,6,10)],
+            ['first_name'=>'ALBERTO',        'middle_name'=>'VILLAMOR',      'last_name'=>'FRANCISCO',       'barangay'=>'Landayan', 'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-018','registration_number'=>'FISHR-2025-018','created_at'=>Carbon::create(2025,6,18)],
+            ['first_name'=>'ERICKA MAE',     'middle_name'=>'JOCSON',        'last_name'=>'FUENTES',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-019','registration_number'=>'FISHR-2025-019','created_at'=>Carbon::create(2025,7,2)],
+            ['first_name'=>'JAY',            'middle_name'=>'MARCHADO',      'last_name'=>'FUENTES',         'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-020','registration_number'=>'FISHR-2025-020','created_at'=>Carbon::create(2025,7,12)],
+            ['first_name'=>'DAISYLYN',       'middle_name'=>'DEO',           'last_name'=>'GRANADO',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-021','registration_number'=>'FISHR-2025-021','created_at'=>Carbon::create(2025,7,22)],
+            ['first_name'=>'MARILYN',        'middle_name'=>'LOZADA',        'last_name'=>'GONZALES',        'barangay'=>'Cuyab',    'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-022','registration_number'=>'FISHR-2025-022','created_at'=>Carbon::create(2025,8,5)],
+            ['first_name'=>'PAULINO',        'middle_name'=>'OMBIYANG',      'last_name'=>'GUMIAL',          'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-023','registration_number'=>'FISHR-2025-023','created_at'=>Carbon::create(2025,8,15)],
+            ['first_name'=>'ASMIL',          'middle_name'=>'TOTOH',         'last_name'=>'HASAN',           'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-024','registration_number'=>'FISHR-2025-024','created_at'=>Carbon::create(2025,8,25)],
+            ['first_name'=>'RASID',          'middle_name'=>'USMAN',         'last_name'=>'JACARIA',         'barangay'=>'Landayan', 'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-025','registration_number'=>'FISHR-2025-025','created_at'=>Carbon::create(2025,9,3)],
+            ['first_name'=>'ALBERT',         'middle_name'=>'DAVID',         'last_name'=>'MANALO',          'barangay'=>'Cuyab',    'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-026','registration_number'=>'FISHR-2025-026','created_at'=>Carbon::create(2025,9,12)],
+            ['first_name'=>'REBECCA',        'middle_name'=>'AMIL',          'last_name'=>'MARMETO',         'barangay'=>'Cuyab',    'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-027','registration_number'=>'FISHR-2025-027','created_at'=>Carbon::create(2025,9,22)],
+            ['first_name'=>'LUZVIMINDA',     'middle_name'=>'RAMOS',         'last_name'=>'MORALES',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-028','registration_number'=>'FISHR-2025-028','created_at'=>Carbon::create(2025,10,5)],
+            ['first_name'=>'ISAIAS',         'middle_name'=>'BAUSO',         'last_name'=>'NUEZ',            'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>'vending','fishr_number'=>'FISHR-2025-029','registration_number'=>'FISHR-2025-029','created_at'=>Carbon::create(2025,10,15)],
+            ['first_name'=>'JHON JOSEPH',    'middle_name'=>'BAUSO',         'last_name'=>'NUEZ',            'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>'vending','fishr_number'=>'FISHR-2025-030','registration_number'=>'FISHR-2025-030','created_at'=>Carbon::create(2025,10,25)],
+            ['first_name'=>'ARLYN',          'middle_name'=>'LUCAS',         'last_name'=>'ORTEGA',          'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-031','registration_number'=>'FISHR-2025-031','created_at'=>Carbon::create(2025,11,3)],
+            ['first_name'=>'RICHARD',        'middle_name'=>'LASCANO',       'last_name'=>'PASCASIO',        'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-032','registration_number'=>'FISHR-2025-032','created_at'=>Carbon::create(2025,11,12)],
+            ['first_name'=>'MARGARITO',      'middle_name'=>'GERONG',        'last_name'=>'ROA',             'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-033','registration_number'=>'FISHR-2025-033','created_at'=>Carbon::create(2025,11,22)],
+            ['first_name'=>'RODEL',          'middle_name'=>'MARTINEZ',      'last_name'=>'SADIAN',          'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-034','registration_number'=>'FISHR-2025-034','created_at'=>Carbon::create(2025,12,2)],
+            ['first_name'=>'MOHAMMAD',       'middle_name'=>'PAWADJI',       'last_name'=>'SAHI',            'barangay'=>'Cuyab',    'main_livelihood'=>'aquaculture','secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-035','registration_number'=>'FISHR-2025-035','created_at'=>Carbon::create(2025,12,8)],
+            ['first_name'=>'HECTOR',         'middle_name'=>'LAURIO',        'last_name'=>'SAUQUILLO',       'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-036','registration_number'=>'FISHR-2025-036','created_at'=>Carbon::create(2025,12,15)],
+            ['first_name'=>'ANTHONY',        'middle_name'=>'BAUSO',         'last_name'=>'TOMAGAN',         'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-037','registration_number'=>'FISHR-2025-037','created_at'=>Carbon::create(2025,12,20)],
+            ['first_name'=>'JOANNE',         'middle_name'=>'LABINE',        'last_name'=>'VIBAR',           'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2025-038','registration_number'=>'FISHR-2025-038','created_at'=>Carbon::create(2025,12,28)],
+
+            // ==================== 2025 BOAT OWNERS (continuing from 039) ====================
+            ['first_name'=>'MARIO',          'middle_name'=>'V.',   'last_name'=>'AVELINA JR',      'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-039','registration_number'=>'FISHR-2025-039','created_at'=>Carbon::create(2025,1,13)],
+            ['first_name'=>'MARIO',          'middle_name'=>'O.',   'last_name'=>'AVELINA SR',      'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-040','registration_number'=>'FISHR-2025-040','created_at'=>Carbon::create(2025,1,16)],
+            ['first_name'=>'GERARDO',        'middle_name'=>'Q.',   'last_name'=>'INSORIO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-041','registration_number'=>'FISHR-2025-041','created_at'=>Carbon::create(2025,1,19)],
+            ['first_name'=>'ORLANDO',        'middle_name'=>'V.',   'last_name'=>'FRANCIA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-042','registration_number'=>'FISHR-2025-042','created_at'=>Carbon::create(2025,1,25)],
+            ['first_name'=>'RONALD',         'middle_name'=>'A.',   'last_name'=>'VIERNEZA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-043','registration_number'=>'FISHR-2025-043','created_at'=>Carbon::create(2025,1,28)],
+            ['first_name'=>'ALVIN',          'middle_name'=>'P.',   'last_name'=>'YABUT',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-044','registration_number'=>'FISHR-2025-044','created_at'=>Carbon::create(2025,1,31)],
+            ['first_name'=>'WILLIAM',        'middle_name'=>'P.',   'last_name'=>'IÑOSA',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-045','registration_number'=>'FISHR-2025-045','created_at'=>Carbon::create(2025,2,3)],
+            ['first_name'=>'ELMER',          'middle_name'=>'S.',   'last_name'=>'GAVIOLA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-046','registration_number'=>'FISHR-2025-046','created_at'=>Carbon::create(2025,2,6)],
+            ['first_name'=>'ERNIE',          'middle_name'=>'M.',   'last_name'=>'BOLA',            'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-047','registration_number'=>'FISHR-2025-047','created_at'=>Carbon::create(2025,2,9)],
+            ['first_name'=>'ROBERTO',        'middle_name'=>'S.',   'last_name'=>'PAULIN',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-048','registration_number'=>'FISHR-2025-048','created_at'=>Carbon::create(2025,2,12)],
+            ['first_name'=>'ROMAN',          'middle_name'=>'V.',   'last_name'=>'VIBAR',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-049','registration_number'=>'FISHR-2025-049','created_at'=>Carbon::create(2025,2,15)],
+            ['first_name'=>'RENATO',         'middle_name'=>'D.',   'last_name'=>'DELA CRUZ',       'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-050','registration_number'=>'FISHR-2025-050','created_at'=>Carbon::create(2025,2,18)],
+            ['first_name'=>'ROBERTO',        'middle_name'=>'R.',   'last_name'=>'NOTA',            'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-051','registration_number'=>'FISHR-2025-051','created_at'=>Carbon::create(2025,2,27)],
+            ['first_name'=>'NESTOR',         'middle_name'=>'C.',   'last_name'=>'DORADO',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-052','registration_number'=>'FISHR-2025-052','created_at'=>Carbon::create(2025,1,5)],
+            ['first_name'=>'CHRISTOPHER',    'middle_name'=>'B.',   'last_name'=>'AVELINA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-053','registration_number'=>'FISHR-2025-053','created_at'=>Carbon::create(2025,1,8)],
+            ['first_name'=>'BLANQUITO',      'middle_name'=>'R.',   'last_name'=>'SARIO',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-054','registration_number'=>'FISHR-2025-054','created_at'=>Carbon::create(2025,1,11)],
+            ['first_name'=>'SAMUEL',         'middle_name'=>'W.',   'last_name'=>'RAMOS',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-055','registration_number'=>'FISHR-2025-055','created_at'=>Carbon::create(2025,2,10)],
+            ['first_name'=>'BUSHRA',         'middle_name'=>'A.',   'last_name'=>'JACARIA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-056','registration_number'=>'FISHR-2025-056','created_at'=>Carbon::create(2025,2,13)],
+            ['first_name'=>'NURDIN',         'middle_name'=>'T.',   'last_name'=>'TOTOH',           'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-057','registration_number'=>'FISHR-2025-057','created_at'=>Carbon::create(2025,3,1)],
+            ['first_name'=>'BHIJAY',         'middle_name'=>'N.',   'last_name'=>'CASINOS',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-058','registration_number'=>'FISHR-2025-058','created_at'=>Carbon::create(2025,3,6)],
+            ['first_name'=>'EMMANUEL',       'middle_name'=>'C.',   'last_name'=>'GONZALES',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-059','registration_number'=>'FISHR-2025-059','created_at'=>Carbon::create(2025,3,11)],
+            ['first_name'=>'ATANACIO',       'middle_name'=>'B.',   'last_name'=>'INSORIO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-060','registration_number'=>'FISHR-2025-060','created_at'=>Carbon::create(2025,3,16)],
+            ['first_name'=>'SHELVIE ANN',    'middle_name'=>'R.',   'last_name'=>'VILLADIEGO',      'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-061','registration_number'=>'FISHR-2025-061','created_at'=>Carbon::create(2025,3,26)],
+            ['first_name'=>'ELBRANDO',       'middle_name'=>'M.',   'last_name'=>'CURAMPES',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-062','registration_number'=>'FISHR-2025-062','created_at'=>Carbon::create(2025,4,1)],
+            ['first_name'=>'AMILO',          'middle_name'=>'G.',   'last_name'=>'TEMPROSA',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-063','registration_number'=>'FISHR-2025-063','created_at'=>Carbon::create(2025,4,6)],
+            ['first_name'=>'JEREMIE',        'middle_name'=>'T.',   'last_name'=>'LETH',            'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-064','registration_number'=>'FISHR-2025-064','created_at'=>Carbon::create(2025,4,11)],
+            ['first_name'=>'CALIX',          'middle_name'=>'A.',   'last_name'=>'ESPARAGOZA',      'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-065','registration_number'=>'FISHR-2025-065','created_at'=>Carbon::create(2025,4,16)],
+            ['first_name'=>'ARTUR',          'middle_name'=>'S.',   'last_name'=>'DELA CRUZ',       'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-066','registration_number'=>'FISHR-2025-066','created_at'=>Carbon::create(2025,4,26)],
+            ['first_name'=>'NORMAN',         'middle_name'=>'V.',   'last_name'=>'DITABLAN',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-067','registration_number'=>'FISHR-2025-067','created_at'=>Carbon::create(2025,5,1)],
+            ['first_name'=>'MARK ANGELO',    'middle_name'=>'R.',   'last_name'=>'DOROTEO',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2025-068','registration_number'=>'FISHR-2025-068','created_at'=>Carbon::create(2025,5,6)],
 
             // ==================== 2026 DATA ====================
-            [
-                'first_name' => 'JELLA',
-                'middle_name' => 'MONTEMAYORES',
-                'last_name' => 'BACHECHA',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2026-001', // Sequential
-                'registration_number' => 'FISHR-2026-001',
-                'created_at' => Carbon::create(2026, 1, 5),
-            ],
-            [
-                'first_name' => 'ELEANOR',
-                'middle_name' => 'BECONIA',
-                'last_name' => 'BALUYOT',
-                'barangay' => 'Landayan',
-                'main_livelihood' => 'vending',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2026-002', // Sequential
-                'registration_number' => 'FISHR-2026-002',
-                'created_at' => Carbon::create(2026, 1, 12),
-            ],
-            [
-                'first_name' => 'RENATO',
-                'middle_name' => 'RODRIGUEZ',
-                'last_name' => 'CRISTOSTOMO',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2026-003', // Sequential
-                'registration_number' => 'FISHR-2026-003',
-                'created_at' => Carbon::create(2026, 1, 20),
-            ],
-            [
-                'first_name' => 'REYNALDO',
-                'middle_name' => 'CASPE',
-                'last_name' => 'LIM',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => 'FISHR-2026-004', // Sequential
-                'registration_number' => 'FISHR-2026-004',
-                'created_at' => Carbon::create(2026, 2, 1),
-            ],
-            [
-                'first_name' => 'JERNIE',
-                'middle_name' => 'CALINOG',
-                'last_name' => 'TOLDANES',
-                'barangay' => 'Cuyab',
-                'main_livelihood' => 'capture',
-                'secondary_livelihood' => null,
-                'fishr_number' => '2026-043425000-00724', // From boat data - MATCHED
-                'registration_number' => 'FISHR-2026-005',
-                'created_at' => Carbon::create(2026, 2, 10),
-            ],
+            ['first_name'=>'JELLA',          'middle_name'=>'MONTEMAYORES',  'last_name'=>'BACHECHA',        'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2026-001','registration_number'=>'FISHR-2026-001','created_at'=>Carbon::create(2026,1,5)],
+            ['first_name'=>'ELEANOR',        'middle_name'=>'BECONIA',       'last_name'=>'BALUYOT',         'barangay'=>'Landayan', 'main_livelihood'=>'vending',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2026-002','registration_number'=>'FISHR-2026-002','created_at'=>Carbon::create(2026,1,12)],
+            ['first_name'=>'RENATO',         'middle_name'=>'RODRIGUEZ',     'last_name'=>'CRISTOSTOMO',     'barangay'=>'Cuyab',    'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2026-003','registration_number'=>'FISHR-2026-003','created_at'=>Carbon::create(2026,1,20)],
+            ['first_name'=>'REYNALDO',       'middle_name'=>'CASPE',         'last_name'=>'LIM',             'barangay'=>'Cuyab',    'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2026-004','registration_number'=>'FISHR-2026-004','created_at'=>Carbon::create(2026,2,1)],
+            ['first_name'=>'JERNIE',         'middle_name'=>'CALINOG',       'last_name'=>'TOLDANES',        'barangay'=>'Landayan', 'main_livelihood'=>'capture',    'secondary_livelihood'=>null, 'fishr_number'=>'FISHR-2026-005','registration_number'=>'FISHR-2026-005','created_at'=>Carbon::create(2026,2,10)],
+
+            // ==================== 2026 BOAT OWNERS (continuing from 006) ====================
+            ['first_name'=>'RODRIGO',        'middle_name'=>'R.',   'last_name'=>'RAGUIT',          'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2026-006','registration_number'=>'FISHR-2026-006','created_at'=>Carbon::create(2026,1,5)],
+            ['first_name'=>'EDGARDO',        'middle_name'=>'V.',   'last_name'=>'CORDOVA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2026-007','registration_number'=>'FISHR-2026-007','created_at'=>Carbon::create(2026,1,10)],
+            ['first_name'=>'TOTENG',         'middle_name'=>'A.',   'last_name'=>'SALAZAR',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2026-008','registration_number'=>'FISHR-2026-008','created_at'=>Carbon::create(2026,1,15)],
+            ['first_name'=>'FORTE',          'middle_name'=>'M.',   'last_name'=>'OLIVAREZ',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2026-009','registration_number'=>'FISHR-2026-009','created_at'=>Carbon::create(2026,1,20)],
+            ['first_name'=>'ZALDY',          'middle_name'=>'P.',   'last_name'=>'FLAMIANO',        'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2026-010','registration_number'=>'FISHR-2026-010','created_at'=>Carbon::create(2026,1,25)],
+            ['first_name'=>'LEONARDO',       'middle_name'=>'V.',   'last_name'=>'VERZOSA',         'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2026-011','registration_number'=>'FISHR-2026-011','created_at'=>Carbon::create(2026,1,30)],
+            ['first_name'=>'RONALD',         'middle_name'=>'A.',   'last_name'=>'LIM',             'barangay'=>'Landayan', 'main_livelihood'=>'capture','secondary_livelihood'=>null,'fishr_number'=>'FISHR-2026-012','registration_number'=>'FISHR-2026-012','created_at'=>Carbon::create(2026,2,5)],
         ];
 
         $createdCount = 0;
         $updatedCount = 0;
-        $matchedCount = 0;
-        $sequentialCount = 0;
 
         foreach ($fisherfolkData as $data) {
-            // Check if record exists by fishr_number
-            $existingRecord = FishrApplication::where('fishr_number', $data['fishr_number'])->first();
-            
-            // Count matched vs sequential
-            if (strpos($data['fishr_number'], 'FISHR-') === 0) {
-                $sequentialCount++;
-            } else {
-                $matchedCount++;
-            }
-            
             $recordData = [
-                'first_name' => $this->toProperCase($data['first_name']),
-                'middle_name' => $this->toProperCase($data['middle_name']),
-                'last_name' => $this->toProperCase($data['last_name']),
-                'name_extension' => null,
-                'barangay' => $data['barangay'],
-                'contact_number' => null,
-                'main_livelihood' => $data['main_livelihood'],
-                'secondary_livelihood' => $data['secondary_livelihood'] ?? null,
+                'first_name'                 => $this->toProperCase($data['first_name']),
+                'middle_name'                => $this->toProperCase($data['middle_name']),
+                'last_name'                  => $this->toProperCase($data['last_name']),
+                'name_extension'             => null,
+                'barangay'                   => $data['barangay'],
+                'contact_number'             => null,
+                'main_livelihood'            => $data['main_livelihood'],
+                'secondary_livelihood'       => $data['secondary_livelihood'] ?? null,
                 'other_secondary_livelihood' => $data['other_secondary_livelihood'] ?? null,
-                'status' => 'approved',
-                'registration_number' => $data['registration_number'],
-                'fishr_number_assigned_at' => $data['created_at'],
-                'fishr_number_assigned_by' => 1,
-                'updated_at' => $data['created_at'],
+                'status'                     => 'approved',
+                'registration_number'        => $data['registration_number'],
+                'fishr_number_assigned_at'   => $data['created_at'],
+                'fishr_number_assigned_by'   => 1,
+                'updated_at'                 => $data['created_at'],
             ];
 
-            if ($existingRecord) {
-                $existingRecord->update($recordData);
+            $existing = FishrApplication::where('fishr_number', $data['fishr_number'])->first();
+            if ($existing) {
+                $existing->update($recordData);
                 $updatedCount++;
             } else {
                 $recordData['fishr_number'] = $data['fishr_number'];
-                $recordData['created_at'] = $data['created_at'];
+                $recordData['created_at']   = $data['created_at'];
                 FishrApplication::create($recordData);
                 $createdCount++;
             }
         }
 
         $this->command->info('FisherfolkRegisteredSeeder executed successfully!');
-        $this->command->info("Records created: {$createdCount}");
-        $this->command->info("Records updated: {$updatedCount}");
+        $this->command->info("Records created  : {$createdCount}");
+        $this->command->info("Records updated  : {$updatedCount}");
         $this->command->info('Total records in database: ' . FishrApplication::count());
-        
-        $this->command->info("\n📊 FishR Number Statistics:");
-        $this->command->info("Matched from boat data: {$matchedCount}");
-        $this->command->info("Sequential FISHR numbers: {$sequentialCount}");
     }
 
-    /**
-     * Convert a string to proper/title case.
-     */
     private function toProperCase(?string $value): ?string
     {
-        if ($value === null) {
-            return null;
-        }
-        return ucwords(strtolower($value));
+        return $value ? ucwords(strtolower($value)) : null;
     }
 }

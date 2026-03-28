@@ -55,6 +55,7 @@ class FishRController extends Controller
             }
 
             $registrations = $query->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->paginate(10)
                 ->appends($request->query());
 
@@ -522,11 +523,21 @@ class FishRController extends Controller
      */
     private function generateRegistrationNumber()
     {
-        do {
-            $number = 'FISHR-' . strtoupper(Str::random(8));
-        } while (FishrApplication::where('registration_number', $number)->exists());
+    $year = now()->year;
 
-        return $number;
+    $last = FishrApplication::where('registration_number', 'like', "FISHR-{$year}-%")
+        ->orderByDesc('registration_number')
+        ->value('registration_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("FishR registration number limit reached for year {$year}.");
+    }
+
+    return "FISHR-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     // /**
@@ -695,7 +706,7 @@ public function destroy($id)
                 $query->where('main_livelihood', $request->livelihood);
             }
 
-            $registrations = $query->orderBy('created_at', 'desc')->get();
+            $registrations = $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->get();
 
             $this->logActivity('exported', 'FishrApplication', null, [
                 'records_count' => $registrations->count(),

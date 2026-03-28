@@ -487,7 +487,7 @@ public function submitSeedlings(Request $request)
 public function submitRsbsa(Request $request)
 {
     try {
-        // ✅ Authentication check
+        // Authentication check
         $userId = session('user.id');
 
         if (!$userId) {
@@ -527,7 +527,7 @@ public function submitRsbsa(Request $request)
             'username' => $userExists->username,
         ]);
 
-        // ✅ DUPLICATE CHECK: prevent re-submission if pending/under_review
+        // DUPLICATE CHECK: prevent re-submission if pending/under_review
         $hasPending = RsbsaApplication::where('user_id', $userId)
             ->whereIn('status', ['pending', 'under_review'])
             ->exists();
@@ -542,7 +542,7 @@ public function submitRsbsa(Request $request)
                 ->with('error', 'You already have a pending RSBSA application. Please wait for it to be processed.');
         }
 
-        // ✅ COMPLETE VALIDATION WITH ALL FIELDS
+        // COMPLETE VALIDATION WITH ALL FIELDS
         $validated = $request->validate([
             // Basic info
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
@@ -554,7 +554,7 @@ public function submitRsbsa(Request $request)
             // Contact & location
             'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:255',
-            'address' => 'required|string|max:500',  // ✅ NOW VALIDATED
+            'address' => 'required|string|max:500',  // NOW VALIDATED
 
             // Main livelihood
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
@@ -614,7 +614,7 @@ public function submitRsbsa(Request $request)
         // Normalize mobile number
         $normalizedMobile = $this->normalizeMobileNumber($validated['contact_number']);
 
-        // ✅ CREATE APPLICATION WITH ALL CORRECT FIELD NAMES
+        // CREATE APPLICATION WITH ALL CORRECT FIELD NAMES
         $applicationData = [
             'user_id' => $userId,
             'application_number' => $applicationNumber,
@@ -629,7 +629,7 @@ public function submitRsbsa(Request $request)
             // Contact & location
             'contact_number' => $normalizedMobile,
             'barangay' => $validated['barangay'],
-            'address' => $validated['address'],  // ✅ NOW SAVED
+            'address' => $validated['address'],  //  NOW SAVED
 
             // Main livelihood
             'main_livelihood' => $validated['main_livelihood'],
@@ -638,7 +638,7 @@ public function submitRsbsa(Request $request)
             'farmer_crops' => $validated['farmer_crops'] ?? null,
             'farmer_other_crops' => $validated['farmer_other_crops'] ?? null,
             'farmer_livestock' => $validated['farmer_livestock'] ?? null,
-            'farmer_land_area' => $validated['farmer_land_area'] ?? null,  // ✅ CORRECT FIELD NAME
+            'farmer_land_area' => $validated['farmer_land_area'] ?? null,  //  CORRECT FIELD NAME
             'farmer_type_of_farm' => $validated['farmer_type_of_farm'] ?? null,
             'farmer_land_ownership' => $validated['farmer_land_ownership'] ?? null,
             'farmer_special_status' => $validated['farmer_special_status'] ?? null,
@@ -689,7 +689,7 @@ public function submitRsbsa(Request $request)
             Log::error('Activity logging failed: ' . $e->getMessage());
         }
 
-        // 🔔 Trigger notification for admins
+        //  Trigger notification for admins
         NotificationService::rsbsaApplicationCreated($rsbsaApplication);
 
         $successMessage = 'Your RSBSA application has been submitted successfully! Application Number: ' .
@@ -952,7 +952,7 @@ try {
             'content_type' => $request->header('Content-Type')
         ]);
 
-        // ✅ DUPLICATE CHECK: prevent re-submission if pending/under_review
+        //  DUPLICATE CHECK: prevent re-submission if pending/under_review
         $hasPending = TrainingApplication::where('user_id', $userId)
             ->whereIn('status', ['pending', 'under_review'])
             ->exists();
@@ -990,7 +990,7 @@ try {
             ]);
 
             // Generate unique application number
-            $applicationNumber = 'TRAIN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
+            $applicationNumber = $this->generateUniqueTrainingApplicationNumber();
 
             // Handle document uploads with better error handling
             $documentPaths = [];
@@ -1101,23 +1101,42 @@ try {
      */
     private function generateUniqueApplicationNumber(): string
     {
-        do {
-            $applicationNumber = 'BOATR-' . strtoupper(Str::random(8));
-        } while (BoatrApplication::where('application_number', $applicationNumber)->exists());
+    $year = now()->year;
+    $prefix = $boatClassification === 'Motorized' ? 'M' : 'NM';
+    $pattern = "BOATR-{$year}-{$prefix}-%";
 
-        return $applicationNumber;
+    $last = BoatrApplication::where('application_number', 'like', $pattern)
+        ->orderByDesc('application_number')
+        ->value('application_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("BoatR application number limit reached for {$prefix} classification in year {$year}.");
     }
 
-    /**
-     * Generate unique application number for RSBSA applications
-     */
+    return "BOATR-{$year}-{$prefix}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+    }
+
     private function generateUniqueRsbsaApplicationNumber(): string
     {
-        do {
-            $applicationNumber = 'RSBSA-' . strtoupper(Str::random(8));
-        } while (RsbsaApplication::where('application_number', $applicationNumber)->exists());
+        $year = now()->year;
 
-        return $applicationNumber;
+        $last = RsbsaApplication::where('application_number', 'like', "RSBSA-{$year}-%")
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("RSBSA application number limit reached for year {$year}.");
+        }
+
+        return "RSBSA-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -1125,23 +1144,66 @@ try {
      */
     private function generateUniqueRegistrationNumber(): string
     {
-        do {
-            $registrationNumber = 'FISHR-' . strtoupper(Str::random(8));
-        } while (FishrApplication::where('registration_number', $registrationNumber)->exists());
+    $year = now()->year;
 
-        return $registrationNumber;
+    $last = FishrApplication::where('registration_number', 'like', "FISHR-{$year}-%")
+        ->orderByDesc('registration_number')
+        ->value('registration_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("FishR registration number limit reached for year {$year}.");
+    }
+
+    return "FISHR-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     /**
-     * Generate unique request number for Seedling requests
+     * Generate unique request number for Supply requests
      */
     private function generateUniqueRequestNumber(): string
     {
-        do {
-            $requestNumber = 'SEED-' . strtoupper(Str::random(8));
-        } while (SeedlingRequest::where('request_number', $requestNumber)->exists());
+     $year = now()->year;
 
-        return $requestNumber;
+    $last = SeedlingRequest::where('request_number', 'like', "REQ-{$year}-%")
+        ->orderByDesc('request_number')
+        ->value('request_number');
+
+    $nextSequence = $last
+        ? (int) substr($last, strrpos($last, '-') + 1) + 1
+        : 1;
+
+    if ($nextSequence > 9999) {
+        throw new \Exception("Seedling request number limit reached for year {$year}.");
+    }
+
+    return "REQ-{$year}-" . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
+    }
+
+    
+    /**
+     * Generate unique request number for Training requests
+     */
+    private function generateUniqueTrainingApplicationNumber(): string
+    {
+        $year = now()->year;
+
+        $last = TrainingApplication::where('application_number', 'like', "TRAIN-{$year}-%")
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("Training application number limit reached for year {$year}.");
+        }
+
+        return "TRAIN-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 
     /**

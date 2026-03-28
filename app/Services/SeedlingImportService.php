@@ -40,8 +40,10 @@ class SeedlingImportService
      */
     const REQUIRED_HEADERS = [
         'first_name', 'last_name', 'contact_number', 'barangay',
-        'item_name', 'quantity',
+        'category_1', 'item_1', 'quantity_1',
     ];
+
+    const MAX_ITEMS = 5;
 
     /**
      * Process uploaded import file (CSV or Excel)
@@ -150,34 +152,29 @@ class SeedlingImportService
         $skipped  = 0;
         $errors   = [];
 
-        // Group rows by person (same first+last+contact = same request)
-        $grouped = $this->groupRowsByPerson($rows);
-
-        foreach ($grouped as $index => $group) {
-            $rowNumber = $group['row_number'];
-            $personRow = $group['person'];
-            $items     = $group['items'];
-
-            $rowErrors = $this->validatePersonRow($personRow, $rowNumber);
+        foreach ($rows as $index => $row) {
+            $rowNumber = $index + 2;
+            $items     = $this->extractItemsFromRow($row);
+            $rowErrors = $this->validatePersonRow($row, $rowNumber, $items);
 
             if (!empty($rowErrors)) {
                 $skipped++;
                 $errors[] = [
                     'row'    => $rowNumber,
-                    'data'   => $personRow,
+                    'data'   => $row,
                     'errors' => $rowErrors,
                 ];
                 continue;
             }
 
             try {
-                $this->createRequest($personRow, $items);
+                $this->createRequest($row, $items);
                 $imported++;
             } catch (\Exception $e) {
                 $skipped++;
                 $errors[] = [
                     'row'    => $rowNumber,
-                    'data'   => $personRow,
+                    'data'   => $row,
                     'errors' => ['system' => 'Failed to save: ' . $e->getMessage()],
                 ];
 
@@ -191,45 +188,33 @@ class SeedlingImportService
         return compact('imported', 'skipped', 'errors');
     }
 
-    /**
-     * Group multiple item rows belonging to the same person into one request.
-     * A person is identified by: first_name + last_name + contact_number.
-     * If each row has a unique person, each row becomes its own request.
-     */
-    private function groupRowsByPerson(array $rows): array
+    private function extractItemsFromRow(array $row): array
     {
-        $groups = [];
-        $keyMap = []; // key => index in $groups
+        $items = [];
 
-        foreach ($rows as $index => $row) {
-            $key = strtolower(trim($row['first_name'] ?? '')) . '|' .
-                   strtolower(trim($row['last_name']  ?? '')) . '|' .
-                   preg_replace('/\D/', '', trim($row['contact_number'] ?? ''));
+        for ($i = 1; $i <= self::MAX_ITEMS; $i++) {
+            $itemName = trim($row["item_{$i}"] ?? '');
 
-            $itemName = trim($row['item_name'] ?? '');
-            $quantity = trim($row['quantity']  ?? '');
-
-            if (!isset($keyMap[$key])) {
-                $keyMap[$key]  = count($groups);
-                $groups[]      = [
-                    'row_number' => $index + 2,
-                    'person'     => $row,
-                    'items'      => [],
-                ];
+            // Item name is the anchor — if it's empty, skip this slot entirely
+            if ($itemName === '') {
+                continue;
             }
 
-            if ($itemName !== '') {
-                $groups[$keyMap[$key]]['items'][] = [
-                    'item_name' => $itemName,
-                    'quantity'  => $quantity,
-                ];
-            }
+            $category = trim($row["category_{$i}"] ?? '');
+            $quantity  = trim($row["quantity_{$i}"] ?? '');
+
+            $items[] = [
+                'slot'      => $i,
+                'item_name' => $itemName,
+                'category'  => $category,
+                'quantity'  => $quantity,
+            ];
         }
 
-        return $groups;
+        return $items;
     }
 
-    private function validatePersonRow(array $row, int $rowNumber): array
+    private function validatePersonRow(array $row, int $rowNumber, array $items): array
     {
         $errors = [];
 
@@ -269,18 +254,34 @@ class SeedlingImportService
             }
         }
 
-        // Item name
-        $itemName = trim($row['item_name'] ?? '');
-        if ($itemName === '') {
-            $errors['item_name'] = 'Item name is required.';
+        // Must have at least one item
+        if (empty($items)) {
+            $errors['items'] = 'At least one item (category_1, item_1, quantity_1) is required.';
         }
 
-        // Quantity
-        $quantity = trim($row['quantity'] ?? '');
-        if ($quantity === '') {
-            $errors['quantity'] = 'Quantity is required.';
-        } elseif (!is_numeric($quantity) || (int)$quantity < 1) {
-            $errors['quantity'] = 'Quantity must be a positive number.';
+        // Validate each item slot
+        $validCategories = ['seeds', 'seedlings'];
+        foreach ($items as $itemData) {
+            $i        = $itemData['slot'];
+            $itemName = $itemData['item_name'];
+            $category = $itemData['category'];
+            $quantity  = $itemData['quantity'];
+
+            if ($itemName === '') {
+                $errors["item_{$i}"] = "Item {$i}: item name is required.";
+            }
+
+            if ($category === '') {
+                $errors["category_{$i}"] = "Item {$i}: category is required.";
+            } elseif (!in_array(strtolower($category), $validCategories)) {
+                $errors["category_{$i}"] = "Item {$i}: invalid category \"{$category}\". Must be Seeds or Seedlings.";
+            }
+
+            if ($quantity === '') {
+                $errors["quantity_{$i}"] = "Item {$i}: quantity is required.";
+            } elseif (!is_numeric($quantity) || (int)$quantity < 1) {
+                $errors["quantity_{$i}"] = "Item {$i}: quantity must be a positive number.";
+            }
         }
 
         return $errors;
@@ -331,23 +332,36 @@ class SeedlingImportService
         // Create items — try to match each item to a CategoryItem
         foreach ($itemsData as $itemData) {
             $itemName = trim($itemData['item_name']);
+            $category = trim($itemData['category'] ?? '');
             $quantity = (int) $itemData['quantity'];
 
-            // Try to find matching CategoryItem by name (case-insensitive)
-            $categoryItem = CategoryItem::whereRaw('LOWER(name) = ?', [strtolower($itemName)])->first();
+            // Match by name AND category
+            $categoryItem = CategoryItem::with('category')
+                ->whereRaw('LOWER(name) = ?', [strtolower($itemName)])
+                ->whereHas('category', function($q) use ($category) {
+                    $q->whereRaw('LOWER(name) = ?', [strtolower($category)]);
+                })
+                ->first();
+
+            // Fallback: match by name only if category not found
+            if (!$categoryItem && $category === '') {
+                $categoryItem = CategoryItem::with('category')
+                    ->whereRaw('LOWER(name) = ?', [strtolower($itemName)])
+                    ->first();
+            }
 
             $request->items()->create([
-                'category_item_id' => $categoryItem?->id,
-                'category_id'      => $categoryItem?->category_id,
-                'item_name'        => $categoryItem ? $categoryItem->name : $itemName,
-                'category_name'    => $categoryItem?->category?->display_name,
-                'category_icon'    => $categoryItem?->category?->icon,
+                'category_item_id'   => $categoryItem?->id,
+                'category_id'        => $categoryItem?->category_id,
+                'item_name'          => $categoryItem ? $categoryItem->name : $itemName,
+                'item_unit'          => $categoryItem?->unit,
+                'category_name'      => $categoryItem?->category?->display_name,
+                'category_icon'      => $categoryItem?->category?->icon,
                 'requested_quantity' => $quantity,
-                'status'           => 'pending',
+                'status'             => 'pending',
             ]);
         }
 
-        // Update total_quantity on the request
         $request->update([
             'total_quantity' => $request->items()->sum('requested_quantity'),
         ]);
@@ -357,11 +371,21 @@ class SeedlingImportService
 
     private function generateRequestNumber(): string
     {
-        do {
-            $number = 'REQ-' . strtoupper(Str::random(8));
-        } while (\App\Models\SeedlingRequest::where('request_number', $number)->exists());
+        $year = now()->year;
 
-        return $number;
+        $last = \App\Models\SeedlingRequest::where('request_number', 'like', "REQ-{$year}-%")
+            ->orderByDesc('request_number')
+            ->value('request_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("Seedling request number limit reached for year {$year}.");
+        }
+
+        return "REQ-{$year}-" . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
     }
 
     private function capitaliseName(string $name): string

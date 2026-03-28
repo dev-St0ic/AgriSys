@@ -58,6 +58,7 @@ class BoatRController extends Controller
 
             // Sort and paginate
             $registrations = $query->orderBy('created_at', 'desc')
+                                  ->orderBy('id', 'desc') 
                                   ->paginate(10)
                                   ->appends($request->query());
 
@@ -222,7 +223,7 @@ class BoatRController extends Controller
             }
 
             // Generate unique application number
-            $validated['application_number'] = $this->generateApplicationNumber();
+            $validated['application_number'] = $this->generateApplicationNumber($validated['boat_classification']);
 
             // Build full_name
             // $fullName = $validated['first_name'] . ' ' .
@@ -327,13 +328,25 @@ class BoatRController extends Controller
     /**
      * Generate unique BoatR application number
      */
-    private function generateApplicationNumber()
+    private function generateApplicationNumber(string $boatClassification): string
     {
-        do {
-            $number = 'BOATR-' . strtoupper(\Illuminate\Support\Str::random(8));
-        } while (BoatrApplication::where('application_number', $number)->exists());
+        $year = now()->year;
+        $prefix = $boatClassification === 'Motorized' ? 'M' : 'NM';
+        $pattern = "BOATR-{$year}-{$prefix}-%";
 
-        return $number;
+        $last = BoatrApplication::where('application_number', 'like', $pattern)
+            ->orderByDesc('application_number')
+            ->value('application_number');
+
+        $nextSequence = $last
+            ? (int) substr($last, strrpos($last, '-') + 1) + 1
+            : 1;
+
+        if ($nextSequence > 9999) {
+            throw new \Exception("BoatR application number limit reached for {$prefix} classification in year {$year}.");
+        }
+
+        return "BOATR-{$year}-{$prefix}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
     }
 /**
  * Update BoatR registration with file uploads - FIXED
