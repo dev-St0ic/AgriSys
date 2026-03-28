@@ -33,6 +33,10 @@ class BoatRController extends Controller
                 $query->where('boat_type', $request->boat_type);
             }
 
+            if ($request->filled('boat_classification')) {
+                $query->where('boat_classification', $request->boat_classification);
+            }
+
             if ($request->filled('primary_fishing_gear')) {
                 $query->where('primary_fishing_gear', $request->primary_fishing_gear);
             }

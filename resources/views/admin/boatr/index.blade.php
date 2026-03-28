@@ -137,7 +137,18 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <select name="boat_classification" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Classifications</option>
+                            <option value="Motorized" {{ request('boat_classification') == 'Motorized' ? 'selected' : '' }}>
+                                Motorized
+                            </option>
+                            <option value="Non-motorized" {{ request('boat_classification') == 'Non-motorized' ? 'selected' : '' }}>
+                                Non-motorized
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name, vessel, FishR number, barangay..."
@@ -148,7 +159,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
                             data-bs-target="#dateFilterModal">
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
