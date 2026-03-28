@@ -127,7 +127,7 @@
             <div class="boatr-form-group">
                 <label for="boatr_fishr_number">FishR Number <span class="required">*</span></label>
                 <input type="text" id="boatr_fishr_number" name="fishr_number"
-                    placeholder="Example: FISHR-ABC12345" required>
+                    placeholder="Example: FISHR-YYYY-XXXX" required>
                 <small class="boatr-form-help">Your approved FishR registration number</small>
             </div>
 
