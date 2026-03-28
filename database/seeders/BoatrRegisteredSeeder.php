@@ -87,6 +87,9 @@ class BoatrRegisteredSeeder extends Seeder
                 $ext = $pc($ext);
             }
 
+            // Inspection is done one day before approval
+            $inspectionDate = $approvedAt->copy()->subDay();
+
             return [
                 'application_number'          => $appNo,
                 'first_name'                  => $fn,
@@ -112,10 +115,10 @@ class BoatrRegisteredSeeder extends Seeder
                 'user_document_size'          => null,
                 'user_document_uploaded_at'   => null,
                 'inspection_documents'        => null,
-                'inspection_completed'        => false,
-                'inspection_date'             => null,
-                'inspection_notes'            => null,
-                'inspected_by'                => null,
+                'inspection_completed'        => true,
+                'inspection_date'             => $inspectionDate,
+                'inspection_notes'            => 'Inspection completed',
+                'inspected_by'                => 1,
                 'documents_verified'          => true,
                 'documents_verified_at'       => $approvedAt,
                 'document_verification_notes' => 'Documents verified',
@@ -124,11 +127,13 @@ class BoatrRegisteredSeeder extends Seeder
                 'reviewed_at'                 => $approvedAt,
                 'reviewed_by'                 => 1,
                 'status_history'              => json_encode([
-                    ['status' => 'pending',      'timestamp' => $createdAt->toDateTimeString(),                   'notes' => 'Application submitted'],
-                    ['status' => 'under_review', 'timestamp' => $createdAt->copy()->addDay()->toDateTimeString(), 'notes' => 'Under review'],
-                    ['status' => 'approved',     'timestamp' => $approvedAt->toDateTimeString(),                  'notes' => 'Approved'],
+                    ['status' => 'pending',              'timestamp' => $createdAt->toDateTimeString(),                          'notes' => 'Application submitted'],
+                    ['status' => 'under_review',         'timestamp' => $createdAt->copy()->addDay()->toDateTimeString(),        'notes' => 'Under review'],
+                    ['status' => 'inspection_scheduled', 'timestamp' => $createdAt->copy()->addDays(2)->toDateTimeString(),      'notes' => 'Inspection scheduled'],
+                    ['status' => 'inspection_required',  'timestamp' => $inspectionDate->toDateTimeString(),                     'notes' => 'Inspection completed'],
+                    ['status' => 'approved',             'timestamp' => $approvedAt->toDateTimeString(),                         'notes' => 'Approved'],
                 ]),
-                'inspection_scheduled_at'     => null,
+                'inspection_scheduled_at'     => $createdAt->copy()->addDays(2),
                 'approved_at'                 => $approvedAt,
                 'rejected_at'                 => null,
                 'created_at'                  => $createdAt,
