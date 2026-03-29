@@ -379,7 +379,7 @@ class AdminDashboardController extends Controller
                 return [
                     'id' => $item->id,
                     'type' => 'Supply Alert',
-                    'name' => $item->item_name,
+                    'name' => $item->name,
                     'status' => 'Out of Stock',
                     'days_pending' => 0,
                     'created_at' => now(),
