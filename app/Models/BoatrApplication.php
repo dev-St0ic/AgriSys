@@ -137,7 +137,7 @@ class BoatrApplication extends Model
     public function getStatusColorAttribute()
     {
         return match($this->status) {
-            'pending' => 'secondary',
+            'pending' => 'warning',
             'under_review' => 'info',
             'inspection_scheduled' => 'primary',
             'inspection_required' => 'warning',
