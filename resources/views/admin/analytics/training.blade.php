@@ -128,7 +128,7 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-chart-line text-info me-2"></i>Application Trends
+                        <i class="fas fa-chart-line text-info me-2"></i>Request Trends
                     </h5>
                 </div>
                 <div class="card-body">
@@ -988,6 +988,7 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Chart instances
@@ -1007,6 +1008,7 @@
             // Chart.js default configuration
             Chart.defaults.font.family = "'Inter', sans-serif";
             Chart.defaults.color = '#64748b';
+            Chart.register(ChartDataLabels);
 
             // Initialize Status Chart
             initializeStatusChart();
@@ -1184,18 +1186,14 @@
                     return;
                 }
 
-                // Data validation
                 const monthLabels = [
                     @foreach ($monthlyTrends as $trend)
                         '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
                     @endforeach
                 ];
                 const totalApplicationsData = [{{ $monthlyTrends->pluck('total_applications')->implode(',') }}];
-                const approvedData = [{{ $monthlyTrends->pluck('approved')->implode(',') }}];
 
-                // Check if we have valid data
                 if (monthLabels.length === 0 || totalApplicationsData.length === 0) {
-                    console.warn('No trends data available for chart');
                     ctx.parentElement.innerHTML =
                         '<div class="text-center text-muted p-4"><i class="fas fa-chart-line fa-3x mb-3 opacity-25"></i><p>No data available for selected date range</p></div>';
                     return;
@@ -1205,7 +1203,8 @@
                     type: 'line',
                     data: {
                         labels: monthLabels,
-                        datasets: [{
+                        datasets: [
+                            {
                                 label: 'Total Applications',
                                 data: totalApplicationsData,
                                 borderColor: '#3b82f6',
@@ -1214,22 +1213,8 @@
                                 tension: 0.4,
                                 fill: true,
                                 pointRadius: 5,
-                                pointHoverRadius: 7,
+                                pointHoverRadius: 8,
                                 pointBackgroundColor: '#3b82f6',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2
-                            },
-                            {
-                                label: 'Approved',
-                                data: approvedData,
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: true,
-                                pointRadius: 5,
-                                pointHoverRadius: 7,
-                                pointBackgroundColor: '#10b981',
                                 pointBorderColor: '#fff',
                                 pointBorderWidth: 2
                             }
@@ -1242,57 +1227,42 @@
                             mode: 'index',
                             intersect: false,
                         },
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    }
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12
-                                    }
-                                }
-                            }
-                        },
                         plugins: {
                             legend: {
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20,
-                                    font: {
-                                        size: 13,
-                                        weight: '500'
-                                    }
-                                }
+                                display: false
                             },
                             tooltip: {
                                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                                 padding: 12,
-                                titleFont: {
-                                    size: 14,
-                                    weight: 'bold'
-                                },
-                                bodyFont: {
-                                    size: 13
-                                },
+                                titleFont: { size: 14, weight: 'bold' },
+                                bodyFont: { size: 13 },
                                 cornerRadius: 8,
                                 displayColors: true
+                            },
+                            datalabels: {
+                                align: 'top',
+                                color: '#333',
+                                font: { weight: 'bold', size: 10 },
+                                formatter: (value) => value
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 12, weight: '500' } }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                                ticks: {
+                                    font: { size: 12 },
+                                    stepSize: 1,
+                                    precision: 0
+                                }
                             }
                         }
-                    }
+                    },
+                    plugins: [ChartDataLabels]
                 });
             }
 
