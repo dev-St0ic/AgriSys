@@ -137,7 +137,18 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <select name="boat_classification" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Classifications</option>
+                            <option value="Motorized" {{ request('boat_classification') == 'Motorized' ? 'selected' : '' }}>
+                                Motorized
+                            </option>
+                            <option value="Non-motorized" {{ request('boat_classification') == 'Non-motorized' ? 'selected' : '' }}>
+                                Non-motorized
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name, vessel, FishR number, barangay..."
@@ -148,7 +159,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
                             data-bs-target="#dateFilterModal">
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
@@ -1166,6 +1177,10 @@
                                         <div class="col-12">
                                             <strong>Inspection:</strong>
                                             <div id="viewRegInspection" style="margin-top: 0.25rem;"></div>
+                                        </div>
+                                        <div class="col-12" id="viewRegInspectionNotesRow">
+                                            <strong>Inspection Notes:</strong>
+                                            <span id="viewRegInspectionNotes" class="text-muted fst-italic">None</span>
                                         </div>
                                         <div class="col-12">
                                             <strong>Date Applied:</strong>
@@ -3449,7 +3464,7 @@
             padding-bottom: 0;
         }
 
-        #registrationModal strong {
+        #registrationModal .card-body strong {
             color: #495057;
             font-weight: 600;
             display: block;
@@ -3459,11 +3474,17 @@
             margin-bottom: 0.25rem;
         }
 
-        #registrationModal .card-body span {
-            color: #333;
-            font-size: 0.95rem;
-            display: block;
+        #registrationModal .card-header strong,
+        #registrationModal .card-header h6,
+        #registrationModal .card-header i {
+            color: #ffffff !important;
         }
+
+        #registrationModal .card-header.bg-warning strong,
+        #registrationModal .card-header.bg-warning h6,
+        #registrationModal .card-header.bg-warning i {
+            color: #000000 !important;
+        } 
 
         #registrationModal a {
             color: #0d6efd;
@@ -5199,8 +5220,8 @@
                     // Populate Boat Classification
                     const classificationBadge = document.getElementById('viewRegBoatClassification').innerHTML =
                         `<span class="badge bg-primary" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
-        ${data.boat_classification || 'N/A'}
-    </span>`;
+                        ${data.boat_classification || 'N/A'}
+                    </span>`;
                     if (data.boat_classification) {
                         const badgeColor = data.boat_classification === 'Motorized' ? 'primary' : 'warning';
                         classificationBadge.innerHTML =
@@ -5248,6 +5269,19 @@
                             '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>';
                     }
 
+                    // Populate Inspection Notes
+                    const inspectionNotesEl = document.getElementById('viewRegInspectionNotes');
+                    const inspectionNotesRow = document.getElementById('viewRegInspectionNotesRow');
+                    if (data.inspection_notes) {
+                        inspectionNotesEl.textContent = data.inspection_notes;
+                        inspectionNotesEl.classList.remove('text-muted', 'fst-italic');
+                        inspectionNotesRow.style.display = 'block';
+                    } else {
+                        inspectionNotesEl.textContent = 'None';
+                        inspectionNotesEl.classList.add('text-muted', 'fst-italic');
+                        inspectionNotesRow.style.display = data.inspection_completed ? 'block' : 'none';
+                    }
+
                     document.getElementById('viewRegCreatedAt').textContent = data.created_at || 'N/A';
                     document.getElementById('viewRegUpdatedAt').textContent = data.updated_at || 'N/A';
 
@@ -5260,14 +5294,14 @@
 
                     if (totalDocs > 0) {
                         docContainer.innerHTML = `
-                            <div class="row">
+                           <div class="row">
                                 <div class="col-md-6">
                                     <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
                                     <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
                                     <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
+                                    <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                     <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
                                         <i class="fas fa-eye me-1"></i>View All Documents
                                     </button>

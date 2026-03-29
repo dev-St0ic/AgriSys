@@ -95,19 +95,31 @@
                 <div class="service-overview-grid">
                     @php
                         $serviceImages = [
-                            'rsbsa' => 'ServicesRSBSATemporary.jpg',
+                            'rsbsa'    => 'ServicesRSBSATemporary.jpg',
                             'seedling' => 'ServicesSeedlingsTemporary.jpg',
-                            'fishr' => 'ServicesFishrTemporary.jpg',
-                            'boatr' => 'ServicesBoatrTemporary.jpg',
+                            'fishr'    => 'ServicesFishrTemporary.jpg',
+                            'boatr'    => 'ServicesBoatrTemporary.jpg',
                             'training' => 'ServicesTrainingTemporary.jpg',
                         ];
+                        $serviceKeys = array_keys($serviceImages);
+                        $svcIdx = 0;
                     @endphp
+
                     @foreach ($applicationStatus ?? [] as $key => $service)
                         <div class="service-card">
-                            <div class="service-image-wrapper">
+                            <div class="service-image-wrapper clickable-image-wrapper"
+                                data-service-key="{{ $key }}"
+                                data-service-name="{{ $service['name'] }}"
+                                title="Click to change image">
                                 <img src="{{ asset('images/services/' . ($serviceImages[$key] ?? 'default.jpg')) }}"
-                                    alt="{{ $service['name'] }}" class="service-image">
+                                    alt="{{ $service['name'] }}"
+                                    class="service-image"
+                                    id="service-img-{{ $key }}">
                                 <div class="service-image-overlay"></div>
+                                <div class="image-change-hint">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Change Photo</span>
+                                </div>
                             </div>
                             <div class="service-content">
                                 <h4 class="service-name">{{ $service['name'] }}</h4>
@@ -134,10 +146,19 @@
 
                     <!-- Supply Management Card -->
                     <div class="service-card">
-                        <div class="service-image-wrapper">
-                            <img src="{{ asset('images/services/SupplyManagement.png') }}" alt="Supply Management"
-                                class="service-image">
+                        <div class="service-image-wrapper clickable-image-wrapper"
+                            data-service-key="supply"
+                            data-service-name="Supply Management"
+                            title="Click to change image">
+                            <img src="{{ asset('images/services/SupplyManagement.png') }}"
+                                alt="Supply Management"
+                                class="service-image"
+                                id="service-img-supply">
                             <div class="service-image-overlay"></div>
+                            <div class="image-change-hint">
+                                <i class="fas fa-camera"></i>
+                                <span>Change Photo</span>
+                            </div>
                         </div>
                         <div class="service-content">
                             <h4 class="service-name">Supply Management</h4>
@@ -151,8 +172,7 @@
                                     <div class="stat-label">Total Items</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value danger">{{ $supplyAlerts['total_out_of_stock_count'] ?? 0 }}
-                                    </div>
+                                    <div class="stat-value danger">{{ $supplyAlerts['total_out_of_stock_count'] ?? 0 }}</div>
                                     <div class="stat-label">Out of Supply</div>
                                 </div>
                             </div>
@@ -163,6 +183,79 @@
                     </div>
                 </div>
 
+                <!-- ============================================================
+                    IMAGE UPLOAD MODAL
+                    ============================================================ -->
+                <div class="img-upload-overlay" id="imgUploadOverlay">
+                    <div class="img-upload-modal" id="imgUploadModal">
+
+                        <!-- Header -->
+                        <div class="ium-header">
+                            <div class="ium-header-left">
+                                <div class="ium-icon-ring">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <div>
+                                    <h3 class="ium-title">Update Service Image</h3>
+                                    <p class="ium-subtitle" id="iumServiceName">—</p>
+                                </div>
+                            </div>
+                            <button class="ium-close-btn" id="iumCloseBtn" aria-label="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Preview Area -->
+                        <div class="ium-preview-zone" id="iumDropZone">
+                            <div class="ium-current-preview">
+                                <img src="" alt="Current" class="ium-preview-img" id="iumPreviewImg">
+                                <div class="ium-preview-placeholder" id="iumPreviewPlaceholder">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag & drop or <strong>browse</strong> to choose a new image</p>
+                                    <span>PNG, JPG, WEBP — max 5 MB</span>
+                                </div>
+                            </div>
+                            <div class="ium-drop-indicator" id="iumDropIndicator">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Drop it here!</span>
+                            </div>
+                        </div>
+
+                        <!-- File Meta (shown after selection) -->
+                        <div class="ium-file-meta" id="iumFileMeta" style="display:none;">
+                            <div class="ium-file-info">
+                                <i class="fas fa-file-image"></i>
+                                <div>
+                                    <div class="ium-file-name" id="iumFileName">—</div>
+                                    <div class="ium-file-size" id="iumFileSize">—</div>
+                                </div>
+                            </div>
+                            <button class="ium-remove-file-btn" id="iumRemoveFile" title="Remove selected file">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="ium-actions">
+                            <label for="iumFileInput" class="ium-browse-btn">
+                                <i class="fas fa-folder-open"></i> Browse File
+                            </label>
+                            <input type="file" id="iumFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+
+                            <button class="ium-upload-btn" id="iumUploadBtn" disabled>
+                                <span class="ium-btn-text">
+                                    <i class="fas fa-upload"></i> Upload Image
+                                </span>
+                                <span class="ium-btn-loading" style="display:none;">
+                                    <i class="fas fa-spinner fa-spin"></i> Uploading…
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Toast -->
+                        <div class="ium-toast" id="iumToast"></div>
+                    </div>
+                </div>
                 <!-- Priority Tasks -->
                 <div class="task-card-farmvista">
                     <div class="card-header-with-action">
@@ -985,6 +1078,181 @@
 
         // Optional: Update greeting every minute
         setInterval(updateGreeting, 60000);
+
+        /* ============================================================
+        IMAGE UPLOAD MODAL LOGIC
+        ============================================================ */
+        (function () {
+            const overlay      = document.getElementById('imgUploadOverlay');
+            const closeBtn     = document.getElementById('iumCloseBtn');
+            const fileInput    = document.getElementById('iumFileInput');
+            const previewImg   = document.getElementById('iumPreviewImg');
+            const placeholder  = document.getElementById('iumPreviewPlaceholder');
+            const fileMeta     = document.getElementById('iumFileMeta');
+            const fileName     = document.getElementById('iumFileName');
+            const fileSize     = document.getElementById('iumFileSize');
+            const removeBtn    = document.getElementById('iumRemoveFile');
+            const uploadBtn    = document.getElementById('iumUploadBtn');
+            const btnText      = uploadBtn.querySelector('.ium-btn-text');
+            const btnLoading   = uploadBtn.querySelector('.ium-btn-loading');
+            const serviceLabel = document.getElementById('iumServiceName');
+            const dropZone     = document.getElementById('iumDropZone');
+            const toast        = document.getElementById('iumToast');
+
+            let currentServiceKey  = null;
+            let currentTargetImg   = null;
+            let selectedFile       = null;
+            const UPLOAD_URL       = '{{ route("admin.dashboard.upload-service-image") }}';
+            const CSRF_TOKEN       = '{{ csrf_token() }}';
+
+            // ── Open modal on image wrapper click ──
+            document.querySelectorAll('.clickable-image-wrapper').forEach(wrapper => {
+                wrapper.addEventListener('click', () => {
+                    currentServiceKey = wrapper.dataset.serviceKey;
+                    currentTargetImg  = document.getElementById('service-img-' + currentServiceKey);
+                    serviceLabel.textContent = wrapper.dataset.serviceName;
+
+                    // Show current image in preview
+                    if (currentTargetImg && currentTargetImg.src) {
+                        previewImg.src = currentTargetImg.src;
+                        previewImg.classList.add('visible');
+                        placeholder.style.display = 'none';
+                    } else {
+                        previewImg.classList.remove('visible');
+                        placeholder.style.display = '';
+                    }
+
+                    resetFileSelection();
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // ── Close ──
+            function closeModal() {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                setTimeout(resetFileSelection, 300);
+            }
+            closeBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+            // ── File selection via browse ──
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files[0]) handleFile(fileInput.files[0]);
+            });
+
+            // ── Drag & Drop ──
+            dropZone.addEventListener('dragover', e => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+            dropZone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) handleFile(file);
+                else showToast('Please drop a valid image file.', 'error');
+            });
+
+            // ── Handle a chosen file ──
+            function handleFile(file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('File exceeds 5 MB limit.', 'error');
+                    return;
+                }
+                selectedFile = file;
+
+                // Preview
+                const reader = new FileReader();
+                reader.onload = e => {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.add('visible');
+                    placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+
+                // File meta row
+                fileName.textContent = file.name;
+                fileSize.textContent = formatBytes(file.size);
+                fileMeta.style.display = 'flex';
+                uploadBtn.disabled = false;
+            }
+
+            // ── Remove selected file ──
+            removeBtn.addEventListener('click', () => {
+                resetFileSelection();
+                // Restore the original live image
+                if (currentTargetImg && currentTargetImg.src) {
+                    previewImg.src = currentTargetImg.src;
+                    previewImg.classList.add('visible');
+                    placeholder.style.display = 'none';
+                }
+            });
+
+            function resetFileSelection() {
+                selectedFile = null;
+                fileInput.value = '';
+                fileMeta.style.display = 'none';
+                uploadBtn.disabled = true;
+            }
+
+            // ── Upload ──
+            uploadBtn.addEventListener('click', async () => {
+                if (!selectedFile || !currentServiceKey) return;
+
+                setLoading(true);
+
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+                formData.append('service_key', currentServiceKey);
+                formData.append('_token', CSRF_TOKEN);
+
+                try {
+                    const res  = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        // Update the card image instantly (cache-bust)
+                        currentTargetImg.src = data.new_url;
+                        previewImg.src       = data.new_url;
+                        showToast('✓ ' + data.message, 'success');
+                        resetFileSelection();
+                        setTimeout(closeModal, 1400);
+                    } else {
+                        const msg = data.errors
+                            ? Object.values(data.errors).flat().join(' ')
+                            : (data.message || 'Upload failed.');
+                        showToast(msg, 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Network error. Please try again.', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            function setLoading(on) {
+                uploadBtn.disabled = on;
+                btnText.style.display    = on ? 'none'         : 'flex';
+                btnLoading.style.display = on ? 'flex'         : 'none';
+            }
+
+            function showToast(msg, type) {
+                toast.textContent = msg;
+                toast.className = 'ium-toast ' + type + ' show';
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            function formatBytes(bytes) {
+                if (bytes < 1024)       return bytes + ' B';
+                if (bytes < 1048576)    return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / 1048576).toFixed(2) + ' MB';
+            }
+        })();
     </script>
 
     <style>
@@ -1978,6 +2246,233 @@
                 content: 'Action';
             }
         }
+
+        /* ── Clickable Image Hint ── */
+        .clickable-image-wrapper {
+            cursor: pointer;
+            position: relative;
+        }
+        .image-change-hint {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            background: rgba(0,0,0,0);
+            color: transparent;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            transition: background 0.3s, color 0.3s;
+            z-index: 2;
+        }
+        .image-change-hint i { font-size: 1.6rem; }
+        .clickable-image-wrapper:hover .image-change-hint {
+            background: rgba(0,0,0,0.45);
+            color: #fff;
+        }
+        .clickable-image-wrapper:hover .service-image {
+            filter: brightness(0.75);
+        }
+
+        /* ── Modal Overlay ── */
+        .img-upload-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10,14,20,0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .img-upload-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ── Modal Box ── */
+        .img-upload-modal {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+            overflow: hidden;
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+            position: relative;
+        }
+        .img-upload-overlay.active .img-upload-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        /* ── Header ── */
+        .ium-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 1.75rem 1.25rem;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .ium-header-left { display: flex; align-items: center; gap: 1rem; }
+        .ium-icon-ring {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #4CAF50, #81C784);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .ium-title {
+            font-size: 1.05rem; font-weight: 700;
+            color: #111827; margin: 0 0 0.2rem;
+        }
+        .ium-subtitle {
+            font-size: 0.8rem; color: #6b7280; margin: 0;
+        }
+        .ium-close-btn {
+            width: 36px; height: 36px;
+            border-radius: 10px; border: none;
+            background: #f3f4f6; color: #6b7280;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .ium-close-btn:hover { background: #fee2e2; color: #dc2626; }
+
+        /* ── Drop / Preview Zone ── */
+        .ium-preview-zone {
+            margin: 1.5rem 1.75rem 0;
+            border: 2px dashed #d1d5db;
+            border-radius: 14px;
+            overflow: hidden;
+            min-height: 200px;
+            position: relative;
+            background: #f9fafb;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .ium-preview-zone.drag-over {
+            border-color: #4CAF50;
+            background: #f0fdf4;
+        }
+        .ium-current-preview {
+            width: 100%; height: 220px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .ium-preview-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: none;
+            border-radius: 12px;
+        }
+        .ium-preview-img.visible { display: block; }
+        .ium-preview-placeholder {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 0.5rem; color: #9ca3af;
+            text-align: center; padding: 1.5rem;
+        }
+        .ium-preview-placeholder i { font-size: 2.5rem; color: #d1d5db; }
+        .ium-preview-placeholder p { margin: 0; font-size: 0.9rem; color: #6b7280; }
+        .ium-preview-placeholder span { font-size: 0.75rem; color: #9ca3af; }
+
+        .ium-drop-indicator {
+            position: absolute; inset: 0;
+            background: rgba(76,175,80,0.15);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 0.5rem; color: #4CAF50;
+            font-size: 0.95rem; font-weight: 600;
+            pointer-events: none;
+        }
+        .ium-drop-indicator i { font-size: 2.5rem; }
+        .ium-preview-zone.drag-over .ium-drop-indicator { display: flex; }
+
+        /* ── File Meta Row ── */
+        .ium-file-meta {
+            display: flex; align-items: center; justify-content: space-between;
+            margin: 0.75rem 1.75rem 0;
+            padding: 0.75rem 1rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            gap: 1rem;
+        }
+        .ium-file-info { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+        .ium-file-info i { color: #4CAF50; font-size: 1.1rem; flex-shrink: 0; }
+        .ium-file-name {
+            font-size: 0.85rem; font-weight: 600; color: #111827;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 260px;
+        }
+        .ium-file-size { font-size: 0.75rem; color: #6b7280; }
+        .ium-remove-file-btn {
+            border: none; background: #fee2e2; color: #dc2626;
+            border-radius: 8px; padding: 0.4rem 0.6rem;
+            cursor: pointer; font-size: 0.8rem;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .ium-remove-file-btn:hover { background: #fca5a5; }
+
+        /* ── Actions ── */
+        .ium-actions {
+            display: flex; gap: 0.75rem;
+            padding: 1.25rem 1.75rem 1.75rem;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .ium-browse-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            align-items: center; 
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; color: #374151;
+            cursor: pointer; background: #fff;
+            transition: border-color 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+        .ium-browse-btn:hover { border-color: #4CAF50; background: #f0fdf4; color: #4CAF50; }
+        .ium-upload-btn {
+            flex: 1;
+            padding: 0.65rem 1.5rem;
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: #fff; border: none; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .ium-upload-btn:disabled {
+            opacity: 0.45; cursor: not-allowed;
+        }
+        .ium-upload-btn:not(:disabled):hover {
+            opacity: 0.9; transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76,175,80,0.4);
+        }
+
+        /* ── Toast ── */
+        .ium-toast {
+            position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
+            padding: 0.6rem 1.25rem; border-radius: 50px;
+            font-size: 0.82rem; font-weight: 600;
+            white-space: nowrap; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s;
+            z-index: 1;
+        }
+        .ium-toast.show { opacity: 1; }
+        .ium-toast.success { background: #d1fae5; color: #065f46; }
+        .ium-toast.error   { background: #fee2e2; color: #991b1b; }
     </style>
 
 @endsection

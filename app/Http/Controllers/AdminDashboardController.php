@@ -379,7 +379,7 @@ class AdminDashboardController extends Controller
                 return [
                     'id' => $item->id,
                     'type' => 'Supply Alert',
-                    'name' => $item->item_name,
+                    'name' => $item->name,
                     'status' => 'Out of Stock',
                     'days_pending' => 0,
                     'created_at' => now(),
@@ -648,5 +648,37 @@ class AdminDashboardController extends Controller
         }
 
         return $monthlyData;
+    }
+
+    public function uploadServiceImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'service_key' => 'required|string|in:rsbsa,seedling,fishr,boatr,training,supply',
+        ]);
+
+        $serviceImageMap = [
+            'rsbsa'    => 'ServicesRSBSATemporary.jpg',
+            'seedling' => 'ServicesSeedlingsTemporary.jpg',
+            'fishr'    => 'ServicesFishrTemporary.jpg',
+            'boatr'    => 'ServicesBoatrTemporary.jpg',
+            'training' => 'ServicesTrainingTemporary.jpg',
+            'supply'   => 'SupplyManagement.png',
+        ];
+
+        $key = $request->service_key;
+        $originalFilename = $serviceImageMap[$key];
+        $ext = $request->file('image')->getClientOriginalExtension();
+        // Fixed - always keeps the original filename AND extension
+        $newFilename = $originalFilename; // e.g. always saves as SupplyManagement.png
+        $destinationPath = public_path('images/services');
+
+        $request->file('image')->move($destinationPath, $newFilename);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Image updated successfully!',
+            'new_url' => asset('images/services/' . $newFilename) . '?t=' . time(),
+        ]);
     }
 }
