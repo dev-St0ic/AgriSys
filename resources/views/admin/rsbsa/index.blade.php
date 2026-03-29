@@ -3944,7 +3944,7 @@
                     // Status badge with color coding
                     const statusColor = data.status_color || 'secondary';
                     const formattedStatus = data.formatted_status || getStatusText(data.status);
-                    const statusBadge = `<span class="badge bg-${statusColor}">${formattedStatus}</span>`;
+                    const statusBadge = `<span class="badge bg-${statusColor} text-white">${formattedStatus}</span>`;
 
                     // Build remarks HTML if exists
                     const remarksHtml = data.remarks ? `
@@ -4081,7 +4081,10 @@
                         <div class="card-body">
                             <div class="row g-2">
                                 <div class="col-12"><strong>Application #:</strong> <span class="text-primary">${data.application_number || 'N/A'}</span></div>
-                                <div class="col-12"><strong>Full Name:</strong> ${data.full_name || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>First Name:</strong> ${data.first_name || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>Middle Name:</strong> ${data.middle_name || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>Last Name:</strong> ${data.last_name || '<span class="text-muted">Not provided</span>'}</div>
+                                <div class="col-12"><strong>Extension:</strong> ${data.name_extension || '<span class="text-muted">None</span>'}</div>
                                 <div class="col-12"><strong>Sex:</strong> ${data.sex || '<span class="text-muted">Not specified</span>'}</div>
                                 <div class="col-12"><strong>Contact Number:</strong> ${data.contact_number ? `<a href="tel:${data.contact_number}" class="text-decoration-none">${data.contact_number}</a>` : '<span class="text-muted">Not provided</span>'}</div>
                             </div>
@@ -4120,43 +4123,27 @@
                     </div>
                 </div>
 
-                <!-- Application Status Card -->
-                <div class="col-md-6">
-                    <div class="card h-100 border-warning">
-                        <div class="card-header bg-warning text-dark">
-                            <h6 class="mb-0"><i class="fas fa-toggle-on me-2"></i>Application Status</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-2">
-                                <div class="col-12"><strong>Current Status:</strong> ${statusBadge}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Livelihood-Specific Cards (Conditionally displayed) -->
                 ${farmerHtml}
                 ${farmworkerHtml}
                 ${fisherfolkHtml}
                 ${agriyouthHtml}
 
-                <!-- Application Timeline Card -->
-                <div class="col-md-12">
-                    <div class="card h-100 border-secondary">
-                        <div class="card-header bg-secondary text-white">
-                            <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Application Timeline</h6>
+                <!-- Status & Timeline Card -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Status & Timeline</h6>
                         </div>
                         <div class="card-body">
                             <div class="row g-2">
+                                <div class="col-12"><strong>Current Status:</strong> ${statusBadge}</div>
                                 <div class="col-12"><strong>Date Applied:</strong> ${createdAtFormatted}</div>
                                 <div class="col-12"><strong>Last Updated:</strong> ${updatedAtFormatted}</div>
-                                ${data.reviewed_at ? `<div class="col-12"><strong>Date Reviewed:</strong> ${data.reviewed_at}</div>` : ''}
-                                ${data.reviewer_name ? `<div class="col-12"><strong>Reviewed By:</strong> ${data.reviewer_name}</div>` : ''}
-                                ${timelineHtml}
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>     
 
                 <!-- Supporting Document Card -->
                 <div class="col-12">
