@@ -126,7 +126,7 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-chart-line text-info me-2"></i>Registration Trends Over Time
+                        <i class="fas fa-chart-line text-info me-2"></i>Registration Trends 
                     </h5>
                 </div>
                 <div class="card-body">
@@ -1182,7 +1182,6 @@
                             const ctx = document.getElementById('userRegTrendsChart');
                             if (!ctx) return;
 
-                            // Check if there's any data
                             const trendsData = [
                                 @foreach ($monthlyTrends as $trend)
                                     {{ $trend->total_registrations }},
@@ -1205,42 +1204,27 @@
                                         @endforeach
                                     ],
                                     datasets: [{
-                                            label: 'Total Registrations',
-                                            data: [
-                                                @foreach ($monthlyTrends as $trend)
-                                                    {{ $trend->total_registrations }},
-                                                @endforeach
-                                            ],
-                                            borderColor: '#3b82f6',
-                                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                            borderWidth: 3,
-                                            tension: 0.4,
-                                            fill: true,
-                                            pointRadius: 5,
-                                            pointHoverRadius: 7,
-                                            pointBackgroundColor: '#3b82f6',
-                                            pointBorderColor: '#fff',
-                                            pointBorderWidth: 2
+                                        label: 'Total Registrations',
+                                        data: trendsData,
+                                        borderColor: '#0ea5e9',
+                                        backgroundColor: function(context) {
+                                            const chart = context.chart;
+                                            const { ctx: c, chartArea } = chart;
+                                            if (!chartArea) return 'rgba(14, 165, 233, 0.15)';
+                                            const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                            gradient.addColorStop(0, 'rgba(14, 165, 233, 0.25)');
+                                            gradient.addColorStop(1, 'rgba(14, 165, 233, 0.02)');
+                                            return gradient;
                                         },
-                                        {
-                                            label: 'Approved',
-                                            data: [
-                                                @foreach ($monthlyTrends as $trend)
-                                                    {{ $trend->approved }},
-                                                @endforeach
-                                            ],
-                                            borderColor: '#10b981',
-                                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                            borderWidth: 3,
-                                            tension: 0.4,
-                                            fill: true,
-                                            pointRadius: 5,
-                                            pointHoverRadius: 7,
-                                            pointBackgroundColor: '#10b981',
-                                            pointBorderColor: '#fff',
-                                            pointBorderWidth: 2
-                                        }
-                                    ]
+                                        borderWidth: 2.5,
+                                        tension: 0.4,
+                                        fill: true,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 7,
+                                        pointBackgroundColor: '#ffffff',
+                                        pointBorderColor: '#0ea5e9',
+                                        pointBorderWidth: 2.5
+                                    }]
                                 },
                                 options: {
                                     responsive: true,
@@ -1249,57 +1233,68 @@
                                         mode: 'index',
                                         intersect: false,
                                     },
+                                    layout: {
+                                        padding: { top: 28 }
+                                    },
                                     scales: {
                                         x: {
-                                            grid: {
-                                                display: false
-                                            },
+                                            grid: { display: false },
+                                            border: { display: false },
                                             ticks: {
-                                                font: {
-                                                    size: 12,
-                                                    weight: '500'
-                                                }
+                                                font: { size: 12, weight: '500' },
+                                                color: '#94a3b8'
                                             }
                                         },
                                         y: {
                                             beginAtZero: true,
-                                            grid: {
-                                                color: 'rgba(0, 0, 0, 0.05)'
-                                            },
+                                            grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                                            border: { display: false, dash: [4, 4] },
                                             ticks: {
-                                                font: {
-                                                    size: 12
-                                                }
+                                                font: { size: 12 },
+                                                color: '#94a3b8',
+                                                stepSize: 5
                                             }
                                         }
                                     },
                                     plugins: {
-                                        legend: {
-                                            position: 'top',
-                                            labels: {
-                                                usePointStyle: true,
-                                                padding: 20,
-                                                font: {
-                                                    size: 13,
-                                                    weight: '500'
+                                        legend: { display: false },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                                            padding: 12,
+                                            titleFont: { size: 13, weight: 'bold' },
+                                            bodyFont: { size: 13 },
+                                            cornerRadius: 8,
+                                            displayColors: false,
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return `Registrations: ${context.parsed.y.toLocaleString()}`;
                                                 }
                                             }
                                         },
-                                        tooltip: {
-                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                            padding: 12,
-                                            titleFont: {
-                                                size: 14,
-                                                weight: 'bold'
-                                            },
-                                            bodyFont: {
-                                                size: 13
-                                            },
-                                            cornerRadius: 8,
-                                            displayColors: true
-                                        }
+                                        // Data labels directly on points
+                                        datalabels: false
+                                    },
+                                    animation: { duration: 900, easing: 'easeInOutQuart' }
+                                },
+                                plugins: [{
+                                    id: 'pointLabels',
+                                    afterDatasetsDraw(chart) {
+                                        const { ctx: c, data } = chart;
+                                        const meta = chart.getDatasetMeta(0);
+                                        c.save();
+                                        c.font = 'bold 12px Inter, sans-serif';
+                                        c.fillStyle = '#334155';
+                                        c.textAlign = 'center';
+                                        c.textBaseline = 'bottom';
+                                        meta.data.forEach((point, index) => {
+                                            const value = data.datasets[0].data[index];
+                                            if (value !== null && value !== undefined) {
+                                                c.fillText(value, point.x, point.y - 10);
+                                            }
+                                        });
+                                        c.restore();
                                     }
-                                }
+                                }]
                             });
                         }
 
