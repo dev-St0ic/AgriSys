@@ -1711,7 +1711,7 @@ public function validateFishrNumber($fishrNumber)
             $currentUsername = strtoupper(trim($currentUser->username ?? ''));
 
             // Get the user who owns this FishR
-            $fishrUser = \App\Models\User::find($fishrApp->user_id);
+            $fishrUser = \App\Models\UserRegistration::find($fishrApp->user_id);
             $fishrUsername = strtoupper(trim($fishrUser->username ?? ''));
 
             // If usernames don't match, deny BUT DON'T REVEAL WHO OWNS IT

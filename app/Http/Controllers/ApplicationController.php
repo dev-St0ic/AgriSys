@@ -777,7 +777,7 @@ public function submitBoatR(Request $request)
             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ]);
 
-        $applicationNumber = $this->generateUniqueApplicationNumber();
+        $applicationNumber = $this->generateUniqueApplicationNumber($validated['boat_classification']);
 
         // Only set engine fields if motorized
         if ($validated['boat_classification'] === 'Non-motorized') {
@@ -841,6 +841,7 @@ try {
             'boat_length' => $validated['boat_length'],
             'boat_width' => $validated['boat_width'],
             'boat_depth' => $validated['boat_depth'],
+            'boat_classification' => $validated['boat_classification'],
             'engine_type' => $validated['engine_type'],
             'engine_horsepower' => $validated['engine_horsepower'],
             'primary_fishing_gear' => $validated['primary_fishing_gear'],
@@ -1099,8 +1100,8 @@ try {
     /**
      * Generate unique application number for BoatR applications
      */
-    private function generateUniqueApplicationNumber(): string
-    {
+private function generateUniqueApplicationNumber(string $boatClassification = ''): string
+{
     $year = now()->year;
     $prefix = $boatClassification === 'Motorized' ? 'M' : 'NM';
     $pattern = "BOATR-{$year}-{$prefix}-%";
@@ -1114,11 +1115,11 @@ try {
         : 1;
 
     if ($nextSequence > 9999) {
-        throw new \Exception("BoatR application number limit reached for {$prefix} classification in year {$year}.");
+        throw new \Exception("BoatR application number limit reached for {$prefix} in year {$year}.");
     }
 
     return "BOATR-{$year}-{$prefix}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
-    }
+}
 
     private function generateUniqueRsbsaApplicationNumber(): string
     {
