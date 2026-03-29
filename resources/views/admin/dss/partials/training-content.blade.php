@@ -1,13 +1,20 @@
 <!-- Training DSS Report Content -->
 
+@php $isQuarterly = ($data['period']['period_mode'] ?? 'monthly') === 'quarterly'; @endphp
+
 <!-- Executive Summary -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">
                     <i class="fas fa-graduation-cap me-2"></i>Training Program Summary - {{ $data['period']['month'] }}
                 </h5>
+                @if ($isQuarterly)
+                    <span class="quarterly-badge">
+                        <i class="fas fa-calendar-alt"></i> Quarterly
+                    </span>
+                @endif
             </div>
             <div class="card-body">
                 <div class="row">
@@ -15,44 +22,30 @@
                         <p class="lead">{{ $report['report_data']['executive_summary'] }}</p>
 
                         @if (isset($report['report_data']['performance_assessment']))
-                            <div class="d-flex gap-4 mt-3">
+                            <div class="d-flex gap-4 mt-3 flex-wrap">
                                 @php
                                     $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
                                     $ratingColor = match (strtolower($rating)) {
                                         'excellent', 'very good' => 'success',
-                                        'good' => 'primary',
-                                        'fair', 'average' => 'warning',
-                                        'poor', 'critical' => 'danger',
-                                        default => 'secondary',
+                                        'good'                   => 'primary',
+                                        'fair', 'average'        => 'warning',
+                                        'poor', 'critical'       => 'danger',
+                                        default                  => 'secondary',
                                     };
+                                    $confidenceScore  = $report['report_data']['confidence_score']  ?? 92;
+                                    $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
+                                    $sourceTitle      = $confidenceSource === 'llm'
+                                        ? 'AI-assessed high confidence'
+                                        : 'High data-quality confidence';
                                 @endphp
                                 <span class="badge bg-{{ $ratingColor }} fs-6">
-
-                                    Overall Rating:
-                                    {{ $report['report_data']['performance_assessment']['overall_rating'] }}
+                                    Overall Rating: {{ $rating ?: 'N/A' }}
                                 </span>
-                                @php
-                                    $confidence = $report['report_data']['confidence_level'] ?? 'High';
-                                    $confidenceScore = $report['report_data']['confidence_score'] ?? 92;
-                                    $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
-
-                                    // Display confidence score (always 90-95% range)
-                                    $confidenceDisplay = $confidenceScore . '%';
-
-                                    // Always use success color for high confidence (90-95%)
-                                    $confidenceColor = 'success';
-
-                                    // Add source title for tooltip
-                                    $sourceTitle =
-                                        $confidenceSource === 'llm'
-                                            ? 'AI-assessed high confidence'
-                                            : 'High data-quality confidence';
-                                @endphp
-                                <span class="badge bg-{{ $confidenceColor }} fs-6" title="{{ $sourceTitle }}">
-                                    <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceDisplay }}
+                                <span class="badge bg-success fs-6" title="{{ $sourceTitle }}">
+                                    <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceScore }}%
                                 </span>
                                 <span class="badge bg-secondary fs-6">
-                                    Source: {{ ucfirst($report['source']) }}
+                                    Source: {{ ucfirst($report['source'] ?? 'system') }}
                                 </span>
                             </div>
                         @endif
@@ -62,30 +55,25 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-primary mb-0">
-                                            {{ $data['training_stats']['total_applications'] }}
-                                        </div>
+                                        <div class="h4 text-primary mb-0">{{ $data['training_stats']['total_applications'] }}</div>
                                         <small class="text-muted">Total Applications</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-success mb-0">{{ $data['training_stats']['approved'] }}
-                                        </div>
+                                        <div class="h4 text-success mb-0">{{ $data['training_stats']['approved'] }}</div>
                                         <small class="text-muted">Approved</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-danger mb-0">{{ $data['training_stats']['rejected'] }}
-                                        </div>
+                                        <div class="h4 text-danger mb-0">{{ $data['training_stats']['rejected'] }}</div>
                                         <small class="text-muted">Rejected</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-warning mb-0">{{ $data['training_stats']['pending'] }}
-                                        </div>
+                                        <div class="h4 text-warning mb-0">{{ $data['training_stats']['pending'] }}</div>
                                         <small class="text-muted">Pending</small>
                                     </div>
                                 </div>
@@ -103,12 +91,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-lightbulb me-2"></i>Key Findings
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Key Findings</h5>
             </div>
             <div class="card-body">
-                @if (isset($report['report_data']['key_findings']))
+                @if (!empty($report['report_data']['key_findings']))
                     <ul class="list-unstyled">
                         @foreach ($report['report_data']['key_findings'] as $finding)
                             <li class="mb-2">
@@ -125,12 +111,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Critical Issues
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Critical Issues</h5>
             </div>
             <div class="card-body">
-                @if (isset($report['report_data']['critical_issues']) && count($report['report_data']['critical_issues']) > 0)
+                @if (!empty($report['report_data']['critical_issues']))
                     <ul class="list-unstyled">
                         @foreach ($report['report_data']['critical_issues'] as $issue)
                             <li class="mb-2">
@@ -154,9 +138,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clipboard-list me-2"></i>AI-Generated Recommendations
-                    </h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>AI-Generated Recommendations</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -165,13 +147,13 @@
                                 <i class="fas fa-bolt me-1"></i>Immediate Actions
                             </h6>
                             <ul class="list-unstyled">
-                                @if (isset($report['report_data']['recommendations']['immediate_actions']))
-                                    @foreach ($report['report_data']['recommendations']['immediate_actions'] as $action)
-                                        <li class="mb-2">
-                                            <span class="badge bg-danger me-2">NOW</span>{{ $action }}
-                                        </li>
-                                    @endforeach
-                                @endif
+                                @forelse ($report['report_data']['recommendations']['immediate_actions'] ?? [] as $action)
+                                    <li class="mb-2">
+                                        <span class="badge bg-danger me-2">NOW</span>{{ $action }}
+                                    </li>
+                                @empty
+                                    <li class="text-muted">No immediate actions identified.</li>
+                                @endforelse
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -179,13 +161,13 @@
                                 <i class="fas fa-calendar-week me-1"></i>Short-term Strategies
                             </h6>
                             <ul class="list-unstyled">
-                                @if (isset($report['report_data']['recommendations']['short_term_strategies']))
-                                    @foreach ($report['report_data']['recommendations']['short_term_strategies'] as $strategy)
-                                        <li class="mb-2">
-                                            <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
-                                        </li>
-                                    @endforeach
-                                @endif
+                                @forelse ($report['report_data']['recommendations']['short_term_strategies'] ?? [] as $strategy)
+                                    <li class="mb-2">
+                                        <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
+                                    </li>
+                                @empty
+                                    <li class="text-muted">No short-term strategies available.</li>
+                                @endforelse
                             </ul>
                         </div>
                     </div>
@@ -200,12 +182,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-dark text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>Training Types Distribution
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Training Types Distribution</h5>
             </div>
             <div class="card-body">
-                @if (count($data['training_by_type']['distribution']) > 0)
+                @if (!empty($data['training_by_type']['distribution']))
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -223,8 +203,7 @@
                                         <td class="text-center">{{ $type['total'] }}</td>
                                         <td class="text-center">{{ $type['approved'] }}</td>
                                         <td class="text-center">
-                                            <span
-                                                class="badge bg-{{ $type['approval_rate'] >= 80 ? 'success' : ($type['approval_rate'] >= 50 ? 'warning' : 'danger') }}">
+                                            <span class="badge bg-{{ $type['approval_rate'] >= 80 ? 'success' : ($type['approval_rate'] >= 50 ? 'warning' : 'danger') }}">
                                                 {{ $type['approval_rate'] }}%
                                             </span>
                                         </td>
@@ -243,15 +222,11 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-map-marker-alt me-2"></i>Geographic Coverage
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Geographic Coverage</h5>
             </div>
             <div class="card-body">
-                @if (count($data['training_by_barangay']['distribution']) > 0)
-                    <p class="text-muted">Barangays Covered:
-                        <strong>{{ $data['training_by_barangay']['total_barangays_covered'] }}</strong>
-                    </p>
+                @if (!empty($data['training_by_barangay']['distribution']))
+                    <p class="text-muted">Barangays Covered: <strong>{{ $data['training_by_barangay']['total_barangays_covered'] }}</strong></p>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -290,12 +265,14 @@
                         <small class="text-muted">
                             <strong>Report Generated:</strong> {{ $report['generated_at'] ?? now() }}<br>
                             <strong>Analysis Source:</strong> {{ ucfirst($report['source'] ?? 'system') }}
-                            @if (isset($report['source']) && $report['source'] === 'llm')
+                            @if (($report['source'] ?? '') === 'llm')
                                 ({{ $report['model_used'] ?? 'AI Model' }})
                             @endif
                             <br>
-                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to
-                            {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            @if ($isQuarterly)
+                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly Report</span>
+                            @endif
                         </small>
                     </div>
                     <div class="col-md-4 text-end">

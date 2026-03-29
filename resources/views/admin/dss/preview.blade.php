@@ -208,7 +208,6 @@
             outline: none;
             min-width: 150px;
             appearance: auto;
-            /* keeps native select arrow */
         }
 
         .dss-filter-form .filter-input:focus {
@@ -303,6 +302,54 @@
             background: #d8f3dc;
             box-shadow: 0 3px 10px rgba(45, 106, 79, 0.15);
             color: #1e4d38;
+        }
+
+        /* ─── Period mode toggle ──────────────────────────────────── */
+        .period-mode-toggle {
+            display: inline-flex;
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 3px;
+            gap: 2px;
+        }
+
+        .period-mode-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .period-mode-btn.active {
+            background: #ffffff;
+            color: #2d6a4f;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+        }
+
+        .period-mode-btn:hover:not(.active) {
+            color: #40916c;
+            background: rgba(255,255,255,0.6);
+        }
+
+        /* ─── Quarterly badge on report ───────────────────────────── */
+        .quarterly-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
         }
 
         /* ─── Responsive ──────────────────────────────────────────── */
@@ -477,41 +524,88 @@
                 <div class="dss-filter-wrapper">
                     <form id="periodForm" class="dss-filter-form">
                         <input type="hidden" id="serviceInput" name="service" value="{{ $service }}">
+                        <input type="hidden" id="periodModeInput" name="period_mode" value="{{ $periodMode ?? 'monthly' }}">
 
-                        <!-- Month -->
+                        <!-- Period Mode Toggle -->
                         <div class="filter-group">
-                            <label for="monthSelect" class="filter-label">
-                                <i class="fas fa-calendar-alt"></i>
-                                Month
+                            <label class="filter-label">
+                                <i class="fas fa-calendar"></i>
+                                Period Type
                             </label>
-                            <select class="filter-input" id="monthSelect" name="month">
-                                @foreach (range(1, 12) as $m)
-                                    <option value="{{ sprintf('%02d', $m) }}" {{ $m == $month ? 'selected' : '' }}>
-                                        {{ DateTime::createFromFormat('!m', $m)->format('F') }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="period-mode-toggle">
+                                <button type="button" class="period-mode-btn {{ ($periodMode ?? 'monthly') === 'monthly' ? 'active' : '' }}"
+                                    data-mode="monthly" id="monthlyModeBtn">
+                                    <i class="fas fa-calendar-day me-1"></i>Monthly
+                                </button>
+                                <button type="button" class="period-mode-btn {{ ($periodMode ?? 'monthly') === 'quarterly' ? 'active' : '' }}"
+                                    data-mode="quarterly" id="quarterlyModeBtn">
+                                    <i class="fas fa-calendar-alt me-1"></i>Quarterly
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Divider -->
-                        <div class="filter-divider">
-                            —
+                        <div class="filter-divider">—</div>
+
+                        <!-- Monthly selectors -->
+                        <div id="monthlySelectors" class="{{ ($periodMode ?? 'monthly') === 'quarterly' ? 'd-none' : 'd-flex' }} gap-3 align-items-end">
+                            <div class="filter-group">
+                                <label for="monthSelect" class="filter-label">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Month
+                                </label>
+                                <select class="filter-input" id="monthSelect" name="month">
+                                    @foreach (range(1, 12) as $m)
+                                        <option value="{{ sprintf('%02d', $m) }}" {{ $m == $month ? 'selected' : '' }}>
+                                            {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="filter-divider">—</div>
+                            <div class="filter-group">
+                                <label for="yearSelectMonthly" class="filter-label">
+                                    <i class="fas fa-calendar-check"></i>
+                                    Year
+                                </label>
+                                <select class="filter-input" id="yearSelectMonthly" name="year">
+                                    @foreach (range(2024, now()->year) as $y)
+                                        <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>
+                                            {{ $y }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
-                        <!-- Year -->
-                        <div class="filter-group">
-                            <label for="yearSelect" class="filter-label">
-                                <i class="fas fa-calendar-check"></i>
-                                Year
-                            </label>
-                            <!-- you can set if you wanted more than 3 showing select in year instead of - 2 -->
-                            <select class="filter-input" id="yearSelect" name="year">
-                                @foreach (range(now()->year - 2, now()->year) as $y)
-                                    <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>
-                                        {{ $y }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <!-- Quarterly selectors -->
+                        <div id="quarterlySelectors" class="{{ ($periodMode ?? 'monthly') === 'quarterly' ? 'd-flex' : 'd-none' }} gap-3 align-items-end">
+                            <div class="filter-group">
+                                <label for="quarterSelect" class="filter-label">
+                                    <i class="fas fa-layer-group"></i>
+                                    Quarter
+                                </label>
+                                <select class="filter-input" id="quarterSelect" name="quarter">
+                                    <option value="1" {{ ($quarter ?? 1) == 1 ? 'selected' : '' }}>Q1 — Jan, Feb, Mar</option>
+                                    <option value="2" {{ ($quarter ?? 1) == 2 ? 'selected' : '' }}>Q2 — Apr, May, Jun</option>
+                                    <option value="3" {{ ($quarter ?? 1) == 3 ? 'selected' : '' }}>Q3 — Jul, Aug, Sep</option>
+                                    <option value="4" {{ ($quarter ?? 1) == 4 ? 'selected' : '' }}>Q4 — Oct, Nov, Dec</option>
+                                </select>
+                            </div>
+                            <div class="filter-divider">—</div>
+                            <div class="filter-group">
+                                <label for="yearSelectQuarterly" class="filter-label">
+                                    <i class="fas fa-calendar-check"></i>
+                                    Year
+                                </label>
+                                <select class="filter-input" id="yearSelectQuarterly" name="year_quarterly">
+                                    @foreach (range(2024, now()->year) as $y)
+                                        <option value="{{ $y }}" {{ $y == $year ? 'selected' : '' }}>
+                                            {{ $y }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Actions -->
@@ -551,8 +645,6 @@
                 </div>
             </div>
         </div>
-
-
 
         <!-- Report Content -->
         <div id="reportContent">
@@ -615,302 +707,358 @@
 
 @section('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        const periodForm = document.getElementById('periodForm');
-        const refreshBtn = document.getElementById('refreshDataBtn');
-        const downloadPdf = document.getElementById('downloadPdf');
-        const downloadWord = document.getElementById('downloadWord');
-        const loadingState = document.getElementById('loadingState');
-        const reportData = document.getElementById('reportData');
-        const noDataState = document.getElementById('noDataState');
-        const serviceInput = document.getElementById('serviceInput');
+        document.addEventListener('DOMContentLoaded', function () {
+            const periodForm        = document.getElementById('periodForm');
+            const refreshBtn        = document.getElementById('refreshDataBtn');
+            const downloadPdf       = document.getElementById('downloadPdf');
+            const downloadWord      = document.getElementById('downloadWord');
+            const loadingState      = document.getElementById('loadingState');
+            const reportData        = document.getElementById('reportData');
+            const noDataState       = document.getElementById('noDataState');
+            const serviceInput      = document.getElementById('serviceInput');
+            const periodModeInput   = document.getElementById('periodModeInput');
+            const monthlySelectors  = document.getElementById('monthlySelectors');
+            const quarterlySelectors= document.getElementById('quarterlySelectors');
 
-        // ── Storage helpers ───────────────────────────────────────────
-        function getStorageKey(service, month, year) {
-            return `dss_report_${service}_${year}_${month}`;
-        }
+            // ── Period mode toggle ────────────────────────────────────
+            document.querySelectorAll('.period-mode-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const mode = this.dataset.mode;
+                    periodModeInput.value = mode;
 
-        function getCachedReport(service, month, year) {
-            try {
-                return sessionStorage.getItem(getStorageKey(service, month, year));
-            } catch (e) {
-                return null;
-            }
-        }
+                    document.querySelectorAll('.period-mode-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
 
-        function setCachedReport(service, month, year, html) {
-            try {
-                sessionStorage.setItem(getStorageKey(service, month, year), html);
-            } catch (e) {
-                // sessionStorage full — clear old DSS entries and retry
-                clearOldDSSCache();
-                try {
-                    sessionStorage.setItem(getStorageKey(service, month, year), html);
-                } catch (e2) {
-                    console.warn('Could not cache report:', e2);
-                }
-            }
-        }
+                    if (mode === 'quarterly') {
+                        monthlySelectors.classList.add('d-none');
+                        monthlySelectors.classList.remove('d-flex');
+                        quarterlySelectors.classList.remove('d-none');
+                        quarterlySelectors.classList.add('d-flex');
+                    } else {
+                        quarterlySelectors.classList.add('d-none');
+                        quarterlySelectors.classList.remove('d-flex');
+                        monthlySelectors.classList.remove('d-none');
+                        monthlySelectors.classList.add('d-flex');
+                    }
 
-        function clearOldDSSCache() {
-            const keys = Object.keys(sessionStorage).filter(k => k.startsWith('dss_report_'));
-            keys.forEach(k => sessionStorage.removeItem(k));
-        }
-
-        function clearCachedReport(service, month, year) {
-            try {
-                sessionStorage.removeItem(getStorageKey(service, month, year));
-            } catch (e) {}
-        }
-
-        // ── Read current filter values ────────────────────────────────
-        function getCurrentFilters() {
-            return {
-                month: document.getElementById('monthSelect').value,
-                year: document.getElementById('yearSelect').value,
-                service: serviceInput.value,
-            };
-        }
-
-        // ── UI state helpers ──────────────────────────────────────────
-        function animateProgress() {
-            const progressBar = document.querySelector('#loadingState .progress-bar');
-            if (!progressBar) return null;
-            let width = 0;
-            const interval = setInterval(() => {
-                width += Math.random() * 15;
-                if (width > 90) width = 90;
-                progressBar.style.width = width + '%';
-            }, 500);
-            return interval;
-        }
-
-        function showLoading(message = 'Generating DSS Report...') {
-            loadingState.style.display = 'block';
-            reportData.style.display = 'none';
-            noDataState.style.display = 'none';
-            const messageEl = document.querySelector('#loadingState h5');
-            if (messageEl) messageEl.textContent = message;
-            return animateProgress();
-        }
-
-        function hideLoading(progressInterval) {
-            if (progressInterval) clearInterval(progressInterval);
-            const progressBar = document.querySelector('#loadingState .progress-bar');
-            if (progressBar) progressBar.style.width = '100%';
-            loadingState.style.display = 'none';
-        }
-
-        function showData(html) {
-            reportData.innerHTML = html;
-            reportData.style.display = 'block';
-            noDataState.style.display = 'none';
-            loadingState.style.display = 'none';
-        }
-
-        function showNoData() {
-            loadingState.style.display = 'none';
-            reportData.style.display = 'none';
-            noDataState.style.display = 'block';
-        }
-
-        // ── Service tab switching ─────────────────────────────────────
-        const serviceTabs = document.querySelectorAll('[data-service]');
-        serviceTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Update active tab styles
-                serviceTabs.forEach(t => {
-                    t.classList.remove('btn-success');
-                    t.classList.add('btn-outline-secondary');
+                    // Check cache for newly selected mode
+                    const filters = getCurrentFilters();
+                    const cached  = getCachedReport(filters.service, filters.cacheKey);
+                    if (cached) {
+                        showData(cached);
+                        showToast(`Loaded cached ${getServiceName(filters.service)} report`, 'info');
+                    } else {
+                        showNoData();
+                    }
                 });
-                this.classList.remove('btn-outline-secondary');
-                this.classList.add('btn-success');
-
-                const selectedService = this.dataset.service;
-                serviceInput.value = selectedService;
-
-                // Sync URL
-                const url = new URL(window.location);
-                url.searchParams.set('service', selectedService);
-                window.history.pushState({}, '', url);
-
-                // Check sessionStorage first
-                const { month, year } = getCurrentFilters();
-                const cached = getCachedReport(selectedService, month, year);
-
-                if (cached) {
-                    showData(cached);
-                    showToast(`Loaded cached ${getServiceName(selectedService)} report`, 'info');
-                } else {
-                    showNoData();
-                }
             });
-        });
 
-        // ── Main data loader ──────────────────────────────────────────
-       async function loadDSSData(month, year, service, forceRefresh = false, silent = false) {
-            if (!forceRefresh) {
-                const cached = getCachedReport(service, month, year);
-                if (cached) {
-                    showData(cached);
-                    if (!silent) showToast(`Loaded cached ${getServiceName(service)} report`, 'info');
-                    return;
+            // ── Storage helpers ───────────────────────────────────────
+            function getStorageKey(service, cacheKey) {
+                return `dss_report_${service}_${cacheKey}`;
+            }
+
+            function getCachedReport(service, cacheKey) {
+                try {
+                    return sessionStorage.getItem(getStorageKey(service, cacheKey));
+                } catch (e) { return null; }
+            }
+
+            function setCachedReport(service, cacheKey, html) {
+                try {
+                    sessionStorage.setItem(getStorageKey(service, cacheKey), html);
+                } catch (e) {
+                    clearOldDSSCache();
+                    try { sessionStorage.setItem(getStorageKey(service, cacheKey), html); }
+                    catch (e2) { console.warn('Could not cache report:', e2); }
                 }
             }
 
-            const progressInterval = showLoading(
-                `Generating ${getServiceName(service)} DSS Report for ${getMonthName(month)} ${year}...`
-            );
+            function clearOldDSSCache() {
+                Object.keys(sessionStorage)
+                    .filter(k => k.startsWith('dss_report_'))
+                    .forEach(k => sessionStorage.removeItem(k));
+            }
 
-            try {
-                const response = await fetch(
-                    `{{ route('admin.dss.preview') }}?month=${month}&year=${year}&service=${service}`, {
+            function clearCachedReport(service, cacheKey) {
+                try { sessionStorage.removeItem(getStorageKey(service, cacheKey)); }
+                catch (e) {}
+            }
+
+            // ── Read current filter values ────────────────────────────
+            function getCurrentFilters() {
+                const mode    = periodModeInput.value;
+                const service = serviceInput.value;
+
+                if (mode === 'quarterly') {
+                    const quarter = document.getElementById('quarterSelect').value;
+                    const year    = document.getElementById('yearSelectQuarterly').value;
+                    return {
+                        service,
+                        period_mode: 'quarterly',
+                        quarter,
+                        year,
+                        month: null,
+                        // cache key format: quarterly_Q1_2026
+                        cacheKey: `quarterly_Q${quarter}_${year}`,
+                    };
+                }
+
+                const month = document.getElementById('monthSelect').value;
+                const year  = document.getElementById('yearSelectMonthly').value;
+                return {
+                    service,
+                    period_mode: 'monthly',
+                    month,
+                    year,
+                    quarter: null,
+                    cacheKey: `${year}_${month}`,
+                };
+            }
+
+            // ── Build URL params from filters ─────────────────────────
+            function buildQueryString(filters) {
+                const params = new URLSearchParams({ service: filters.service, period_mode: filters.period_mode, year: filters.year });
+                if (filters.period_mode === 'quarterly') {
+                    params.set('quarter', filters.quarter);
+                } else {
+                    params.set('month', filters.month);
+                }
+                return params.toString();
+            }
+
+            // ── UI state helpers ──────────────────────────────────────
+            function animateProgress() {
+                const bar = document.querySelector('#loadingState .progress-bar');
+                if (!bar) return null;
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += Math.random() * 15;
+                    if (width > 90) width = 90;
+                    bar.style.width = width + '%';
+                }, 500);
+                return interval;
+            }
+
+            function showLoading(message = 'Generating DSS Report...') {
+                loadingState.style.display = 'block';
+                reportData.style.display   = 'none';
+                noDataState.style.display  = 'none';
+                const el = document.querySelector('#loadingState h5');
+                if (el) el.textContent = message;
+                return animateProgress();
+            }
+
+            function hideLoading(progressInterval) {
+                if (progressInterval) clearInterval(progressInterval);
+                const bar = document.querySelector('#loadingState .progress-bar');
+                if (bar) bar.style.width = '100%';
+                loadingState.style.display = 'none';
+            }
+
+            function showData(html) {
+                reportData.innerHTML       = html;
+                reportData.style.display   = 'block';
+                noDataState.style.display  = 'none';
+                loadingState.style.display = 'none';
+            }
+
+            function showNoData() {
+                loadingState.style.display = 'none';
+                reportData.style.display   = 'none';
+                noDataState.style.display  = 'block';
+            }
+
+            // ── Service tab switching ─────────────────────────────────
+            const serviceTabs = document.querySelectorAll('[data-service]');
+            serviceTabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    serviceTabs.forEach(t => {
+                        t.classList.remove('btn-success');
+                        t.classList.add('btn-outline-secondary');
+                    });
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-success');
+
+                    serviceInput.value = this.dataset.service;
+
+                    const url = new URL(window.location);
+                    url.searchParams.set('service', this.dataset.service);
+                    window.history.pushState({}, '', url);
+
+                    const filters = getCurrentFilters();
+                    const cached  = getCachedReport(filters.service, filters.cacheKey);
+                    if (cached) {
+                        showData(cached);
+                        showToast(`Loaded cached ${getServiceName(filters.service)} report`, 'info');
+                    } else {
+                        showNoData();
+                    }
+                });
+            });
+
+            // ── Main data loader ──────────────────────────────────────
+            async function loadDSSData(filters, forceRefresh = false, silent = false) {
+                if (!forceRefresh) {
+                    const cached = getCachedReport(filters.service, filters.cacheKey);
+                    if (cached) {
+                        showData(cached);
+                        if (!silent) showToast(`Loaded cached ${getServiceName(filters.service)} report`, 'info');
+                        return;
+                    }
+                }
+
+                const periodLabel = filters.period_mode === 'quarterly'
+                    ? `Q${filters.quarter} ${filters.year}`
+                    : `${getMonthName(filters.month)} ${filters.year}`;
+
+                const progressInterval = showLoading(
+                    `Generating ${getServiceName(filters.service)} DSS Report for ${periodLabel}...`
+                );
+
+                try {
+                    const qs       = buildQueryString(filters);
+                    const response = await fetch(`{{ route('admin.dss.preview') }}?${qs}`, {
                         method: 'GET',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        }
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    const data = await response.json();
+                    hideLoading(progressInterval);
+
+                    if (data.success && data.html) {
+                        setCachedReport(filters.service, filters.cacheKey, data.html);
+                        showData(data.html);
+                        if (!silent) showToast('Report generated successfully!', 'success');
+                    } else {
+                        showNoData();
+                        if (!silent) showToast(data.message || 'Failed to load report data', 'error');
                     }
-                );
+                } catch (error) {
+                    hideLoading(progressInterval);
+                    showNoData();
+                    showToast('Failed to load DSS data: ' + error.message, 'error');
+                    console.error('DSS loading error:', error);
+                }
+            }
 
-                const data = await response.json();
-                hideLoading(progressInterval);
-
-                if (data.success && data.html) {
-                    setCachedReport(service, month, year, data.html);
-                    showData(data.html);
-                    if (!silent) showToast('Report generated successfully!', 'success');
+            // ── On page load — restore last viewed report ─────────────
+            (function restoreOnLoad() {
+                const filters = getCurrentFilters();
+                const cached  = getCachedReport(filters.service, filters.cacheKey);
+                if (cached) {
+                    showData(cached);
+                    showToast(`Restored cached ${getServiceName(filters.service)} report`, 'info');
                 } else {
                     showNoData();
-                    if (!silent) showToast(data.message || 'Failed to load report data', 'error');
                 }
-            } catch (error) {
-                hideLoading(progressInterval);
-                showNoData();
-                showToast('Failed to load DSS data: ' + error.message, 'error');
-                console.error('DSS loading error:', error);
-            }
-        }
+            })();
 
-        // ── On page load — restore last viewed report ─────────────────
-        (function restoreOnLoad() {
-            const { month, year, service } = getCurrentFilters();
-            const cached = getCachedReport(service, month, year);
-            if (cached) {
-                showData(cached);
-                showToast(`Restored cached ${getServiceName(service)} report`, 'info');
-            } else {
-                showNoData();
-            }
-        })();
+            // ── Form submit ───────────────────────────────────────────
+            periodForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const filters = getCurrentFilters();
 
-        // ── Form submit ───────────────────────────────────────────────
-        periodForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const { month, year, service } = getCurrentFilters();
-
-            const url = new URL(window.location);
-            url.searchParams.set('month', month);
-            url.searchParams.set('year', year);
-            url.searchParams.set('service', service);
-            window.history.pushState({}, '', url);
-
-            loadDSSData(month, year, service);
-        });
-
-        // ── Refresh button — bypasses cache ──────────────────────────
-       refreshBtn.addEventListener('click', async function() {
-            const { month, year, service } = getCurrentFilters();
-
-            refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
-
-            try {
-                const response = await fetch(
-                    `{{ route('admin.dss.refresh.data') }}?month=${month}&year=${year}&service=${service}`
-                );
-                const data = await response.json();
-
-                if (data.success) {
-                    clearCachedReport(service, month, year);
-                    await loadDSSData(month, year, service, true, true); // silent = true
-                    showToast('Data refreshed successfully!', 'success'); // only this shows
+                const url = new URL(window.location);
+                url.searchParams.set('service',     filters.service);
+                url.searchParams.set('period_mode', filters.period_mode);
+                url.searchParams.set('year',        filters.year);
+                if (filters.period_mode === 'quarterly') {
+                    url.searchParams.set('quarter', filters.quarter);
+                    url.searchParams.delete('month');
                 } else {
-                    showToast(data.message || 'Failed to refresh data', 'error');
+                    url.searchParams.set('month', filters.month);
+                    url.searchParams.delete('quarter');
                 }
-            } catch (error) {
-                showToast('Failed to refresh data: ' + error.message, 'error');
-            } finally {
-                refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh Data';
+                window.history.pushState({}, '', url);
+
+                loadDSSData(filters);
+            });
+
+            // ── Refresh button — bypasses cache ───────────────────────
+            refreshBtn.addEventListener('click', async function () {
+                const filters = getCurrentFilters();
+
+                refreshBtn.disabled   = true;
+                refreshBtn.innerHTML  = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+
+                try {
+                    const qs       = buildQueryString(filters);
+                    const response = await fetch(`{{ route('admin.dss.refresh.data') }}?${qs}`);
+                    const data     = await response.json();
+
+                    if (data.success) {
+                        clearCachedReport(filters.service, filters.cacheKey);
+                        await loadDSSData(filters, true, true);
+                        showToast('Data refreshed successfully!', 'success');
+                    } else {
+                        showToast(data.message || 'Failed to refresh data', 'error');
+                    }
+                } catch (error) {
+                    showToast('Failed to refresh data: ' + error.message, 'error');
+                } finally {
+                    refreshBtn.disabled  = false;
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh Data';
+                }
+            });
+
+            // ── Downloads ─────────────────────────────────────────────
+            downloadPdf.addEventListener('click', function (e) {
+                e.preventDefault();
+                const qs = buildQueryString(getCurrentFilters());
+                window.open(`{{ route('admin.dss.download.pdf') }}?${qs}`, '_blank');
+            });
+
+            downloadWord.addEventListener('click', function (e) {
+                e.preventDefault();
+                const qs = buildQueryString(getCurrentFilters());
+                window.open(`{{ route('admin.dss.download.word') }}?${qs}`, '_blank');
+            });
+
+            // ── Helpers ───────────────────────────────────────────────
+            function getServiceName(service) {
+                const names = {
+                    comprehensive: 'Supplies', training: 'Training',
+                    rsbsa: 'RSBSA', fishr: 'FishR', boatr: 'BoatR',
+                };
+                return names[service] || 'Comprehensive';
+            }
+
+            function getMonthName(monthNum) {
+                const months = ['January','February','March','April','May','June',
+                                'July','August','September','October','November','December'];
+                return months[parseInt(monthNum) - 1];
+            }
+
+            function showToast(message, type = 'info') {
+                const iconMap = {
+                    success: 'fas fa-check-circle',
+                    error:   'fas fa-exclamation-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info:    'fas fa-info-circle',
+                };
+                const container = document.getElementById('toastContainer');
+                const toast     = document.createElement('div');
+                toast.className = `toast-notification toast-${type}`;
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="${iconMap[type] || iconMap.info}"></i>
+                        <span>${message}</span>
+                        <button type="button" class="btn-close-toast" onclick="this.closest('.toast-notification').classList.remove('show'); setTimeout(() => this.closest('.toast-notification')?.remove(), 300)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>`;
+                container.appendChild(toast);
+                requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
             }
         });
-        // ── Downloads ─────────────────────────────────────────────────
-        downloadPdf.addEventListener('click', function(e) {
-            e.preventDefault();
-            const { month, year, service } = getCurrentFilters();
-            window.open(
-                `{{ route('admin.dss.download.pdf') }}?month=${month}&year=${year}&service=${service}`,
-                '_blank'
-            );
-        });
-
-        downloadWord.addEventListener('click', function(e) {
-            e.preventDefault();
-            const { month, year, service } = getCurrentFilters();
-            window.open(
-                `{{ route('admin.dss.download.word') }}?month=${month}&year=${year}&service=${service}`,
-                '_blank'
-            );
-        });
-
-        // ── Helpers ───────────────────────────────────────────────────
-        function getServiceName(service) {
-            const names = {
-                comprehensive: 'Supplies',
-                training: 'Training',
-                rsbsa: 'RSBSA',
-                fishr: 'FishR',
-                boatr: 'BoatR'
-            };
-            return names[service] || 'Comprehensive';
-        }
-
-        function getMonthName(monthNum) {
-            const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ];
-            return months[parseInt(monthNum) - 1];
-        }
-
-        function showToast(message, type = 'info') {
-            const iconMap = {
-                success: 'fas fa-check-circle',
-                error: 'fas fa-exclamation-circle',
-                warning: 'fas fa-exclamation-triangle',
-                info: 'fas fa-info-circle',
-            };
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast-notification toast-${type}`;
-            toast.innerHTML = `
-                <div class="toast-content">
-                    <i class="${iconMap[type] || iconMap.info}"></i>
-                    <span>${message}</span>
-                    <button type="button" class="btn-close-toast" onclick="this.closest('.toast-notification').classList.remove('show'); setTimeout(() => this.closest('.toast-notification')?.remove(), 300)">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>`;
-            container.appendChild(toast);
-            requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 5000);
-        }
-    });
-
-         
     </script>
 @endsection
 
@@ -918,16 +1066,11 @@
     function getRatingColor($rating)
     {
         switch (strtolower($rating)) {
-            case 'excellent':
-                return 'success';
-            case 'good':
-                return 'primary';
-            case 'fair':
-                return 'warning';
-            case 'poor':
-                return 'danger';
-            default:
-                return 'secondary';
+            case 'excellent': return 'success';
+            case 'good':      return 'primary';
+            case 'fair':      return 'warning';
+            case 'poor':      return 'danger';
+            default:          return 'secondary';
         }
     }
 @endphp

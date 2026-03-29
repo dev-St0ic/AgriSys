@@ -1,13 +1,20 @@
 <!-- RSBSA DSS Report Content -->
 
+@php $isQuarterly = ($data['period']['period_mode'] ?? 'monthly') === 'quarterly'; @endphp
+
 <!-- Executive Summary -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">
                     <i class="fas fa-users me-2"></i>RSBSA Registry Summary - {{ $data['period']['month'] }}
                 </h5>
+                @if ($isQuarterly)
+                    <span class="quarterly-badge">
+                        <i class="fas fa-calendar-alt"></i> Quarterly
+                    </span>
+                @endif
             </div>
             <div class="card-body">
                 <div class="row">
@@ -15,44 +22,30 @@
                         <p class="lead">{{ $report['report_data']['executive_summary'] }}</p>
 
                         @if (isset($report['report_data']['performance_assessment']))
-                            <div class="d-flex gap-4 mt-3">
+                            <div class="d-flex gap-4 mt-3 flex-wrap">
                                 @php
                                     $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
                                     $ratingColor = match (strtolower($rating)) {
                                         'excellent', 'very good' => 'success',
-                                        'good' => 'primary',
-                                        'fair', 'average' => 'warning',
-                                        'poor', 'critical' => 'danger',
-                                        default => 'secondary',
+                                        'good'                   => 'primary',
+                                        'fair', 'average'        => 'warning',
+                                        'poor', 'critical'       => 'danger',
+                                        default                  => 'secondary',
                                     };
+                                    $confidenceScore  = $report['report_data']['confidence_score']  ?? 92;
+                                    $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
+                                    $sourceTitle      = $confidenceSource === 'llm'
+                                        ? 'AI-assessed high confidence'
+                                        : 'High data-quality confidence';
                                 @endphp
                                 <span class="badge bg-{{ $ratingColor }} fs-6">
-
-                                    Overall Rating:
-                                    {{ $report['report_data']['performance_assessment']['overall_rating'] }}
+                                    Overall Rating: {{ $rating ?: 'N/A' }}
                                 </span>
-                                @php
-                                    $confidence = $report['report_data']['confidence_level'] ?? 'High';
-                                    $confidenceScore = $report['report_data']['confidence_score'] ?? 92;
-                                    $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
-
-                                    // Display confidence score (always 90-95% range)
-                                    $confidenceDisplay = $confidenceScore . '%';
-
-                                    // Always use success color for high confidence (90-95%)
-                                    $confidenceColor = 'success';
-
-                                    // Add source title for tooltip
-                                    $sourceTitle =
-                                        $confidenceSource === 'llm'
-                                            ? 'AI-assessed high confidence'
-                                            : 'High data-quality confidence';
-                                @endphp
-                                <span class="badge bg-{{ $confidenceColor }} fs-6" title="{{ $sourceTitle }}">
-                                    <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceDisplay }}
+                                <span class="badge bg-success fs-6" title="{{ $sourceTitle }}">
+                                    <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceScore }}%
                                 </span>
                                 <span class="badge bg-secondary fs-6">
-                                    Source: {{ ucfirst($report['source']) }}
+                                    Source: {{ ucfirst($report['source'] ?? 'system') }}
                                 </span>
                             </div>
                         @endif
@@ -62,9 +55,7 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-primary mb-0">
-                                            {{ $data['rsbsa_stats']['total_applications'] }}
-                                        </div>
+                                        <div class="h4 text-primary mb-0">{{ $data['rsbsa_stats']['total_applications'] }}</div>
                                         <small class="text-muted">Total Farmers</small>
                                     </div>
                                 </div>
@@ -76,8 +67,7 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h5 text-info mb-0">{{ $data['rsbsa_stats']['total_land_area'] }}
-                                        </div>
+                                        <div class="h5 text-info mb-0">{{ $data['rsbsa_stats']['total_land_area'] }}</div>
                                         <small class="text-muted">Total Land Area</small>
                                     </div>
                                 </div>
@@ -95,12 +85,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-lightbulb me-2"></i>Key Findings
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Key Findings</h5>
             </div>
             <div class="card-body">
-                @if (isset($report['report_data']['key_findings']))
+                @if (!empty($report['report_data']['key_findings']))
                     <ul class="list-unstyled">
                         @foreach ($report['report_data']['key_findings'] as $finding)
                             <li class="mb-2">
@@ -117,12 +105,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Critical Issues
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Critical Issues</h5>
             </div>
             <div class="card-body">
-                @if (isset($report['report_data']['critical_issues']) && count($report['report_data']['critical_issues']) > 0)
+                @if (!empty($report['report_data']['critical_issues']))
                     <ul class="list-unstyled">
                         @foreach ($report['report_data']['critical_issues'] as $issue)
                             <li class="mb-2">
@@ -146,9 +132,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clipboard-list me-2"></i>AI-Generated Recommendations
-                    </h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>AI-Generated Recommendations</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -157,13 +141,13 @@
                                 <i class="fas fa-bolt me-1"></i>Immediate Actions
                             </h6>
                             <ul class="list-unstyled">
-                                @if (isset($report['report_data']['recommendations']['immediate_actions']))
-                                    @foreach ($report['report_data']['recommendations']['immediate_actions'] as $action)
-                                        <li class="mb-2">
-                                            <span class="badge bg-danger me-2">NOW</span>{{ $action }}
-                                        </li>
-                                    @endforeach
-                                @endif
+                                @forelse ($report['report_data']['recommendations']['immediate_actions'] ?? [] as $action)
+                                    <li class="mb-2">
+                                        <span class="badge bg-danger me-2">NOW</span>{{ $action }}
+                                    </li>
+                                @empty
+                                    <li class="text-muted">No immediate actions identified.</li>
+                                @endforelse
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -171,13 +155,13 @@
                                 <i class="fas fa-calendar-week me-1"></i>Short-term Strategies
                             </h6>
                             <ul class="list-unstyled">
-                                @if (isset($report['report_data']['recommendations']['short_term_strategies']))
-                                    @foreach ($report['report_data']['recommendations']['short_term_strategies'] as $strategy)
-                                        <li class="mb-2">
-                                            <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
-                                        </li>
-                                    @endforeach
-                                @endif
+                                @forelse ($report['report_data']['recommendations']['short_term_strategies'] ?? [] as $strategy)
+                                    <li class="mb-2">
+                                        <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
+                                    </li>
+                                @empty
+                                    <li class="text-muted">No short-term strategies available.</li>
+                                @endforelse
                             </ul>
                         </div>
                     </div>
@@ -192,12 +176,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-dark text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-seedling me-2"></i>Top Commodities
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-seedling me-2"></i>Top Commodities</h5>
             </div>
             <div class="card-body">
-                @if (count($data['rsbsa_by_commodity']['top_commodities']) > 0)
+                @if (!empty($data['rsbsa_by_commodity']['top_commodities']))
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -228,9 +210,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>Demographics & Land Distribution
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Demographics & Land Distribution</h5>
             </div>
             <div class="card-body">
                 <h6 class="mb-3">Gender Distribution</h6>
@@ -238,19 +218,16 @@
                     <div class="col-6">
                         <div class="text-center p-2 bg-light rounded">
                             <div class="h5 text-primary mb-0">{{ $data['rsbsa_demographics']['male_count'] }}</div>
-                            <small class="text-muted">Male
-                                ({{ $data['rsbsa_demographics']['male_percentage'] }}%)</small>
+                            <small class="text-muted">Male ({{ $data['rsbsa_demographics']['male_percentage'] }}%)</small>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="text-center p-2 bg-light rounded">
                             <div class="h5 text-danger mb-0">{{ $data['rsbsa_demographics']['female_count'] }}</div>
-                            <small class="text-muted">Female
-                                ({{ $data['rsbsa_demographics']['female_percentage'] }}%)</small>
+                            <small class="text-muted">Female ({{ $data['rsbsa_demographics']['female_percentage'] }}%)</small>
                         </div>
                     </div>
                 </div>
-
                 <h6 class="mb-3 mt-4">Farm Size Distribution</h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
@@ -276,15 +253,11 @@
     <div class="col-12">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-map-marker-alt me-2"></i>Geographic Distribution
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Geographic Distribution</h5>
             </div>
             <div class="card-body">
-                @if (count($data['rsbsa_by_barangay']['distribution']) > 0)
-                    <p class="text-muted">Barangays Covered:
-                        <strong>{{ $data['rsbsa_by_barangay']['total_barangays_covered'] }}</strong>
-                    </p>
+                @if (!empty($data['rsbsa_by_barangay']['distribution']))
+                    <p class="text-muted">Barangays Covered: <strong>{{ $data['rsbsa_by_barangay']['total_barangays_covered'] }}</strong></p>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -298,9 +271,7 @@
                                 @foreach (array_slice($data['rsbsa_by_barangay']['distribution'], 0, 10) as $brgy)
                                     <tr>
                                         <td>{{ $brgy['barangay'] }}</td>
-                                        <td class="text-center">
-                                            <span class="badge bg-primary">{{ $brgy['farmers'] }}</span>
-                                        </td>
+                                        <td class="text-center"><span class="badge bg-primary">{{ $brgy['farmers'] }}</span></td>
                                         <td class="text-center">{{ $brgy['total_land_area'] }}</td>
                                     </tr>
                                 @endforeach
@@ -324,8 +295,7 @@
             </div>
             <div class="card-body">
                 @if (!empty($data['rsbsa_fisherfolk_activity']['distribution']))
-                    <p class="text-muted">Total Fisherfolk:
-                        <strong>{{ $data['rsbsa_fisherfolk_activity']['total_fisherfolk'] }}</strong></p>
+                    <p class="text-muted">Total Fisherfolk: <strong>{{ $data['rsbsa_fisherfolk_activity']['total_fisherfolk'] }}</strong></p>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -339,8 +309,7 @@
                                 @foreach ($data['rsbsa_fisherfolk_activity']['distribution'] as $act)
                                     <tr>
                                         <td>{{ ucfirst($act['activity']) }}</td>
-                                        <td class="text-center"><span
-                                                class="badge bg-info">{{ $act['count'] }}</span></td>
+                                        <td class="text-center"><span class="badge bg-info">{{ $act['count'] }}</span></td>
                                         <td class="text-center">{{ $act['approved'] }}</td>
                                     </tr>
                                 @endforeach
@@ -348,8 +317,7 @@
                         </table>
                     </div>
                     @if (!empty($data['rsbsa_fisherfolk_activity']['other_activities_specified']))
-                        <small class="text-muted">Other activities:
-                            {{ collect($data['rsbsa_fisherfolk_activity']['other_activities_specified'])->pluck('activity')->join(', ') }}</small>
+                        <small class="text-muted">Other activities: {{ collect($data['rsbsa_fisherfolk_activity']['other_activities_specified'])->pluck('activity')->join(', ') }}</small>
                     @endif
                 @else
                     <p class="text-muted">No fisherfolk activity data available.</p>
@@ -363,18 +331,18 @@
                 <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Agri-Youth Summary</h5>
             </div>
             <div class="card-body">
-                @if ($data['rsbsa_agriyouth_analysis']['total_agriyouth'] > 0)
+                @if (($data['rsbsa_agriyouth_analysis']['total_agriyouth'] ?? 0) > 0)
                     <div class="row g-2 mb-3">
                         <div class="col-4">
                             <div class="bg-light rounded p-2 text-center">
-                                <div class="h5 mb-0">{{ $data['rsbsa_agriyouth_analysis']['total_agriyouth'] }}</div><small
-                                    class="text-muted">Total</small>
+                                <div class="h5 mb-0">{{ $data['rsbsa_agriyouth_analysis']['total_agriyouth'] }}</div>
+                                <small class="text-muted">Total</small>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="bg-light rounded p-2 text-center">
-                                <div class="h5 mb-0">{{ $data['rsbsa_agriyouth_analysis']['approved'] }}</div><small
-                                    class="text-muted">Approved</small>
+                                <div class="h5 mb-0">{{ $data['rsbsa_agriyouth_analysis']['approved'] }}</div>
+                                <small class="text-muted">Approved</small>
                             </div>
                         </div>
                         <div class="col-4">
@@ -387,8 +355,8 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <div class="bg-light rounded p-2 text-center">
-                                <div class="h6 mb-0">{{ $data['rsbsa_agriyouth_analysis']['male_count'] }}</div><small
-                                    class="text-muted">Male</small>
+                                <div class="h6 mb-0">{{ $data['rsbsa_agriyouth_analysis']['male_count'] }}</div>
+                                <small class="text-muted">Male</small>
                             </div>
                         </div>
                         <div class="col-6">
@@ -414,16 +382,14 @@
                 <h5 class="mb-0"><i class="fas fa-tractor me-2"></i>Type of Farm</h5>
             </div>
             <div class="card-body">
-                @if (!empty($data['rsbsa_farmer_details']['by_type_of_farm']))
-                    @foreach ($data['rsbsa_farmer_details']['by_type_of_farm'] as $item)
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>{{ ucfirst($item['type']) }}</span>
-                            <span class="badge bg-success">{{ $item['count'] }}</span>
-                        </div>
-                    @endforeach
-                @else
+                @forelse ($data['rsbsa_farmer_details']['by_type_of_farm'] ?? [] as $item)
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ ucfirst($item['type']) }}</span>
+                        <span class="badge bg-success">{{ $item['count'] }}</span>
+                    </div>
+                @empty
                     <p class="text-muted">No data.</p>
-                @endif
+                @endforelse
             </div>
         </div>
     </div>
@@ -433,16 +399,14 @@
                 <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>Land Ownership</h5>
             </div>
             <div class="card-body">
-                @if (!empty($data['rsbsa_farmer_details']['by_land_ownership']))
-                    @foreach ($data['rsbsa_farmer_details']['by_land_ownership'] as $item)
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>{{ ucfirst($item['ownership']) }}</span>
-                            <span class="badge bg-secondary">{{ $item['count'] }}</span>
-                        </div>
-                    @endforeach
-                @else
+                @forelse ($data['rsbsa_farmer_details']['by_land_ownership'] ?? [] as $item)
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ ucfirst($item['ownership']) }}</span>
+                        <span class="badge bg-secondary">{{ $item['count'] }}</span>
+                    </div>
+                @empty
                     <p class="text-muted">No data.</p>
-                @endif
+                @endforelse
             </div>
         </div>
     </div>
@@ -452,16 +416,14 @@
                 <h5 class="mb-0"><i class="fas fa-hard-hat me-2"></i>Farmworker Types</h5>
             </div>
             <div class="card-body">
-                @if (!empty($data['rsbsa_farmworker_type']['distribution']))
-                    @foreach ($data['rsbsa_farmworker_type']['distribution'] as $item)
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>{{ ucfirst($item['type']) }}</span>
-                            <span class="badge bg-info">{{ $item['count'] }}</span>
-                        </div>
-                    @endforeach
-                @else
+                @forelse ($data['rsbsa_farmworker_type']['distribution'] ?? [] as $item)
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ ucfirst($item['type']) }}</span>
+                        <span class="badge bg-info">{{ $item['count'] }}</span>
+                    </div>
+                @empty
                     <p class="text-muted">No data.</p>
-                @endif
+                @endforelse
             </div>
         </div>
     </div>
@@ -477,12 +439,14 @@
                         <small class="text-muted">
                             <strong>Report Generated:</strong> {{ $report['generated_at'] ?? now() }}<br>
                             <strong>Analysis Source:</strong> {{ ucfirst($report['source'] ?? 'system') }}
-                            @if (isset($report['source']) && $report['source'] === 'llm')
+                            @if (($report['source'] ?? '') === 'llm')
                                 ({{ $report['model_used'] ?? 'AI Model' }})
                             @endif
                             <br>
-                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to
-                            {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            @if ($isQuarterly)
+                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly Report</span>
+                            @endif
                         </small>
                     </div>
                     <div class="col-md-4 text-end">
