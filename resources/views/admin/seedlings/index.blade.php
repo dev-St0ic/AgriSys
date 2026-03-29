@@ -3139,7 +3139,7 @@
 
         /* Ensure modal is visible when shown */
         .modal.show {
-            display: flex !important;
+            display: block !important;
             z-index: 1060 !important;
         }
 
@@ -6058,6 +6058,18 @@
 // CRITICAL: Ensure date filter modal works
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded, initializing date filter...');
+
+    // Cleanup on update modal hide
+    document.querySelectorAll('[id^="updateModal"]').forEach(modalElement => {
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }, 100);
+        });
+    });
     
     // Wait for Bootstrap to be fully loaded
     const initDateFilter = () => {
