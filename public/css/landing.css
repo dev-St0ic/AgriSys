@@ -2012,8 +2012,14 @@ header {
 .how-it-works {
     padding: 80px 20px;
     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.how-it-works h2,
+.HowItWorks-subtitle,
+.steps {
     max-width: 1200px;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .how-it-works h2 {
