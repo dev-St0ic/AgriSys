@@ -367,7 +367,7 @@ public function submitSeedlings(Request $request)
         }
 
         // Generate unique request number
-        $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        $requestNumber = $this->generateUniqueRequestNumber();
 
         // Validate mobile number format
         $normalizedMobile = $this->normalizeMobileNumber($validated['mobile']);
