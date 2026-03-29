@@ -314,6 +314,11 @@ if ($actionUser) {
                                                     'color' => 'success',
                                                     'icon' => 'fa-plus-circle',
                                                 ],
+                                                'image_updated' => [
+                                                    'label' => 'Image Updated',
+                                                    'color' => 'warning',
+                                                    'icon'  => 'fa-image',
+                                                ],
                                                 'updated' => [
                                                     'label' => 'Updated',
                                                     'color' => 'info',
@@ -478,6 +483,11 @@ if ($actionUser) {
                                                     'name' => 'Events',
                                                     'icon' => 'fa-calendar-alt',
                                                     'color' => 'info',
+                                                ],
+                                                'ServiceImage' => [
+                                                    'name'  => 'Service Images',
+                                                    'icon'  => 'fa-image',
+                                                    'color' => 'warning',
                                                 ],
                                                 'SlideshowImage' => [
                                                     'name' => 'Slideshow Management',

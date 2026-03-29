@@ -675,6 +675,12 @@ class AdminDashboardController extends Controller
 
         $request->file('image')->move($destinationPath, $newFilename);
 
+        $this->logActivity('image_updated', 'ServiceImage', null, [
+            'service_key' => $key,
+            'filename'    => $newFilename,
+            'updated_by'  => auth()->user()->name,
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Image updated successfully!',
