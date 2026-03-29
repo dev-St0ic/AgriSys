@@ -6,1111 +6,1092 @@
 @section('page-icon', 'fas fa-chart-bar')
 @section('page-title', 'RSBSA Analytics Dashboard')
 
+@section('styles')
+<style>
+    .metric-card {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border-radius: 12px;
+    }
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.10) !important;
+    }
+    .analytics-nav-btn {
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .analytics-nav-btn:hover {
+        background: #e8f5e9;
+        border-color: #40916c;
+        color: #2d6a4f;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+    .analytics-nav-btn.active {
+        background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+        border-color: #40916c;
+        color: #fff;
+    }
+    .section-divider {
+        border: none;
+        border-top: 2px dashed #e9ecef;
+        margin: 2rem 0;
+    }
+    .insight-badge {
+        font-size: 0.72rem;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .progress { border-radius: 8px; background: #f1f3f4; }
+    .chart-wrapper { position: relative; width: 100%; }
+</style>
+@endsection
+
 @section('content')
-    <!-- Enhanced Service Navigation -->
+
+    {{-- ── Service Navigation ──────────────────────────────────────────── --}}
     <div class="row mb-4">
         <div class="col-12">
             @include('admin.analytics.partials.nav')
         </div>
     </div>
 
-    <!-- Date Range Filter -->
+    {{-- ── Date Range Filter ───────────────────────────────────────────── --}}
     <div class="row mb-4">
         <div class="col-12">
             @include('admin.analytics.partials.filter', [
                 'filterRoute' => 'admin.analytics.rsbsa',
-                // 'exportRoute' => 'admin.analytics.rsbsa.export',
             ])
         </div>
     </div>
 
-    <!-- Key Metrics Row -->
-    <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 metric-card">
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 1 — KEY METRICS
+    ════════════════════════════════════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm metric-card h-100">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-file-alt fa-2x text-primary"></i>
-                    </div>
-                    <h2 class="text-dark mb-1">{{ number_format($overview['total_applications']) }}</h2>
-                    <h6 class="text-muted mb-2">Total Applications</h6>
-                    <small class="text-success">
-                        <i class="fas fa-users me-1"></i>{{ $overview['unique_applicants'] }} farmers
-                    </small>
+                    <div class="mb-2"><i class="fas fa-file-alt fa-2x text-primary"></i></div>
+                    <h2 class="fw-bold text-dark mb-1">{{ number_format($overview['total_applications']) }}</h2>
+                    <div class="text-muted small mb-2">Total Applications</div>
+                    <span class="insight-badge bg-primary bg-opacity-10 text-primary">
+                        <i class="fas fa-users me-1"></i>{{ number_format($overview['unique_applicants']) }} unique farmers
+                    </span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 metric-card">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm metric-card h-100">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-check-circle fa-2x text-success"></i>
-                    </div>
-                    <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
-                    <h6 class="text-muted mb-2">Approval Rate</h6>
-                    <small class="text-muted">{{ number_format($overview['approved_applications']) }} approved</small>
+                    <div class="mb-2"><i class="fas fa-check-circle fa-2x text-success"></i></div>
+                    <h2 class="fw-bold text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
+                    <div class="text-muted small mb-2">Approval Rate</div>
+                    @php
+                        $approvalClass = $overview['approval_rate'] >= 70 ? 'success' : ($overview['approval_rate'] >= 40 ? 'warning' : 'danger');
+                        $approvalLabel = $overview['approval_rate'] >= 70 ? 'High' : ($overview['approval_rate'] >= 40 ? 'Moderate' : 'Low');
+                    @endphp
+                    <span class="insight-badge bg-{{ $approvalClass }} bg-opacity-10 text-{{ $approvalClass }}">
+                        {{ $approvalLabel }} &bull; {{ number_format($overview['approved_applications']) }} approved
+                    </span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 metric-card">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm metric-card h-100">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-map-marked-alt fa-2x text-purple"></i>
-                    </div>
-                    <h2 class="text-dark mb-1">{{ number_format($overview['total_land_area'], 1) }}ha</h2>
-                    <h6 class="text-muted mb-2">Total Land Coverage</h6>
-                    <small class="text-muted">{{ $overview['active_barangays'] }} barangays</small>
+                    <div class="mb-2"><i class="fas fa-map-marked-alt fa-2x" style="color:#7c3aed"></i></div>
+                    <h2 class="fw-bold text-dark mb-1">{{ number_format($overview['total_land_area'], 1) }} ha</h2>
+                    <div class="text-muted small mb-2">Total Land Coverage</div>
+                    <span class="insight-badge bg-purple bg-opacity-10" style="background:rgba(124,58,237,.1);color:#7c3aed">
+                        <i class="fas fa-map-pin me-1"></i>{{ $overview['active_barangays'] }} barangays covered
+                    </span>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100 metric-card">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm metric-card h-100">
                 <div class="card-body text-center p-4">
-                    <div class="metric-icon mb-3">
-                        <i class="fas fa-clock fa-2x text-warning"></i>
-                    </div>
-                    <h2 class="text-dark mb-1">{{ $processingTimeAnalysis['avg_processing_days'] }}d</h2>
-                    <h6 class="text-muted mb-2">Avg. Processing Time</h6>
-                    <small class="text-muted">{{ $processingTimeAnalysis['median_processing_days'] }}d median</small>
+                    <div class="mb-2"><i class="fas fa-clock fa-2x text-warning"></i></div>
+                    <h2 class="fw-bold text-dark mb-1">{{ $processingTimeAnalysis['avg_processing_days'] }}d</h2>
+                    <div class="text-muted small mb-2">Avg Processing Time</div>
+                    @php
+                        $speedClass = $processingTimeAnalysis['avg_processing_days'] <= 7 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] <= 14 ? 'warning' : 'danger');
+                        $speedLabel = $processingTimeAnalysis['avg_processing_days'] <= 7 ? 'Fast' : ($processingTimeAnalysis['avg_processing_days'] <= 14 ? 'Moderate' : 'Slow');
+                    @endphp
+                    <span class="insight-badge bg-{{ $speedClass }} bg-opacity-10 text-{{ $speedClass }}">
+                        {{ $speedLabel }} &bull; {{ $processingTimeAnalysis['median_processing_days'] }}d median
+                    </span>
                 </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Main Analytics Section -->
-    <div class="row mb-4 g-3">
-        <!-- Application Status Distribution -->
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 2 — STATUS + TRENDS
+    ════════════════════════════════════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
+
+        {{-- Status Doughnut --}}
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-white border-bottom py-3">
                     <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-chart-pie text-primary me-2"></i>Application Status
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="status-chart-container mb-3">
-                        <canvas id="rsbsaStatusChart" height="220"></canvas>
-                    </div>
-                    <div class="status-legends">
-                        @foreach ($statusAnalysis['counts'] as $status => $count)
-                            @php
-                                $dotColor = match ($status) {
-                                    'approved' => '#10b981',
-                                    'rejected' => '#ef4444',
-                                    'under_review', 'pending' => '#f59e0b',
-                                    'cancelled', 'withdrawn' => '#6b7280',
-                                    'processing' => '#3b82f6',
-                                    'on_hold' => '#8b5cf6',
-                                    default => '#64748b',
-                                };
-                            @endphp
-                            <div class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
-                                <div class="d-flex align-items-center">
-                                    <span
-                                        class="legend-dot bg-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }} me-2"></span>
-                                    <span class="fw-medium">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
+                <div class="card-body d-flex flex-column">
+                    @if($statusAnalysis['total'] > 0)
+                        <div class="chart-wrapper mb-3" style="height:220px">
+                            <canvas id="rsbsaStatusChart"></canvas>
+                        </div>
+                        <div class="mt-auto">
+                            @foreach($statusAnalysis['counts'] as $status => $count)
+                                @php
+                                    $hex = match($status) {
+                                        'approved'    => '#10b981',
+                                        'rejected'    => '#ef4444',
+                                        default       => '#f59e0b',
+                                    };
+                                    $pct = $statusAnalysis['percentages'][$status] ?? 0;
+                                @endphp
+                                <div class="stat-row">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span style="width:10px;height:10px;border-radius:2px;background:{{ $hex }};display:inline-block"></span>
+                                        <span class="fw-medium">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold">{{ number_format($count) }}</span>
+                                        <span class="text-muted small">({{ $pct }}%)</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span class="badge text-white me-2" style="background-color: {{ $dotColor }};">
-                                        {{ $count }}
-                                    </span>
-                                    <span class="text-muted">{{ $statusAnalysis['percentages'][$status] }}%</span>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted flex-grow-1 d-flex flex-column justify-content-center">
+                            <i class="fas fa-chart-pie fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">No data for selected period</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- Monthly Trends -->
+        {{-- Monthly Trends Line Chart --}}
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-chart-line text-info me-2"></i>Application Trends
+                        <i class="fas fa-chart-line text-info me-2"></i>Monthly Application Trends
                     </h5>
+                    @if($monthlyTrends->isNotEmpty())
+                        <span class="badge bg-info bg-opacity-10 text-info">
+                            {{ $monthlyTrends->count() }} month{{ $monthlyTrends->count() > 1 ? 's' : '' }}
+                        </span>
+                    @endif
                 </div>
                 <div class="card-body">
-                    <canvas id="rsbsaTrendsChart" height="220"></canvas>
+                    @if($monthlyTrends->isNotEmpty())
+                        <div class="chart-wrapper" style="height:260px">
+                            <canvas id="rsbsaTrendsChart"></canvas>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-chart-line fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">No trend data for selected period</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Top Commodities & Performance Metrics -->
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 3 — LIVELIHOOD + COMMODITY
+    ════════════════════════════════════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
-        <!-- Top Commodities -->
+
+        {{-- Livelihood Bar Chart --}}
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-seedling me-2 text-success"></i>Top Commodities by Registration
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-briefcase text-success me-2"></i>Main Livelihood Distribution
                     </h5>
                 </div>
                 <div class="card-body">
-                    @if ($commodityAnalysis->isNotEmpty())
-                        @foreach ($commodityAnalysis->take(5) as $index => $commodity)
+                    @if($livelihoodAnalysis->isNotEmpty())
+                        @php $totalLivelihood = $livelihoodAnalysis->sum('total_applications'); @endphp
+                        @foreach($livelihoodAnalysis as $l)
+                            @php
+                                $pct = $totalLivelihood > 0 ? round(($l->total_applications / $totalLivelihood) * 100, 1) : 0;
+                                $approvalRate = round(($l->approved / max(1, $l->total_applications)) * 100, 1);
+                                $approvalColor = $approvalRate >= 70 ? 'success' : ($approvalRate >= 40 ? 'warning' : 'danger');
+                                $icon = match($l->main_livelihood) {
+                                    'Farmer'              => 'fa-tractor',
+                                    'Farmworker/Laborer'  => 'fa-hard-hat',
+                                    'Fisherfolk'          => 'fa-fish',
+                                    'Agri-youth'          => 'fa-user-graduate',
+                                    default               => 'fa-leaf',
+                                };
+                            @endphp
                             <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0 fw-semibold">{{ ucfirst($commodity->commodity) }}</h6>
-                                    <span
-                                        class="badge bg-primary text-white rounded-pill px-3">{{ $commodity->total_applications }}</span>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas {{ $icon }} text-success small"></i>
+                                        <span class="fw-semibold">{{ $l->main_livelihood }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary rounded-pill">{{ number_format($l->total_applications) }}</span>
+                                        <span class="badge bg-{{ $approvalColor }} bg-opacity-15 text-{{ $approvalColor }} rounded-pill">
+                                            {{ $approvalRate }}% approved
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-primary"
-                                        style="width: {{ $commodityAnalysis->first()->total_applications > 0 ? ($commodity->total_applications / $commodityAnalysis->first()->total_applications) * 100 : 0 }}%"
-                                        role="progressbar"></div>
+                                <div class="progress" style="height:8px">
+                                    <div class="progress-bar bg-success" style="width:{{ $pct }}%" role="progressbar"></div>
                                 </div>
-                                <div class="d-flex justify-content-between small text-muted">
-                                    <span>Approval:
-                                        {{ round(($commodity->approved / max(1, $commodity->total_applications)) * 100, 1) }}%</span>
-                                    <span>Avg: {{ round($commodity->total_land_area, 1) }}ha ×
-                                        {{ $commodity->unique_barangays }} barangays</span>
+                                <div class="d-flex justify-content-between small text-muted mt-1">
+                                    <span>{{ $pct }}% of total</span>
+                                    @if($l->total_land_area > 0)
+                                        <span>{{ round($l->total_land_area, 1) }} ha covered</span>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
                     @else
                         <div class="text-center py-4 text-muted">
-                            <i class="fas fa-inbox fa-2x mb-2"></i>
-                            <p>No commodity data available for the selected period</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div> <!-- Main Livelihood Distribution -->
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-briefcase me-2 text-success"></i>Main Livelihood Distribution
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if ($livelihoodAnalysis->isNotEmpty())
-                        @foreach ($livelihoodAnalysis->take(5) as $index => $livelihood)
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0 fw-semibold">{{ ucfirst($livelihood->main_livelihood) }}</h6>
-                                    <span
-                                        class="badge bg-primary text-white rounded-pill px-3">{{ $livelihood->total_applications }}</span>
-                                </div>
-                                <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-primary"
-                                        style="width: {{ $livelihoodAnalysis->first()->total_applications > 0 ? ($livelihood->total_applications / $livelihoodAnalysis->first()->total_applications) * 100 : 0 }}%"
-                                        role="progressbar"></div>
-                                </div>
-                                <div class="d-flex justify-content-between small text-muted">
-                                    <span>Approval:
-                                        {{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}%</span>
-                                    <span>Share:
-                                        {{ round(($livelihood->total_applications / max(1, $livelihoodAnalysis->sum('total_applications'))) * 100, 1) }}%
-                                        of total</span>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="text-center py-4 text-muted">
-                            <i class="fas fa-inbox fa-2x mb-2"></i>
-                            <p>No livelihood data available for the selected period</p>
+                            <i class="fas fa-inbox fa-2x mb-2 opacity-25"></i>
+                            <p class="mb-0">No livelihood data available</p>
                         </div>
                     @endif
                 </div>
             </div>
         </div>
+
+        {{-- Top Commodities --}}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-seedling text-success me-2"></i>Top Commodities
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if($commodityAnalysis->isNotEmpty())
+                        @php $maxCommodity = $commodityAnalysis->first()->total_applications; @endphp
+                        @foreach($commodityAnalysis->take(6) as $commodity)
+                            @php
+                                $cpct = $maxCommodity > 0 ? round(($commodity->total_applications / $maxCommodity) * 100, 1) : 0;
+                                $capRate = round(($commodity->approved / max(1, $commodity->total_applications)) * 100, 1);
+                            @endphp
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold">{{ ucfirst($commodity->commodity) }}</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-success rounded-pill">{{ number_format($commodity->total_applications) }}</span>
+                                        <span class="text-muted small">{{ $capRate }}% ✓</span>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height:6px">
+                                    <div class="progress-bar bg-primary" style="width:{{ $cpct }}%" role="progressbar"></div>
+                                </div>
+                                <div class="small text-muted mt-1">
+                                    {{ round($commodity->total_land_area, 1) }} ha &bull; {{ $commodity->unique_barangays }} barangay{{ $commodity->unique_barangays != 1 ? 's' : '' }}
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2 opacity-25"></i>
+                            <p class="mb-0">No commodity data available</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Top Performing Barangays -->
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 4 — GENDER + DOCUMENT ANALYSIS (chart-driven)
+    ════════════════════════════════════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
+
+        {{-- Gender Doughnut --}}
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-venus-mars text-info me-2"></i>Gender Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if($genderAnalysis['total'] > 0)
+                        <div class="chart-wrapper mb-3" style="height:200px">
+                            <canvas id="rsbsaGenderChart"></canvas>
+                        </div>
+                        @foreach($genderAnalysis['stats'] as $g)
+                            @php
+                                $gpct = $genderAnalysis['percentages'][$g->sex] ?? 0;
+                                $ghex = match($g->sex) {
+                                    'Male'   => '#3b82f6',
+                                    'Female' => '#ec4899',
+                                    default  => '#94a3b8',
+                                };
+                            @endphp
+                            <div class="stat-row">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span style="width:10px;height:10px;border-radius:50%;background:{{ $ghex }};display:inline-block"></span>
+                                    <span class="fw-medium">{{ $g->sex }}</span>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">{{ number_format($g->total_applications) }}</span>
+                                    <span class="text-muted small ms-1">({{ $gpct }}%)</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-venus-mars fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">No gender data available</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Document Analysis --}}
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-paperclip text-warning me-2"></i>Document Submission
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if($documentAnalysis['total'] > 0)
+                        <div class="chart-wrapper mb-3" style="height:200px">
+                            <canvas id="rsbsaDocChart"></canvas>
+                        </div>
+                        <div class="stat-row">
+                            <span class="fw-medium">Submission rate</span>
+                            <span class="fw-bold text-success">{{ $documentAnalysis['submission_rate'] }}%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="fw-medium">Approval with docs</span>
+                            <span class="fw-bold text-primary">{{ $documentAnalysis['approval_rate_with_docs'] }}%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="fw-medium">Approval without docs</span>
+                            <span class="fw-bold text-secondary">{{ $documentAnalysis['approval_rate_without_docs'] }}%</span>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-paperclip fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">No document data available</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Performance Metrics --}}
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-tachometer-alt text-danger me-2"></i>Performance Metrics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @php
+                        $completionColor = $performanceMetrics['completion_rate'] >= 70 ? 'success' : ($performanceMetrics['completion_rate'] >= 40 ? 'warning' : 'danger');
+                        $qualityColor = $performanceMetrics['quality_score'] >= 70 ? 'success' : ($performanceMetrics['quality_score'] >= 40 ? 'warning' : 'danger');
+                    @endphp
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-medium small">Completion Rate</span>
+                            <span class="fw-bold small text-{{ $completionColor }}">{{ $performanceMetrics['completion_rate'] }}%</span>
+                        </div>
+                        <div class="progress" style="height:8px">
+                            <div class="progress-bar bg-{{ $completionColor }}" style="width:{{ $performanceMetrics['completion_rate'] }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-medium small">Quality Score</span>
+                            <span class="fw-bold small text-{{ $qualityColor }}">{{ $performanceMetrics['quality_score'] }}%</span>
+                        </div>
+                        <div class="progress" style="height:8px">
+                            <div class="progress-bar bg-{{ $qualityColor }}" style="width:{{ $performanceMetrics['quality_score'] }}%"></div>
+                        </div>
+                        <div class="text-muted small mt-1">Based on approval rate + doc submission rate</div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="fw-medium">Avg applications/day</span>
+                        <span class="fw-bold">{{ $performanceMetrics['avg_applications_per_day'] }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="fw-medium">Land area impact</span>
+                        <span class="fw-bold text-success">{{ number_format($performanceMetrics['total_land_impact'], 1) }} ha</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="fw-medium">Pending / Under review</span>
+                        <span class="fw-bold text-warning">{{ number_format($overview['pending_applications']) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="fw-medium">Rejected</span>
+                        <span class="fw-bold text-danger">{{ number_format($overview['rejected_applications']) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 5 — TOP BARANGAYS TABLE
+    ════════════════════════════════════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-trophy me-2 text-warning"></i>Top Performing Barangays
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-trophy text-warning me-2"></i>Top Barangays by Registration
                     </h5>
+                    @if($barangayAnalysis->isNotEmpty())
+                        <span class="badge bg-warning bg-opacity-10 text-warning">
+                            {{ $barangayAnalysis->count() }} barangay{{ $barangayAnalysis->count() != 1 ? 's' : '' }}
+                        </span>
+                    @endif
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="fw-semibold">Rank</th>
-                                    <th class="fw-semibold">Barangay</th>
-                                    <th class="fw-semibold text-center">Applications</th>
-                                    <th class="fw-semibold text-center">Approved</th>
-                                    <th class="fw-semibold">Approval Rate</th>
-                                    <th class="fw-semibold text-center">Land Area</th>
-                                    <th class="fw-semibold text-center">Commodities</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($barangayAnalysis as $index => $barangay)
+                <div class="card-body p-0">
+                    @if($barangayAnalysis->isNotEmpty())
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
                                     <tr>
-                                        <td>
-                                            <div
-                                                class="badge {{ $index < 3 ? ($index === 0 ? 'bg-warning' : ($index === 1 ? 'bg-secondary' : 'bg-info')) : 'bg-light text-dark' }} rounded-pill px-3">
-                                                #{{ $index + 1 }}
-                                            </div>
-                                        </td>
-                                        <td class="fw-semibold">{{ $barangay->barangay }}</td>
-                                        <td class="text-center">
-                                            <span class="badge bg-primary">{{ $barangay->total_applications }}</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-success">{{ $barangay->approved }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress grow me-2" style="height: 8px; max-width: 100px;">
-                                                    <div class="progress-bar bg-success"
-                                                        style="width: {{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%">
+                                        <th class="ps-4">Rank</th>
+                                        <th>Barangay</th>
+                                        <th class="text-center">Applications</th>
+                                        <th class="text-center">Approved</th>
+                                        <th>Approval Rate</th>
+                                        <th class="text-center">Land Area</th>
+                                        <th class="text-center">Commodities</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($barangayAnalysis as $index => $barangay)
+                                        @php
+                                            $rate = round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1);
+                                            $rateColor = $rate >= 70 ? 'success' : ($rate >= 40 ? 'warning' : 'danger');
+                                            $rankBadge = match($index) {
+                                                0 => 'warning',
+                                                1 => 'secondary',
+                                                2 => 'info',
+                                                default => 'light text-dark'
+                                            };
+                                        @endphp
+                                        <tr>
+                                            <td class="ps-4">
+                                                <span class="badge bg-{{ $rankBadge }} rounded-pill px-3">#{{ $index + 1 }}</span>
+                                            </td>
+                                            <td class="fw-semibold">{{ $barangay->barangay }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary rounded-pill">{{ number_format($barangay->total_applications) }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success rounded-pill">{{ number_format($barangay->approved) }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="progress flex-grow-1" style="height:7px;max-width:90px">
+                                                        <div class="progress-bar bg-{{ $rateColor }}" style="width:{{ $rate }}%"></div>
                                                     </div>
+                                                    <small class="fw-semibold text-{{ $rateColor }}">{{ $rate }}%</small>
                                                 </div>
-                                                <small
-                                                    class="fw-semibold">{{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%</small>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span
-                                                class="text-success fw-semibold">{{ round($barangay->total_land_area, 1) }}
-                                                ha</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-info">{{ $barangay->commodities_grown }}</span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center py-4 text-muted">
-                                            <i class="fas fa-map-marker-alt fa-2x mb-2 d-block"></i>
-                                            No barangay data available for the selected period
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                            </td>
+                                            <td class="text-center fw-semibold text-success">{{ round($barangay->total_land_area, 1) }} ha</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-info bg-opacity-15 text-info">{{ $barangay->commodities_grown }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-map-marker-alt fa-2x mb-2 opacity-25"></i>
+                            <p class="mb-0">No barangay data available for the selected period</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ── Farmer Details ─────────────────────────────────────────────── --}}
+    <hr class="section-divider">
+
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 6 — FARMER DETAILS
+    ════════════════════════════════════════════════════════════════════ --}}
+    <div class="row mb-3">
+        <div class="col-12">
+            <h6 class="text-muted fw-semibold text-uppercase letter-spacing-1">
+                <i class="fas fa-tractor me-2 text-success"></i>Farmer Details
+                <span class="ms-2 badge bg-success bg-opacity-10 text-success fw-normal">{{ $farmerDetails['total_farmers'] }} farmers</span>
+            </h6>
+        </div>
+    </div>
+
     <div class="row g-3 mb-4">
-        <div class="col-lg-4">
+
+        <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-tractor me-2 text-success"></i>Type of Farm</h5>
-                    <small class="text-muted">Farmers only &bull; {{ $farmerDetails['total_farmers'] }} total</small>
+                <div class="card-header bg-white border-0 pt-3 pb-2">
+                    <h6 class="mb-0 fw-semibold"><i class="fas fa-water me-2 text-info"></i>Type of Farm</h6>
                 </div>
-                <div class="card-body">
-                    @forelse ($farmerDetails['by_type_of_farm'] as $item)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-medium">{{ ucfirst($item->farmer_type_of_farm) }}</span>
-                            <span class="badge bg-success rounded-pill">{{ $item->count }}</span>
+                <div class="card-body pt-2">
+                    @if($farmerDetails['total_farmers'] > 0)
+                        <div class="chart-wrapper mb-3" style="height:160px">
+                            <canvas id="rsbsaFarmTypeChart"></canvas>
+                        </div>
+                    @endif
+                    @forelse($farmerDetails['by_type_of_farm'] as $item)
+                        @php $tpct = $farmerDetails['total_farmers'] > 0 ? round(($item->count / $farmerDetails['total_farmers']) * 100, 1) : 0; @endphp
+                        <div class="stat-row">
+                            <span class="fw-medium">{{ $item->farmer_type_of_farm }}</span>
+                            <div>
+                                <span class="fw-bold">{{ number_format($item->count) }}</span>
+                                <span class="text-muted small ms-1">{{ $tpct }}%</span>
+                            </div>
                         </div>
                     @empty
-                        <p class="text-muted text-center py-3">No data available</p>
+                        <p class="text-muted text-center py-3 small">No data available</p>
                     @endforelse
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+
+        <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2 text-warning"></i>Land Ownership</h5>
-                    <small class="text-muted">Farmers only</small>
+                <div class="card-header bg-white border-0 pt-3 pb-2">
+                    <h6 class="mb-0 fw-semibold"><i class="fas fa-file-contract me-2 text-warning"></i>Land Ownership</h6>
                 </div>
-                <div class="card-body">
-                    @forelse ($farmerDetails['by_land_ownership'] as $item)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-medium">{{ ucfirst($item->farmer_land_ownership) }}</span>
-                            <span class="badge bg-warning text-dark rounded-pill">{{ $item->count }}</span>
+                <div class="card-body pt-2">
+                    @if($farmerDetails['total_farmers'] > 0)
+                        <div class="chart-wrapper mb-3" style="height:160px">
+                            <canvas id="rsbsaLandOwnershipChart"></canvas>
+                        </div>
+                    @endif
+                    @forelse($farmerDetails['by_land_ownership'] as $item)
+                        @php $opct = $farmerDetails['total_farmers'] > 0 ? round(($item->count / $farmerDetails['total_farmers']) * 100, 1) : 0; @endphp
+                        <div class="stat-row">
+                            <span class="fw-medium">{{ $item->farmer_land_ownership }}</span>
+                            <div>
+                                <span class="fw-bold">{{ number_format($item->count) }}</span>
+                                <span class="text-muted small ms-1">{{ $opct }}%</span>
+                            </div>
                         </div>
                     @empty
-                        <p class="text-muted text-center py-3">No data available</p>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-star me-2 text-info"></i>Special Status</h5>
-                    <small class="text-muted">Ancestral Domain / ARB</small>
-                </div>
-                <div class="card-body">
-                    @forelse ($farmerDetails['by_special_status'] as $item)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-medium">{{ ucfirst($item->farmer_special_status) }}</span>
-                            <span class="badge bg-info rounded-pill">{{ $item->count }}</span>
-                        </div>
-                    @empty
-                        <p class="text-muted text-center py-3">No data available</p>
+                        <p class="text-muted text-center py-3 small">No data available</p>
                     @endforelse
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ── Farmer Crops & Farmworker Type ──────────────────────────────── --}}
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 7 — CROPS + FARMWORKER
+    ════════════════════════════════════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
+
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-seedling me-2 text-success"></i>Farmer Crops Breakdown</h5>
-                    <small class="text-muted">By crop type &bull; {{ $farmerCrops['total_crop_types'] }} types</small>
+                <div class="card-header bg-white border-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold"><i class="fas fa-seedling me-2 text-success"></i>Farmer Crops</h6>
+                    <span class="badge bg-success bg-opacity-10 text-success">{{ $farmerCrops['total_crop_types'] }} types</span>
                 </div>
-                <div class="card-body">
-                    @forelse ($farmerCrops['distribution'] as $crop)
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="fw-medium">{{ ucfirst($crop->farmer_crops) }}</span>
-                                <span class="badge bg-success rounded-pill">{{ $crop->count }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between small text-muted">
-                                <span>Land: {{ round($crop->total_land, 2) }} ha</span>
-                                <span>Approved: {{ $crop->approved }}</span>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-muted text-center py-3">No crop data available</p>
-                    @endforelse
-                    @if ($farmerCrops['other_crops_specified']->isNotEmpty())
-                        <hr>
-                        <small class="text-muted fw-semibold">Other Crops Specified:</small>
-                        @foreach ($farmerCrops['other_crops_specified'] as $other)
-                            <div class="d-flex justify-content-between small mt-1">
-                                <span>{{ ucfirst($other->farmer_other_crops) }}</span>
-                                <span class="text-muted">{{ $other->count }}</span>
+                <div class="card-body pt-2">
+                    @if($farmerCrops['distribution']->isNotEmpty())
+                        @php $maxCrop = $farmerCrops['distribution']->first()->count; @endphp
+                        @foreach($farmerCrops['distribution'] as $crop)
+                            @php $cpct = $maxCrop > 0 ? round(($crop->count / $maxCrop) * 100) : 0; @endphp
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-medium">{{ ucfirst($crop->farmer_crops) }}</span>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span class="badge bg-success rounded-pill">{{ number_format($crop->count) }}</span>
+                                        <span class="text-muted small">{{ round($crop->total_land, 1) }} ha</span>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height:6px">
+                                    <div class="progress-bar bg-success" style="width:{{ $cpct }}%"></div>
+                                </div>
                             </div>
                         @endforeach
-                    @endif
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-hard-hat me-2 text-warning"></i>Farmworker Type</h5>
-                    <small class="text-muted">Farmworker/Laborer only &bull; {{ $farmworkerType['total_farmworkers'] }}
-                        total</small>
-                </div>
-                <div class="card-body">
-                    @forelse ($farmworkerType['distribution'] as $type)
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="fw-medium">{{ ucfirst($type->farmworker_type) }}</span>
-                                <span class="badge bg-warning text-dark rounded-pill">{{ $type->count }}</span>
-                            </div>
-                            <div class="small text-muted">Approved: {{ $type->approved }} / {{ $type->count }}</div>
-                        </div>
-                    @empty
-                        <p class="text-muted text-center py-3">No farmworker data available</p>
-                    @endforelse
-                    @if ($farmworkerType['other_types_specified']->isNotEmpty())
-                        <hr>
-                        <small class="text-muted fw-semibold">Other Types Specified:</small>
-                        @foreach ($farmworkerType['other_types_specified'] as $other)
-                            <div class="d-flex justify-content-between small mt-1">
-                                <span>{{ ucfirst($other->farmworker_other_type) }}</span>
-                                <span class="text-muted">{{ $other->count }}</span>
-                            </div>
-                        @endforeach
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ── Fisherfolk Activity & Agri-youth ────────────────────────────── --}}
-    <div class="row g-3 mb-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-fish me-2 text-info"></i>Fisherfolk Activity</h5>
-                    <small class="text-muted">RSBSA Fisherfolk &bull; {{ $fisherfolkActivity['total_fisherfolk'] }}
-                        total</small>
-                </div>
-                <div class="card-body">
-                    @forelse ($fisherfolkActivity['distribution'] as $activity)
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="fw-medium">{{ ucfirst($activity->fisherfolk_activity) }}</span>
-                                <span class="badge bg-info rounded-pill">{{ $activity->count }}</span>
-                            </div>
-                            <div class="small text-muted">Approved: {{ $activity->approved }} / {{ $activity->count }}
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-muted text-center py-3">No fisherfolk activity data available</p>
-                    @endforelse
-                    @if ($fisherfolkActivity['other_activities_specified']->isNotEmpty())
-                        <hr>
-                        <small class="text-muted fw-semibold">Other Activities Specified:</small>
-                        @foreach ($fisherfolkActivity['other_activities_specified'] as $other)
-                            <div class="d-flex justify-content-between small mt-1">
-                                <span>{{ ucfirst($other->fisherfolk_other_activity) }}</span>
-                                <span class="text-muted">{{ $other->count }}</span>
-                            </div>
-                        @endforeach
-                    @endif
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-user-graduate me-2 text-primary"></i>Agri-Youth Analysis
-                    </h5>
-                    <small class="text-muted">{{ $agriyouthAnalysis['total'] }} total &bull;
-                        {{ $agriyouthAnalysis['approval_rate'] }}% approval</small>
-                </div>
-                <div class="card-body">
-                    <div class="row g-2 mb-3">
-                        <div class="col-4">
-                            <div class="text-center bg-light rounded p-2">
-                                <div class="h5 text-primary mb-0">{{ $agriyouthAnalysis['total'] }}</div>
-                                <small class="text-muted">Total</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-center bg-light rounded p-2">
-                                <div class="h5 text-info mb-0">{{ $agriyouthAnalysis['male_count'] }}</div>
-                                <small class="text-muted">Male</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-center bg-light rounded p-2">
-                                <div class="h5 text-danger mb-0">{{ $agriyouthAnalysis['female_count'] }}</div>
-                                <small class="text-muted">Female</small>
-                            </div>
-                        </div>
-                    </div>
-                    @if ($agriyouthAnalysis['by_farming_household']->isNotEmpty())
-                        <h6 class="fw-semibold text-muted">Farming Household</h6>
-                        @foreach ($agriyouthAnalysis['by_farming_household'] as $item)
-                            <div class="d-flex justify-content-between small mb-1">
-                                <span>{{ ucfirst($item->agriyouth_farming_household) }}</span>
-                                <span class="badge bg-primary rounded-pill">{{ $item->count }}</span>
-                            </div>
-                        @endforeach
-                    @endif
-                    @if ($agriyouthAnalysis['by_training']->isNotEmpty())
-                        <h6 class="fw-semibold text-muted mt-2">Training</h6>
-                        @foreach ($agriyouthAnalysis['by_training'] as $item)
-                            <div class="d-flex justify-content-between small mb-1">
-                                <span>{{ ucfirst($item->agriyouth_training) }}</span>
-                                <span class="badge bg-success rounded-pill">{{ $item->count }}</span>
-                            </div>
-                        @endforeach
-                    @endif
-                    @if ($agriyouthAnalysis['by_participation']->isNotEmpty())
-                        <h6 class="fw-semibold text-muted mt-2">Participation</h6>
-                        @foreach ($agriyouthAnalysis['by_participation'] as $item)
-                            <div class="d-flex justify-content-between small mb-1">
-                                <span>{{ ucfirst($item->agriyouth_participation) }}</span>
-                                <span class="badge bg-warning text-dark rounded-pill">{{ $item->count }}</span>
-                            </div>
-                        @endforeach
-                    @endif
-                    @if ($agriyouthAnalysis['total'] === 0)
-                        <p class="text-muted text-center py-3">No agri-youth data available</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="rsbsaInsightsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content border-0 shadow">
-            @endsection
-
-            @section('scripts')
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Chart instances
-                        let chartInstances = {};
-
-                        // Chart.js default configuration
-                        Chart.defaults.font.family = "'Inter', sans-serif";
-                        Chart.defaults.color = '#64748b';
-
-                        // Initialize Status Chart
-                        initializeStatusChart();
-
-                        // Initialize Trends Chart
-                        initializeTrendsChart();
-
-                        /**
-                         * Status Distribution Doughnut Chart
-                         */
-                        function initializeStatusChart() {
-                            const ctx = document.getElementById('rsbsaStatusChart');
-                            if (!ctx) return;
-
-                            const statusData = [{{ implode(',', $statusAnalysis['counts']) }}];
-                            const totalCount = statusData.reduce((a, b) => a + b, 0);
-
-                            @if ($statusAnalysis['total'] == 0)
-                                // Display message when no data available
-                                ctx.parentElement.innerHTML =
-                                    '<div class="text-center py-5"><i class="fas fa-chart-pie fa-3x text-muted mb-3"></i><p class="text-muted">No status data available</p></div>';
-                                return;
-                            @endif
-
-                            const statusLabels = [
-                                @foreach ($statusAnalysis['counts'] as $status => $count)
-                                    '{{ ucfirst(str_replace('_', ' ', $status)) }}',
+                        @if($farmerCrops['other_crops_specified']->isNotEmpty())
+                            <div class="border-top pt-2 mt-2">
+                                <p class="text-muted small fw-semibold mb-2">Other specified crops:</p>
+                                @foreach($farmerCrops['other_crops_specified'] as $other)
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span>{{ ucfirst($other->farmer_other_crops) }}</span>
+                                        <span class="text-muted">{{ $other->count }}</span>
+                                    </div>
                                 @endforeach
-                            ];
+                            </div>
+                        @endif
+                    @else
+                        <p class="text-muted text-center py-3 small">No crop data available</p>
+                    @endif
+                </div>
+            </div>
+        </div>
 
-                            // Define status colors based on status type
-                            const statusColors = [];
-                            const statusNames = [
-                                @foreach ($statusAnalysis['counts'] as $status => $count)
-                                    '{{ $status }}',
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold"><i class="fas fa-hard-hat me-2 text-warning"></i>Farmworker Types</h6>
+                    <span class="badge bg-warning bg-opacity-10 text-warning">{{ number_format($farmworkerType['total_farmworkers']) }} total</span>
+                </div>
+                <div class="card-body pt-2">
+                    @if($farmworkerType['distribution']->isNotEmpty())
+                        @php $maxFw = $farmworkerType['distribution']->first()->count; @endphp
+                        @foreach($farmworkerType['distribution'] as $type)
+                            @php $fpct = $maxFw > 0 ? round(($type->count / $maxFw) * 100) : 0; @endphp
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-medium">{{ ucfirst($type->farmworker_type) }}</span>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span class="badge bg-warning text-dark rounded-pill">{{ number_format($type->count) }}</span>
+                                        <span class="text-muted small">{{ $type->approved }} approved</span>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height:6px">
+                                    <div class="progress-bar bg-warning" style="width:{{ $fpct }}%"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                        @if($farmworkerType['other_types_specified']->isNotEmpty())
+                            <div class="border-top pt-2 mt-2">
+                                <p class="text-muted small fw-semibold mb-2">Other specified types:</p>
+                                @foreach($farmworkerType['other_types_specified'] as $other)
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span>{{ ucfirst($other->farmworker_other_type) }}</span>
+                                        <span class="text-muted">{{ $other->count }}</span>
+                                    </div>
                                 @endforeach
-                            ];
+                            </div>
+                        @endif
+                    @else
+                        <p class="text-muted text-center py-3 small">No farmworker data available</p>
+                    @endif
+                </div>
+            </div>
+        </div>
 
-                            statusNames.forEach(status => {
-                                switch (status) {
-                                    case 'approved':
-                                        statusColors.push('#10b981'); // Green
-                                        break;
-                                    case 'rejected':
-                                        statusColors.push('#ef4444'); // Red
-                                        break;
-                                    case 'under_review':
-                                    case 'pending':
-                                        statusColors.push('#f59e0b'); // Amber
-                                        break;
-                                    case 'cancelled':
-                                    case 'withdrawn':
-                                        statusColors.push('#6b7280'); // Gray
-                                        break;
-                                    case 'processing':
-                                        statusColors.push('#3b82f6'); // Blue
-                                        break;
-                                    case 'on_hold':
-                                        statusColors.push('#8b5cf6'); // Purple
-                                        break;
-                                    default:
-                                        statusColors.push('#64748b'); // Default gray
-                                }
-                            });
+    </div>
 
-                            chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
-                                type: 'doughnut',
-                                data: {
-                                    labels: statusLabels,
-                                    datasets: [{
-                                        data: statusData,
-                                        backgroundColor: statusColors,
-                                        borderWidth: 3,
-                                        borderColor: '#ffffff',
-                                        cutout: '65%',
-                                        spacing: 4
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: {
-                                            display: false
-                                        },
-                                        tooltip: {
-                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                            padding: 12,
-                                            cornerRadius: 8,
-                                            titleFont: {
-                                                size: 14,
-                                                weight: 'bold'
-                                            },
-                                            bodyFont: {
-                                                size: 13
-                                            },
-                                            callbacks: {
-                                                label: function(context) {
-                                                    const label = context.label || '';
-                                                    const value = context.parsed;
-                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                                    const percentage = ((value / total) * 100).toFixed(1);
-                                                    return `${label}: ${value} (${percentage}%)`;
-                                                }
-                                            }
-                                        },
-                                        // Custom plugin to display percentages inside the doughnut
-                                        datalabels: false
-                                    },
-                                    animation: {
-                                        animateRotate: true,
-                                        duration: 1000
-                                    }
-                                },
-                                plugins: [{
-                                    id: 'centerText',
-                                    beforeDraw: function(chart) {
-                                        const ctx = chart.ctx;
-                                        const chartArea = chart.chartArea;
-                                        const centerX = (chartArea.left + chartArea.right) / 2;
-                                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+    {{-- ═══════════════════════════════════════════════════════════════════
+         SECTION 8 — FISHERFOLK + AGRI-YOUTH
+    ════════════════════════════════════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
 
-                                        // Get the total
-                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                                            0);
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold"><i class="fas fa-fish me-2 text-info"></i>Fisherfolk Activity</h6>
+                    <span class="badge bg-info bg-opacity-10 text-info">{{ number_format($fisherfolkActivity['total_fisherfolk']) }} total</span>
+                </div>
+                <div class="card-body pt-2">
+                    @if($fisherfolkActivity['distribution']->isNotEmpty())
+                        @php $maxFish = $fisherfolkActivity['distribution']->first()->count; @endphp
+                        @foreach($fisherfolkActivity['distribution'] as $activity)
+                            @php $apct = $maxFish > 0 ? round(($activity->count / $maxFish) * 100) : 0; @endphp
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-medium">{{ ucfirst($activity->fisherfolk_activity) }}</span>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span class="badge bg-info rounded-pill">{{ number_format($activity->count) }}</span>
+                                        <span class="text-muted small">{{ $activity->approved }} approved</span>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height:6px">
+                                    <div class="progress-bar bg-info" style="width:{{ $apct }}%"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                        @if($fisherfolkActivity['other_activities_specified']->isNotEmpty())
+                            <div class="border-top pt-2 mt-2">
+                                <p class="text-muted small fw-semibold mb-2">Other activities specified:</p>
+                                @foreach($fisherfolkActivity['other_activities_specified'] as $other)
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span>{{ ucfirst($other->fisherfolk_other_activity) }}</span>
+                                        <span class="text-muted">{{ $other->count }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    @else
+                        <p class="text-muted text-center py-3 small">No fisherfolk data available</p>
+                    @endif
+                </div>
+            </div>
+        </div>
 
-                                        // Draw center text
-                                        ctx.save();
-                                        ctx.font = 'bold 24px Inter';
-                                        ctx.fillStyle = '#1f2937';
-                                        ctx.textAlign = 'center';
-                                        ctx.textBaseline = 'middle';
-                                        ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold"><i class="fas fa-user-graduate me-2 text-primary"></i>Agri-Youth</h6>
+                    <span class="badge bg-primary bg-opacity-10 text-primary">{{ number_format($agriyouthAnalysis['total']) }} total</span>
+                </div>
+                <div class="card-body pt-2">
+                    @if($agriyouthAnalysis['total'] > 0)
+                        {{-- Gender breakdown mini stats --}}
+                        <div class="row g-2 mb-3">
+                            <div class="col-4">
+                                <div class="text-center bg-light rounded p-2">
+                                    <div class="h5 text-primary mb-0 fw-bold">{{ $agriyouthAnalysis['total'] }}</div>
+                                    <small class="text-muted">Total</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-center bg-light rounded p-2">
+                                    <div class="h5 text-info mb-0 fw-bold">{{ $agriyouthAnalysis['male_count'] }}</div>
+                                    <small class="text-muted">Male</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-center bg-light rounded p-2">
+                                    <div class="h5 text-danger mb-0 fw-bold">{{ $agriyouthAnalysis['female_count'] }}</div>
+                                    <small class="text-muted">Female</small>
+                                </div>
+                            </div>
+                        </div>
 
-                                        ctx.font = '14px Inter';
-                                        ctx.fillStyle = '#64748b';
-                                        ctx.fillText('Total Applications', centerX, centerY + 15);
-                                        ctx.restore();
-                                    },
-                                    afterDraw: function(chart) {
-                                        const ctx = chart.ctx;
-                                        const meta = chart.getDatasetMeta(0);
-                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                                            0);
+                        @php
+                            $ayApprovalColor = $agriyouthAnalysis['approval_rate'] >= 70 ? 'success' : ($agriyouthAnalysis['approval_rate'] >= 40 ? 'warning' : 'danger');
+                        @endphp
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-medium small">Approval Rate</span>
+                                <span class="fw-bold small text-{{ $ayApprovalColor }}">{{ $agriyouthAnalysis['approval_rate'] }}%</span>
+                            </div>
+                            <div class="progress" style="height:7px">
+                                <div class="progress-bar bg-{{ $ayApprovalColor }}" style="width:{{ $agriyouthAnalysis['approval_rate'] }}%"></div>
+                            </div>
+                        </div>
 
-                                        ctx.save();
-                                        ctx.font = 'bold 14px Inter, sans-serif';
-                                        ctx.textAlign = 'center';
-                                        ctx.textBaseline = 'middle';
+                        @if($agriyouthAnalysis['by_farming_household']->isNotEmpty())
+                            <p class="text-muted small fw-semibold mb-1">From farming household:</p>
+                            @foreach($agriyouthAnalysis['by_farming_household'] as $item)
+                                <div class="stat-row">
+                                    <span class="small">{{ $item->agriyouth_farming_household }}</span>
+                                    <span class="badge bg-primary rounded-pill">{{ $item->count }}</span>
+                                </div>
+                            @endforeach
+                        @endif
+                        @if($agriyouthAnalysis['by_participation']->isNotEmpty())
+                            <p class="text-muted small fw-semibold mb-1 mt-2">Participation:</p>
+                            @foreach($agriyouthAnalysis['by_participation'] as $item)
+                                <div class="stat-row">
+                                    <span class="small">{{ $item->agriyouth_participation }}</span>
+                                    <span class="badge bg-warning text-dark rounded-pill">{{ $item->count }}</span>
+                                </div>
+                            @endforeach
+                        @endif
+                    @else
+                        <p class="text-muted text-center py-3 small">No agri-youth data available</p>
+                    @endif
+                </div>
+            </div>
+        </div>
 
-                                        chart.data.datasets[0].data.forEach((value, index) => {
-                                            if (value > 0) {
-                                                const percentage = ((value / total) * 100).toFixed(
-                                                    1);
+    </div>
 
-                                                // Only show percentage if slice is large enough
-                                                if (percentage > 5) {
-                                                    const element = meta.data[index];
+{{-- ── END OF CONTENT ──────────────────────────────────────── --}}
+@endsection
 
-                                                    // Calculate the middle angle of the segment
-                                                    const startAngle = element.startAngle;
-                                                    const endAngle = element.endAngle;
-                                                    const midAngle = (startAngle + endAngle) / 2;
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
-                                                    // Calculate position based on the segment's center point
-                                                    const chartArea = chart.chartArea;
-                                                    const centerX = (chartArea.left + chartArea
-                                                        .right) / 2;
-                                                    const centerY = (chartArea.top + chartArea
-                                                        .bottom) / 2;
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748b';
 
-                                                    // Position the text at 70% of the radius from center
-                                                    const radius = (element.outerRadius - element
-                                                            .innerRadius) * 0.7 + element
-                                                        .innerRadius;
-                                                    const x = centerX + Math.cos(midAngle) * radius;
-                                                    const y = centerY + Math.sin(midAngle) * radius;
-
-                                                    const text = `${percentage}%`;
-
-                                                    ctx.fillStyle = '#ffffff';
-                                                    ctx.strokeStyle = '#000000';
-                                                    ctx.lineWidth = 3;
-                                                    ctx.textAlign = 'center';
-                                                    ctx.textBaseline = 'middle';
-                                                    ctx.strokeText(text, x, y);
-                                                    ctx.fillText(text, x, y);
-                                                }
-                                            }
-                                        });
-
-                                        ctx.restore();
-                                    }
-                                }]
-                            });
-                        }
-
-                        /**
-                         * Monthly Trends Line Chart
-                         */
-                        function initializeTrendsChart() {
-                            const ctx = document.getElementById('rsbsaTrendsChart');
-                            if (!ctx) return;
-
-                            @if ($monthlyTrends->isEmpty())
-                                // Display message when no data available
-                                ctx.parentElement.innerHTML =
-                                    '<div class="text-center py-5"><i class="fas fa-chart-line fa-3x text-muted mb-3"></i><p class="text-muted">No trend data available for the selected period</p></div>';
-                                return;
-                            @endif
-
-                            chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
-                                type: 'line',
-                                data: {
-                                    labels: [
-                                        @foreach ($monthlyTrends as $trend)
-                                            '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
-                                        @endforeach
-                                    ],
-                                    datasets: [{
-                                            label: 'Total Applications',
-                                            data: [
-                                                {{ $monthlyTrends->pluck('total_applications')->implode(',') }}
-                                            ],
-                                            borderColor: '#3b82f6',
-                                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                            borderWidth: 3,
-                                            tension: 0.4,
-                                            fill: true,
-                                            pointBackgroundColor: '#3b82f6',
-                                            pointBorderColor: '#ffffff',
-                                            pointBorderWidth: 2,
-                                            pointRadius: 5,
-                                            pointHoverRadius: 7,
-                                            pointHoverBorderWidth: 3
-                                        },
-                                        {
-                                            label: 'Approved',
-                                            data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
-                                            borderColor: '#10b981',
-                                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                            borderWidth: 3,
-                                            tension: 0.4,
-                                            fill: true,
-                                            pointBackgroundColor: '#10b981',
-                                            pointBorderColor: '#ffffff',
-                                            pointBorderWidth: 2,
-                                            pointRadius: 5,
-                                            pointHoverRadius: 7,
-                                            pointHoverBorderWidth: 3
-                                        },
-                                        {
-                                            label: 'Land Area (ha)',
-                                            data: [{{ $monthlyTrends->pluck('total_land_area')->implode(',') }}],
-                                            borderColor: '#8b5cf6',
-                                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                                            borderWidth: 2,
-                                            tension: 0.4,
-                                            fill: false,
-                                            pointBackgroundColor: '#8b5cf6',
-                                            pointBorderColor: '#ffffff',
-                                            pointBorderWidth: 2,
-                                            pointRadius: 4,
-                                            pointHoverRadius: 6,
-                                            yAxisID: 'y1'
-                                        }
-                                    ]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    interaction: {
-                                        mode: 'index',
-                                        intersect: false,
-                                    },
-                                    scales: {
-                                        x: {
-                                            grid: {
-                                                display: false,
-                                                drawBorder: false
-                                            },
-                                            ticks: {
-                                                font: {
-                                                    size: 12,
-                                                    weight: '500'
-                                                },
-                                                color: '#64748b'
-                                            }
-                                        },
-                                        y: {
-                                            beginAtZero: true,
-                                            grid: {
-                                                color: 'rgba(0, 0, 0, 0.05)',
-                                                drawBorder: false
-                                            },
-                                            ticks: {
-                                                font: {
-                                                    size: 12,
-                                                    weight: '500'
-                                                },
-                                                color: '#64748b',
-                                                padding: 10
-                                            },
-                                            title: {
-                                                display: true,
-                                                text: 'Applications',
-                                                font: {
-                                                    weight: '600',
-                                                    size: 12
-                                                }
-                                            }
-                                        },
-                                        y1: {
-                                            type: 'linear',
-                                            display: true,
-                                            position: 'right',
-                                            beginAtZero: true,
-                                            grid: {
-                                                drawOnChartArea: false,
-                                            },
-                                            ticks: {
-                                                font: {
-                                                    size: 12,
-                                                    weight: '500'
-                                                },
-                                                color: '#64748b'
-                                            },
-                                            title: {
-                                                display: true,
-                                                text: 'Land Area (ha)',
-                                                font: {
-                                                    weight: '600',
-                                                    size: 12
-                                                }
-                                            }
-                                        }
-                                    },
-                                    plugins: {
-                                        legend: {
-                                            position: 'top',
-                                            align: 'end',
-                                            labels: {
-                                                usePointStyle: true,
-                                                padding: 20,
-                                                font: {
-                                                    size: 13,
-                                                    weight: '500'
-                                                },
-                                                color: '#64748b'
-                                            }
-                                        },
-                                        tooltip: {
-                                            mode: 'index',
-                                            intersect: false,
-                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                            titleColor: 'white',
-                                            bodyColor: 'white',
-                                            borderColor: 'rgba(255, 255, 255, 0.1)',
-                                            borderWidth: 1,
-                                            cornerRadius: 8,
-                                            padding: 12,
-                                            displayColors: true,
-                                            titleFont: {
-                                                size: 14,
-                                                weight: 'bold'
-                                            },
-                                            bodyFont: {
-                                                size: 13
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                        }
-
-                        /**
-                         * Cleanup function
-                         */
-                        window.destroyCharts = function() {
-                            Object.values(chartInstances).forEach(chart => {
-                                if (chart) {
-                                    chart.destroy();
-                                }
-                            });
-                            chartInstances = {};
-                        };
-
-                        /**
-                         * Add smooth animations on scroll
-                         */
-                        const observerOptions = {
-                            threshold: 0.1,
-                            rootMargin: '0px 0px -50px 0px'
-                        };
-
-                        const observer = new IntersectionObserver(function(entries) {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    entry.target.style.opacity = '1';
-                                    entry.target.style.transform = 'translateY(0)';
-                                }
-                            });
-                        }, observerOptions);
-
-                        document.querySelectorAll('.card').forEach(card => {
-                            card.style.opacity = '0';
-                            card.style.transform = 'translateY(20px)';
-                            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                            observer.observe(card);
-                        });
-
-                        /**
-                         * Add loading state to form submission
-                         */
-                        const filterForm = document.querySelector('form[action*="analytics.rsbsa"]');
-                        if (filterForm) {
-                            filterForm.addEventListener('submit', function() {
-                                const submitBtn = this.querySelector('button[type="submit"]');
-                                if (submitBtn) {
-                                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
-                                    submitBtn.disabled = true;
-                                }
-                            });
-                        }
-
-                        /**
-                         * Add animation to metric cards
-                         */
-                        const metricCards = document.querySelectorAll('.metric-card');
-                        metricCards.forEach((card, index) => {
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, index * 100);
-                        });
-                    });
-                </script>
-            @endsection
-
-            @section('styles')
-                <style>
-                    /* Compact Navigation Container */
-                    .navigation-container {
-                        background: #f8f9fa;
-                        border-radius: 12px;
-                        border: 1px solid #e0e0e0;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-                    }
-
-                    /* Compact Horizontal Navigation Buttons */
-                    .analytics-nav-btn {
-                        background: #ffffff;
-                        border: 2px solid #e0e0e0;
-                        color: #495057;
-                        font-weight: 600;
-                        font-size: 0.875rem;
-                        padding: 0.6rem 1.2rem;
-                        border-radius: 8px;
-                        text-decoration: none;
-                        transition: all 0.2s ease;
-                        white-space: nowrap;
-                        position: relative;
-                        overflow: hidden;
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                        display: inline-flex;
-                        flex-direction: row;
-                        align-items: center;
-                        gap: 8px;
-                    }
-
-                    .nav-icon-wrapper {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-
-                    .nav-icon-wrapper i {
-                        font-size: 1rem;
-                        transition: all 0.2s ease;
-                        color: #6c757d;
-                    }
-
-                    .nav-label {
-                        font-size: 0.875rem;
-                        font-weight: 600;
-                    }
-
-                    .analytics-nav-btn:hover {
-                        background: #e8f5e9;
-                        border-color: #40916c;
-                        color: #2d6a4f;
-                        text-decoration: none;
-                        transform: translateY(-2px);
-                        box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
-                    }
-
-                    .analytics-nav-btn:hover .nav-icon-wrapper i {
-                        color: #40916c;
-                    }
-
-                    .analytics-nav-btn.active {
-                        background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
-                        border-color: #40916c;
-                        color: white;
-                        box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
-                    }
-
-                    .analytics-nav-btn.active .nav-icon-wrapper i {
-                        color: #ffffff;
-                    }
-
-                    .analytics-nav-btn.active:hover {
-                        background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
-                        border-color: #2d6a4f;
-                        transform: translateY(-2px);
-                        box-shadow: 0 4px 14px rgba(64, 145, 108, 0.35);
-                    }
-
-                    /* Responsive adjustments */
-                    @media (max-width: 992px) {
-                        .analytics-nav-btn {
-                            padding: 0.5rem 1rem;
-                            font-size: 0.8rem;
-                        }
-
-                        .nav-icon-wrapper i {
-                            font-size: 0.9rem;
-                        }
-
-                        .nav-label {
-                            font-size: 0.8rem;
+    /* ─── helpers ──────────────────────────────────────────────── */
+    function doughnut(id, labels, data, colors) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const total = data.reduce((a, b) => a + b, 0);
+        return new Chart(el, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: colors,
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    cutout: '62%',
+                    spacing: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                                return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+                            }
                         }
                     }
+                }
+            },
+            plugins: [{
+                id: 'centerText',
+                beforeDraw(chart) {
+                    const { ctx, chartArea: { left, right, top, bottom } } = chart;
+                    const cx = (left + right) / 2, cy = (top + bottom) / 2;
+                    ctx.save();
+                    ctx.font = 'bold 20px Inter';
+                    ctx.fillStyle = '#1f2937';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(total.toLocaleString(), cx, cy - 8);
+                    ctx.font = '11px Inter';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText('total', cx, cy + 10);
+                    ctx.restore();
+                }
+            }]
+        });
+    }
 
-                    @media (max-width: 768px) {
-                        .analytics-nav-btn {
-                            padding: 0.45rem 0.8rem;
-                            font-size: 0.75rem;
-                            gap: 6px;
-                        }
+    function horizontalBar(id, labels, data, color) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        return new Chart(el, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{ data, backgroundColor: color, borderRadius: 4, borderSkipped: false }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}` } }
+                },
+                scales: {
+                    x: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 11 } } },
+                    y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                }
+            }
+        });
+    }
 
-                        .nav-icon-wrapper i {
-                            font-size: 0.85rem;
-                        }
+    /* ─── 1. Status doughnut ──────────────────────────────────── */
+    @if($statusAnalysis['total'] > 0)
+    (function () {
+        const labels = @json(array_keys($statusAnalysis['counts']));
+        const data   = @json(array_values($statusAnalysis['counts']));
+        const colorMap = { approved: '#10b981', rejected: '#ef4444', pending: '#f59e0b', under_review: '#f59e0b' };
+        const colors = labels.map(l => colorMap[l] ?? '#94a3b8');
+        doughnut('rsbsaStatusChart', labels.map(l => l.replace('_', ' ')), data, colors);
+    })();
+    @endif
 
-                        .nav-label {
-                            font-size: 0.75rem;
-                        }
+    /* ─── 2. Trends line chart ────────────────────────────────── */
+    @if($monthlyTrends->isNotEmpty())
+    (function () {
+        const labels   = @json($monthlyTrends->map(fn($t) => \Carbon\Carbon::createFromFormat('Y-m', $t->month)->format('M Y')));
+        const totals   = @json($monthlyTrends->pluck('total_applications'));
+        const approved = @json($monthlyTrends->pluck('approved'));
+        const pending  = @json($monthlyTrends->pluck('pending'));
+        const land     = @json($monthlyTrends->pluck('total_land_area'));
+
+        new Chart(document.getElementById('rsbsaTrendsChart'), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Total',
+                        data: totals,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59,130,246,0.08)',
+                        borderWidth: 2.5,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Approved',
+                        data: approved,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.06)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Pending',
+                        data: pending,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'transparent',
+                        borderWidth: 1.5,
+                        borderDash: [4, 3],
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Land (ha)',
+                        data: land,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'transparent',
+                        borderWidth: 1.5,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        yAxisID: 'y1'
                     }
-
-                    .metric-card {
-                        transition: transform 0.3s ease, box-shadow 0.3s ease;
-                        border-radius: 10px;
-                        cursor: pointer;
-                        opacity: 0;
-                        transform: translateY(20px);
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: { usePointStyle: true, padding: 16, font: { size: 12 } }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 10,
+                        cornerRadius: 8
                     }
-
-                    .metric-card:hover {
-                        transform: translateY(-5px);
-                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 }, autoSkip: false, maxRotation: 40 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.04)' },
+                        ticks: { font: { size: 11 } },
+                        title: { display: true, text: 'Applications', font: { size: 11 } }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: { drawOnChartArea: false },
+                        ticks: { font: { size: 11 } },
+                        title: { display: true, text: 'Land (ha)', font: { size: 11 } }
                     }
+                }
+            }
+        });
+    })();
+    @endif
 
-                    .card {
-                        border-radius: 10px;
-                        transition: all 0.3s ease;
-                    }
+    /* ─── 3. Gender doughnut ──────────────────────────────────── */
+    @if($genderAnalysis['total'] > 0)
+    (function () {
+        const labels = @json($genderAnalysis['stats']->pluck('sex')->toArray());
+        const data   = @json($genderAnalysis['stats']->pluck('total_applications')->toArray());
+        const colorMap = { Male: '#3b82f6', Female: '#ec4899', 'Preferred not to say': '#94a3b8' };
+        doughnut('rsbsaGenderChart', labels, data, labels.map(l => colorMap[l] ?? '#94a3b8'));
+    })();
+    @endif
 
-                    .card:hover {
-                        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-                    }
-                </style>
-            @endsection
+    /* ─── 4. Document doughnut ────────────────────────────────── */
+    @if($documentAnalysis['total'] > 0)
+    (function () {
+        doughnut(
+            'rsbsaDocChart',
+            ['With Documents', 'Without Documents'],
+            [{{ $documentAnalysis['with_documents'] }}, {{ $documentAnalysis['without_documents'] }}],
+            ['#10b981', '#e5e7eb']
+        );
+    })();
+    @endif
+
+    /* ─── 5. Farm type horizontal bar ────────────────────────── */
+    @if($farmerDetails['by_type_of_farm']->isNotEmpty())
+    (function () {
+        const labels = @json($farmerDetails['by_type_of_farm']->pluck('farmer_type_of_farm')->toArray());
+        const data   = @json($farmerDetails['by_type_of_farm']->pluck('count')->toArray());
+        horizontalBar('rsbsaFarmTypeChart', labels, data, '#0ea5e9');
+    })();
+    @endif
+
+    /* ─── 6. Land ownership horizontal bar ───────────────────── */
+    @if($farmerDetails['by_land_ownership']->isNotEmpty())
+    (function () {
+        const labels = @json($farmerDetails['by_land_ownership']->pluck('farmer_land_ownership')->toArray());
+        const data   = @json($farmerDetails['by_land_ownership']->pluck('count')->toArray());
+        horizontalBar('rsbsaLandOwnershipChart', labels, data, '#f59e0b');
+    })();
+    @endif
+
+});
+</script>
+@endsection

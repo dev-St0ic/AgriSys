@@ -8,14 +8,10 @@ use Carbon\Carbon;
 
 class RsbsaSpecificDataSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $applications = [
             [
-                'full_name' => 'CASTASUS DENNIS CESAR V',
                 'last_name' => 'CASTASUS',
                 'first_name' => 'DENNIS CESAR',
                 'middle_name' => 'VILLANUEVA',
@@ -23,10 +19,9 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'municipality' => 'CITY OF SAN PEDRO',
                 'year' => 2024,
                 'commodity' => 'LIVESTOCK',
-                'main_livelihood' => 'Farmer', // Based on LIVESTOCK commodity
+                'main_livelihood' => 'Farmer',
             ],
             [
-                'full_name' => 'SENAPITE JOSE C',
                 'last_name' => 'SENAPITE',
                 'first_name' => 'JOSE',
                 'middle_name' => 'CASUMPANG',
@@ -37,7 +32,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Farmer',
             ],
             [
-                'full_name' => 'ESPALDON MARIO E',
                 'last_name' => 'ESPALDON',
                 'first_name' => 'MARIO',
                 'middle_name' => 'ESTRELLADO',
@@ -48,7 +42,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Farmer',
             ],
             [
-                'full_name' => 'SERRADILLA IGMIDIO B',
                 'last_name' => 'SERRADILLA',
                 'first_name' => 'IGMIDIO',
                 'middle_name' => 'BERROYA',
@@ -59,7 +52,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'PALAGANAS REGINA M',
                 'last_name' => 'PALAGANAS',
                 'first_name' => 'REGINA',
                 'middle_name' => 'MANIQUIZ',
@@ -70,7 +62,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Farmer',
             ],
             [
-                'full_name' => 'SOLER JEROME D',
                 'last_name' => 'SOLER',
                 'first_name' => 'JEROME',
                 'middle_name' => 'DIWA',
@@ -81,7 +72,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Farmer',
             ],
             [
-                'full_name' => 'DE OCAMPO ISAGANI V',
                 'last_name' => 'DE OCAMPO',
                 'first_name' => 'ISAGANI',
                 'middle_name' => 'VILLANUEVA',
@@ -92,7 +82,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Farmer',
             ],
             [
-                'full_name' => 'CONTAPAY CRISTOPHER V',
                 'last_name' => 'CONTAPAY',
                 'first_name' => 'CRISTOPHER',
                 'middle_name' => 'VELLEGAS',
@@ -103,7 +92,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'KAHAL JAYSON W',
                 'last_name' => 'KAHAL',
                 'first_name' => 'JAYSON',
                 'middle_name' => 'WAJENG',
@@ -114,7 +102,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'JACARIA RASID U',
                 'last_name' => 'JACARIA',
                 'first_name' => 'RASID',
                 'middle_name' => 'USMAN',
@@ -125,7 +112,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'HAGASN ASMIL T',
                 'last_name' => 'HAGASN',
                 'first_name' => 'ASMIL',
                 'middle_name' => 'TOTOH',
@@ -136,7 +122,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'ARQUIZA ALDAM A',
                 'last_name' => 'ARQUIZA',
                 'first_name' => 'ALDAM',
                 'middle_name' => 'ALPHA',
@@ -147,7 +132,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'SAHI MOHAMMAD P',
                 'last_name' => 'SAHI',
                 'first_name' => 'MOHAMMAD',
                 'middle_name' => 'PAWADJI',
@@ -158,7 +142,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'VEGA MANUEL A',
                 'last_name' => 'VEGA',
                 'first_name' => 'MANUEL',
                 'middle_name' => 'ATIENZA',
@@ -169,7 +152,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'ESPARAGOZA JONATHAN S',
                 'last_name' => 'ESPARAGOZA',
                 'first_name' => 'JONATHAN',
                 'middle_name' => 'SANTANES',
@@ -180,7 +162,6 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'main_livelihood' => 'Fisherfolk',
             ],
             [
-                'full_name' => 'MUSTAR JOEL G',
                 'last_name' => 'MUSTAR',
                 'first_name' => 'JOEL',
                 'middle_name' => 'GUEVARRA',
@@ -192,89 +173,76 @@ class RsbsaSpecificDataSeeder extends Seeder
             ],
         ];
 
+        static $counter   = [];
+        static $dateOffset = [];
+
         foreach ($applications as $data) {
-            // Determine commodity type and set farmer_crops or fisherfolk_activity
-            $farmerCrops = null;
+            $farmerCrops      = null;
             $fisherfolkActivity = null;
-            
+
             if ($data['commodity'] === 'CROPS') {
-                $farmerCrops = 'Rice, Corn, Vegetables'; // Default value
+                $farmerCrops = 'Rice, Corn, Vegetables';
             } elseif ($data['commodity'] === 'LIVESTOCK') {
                 $farmerCrops = 'Livestock';
             } elseif ($data['commodity'] === 'FISHERFOLK') {
-                $fisherfolkActivity = 'Fish capture'; // Default value
+                $fisherfolkActivity = 'Fish capture';
             }
 
-            // Generate application number based on year
-            static $counter = [];
-            static $dateOffset = [];
-
             $year = $data['year'];
-            $counter[$year] = ($counter[$year] ?? 0) + 1;
+            $counter[$year]    = ($counter[$year] ?? 0) + 1;
             $dateOffset[$year] = ($dateOffset[$year] ?? 0) + 14;
 
             $applicationNumber = 'RSBSA-' . $year . '-' . str_pad($counter[$year], 3, '0', STR_PAD_LEFT);
 
-            $approvedAt = Carbon::createFromDate($year, 1, 1)->addDays($dateOffset[$year]);
-
-   
+            // ── KEY FIX: created_at is BEFORE approved_at ──────────────
+            $processingDays = rand(7, 30);           // realistic 7–30 day window
+            $approvedAt     = Carbon::createFromDate($year, 1, 1)->addDays($dateOffset[$year]);
+            $createdAt      = $approvedAt->copy()->subDays($processingDays);
+            $reviewedAt     = $createdAt->copy()->addDays(rand(1, max(1, $processingDays - 1)));
+            // ──────────────────────────────────────────────────────────
 
             RsbsaApplication::create([
-                'application_number' => $applicationNumber,
-                'first_name' => $this->toProperCase($data['first_name']),
-                'middle_name' => $this->toProperCase($data['middle_name']),
-                'last_name' => $this->toProperCase($data['last_name']),
-                'name_extension' => null,
-                'sex' => $this->guessSex($data['first_name']),
-                'contact_number' => '09' . rand(100000000, 999999999), // Random contact number
-                'barangay' => $data['barangay'],
-                'address' => $data['barangay'] . ', ' . $data['municipality'],
-                'main_livelihood' => $data['main_livelihood'],
-                'commodity' => $data['commodity'],
-                
-                // Farmer-specific fields
-                'farmer_crops' => $farmerCrops,
-                'farmer_land_area' => $data['main_livelihood'] === 'Farmer' ? rand(10, 500) / 100 : null,
+                'application_number'  => $applicationNumber,
+                'first_name'          => $this->toProperCase($data['first_name']),
+                'middle_name'         => $this->toProperCase($data['middle_name']),
+                'last_name'           => $this->toProperCase($data['last_name']),
+                'name_extension'      => null,
+                'sex'                 => $this->guessSex($data['first_name']),
+                'contact_number'      => '09' . rand(100000000, 999999999),
+                'barangay'            => $data['barangay'],
+                'address'             => $data['barangay'] . ', ' . $data['municipality'],
+                'main_livelihood'     => $data['main_livelihood'],
+                'commodity'           => $data['commodity'],
+
+                // Farmer-specific
+                'farmer_crops'        => $farmerCrops,
+                'farmer_land_area'    => $data['main_livelihood'] === 'Farmer' ? rand(10, 500) / 100 : null,
                 'farmer_type_of_farm' => $data['main_livelihood'] === 'Farmer' ? 'Rainfed Lowland' : null,
                 'farmer_land_ownership' => $data['main_livelihood'] === 'Farmer' ? 'Owner' : null,
-                'farm_location' => $data['main_livelihood'] === 'Farmer' ? $data['barangay'] : null,
-                
-                // Fisherfolk-specific fields
+                'farm_location'       => $data['main_livelihood'] === 'Farmer' ? $data['barangay'] : null,
+
+                // Fisherfolk-specific
                 'fisherfolk_activity' => $fisherfolkActivity,
-                
-                // Status - set all to approved based on the data
-                'status' => 'approved',
-                'approved_at' => $approvedAt,
-                'reviewed_at' => $approvedAt->copy()->subDays(rand(1, 30)),
-                'created_at' => $approvedAt,
-                'updated_at' => $approvedAt,
-                'number_assigned_at' => $approvedAt,
+
+                // Status & dates — proper chronological order
+                'status'              => 'approved',
+                'created_at'          => $createdAt,   // submitted first
+                'reviewed_at'         => $reviewedAt,  // reviewed in between
+                'approved_at'         => $approvedAt,  // approved last
+                'updated_at'          => $approvedAt,
+                'number_assigned_at'  => $approvedAt,
             ]);
         }
     }
 
-    /**
-     * Convert a string to proper/title case.
-     */
     private function toProperCase(?string $value): ?string
     {
-        if ($value === null) {
-            return null;
-        }
-        return ucwords(strtolower($value));
+        return $value === null ? null : ucwords(strtolower($value));
     }
 
-    /**
-     * Simple guess for sex based on first name
-     */
-    private function guessSex($firstName)
+    private function guessSex($firstName): string
     {
         $femaleNames = ['REGINA', 'MARIA', 'ANA', 'ROSA', 'TERESA', 'LUZ', 'ELENA'];
-        
-        if (in_array($firstName, $femaleNames)) {
-            return 'Female';
-        }
-        
-        return 'Male';
+        return in_array($firstName, $femaleNames) ? 'Female' : 'Male';
     }
 }
