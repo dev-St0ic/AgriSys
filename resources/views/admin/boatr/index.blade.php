@@ -3464,7 +3464,7 @@
             padding-bottom: 0;
         }
 
-        #registrationModal strong {
+        #registrationModal .card-body strong {
             color: #495057;
             font-weight: 600;
             display: block;
@@ -3474,11 +3474,17 @@
             margin-bottom: 0.25rem;
         }
 
-        #registrationModal .card-body span {
-            color: #333;
-            font-size: 0.95rem;
-            display: block;
+        #registrationModal .card-header strong,
+        #registrationModal .card-header h6,
+        #registrationModal .card-header i {
+            color: #ffffff !important;
         }
+
+        #registrationModal .card-header.bg-warning strong,
+        #registrationModal .card-header.bg-warning h6,
+        #registrationModal .card-header.bg-warning i {
+            color: #000000 !important;
+        } 
 
         #registrationModal a {
             color: #0d6efd;
@@ -5288,14 +5294,14 @@
 
                     if (totalDocs > 0) {
                         docContainer.innerHTML = `
-                            <div class="row">
+                           <div class="row">
                                 <div class="col-md-6">
                                     <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
                                     <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
                                     <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
+                                    <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                     <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
                                         <i class="fas fa-eye me-1"></i>View All Documents
                                     </button>
