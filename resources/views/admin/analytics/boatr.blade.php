@@ -287,7 +287,6 @@
                                 @php
                                     $totalInspections =
                                         $inspectionAnalysis['inspections_completed'] +
-                                        $inspectionAnalysis['inspections_scheduled'] +
                                         $inspectionAnalysis['inspections_required'];
                                     $completedRate =
                                         $totalInspections > 0

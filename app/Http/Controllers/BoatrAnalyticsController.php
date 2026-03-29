@@ -579,7 +579,7 @@ class BoatrAnalyticsController extends Controller
             $totalInspectable = (clone $baseQuery)->whereIn('status', ['inspection_scheduled', 'inspection_required', 'approved', 'rejected'])->count();
             $inspectionsCompleted = (clone $baseQuery)->where('inspection_completed', true)->count();
             $inspectionsScheduled = (clone $baseQuery)->where('status', 'inspection_scheduled')->count();
-            $inspectionsRequired = (clone $baseQuery)->where('status', 'inspection_required')->count();
+            $inspectionsRequired = (clone $baseQuery)->where('inspection_completed', false)->count();
 
             // Average inspection time
             $inspectionTimes = (clone $baseQuery)
