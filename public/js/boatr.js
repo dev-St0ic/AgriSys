@@ -354,44 +354,7 @@ async function validateFishRNumber(event) {
     await validateFishRNumberSilent(fishRInput);
 }
 
-// /**
-//  * Silent FishR validation
-//  */
-// async function validateFishRNumberSilent(fishRInput) {
-//     const number = fishRInput.value.trim();
 
-//     if (!number) return;
-
-//     try {
-//         // Show loading state
-//         fishRInput.style.borderColor = '#ffc107';
-//         fishRInput.style.backgroundColor = '#fffbf0';
-//         showValidationMessage(fishRInput, 'Validating FishR registration...', 'warning');
-
-//         const response = await fetch(`/api/validate-fishr/${encodeURIComponent(number)}`);
-//         const data = await response.json();
-
-//         if (data.valid) {
-//             // Valid FishR number
-//             fishRInput.style.borderColor = '#28a745';
-//             fishRInput.style.backgroundColor = '#f8fff8';
-//             showValidationMessage(fishRInput, 'Valid FishR registration number', 'success');
-//             fishRInput.dataset.validated = 'true';
-//         } else {
-//             // Invalid FishR number
-//             fishRInput.style.borderColor = '#dc3545';
-//             fishRInput.style.backgroundColor = '#fff8f8';
-//             showValidationMessage(fishRInput, 'Invalid or non-approved FishR number. Please ensure you have an approved FishR registration.', 'error');
-//             fishRInput.dataset.validated = 'false';
-//         }
-//     } catch (error) {
-//         console.error('Error validating FishR number:', error);
-//         fishRInput.style.borderColor = '#ffc107';
-//         fishRInput.style.backgroundColor = '#fffbf0';
-//         showValidationMessage(fishRInput, 'Unable to verify FishR number. Please check your connection.', 'warning');
-//         fishRInput.dataset.validated = 'error';
-//     }
-// }
 /**
  * Enhanced FishR validation - 1:1 relationship with confidentiality
  */
@@ -425,7 +388,7 @@ async function validateFishRNumberSilent(fishRInput) {
         const data = await response.json();
 
         if (data.valid && data.approved && !data.already_used) {
-            // ✅ ALL CHECKS PASSED
+            // ALL CHECKS PASSED
             fishRInput.style.borderColor = '#28a745';
             fishRInput.style.backgroundColor = '#f8fff8';
             
@@ -442,8 +405,6 @@ async function validateFishRNumberSilent(fishRInput) {
                 'Valid FishR number found', 
                 'success'
             );
-
-            autofillBoatrNameFromFishR(data);
 
         } else if (!data.approved) {
             fishRInput.style.borderColor = '#dc3545';
@@ -498,34 +459,6 @@ async function validateFishRNumberSilent(fishRInput) {
         fishRInput.dataset.validated = 'error';
     }
 }
-/**
- * Auto-fill BoatR name fields from validated FishR data
- */
-function autofillBoatrNameFromFishR(fishrData) {
-    const firstNameInput = document.getElementById('boatr_first_name');
-    const middleNameInput = document.getElementById('boatr_middle_name');
-    const lastNameInput = document.getElementById('boatr_last_name');
-    const extensionInput = document.getElementById('boatr_name_extension');
-
-    // Only fill if fields are empty
-    if (firstNameInput && !firstNameInput.value && fishrData.first_name) {
-        firstNameInput.value = fishrData.first_name;
-    }
-
-    if (middleNameInput && !middleNameInput.value && fishrData.middle_name) {
-        middleNameInput.value = fishrData.middle_name;
-    }
-
-    if (lastNameInput && !lastNameInput.value && fishrData.last_name) {
-        lastNameInput.value = fishrData.last_name;
-    }
-
-    if (extensionInput && !extensionInput.value && fishrData.name_extension) {
-        extensionInput.value = fishrData.name_extension;
-    }
-
-    console.log('BoatR form auto-filled from FishR data');
-}
 
 /**
  * Validate that BoatR names match FishR registration
@@ -552,7 +485,7 @@ function validateBoatrNamesMatchFishR() {
         // Check if names match
         if (boatrFirstName !== fishrFirstName || boatrLastName !== fishrLastName) {
             agrisysModal.warning(
-                `First and Last names must match your FishR registration:\n\nFishR: ${fishrData.fisher_name}\n\nBoatR: ${boatrFirstName} ${boatrLastName}`,
+                `Your name does not match this FishR registration. Please check your first and last name.`,
                 { title: 'Name Mismatch' }
             );
             firstNameInput.focus();
