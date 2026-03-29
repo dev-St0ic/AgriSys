@@ -101,18 +101,14 @@
                                 'approved' => 'success',
                                 'rejected' => 'danger',
                                 'under_review' => 'warning',
-                                'inspection_scheduled' => 'info',
                                 'inspection_required' => 'purple',
-                                'documents_pending' => 'primary',
                                 'pending' => 'secondary',
                             ];
                             $statusBgColors = [
                                 'approved' => '#10b981',
                                 'rejected' => '#ef4444',
                                 'under_review' => '#f59e0b',
-                                'inspection_scheduled' => '#0ea5e9',
                                 'inspection_required' => '#8b5cf6',
-                                'documents_pending' => '#6366f1',
                                 'pending' => '#64748b',
                             ];
                         @endphp
@@ -309,28 +305,19 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <div
-                                class="inspection-stat-enhanced bg-warning bg-opacity-10 p-3 rounded-3 text-center border border-warning border-opacity-20">
+                            <div class="inspection-stat-enhanced bg-primary bg-opacity-10 p-3 rounded-3 text-center border border-primary border-opacity-20">
                                 <div class="inspection-icon mb-2">
-                                    <i class="fas fa-calendar-alt text-warning fa-lg"></i>
+                                    <i class="fas fa-percentage text-primary fa-lg"></i>
                                 </div>
-                                <h3 class="text-warning mb-1 fw-bold">{{ $inspectionAnalysis['inspections_scheduled'] }}
-                                </h3>
-                                <small class="text-warning fw-medium">Scheduled</small>
                                 @php
-                                    $scheduledRate =
-                                        $totalInspections > 0
-                                            ? round(
-                                                ($inspectionAnalysis['inspections_scheduled'] / $totalInspections) *
-                                                    100,
-                                                1,
-                                            )
-                                            : 0;
+                                    $passRate = $inspectionAnalysis['pass_rate'] ?? 0;
                                 @endphp
+                                <h3 class="text-primary mb-1 fw-bold">{{ $passRate }}%</h3>
+                                <small class="text-primary fw-medium">Pass Rate</small>
                                 <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-warning" style="width: {{ $scheduledRate }}%"></div>
+                                    <div class="progress-bar bg-primary" style="width: {{ $passRate }}%"></div>
                                 </div>
-                                <small class="text-muted">{{ $scheduledRate }}% of total</small>
+                                <small class="text-muted">Inspected → Approved</small>
                             </div>
                         </div>
                         <div class="col-6">

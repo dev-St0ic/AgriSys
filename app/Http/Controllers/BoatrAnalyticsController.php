@@ -176,9 +176,7 @@ class BoatrAnalyticsController extends Controller
             $defaultStatuses = [
                 'pending' => 0,
                 'under_review' => 0,
-                'inspection_scheduled' => 0,
                 'inspection_required' => 0,
-                'documents_pending' => 0,
                 'approved' => 0,
                 'rejected' => 0
             ];
@@ -290,9 +288,8 @@ class BoatrAnalyticsController extends Controller
     private function getMultipleRegistrationsAnalysis($baseQuery)
     {
         try {
-            // Group by fishr_number to find fishers with >1 boat registration
-            $byFishrNumber = (clone $baseQuery)
-                ->whereNotNull('fishr_number')
+            // Use global query — multi-boat ownership is not date-range dependent
+            $byFishrNumber = BoatrApplication::whereNotNull('fishr_number')
                 ->where('fishr_number', '!=', '')
                 ->select('fishr_number', DB::raw('COUNT(*) as boat_count'))
                 ->groupBy('fishr_number')
@@ -301,15 +298,13 @@ class BoatrAnalyticsController extends Controller
                 ->get();
 
             $fishersWithMultiple = $byFishrNumber->count();
-            $totalExtraBoats = $byFishrNumber->sum(function ($row) {
-                return $row->boat_count - 1;
-            });
+            $totalExtraBoats = $byFishrNumber->sum(fn($row) => $row->boat_count - 1);
 
             return [
                 'fishers_with_multiple' => $fishersWithMultiple,
-                'total_extra_boats' => $totalExtraBoats,
-                'details' => $byFishrNumber->take(10),
-                'max_boats_per_fisher' => $byFishrNumber->max('boat_count') ?? 0,
+                'total_extra_boats'     => $totalExtraBoats,
+                'details'               => $byFishrNumber->take(10),
+                'max_boats_per_fisher'  => $byFishrNumber->max('boat_count') ?? 0,
             ];
         } catch (\Exception $e) {
             Log::error('BOATR Multiple Registrations Analysis Error: ' . $e->getMessage());
@@ -606,6 +601,17 @@ class BoatrAnalyticsController extends Controller
                 ->orderBy('inspections_count', 'desc')
                 ->get();
 
+    
+                $approvedAfterInspection = (clone $baseQuery)
+                    ->where('inspection_completed', true)
+                    ->where('status', 'approved')
+                    ->count();
+
+                $passRate = $inspectionsCompleted > 0
+                    ? round(($approvedAfterInspection / $inspectionsCompleted) * 100, 1)
+                    : 0;
+
+
             return [
                 'total_inspectable' => $totalInspectable,
                 'inspections_completed' => $inspectionsCompleted,
@@ -613,7 +619,8 @@ class BoatrAnalyticsController extends Controller
                 'inspections_required' => $inspectionsRequired,
                 'completion_rate' => $totalInspectable > 0 ? round(($inspectionsCompleted / $totalInspectable) * 100, 2) : 0,
                 'avg_inspection_time' => $avgInspectionTime,
-                'inspector_workload' => $inspectorWorkload
+                'inspector_workload' => $inspectorWorkload,
+                'pass_rate'              => $passRate,
             ];
         } catch (\Exception $e) {
             Log::error('BOATR Inspection Analysis Error: ' . $e->getMessage());
