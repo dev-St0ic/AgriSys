@@ -21,7 +21,7 @@ class TrainingSeeder extends Seeder
             'sampaguita_propagation',
         ];
 
-        $statuses = ['pending', 'under_review', 'approved', 'rejected'];
+        $statuses = ['pending', 'under_review', 'approved'];
 
         $barangays = [
             'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Estrella',
