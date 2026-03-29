@@ -1311,26 +1311,33 @@
 
                                         <!-- Profile Dropdown -->
                                         <div class="dropdown d-flex align-items-center" style="gap: 0.75rem;">
-                                            <!-- Profile Picture (non-clickable) -->
-                                            @if (auth()->user()->profile_photo_url)
-                                                <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile"
-                                                    class="rounded-circle" width="40" height="40"
-                                                    style="object-fit: cover;">
-                                            @else
-                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
-                                                    style="width: 40px; height: 40px; font-size: 16px;">
-                                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                                </div>
-                                            @endif
-                                            <!-- Name (non-clickable) -->
-                                            <span class="fw-semibold text-dark"
-                                                style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->name }}</span>
-                                            <!-- Three Dots Button (clickable dropdown) -->
-                                            <button class="btn btn-link text-dark p-0" type="button"
+                                            <!-- Clickable trigger: wraps avatar + name + dots together -->
+                                            <button type="button" class="btn btn-link p-0 d-flex align-items-center text-decoration-none"
                                                 data-bs-toggle="dropdown" aria-expanded="false"
-                                                style="text-decoration: none;">
-                                                <i class="fas fa-ellipsis-v"></i>
+                                                style="gap: 0.75rem; background: none; border: none; cursor: pointer;">
+
+                                                <!-- Profile Picture -->
+                                                @if (auth()->user()->profile_photo_url)
+                                                    <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile"
+                                                        class="rounded-circle" width="40" height="40"
+                                                        style="object-fit: cover;">
+                                                @else
+                                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
+                                                        style="width: 40px; height: 40px; font-size: 16px; flex-shrink: 0;">
+                                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                                    </div>
+                                                @endif
+
+                                                <!-- Name -->
+                                                <span class="fw-semibold text-dark"
+                                                    style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                    {{ auth()->user()->name }}
+                                                </span>
+
+                                                <!-- Three Dots Icon -->
+                                                <i class="fas fa-ellipsis-v text-dark"></i>
                                             </button>
+
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
                                                     <a class="dropdown-item d-flex align-items-center"
@@ -1338,9 +1345,7 @@
                                                         <i class="fas fa-user-edit me-2"></i>Edit Profile
                                                     </a>
                                                 </li>
-                                                <li>
-                                                    <hr class="dropdown-divider">
-                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
                                                 <li>
                                                     <button type="button" class="dropdown-item d-flex align-items-center"
                                                         onclick="confirmLogout()">
