@@ -616,255 +616,301 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const periodForm = document.getElementById('periodForm');
-            const refreshBtn = document.getElementById('refreshDataBtn');
-            const downloadPdf = document.getElementById('downloadPdf');
-            const downloadWord = document.getElementById('downloadWord');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const loadingState = document.getElementById('loadingState');
-            const reportData = document.getElementById('reportData');
-            const noDataState = document.getElementById('noDataState');
-            const serviceInput = document.getElementById('serviceInput');
+        const periodForm = document.getElementById('periodForm');
+        const refreshBtn = document.getElementById('refreshDataBtn');
+        const downloadPdf = document.getElementById('downloadPdf');
+        const downloadWord = document.getElementById('downloadWord');
+        const loadingState = document.getElementById('loadingState');
+        const reportData = document.getElementById('reportData');
+        const noDataState = document.getElementById('noDataState');
+        const serviceInput = document.getElementById('serviceInput');
 
-            // Cache for storing reports per service
-            const reportCache = {
-                comprehensive: null,
-                training: null,
-                rsbsa: null,
-                fishr: null,
-                boatr: null
-            };
+        // ── Storage helpers ───────────────────────────────────────────
+        function getStorageKey(service, month, year) {
+            return `dss_report_${service}_${year}_${month}`;
+        }
 
-            // Service tab switching
-            const serviceTabs = document.querySelectorAll('[data-service]');
-            serviceTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Reset all tabs to outlined style
-                    serviceTabs.forEach(t => {
-                        t.classList.remove('btn-success');
-                        t.classList.add('btn-outline-secondary');
-                    });
-                    // Set clicked tab to active filled style
-                    this.classList.remove('btn-outline-secondary');
-                    this.classList.add('btn-success');
-                    // Update hidden input
-                    const selectedService = this.dataset.service;
-                    serviceInput.value = selectedService;
-                    // persist service in URL
-                    const url = new URL(window.location);
-                    url.searchParams.set('service', selectedService);
-                    window.history.pushState({}, '', url);
-
-                    // Show cached report if available, otherwise show "no data"
-                    if (reportCache[selectedService]) {
-                        showData(reportCache[selectedService]);
-                    } else {
-                        showNoData();
-                    }
-                });
-            });
-
-            // Show initial "no data" state instead of loading
-            showNoData();
-
-            // Progress animation
-            function animateProgress() {
-                const progressBar = document.querySelector('#loadingState .progress-bar');
-                if (progressBar) {
-                    let width = 0;
-                    const interval = setInterval(() => {
-                        width += Math.random() * 15;
-                        if (width > 90) width = 90;
-                        progressBar.style.width = width + '%';
-                    }, 500);
-                    return interval;
-                }
+        function getCachedReport(service, month, year) {
+            try {
+                return sessionStorage.getItem(getStorageKey(service, month, year));
+            } catch (e) {
+                return null;
             }
+        }
 
-            function showLoading(message = 'Generating DSS Report...') {
-                loadingState.style.display = 'block';
-                reportData.style.display = 'none';
-                noDataState.style.display = 'none';
-
-                const messageEl = document.querySelector('#loadingState h5');
-                if (messageEl) messageEl.textContent = message;
-
-                return animateProgress();
-            }
-
-            function hideLoading(progressInterval) {
-                if (progressInterval) clearInterval(progressInterval);
-                loadingState.style.display = 'none';
-            }
-
-            function showData(html) {
-                reportData.innerHTML = html;
-                reportData.style.display = 'block';
-                noDataState.style.display = 'none';
-            }
-
-            function showNoData() {
-                loadingState.style.display = 'none';
-                reportData.style.display = 'none';
-                noDataState.style.display = 'block';
-            }
-
-            function getServiceName() {
-                const names = {
-                    comprehensive: 'Comprehensive',
-                    training: 'Training',
-                    rsbsa: 'RSBSA',
-                    fishr: 'FishR',
-                    boatr: 'BoatR'
-                };
-                return names[serviceInput.value] || 'Comprehensive';
-            }
-
-            async function loadDSSData(month = null, year = null) {
-                const currentMonth = month || document.getElementById('monthSelect').value;
-                const currentYear = year || document.getElementById('yearSelect').value;
-                const currentService = serviceInput.value;
-
-                const progressInterval = showLoading(
-                    `Generating ${getServiceName()} DSS Report for ${getMonthName(currentMonth)} ${currentYear}...`
-                );
-
+        function setCachedReport(service, month, year, html) {
+            try {
+                sessionStorage.setItem(getStorageKey(service, month, year), html);
+            } catch (e) {
+                // sessionStorage full — clear old DSS entries and retry
+                clearOldDSSCache();
                 try {
-                    const response = await fetch(
-                        `{{ route('admin.dss.preview') }}?month=${currentMonth}&year=${currentYear}&service=${currentService}`, {
-                            method: 'GET',
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
-                            }
-                        });
-
-                    const data = await response.json();
-                    hideLoading(progressInterval);
-
-                    if (data.success && data.html) {
-                        // Cache the report for this service
-                        reportCache[currentService] = data.html;
-                        showData(data.html);
-                        showToast('Report generated successfully!', 'success');
-                    } else {
-                        showNoData();
-                        showToast(data.message || 'Failed to load report data', 'error');
-                    }
-                } catch (error) {
-                    hideLoading(progressInterval);
-                    showNoData();
-                    showToast('Failed to load DSS data: ' + error.message, 'error');
-                    console.error('DSS loading error: ', error);
+                    sessionStorage.setItem(getStorageKey(service, month, year), html);
+                } catch (e2) {
+                    console.warn('Could not cache report:', e2);
                 }
             }
+        }
 
-            function getMonthName(monthNum) {
-                const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                ];
-                return months[parseInt(monthNum) - 1];
-            }
+        function clearOldDSSCache() {
+            const keys = Object.keys(sessionStorage).filter(k => k.startsWith('dss_report_'));
+            keys.forEach(k => sessionStorage.removeItem(k));
+        }
 
-            function showToast(message, type = 'info') {
-                const iconMap = {
-                    success: 'fas fa-check-circle',
-                    error: 'fas fa-exclamation-circle',
-                    warning: 'fas fa-exclamation-triangle',
-                    info: 'fas fa-info-circle',
-                };
+        function clearCachedReport(service, month, year) {
+            try {
+                sessionStorage.removeItem(getStorageKey(service, month, year));
+            } catch (e) {}
+        }
 
-                const container = document.getElementById('toastContainer');
-                const toast = document.createElement('div');
-                toast.className = `toast-notification toast-${type === 'error' ? 'error' : type}`;
-                toast.innerHTML = `
-                    <div class="toast-content">
-                        <i class="${iconMap[type] || iconMap.info}"></i>
-                        <span>${message}</span>
-                        <button type="button" class="btn-close-toast" onclick="this.closest('.toast-notification').classList.remove('show'); setTimeout(() => this.closest('.toast-notification')?.remove(), 300)">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>`;
+        // ── Read current filter values ────────────────────────────────
+        function getCurrentFilters() {
+            return {
+                month: document.getElementById('monthSelect').value,
+                year: document.getElementById('yearSelect').value,
+                service: serviceInput.value,
+            };
+        }
 
-                container.appendChild(toast);
-                requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    setTimeout(() => toast.remove(), 300);
-                }, 5000);
-            }
+        // ── UI state helpers ──────────────────────────────────────────
+        function animateProgress() {
+            const progressBar = document.querySelector('#loadingState .progress-bar');
+            if (!progressBar) return null;
+            let width = 0;
+            const interval = setInterval(() => {
+                width += Math.random() * 15;
+                if (width > 90) width = 90;
+                progressBar.style.width = width + '%';
+            }, 500);
+            return interval;
+        }
 
-            // Period form submission - use AJAX instead of page reload
-            periodForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const month = document.getElementById('monthSelect').value;
-                const year = document.getElementById('yearSelect').value;
+        function showLoading(message = 'Generating DSS Report...') {
+            loadingState.style.display = 'block';
+            reportData.style.display = 'none';
+            noDataState.style.display = 'none';
+            const messageEl = document.querySelector('#loadingState h5');
+            if (messageEl) messageEl.textContent = message;
+            return animateProgress();
+        }
 
-                const service = serviceInput.value;
+        function hideLoading(progressInterval) {
+            if (progressInterval) clearInterval(progressInterval);
+            const progressBar = document.querySelector('#loadingState .progress-bar');
+            if (progressBar) progressBar.style.width = '100%';
+            loadingState.style.display = 'none';
+        }
 
-                // Keep URL in sync with selected filters
+        function showData(html) {
+            reportData.innerHTML = html;
+            reportData.style.display = 'block';
+            noDataState.style.display = 'none';
+            loadingState.style.display = 'none';
+        }
+
+        function showNoData() {
+            loadingState.style.display = 'none';
+            reportData.style.display = 'none';
+            noDataState.style.display = 'block';
+        }
+
+        // ── Service tab switching ─────────────────────────────────────
+        const serviceTabs = document.querySelectorAll('[data-service]');
+        serviceTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Update active tab styles
+                serviceTabs.forEach(t => {
+                    t.classList.remove('btn-success');
+                    t.classList.add('btn-outline-secondary');
+                });
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('btn-success');
+
+                const selectedService = this.dataset.service;
+                serviceInput.value = selectedService;
+
+                // Sync URL
                 const url = new URL(window.location);
-                url.searchParams.set('month', month);
-                url.searchParams.set('year', year);
-                url.searchParams.set('service', service);
+                url.searchParams.set('service', selectedService);
                 window.history.pushState({}, '', url);
 
-                loadDSSData(month, year);
-            });
+                // Check sessionStorage first
+                const { month, year } = getCurrentFilters();
+                const cached = getCachedReport(selectedService, month, year);
 
-            // Refresh data
-            refreshBtn.addEventListener('click', async function() {
-                const month = document.getElementById('monthSelect').value;
-                const year = document.getElementById('yearSelect').value;
-                const service = serviceInput.value;
-
-                refreshBtn.disabled = true;
-                refreshBtn.innerHTML =
-                    '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
-
-                try {
-                    const response = await fetch(
-                        `{{ route('admin.dss.refresh.data') }}?month=${month}&year=${year}&service=${service}`
-                    );
-                    const data = await response.json();
-
-                    if (data.success) {
-                        loadDSSData(month, year);
-                        showToast('Data refreshed successfully!', 'success');
-                    } else {
-                        showToast(data.message || 'Failed to refresh data', 'error');
-                    }
-                } catch (error) {
-                    showToast('Failed to refresh data: ' + error.message, 'error');
-                } finally {
-                    refreshBtn.disabled = false;
-                    refreshBtn.innerHTML =
-                        '<i class="fas fa-sync-alt me-1"></i>Refresh Data';
+                if (cached) {
+                    showData(cached);
+                    showToast(`Loaded cached ${getServiceName(selectedService)} report`, 'info');
+                } else {
+                    showNoData();
                 }
             });
-
-            // Download PDF
-            downloadPdf.addEventListener('click', function(e) {
-                e.preventDefault();
-                const month = document.getElementById('monthSelect').value;
-                const year = document.getElementById('yearSelect').value;
-                const service = serviceInput.value;
-                window.open(
-                    `{{ route('admin.dss.download.pdf') }}?month=${month}&year=${year}&service=${service}`,
-                    '_blank');
-            });
-
-            // Download Word
-            downloadWord.addEventListener('click', function(e) {
-                e.preventDefault();
-                const month = document.getElementById('monthSelect').value;
-                const year = document.getElementById('yearSelect').value;
-                const service = serviceInput.value;
-                window.open(
-                    `{{ route('admin.dss.download.word') }}?month=${month}&year=${year}&service=${service}`,
-                    '_blank');
-            });
         });
+
+        // ── Main data loader ──────────────────────────────────────────
+       async function loadDSSData(month, year, service, forceRefresh = false, silent = false) {
+            if (!forceRefresh) {
+                const cached = getCachedReport(service, month, year);
+                if (cached) {
+                    showData(cached);
+                    if (!silent) showToast(`Loaded cached ${getServiceName(service)} report`, 'info');
+                    return;
+                }
+            }
+
+            const progressInterval = showLoading(
+                `Generating ${getServiceName(service)} DSS Report for ${getMonthName(month)} ${year}...`
+            );
+
+            try {
+                const response = await fetch(
+                    `{{ route('admin.dss.preview') }}?month=${month}&year=${year}&service=${service}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    }
+                );
+
+                const data = await response.json();
+                hideLoading(progressInterval);
+
+                if (data.success && data.html) {
+                    setCachedReport(service, month, year, data.html);
+                    showData(data.html);
+                    if (!silent) showToast('Report generated successfully!', 'success');
+                } else {
+                    showNoData();
+                    if (!silent) showToast(data.message || 'Failed to load report data', 'error');
+                }
+            } catch (error) {
+                hideLoading(progressInterval);
+                showNoData();
+                showToast('Failed to load DSS data: ' + error.message, 'error');
+                console.error('DSS loading error:', error);
+            }
+        }
+
+        // ── On page load — restore last viewed report ─────────────────
+        (function restoreOnLoad() {
+            const { month, year, service } = getCurrentFilters();
+            const cached = getCachedReport(service, month, year);
+            if (cached) {
+                showData(cached);
+                showToast(`Restored cached ${getServiceName(service)} report`, 'info');
+            } else {
+                showNoData();
+            }
+        })();
+
+        // ── Form submit ───────────────────────────────────────────────
+        periodForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const { month, year, service } = getCurrentFilters();
+
+            const url = new URL(window.location);
+            url.searchParams.set('month', month);
+            url.searchParams.set('year', year);
+            url.searchParams.set('service', service);
+            window.history.pushState({}, '', url);
+
+            loadDSSData(month, year, service);
+        });
+
+        // ── Refresh button — bypasses cache ──────────────────────────
+       refreshBtn.addEventListener('click', async function() {
+            const { month, year, service } = getCurrentFilters();
+
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+
+            try {
+                const response = await fetch(
+                    `{{ route('admin.dss.refresh.data') }}?month=${month}&year=${year}&service=${service}`
+                );
+                const data = await response.json();
+
+                if (data.success) {
+                    clearCachedReport(service, month, year);
+                    await loadDSSData(month, year, service, true, true); // silent = true
+                    showToast('Data refreshed successfully!', 'success'); // only this shows
+                } else {
+                    showToast(data.message || 'Failed to refresh data', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to refresh data: ' + error.message, 'error');
+            } finally {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh Data';
+            }
+        });
+        // ── Downloads ─────────────────────────────────────────────────
+        downloadPdf.addEventListener('click', function(e) {
+            e.preventDefault();
+            const { month, year, service } = getCurrentFilters();
+            window.open(
+                `{{ route('admin.dss.download.pdf') }}?month=${month}&year=${year}&service=${service}`,
+                '_blank'
+            );
+        });
+
+        downloadWord.addEventListener('click', function(e) {
+            e.preventDefault();
+            const { month, year, service } = getCurrentFilters();
+            window.open(
+                `{{ route('admin.dss.download.word') }}?month=${month}&year=${year}&service=${service}`,
+                '_blank'
+            );
+        });
+
+        // ── Helpers ───────────────────────────────────────────────────
+        function getServiceName(service) {
+            const names = {
+                comprehensive: 'Supplies',
+                training: 'Training',
+                rsbsa: 'RSBSA',
+                fishr: 'FishR',
+                boatr: 'BoatR'
+            };
+            return names[service] || 'Comprehensive';
+        }
+
+        function getMonthName(monthNum) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            return months[parseInt(monthNum) - 1];
+        }
+
+        function showToast(message, type = 'info') {
+            const iconMap = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle',
+            };
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${iconMap[type] || iconMap.info}"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close-toast" onclick="this.closest('.toast-notification').classList.remove('show'); setTimeout(() => this.closest('.toast-notification')?.remove(), 300)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+    });
+
+         
     </script>
 @endsection
 

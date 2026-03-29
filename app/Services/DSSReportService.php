@@ -232,10 +232,10 @@ Focus on actionable insights that can help agricultural officers make informed d
 
             if (json_last_error() === JSON_ERROR_NONE) {
                 // Override with integrity-based confidence score
-                $calculatedConfidence = $this->calculateConfidenceLevel($data);
-                $jsonData['confidence_level'] = $calculatedConfidence['level'];
-                $jsonData['confidence_score'] = $calculatedConfidence['score'];
-                $jsonData['confidence_source'] = 'calculated';
+                // $calculatedConfidence = $this->calculateConfidenceLevel($data);
+                // $jsonData['confidence_level'] = $calculatedConfidence['level'];
+                // $jsonData['confidence_score'] = $calculatedConfidence['score'];
+                // $jsonData['confidence_source'] = 'calculated';
 
                 return [
                     'generated_at' => now()->toDateTimeString(),
@@ -250,7 +250,7 @@ Focus on actionable insights that can help agricultural officers make informed d
 
         // If JSON parsing fails, create structured response from raw text
         // In this case, use calculated confidence since LLM response couldn't be parsed
-        $calculatedConfidence = $this->calculateConfidenceLevel($data);
+        // $calculatedConfidence = $this->calculateConfidenceLevel($data);
 
         return [
             'generated_at' => now()->toDateTimeString(),
@@ -1481,10 +1481,10 @@ Provide actionable insights focusing on fisher welfare, sustainable fishing prac
 
                 if (json_last_error() === JSON_ERROR_NONE && is_array($reportData)) {
                     // Apply integrity-based confidence override
-                    $calculatedConfidence = $this->calculateConfidenceLevel($data);
-                    $reportData['confidence_level'] = $calculatedConfidence['level'];
-                    $reportData['confidence_score'] = $calculatedConfidence['score'];
-                    $reportData['confidence_source'] = 'calculated';
+                    // $calculatedConfidence = $this->calculateConfidenceLevel($data);
+                    // $reportData['confidence_level'] = $calculatedConfidence['level'];
+                    // $reportData['confidence_score'] = $calculatedConfidence['score'];
+                    // $reportData['confidence_source'] = 'calculated';
 
                     return [
                         'success' => true,
@@ -1705,10 +1705,10 @@ Provide actionable insights focusing on vessel safety, registration compliance, 
 
                 if (json_last_error() === JSON_ERROR_NONE && is_array($reportData)) {
                     // Apply integrity-based confidence override
-                    $calculatedConfidence = $this->calculateConfidenceLevel($data);
-                    $reportData['confidence_level'] = $calculatedConfidence['level'];
-                    $reportData['confidence_score'] = $calculatedConfidence['score'];
-                    $reportData['confidence_source'] = 'calculated';
+                    // $calculatedConfidence = $this->calculateConfidenceLevel($data);
+                    // $reportData['confidence_level'] = $calculatedConfidence['level'];
+                    // $reportData['confidence_score'] = $calculatedConfidence['score'];
+                    // $reportData['confidence_source'] = 'calculated';
 
                     return [
                         'success' => true,

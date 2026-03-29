@@ -119,7 +119,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
             <div
-                class="card-header {{ count($report['report_data']['critical_issues']) > 0 ? 'bg-danger' : 'bg-secondary' }} text-white">
+                class="card-header {{ count($report['report_data']['critical_issues']) > 0 ? 'bg-warning' : 'bg-secondary' }} text-dark">
                 <h5 class="mb-0">
                     <i class="fas fa-exclamation-triangle me-2"></i>Critical Issues
                 </h5>
