@@ -151,7 +151,7 @@
         @foreach ($categories as $category)
             <div class="category-content" id="category-{{ $category->id }}">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center ps-4" style="background: #f0f4ff; border-left: 4px solid #0d6efd;">
                         <div>
                             <h4 class="mb-1">
                                 <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
