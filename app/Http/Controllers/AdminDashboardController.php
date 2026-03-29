@@ -653,7 +653,7 @@ class AdminDashboardController extends Controller
     public function uploadServiceImage(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
             'service_key' => 'required|string|in:rsbsa,seedling,fishr,boatr,training,supply',
         ]);
 

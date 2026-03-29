@@ -212,7 +212,7 @@
                                 <div class="ium-preview-placeholder" id="iumPreviewPlaceholder">
                                     <i class="fas fa-cloud-upload-alt"></i>
                                     <p>Drag & drop or <strong>browse</strong> to choose a new image</p>
-                                    <span>PNG, JPG, WEBP — max 5 MB</span>
+                                    <span>PNG, JPG, WEBP — max 10 MB</span>
                                 </div>
                             </div>
                             <div class="ium-drop-indicator" id="iumDropIndicator">
@@ -1159,8 +1159,8 @@
 
             // ── Handle a chosen file ──
             function handleFile(file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    showToast('File exceeds 5 MB limit.', 'error');
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('File exceeds 10 MB limit.', 'error');
                     return;
                 }
                 selectedFile = file;
