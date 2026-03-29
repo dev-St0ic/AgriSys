@@ -56,6 +56,7 @@ class BoatrRegisteredSeeder extends Seeder
 
         /**
          * $make — when $fn is null the owner name is resolved from the linked FishrApplication.
+         * Contact number is always pulled from the linked FishrApplication when available.
          */
         $make = function (
             string  $appNo,
@@ -87,6 +88,9 @@ class BoatrRegisteredSeeder extends Seeder
                 $ext = $pc($ext);
             }
 
+            // Always pull contact number from the linked FishR record regardless of name source
+            $contact = $fishrApp?->contact_number ?? null;
+
             // Inspection is done one day before approval
             $inspectionDate = $approvedAt->copy()->subDay();
 
@@ -96,7 +100,7 @@ class BoatrRegisteredSeeder extends Seeder
                 'middle_name'                 => $mn,
                 'last_name'                   => $ln,
                 'name_extension'              => $ext,
-                'contact_number'              => null,
+                'contact_number'              => $contact,
                 'barangay'                    => $barangay,
                 'fishr_number'                => $fishrNo,
                 'fishr_application_id'        => $fishrAppId,
