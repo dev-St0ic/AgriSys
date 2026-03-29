@@ -1178,6 +1178,10 @@
                                             <strong>Inspection:</strong>
                                             <div id="viewRegInspection" style="margin-top: 0.25rem;"></div>
                                         </div>
+                                        <div class="col-12" id="viewRegInspectionNotesRow">
+                                            <strong>Inspection Notes:</strong>
+                                            <span id="viewRegInspectionNotes" class="text-muted fst-italic">None</span>
+                                        </div>
                                         <div class="col-12">
                                             <strong>Date Applied:</strong>
                                             <span id="viewRegCreatedAt"></span>
@@ -5210,8 +5214,8 @@
                     // Populate Boat Classification
                     const classificationBadge = document.getElementById('viewRegBoatClassification').innerHTML =
                         `<span class="badge bg-primary" style="font-size: 0.9rem; padding: 0.5rem 0.75rem;">
-        ${data.boat_classification || 'N/A'}
-    </span>`;
+                        ${data.boat_classification || 'N/A'}
+                    </span>`;
                     if (data.boat_classification) {
                         const badgeColor = data.boat_classification === 'Motorized' ? 'primary' : 'warning';
                         classificationBadge.innerHTML =
@@ -5257,6 +5261,19 @@
                     } else {
                         inspectionElement.innerHTML =
                             '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>';
+                    }
+
+                    // Populate Inspection Notes
+                    const inspectionNotesEl = document.getElementById('viewRegInspectionNotes');
+                    const inspectionNotesRow = document.getElementById('viewRegInspectionNotesRow');
+                    if (data.inspection_notes) {
+                        inspectionNotesEl.textContent = data.inspection_notes;
+                        inspectionNotesEl.classList.remove('text-muted', 'fst-italic');
+                        inspectionNotesRow.style.display = 'block';
+                    } else {
+                        inspectionNotesEl.textContent = 'None';
+                        inspectionNotesEl.classList.add('text-muted', 'fst-italic');
+                        inspectionNotesRow.style.display = data.inspection_completed ? 'block' : 'none';
                     }
 
                     document.getElementById('viewRegCreatedAt').textContent = data.created_at || 'N/A';
