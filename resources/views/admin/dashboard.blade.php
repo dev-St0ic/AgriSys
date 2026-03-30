@@ -212,7 +212,7 @@
                                 <div class="ium-preview-placeholder" id="iumPreviewPlaceholder">
                                     <i class="fas fa-cloud-upload-alt"></i>
                                     <p>Drag & drop or <strong>browse</strong> to choose a new image</p>
-                                    <span>PNG, JPG, WEBP — max 5 MB</span>
+                                    <span>PNG, JPG, WEBP — max 10 MB</span>
                                 </div>
                             </div>
                             <div class="ium-drop-indicator" id="iumDropIndicator">
@@ -1159,8 +1159,8 @@
 
             // ── Handle a chosen file ──
             function handleFile(file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    showToast('File exceeds 5 MB limit.', 'error');
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('File exceeds 10 MB limit.', 'error');
                     return;
                 }
                 selectedFile = file;
@@ -1197,6 +1197,8 @@
                 fileInput.value = '';
                 fileMeta.style.display = 'none';
                 uploadBtn.disabled = true;
+                btnText.style.display = 'flex';       // ← force text back
+                btnLoading.style.display = 'none';    // ← force spinner hidden
             }
 
             // ── Upload ──
@@ -2281,6 +2283,7 @@
         .img-upload-overlay {
             position: fixed;
             inset: 0;
+            visibility: hidden;   
             background: rgba(10,14,20,0.65);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
@@ -2296,6 +2299,7 @@
         .img-upload-overlay.active {
             opacity: 1;
             pointer-events: all;
+            visibility: visible;   
         }
 
         /* ── Modal Box ── */
@@ -2441,6 +2445,16 @@
             cursor: pointer; background: #fff;
             transition: border-color 0.2s, background 0.2s;
             white-space: nowrap;
+        }
+        .ium-upload-btn .ium-btn-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ium-btn-loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .ium-browse-btn:hover { border-color: #4CAF50; background: #f0fdf4; color: #4CAF50; }
         .ium-upload-btn {

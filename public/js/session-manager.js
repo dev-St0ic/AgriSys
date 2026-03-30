@@ -563,8 +563,18 @@
             // Check for 401 Unauthorized or 403 Forbidden
             if ((response.status === 401 || response.status === 403) && window.userData) {
 
-                // Only handle if it's not a logout request (logout requests are expected to fail if already expired)
-                if (!args[0].includes('/auth/logout')) {
+                const excludedUrls = [
+                    '/auth/logout',
+                    '/api/user/profile',
+                    '/auth/profile',
+                    '/api/profile',
+                    '/api/user/session-check'
+                ];
+
+                const url = args[0].toString();
+                const isExcluded = excludedUrls.some(excluded => url.includes(excluded));
+
+                if (!isExcluded) {
                     sessionManager.handleSessionExpired('server');
                 }
             }

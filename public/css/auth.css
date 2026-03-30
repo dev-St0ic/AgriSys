@@ -15,6 +15,11 @@ textarea.no-capitalize {
     text-transform: none;
 }
 
+.profile-header-info h4,
+.dropdown-name {
+    text-transform: capitalize;
+}
+
 .profile-action-btn.pending,
 .verification-submit-btn.pending {
     pointer-events: none;

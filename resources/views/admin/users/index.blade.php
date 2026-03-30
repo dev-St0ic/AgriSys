@@ -998,6 +998,7 @@
                                     <div class="col-md-4 mb-3">
                                         <label for="edit_sex" class="form-label fw-semibold">
                                             Sex
+                                            <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="edit_sex" name="sex">
                                             <option value="">Not Specified</option>
@@ -1050,7 +1051,7 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="edit_user_type" class="form-label fw-semibold">
-                                            User Type / Sector
+                                            Sector
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select class="form-select" id="edit_user_type" name="user_type" required>

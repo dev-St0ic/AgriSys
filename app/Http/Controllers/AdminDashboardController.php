@@ -653,7 +653,7 @@ class AdminDashboardController extends Controller
     public function uploadServiceImage(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
             'service_key' => 'required|string|in:rsbsa,seedling,fishr,boatr,training,supply',
         ]);
 
@@ -674,6 +674,12 @@ class AdminDashboardController extends Controller
         $destinationPath = public_path('images/services');
 
         $request->file('image')->move($destinationPath, $newFilename);
+
+        $this->logActivity('image_updated', 'ServiceImage', null, [
+            'service_key' => $key,
+            'filename'    => $newFilename,
+            'updated_by'  => auth()->user()->name,
+        ]);
 
         return response()->json([
             'success' => true,

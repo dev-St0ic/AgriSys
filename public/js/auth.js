@@ -4063,7 +4063,7 @@ let verificationStatusPoll = {
                 });
 
                 // Update local user data
-                window.userData = Object.assign({}, window.userData, user);
+                window.userData.status = serverStatus;
 
                 // Refresh UI button
                 if (typeof refreshProfileVerifyButton === 'function') {

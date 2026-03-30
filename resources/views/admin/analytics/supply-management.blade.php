@@ -697,6 +697,16 @@
             position: relative;
             height: 180px;
         }
+
+        .badge-success-soft {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning-soft {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
     </style>
 @endsection
 

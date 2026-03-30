@@ -367,8 +367,27 @@ function decrementQty(itemId) {
 
 function updateQuantity(itemId) {
     const qtyInput = document.getElementById(`qty-${itemId}`);
-    const quantity = parseInt(qtyInput.value) || 1;
+    const rawValue = qtyInput.value;
+    const quantity = parseInt(rawValue);
     const maxStock = parseInt(qtyInput.max);
+
+    // If empty, NaN, or 0 or less — remove the item
+    if (!rawValue || isNaN(quantity) || quantity <= 0) {
+        qtyInput.value = '';
+        const checkbox = document.querySelector(`input[data-item-id="${itemId}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+        }
+        const qtyWrapper = document.getElementById(`qty-wrapper-${itemId}`);
+        if (qtyWrapper) {
+            qtyWrapper.style.display = 'none';
+        }
+        selectedItems.delete(itemId);
+        updateSelectionSummary();
+        updateCartItemsList();
+        updateProceedButton();
+        return;
+    }
 
     // Validate and cap quantity if it exceeds available stock
     if (quantity > maxStock) {
@@ -927,6 +946,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for manual quantity input (if user types directly)
     document.querySelectorAll('.qty-input').forEach(input => {
         input.addEventListener('change', function() {
+            const itemId = this.id.replace('qty-', '');
+            updateQuantity(itemId);
+        });
+        input.addEventListener('input', function() {
             const itemId = this.id.replace('qty-', '');
             updateQuantity(itemId);
         });

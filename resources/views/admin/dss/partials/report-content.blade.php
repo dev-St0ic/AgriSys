@@ -1,11 +1,20 @@
+<!-- Supplies DSS Report Content -->
+
+@php $isQuarterly = ($data['period']['period_mode'] ?? 'monthly') === 'quarterly'; @endphp
+
 <!-- Executive Summary -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">
                     <i class="fas fa-chart-line me-2"></i>Executive Summary - {{ $data['period']['month'] }}
                 </h5>
+                @if ($isQuarterly)
+                    <span class="quarterly-badge">
+                        <i class="fas fa-calendar-alt"></i> Quarterly
+                    </span>
+                @endif
             </div>
             <div class="card-body">
                 <div class="row">
@@ -13,52 +22,30 @@
                         <p class="lead">{{ $report['report_data']['executive_summary'] }}</p>
 
                         @if (isset($report['report_data']['performance_assessment']))
-                            <div class="d-flex gap-4 mt-3">
+                            <div class="d-flex gap-4 mt-3 flex-wrap">
                                 @php
                                     $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
                                     $ratingColor = match (strtolower($rating)) {
                                         'excellent', 'very good' => 'success',
-                                        'good' => 'primary',
-                                        'fair', 'average' => 'warning',
-                                        'poor', 'critical' => 'danger',
-                                        default => 'secondary',
+                                        'good'                   => 'primary',
+                                        'fair', 'average'        => 'warning',
+                                        'poor', 'critical'       => 'danger',
+                                        default                  => 'secondary',
                                     };
-                                @endphp
-                                @php
-                                    $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
-                                    $ratingColor = match (strtolower($rating)) {
-                                        'excellent', 'very good' => 'success',
-                                        'good' => 'primary',
-                                        'fair', 'average' => 'warning',
-                                        'poor', 'critical' => 'danger',
-                                        default => 'secondary',
-                                    };
+                                    $confidenceScore  = $report['report_data']['confidence_score']  ?? 92;
+                                    $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
+                                    $sourceTitle      = $confidenceSource === 'llm'
+                                        ? 'AI-assessed high confidence'
+                                        : 'High data-quality confidence';
                                 @endphp
                                 <span class="badge bg-{{ $ratingColor }} fs-6">
-                                    Overall Rating: {{ $report['report_data']['performance_assessment']['overall_rating'] ?? 'N/A' }}
+                                    Overall Rating: {{ $rating ?: 'N/A' }}
                                 </span>
-                                @php
-                                    $confidence = $report['report_data']['confidence_level'] ?? 'High';
-                                    $confidenceScore = $report['report_data']['confidence_score'] ?? 92;
-                                    $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
-
-                                    // Display confidence score (always 90-95% range)
-                                    $confidenceDisplay = $confidenceScore . '%';
-
-                                    // Always use success color for high confidence (90-95%)
-                                    $confidenceColor = 'success';
-
-                                    // Add source title for tooltip
-                                    $sourceTitle =
-                                        $confidenceSource === 'llm'
-                                            ? 'AI-assessed high confidence'
-                                            : 'High data-quality confidence';
-                                @endphp
-                                <span class="badge bg-{{ $confidenceColor }} fs-6" title="{{ $sourceTitle }}">
-                                    <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceDisplay }}
+                                <span class="badge bg-success fs-6" title="{{ $sourceTitle }}">
+                                    <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceScore }}%
                                 </span>
                                 <span class="badge bg-secondary fs-6">
-                                    Source: {{ ucfirst($report['source']) }}
+                                    Source: {{ ucfirst($report['source'] ?? 'system') }}
                                 </span>
                             </div>
                         @endif
@@ -68,32 +55,25 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-primary mb-0">
-                                            {{ $data['requests_data']['total_requests'] }}
-                                        </div>
+                                        <div class="h4 text-primary mb-0">{{ $data['requests_data']['total_requests'] }}</div>
                                         <small class="text-muted">Total Requests</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-success mb-0">{{ $data['supply_data']['available_stock'] }}
-                                        </div>
+                                        <div class="h4 text-success mb-0">{{ $data['supply_data']['available_stock'] }}</div>
                                         <small class="text-muted">Available Stock</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-
-                                        <div class="h4 text-warning mb-0">
-                                            {{ count($data['shortage_analysis']['shortages']) }}</div>
+                                        <div class="h4 text-warning mb-0">{{ count($data['shortage_analysis']['shortages']) }}</div>
                                         <small class="text-muted">Critical Shortages</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-
-                                        <div class="h4 text-info mb-0">
-                                            {{ count($data['barangay_analysis']['barangay_details']) }}</div>
+                                        <div class="h4 text-info mb-0">{{ count($data['barangay_analysis']['barangay_details']) }}</div>
                                         <small class="text-muted">Active Barangays</small>
                                     </div>
                                 </div>
@@ -111,12 +91,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-lightbulb me-2"></i>Key Findings
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Key Findings</h5>
             </div>
             <div class="card-body">
-                @if (isset($report['report_data']['key_findings']))
+                @if (!empty($report['report_data']['key_findings']))
                     <ul class="list-unstyled">
                         @foreach ($report['report_data']['key_findings'] as $finding)
                             <li class="mb-2">
@@ -133,12 +111,10 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Critical Issues
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Critical Issues</h5>
             </div>
             <div class="card-body">
-                @if (isset($report['report_data']['critical_issues']) && count($report['report_data']['critical_issues']) > 0)
+                @if (!empty($report['report_data']['critical_issues']))
                     <ul class="list-unstyled">
                         @foreach ($report['report_data']['critical_issues'] as $issue)
                             <li class="mb-2">
@@ -162,9 +138,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clipboard-list me-2"></i>AI-Generated Recommendations
-                    </h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>AI-Generated Recommendations</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -173,15 +147,13 @@
                                 <i class="fas fa-bolt me-1"></i>Immediate Actions
                             </h6>
                             <ul class="list-unstyled">
-                                @if (isset($report['report_data']['recommendations']['immediate_actions']))
-                                    @foreach ($report['report_data']['recommendations']['immediate_actions'] as $action)
-                                        <li class="mb-2">
-                                            <span class="badge bg-danger me-2">NOW</span>{{ $action }}
-                                        </li>
-                                    @endforeach
-                                @else
+                                @forelse ($report['report_data']['recommendations']['immediate_actions'] ?? [] as $action)
+                                    <li class="mb-2">
+                                        <span class="badge bg-danger me-2">NOW</span>{{ $action }}
+                                    </li>
+                                @empty
                                     <li class="mb-2 text-muted">No immediate actions identified.</li>
-                                @endif
+                                @endforelse
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -189,15 +161,13 @@
                                 <i class="fas fa-calendar-week me-1"></i>Short-term Strategies
                             </h6>
                             <ul class="list-unstyled">
-                                @if (isset($report['report_data']['recommendations']['short_term_strategies']))
-                                    @foreach ($report['report_data']['recommendations']['short_term_strategies'] as $strategy)
-                                        <li class="mb-2">
-                                            <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
-                                        </li>
-                                    @endforeach
-                                @else
+                                @forelse ($report['report_data']['recommendations']['short_term_strategies'] ?? [] as $strategy)
+                                    <li class="mb-2">
+                                        <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
+                                    </li>
+                                @empty
                                     <li class="mb-2 text-muted">No short-term strategies available.</li>
-                                @endif
+                                @endforelse
                             </ul>
                         </div>
                     </div>
@@ -212,9 +182,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-dark text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-map-marker-alt me-2"></i>Top Requesting Barangays
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Top Requesting Barangays</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -228,16 +196,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(array_slice($data['barangay_analysis']['barangay_details'] ?? [], 0, 5) as $barangay)
+                            @forelse (array_slice($data['barangay_analysis']['barangay_details'] ?? [], 0, 5) as $barangay)
                                 <tr>
                                     <td>{{ $barangay['name'] ?? 'Unknown' }}</td>
                                     <td>{{ $barangay['requests'] ?? 0 }}</td>
                                     <td>{{ $barangay['total_quantity'] ?? 0 }}</td>
                                     <td>
-                                        <span
-                                            class="badge bg-{{ ($barangay['priority_level'] ?? 'LOW') == 'HIGH' ? 'danger' : (($barangay['priority_level'] ?? 'LOW') == 'MEDIUM' ? 'warning' : 'success') }}">
-                                            {{ $barangay['priority_level'] ?? 'LOW' }}
-                                        </span>
+                                        @php
+                                            $pl = $barangay['priority_level'] ?? 'LOW';
+                                            $plColor = $pl === 'HIGH' ? 'danger' : ($pl === 'MEDIUM' ? 'warning' : 'success');
+                                        @endphp
+                                        <span class="badge bg-{{ $plColor }}">{{ $pl }}</span>
                                     </td>
                                 </tr>
                             @empty
@@ -254,9 +223,7 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-dark text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-exclamation-circle me-2"></i>Critical Shortages
-                </h5>
+                <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Critical Shortages</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -270,7 +237,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(array_slice($data['shortage_analysis']['shortages'] ?? [], 0, 5) as $shortage)
+                            @forelse (array_slice($data['shortage_analysis']['shortages'] ?? [], 0, 5) as $shortage)
                                 <tr>
                                     <td>{{ $shortage['item'] ?? 'Unknown' }}</td>
                                     <td>{{ $shortage['demanded'] ?? 0 }}</td>
@@ -300,12 +267,14 @@
                         <small class="text-muted">
                             <strong>Report Generated:</strong> {{ $report['generated_at'] ?? now() }}<br>
                             <strong>Analysis Source:</strong> {{ ucfirst($report['source'] ?? 'system') }}
-                            @if (isset($report['source']) && $report['source'] === 'llm')
+                            @if (($report['source'] ?? '') === 'llm')
                                 ({{ $report['model_used'] ?? 'AI Model' }})
                             @endif
                             <br>
-                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to
-                            {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            @if ($isQuarterly)
+                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly Report</span>
+                            @endif
                         </small>
                     </div>
                     <div class="col-md-4 text-end">

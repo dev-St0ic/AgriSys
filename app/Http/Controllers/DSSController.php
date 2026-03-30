@@ -16,7 +16,7 @@ class DSSController extends Controller
 
     public function __construct(DSSDataService $dataService, DSSReportService $reportService)
     {
-        $this->dataService = $dataService;
+        $this->dataService   = $dataService;
         $this->reportService = $reportService;
     }
 
@@ -26,25 +26,29 @@ class DSSController extends Controller
     public function preview(Request $request)
     {
         try {
-            // Check if this is an AJAX request for data loading
             if ($request->ajax()) {
                 $response = $this->loadDataAjax($request);
 
-                // Log activity only on successful data load
                 if ($response->getData()->success ?? false) {
-                    $service = $request->get('service', 'comprehensive');
-                    $month = $request->get('month', now()->format('m'));
-                    $year = $request->get('year', now()->format('Y'));
-                    $monthYear = Carbon::createFromDate($year, $month, 1)->format('F Y');
+                    $service    = $request->get('service', 'comprehensive');
+                    $periodMode = $request->get('period_mode', 'monthly');
+                    $year       = $request->get('year', now()->format('Y'));
+
+                    if ($periodMode === 'quarterly') {
+                        $quarter     = $request->get('quarter', (string) ceil(now()->month / 3));
+                        $periodLabel = "Q{$quarter} {$year}";
+                    } else {
+                        $month       = $request->get('month', now()->format('m'));
+                        $periodLabel = Carbon::createFromDate($year, $month, 1)->format('F Y');
+                    }
 
                     $serviceTypes = [
                         'comprehensive' => 'Supplies',
-                        'training' => 'Training',
-                        'rsbsa' => 'RSBSA',
-                        'fishr' => 'FishR',
-                        'boatr' => 'BoatR'
+                        'training'      => 'Training',
+                        'rsbsa'         => 'RSBSA',
+                        'fishr'         => 'FishR',
+                        'boatr'         => 'BoatR',
                     ];
-
                     $serviceName = $serviceTypes[$service] ?? 'Comprehensive';
 
                     activity()
@@ -52,32 +56,29 @@ class DSSController extends Controller
                         ->event('dss_report_viewed')
                         ->withProperties([
                             'report_type' => $serviceName,
-                            'month' => $month,
-                            'year' => $year,
-                            'period' => $monthYear,
-                            'ip_address' => $request->ip(),
-                            'user_agent' => $request->userAgent()
+                            'period_mode' => $periodMode,
+                            'period'      => $periodLabel,
+                            'ip_address'  => $request->ip(),
+                            'user_agent'  => $request->userAgent(),
                         ])
-                        ->log("Viewed {$serviceName} DSS Report for {$monthYear}");
+                        ->log("Viewed {$serviceName} DSS Report for {$periodLabel}");
                 }
 
                 return $response;
             }
 
-            // Get service type from request (default: comprehensive)
-            $service = $request->get('service', 'comprehensive');
+            $service    = $request->get('service', 'comprehensive');
+            $month      = $request->get('month', now()->format('m'));
+            $year       = $request->get('year', now()->format('Y'));
+            $periodMode = $request->get('period_mode', 'monthly');
+            $quarter    = $request->get('quarter', (string) ceil(now()->month / 3));
 
-            // Get month and year from request or default to current
-            $month = $request->get('month', now()->format('m'));
-            $year = $request->get('year', now()->format('Y'));
-
-            // For initial page load, show page with loading state
-            return view('admin.dss.preview', compact('month', 'year', 'service'));
+            return view('admin.dss.preview', compact('month', 'year', 'service', 'periodMode', 'quarter'));
 
         } catch (\Exception $e) {
             Log::error('DSS Preview Generation Failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()->with('error', 'Failed to generate DSS preview: ' . $e->getMessage());
@@ -85,59 +86,42 @@ class DSSController extends Controller
     }
 
     /**
-     * Load DSS data via AJAX to prevent timeouts
+     * Load DSS data via AJAX
      */
     public function loadDataAjax(Request $request)
     {
         try {
-            $month = $request->get('month', now()->format('m'));
-            $year = $request->get('year', now()->format('Y'));
-            $service = $request->get('service', 'comprehensive');
+            $month      = $request->get('month', now()->format('m'));
+            $year       = $request->get('year', now()->format('Y'));
+            $service    = $request->get('service', 'comprehensive');
+            $periodMode = $request->get('period_mode', 'monthly');
+            $quarter    = $request->get('quarter', null);
 
-            // Set longer timeout for this operation
-            set_time_limit(300); // 5 minutes
+            set_time_limit(300);
 
-            // Collect data based on service type
-            if ($service === 'training') {
-                $data = $this->dataService->collectTrainingData($month, $year);
-                $report = $this->reportService->generateTrainingReport($data);
-                $viewPartial = 'admin.dss.partials.training-content';
-            } elseif ($service === 'rsbsa') {
-                $data = $this->dataService->collectRsbsaData($month, $year);
-                $report = $this->reportService->generateRsbsaReport($data);
-                $viewPartial = 'admin.dss.partials.rsbsa-content';
-            } elseif ($service === 'fishr') {
-                $data = $this->dataService->collectFishrData($month, $year);
-                $report = $this->reportService->generateFishrReport($data);
-                $viewPartial = 'admin.dss.partials.fishr-content';
-            } elseif ($service === 'boatr') {
-                $data = $this->dataService->collectBoatrData($month, $year);
-                $report = $this->reportService->generateBoatrReport($data);
-                $viewPartial = 'admin.dss.partials.boatr-content';
-            } else {
-                // Comprehensive report (default)
-                $data = $this->dataService->collectMonthlyData($month, $year);
-                $report = $this->reportService->generateReport($data);
-                $viewPartial = 'admin.dss.partials.report-content';
-            }
+            [$data, $report, $viewPartial] = $this->resolveServiceData(
+                $service, $month, $year, $periodMode, $quarter
+            );
 
             return response()->json([
                 'success' => true,
-                'data' => $data,
-                'report' => $report,
-                'html' => view($viewPartial, compact('data', 'report'))->render()
+                'data'    => $data,
+                'report'  => $report,
+                'html'    => view($viewPartial, compact('data', 'report'))->render(),
             ]);
 
         } catch (\Exception $e) {
             Log::error('DSS AJAX Data Loading Failed', [
-                'error' => $e->getMessage(),
-                'month' => $request->get('month'),
-                'year' => $request->get('year'),
+                'error'       => $e->getMessage(),
+                'month'       => $request->get('month'),
+                'year'        => $request->get('year'),
+                'period_mode' => $request->get('period_mode'),
+                'quarter'     => $request->get('quarter'),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to load DSS data: ' . $e->getMessage()
+                'message' => 'Failed to load DSS data: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -148,57 +132,42 @@ class DSSController extends Controller
     public function downloadPDF(Request $request)
     {
         try {
-            $month = $request->get('month', now()->format('m'));
-            $year = $request->get('year', now()->format('Y'));
-            $service = $request->get('service', 'comprehensive');
+            $month      = $request->get('month', now()->format('m'));
+            $year       = $request->get('year', now()->format('Y'));
+            $service    = $request->get('service', 'comprehensive');
+            $periodMode = $request->get('period_mode', 'monthly');
+            $quarter    = $request->get('quarter', null);
 
-            // Collect data based on service type
-            if ($service === 'training') {
-                $data = $this->dataService->collectTrainingData($month, $year);
-                $report = $this->reportService->generateTrainingReport($data);
-                $view = 'admin.dss.pdf-training';
-                $filename = 'Training_DSS_Report_';
-            } elseif ($service === 'rsbsa') {
-                $data = $this->dataService->collectRsbsaData($month, $year);
-                $report = $this->reportService->generateRsbsaReport($data);
-                $view = 'admin.dss.pdf-rsbsa';
-                $filename = 'RSBSA_DSS_Report_';
-            } elseif ($service === 'fishr') {
-                $data = $this->dataService->collectFishrData($month, $year);
-                $report = $this->reportService->generateFishrReport($data);
-                $view = 'admin.dss.pdf-fishr';
-                $filename = 'FISHR_DSS_Report_';
-            } elseif ($service === 'boatr') {
-                $data = $this->dataService->collectBoatrData($month, $year);
-                $report = $this->reportService->generateBoatrReport($data);
-                $view = 'admin.dss.pdf-boatr';
-                $filename = 'BOATR_DSS_Report_';
-            } else {
-                $data = $this->dataService->collectMonthlyData($month, $year);
-                $report = $this->reportService->generateReport($data);
-                $view = 'admin.dss.pdf-report';
-                $filename = 'Supplies_DSS_Report_';
-            }
+            [$data, $report] = $this->resolveServiceData(
+                $service, $month, $year, $periodMode, $quarter
+            );
 
-            // Generate PDF
+            $viewMap = [
+                'training'     => 'admin.dss.pdf-training',
+                'rsbsa'        => 'admin.dss.pdf-rsbsa',
+                'fishr'        => 'admin.dss.pdf-fishr',
+                'boatr'        => 'admin.dss.pdf-boatr',
+                'comprehensive'=> 'admin.dss.pdf-report',
+            ];
+            $view = $viewMap[$service] ?? 'admin.dss.pdf-report';
+
             $pdf = Pdf::loadView($view, compact('data', 'report'))
                 ->setPaper('a4', 'portrait')
                 ->setOptions([
-                    'defaultFont' => 'Arial',
-                    'isRemoteEnabled' => true,
-                    'isHtml5ParserEnabled' => true,
+                    'defaultFont'         => 'Arial',
+                    'isRemoteEnabled'     => true,
+                    'isHtml5ParserEnabled'=> true,
                 ]);
 
-            $filename .= Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.pdf';
+            $periodLabel = $data['period']['month'];
+            $filename    = $this->buildFilename($service, $periodMode, $year, $month, $quarter, 'pdf');
 
-            // Log activity
-            $monthYear = Carbon::createFromDate($year, $month, 1)->format('F Y');
             $serviceTypes = [
                 'comprehensive' => 'Supplies',
-                'training' => 'Training',
-                'rsbsa' => 'RSBSA',
-                'fishr' => 'FishR',
-                'boatr' => 'BoatR'
+                'training'      => 'Training',
+                'rsbsa'         => 'RSBSA',
+                'fishr'         => 'FishR',
+                'boatr'         => 'BoatR',
             ];
             $serviceName = $serviceTypes[$service] ?? 'Comprehensive';
 
@@ -207,22 +176,21 @@ class DSSController extends Controller
                 ->event('dss_report_downloaded')
                 ->withProperties([
                     'report_type' => $serviceName,
-                    'month' => $month,
-                    'year' => $year,
-                    'period' => $monthYear,
-                    'filename' => $filename,
-                    'format' => 'PDF',
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent()
+                    'period_mode' => $periodMode,
+                    'period'      => $periodLabel,
+                    'filename'    => $filename,
+                    'format'      => 'PDF',
+                    'ip_address'  => $request->ip(),
+                    'user_agent'  => $request->userAgent(),
                 ])
-                ->log("Downloaded {$serviceName} DSS Report (PDF) for {$monthYear}");
+                ->log("Downloaded {$serviceName} DSS Report (PDF) for {$periodLabel}");
 
             return $pdf->download($filename);
 
         } catch (\Exception $e) {
             Log::error('DSS PDF Generation Failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()->with('error', 'Failed to generate PDF report: ' . $e->getMessage());
@@ -235,37 +203,18 @@ class DSSController extends Controller
     public function downloadWord(Request $request)
     {
         try {
-            $month = $request->get('month', now()->format('m'));
-            $year = $request->get('year', now()->format('Y'));
-            $service = $request->get('service', 'comprehensive');
+            $month      = $request->get('month', now()->format('m'));
+            $year       = $request->get('year', now()->format('Y'));
+            $service    = $request->get('service', 'comprehensive');
+            $periodMode = $request->get('period_mode', 'monthly');
+            $quarter    = $request->get('quarter', null);
 
-            // Collect data based on service type
-            if ($service === 'training') {
-                $data = $this->dataService->collectTrainingData($month, $year);
-                $report = $this->reportService->generateTrainingReport($data);
-                $filename = 'Training_DSS_Report_';
-            } elseif ($service === 'rsbsa') {
-                $data = $this->dataService->collectRsbsaData($month, $year);
-                $report = $this->reportService->generateRsbsaReport($data);
-                $filename = 'RSBSA_DSS_Report_';
-            } elseif ($service === 'fishr') {
-                $data = $this->dataService->collectFishrData($month, $year);
-                $report = $this->reportService->generateFishrReport($data);
-                $filename = 'FISHR_DSS_Report_';
-            } elseif ($service === 'boatr') {
-                $data = $this->dataService->collectBoatrData($month, $year);
-                $report = $this->reportService->generateBoatrReport($data);
-                $filename = 'BOATR_DSS_Report_';
-            } else {
-                $data = $this->dataService->collectMonthlyData($month, $year);
-                $report = $this->reportService->generateReport($data);
-                $filename = 'Supplies_DSS_Report_';
-            }
+            [$data, $report] = $this->resolveServiceData(
+                $service, $month, $year, $periodMode, $quarter
+            );
 
-            // Create Word document content
             $wordContent = $this->generateWordContent($data, $report);
-
-            $filename .= Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.doc';
+            $filename    = $this->buildFilename($service, $periodMode, $year, $month, $quarter, 'doc');
 
             return response($wordContent)
                 ->header('Content-Type', 'application/msword')
@@ -274,7 +223,7 @@ class DSSController extends Controller
         } catch (\Exception $e) {
             Log::error('DSS Word Generation Failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()->with('error', 'Failed to generate Word document: ' . $e->getMessage());
@@ -282,78 +231,149 @@ class DSSController extends Controller
     }
 
     /**
-     * Get fresh data via AJAX
+     * Refresh data — bypasses cache
      */
     public function refreshData(Request $request)
     {
         try {
-            $month   = $request->get('month', now()->format('m'));
-            $year    = $request->get('year',  now()->format('Y'));
-            $service = $request->get('service', 'comprehensive');
+            $month      = $request->get('month', now()->format('m'));
+            $year       = $request->get('year', now()->format('Y'));
+            $service    = $request->get('service', 'comprehensive');
+            $periodMode = $request->get('period_mode', 'monthly');
+            $quarter    = $request->get('quarter', null);
 
-            // Clear ALL caches once
-            $this->dataService->clearCache($month, $year);
+            // Clear the specific period cache then flush everything
+            $this->dataService->clearCache($month, $year, $periodMode, $quarter);
             \Cache::flush();
 
-            if ($service === 'training') {
-                $data   = $this->dataService->collectTrainingData($month, $year);
-                $report = $this->reportService->generateTrainingReport($data);
-            } elseif ($service === 'rsbsa') {
-                $data   = $this->dataService->collectRsbsaData($month, $year);
-                $report = $this->reportService->generateRsbsaReport($data);
-            } elseif ($service === 'fishr') {
-                $data   = $this->dataService->collectFishrData($month, $year);
-                $report = $this->reportService->generateFishrReport($data);
-            } elseif ($service === 'boatr') {
-                $data   = $this->dataService->collectBoatrData($month, $year);
-                $report = $this->reportService->generateBoatrReport($data);
-            } else {
-                $data   = $this->dataService->collectMonthlyData($month, $year);
-                $report = $this->reportService->generateReport($data);
-            }
+            [$data, $report] = $this->resolveServiceData(
+                $service, $month, $year, $periodMode, $quarter
+            );
 
             return response()->json([
                 'success' => true,
                 'data'    => $data,
                 'report'  => $report,
-                'message' => 'Data refreshed successfully'
+                'message' => 'Data refreshed successfully',
             ]);
 
         } catch (\Exception $e) {
             Log::error('DSS Data Refresh Failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to refresh data: ' . $e->getMessage()
+                'message' => 'Failed to refresh data: ' . $e->getMessage(),
             ], 500);
         }
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    // PRIVATE HELPERS
+    // ─────────────────────────────────────────────────────────────────
+
     /**
-     * Generate Word document content
+     * Collect data + generate report for the given service and period.
+     * Returns [$data, $report] — or [$data, $report, $viewPartial] when
+     * called from loadDataAjax (the third element is always present but
+     * callers that don't need it can simply ignore it via list assignment).
+     */
+    private function resolveServiceData(
+        string $service,
+        string $month,
+        string $year,
+        string $periodMode = 'monthly',
+        ?string $quarter   = null
+    ): array {
+        $views = [
+            'training'      => 'admin.dss.partials.training-content',
+            'rsbsa'         => 'admin.dss.partials.rsbsa-content',
+            'fishr'         => 'admin.dss.partials.fishr-content',
+            'boatr'         => 'admin.dss.partials.boatr-content',
+            'comprehensive' => 'admin.dss.partials.report-content',
+        ];
+
+        switch ($service) {
+            case 'training':
+                $data   = $this->dataService->collectTrainingData($month, $year, $periodMode, $quarter);
+                $report = $this->reportService->generateTrainingReport($data);
+                break;
+            case 'rsbsa':
+                $data   = $this->dataService->collectRsbsaData($month, $year, $periodMode, $quarter);
+                $report = $this->reportService->generateRsbsaReport($data);
+                break;
+            case 'fishr':
+                $data   = $this->dataService->collectFishrData($month, $year, $periodMode, $quarter);
+                $report = $this->reportService->generateFishrReport($data);
+                break;
+            case 'boatr':
+                $data   = $this->dataService->collectBoatrData($month, $year, $periodMode, $quarter);
+                $report = $this->reportService->generateBoatrReport($data);
+                break;
+            default:
+                $data   = $this->dataService->collectMonthlyData($month, $year, $periodMode, $quarter);
+                $report = $this->reportService->generateReport($data);
+                break;
+        }
+
+        $viewPartial = $views[$service] ?? $views['comprehensive'];
+
+        return [$data, $report, $viewPartial];
+    }
+
+    /**
+     * Build a consistent download filename for PDF and Word exports.
+     */
+    private function buildFilename(
+        string  $service,
+        string  $periodMode,
+        string  $year,
+        string  $month,
+        ?string $quarter,
+        string  $extension
+    ): string {
+        $prefixes = [
+            'training'      => 'Training_DSS_Report_',
+            'rsbsa'         => 'RSBSA_DSS_Report_',
+            'fishr'         => 'FISHR_DSS_Report_',
+            'boatr'         => 'BOATR_DSS_Report_',
+            'comprehensive' => 'Supplies_DSS_Report_',
+        ];
+        $prefix = $prefixes[$service] ?? 'Supplies_DSS_Report_';
+
+        $suffix = $periodMode === 'quarterly'
+            ? "Q{$quarter}_{$year}"
+            : Carbon::createFromDate($year, $month, 1)->format('Y_m');
+
+        return "{$prefix}{$suffix}.{$extension}";
+    }
+
+    /**
+     * Generate Word document HTML content
      */
     private function generateWordContent(array $data, array $report): string
     {
-        $reportData = $report['report_data'];
-        $period = $data['period']['month'];
+        $reportData  = $report['report_data'];
+        $period      = $data['period']['month'];
+        $periodMode  = $data['period']['period_mode'] ?? 'monthly';
 
-        // Safely get performance assessment with fallbacks
-        $pa = $reportData['performance_assessment'] ?? [];
-        $overallRating      = $pa['overall_rating']         ?? 'N/A';
-        $approvalEfficiency = $pa['approval_efficiency']    ?? 'N/A';
-        $supplyAdequacy     = $pa['supply_adequacy']        ?? null;
-        $geoCoverage        = $pa['geographic_coverage']    ?? null;
-        $registrationEff    = $pa['registration_efficiency'] ?? null;
-        $agriDiversity      = $pa['agricultural_diversity'] ?? null;
-        $landUtilization    = $pa['land_utilization']       ?? null;
-        $trainingDiversity  = $pa['training_diversity']     ?? null;
-        $geographicReach    = $pa['geographic_reach']       ?? null;
-        $coverageAdequacy   = $pa['coverage_adequacy']      ?? null;
-        $inspectionEffect   = $pa['inspection_effectiveness'] ?? null;
-        $trendAnalysis      = $pa['trend_analysis']         ?? null;
+        $pa                 = $reportData['performance_assessment'] ?? [];
+        $overallRating      = $pa['overall_rating']              ?? 'N/A';
+        $approvalEfficiency = $pa['approval_efficiency']         ?? 'N/A';
+        $supplyAdequacy     = $pa['supply_adequacy']             ?? null;
+        $geoCoverage        = $pa['geographic_coverage']         ?? null;
+        $registrationEff    = $pa['registration_efficiency']     ?? null;
+        $agriDiversity      = $pa['agricultural_diversity']      ?? null;
+        $landUtilization    = $pa['land_utilization']            ?? null;
+        $trainingDiversity  = $pa['training_diversity']          ?? null;
+        $geographicReach    = $pa['geographic_reach']            ?? null;
+        $coverageAdequacy   = $pa['coverage_adequacy']           ?? null;
+        $inspectionEffect   = $pa['inspection_effectiveness']    ?? null;
+        $trendAnalysis      = $pa['trend_analysis']              ?? null;
+
+        $periodTypeLabel = $periodMode === 'quarterly' ? 'Quarterly Report' : 'Monthly Report';
 
         $html = "
         <html>
@@ -364,6 +384,7 @@ class DSSController extends Controller
         <body style='font-family: Arial, sans-serif; margin: 20px;'>
             <h1 style='color: #2E7D32; text-align: center;'>Decision Support System Report</h1>
             <h2 style='color: #4CAF50; text-align: center;'>{$period}</h2>
+            <p style='text-align: center; color: #666; font-size: 13px;'>{$periodTypeLabel}</p>
             <hr>
 
             <h3>Executive Summary</h3>
@@ -373,7 +394,6 @@ class DSSController extends Controller
             <p><strong>Overall Rating:</strong> {$overallRating}</p>
             <p><strong>Approval Efficiency:</strong> {$approvalEfficiency}</p>";
 
-        // Conditionally add keys depending on which exist
         if ($supplyAdequacy)    $html .= "<p><strong>Supply Adequacy:</strong> {$supplyAdequacy}</p>";
         if ($geoCoverage)       $html .= "<p><strong>Geographic Coverage:</strong> {$geoCoverage}</p>";
         if ($registrationEff)   $html .= "<p><strong>Registration Efficiency:</strong> {$registrationEff}</p>";
@@ -405,12 +425,14 @@ class DSSController extends Controller
             $html .= "<li>{$strategy}</li>";
         }
 
-       $html .= "</ul>
+        $html .= "</ul>
             <hr>
             <p style='font-size: 12px; color: #666;'>
                 Report generated on " . now()->format('F j, Y \a\t g:i A') . "<br>
                 Source: " . ($report['source'] ?? 'N/A') . "<br>
-                Confidence Level: " . (isset($reportData['confidence_score']) ? $reportData['confidence_score'] . '%' : ($reportData['confidence_level'] ?? 'N/A')) . "
+                Confidence Level: " . (isset($reportData['confidence_score'])
+                    ? $reportData['confidence_score'] . '%'
+                    : ($reportData['confidence_level'] ?? 'N/A')) . "
             </p>
         </body>
         </html>";
@@ -426,14 +448,13 @@ class DSSController extends Controller
         $periods = [];
         $currentDate = now();
 
-        // Generate last 12 months
         for ($i = 0; $i < 12; $i++) {
-            $date = $currentDate->copy()->subMonths($i);
+            $date      = $currentDate->copy()->subMonths($i);
             $periods[] = [
                 'month' => $date->format('m'),
-                'year' => $date->format('Y'),
+                'year'  => $date->format('Y'),
                 'label' => $date->format('F Y'),
-                'value' => $date->format('Y-m')
+                'value' => $date->format('Y-m'),
             ];
         }
 
@@ -452,24 +473,24 @@ class DSSController extends Controller
                 $cachedData = \Cache::get($cacheKey);
 
                 return [
-                    'exists' => true,
+                    'exists'       => true,
                     'generated_at' => $cachedData['generated_at'] ?? now()->format('Y-m-d H:i:s'),
-                    'source' => $cachedData['report']['source'] ?? 'Not Available',
+                    'source'       => $cachedData['report']['source'] ?? 'Not Available',
                     'period_start' => now()->startOfMonth()->format('Y-m-d'),
-                    'period_end' => now()->endOfMonth()->format('Y-m-d'),
-                    'period_label' => now()->format('F Y')
+                    'period_end'   => now()->endOfMonth()->format('Y-m-d'),
+                    'period_label' => now()->format('F Y'),
                 ];
             }
 
             return [
-                'exists' => false,
-                'message' => 'No report generated yet for this period'
+                'exists'  => false,
+                'message' => 'No report generated yet for this period',
             ];
 
         } catch (\Exception $e) {
             return [
-                'exists' => false,
-                'message' => 'Unable to fetch report metadata'
+                'exists'  => false,
+                'message' => 'Unable to fetch report metadata',
             ];
         }
     }

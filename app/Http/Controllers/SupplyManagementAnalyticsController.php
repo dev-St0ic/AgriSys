@@ -19,13 +19,18 @@ class SupplyManagementAnalyticsController extends Controller
     public function index(Request $request)
     {
         try {
+
+            $earliestRecord = \App\Models\ItemSupplyLog::min('created_at');
+                $defaultStart   = $earliestRecord
+                    ? Carbon::parse($earliestRecord)->format('Y-m-d')
+                    : now()->subYears(3)->format('Y-m-d');
             // Log analytics view
             if (auth()->check()) {
                 activity()
                     ->causedBy(auth()->user())
                     ->withProperties([
                         'analytics_type' => 'SupplyManagementAnalytics',
-                        'start_date' => $request->get('start_date', now()->subMonths(6)->format('Y-m-d')),
+                        'start_date' => $request->get('start_date', $defaultStart),
                         'end_date' => $request->get('end_date', now()->format('Y-m-d')),
                         'ip_address' => $request->ip(),
                         'user_agent' => $request->userAgent()
@@ -35,8 +40,8 @@ class SupplyManagementAnalyticsController extends Controller
             }
 
             // Date range filter with better defaults
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate = $request->get('end_date', now()->format('Y-m-d'));
+            $startDate = $request->get('start_date', $defaultStart);
+            $endDate   = $request->get('end_date', now()->format('Y-m-d'));
 
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');

@@ -116,12 +116,12 @@ class SmsService
     public function sendAccountVerificationNotification($phoneNumber, $fullName, $status, $reason = null)
     {
         if ($status === 'approved') {
-            $message = "Congratulations {$fullName}! Your AgriSys account has been APPROVED. You can now access all features. Welcome to AgriSys!";
+            $message = "Congratulations {$fullName}! \n\nYour AgriSys account has been APPROVED. You can now access all features. \n\nWelcome to AgriSys!";
         } elseif ($status === 'rejected') {
             $reasonText = $reason ? " Reason: {$reason}" : "";
-            $message = "Hello {$fullName}, your AgriSys account verification was not approved.{$reasonText} Please contact support for assistance.";
+            $message = "Hello {$fullName}, your AgriSys account verification was not approved. \n\nPlease contact support for assistance.";
         } else {
-            $message = "Hello {$fullName}, your AgriSys account status has been updated to: " . ucfirst($status);
+            $message = "Hello {$fullName}, your AgriSys account status has been updated to: \n\n" . ucfirst($status);
         }
 
         return $this->sendSms($phoneNumber, $message);
@@ -141,23 +141,26 @@ class SmsService
     {
         if ($status === 'approved') {
             if (stripos($applicationType, 'Seedling') !== false || stripos($applicationType, 'Supplies') !== false) {
-                $message = "Good news, {$fullName}! Your {$applicationType} request has been APPROVED. You have 30 DAYS to claim your items at the City Agriculture Office (Mon-Fri, 8AM-5PM). Bring: 1) Valid Government ID, 2) Proof of Residency. - AgriSys";
+                $message = "Good news, {$fullName}! \n\nYour Supplies Request request has been APPROVED. \n\nYou have 30 DAYS to claim your items at the City Agriculture Office (Mon-Fri, 8AM-5PM). \n\nBring: \n1) Valid Government ID \n2) Proof of Residency \n\n- AgriSys";
             } elseif (stripos($applicationType, 'RSBSA') !== false) {
-                $message = "Good news, {$fullName}! Your RSBSA application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Barangay Certificate, 2) Recent 2x2 ID Picture (white background). - AgriSys";
+                $message = "Good news, {$fullName}! \n\nYour RSBSA application has been APPROVED. \n\nPlease proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM). \n\nBring: \n1) Barangay Certificate \n2) Recent 2x2 ID Picture (white background) \n\n- AgriSys";
             } elseif (stripos($applicationType, 'FishR') !== false) {
-                $message = "Good news, {$fullName}! Your FishR application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Barangay Certificate, 2) Recent 1x1 ID Picture (white background). - AgriSys";
+                $message = "Good news, {$fullName}! \n\nYour FishR application has been APPROVED. \n\nPlease proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM). \n\nBring: \n1) Barangay Certificate \n2) Recent 1x1 ID Picture (white background) \n\n- AgriSys";
             } elseif (stripos($applicationType, 'BoatR') !== false) {
-                $message = "Good news, {$fullName}! Your BoatR application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Valid Government ID, 2) Proof of Boat Ownership, 3) FishR Registration Certificate, 4) Engine Details/Receipt (if motorized). An on-site boat inspection will be scheduled. - AgriSys";
+                $message = "Good news, {$fullName}! \n\nYour BoatR application has been APPROVED. \n\nPlease proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM). \n\nBring: \n1) Valid Government ID \n2) Proof of Boat Ownership, \n3) FishR Registration Certificate \n4) Engine Details/Receipt (if motorized) \n\nAn on-site boat inspection will be scheduled. \n\n- AgriSys";
             } elseif (stripos($applicationType, 'Training') !== false) {
-                $message = "Good news, {$fullName}! Your Training application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) and bring: 1) Valid Government ID, 2) Proof of Residency in San Pedro City. Training schedule will be announced. - AgriSys";
+                $message = "Good news, {$fullName}! \n\nYour Training application has been APPROVED. \n\nPlease proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM). \n\nBring: \n1) Valid Government ID \n2) Proof of Residency in San Pedro City \n\nTraining schedule will be announced. \n\n- AgriSys";
             } else {
-                $message = "Good news, {$fullName}! Your {$applicationType} application has been APPROVED. Please proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM) to complete the next steps. Bring a valid ID. - AgriSys";
+                $message = "Good news, {$fullName}! \n\nYour {$applicationType} application has been APPROVED. \n\nPlease proceed to the City Agriculture Office (Mon-Fri, 8AM-5PM). to complete the next steps. \n\nBring a valid ID. \n\n- AgriSys";
             }
         } elseif ($status === 'rejected') {
-            $reasonText = $reason ? " Reason: {$reason}" : "";
-            $message = "Hello {$fullName}, your {$applicationType} application was not approved.{$reasonText} Please contact our office for assistance. - AgriSys";
-        } else {
-            $message = "Hello {$fullName}, your {$applicationType} application status has been updated to: " . ucfirst($status) . " - AgriSys";
+            $reasonText = $reason ? "\n\nReason: {$reason}" : "";
+            
+            if (stripos($applicationType, 'Seedling') !== false || stripos($applicationType, 'Supplies') !== false) {
+                $message = "Hello {$fullName},\n\nYour Supplies Request application was not approved.{$reasonText}\n\nPlease contact our office for assistance.\n\n- AgriSys";
+            } else {
+                $message = "Hello {$fullName},\n\nYour {$applicationType} application was not approved.{$reasonText}\n\nPlease contact our office for assistance.\n\n- AgriSys";
+            }
         }
 
         return $this->sendSms($phoneNumber, $message);
