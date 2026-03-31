@@ -114,7 +114,7 @@ class FishrAnalyticsController extends Controller
             $total = $baseQuery->count();
             $approved = (clone $baseQuery)->where('status', 'approved')->count();
             $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
-            $pending = (clone $baseQuery)->where('status', 'under_review')->count();
+            $pending = (clone $baseQuery)->whereIn('status', ['pending', 'under_review'])->count();
 
             // Count unique applicants safely
             $uniqueApplicants = (clone $baseQuery)
@@ -162,7 +162,7 @@ class FishrAnalyticsController extends Controller
                 ->toArray();
 
             // Ensure all statuses are present with default values
-            $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'under_review' => 0];
+            $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
 
             // Add percentage calculations
@@ -180,8 +180,8 @@ class FishrAnalyticsController extends Controller
         } catch (\Exception $e) {
             Log::error('FISHR Status Analysis Error: ' . $e->getMessage());
             return [
-                'counts' => ['approved' => 0, 'rejected' => 0, 'under_review' => 0],
-                'percentages' => ['approved' => 0, 'rejected' => 0, 'under_review' => 0],
+                'counts' => ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0],
+                'percentages' => ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0],
                 'total' => 0
             ];
         }
@@ -199,7 +199,7 @@ class FishrAnalyticsController extends Controller
                     DB::raw('COUNT(*) as total_applications'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
-                    DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
+                    DB::raw('SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending'),
                     DB::raw('SUM(CASE WHEN document_path IS NOT NULL AND document_path != "" THEN 1 ELSE 0 END) as with_documents'),
                     DB::raw('COUNT(DISTINCT barangay) as unique_barangays')
                 )
@@ -225,7 +225,7 @@ class FishrAnalyticsController extends Controller
                     DB::raw('COUNT(*) as total_applications'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
-                    DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
+                    DB::raw('SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending'),
                     DB::raw('COUNT(DISTINCT CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, ""))) as unique_applicants'),
                     DB::raw('SUM(CASE WHEN document_path IS NOT NULL AND document_path != "" THEN 1 ELSE 0 END) as with_documents')
                 )

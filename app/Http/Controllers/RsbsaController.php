@@ -1046,4 +1046,112 @@ class RsbsaController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Bulk approve RSBSA applications
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:rsbsa_applications,id',
+        ]);
+
+        try {
+            $count = RsbsaApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'approved',
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                    'approved_at' => now(),
+                    'assigned_by' => auth()->id(),
+                ]);
+
+            $this->logActivity('bulk_approved', 'RsbsaApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk approved {$count} RSBSA applications");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully approved {$count} application(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk approve RSBSA failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk approval failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk reject RSBSA applications
+     */
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:rsbsa_applications,id',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $count = RsbsaApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'rejected',
+                    'remarks' => $request->input('reason', 'Bulk rejected by admin'),
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                    'rejected_at' => now(),
+                ]);
+
+            $this->logActivity('bulk_rejected', 'RsbsaApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk rejected {$count} RSBSA applications");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully rejected {$count} application(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk reject RSBSA failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk rejection failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk delete RSBSA applications (move to recycle bin)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:rsbsa_applications,id',
+        ]);
+
+        try {
+            $applications = RsbsaApplication::whereIn('id', $request->ids)->get();
+            $deleted = 0;
+
+            foreach ($applications as $app) {
+                if (\App\Services\RecycleBinService::softDelete($app, 'Bulk deleted from RSBSA registrations')) {
+                    $deleted++;
+                }
+            }
+
+            $this->logActivity('bulk_deleted', 'RsbsaApplication', null, [
+                'count' => $deleted,
+                'ids' => $request->ids,
+            ], "Bulk deleted {$deleted} RSBSA applications");
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$deleted} application(s) moved to recycle bin."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk delete RSBSA failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk deletion failed.'], 500);
+        }
+    }
 }

@@ -21,7 +21,17 @@ class TrainingSeeder extends Seeder
             'sampaguita_propagation',
         ];
 
-        $statuses = ['pending', 'under_review', 'approved'];
+        // Realistic distribution: most applications get approved over time,
+        // recent ones are still pending or under review
+        $statuses = [
+            'approved', 'approved', 'approved', 'approved', 'approved',      // 1-5 (2024 Jan-May)
+            'approved', 'approved', 'approved', 'approved', 'approved',      // 6-10 (2024 Jun-Oct)
+            'approved', 'approved', 'approved',                              // 11-13 (2024 Nov-Dec)
+            'approved', 'approved', 'approved', 'approved', 'approved',      // 14-18 (2025 Jan-Jun)
+            'approved', 'approved', 'under_review',                          // 19-21 (2025 Jul-Sep)
+            'under_review', 'pending',                                       // 22-23 (2025 Oct)
+            'pending', 'pending',                                            // 24-25 (2026 Jan-Mar)
+        ];
 
         $barangays = [
             'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Estrella',
@@ -33,31 +43,31 @@ class TrainingSeeder extends Seeder
         ];
 
         $applicants = [
-            ['first_name' => 'Jose',       'middle_name' => 'Reyes',     'last_name' => 'Santos'],
-            ['first_name' => 'Maria',      'middle_name' => 'Cruz',      'last_name' => 'Dela Torre'],
-            ['first_name' => 'Roberto',    'middle_name' => 'Manalac',   'last_name' => 'Reyes'],
-            ['first_name' => 'Ana',        'middle_name' => 'Bautista',  'last_name' => 'Garcia'],
-            ['first_name' => 'Carlos',     'middle_name' => 'Domingo',   'last_name' => 'Villanueva'],
-            ['first_name' => 'Liza',       'middle_name' => '',          'last_name' => 'Ramos'],
-            ['first_name' => 'Eduardo',    'middle_name' => 'Santos',    'last_name' => 'Flores'],
-            ['first_name' => 'Rosario',    'middle_name' => 'Mendoza',   'last_name' => 'Torres'],
-            ['first_name' => 'Benito',     'middle_name' => '',          'last_name' => 'Castillo'],
-            ['first_name' => 'Cynthia',    'middle_name' => 'Lagman',    'last_name' => 'Navarro'],
-            ['first_name' => 'Fernando',   'middle_name' => 'Abad',      'last_name' => 'Mercado'],
-            ['first_name' => 'Gloria',     'middle_name' => 'Pascual',   'last_name' => 'Aquino'],
-            ['first_name' => 'Hernando',   'middle_name' => '',          'last_name' => 'Dizon'],
-            ['first_name' => 'Isabel',     'middle_name' => 'Soriano',   'last_name' => 'Medina'],
-            ['first_name' => 'Jaime',      'middle_name' => 'Tolentino', 'last_name' => 'Pangilinan'],
-            ['first_name' => 'Karen',      'middle_name' => '',          'last_name' => 'Ocampo'],
-            ['first_name' => 'Leonardo',   'middle_name' => 'Valdez',    'last_name' => 'Espiritu'],
-            ['first_name' => 'Maricel',    'middle_name' => 'Lim',       'last_name' => 'Andrade'],
-            ['first_name' => 'Nestor',     'middle_name' => 'Perez',     'last_name' => 'Ibarra'],
-            ['first_name' => 'Ofelia',     'middle_name' => '',          'last_name' => 'Salazar'],
-            ['first_name' => 'Pedro',      'middle_name' => 'Guevarra',  'last_name' => 'Canlas'],
-            ['first_name' => 'Queenie',    'middle_name' => 'Sta. Ana',  'last_name' => 'Pineda'],
-            ['first_name' => 'Renato',     'middle_name' => 'Macapagal', 'last_name' => 'Dela Cruz'],
-            ['first_name' => 'Salvacion',  'middle_name' => '',          'last_name' => 'Bondoc'],
-            ['first_name' => 'Tomas',      'middle_name' => 'Araneta',   'last_name' => 'Silverio'],
+            ['first_name' => 'Teodoro',    'middle_name' => 'Villanueva','last_name' => 'Clemente'],
+            ['first_name' => 'Merlinda',   'middle_name' => 'Padilla',   'last_name' => 'Borja'],
+            ['first_name' => 'Eliseo',     'middle_name' => 'Castasus',  'last_name' => 'Escudero'],
+            ['first_name' => 'Regina',     'middle_name' => 'Maniquiz',  'last_name' => 'Palaganas'],
+            ['first_name' => 'Igmidio',    'middle_name' => 'Berroya',   'last_name' => 'Serradilla'],
+            ['first_name' => 'Bernadette', 'middle_name' => '',          'last_name' => 'Morcilla'],
+            ['first_name' => 'Concepcion', 'middle_name' => 'Reyes',     'last_name' => 'Sta. Ana'],
+            ['first_name' => 'Marivic',    'middle_name' => 'Gonzales',  'last_name' => 'Catalan'],
+            ['first_name' => 'Ermes',      'middle_name' => '',          'last_name' => 'Todoncicla'],
+            ['first_name' => 'Aurora',     'middle_name' => 'Garcia',    'last_name' => 'Esmasin'],
+            ['first_name' => 'Cherry',     'middle_name' => 'Santos',    'last_name' => 'Cordova'],
+            ['first_name' => 'Imelda',     'middle_name' => 'Ramos',     'last_name' => 'Padua'],
+            ['first_name' => 'Napoleon',   'middle_name' => '',          'last_name' => 'Sta. Maria'],
+            ['first_name' => 'Lina',       'middle_name' => 'Torino',    'last_name' => 'Del Rosario'],
+            ['first_name' => 'Raul',       'middle_name' => 'Navidad',   'last_name' => 'Santos'],
+            ['first_name' => 'Karen',      'middle_name' => '',          'last_name' => 'Calses'],
+            ['first_name' => 'Rosato',     'middle_name' => 'Diwa',      'last_name' => 'Palloz'],
+            ['first_name' => 'Virginia',   'middle_name' => 'Lopez',     'last_name' => 'Sabocor'],
+            ['first_name' => 'Rizal',      'middle_name' => 'Mendoza',   'last_name' => 'Castro'],
+            ['first_name' => 'Esther',     'middle_name' => '',          'last_name' => 'Villareal'],
+            ['first_name' => 'Romulo',     'middle_name' => 'Atienza',   'last_name' => 'Galicha'],
+            ['first_name' => 'Daisy',      'middle_name' => 'Prodisimo', 'last_name' => 'Galicha'],
+            ['first_name' => 'Cesar',      'middle_name' => 'Hernando',  'last_name' => 'Lapira'],
+            ['first_name' => 'Grace',      'middle_name' => '',          'last_name' => 'Sungabo'],
+            ['first_name' => 'Ramil',      'middle_name' => 'Bauson',    'last_name' => 'Justo'],
         ];
 
         // Spread dates from Jan 2024 to March 2026
@@ -116,7 +126,7 @@ class TrainingSeeder extends Seeder
                 'contact_number'     => '09' . str_pad(rand(100000000, 999999999), 9, '0', STR_PAD_LEFT),
                 'barangay'           => $barangays[$index % count($barangays)],
                 'training_type'      => $trainingTypes[$index % count($trainingTypes)],
-                'status'             => $statuses[$index % count($statuses)],
+                'status'             => $statuses[$index] ?? 'pending',
                 'remarks'            => $remarks[$index % count($remarks)],
                 'document_path'      => null,
                 'created_at'         => $date,

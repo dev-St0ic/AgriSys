@@ -180,7 +180,9 @@ class BoatrAnalyticsController extends Controller
             $defaultStatuses = [
                 'pending' => 0,
                 'under_review' => 0,
+                'inspection_scheduled' => 0,
                 'inspection_required' => 0,
+                'documents_pending' => 0,
                 'approved' => 0,
                 'rejected' => 0
             ];

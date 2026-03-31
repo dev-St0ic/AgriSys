@@ -7,6 +7,7 @@ use App\Models\SeedlingRequest;
 use App\Models\SeedlingRequestItem;
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
+use App\Models\UserRegistration;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -229,6 +230,31 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
 
         ['date' => '02/04/2026', 'name' => 'Rjoefe Esoso',            'barangay' => 'Maharlika',            'contact' => '09765380664', 'seedlings' => 'Sili Panigang - 3, Okra - 3, Labuyo - 3, Pipino - 3, Upo - 3', 'control_no' => '2026-030'],
         ['date' => '02/04/2026', 'name' => 'Narosa Sevika',           'barangay' => 'Maharlika',            'contact' => '09065791846', 'seedlings' => 'Sili Panigang - 3, Okra - 3, Labuyo - 3, Pipino - 3, Upo - 3', 'control_no' => '2026-031'],
+
+        // Approved farmer accounts — linked to user_registration
+        ['date' => '02/10/2026', 'name' => 'Mario Espaldon',          'barangay' => 'Calendola',            'contact' => '09176428153', 'seedlings' => 'Talong - 5, Okra - 5, Kamatis - 3',                     'control_no' => '2026-032'],
+        ['date' => '02/14/2026', 'name' => 'Virginia Sabocor',        'barangay' => 'San Antonio',          'contact' => '09157241949', 'seedlings' => 'Upo - 3, Pipino - 3, Okra - 3',                        'control_no' => '2026-033'],
+        ['date' => '02/18/2026', 'name' => 'Concepcion Sta. Ana',     'barangay' => 'San Antonio',          'contact' => '09302226742', 'seedlings' => 'Talong - 3, Sili Panigang - 3, Kamatis - 3',            'control_no' => '2026-034'],
+        ['date' => '02/24/2026', 'name' => 'Mario Espaldon',          'barangay' => 'Calendola',            'contact' => '09176428153', 'seedlings' => 'Pipino - 5, Upo - 5',                                  'control_no' => '2026-035'],
+        ['date' => '03/03/2026', 'name' => 'Bernadette Morcilla',     'barangay' => 'Landayan',             'contact' => '09512436878', 'seedlings' => 'Talong - 5, Kamatis - 5, Okra - 3',                     'control_no' => '2026-036'],
+        ['date' => '03/10/2026', 'name' => 'Cherry Cordova',          'barangay' => 'San Vicente',          'contact' => '09224178817', 'seedlings' => 'Okra - 5, Sili Panigang - 3, Pipino - 3',              'control_no' => '2026-037'],
+        ['date' => '03/17/2026', 'name' => 'Aurora Esmasin',          'barangay' => 'Magsaysay',            'contact' => '09100494683', 'seedlings' => 'Talong - 5, Okra - 5, Kamatis - 5',                     'control_no' => '2026-038'],
+
+        // ──────────────────────────────────────────────────
+        // SEEDS category requests (packets)
+        // ──────────────────────────────────────────────────
+        ['date' => '09/15/2025', 'name' => 'Mario Espaldon',          'barangay' => 'Calendola',            'contact' => '09176428153', 'seedlings' => 'Pechay - 5, Kangkong - 5, Mustasa - 3',                 'control_no' => '2025-S001', 'type' => 'seeds'],
+        ['date' => '10/03/2025', 'name' => 'Bernadette Morcilla',     'barangay' => 'Landayan',             'contact' => '09512436878', 'seedlings' => 'Kamatis - 5, Pechay - 3',                               'control_no' => '2025-S002', 'type' => 'seeds'],
+        ['date' => '10/20/2025', 'name' => 'Aurora G. Esmasin',       'barangay' => 'Magsaysay',            'contact' => '09100494683', 'seedlings' => 'Kangkong - 5, Upo - 3, Pechay - 3',                    'control_no' => '2025-S003', 'type' => 'seeds'],
+        ['date' => '11/08/2025', 'name' => 'Concepcion Sta. Ana',     'barangay' => 'San Antonio',          'contact' => '09302226742', 'seedlings' => 'Mustasa - 5, Kangkong - 5',                             'control_no' => '2025-S004', 'type' => 'seeds'],
+        ['date' => '11/25/2025', 'name' => 'Virginia Sabocor',        'barangay' => 'San Antonio',          'contact' => '09157241949', 'seedlings' => 'Pechay - 5, Kamatis - 3, Upo - 3',                     'control_no' => '2025-S005', 'type' => 'seeds'],
+        ['date' => '12/10/2025', 'name' => 'Cherry Cordova',          'barangay' => 'San Vicente',          'contact' => '09224178817', 'seedlings' => 'Kangkong - 5, Pechay - 5, Mustasa - 5',                 'control_no' => '2025-S006', 'type' => 'seeds'],
+        ['date' => '01/12/2026', 'name' => 'Aster Bedico',            'barangay' => 'Poblacion',            'contact' => '09199769845', 'seedlings' => 'Pechay - 3, Kangkong - 3',                              'control_no' => '2026-S001', 'type' => 'seeds'],
+        ['date' => '01/28/2026', 'name' => 'Mario Espaldon',          'barangay' => 'Calendola',            'contact' => '09176428153', 'seedlings' => 'Kamatis - 5, Upo - 5, Mustasa - 3',                    'control_no' => '2026-S002', 'type' => 'seeds'],
+        ['date' => '02/10/2026', 'name' => 'Raul N. Santos',          'barangay' => 'Pacita 1',             'contact' => '09151801135', 'seedlings' => 'Pechay - 5, Kangkong - 5, Kamatis - 5',                 'control_no' => '2026-S003', 'type' => 'seeds'],
+        ['date' => '02/20/2026', 'name' => 'Bernadette Morcilla',     'barangay' => 'Landayan',             'contact' => '09512436878', 'seedlings' => 'Upo - 3, Mustasa - 3, Pechay - 5',                     'control_no' => '2026-S004', 'type' => 'seeds'],
+        ['date' => '03/05/2026', 'name' => 'Virginia Sabocor',        'barangay' => 'San Antonio',          'contact' => '09157241949', 'seedlings' => 'Kangkong - 5, Pechay - 5',                              'control_no' => '2026-S005', 'type' => 'seeds'],
+        ['date' => '03/15/2026', 'name' => 'Aurora Esmasin',          'barangay' => 'Magsaysay',            'contact' => '09100494683', 'seedlings' => 'Kamatis - 5, Pechay - 3, Kangkong - 3, Mustasa - 3',    'control_no' => '2026-S006', 'type' => 'seeds'],
     ];
 
     public function run(): void
@@ -254,11 +280,23 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
 
     private function createHistoricalRequests($categories)
     {
+        // Build a lookup of approved farmers by "first_name last_name" → user_registration id
+        $farmers = UserRegistration::where('status', 'approved')
+            ->where('user_type', 'farmer')
+            ->get();
+        $farmerLookup = $farmers->keyBy(fn ($u) => $u->first_name . ' ' . $u->last_name);
+
         foreach ($this->seedlingData as $data) {
             try {
-                $createdDate = Carbon::createFromFormat('m/d/Y', $data['date']);
+                $createdDate = Carbon::createFromFormat('m/d/Y', $data['date'])
+                    ->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
                 $nameParts   = $this->parseName($data['name']);
                 $items       = $this->parseSeedlings($data['seedlings']);
+
+                // Cap quantities to realistic levels (1-3 per item)
+                $items = array_map(fn($item) => array_merge($item, [
+                    'quantity' => min($item['quantity'], rand(1, 3))
+                ]), $items);
 
                 if (empty($items)) {
                     $this->command->warn("No items found for {$data['name']}, skipping...");
@@ -267,10 +305,74 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
 
                 $totalQuantity = array_sum(array_column($items, 'quantity'));
                 $requestNumber = $this->formatControlNumber($data['control_no']);
-                $approvalDate  = $createdDate->copy()->addDays(rand(1, 3));
+
+                // Realistic status mix for recent requests
+                $statusOverrides = [
+                    '2026-030' => 'partially_approved',
+                    '2026-031' => 'partially_approved',
+                    '2026-033' => 'partially_approved',
+                    '2026-034' => 'approved_unclaimed',
+                    '2026-035' => 'approved_unclaimed',
+                    '2026-036' => 'pending',
+                    '2026-037' => 'under_review',
+                    '2026-038' => 'pending',
+                    '2026-S004' => 'under_review',
+                    '2026-S005' => 'pending',
+                    '2026-S006' => 'pending',
+                ];
+                $requestStatus = $statusOverrides[$data['control_no']] ?? 'claimed';
+
+                $approvalDate = $createdDate->copy()->addDays(rand(1, 3))
+                    ->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+
+                // Link to user_registration if the name matches an approved farmer
+                $matchedUser = $farmerLookup->get($data['name']);
+                if (!$matchedUser && $nameParts['last_name']) {
+                    $matchedUser = $farmerLookup->get($nameParts['first_name'] . ' ' . $nameParts['last_name']);
+                }
+                if (!$matchedUser) {
+                    $matchedUser = $farmers->first(fn ($u) => str_contains($data['name'], $u->first_name) && str_contains($data['name'], $u->last_name));
+                }
+
+                // Determine fields based on request status
+                $status = 'approved';
+                $approvedQty = $totalQuantity;
+                $approvedAt = $approvalDate;
+                $reviewedAt = $approvalDate;
+                $claimedAt = $approvalDate;
+                $pickupDate = $approvalDate->copy()->addDays(1);
+                $pickupExpiredAt = $approvalDate->copy()->addDays(30);
+
+                if ($requestStatus === 'pending') {
+                    $status = 'pending';
+                    $approvedQty = null;
+                    $approvedAt = null;
+                    $reviewedAt = null;
+                    $claimedAt = null;
+                    $pickupDate = null;
+                    $pickupExpiredAt = null;
+                } elseif ($requestStatus === 'under_review') {
+                    $status = 'under_review';
+                    $approvedQty = null;
+                    $approvedAt = null;
+                    $reviewedAt = $createdDate->copy()->addDay()->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+                    $claimedAt = null;
+                    $pickupDate = null;
+                    $pickupExpiredAt = null;
+                } elseif ($requestStatus === 'partially_approved') {
+                    $status = 'partially_approved';
+                    // Last item will be rejected, rest approved
+                    $rejectedQty = count($items) > 1 ? $items[count($items) - 1]['quantity'] : 0;
+                    $approvedQty = $totalQuantity - $rejectedQty;
+                } elseif ($requestStatus === 'approved_unclaimed') {
+                    $status = 'approved';
+                    $claimedAt = null;
+                    $pickupDate = $approvalDate->copy()->addDays(7);
+                    $pickupExpiredAt = $pickupDate->copy()->addDays(30);
+                }
 
                 $request = SeedlingRequest::create([
-                    'user_id'          => null,
+                    'user_id'          => $matchedUser?->id,
                     'request_number'   => $requestNumber,
                     'first_name'       => $nameParts['first_name'],
                     'middle_name'      => $nameParts['middle_name'],
@@ -279,22 +381,29 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
                     'contact_number'   => $data['contact'],
                     'barangay'         => $data['barangay'],
                     'total_quantity'   => $totalQuantity,
-                    'approved_quantity'=> $totalQuantity,
-                    'status'           => 'approved',
+                    'approved_quantity'=> $approvedQty,
+                    'status'           => $status,
                     'remarks'          => 'Historical seedling request from ' . $data['date'] . ' (Original control no: ' . $data['control_no'] . ')',
                     'reviewed_by'      => null,
-                    'reviewed_at'      => $approvalDate,
-                    'approved_at'      => $approvalDate,
-                    'claimed_at'       => $approvalDate,
-                    'pickup_date'      => $approvalDate->copy()->addDays(1),
-                    'pickup_expired_at'=> $approvalDate->copy()->addDays(30),
+                    'reviewed_at'      => $reviewedAt,
+                    'approved_at'      => $approvedAt,
+                    'claimed_at'       => $claimedAt,
+                    'pickup_date'      => $pickupDate,
+                    'pickup_expired_at'=> $pickupExpiredAt,
                     'created_at'       => $createdDate,
-                    'updated_at'       => $approvalDate,
+                    'updated_at'       => $approvedAt ?? $reviewedAt ?? $createdDate,
                 ]);
 
-                $this->createRequestItems($request, $items, $categories);
+                $this->createRequestItems($request, $items, $categories, $data['type'] ?? 'seedlings', $requestStatus);
 
-                $this->command->info("Created request: {$requestNumber} - {$data['name']} (Claimed: {$approvalDate->format('Y-m-d')})");
+                $statusLabel = match($requestStatus) {
+                    'pending' => 'Pending',
+                    'under_review' => 'Under Review',
+                    'partially_approved' => 'Partial',
+                    'approved_unclaimed' => 'Approved (Unclaimed)',
+                    default => 'Claimed: ' . $approvalDate->format('Y-m-d'),
+                };
+                $this->command->info("Created request: {$requestNumber} - {$data['name']} ({$statusLabel})");
 
             } catch (\Exception $e) {
                 $this->command->error("Failed to create request for {$data['name']}: " . $e->getMessage());
@@ -386,13 +495,30 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
         return $items;
     }
 
-    private function createRequestItems($request, $items, $categories)
+    private function createRequestItems($request, $items, $categories, $categoryType = 'seedlings', $requestStatus = 'claimed')
     {
-        foreach ($items as $itemData) {
-            $categoryItem = $this->findCategoryItem($itemData['name'], $categories);
+        foreach ($items as $index => $itemData) {
+            $categoryItem = $this->findCategoryItem($itemData['name'], $categories, $categoryType);
 
             if (!$categoryItem) {
                 Log::warning("Could not find category item for: {$itemData['name']}");
+            }
+
+            // Determine item-level status
+            $itemStatus = 'approved';
+            $approvedQty = $itemData['quantity'];
+            $rejectionReason = null;
+
+            if ($requestStatus === 'pending' || $requestStatus === 'under_review') {
+                $itemStatus = 'pending';
+                $approvedQty = null;
+            } elseif ($requestStatus === 'partially_approved') {
+                // Reject the last item in multi-item requests
+                if (count($items) > 1 && $index >= count($items) - 1) {
+                    $itemStatus = 'rejected';
+                    $approvedQty = 0;
+                    $rejectionReason = 'Insufficient stock at the time of review';
+                }
             }
 
             SeedlingRequestItem::create([
@@ -405,16 +531,16 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
                 'item_name'           => $itemData['name'],
                 'item_unit'           => 'pcs',
                 'requested_quantity'  => $itemData['quantity'],
-                'approved_quantity'   => $itemData['quantity'],
-                'status'              => 'approved',
-                'rejection_reason'    => null,
+                'approved_quantity'   => $approvedQty,
+                'status'              => $itemStatus,
+                'rejection_reason'    => $rejectionReason,
                 'created_at'          => $request->created_at,
                 'updated_at'          => $request->updated_at,
             ]);
         }
     }
 
-    private function findCategoryItem($itemName, $categories)
+    private function findCategoryItem($itemName, $categories, $categoryType = 'seedlings')
     {
         $normalizedItemName = strtolower(trim($itemName));
 
@@ -437,32 +563,35 @@ class VegetableSeedlingsDispersalSeeder extends Seeder
             'calamansi'     => 'Kalamansi',
             'sili panigang' => 'Sili Panigang',
             'sili labuyo'   => 'Sili Labuyo',
+            'pechay'        => 'Pechay',
+            'kangkong'      => 'Kangkong',
+            'mustasa'       => 'Mustasa',
         ];
 
         $searchName = $nameMappings[$normalizedItemName] ?? $itemName;
 
-        Log::info("Looking for item - Original: '{$itemName}', Normalized: '{$normalizedItemName}', Mapped to: '{$searchName}'");
+        Log::info("Looking for item - Original: '{$itemName}', Normalized: '{$normalizedItemName}', Mapped to: '{$searchName}', Category: '{$categoryType}'");
 
-        $seedlingsCategory = null;
+        $targetCategory = null;
         foreach ($categories as $category) {
-            if ($category->name === 'seedlings') {
-                $seedlingsCategory = $category;
+            if ($category->name === $categoryType) {
+                $targetCategory = $category;
                 break;
             }
         }
 
-        if (!$seedlingsCategory) {
-            Log::error("Seedlings category not found!");
+        if (!$targetCategory) {
+            Log::error("{$categoryType} category not found!");
             return null;
         }
 
         $availableItems = [];
-        foreach ($seedlingsCategory->items as $item) {
+        foreach ($targetCategory->items as $item) {
             $availableItems[] = "'{$item->name}'";
         }
-        Log::info("Available items in seedlings category: [" . implode(', ', $availableItems) . "]");
+        Log::info("Available items in {$categoryType} category: [" . implode(', ', $availableItems) . "]");
 
-        foreach ($seedlingsCategory->items as $item) {
+        foreach ($targetCategory->items as $item) {
             if (strtolower(trim($item->name)) === strtolower(trim($searchName))) {
                 Log::info("✓ Found match: '{$item->name}' for search '{$searchName}'");
                 return $item;

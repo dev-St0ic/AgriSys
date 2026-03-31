@@ -1267,4 +1267,111 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         }
     }
 
+    /**
+     * Bulk approve supply requests
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:seedling_requests,id',
+        ]);
+
+        try {
+            $count = SeedlingRequest::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'approved',
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                    'approved_at' => now(),
+                ]);
+
+            $this->logActivity('bulk_approved', 'SeedlingRequest', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk approved {$count} supply requests");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully approved {$count} request(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk approve supply requests failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk approval failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk reject supply requests
+     */
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:seedling_requests,id',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $count = SeedlingRequest::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'rejected',
+                    'remarks' => $request->input('reason', 'Bulk rejected by admin'),
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                    'rejected_at' => now(),
+                ]);
+
+            $this->logActivity('bulk_rejected', 'SeedlingRequest', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk rejected {$count} supply requests");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully rejected {$count} request(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk reject supply requests failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk rejection failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk delete supply requests (move to recycle bin)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:seedling_requests,id',
+        ]);
+
+        try {
+            $requests = SeedlingRequest::whereIn('id', $request->ids)->get();
+            $deleted = 0;
+
+            foreach ($requests as $req) {
+                if (\App\Services\RecycleBinService::softDelete($req, 'Bulk deleted from Supply Requests')) {
+                    $deleted++;
+                }
+            }
+
+            $this->logActivity('bulk_deleted', 'SeedlingRequest', null, [
+                'count' => $deleted,
+                'ids' => $request->ids,
+            ], "Bulk deleted {$deleted} supply requests");
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$deleted} request(s) moved to recycle bin."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk delete supply requests failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk deletion failed.'], 500);
+        }
+    }
+
 }

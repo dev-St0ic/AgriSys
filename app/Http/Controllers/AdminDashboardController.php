@@ -76,7 +76,7 @@ class AdminDashboardController extends Controller
         $pendingRsbsa = RsbsaApplication::whereIn('status', ['pending', 'under_review'])->count();
         $pendingSeedling = SeedlingRequest::whereIn('status', ['pending', 'under_review'])->count();
         $pendingFishr = FishrApplication::whereIn('status', ['pending', 'under_review'])->count();
-        $pendingBoatr = BoatrApplication::whereIn('status', ['pending', 'under_review'])->count();
+        $pendingBoatr = BoatrApplication::whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count();
         $pendingTraining = TrainingApplication::whereIn('status', ['pending', 'under_review'])->count();
 
         $totalPending = $pendingRsbsa + $pendingSeedling + $pendingFishr + $pendingBoatr + $pendingTraining;
@@ -147,7 +147,7 @@ class AdminDashboardController extends Controller
         $totalPending = RsbsaApplication::whereIn('status', ['pending', 'under_review'])->count()
             + SeedlingRequest::whereIn('status', ['pending', 'under_review'])->count()
             + FishrApplication::whereIn('status', ['pending', 'under_review'])->count()
-            + BoatrApplication::whereIn('status', ['pending', 'under_review'])->count()
+            + BoatrApplication::whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count()
             + TrainingApplication::whereIn('status', ['pending', 'under_review'])->count();
 
         // Total out-of-stock items
@@ -485,8 +485,9 @@ class AdminDashboardController extends Controller
                 'name' => 'Supplies Request',
                 'icon' => 'fas fa-leaf',
                 'pending' => SeedlingRequest::whereIn('status', ['pending', 'under_review'])->count(),
-                'approved' => SeedlingRequest::where('status', 'approved')->count(),
+                'approved' => SeedlingRequest::whereIn('status', ['approved', 'partially_approved'])->count(),
                 'rejected' => SeedlingRequest::where('status', 'rejected')->count(),
+                'cancelled' => SeedlingRequest::where('status', 'cancelled')->count(),
                 'route' => 'admin.seedlings.requests'
             ],
             'fishr' => [
@@ -500,7 +501,7 @@ class AdminDashboardController extends Controller
             'boatr' => [
                 'name' => 'BoatR Registration',
                 'icon' => 'fas fa-ship',
-                'pending' => BoatrApplication::whereIn('status', ['pending', 'under_review'])->count(),
+                'pending' => BoatrApplication::whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count(),
                 'approved' => BoatrApplication::where('status', 'approved')->count(),
                 'rejected' => BoatrApplication::where('status', 'rejected')->count(),
                 'route' => 'admin.boatr.requests'

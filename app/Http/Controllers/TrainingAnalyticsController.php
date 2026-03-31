@@ -114,7 +114,7 @@ class TrainingAnalyticsController extends Controller
             $total = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
             $approved = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->where('status', 'approved')->count();
             $rejected = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->where('status', 'rejected')->count();
-            $pending = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->where('status', 'under_review')->count();
+            $pending = TrainingApplication::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->whereIn('status', ['pending', 'under_review'])->count();
 
             Log::info('Training Overview Debug', [
                 'total' => $total,
@@ -174,7 +174,7 @@ class TrainingAnalyticsController extends Controller
                 ->toArray();
 
             // Ensure all statuses are present with default values
-            $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'under_review' => 0];
+            $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
 
             // Add percentage calculations
@@ -192,8 +192,8 @@ class TrainingAnalyticsController extends Controller
         } catch (\Exception $e) {
             Log::error('Training Status Analysis Error: ' . $e->getMessage());
             return [
-                'counts' => ['approved' => 0, 'rejected' => 0, 'under_review' => 0],
-                'percentages' => ['approved' => 0, 'rejected' => 0, 'under_review' => 0],
+                'counts' => ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0],
+                'percentages' => ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0],
                 'total' => 0
             ];
         }
@@ -211,7 +211,7 @@ class TrainingAnalyticsController extends Controller
                     DB::raw('COUNT(*) as total_applications'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
-                    DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
+                    DB::raw('SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending'),
                     DB::raw('SUM(CASE WHEN document_path IS NOT NULL AND document_path != "" THEN 1 ELSE 0 END) as with_documents'),
                     DB::raw('COUNT(DISTINCT training_type) as unique_training_types')
                 )
@@ -240,7 +240,7 @@ class TrainingAnalyticsController extends Controller
                     DB::raw('COUNT(*) as total_applications'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
-                    DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
+                    DB::raw('SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending'),
                     DB::raw('COUNT(DISTINCT CONCAT(COALESCE(first_name, ""), " ", COALESCE(last_name, ""))) as unique_applicants'),
                     DB::raw('SUM(CASE WHEN document_path IS NOT NULL AND document_path != "" THEN 1 ELSE 0 END) as with_documents'),
                     DB::raw('AVG(CASE WHEN status_updated_at IS NOT NULL AND created_at IS NOT NULL

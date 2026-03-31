@@ -73,6 +73,10 @@ class BoatrRegisteredSeeder extends Seeder
             Carbon  $approvedAt
         ) use ($pc, $fishrMap): array {
 
+            // Add random working-hour times (8:00 AM – 4:59 PM)
+            $createdAt  = $createdAt->copy()->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+            $approvedAt = $approvedAt->copy()->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+
             $fishrApp   = ($fishrNo && $fishrMap->has($fishrNo)) ? $fishrMap->get($fishrNo) : null;
             $fishrAppId = $fishrApp?->id;
 

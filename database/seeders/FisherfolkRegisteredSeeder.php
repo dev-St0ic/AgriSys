@@ -251,6 +251,9 @@ class FisherfolkRegisteredSeeder extends Seeder
         $updatedCount = 0;
 
         foreach ($fisherfolkData as $data) {
+            // Add a random working-hour time (8:00 AM – 4:59 PM) to the date
+            $appliedAt = $data['created_at']->copy()->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+
             $recordData = [
                 'first_name'                 => $this->toProperCase($data['first_name']),
                 'middle_name'                => $this->toProperCase($data['middle_name']),
@@ -258,17 +261,17 @@ class FisherfolkRegisteredSeeder extends Seeder
                 'name_extension'             => null,
                 'sex'                        => $data['sex'],
                 'barangay'                   => $data['barangay'],
-                'contact_number'             => $data['contact_number'],
+                'contact_number'             => $this->generateContact(),
                 'main_livelihood'            => $data['main_livelihood'],
                 'secondary_livelihood'       => $data['secondary_livelihood'] ?? null,
                 'other_secondary_livelihood' => $data['other_secondary_livelihood'] ?? null,
                 'status'                     => 'approved',
-                'status_updated_at'          => $data['created_at'],
+                'status_updated_at'          => $appliedAt,
                 'updated_by'                 => 1,
                 'registration_number'        => $data['registration_number'],
-                'fishr_number_assigned_at'   => $data['created_at'],
+                'fishr_number_assigned_at'   => $appliedAt,
                 'fishr_number_assigned_by'   => 1,
-                'updated_at'                 => $data['created_at'],
+                'updated_at'                 => $appliedAt,
             ];
 
             $existing = FishrApplication::where('fishr_number', $data['fishr_number'])->first();
@@ -277,7 +280,7 @@ class FisherfolkRegisteredSeeder extends Seeder
                 $updatedCount++;
             } else {
                 $recordData['fishr_number'] = $data['fishr_number'];
-                $recordData['created_at']   = $data['created_at'];
+                $recordData['created_at']   = $appliedAt;
                 FishrApplication::create($recordData);
                 $createdCount++;
             }
@@ -292,5 +295,29 @@ class FisherfolkRegisteredSeeder extends Seeder
     private function toProperCase(?string $value): ?string
     {
         return $value ? ucwords(strtolower($value)) : null;
+    }
+
+    /**
+     * Generate a realistic Philippine mobile number.
+     * Uses common network prefixes (Globe, Smart, TNT, Sun, TM).
+     */
+    private function generateContact(): string
+    {
+        $prefixes = [
+            '0917', '0918', '0919', '0920', '0921',  // Globe/TM
+            '0922', '0923', '0925', '0926', '0927',  // Globe/TM
+            '0928', '0929', '0930', '0932', '0933',  // Smart/TNT
+            '0935', '0936', '0937', '0938', '0939',  // Smart/TNT
+            '0940', '0941', '0942', '0943', '0945',  // Smart/TNT
+            '0946', '0947', '0948', '0949', '0950',  // Smart/TNT
+            '0951', '0953', '0954', '0955', '0956',  // Globe
+            '0961', '0963', '0965', '0966', '0967',  // Smart
+            '0968', '0970', '0975', '0976', '0977',  // Globe
+            '0978', '0979', '0981', '0991', '0992',  // Smart
+            '0993', '0994', '0995', '0996', '0997',  // Globe/Smart
+            '0998', '0999',                           // Smart
+        ];
+
+        return $prefixes[array_rand($prefixes)] . str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT);
     }
 }
