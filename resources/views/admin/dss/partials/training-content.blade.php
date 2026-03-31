@@ -24,23 +24,13 @@
                         @if (isset($report['report_data']['performance_assessment']))
                             <div class="d-flex gap-4 mt-3 flex-wrap">
                                 @php
-                                    $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
-                                    $ratingColor = match (strtolower($rating)) {
-                                        'excellent', 'very good' => 'success',
-                                        'good'                   => 'primary',
-                                        'fair', 'average'        => 'warning',
-                                        'poor', 'critical'       => 'danger',
-                                        default                  => 'secondary',
-                                    };
-                                    $confidenceScore  = $report['report_data']['confidence_score']  ?? 92;
+                                    $confidenceScore = $report['report_data']['confidence_score'] ?? 92;
                                     $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
-                                    $sourceTitle      = $confidenceSource === 'llm'
-                                        ? 'AI-assessed high confidence'
-                                        : 'High data-quality confidence';
+                                    $sourceTitle =
+                                        $confidenceSource === 'llm'
+                                            ? 'AI-assessed high confidence'
+                                            : 'High data-quality confidence';
                                 @endphp
-                                <span class="badge bg-{{ $ratingColor }} fs-6">
-                                    Overall Rating: {{ $rating ?: 'N/A' }}
-                                </span>
                                 <span class="badge bg-success fs-6" title="{{ $sourceTitle }}">
                                     <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceScore }}%
                                 </span>
@@ -55,13 +45,15 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-primary mb-0">{{ $data['training_stats']['total_applications'] }}</div>
+                                        <div class="h4 text-primary mb-0">
+                                            {{ $data['training_stats']['total_applications'] }}</div>
                                         <small class="text-muted">Total Applications</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-success mb-0">{{ $data['training_stats']['approved'] }}</div>
+                                        <div class="h4 text-success mb-0">{{ $data['training_stats']['approved'] }}
+                                        </div>
                                         <small class="text-muted">Approved</small>
                                     </div>
                                 </div>
@@ -203,7 +195,8 @@
                                         <td class="text-center">{{ $type['total'] }}</td>
                                         <td class="text-center">{{ $type['approved'] }}</td>
                                         <td class="text-center">
-                                            <span class="badge bg-{{ $type['approval_rate'] >= 80 ? 'success' : ($type['approval_rate'] >= 50 ? 'warning' : 'danger') }}">
+                                            <span
+                                                class="badge bg-{{ $type['approval_rate'] >= 80 ? 'success' : ($type['approval_rate'] >= 50 ? 'warning' : 'danger') }}">
                                                 {{ $type['approval_rate'] }}%
                                             </span>
                                         </td>
@@ -226,7 +219,8 @@
             </div>
             <div class="card-body">
                 @if (!empty($data['training_by_barangay']['distribution']))
-                    <p class="text-muted">Barangays Covered: <strong>{{ $data['training_by_barangay']['total_barangays_covered'] }}</strong></p>
+                    <p class="text-muted">Barangays Covered:
+                        <strong>{{ $data['training_by_barangay']['total_barangays_covered'] }}</strong></p>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -269,9 +263,11 @@
                                 ({{ $report['model_used'] ?? 'AI Model' }})
                             @endif
                             <br>
-                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to
+                            {{ $data['period']['end_date'] ?? 'Unknown' }}
                             @if ($isQuarterly)
-                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly Report</span>
+                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly
+                                    Report</span>
                             @endif
                         </small>
                     </div>

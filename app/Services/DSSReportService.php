@@ -437,6 +437,7 @@ Analyze the following data and generate a comprehensive report with both descrip
 ```
 
 Focus on actionable insights for supply distribution, supply management, and resource allocation.
+IMPORTANT: For short_term_strategies, focus on practical operational improvements such as scheduling, coordination, restocking, training staff, or adjusting processes. Do NOT suggest developing new software systems, implementing automated tools, or building digital platforms.
 ";
     }
 
@@ -646,7 +647,7 @@ Focus on actionable insights for supply distribution, supply management, and res
     {
         return [
             'immediate_actions'    => ['Restock critical shortage items within 7 days', 'Process pending requests within 3 days'],
-            'short_term_strategies'=> ['Implement automated supply alerts (Timeline: 1 month)', 'Establish supplier agreements for fast restocking (Timeline: 2 months)'],
+            'short_term_strategies'=> ['Coordinate with suppliers for regular restocking schedules (Timeline: 1 month)', 'Conduct inventory reviews with staff to prioritize high-demand items (Timeline: 2 months)'],
         ];
     }
 
@@ -745,6 +746,8 @@ RESPOND IN THIS EXACT JSON FORMAT:
     "confidence_level": "High/Medium/Low",
     "confidence_score": 85
 }
+
+IMPORTANT: For short_term_strategies, focus on practical operational improvements such as scheduling more sessions, coordinating with barangays, or improving outreach. Do NOT suggest developing new software systems, implementing automated tools, or building digital platforms.
 PROMPT;
     }
 
@@ -772,7 +775,7 @@ PROMPT;
                     "Most popular: " . ($byType['most_popular'][0]['display_name'] ?? 'N/A'),
                 ],
                 'critical_issues'        => $stats['pending'] > 10 ? ["High number of pending applications ({$stats['pending']})"] : [],
-                'recommendations'        => ['immediate_actions' => ['Review pending applications'], 'short_term_strategies' => ['Expand high-demand training programs'], 'long_term_vision' => ['Develop comprehensive training curriculum']],
+                'recommendations'        => ['immediate_actions' => ['Review pending applications'], 'short_term_strategies' => ['Schedule additional sessions for high-demand training types across underserved barangays'], 'long_term_vision' => ['Establish regular quarterly training calendars based on seasonal demand patterns']],
                 'training_insights'      => ["Total training types requested: {$byType['total_types_requested']}"],
                 'confidence_level'       => $confidence['level'],
                 'confidence_score'       => $confidence['score'],
@@ -868,6 +871,8 @@ RESPOND IN THIS EXACT JSON FORMAT:
     "confidence_level": "High/Medium/Low",
     "confidence_score": 85
 }
+
+IMPORTANT: For short_term_strategies, focus on practical operational improvements such as faster processing, farmer outreach, coordination with barangays, or hands-on support. Do NOT suggest developing new software systems, implementing automated tools, or building digital platforms.
 PROMPT;
     }
 
@@ -886,7 +891,7 @@ PROMPT;
                 'performance_assessment' => ['overall_rating' => $rating, 'registration_efficiency' => 'Good', 'agricultural_diversity' => 'Medium', 'land_utilization' => 'Fair'],
                 'key_findings'           => ["Registered {$stats['total_applications']} farmers", "Gender distribution: {$demographics['male_percentage']}% male, {$demographics['female_percentage']}% female", "Average farm size: {$stats['avg_land_area']}"],
                 'critical_issues'        => $stats['pending'] > 20 ? ["High number of pending registrations ({$stats['pending']})"] : [],
-                'recommendations'        => ['immediate_actions' => ['Process pending registrations'], 'short_term_strategies' => ['Conduct farmer orientation programs'], 'long_term_vision' => ['Develop integrated farmer database system']],
+                'recommendations'        => ['immediate_actions' => ['Process pending registrations'], 'short_term_strategies' => ['Conduct farmer orientation sessions in top-applying barangays to improve application completeness'], 'long_term_vision' => ['Establish regular registration drives coordinated with barangay officials']],
                 'agricultural_insights'  => ["Total land area registered: {$stats['total_land_area']}"],
                 'confidence_level'       => $confidence['level'],
                 'confidence_score'       => $confidence['score'],
@@ -975,7 +980,9 @@ RESPONSE FORMAT (JSON):
     \"fisheries_insights\": [\"string\"],
     \"confidence_level\": \"High/Medium/Low\",
     \"confidence_score\": 0
-}";
+}
+
+IMPORTANT: For short_term_strategies, focus on practical operational improvements such as faster processing, fisher outreach, coordination with barangays, or hands-on verification. Do NOT suggest developing new software systems, implementing automated tools, or building digital platforms.";
     }
 
     private function formatFishrLivelihoods(array $byLivelihood): string
@@ -1035,7 +1042,7 @@ RESPONSE FORMAT (JSON):
                 'performance_assessment' => ['overall_rating' => $stats['approval_rate'] >= 75 ? 'Good' : ($stats['approval_rate'] >= 50 ? 'Fair' : 'Needs Improvement'), 'approval_efficiency' => "{$stats['approval_rate']}% approval rate", 'coverage_adequacy' => "Covers {$byBarangay['total_barangays_covered']} barangays", 'trend_analysis' => $trendDescription],
                 'key_findings'           => ["Processed {$stats['total_applications']} FISHR applications", "Gender: {$demographics['male_percentage']}% male, {$demographics['female_percentage']}% female", "Most common livelihood: " . ($byLivelihood['most_common'][0]['livelihood'] ?? 'N/A'), "{$stats['with_fishr_number']} fisherfolk assigned FISHR numbers"],
                 'critical_issues'        => $stats['pending'] > 20 ? ["High pending applications ({$stats['pending']})"] : [],
-                'recommendations'        => ['immediate_actions' => ['Process pending applications', 'Expedite FISHR number assignments'], 'short_term_strategies' => ['Conduct fisher orientation', 'Improve document verification'], 'long_term_vision' => ['Develop integrated fisheries database']],
+                'recommendations'        => ['immediate_actions' => ['Process pending applications', 'Expedite FISHR number assignments'], 'short_term_strategies' => ['Conduct orientation sessions in coastal barangays to improve application quality', 'Assign dedicated staff for faster document verification'], 'long_term_vision' => ['Coordinate with BFAR for streamlined registration and support']],
                 'fisheries_insights'     => ["Total fisherfolk: {$stats['total_applications']}", "Coverage: {$byBarangay['total_barangays_covered']} barangays"],
                 'confidence_level'       => $confidence['level'],
                 'confidence_score'       => $confidence['score'],
@@ -1127,7 +1134,9 @@ RESPONSE FORMAT (JSON):
     \"vessel_insights\": [\"string\"],
     \"confidence_level\": \"High/Medium/Low\",
     \"confidence_score\": 0
-}";
+}
+
+IMPORTANT: For short_term_strategies, focus on practical operational improvements such as faster inspections, coordinating with boat owners, scheduling field visits, or improving document collection. Do NOT suggest developing new software systems, implementing automated tools, or building digital platforms.";
     }
 
     private function formatBoatTypes(array $byBoatType): string
@@ -1187,7 +1196,7 @@ RESPONSE FORMAT (JSON):
                 'performance_assessment' => ['overall_rating' => $stats['approval_rate'] >= 75 ? 'Good' : ($stats['approval_rate'] >= 50 ? 'Fair' : 'Needs Improvement'), 'approval_efficiency' => "{$stats['approval_rate']}% approval rate", 'inspection_effectiveness' => "{$inspectionAnalysis['completion_rate']}% inspection completion", 'trend_analysis' => $trendDescription],
                 'key_findings'           => ["Processed {$stats['total_applications']} boat registrations", "Avg specs: {$stats['avg_boat_length']} length, {$stats['avg_horsepower']} engine", "Most common type: " . ($byBoatType['most_common'][0]['boat_type'] ?? 'N/A'), "Inspection rate: {$inspectionAnalysis['completion_rate']}%"],
                 'critical_issues'        => $inspectionAnalysis['inspections_pending'] > 10 ? ["High pending inspections ({$inspectionAnalysis['inspections_pending']})"] : [],
-                'recommendations'        => ['immediate_actions' => ['Complete pending inspections', 'Process pending applications'], 'short_term_strategies' => ['Streamline inspection procedures'], 'long_term_vision' => ['Implement digital inspection system']],
+                'recommendations'        => ['immediate_actions' => ['Complete pending inspections', 'Process pending applications'], 'short_term_strategies' => ['Schedule batch inspection days per barangay to reduce backlogs', 'Train additional staff on vessel inspection procedures'], 'long_term_vision' => ['Establish a regular quarterly inspection calendar coordinated with boat owners']],
                 'vessel_insights'        => ["Total vessels: {$stats['total_applications']}", "Coverage: {$byBarangay['total_barangays_covered']} barangays", "{$byBoatType['total_boat_types']} boat types registered"],
                 'confidence_level'       => $confidence['level'],
                 'confidence_score'       => $confidence['score'],
