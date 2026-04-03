@@ -24,23 +24,13 @@
                         @if (isset($report['report_data']['performance_assessment']))
                             <div class="d-flex gap-4 mt-3 flex-wrap">
                                 @php
-                                    $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
-                                    $ratingColor = match (strtolower($rating)) {
-                                        'excellent', 'very good' => 'success',
-                                        'good'                   => 'primary',
-                                        'fair', 'average'        => 'warning',
-                                        'poor', 'critical'       => 'danger',
-                                        default                  => 'secondary',
-                                    };
-                                    $confidenceScore  = $report['report_data']['confidence_score']  ?? 92;
+                                    $confidenceScore = $report['report_data']['confidence_score'] ?? 92;
                                     $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
-                                    $sourceTitle      = $confidenceSource === 'llm'
-                                        ? 'AI-assessed high confidence'
-                                        : 'High data-quality confidence';
+                                    $sourceTitle =
+                                        $confidenceSource === 'llm'
+                                            ? 'AI-assessed high confidence'
+                                            : 'High data-quality confidence';
                                 @endphp
-                                <span class="badge bg-{{ $ratingColor }} fs-6">
-                                    Overall Rating: {{ $rating ?: 'N/A' }}
-                                </span>
                                 <span class="badge bg-success fs-6" title="{{ $sourceTitle }}">
                                     <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceScore }}%
                                 </span>
@@ -55,25 +45,29 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-primary mb-0">{{ $data['requests_data']['total_requests'] }}</div>
+                                        <div class="h4 text-primary mb-0">{{ $data['requests_data']['total_requests'] }}
+                                        </div>
                                         <small class="text-muted">Total Requests</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-success mb-0">{{ $data['supply_data']['available_stock'] }}</div>
+                                        <div class="h4 text-success mb-0">{{ $data['supply_data']['available_stock'] }}
+                                        </div>
                                         <small class="text-muted">Available Stock</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-warning mb-0">{{ count($data['shortage_analysis']['shortages']) }}</div>
+                                        <div class="h4 text-warning mb-0">
+                                            {{ count($data['shortage_analysis']['shortages']) }}</div>
                                         <small class="text-muted">Critical Shortages</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-info mb-0">{{ count($data['barangay_analysis']['barangay_details']) }}</div>
+                                        <div class="h4 text-info mb-0">
+                                            {{ count($data['barangay_analysis']['barangay_details']) }}</div>
                                         <small class="text-muted">Active Barangays</small>
                                     </div>
                                 </div>
@@ -204,7 +198,8 @@
                                     <td>
                                         @php
                                             $pl = $barangay['priority_level'] ?? 'LOW';
-                                            $plColor = $pl === 'HIGH' ? 'danger' : ($pl === 'MEDIUM' ? 'warning' : 'success');
+                                            $plColor =
+                                                $pl === 'HIGH' ? 'danger' : ($pl === 'MEDIUM' ? 'warning' : 'success');
                                         @endphp
                                         <span class="badge bg-{{ $plColor }}">{{ $pl }}</span>
                                     </td>
@@ -271,9 +266,11 @@
                                 ({{ $report['model_used'] ?? 'AI Model' }})
                             @endif
                             <br>
-                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to
+                            {{ $data['period']['end_date'] ?? 'Unknown' }}
                             @if ($isQuarterly)
-                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly Report</span>
+                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly
+                                    Report</span>
                             @endif
                         </small>
                     </div>

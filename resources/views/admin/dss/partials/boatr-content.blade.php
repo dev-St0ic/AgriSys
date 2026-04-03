@@ -24,23 +24,13 @@
                         @if (isset($report['report_data']['performance_assessment']))
                             <div class="d-flex gap-4 mt-3 flex-wrap">
                                 @php
-                                    $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
-                                    $ratingColor = match (strtolower($rating)) {
-                                        'excellent', 'very good' => 'success',
-                                        'good'                   => 'primary',
-                                        'fair', 'average', 'needs improvement' => 'warning',
-                                        'poor', 'critical'       => 'danger',
-                                        default                  => 'secondary',
-                                    };
-                                    $confidenceScore  = $report['report_data']['confidence_score']  ?? 92;
+                                    $confidenceScore = $report['report_data']['confidence_score'] ?? 92;
                                     $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
-                                    $sourceTitle      = $confidenceSource === 'llm'
-                                        ? 'AI-assessed high confidence'
-                                        : 'High data-quality confidence';
+                                    $sourceTitle =
+                                        $confidenceSource === 'llm'
+                                            ? 'AI-assessed high confidence'
+                                            : 'High data-quality confidence';
                                 @endphp
-                                <span class="badge bg-{{ $ratingColor }} fs-6">
-                                    Overall Rating: {{ $rating ?: 'N/A' }}
-                                </span>
                                 <span class="badge bg-success fs-6" title="{{ $sourceTitle }}">
                                     <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceScore }}%
                                 </span>
@@ -55,7 +45,8 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-primary mb-0">{{ $data['boatr_stats']['total_applications'] }}</div>
+                                        <div class="h4 text-primary mb-0">
+                                            {{ $data['boatr_stats']['total_applications'] }}</div>
                                         <small class="text-muted">Total Applications</small>
                                     </div>
                                 </div>
@@ -67,7 +58,8 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h5 text-info mb-0">{{ $data['boatr_stats']['inspections_completed'] }}</div>
+                                        <div class="h5 text-info mb-0">
+                                            {{ $data['boatr_stats']['inspections_completed'] }}</div>
                                         <small class="text-muted">Inspections</small>
                                     </div>
                                 </div>
@@ -79,8 +71,10 @@
                                 </div>
                                 <div class="col-12">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h5 text-success mb-0">{{ $data['boatr_stats']['documents_verified'] ?? 0 }}</div>
-                                        <small class="text-muted">Docs Verified ({{ $data['boatr_stats']['document_verification_rate'] ?? 0 }}%)</small>
+                                        <div class="h5 text-success mb-0">
+                                            {{ $data['boatr_stats']['documents_verified'] ?? 0 }}</div>
+                                        <small class="text-muted">Docs Verified
+                                            ({{ $data['boatr_stats']['document_verification_rate'] ?? 0 }}%)</small>
                                     </div>
                                 </div>
                             </div>
@@ -152,11 +146,13 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <h6 class="fw-bold">Approval Efficiency</h6>
-                            <p>{{ $report['report_data']['performance_assessment']['approval_efficiency'] ?? 'N/A' }}</p>
+                            <p>{{ $report['report_data']['performance_assessment']['approval_efficiency'] ?? 'N/A' }}
+                            </p>
                         </div>
                         <div class="col-md-4 mb-3">
                             <h6 class="fw-bold">Inspection Effectiveness</h6>
-                            <p>{{ $report['report_data']['performance_assessment']['inspection_effectiveness'] ?? 'N/A' }}</p>
+                            <p>{{ $report['report_data']['performance_assessment']['inspection_effectiveness'] ?? 'N/A' }}
+                            </p>
                         </div>
                         <div class="col-md-4 mb-3">
                             <h6 class="fw-bold">Trend Analysis</h6>
@@ -174,7 +170,8 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
-                <div class="card-header" style="background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%); color: white;">
+                <div class="card-header"
+                    style="background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%); color: white;">
                     <h5 class="mb-0"><i class="fas fa-anchor me-2"></i>Vessel Insights</h5>
                 </div>
                 <div class="card-body">
@@ -303,8 +300,10 @@
                             <div class="col-md-3 col-6 mb-3 text-center">
                                 <div class="bg-light rounded p-2">
                                     <div class="h5 text-primary mb-0">{{ $gear['total'] }}</div>
-                                    <small class="text-muted">{{ ucfirst(str_replace('_', ' ', $gear['gear'])) }}</small>
-                                    <div><small class="text-success">{{ $gear['approval_rate'] }}% approved</small></div>
+                                    <small
+                                        class="text-muted">{{ ucfirst(str_replace('_', ' ', $gear['gear'])) }}</small>
+                                    <div><small class="text-success">{{ $gear['approval_rate'] }}% approved</small>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
@@ -333,11 +332,14 @@
                                     <div class="h4 text-{{ $clsColor }} mb-0">{{ $cls['total'] }}</div>
                                     <small class="fw-bold">{{ $cls['classification'] }}</small>
                                     <div><small class="text-muted">{{ $cls['percentage'] }}% of total</small></div>
-                                    <div><small class="text-success">{{ $cls['approval_rate'] }}% approved</small></div>
+                                    <div><small class="text-success">{{ $cls['approval_rate'] }}% approved</small>
+                                    </div>
                                     @if ($cls['classification'] === 'Motorized')
-                                        <div><small class="text-info">Avg {{ $cls['avg_horsepower'] }} HP</small></div>
+                                        <div><small class="text-info">Avg {{ $cls['avg_horsepower'] }} HP</small>
+                                        </div>
                                     @endif
-                                    <div><small class="text-muted">{{ $cls['inspections_completed'] }} inspected</small></div>
+                                    <div><small class="text-muted">{{ $cls['inspections_completed'] }}
+                                            inspected</small></div>
                                 </div>
                             </div>
                         @endforeach
@@ -367,13 +369,15 @@
                     <div class="row text-center g-2 mb-3">
                         <div class="col-6">
                             <div class="bg-light rounded p-2">
-                                <div class="h4 text-danger mb-0">{{ $data['boatr_multiple_registrations']['fishers_with_multiple'] }}</div>
+                                <div class="h4 text-danger mb-0">
+                                    {{ $data['boatr_multiple_registrations']['fishers_with_multiple'] }}</div>
                                 <small class="text-muted">Fishers with multiple boats</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="bg-light rounded p-2">
-                                <div class="h4 text-warning mb-0">{{ $data['boatr_multiple_registrations']['max_boats'] }}</div>
+                                <div class="h4 text-warning mb-0">
+                                    {{ $data['boatr_multiple_registrations']['max_boats'] }}</div>
                                 <small class="text-muted">Max boats per fisher</small>
                             </div>
                         </div>
@@ -390,7 +394,8 @@
                         </ul>
                     @else
                         <p class="text-muted small mb-0">
-                            <i class="fas fa-check-circle text-success me-1"></i>No fishers with multiple registrations found.
+                            <i class="fas fa-check-circle text-success me-1"></i>No fishers with multiple registrations
+                            found.
                         </p>
                     @endif
                 </div>
@@ -413,9 +418,11 @@
                                 ({{ $report['model_used'] ?? 'AI Model' }})
                             @endif
                             <br>
-                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to {{ $data['period']['end_date'] ?? 'Unknown' }}
+                            <strong>Data Period:</strong> {{ $data['period']['start_date'] ?? 'Unknown' }} to
+                            {{ $data['period']['end_date'] ?? 'Unknown' }}
                             @if ($isQuarterly)
-                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly Report</span>
+                                <span class="ms-2 quarterly-badge"><i class="fas fa-calendar-alt"></i> Quarterly
+                                    Report</span>
                             @endif
                         </small>
                     </div>
