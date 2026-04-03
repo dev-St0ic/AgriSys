@@ -240,10 +240,10 @@ Route::middleware('admin')->group(function () {
         // Export applications (must be before /{id} to avoid conflict)
         Route::get('/export', [RsbsaController::class, 'export'])->name('export');
 
-        // Get Template for Bulk Import 
+        // Get Template for Bulk Import
         Route::get('/import/template', [RsbsaController::class, 'importTemplate'])->name('import.template');
 
-        // Handle Bulk Import 
+        // Handle Bulk Import
         Route::post('/import', [RsbsaController::class, 'import'])->name('import');
 
         // Create new registration
@@ -263,6 +263,11 @@ Route::middleware('admin')->group(function () {
 
         // Download document
         Route::get('/{id}/download', [RsbsaController::class, 'downloadDocument'])->name('download-document');
+
+        // Bulk operations
+        Route::post('/bulk-approve', [RsbsaController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::post('/bulk-reject', [RsbsaController::class, 'bulkReject'])->name('bulk-reject');
+        Route::post('/bulk-delete', [RsbsaController::class, 'bulkDelete'])->name('bulk-delete');
     });
 
     // ==============================================
@@ -317,6 +322,11 @@ Route::middleware('admin')->group(function () {
         Route::get('/{id}/annexes/{annexId}/preview', [FishRController::class, 'previewAnnex'])->name('annexes.preview');
         Route::get('/{id}/annexes/{annexId}/download', [FishRController::class, 'downloadAnnex'])->name('annexes.download');
         Route::delete('/{id}/annexes/{annexId}', [FishRController::class, 'deleteAnnex'])->name('annexes.delete');
+
+        // Bulk operations
+        Route::post('/bulk-approve', [FishRController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::post('/bulk-reject', [FishRController::class, 'bulkReject'])->name('bulk-reject');
+        Route::post('/bulk-delete', [FishRController::class, 'bulkDelete'])->name('bulk-delete');
     });
 
     // ==============================================
@@ -378,6 +388,11 @@ Route::middleware('admin')->group(function () {
 
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
+
+        // Bulk operations
+        Route::post('/bulk-approve', [BoatRController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::post('/bulk-reject', [BoatRController::class, 'bulkReject'])->name('bulk-reject');
+        Route::post('/bulk-delete', [BoatRController::class, 'bulkDelete'])->name('bulk-delete');
     });
 
     /**
@@ -400,7 +415,7 @@ Route::middleware('admin')->group(function () {
         // Training Applications Management
         Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
 
-        
+
         // Get Template for Bulk Import
         Route::get('/requests/import/template', [TrainingController::class, 'importTemplate'])->name('import.template');
         // Handle Bulk Import
@@ -422,6 +437,11 @@ Route::middleware('admin')->group(function () {
 
         // Export functionality
         Route::get('/export', [TrainingController::class, 'export'])->name('export');
+
+        // Bulk operations
+        Route::post('/requests/bulk-approve', [TrainingController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::post('/requests/bulk-reject', [TrainingController::class, 'bulkReject'])->name('bulk-reject');
+        Route::post('/requests/bulk-delete', [TrainingController::class, 'bulkDelete'])->name('bulk-delete');
     });
 
     // ==============================================
@@ -477,6 +497,11 @@ Route::middleware('admin')->group(function () {
         Route::get('/requests/import/template', [SeedlingRequestController::class, 'importTemplate'])->name('import.template');
         // Handle Bulk Import
         Route::post('/requests/import', [SeedlingRequestController::class, 'import'])->name('import');
+
+        // Bulk operations
+        Route::post('/requests/bulk-approve', [SeedlingRequestController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::post('/requests/bulk-reject', [SeedlingRequestController::class, 'bulkReject'])->name('bulk-reject');
+        Route::post('/requests/bulk-delete', [SeedlingRequestController::class, 'bulkDelete'])->name('bulk-delete');
 
         // Create request
         Route::get('/requests/create', [SeedlingRequestController::class, 'create'])->name('create');
@@ -605,7 +630,7 @@ Route::middleware('admin')->group(function () {
         // Bulk actions
         Route::post('/bulk-activate', [SlideshowController::class, 'bulkActivate'])->name('bulk-activate');
         Route::post('/bulk-deactivate', [SlideshowController::class, 'bulkDeactivate'])->name('bulk-deactivate');
-        Route::post('/bulk-delete', [SlideshowController::class, 'bulkDelete'])->name('bulk-delete');            
+        Route::post('/bulk-delete', [SlideshowController::class, 'bulkDelete'])->name('bulk-delete');
     });
 
     // ==============================================
@@ -809,7 +834,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
      // Bulk operations
     Route::post('/registrations/bulk-approve', [UserRegistrationController::class, 'bulkApprove'])->name('registrations.bulk-approve');
     Route::post('/registrations/bulk-reject', [UserRegistrationController::class, 'bulkReject'])->name('registrations.bulk-reject');
-    
+    Route::post('/registrations/bulk-delete', [UserRegistrationController::class, 'bulkDelete'])->name('registrations.bulk-delete');
+
     // Get registration details (for modal or details page)
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
 
@@ -820,7 +846,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
     Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
 
-    // Status update 
+    // Status update
     Route::post('/registrations/{id}/update-status', [UserRegistrationController::class, 'updateStatus'])->name('registrations.update-status');
 
     // Edit user account (with session sync)

@@ -1698,6 +1698,49 @@ public function getUserProfile(Request $request)
     }
 
     /**
+     * Bulk delete user registrations (move to recycle bin)
+     */
+    public function bulkDelete(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
+            return response()->json(['success' => false, 'message' => 'Access denied'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:user_registration,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => 'Invalid data provided'], 422);
+        }
+
+        try {
+            $registrations = UserRegistration::whereIn('id', $request->ids)->get();
+            $deleted = 0;
+
+            foreach ($registrations as $reg) {
+                if (\App\Services\RecycleBinService::softDelete($reg, 'Bulk deleted from User Management')) {
+                    $deleted++;
+                }
+            }
+
+            $this->logActivity('bulk_deleted', 'UserRegistration', null, [
+                'count' => $deleted,
+                'ids' => $request->ids,
+            ], "Bulk deleted {$deleted} user registrations");
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$deleted} registration(s) moved to recycle bin."
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Bulk delete users failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk deletion failed.'], 500);
+        }
+    }
+
+    /**
      * Export registrations to CSV/Excel - UPDATED to include banned status
      */
     public function export(Request $request)

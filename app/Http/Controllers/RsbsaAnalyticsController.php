@@ -363,7 +363,9 @@ class RsbsaAnalyticsController extends Controller
     private function getProcessingTimeAnalysis($baseQuery)
     {
         try {
-            $processedApplications = (clone $baseQuery)->whereNotNull('approved_at')->orWhereNotNull('rejected_at')->get();
+            $processedApplications = (clone $baseQuery)->where(function($q) {
+                $q->whereNotNull('approved_at')->orWhereNotNull('rejected_at');
+            })->get();
 
             $processingTimes = [];
             foreach ($processedApplications as $application) {

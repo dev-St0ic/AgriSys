@@ -338,7 +338,9 @@ class SeedlingAnalyticsController extends Controller
             $total = $baseQuery->count();
             $approved = (clone $baseQuery)->where('status', 'approved')->count();
             $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
-            $pending = (clone $baseQuery)->where('status', 'under_review')->count();
+            $pending = (clone $baseQuery)->whereIn('status', ['pending', 'under_review'])->count();
+            $partiallyApproved = (clone $baseQuery)->where('status', 'partially_approved')->count();
+            $cancelled = (clone $baseQuery)->where('status', 'cancelled')->count();
 
             // Get totals with null safety
             $totalQuantityRequested = (clone $baseQuery)->whereNotNull('total_quantity')->sum('total_quantity') ?: 0;
@@ -372,6 +374,8 @@ class SeedlingAnalyticsController extends Controller
                 'approved_requests' => $approved,
                 'rejected_requests' => $rejected,
                 'pending_requests' => $pending,
+                'partially_approved_requests' => $partiallyApproved,
+                'cancelled_requests' => $cancelled,
                 'total_quantity_requested' => $totalQuantityRequested,
                 'total_quantity_approved' => $totalQuantityApproved,
                 'approval_rate' => $this->calculateApprovalRate($total, $approved),
@@ -504,9 +508,10 @@ class SeedlingAnalyticsController extends Controller
                         ->where('category_id', $category->id)
                         ->get();
 
-                    $totalRequested = $items->sum('requested_quantity');
+                    $totalRequested = $items->unique('seedling_request_id')->count();
                     $totalApproved = $items->where('status', 'approved')
-                        ->sum('approved_quantity');
+                        ->unique('seedling_request_id')
+                        ->count();
 
                     return [
                         $category->name => [
@@ -606,7 +611,7 @@ class SeedlingAnalyticsController extends Controller
                 ->toArray();
 
             // Ensure all statuses are present with default values
-            $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'under_review' => 0];
+            $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0, 'partially_approved' => 0, 'cancelled' => 0];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
 
             // Add percentage calculations
@@ -624,8 +629,8 @@ class SeedlingAnalyticsController extends Controller
         } catch (\Exception $e) {
             Log::error('Status Analysis Error: ' . $e->getMessage());
             return [
-                'counts' => ['approved' => 0, 'rejected' => 0, 'under_review' => 0],
-                'percentages' => ['approved' => 0, 'rejected' => 0, 'under_review' => 0],
+                'counts' => ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0, 'partially_approved' => 0, 'cancelled' => 0],
+                'percentages' => ['approved' => 0, 'rejected' => 0, 'pending' => 0, 'under_review' => 0, 'partially_approved' => 0, 'cancelled' => 0],
                 'total' => 0
             ];
         }
@@ -643,7 +648,9 @@ class SeedlingAnalyticsController extends Controller
                     DB::raw('COUNT(*) as total_requests'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
-                    DB::raw('SUM(CASE WHEN status = "under_review" THEN 1 ELSE 0 END) as pending'),
+                    DB::raw('SUM(CASE WHEN status IN ("pending", "under_review") THEN 1 ELSE 0 END) as pending'),
+                    DB::raw('SUM(CASE WHEN status = "partially_approved" THEN 1 ELSE 0 END) as partially_approved'),
+                    DB::raw('SUM(CASE WHEN status = "cancelled" THEN 1 ELSE 0 END) as cancelled'),
                     DB::raw('SUM(COALESCE(total_quantity, 0)) as total_quantity'),
                     DB::raw('ROUND(AVG(COALESCE(total_quantity, 0)), 2) as avg_quantity')
                 )
@@ -1046,6 +1053,8 @@ class SeedlingAnalyticsController extends Controller
             'approved_requests' => 0,
             'rejected_requests' => 0,
             'pending_requests' => 0,
+            'partially_approved_requests' => 0,
+            'cancelled_requests' => 0,
             'total_quantity_requested' => 0,
             'total_quantity_approved' => 0,
             'approval_rate' => 0,

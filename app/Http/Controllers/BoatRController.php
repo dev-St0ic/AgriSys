@@ -62,7 +62,7 @@ class BoatRController extends Controller
 
             // Sort and paginate
             $registrations = $query->orderBy('created_at', 'desc')
-                                  ->orderBy('id', 'desc') 
+                                  ->orderBy('id', 'desc')
                                   ->paginate(10)
                                   ->appends($request->query());
 
@@ -1967,6 +1967,111 @@ public function validateFishrNumber($fishrNumber)
                 'success' => false,
                 'message' => 'An unexpected error occurred during import: ' . $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Bulk approve BoatR registrations
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:boatr_applications,id',
+        ]);
+
+        try {
+            $count = BoatrApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review', 'inspection_required', 'inspection_scheduled', 'documents_pending'])
+                ->update([
+                    'status' => 'approved',
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                ]);
+
+            $this->logActivity('bulk_approved', 'BoatrApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk approved {$count} BoatR registrations");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully approved {$count} registration(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk approve BoatR failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk approval failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk reject BoatR registrations
+     */
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:boatr_applications,id',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $count = BoatrApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review', 'inspection_required', 'inspection_scheduled', 'documents_pending'])
+                ->update([
+                    'status' => 'rejected',
+                    'remarks' => $request->input('reason', 'Bulk rejected by admin'),
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                ]);
+
+            $this->logActivity('bulk_rejected', 'BoatrApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk rejected {$count} BoatR registrations");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully rejected {$count} registration(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk reject BoatR failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk rejection failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk delete BoatR registrations (move to recycle bin)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:boatr_applications,id',
+        ]);
+
+        try {
+            $registrations = BoatrApplication::whereIn('id', $request->ids)->get();
+            $deleted = 0;
+
+            foreach ($registrations as $reg) {
+                if (\App\Services\RecycleBinService::softDelete($reg, 'Bulk deleted from BoatR registrations')) {
+                    $deleted++;
+                }
+            }
+
+            $this->logActivity('bulk_deleted', 'BoatrApplication', null, [
+                'count' => $deleted,
+                'ids' => $request->ids,
+            ], "Bulk deleted {$deleted} BoatR registrations");
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$deleted} registration(s) moved to recycle bin."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk delete BoatR failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk deletion failed.'], 500);
         }
     }
 

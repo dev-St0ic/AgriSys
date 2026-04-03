@@ -45,13 +45,13 @@
             letter-spacing: 0.5px;
         }
 
-         /* Image hover effect for preview */
-        .position-relative:hover .hover-overlay {
+        /* Image hover effect for preview - scoped to slide images only */
+        .slide-image-wrapper:hover .hover-overlay {
             opacity: 1 !important;
             transition: opacity 0.3s ease;
         }
 
-        .position-relative::after {
+        .slide-image-wrapper::after {
             content: '';
             position: absolute;
             top: 0;
@@ -64,7 +64,7 @@
             border-radius: 0.375rem;
         }
 
-        .position-relative:hover::after {
+        .slide-image-wrapper:hover::after {
             opacity: 1;
         }
 
@@ -72,6 +72,7 @@
             z-index: 2;
             transition: opacity 0.3s ease;
         }
+
         /* When image preview is shown on top of view modal */
         #imagePreviewModal.show {
             z-index: 1060;
@@ -179,6 +180,7 @@
                 font-size: 0.9rem;
             }
         }
+
         /* Custom Pagination Styles */
         .pagination {
             background-color: #f8f9fa;
@@ -226,7 +228,7 @@
                     <div class="stat-icon mb-2">
                         <i class="fas fa-images text-primary"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $slides->count() }}</div>
+                    <div class="stat-number mb-2">{{ $totalSlides }}</div>
                     <div class="stat-label text-primary text-uppercase">Total Slides</div>
                 </div>
             </div>
@@ -238,7 +240,7 @@
                     <div class="stat-icon mb-2">
                         <i class="fas fa-check-circle text-success"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $slides->where('is_active', true)->count() }}</div>
+                    <div class="stat-number mb-2">{{ $activeSlides }}</div>
                     <div class="stat-label text-success text-uppercase">Active Slides</div>
                 </div>
             </div>
@@ -250,7 +252,7 @@
                     <div class="stat-icon mb-2">
                         <i class="fas fa-pause-circle text-warning"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ $slides->where('is_active', false)->count() }}</div>
+                    <div class="stat-number mb-2">{{ $inactiveSlides }}</div>
                     <div class="stat-label text-warning text-uppercase">Inactive Slides</div>
                 </div>
             </div>
@@ -262,7 +264,7 @@
                     <div class="stat-icon mb-2">
                         <i class="fas fa-hdd text-info"></i>
                     </div>
-                    <div class="stat-number mb-2">{{ number_format($slides->count() * 0.5, 1) }} MB</div>
+                    <div class="stat-number mb-2">{{ number_format($totalSlides * 0.5, 1) }} MB</div>
                     <div class="stat-label text-info text-uppercase">Storage Used</div>
                 </div>
             </div>
@@ -275,26 +277,25 @@
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <!-- LEFT: Bulk Selection Controls -->
                     <div class="d-flex gap-2 align-items-center" style="flex: 1;">
-                        <button type="button" class="btn btn-sm btn-outline-primary"
-                                onclick="selectAllSlides()" id="selectAllSlidesBtn">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllSlides()"
+                            id="selectAllSlidesBtn">
                             <i class="fas fa-check-square me-1"></i>Select All
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                onclick="deselectAllSlides()" id="deselectAllSlidesBtn"
-                                style="display: none;">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllSlides()"
+                            id="deselectAllSlidesBtn" style="display: none;">
                             <i class="fas fa-square me-1"></i>Deselect All
                         </button>
                         <div class="btn-group" id="slideBulkActionsGroup" style="display: none;">
                             <button type="button" class="btn btn-sm btn-outline-success"
-                                    onclick="openBulkActivateSlideModal()">
+                                onclick="openBulkActivateSlideModal()">
                                 <i class="fas fa-power-off me-1"></i>Activate
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-warning"
-                                    onclick="openBulkDeactivateSlideModal()">
+                                onclick="openBulkDeactivateSlideModal()">
                                 <i class="fas fa-ban me-1"></i>Deactivate
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger"
-                                    onclick="openBulkDeleteSlideModal()">
+                                onclick="openBulkDeleteSlideModal()">
                                 <i class="fas fa-trash me-1"></i>Delete
                             </button>
                         </div>
@@ -307,7 +308,7 @@
                                 class="fas fa-plus me-1"></i>Add New Slide</button>
                         <button type="button" class="btn btn-info btn-sm" id="previewSlideshowBtn"><i
                                 class="fas fa-eye me-1"></i>Preview</button>
-                        @if ($slides->count() > 1)
+                        @if ($totalSlides > 1)
                             <button type="button" class="btn btn-secondary btn-sm" id="reorderBtn"><i
                                     class="fas fa-sort me-1"></i>Reorder</button>
                         @endif
@@ -333,10 +334,10 @@
                             </thead>
                             <tbody id="sortableSlides">
                                 @foreach ($slides as $slide)
-                                    <tr data-slide-id="{{ $slide->id }}" class="slide-table-row">
+                                    <tr data-slide-id="{{ $slide->id }}" class="slide-table-row"
+                                        data-slide='@json($slide)'>
                                         <td class="text-center align-middle">
-                                            <input type="checkbox" class="slide-checkbox"
-                                                value="{{ $slide->id }}"
+                                            <input type="checkbox" class="slide-checkbox" value="{{ $slide->id }}"
                                                 data-title="{{ $slide->title }}"
                                                 data-active="{{ $slide->is_active ? '1' : '0' }}"
                                                 onchange="updateSlideBulkVisibility()">
@@ -349,8 +350,9 @@
                                         </td>
                                         <td class="text-center">
                                             <img src="{{ $slide->image_url }}" alt="Slide preview"
-                                                class="img-thumbnail slide-preview"
-                                                style="width: 100px; height: 60px; object-fit: cover; cursor: pointer; display: block; margin: 0 auto;"
+                                                class="img-thumbnail slide-preview" loading="lazy" decoding="async"
+                                                width="100" height="60"
+                                                style="object-fit: cover; cursor: pointer; display: block; margin: 0 auto;"
                                                 onclick="showImageModal('{{ $slide->image_url }}', '{{ $slide->title }}')">
                                         </td>
                                         <td class="text-start">
@@ -373,11 +375,11 @@
                                         <td class="text-center">
                                             <div class="btn-group" role="group">
                                                 <button type="button" class="btn btn-sm btn-outline-primary"
-                                                    onclick='viewSlide(@json($slide))'>
+                                                    onclick='viewSlide(getSlideData(this))'>
                                                     <i class="fas fa-eye me-1"></i>View
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-outline-success"
-                                                    onclick='editSlide(@json($slide))'>
+                                                    onclick='editSlide(getSlideData(this))'>
                                                     <i class="fas fa-edit me-1"></i>Edit
                                                 </button>
                                                 <div class="btn-group" role="group">
@@ -390,8 +392,8 @@
                                                         <li>
                                                             <a class="dropdown-item" href="javascript:void(0)"
                                                                 onclick="toggleStatus({{ $slide->id }})">
-                                                                <i
-                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 " style="color: {{ $slide->is_active ? '#ffc107' : '#28a745' }};"></i>
+                                                                <i class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2 "
+                                                                    style="color: {{ $slide->is_active ? '#ffc107' : '#28a745' }};"></i>
                                                                 {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
                                                             </a>
                                                         </li>
@@ -434,7 +436,8 @@
                                     </li>
                                 @else
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ $slides->previousPageUrl() }}" rel="prev">Previous</a>
+                                        <a class="page-link" href="{{ $slides->previousPageUrl() }}"
+                                            rel="prev">Previous</a>
                                     </li>
                                 @endif
 
@@ -461,7 +464,8 @@
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link" href="{{ $slides->url($page) }}">{{ $page }}</a>
+                                            <a class="page-link"
+                                                href="{{ $slides->url($page) }}">{{ $page }}</a>
                                         </li>
                                     @endif
                                 @endfor
@@ -512,7 +516,8 @@
                             <div class="col-lg-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-image me-2" style="color: #007bff;"></i>Image Upload</h6>
+                                        <h6 class="mb-0"><i class="fas fa-image me-2" style="color: #007bff;"></i>Image
+                                            Upload</h6>
                                     </div>
                                     <div class="card-body">
                                         <!-- Drag & Drop Area -->
@@ -563,7 +568,8 @@
                             <div class="col-lg-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-edit me-2" style="color: #28a745;"></i>Slide Details</h6>
+                                        <h6 class="mb-0"><i class="fas fa-edit me-2" style="color: #28a745;"></i>Slide
+                                            Details</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
@@ -590,18 +596,19 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label for="newOrder" class="form-label">
-                                                        <i class="fas fa-sort-numeric-up me-1" style="color: #007bff;"></i>Display Order
+                                                        <i class="fas fa-sort-numeric-up me-1"
+                                                            style="color: #007bff;"></i>Display Order
                                                     </label>
                                                     <input type="number" class="form-control" id="newOrder"
-                                                        name="order" value="{{ $slides->max('order') + 1 }}"
-                                                        min="1">
+                                                        name="order" value="{{ $maxOrder + 1 }}" min="1">
                                                     <div class="form-text">Position in slideshow sequence</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">
-                                                        <i class="fas fa-toggle-on me-1" style="color: #28a745;"></i>Status
+                                                        <i class="fas fa-toggle-on me-1"
+                                                            style="color: #28a745;"></i>Status
                                                     </label>
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox" id="newIsActive"
@@ -619,7 +626,8 @@
                                         <div class="card bg-light">
                                             <div class="card-body">
                                                 <h6 class="card-title">
-                                                    <i class="fas fa-cog me-1" style="color: #ffc107;"></i>Advanced Options
+                                                    <i class="fas fa-cog me-1" style="color: #ffc107;"></i>Advanced
+                                                    Options
                                                 </h6>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="optimizeImage">
@@ -665,7 +673,8 @@
                     <h5 class="modal-title w-100 text-center" id="editSlideModalLabel">
                         <i></i>Edit Slideshow Image
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <form id="editSlideForm" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -676,8 +685,7 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Current Image</label>
                                     <img id="editCurrentImage" src="#" alt="Current image"
-                                        class="img-thumbnail mb-2 w-100"
-                                        style="max-height: 200px; object-fit: cover;">
+                                        class="img-thumbnail mb-2 w-100" style="max-height: 200px; object-fit: cover;">
                                 </div>
 
                                 <div class="mb-3">
@@ -762,7 +770,8 @@
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">Are you sure you want to delete <strong id="delete_slide_name"></strong>? It will be moved to the Recycle Bin.</p>
+                        <p class="mb-0">Are you sure you want to delete <strong id="delete_slide_name"></strong>? It
+                            will be moved to the Recycle Bin.</p>
                     </div>
                     <ul class="mb-0">
                         <li>Remove the slide from active records</li>
@@ -773,7 +782,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmDeleteSlide()" id="confirm_delete_slide_btn">
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteSlide()"
+                        id="confirm_delete_slide_btn">
                         <span class="btn-text">Move to Recycle Bin</span>
                         <span class="btn-loader" style="display: none;">
                             <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
@@ -805,7 +815,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-success" onclick="confirmBulkActivateSlides()"
-                            id="confirmBulkActivateSlideBtn">
+                        id="confirmBulkActivateSlideBtn">
                         <span class="btn-text"><i class="fas fa-power-off me-1"></i>Activate</span>
                         <span class="btn-loader" style="display:none;">
                             <span class="spinner-border spinner-border-sm me-2"></span>Activating...
@@ -837,7 +847,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-warning" onclick="confirmBulkDeactivateSlides()"
-                            id="confirmBulkDeactivateSlideBtn">
+                        id="confirmBulkDeactivateSlideBtn">
                         <span class="btn-text"><i class="fas fa-ban me-1"></i>Deactivate</span>
                         <span class="btn-loader" style="display:none;">
                             <span class="spinner-border spinner-border-sm me-2"></span>Deactivating...
@@ -863,14 +873,15 @@
                         You are about to <strong>delete</strong>
                         <strong id="bulkDeleteSlideCount">0</strong> slide(s).
                         They will be moved to the Recycle Bin.
-                        <br><small class="text-muted">Only <strong>inactive</strong> slides can be deleted. Active slides in your selection will be skipped.</small>
+                        <br><small class="text-muted">Only <strong>inactive</strong> slides can be deleted. Active slides
+                            in your selection will be skipped.</small>
                     </div>
                     <p class="mb-0">Are you sure you want to proceed?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmBulkDeleteSlides()"
-                            id="confirmBulkDeleteSlideBtn">
+                        id="confirmBulkDeleteSlideBtn">
                         <span class="btn-text"><i class="fas fa-trash me-1"></i>Move to Recycle Bin</span>
                         <span class="btn-loader" style="display:none;">
                             <span class="spinner-border spinner-border-sm me-2"></span>Deleting...
@@ -892,10 +903,12 @@
                     <h5 class="modal-title w-100 text-center" id="imagePreviewModalLabel">
                         <i class="fas fa-image me-2" style="color: #fff;"></i>Image Preview
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center p-4">
-                    <img id="previewImage" src="#" alt="Preview" class="img-fluid rounded shadow-sm" style="max-height: 550px; object-fit: contain;">
+                    <img id="previewImage" src="#" alt="Preview" class="img-fluid rounded shadow-sm"
+                        style="max-height: 550px; object-fit: contain;">
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -915,7 +928,8 @@
                     <h5 class="modal-title w-100 text-center" id="slideshowPreviewModalLabel">
                         <i></i>Slideshow Preview
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
                     <div id="slideshowPreviewContainer" style="height: 400px; position: relative; overflow: hidden;">
@@ -942,14 +956,18 @@
                     <h5 class="modal-title w-100 text-center" id="viewSlideModalLabel">
                         <i></i>View Slide Details
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-4">
                         <!-- Image Section -->
                         <div class="col-md-4">
-                            <div class="position-relative" style="cursor: pointer;" onclick="showImageModal(document.getElementById('viewSlideImage').src, 'Slide Preview')">
-                                <img id="viewSlideImage" src="#" alt="Slide image" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
+                            <div class="position-relative slide-image-wrapper" style="cursor: pointer;"
+                                onclick="showImageModal(document.getElementById('viewSlideImage').src, 'Slide Preview')">
+                                <img id="viewSlideImage" src="#" alt="Slide image"
+                                    class="img-fluid rounded shadow-sm w-100"
+                                    style="max-height: 300px; object-fit: cover;">
                                 <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
                                     <i class="fas fa-search-plus fa-2x text-white"></i>
                                 </div>
@@ -1016,7 +1034,7 @@
                         <i></i>Close
                     </button>
                 </div>
-            </div>   
+            </div>
         </div>
     </div>
 
@@ -1024,8 +1042,14 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" defer></script>
     <script>
+        // Get slide data from the closest table row's data attribute
+        function getSlideData(btn) {
+            const row = btn.closest('tr[data-slide]');
+            return JSON.parse(row.getAttribute('data-slide'));
+        }
+
         $(document).ready(function() {
             // Initialize sortable for reordering (only if element exists)
             const sortableElement = document.getElementById('sortableSlides');
@@ -1274,7 +1298,7 @@
         function resetNewSlideForm() {
             $('#newSlideForm')[0].reset();
             removeSelectedImage();
-            $('#newOrder').val({{ $slides->max('order') + 1 }});
+            $('#newOrder').val({{ $maxOrder + 1 }});
             $('#newIsActive').prop('checked', true);
             $('.status-text').text('Active - Will appear in slideshow');
             $('#charCount').text('0').removeClass('text-warning text-danger');
@@ -1455,11 +1479,12 @@
                 }
 
                 // Show loading state
-                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+                submitBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
 
                 $.ajax({
                     url: `/admin/slideshow/${slideId}`,
-                    method: 'POST',  // Laravel treats POST with _method=PUT as PUT
+                    method: 'POST', // Laravel treats POST with _method=PUT as PUT
                     data: formData,
                     processData: false,
                     contentType: false,
@@ -1468,7 +1493,8 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            showToast('success', response.message || 'Slideshow image updated successfully!');
+                            showToast('success', response.message ||
+                                'Slideshow image updated successfully!');
                             $('#editSlideModal').modal('hide');
 
                             // Reload page after a short delay
@@ -1626,7 +1652,8 @@
         async function confirmDeleteSlide() {
             try {
                 document.getElementById('confirm_delete_slide_btn').querySelector('.btn-text').style.display = 'none';
-                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-loader').style.display = 'inline';
+                document.getElementById('confirm_delete_slide_btn').querySelector('.btn-loader').style.display =
+                    'inline';
 
                 const response = await fetch(`/admin/slideshow/${currentDeleteSlideId}`, {
                     method: 'DELETE',
@@ -1806,7 +1833,10 @@
         // --- Bulk Activate ---
         function openBulkActivateSlideModal() {
             const ids = getSelectedSlideIds();
-            if (!ids.length) { showToast('warning', 'No slides selected'); return; }
+            if (!ids.length) {
+                showToast('warning', 'No slides selected');
+                return;
+            }
             document.getElementById('bulkActivateSlideCount').textContent = ids.length;
             new bootstrap.Modal(document.getElementById('bulkActivateSlideModal')).show();
         }
@@ -1819,14 +1849,16 @@
             btn.disabled = true;
 
             try {
-                const response = await fetch('{{ route("admin.slideshow.bulk-activate") }}', {
+                const response = await fetch('{{ route('admin.slideshow.bulk-activate') }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ ids })
+                    body: JSON.stringify({
+                        ids
+                    })
                 });
                 const data = await response.json();
                 bootstrap.Modal.getInstance(document.getElementById('bulkActivateSlideModal')).hide();
@@ -1848,7 +1880,10 @@
         // --- Bulk Deactivate ---
         function openBulkDeactivateSlideModal() {
             const ids = getSelectedSlideIds();
-            if (!ids.length) { showToast('warning', 'No slides selected'); return; }
+            if (!ids.length) {
+                showToast('warning', 'No slides selected');
+                return;
+            }
             document.getElementById('bulkDeactivateSlideCount').textContent = ids.length;
             new bootstrap.Modal(document.getElementById('bulkDeactivateSlideModal')).show();
         }
@@ -1861,14 +1896,16 @@
             btn.disabled = true;
 
             try {
-                const response = await fetch('{{ route("admin.slideshow.bulk-deactivate") }}', {
+                const response = await fetch('{{ route('admin.slideshow.bulk-deactivate') }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ ids })
+                    body: JSON.stringify({
+                        ids
+                    })
                 });
                 const data = await response.json();
                 bootstrap.Modal.getInstance(document.getElementById('bulkDeactivateSlideModal')).hide();
@@ -1890,7 +1927,10 @@
         // --- Bulk Delete ---
         function openBulkDeleteSlideModal() {
             const ids = getSelectedSlideIds();
-            if (!ids.length) { showToast('warning', 'No slides selected'); return; }
+            if (!ids.length) {
+                showToast('warning', 'No slides selected');
+                return;
+            }
             document.getElementById('bulkDeleteSlideCount').textContent = ids.length;
             new bootstrap.Modal(document.getElementById('bulkDeleteSlideModal')).show();
         }
@@ -1903,14 +1943,16 @@
             btn.disabled = true;
 
             try {
-                const response = await fetch('{{ route("admin.slideshow.bulk-delete") }}', {
+                const response = await fetch('{{ route('admin.slideshow.bulk-delete') }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ ids })
+                    body: JSON.stringify({
+                        ids
+                    })
                 });
                 const data = await response.json();
                 bootstrap.Modal.getInstance(document.getElementById('bulkDeleteSlideModal')).hide();

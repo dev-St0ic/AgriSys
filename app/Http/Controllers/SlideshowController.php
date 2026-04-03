@@ -16,9 +16,15 @@ class SlideshowController extends Controller
      */
     public function index()
     {
-        // $slides = SlideshowImage::ordered()->get();
         $slides = SlideshowImage::ordered()->paginate(10);
-        return view('admin.slideshow.index', compact('slides'));
+
+        // Pre-compute aggregate stats to avoid querying from paginated subset
+        $totalSlides = SlideshowImage::count();
+        $activeSlides = SlideshowImage::where('is_active', true)->count();
+        $inactiveSlides = $totalSlides - $activeSlides;
+        $maxOrder = SlideshowImage::max('order') ?? 0;
+
+        return view('admin.slideshow.index', compact('slides', 'totalSlides', 'activeSlides', 'inactiveSlides', 'maxOrder'));
     }
 
     /**

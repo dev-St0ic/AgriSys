@@ -806,4 +806,109 @@ public function destroy($id)
             ], 500);
         }
     }
+
+    /**
+     * Bulk approve training applications
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:training_applications,id',
+        ]);
+
+        try {
+            $count = TrainingApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'approved',
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                ]);
+
+            $this->logActivity('bulk_approved', 'TrainingApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk approved {$count} training applications");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully approved {$count} application(s)."
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Bulk approve training failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk approval failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk reject training applications
+     */
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:training_applications,id',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $count = TrainingApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'rejected',
+                    'remarks' => $request->input('reason', 'Bulk rejected by admin'),
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                ]);
+
+            $this->logActivity('bulk_rejected', 'TrainingApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk rejected {$count} training applications");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully rejected {$count} application(s)."
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Bulk reject training failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk rejection failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk delete training applications (move to recycle bin)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:training_applications,id',
+        ]);
+
+        try {
+            $applications = TrainingApplication::whereIn('id', $request->ids)->get();
+            $deleted = 0;
+
+            foreach ($applications as $app) {
+                if (\App\Services\RecycleBinService::softDelete($app, 'Bulk deleted from Training requests')) {
+                    $deleted++;
+                }
+            }
+
+            $this->logActivity('bulk_deleted', 'TrainingApplication', null, [
+                'count' => $deleted,
+                'ids' => $request->ids,
+            ], "Bulk deleted {$deleted} training applications");
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$deleted} application(s) moved to recycle bin."
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Bulk delete training failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk deletion failed.'], 500);
+        }
+    }
 }

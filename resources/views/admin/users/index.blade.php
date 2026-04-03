@@ -91,24 +91,27 @@
                     <div class="col-md-2">
                         <select name="user_type" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Types</option>
-                                <option value="farmer" {{ request('user_type') == 'farmer' ? 'selected' : '' }}>
-                                    Farmer
-                                </option>
-                                <option value="fisherfolk" {{ request('user_type') == 'fisherfolk' ? 'selected' : '' }}>
-                                    Fisherfolk
-                                </option>
-                                <option value="general" {{ request('user_type') == 'general' ? 'selected' : '' }}>
-                                    General Public
-                                </option>
-                                <option value="agri-entrepreneur" {{ request('user_type') == 'agri-entrepreneur' ? 'selected' : '' }}>
-                                    Agricultural Entrepreneur
-                                </option>
-                                <option value="cooperative-member" {{ request('user_type') == 'cooperative-member' ? 'selected' : '' }}>
-                                    Cooperative Member
-                                </option>
-                                <option value="government-employee" {{ request('user_type') == 'government-employee' ? 'selected' : '' }}>
-                                    Government Employee
-                                </option>
+                            <option value="farmer" {{ request('user_type') == 'farmer' ? 'selected' : '' }}>
+                                Farmer
+                            </option>
+                            <option value="fisherfolk" {{ request('user_type') == 'fisherfolk' ? 'selected' : '' }}>
+                                Fisherfolk
+                            </option>
+                            <option value="general" {{ request('user_type') == 'general' ? 'selected' : '' }}>
+                                General Public
+                            </option>
+                            <option value="agri-entrepreneur"
+                                {{ request('user_type') == 'agri-entrepreneur' ? 'selected' : '' }}>
+                                Agricultural Entrepreneur
+                            </option>
+                            <option value="cooperative-member"
+                                {{ request('user_type') == 'cooperative-member' ? 'selected' : '' }}>
+                                Cooperative Member
+                            </option>
+                            <option value="government-employee"
+                                {{ request('user_type') == 'government-employee' ? 'selected' : '' }}>
+                                Government Employee
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -139,13 +142,33 @@
     <!-- Registrations Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div></div>
-            <div class="text-center flex-fill">
+            <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
+                    id="bulkSelectAllBtn">
+                    <i class="fas fa-check-square me-1"></i>Select All
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="bulkDeselectAll()"
+                    id="bulkDeselectAllBtn" style="display: none;">
+                    <i class="fas fa-square me-1"></i>Deselect All
+                </button>
+                <div class="btn-group" id="bulkActionsGroup" style="display: none;">
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="openBulkModal('approve')">
+                        <i class="fas fa-check me-1"></i>Approve
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="openBulkModal('reject')">
+                        <i class="fas fa-times me-1"></i>Reject
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="openBulkModal('delete')">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+            <div class="text-center" style="flex: 1;">
                 <h6 class="m-0 font-weight-bold text-primary">
                     <i class="fas fa-user-edit me-2"></i>User Records
                 </h6>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddUserModal()">
                     <i class="fas fa-user-plus me-2"></i>Add User
                 </button>
@@ -160,6 +183,9 @@
                 <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                     <thead class="table-dark">
                         <tr>
+                            <th class="text-center" style="width: 40px;">
+                                <input type="checkbox" id="bulkHeaderCheckbox" onchange="toggleAllCheckboxes(this)">
+                            </th>
                             <th class="text-center">Registration Date</th>
                             <th class="text-center">Username</th>
                             <th class="text-center">Full Name</th>
@@ -172,20 +198,23 @@
                     <tbody>
                         @forelse($registrations as $registration)
                             <tr data-id="{{ $registration->id }}">
+                                <td class="text-center align-middle">
+                                    <input type="checkbox" class="bulk-checkbox" value="{{ $registration->id }}"
+                                        onchange="updateBulkVisibility()">
+                                </td>
                                 <td>{{ $registration->created_at->format('M d, Y g:i A') }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar rounded-circle me-2 d-flex align-items-center justify-content-center text-white font-weight-bold"
                                             style="width: 35px; height: 35px;
-                                            background-color: 
-                                            @if($registration->user_type === 'farmer') #28a745
+                                            background-color:
+                                            @if ($registration->user_type === 'farmer') #28a745
                                                 @elseif($registration->user_type === 'fisherfolk') #17a2b8
                                                 @elseif($registration->user_type === 'general') #6c757d
                                                 @elseif($registration->user_type === 'agri-entrepreneur') #007bff
                                                 @elseif($registration->user_type === 'cooperative-member') #ffc107
                                                 @elseif($registration->user_type === 'government-employee') #dc3545
-                                                @else #343a40
-                                                @endif">
+                                                @else #343a40 @endif">
                                             {{ strtoupper(substr($registration->username, 0, 2)) }}
                                         </div>
                                         <div>
@@ -208,13 +237,14 @@
                                     @endif
                                 </td>
                                 <td>
-                                  @if ($registration->user_type)
-                                        <span class="badge fs-6
+                                    @if ($registration->user_type)
+                                        <span
+                                            class="badge fs-6
                                         @if ($registration->user_type === 'farmer') bg-success
                                         @elseif($registration->user_type === 'fisherfolk') bg-info
                                         @elseif($registration->user_type === 'general') bg-secondary
                                         @elseif($registration->user_type === 'agri-entrepreneur') bg-primary
-                                        @elseif($registration->user_type === 'cooperative-member') bg-warning 
+                                        @elseif($registration->user_type === 'cooperative-member') bg-warning
                                         @elseif($registration->user_type === 'government-employee') bg-danger
                                         @else bg-dark @endif">
                                             {{ ucfirst(str_replace('-', ' ', $registration->user_type)) }}
@@ -1043,8 +1073,7 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_contact_number"
-                                            name="contact_number" required
-                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                            name="contact_number" required pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
@@ -1152,8 +1181,8 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="tel" class="form-control" id="edit_emergency_contact_phone"
-                                            name="emergency_contact_phone" required 
-                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                            name="emergency_contact_phone" required pattern="^(\+639|09)\d{9}$"
+                                            maxlength="20">
                                         <small class="text-muted d-block mt-2">
                                             <i class="fas fa-info-circle me-1"></i>09XXXXXXXXX
                                         </small>
@@ -2795,6 +2824,33 @@
             opacity: 0.5;
         }
     </style>
+
+    <!-- Bulk Action Modal -->
+    <div class="modal fade" id="bulkActionModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white" id="bulkModalHeader">
+                    <h5 class="modal-title w-100 text-center" id="bulkModalTitle"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="bulkActionMessage" class="mb-3"></p>
+                    <p>Selected: <strong id="bulkActionCount">0</strong> item(s)</p>
+                    <div id="bulkRejectReasonGroup" style="display: none;">
+                        <label for="bulkRejectReason" class="form-label">Reason for rejection:</label>
+                        <textarea class="form-control" id="bulkRejectReason" rows="3" placeholder="Enter reason..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="bulkConfirmBtn"
+                        onclick="confirmBulkAction()">
+                        <i class="fas fa-check me-1"></i>Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -3429,31 +3485,31 @@
                         documentsHtml = `
                             <div class="row g-3">
                                 ${docs.map(doc => `
-                                                <div class="col-md-4">
-                                                    <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
-                                                        <div class="document-thumbnail-container">
-                                                            <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
-                                                                <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
-                                                                    <span class="visually-hidden">Loading...</span>
+                                                    <div class="col-md-4">
+                                                        <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
+                                                            <div class="document-thumbnail-container">
+                                                                <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
+                                                                    <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
+                                                                        <span class="visually-hidden">Loading...</span>
+                                                                    </div>
+                                                                </div>
+                                                                <img class="document-thumbnail-image"
+                                                                     id="thumb-${doc.type}"
+                                                                     style="display: none;"
+                                                                     alt="${doc.name}"
+                                                                     onload="showThumbnail('${doc.type}')"
+                                                                     onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
+                                                                <div class="document-thumbnail-overlay">
+                                                                    <i class="fas fa-eye fa-2x text-white"></i>
                                                                 </div>
                                                             </div>
-                                                            <img class="document-thumbnail-image"
-                                                                 id="thumb-${doc.type}"
-                                                                 style="display: none;"
-                                                                 alt="${doc.name}"
-                                                                 onload="showThumbnail('${doc.type}')"
-                                                                 onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
-                                                            <div class="document-thumbnail-overlay">
-                                                                <i class="fas fa-eye fa-2x text-white"></i>
+                                                            <div class="document-thumbnail-info">
+                                                                <h6 class="document-thumbnail-title">${doc.name}</h6>
+                                                                <small class="text-muted">Click to view full size</small>
                                                             </div>
                                                         </div>
-                                                        <div class="document-thumbnail-info">
-                                                            <h6 class="document-thumbnail-title">${doc.name}</h6>
-                                                            <small class="text-muted">Click to view full size</small>
-                                                        </div>
                                                     </div>
-                                                </div>
-                                            `).join('')}
+                                                `).join('')}
                             </div>
                         `;
                     } else {
@@ -4485,7 +4541,7 @@
         function validateAddUserForm() {
             let isValid = true;
 
-             // *** NEW: Validate all name fields FIRST ***
+            // *** NEW: Validate all name fields FIRST ***
             const nameFieldIds = [
                 'add_first_name',
                 'add_middle_name',
@@ -4779,7 +4835,7 @@
                 // Get registration details from the table row
                 const row = document.querySelector(`tr[data-id="${id}"]`);
                 const username = row ? row.querySelector('.font-weight-bold.text-primary').textContent :
-                'this registration';
+                    'this registration';
 
                 // Set the global variable
                 currentDeleteUserId = id;
@@ -5647,14 +5703,34 @@
                 }
             });
 
-            const requiredFields = [
-                { elementId: 'edit_first_name', label: 'First Name' },
-                { elementId: 'edit_last_name', label: 'Last Name' },
-                { elementId: 'edit_contact_number', label: 'Contact Number' },
-                { elementId: 'edit_barangay', label: 'Barangay' },
-                { elementId: 'edit_user_type', label: 'User Type' },
-                { elementId: 'edit_emergency_contact_name', label: 'Emergency Contact Name' },
-                { elementId: 'edit_emergency_contact_phone', label: 'Emergency Contact Phone' }
+            const requiredFields = [{
+                    elementId: 'edit_first_name',
+                    label: 'First Name'
+                },
+                {
+                    elementId: 'edit_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    elementId: 'edit_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    elementId: 'edit_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    elementId: 'edit_user_type',
+                    label: 'User Type'
+                },
+                {
+                    elementId: 'edit_emergency_contact_name',
+                    label: 'Emergency Contact Name'
+                },
+                {
+                    elementId: 'edit_emergency_contact_phone',
+                    label: 'Emergency Contact Phone'
+                }
             ];
 
             // Validate required fields (skip if already validated by name validation)
@@ -5899,7 +5975,7 @@
             try {
                 const storedFields = submitBtn.dataset.changedFields;
                 console.log('Stored changed fields:', storedFields); // Debug log
-                
+
                 if (storedFields) {
                     changedFields = JSON.parse(storedFields);
                 }
@@ -5916,9 +5992,9 @@
             }
 
             // Build a nicer formatted message
-            const changesText = changedFields.length > 0 
-                ? changedFields.map(field => `• ${field}`).join('\n')
-                : '• One or more fields have been modified';
+            const changesText = changedFields.length > 0 ?
+                changedFields.map(field => `• ${field}`).join('\n') :
+                '• One or more fields have been modified';
 
             // Show confirmation toast with ALL changes
             showConfirmationToast(
@@ -5989,7 +6065,7 @@
             });
 
             console.log('Submitting FormData with files and all fields');
-            
+
             formData.append('_method', 'PUT');
 
             // Submit to backend with FormData
@@ -6105,23 +6181,23 @@
             }
         }
 
-                /**
+        /**
          * Sanitize name input - remove numbers and invalid characters
          */
         function sanitizeNameInput(input) {
             if (!input) return;
-            
+
             let value = input.value;
-            
+
             // Remove numbers
             value = value.replace(/\d/g, '');
-            
+
             // Remove special characters except allowed ones
             value = value.replace(/[^a-zA-Z\s\-'.ñÑ]/g, '');
-            
+
             // Remove consecutive spaces
             value = value.replace(/\s+/g, ' ');
-            
+
             input.value = value;
         }
 
@@ -6136,7 +6212,7 @@
             input.classList.remove('is-invalid', 'is-valid');
 
             const value = input.value.trim();
-            
+
             // Skip validation if field is empty and not required
             if (!value && input.id === 'edit_middle_name') {
                 return true;
@@ -6210,7 +6286,7 @@
             input.classList.remove('is-invalid', 'is-valid');
 
             const value = input.value.trim();
-            
+
             // Skip validation if field is empty and not required
             if (!value && input.id === 'add_middle_name') {
                 return true;
@@ -6388,7 +6464,7 @@
             // Real-time validation for EDIT modal name fields
             const editNameFields = [
                 'edit_first_name',
-                'edit_middle_name', 
+                'edit_middle_name',
                 'edit_last_name',
                 'edit_emergency_contact_name'
             ];
@@ -6650,5 +6726,121 @@
         }
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
+
+        // ===== BULK SELECTION FUNCTIONS =====
+        function toggleAllCheckboxes(header) {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = header.checked);
+            updateBulkVisibility();
+        }
+
+        function bulkSelectAll() {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = true);
+            const h = document.getElementById('bulkHeaderCheckbox');
+            if (h) h.checked = true;
+            updateBulkVisibility();
+        }
+
+        function bulkDeselectAll() {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+            const h = document.getElementById('bulkHeaderCheckbox');
+            if (h) h.checked = false;
+            updateBulkVisibility();
+        }
+
+        function updateBulkVisibility() {
+            const checked = document.querySelectorAll('.bulk-checkbox:checked').length;
+            document.getElementById('bulkActionsGroup').style.display = checked > 0 ? 'flex' : 'none';
+            document.getElementById('bulkSelectAllBtn').style.display = checked > 0 ? 'none' : 'block';
+            document.getElementById('bulkDeselectAllBtn').style.display = checked > 0 ? 'block' : 'none';
+        }
+
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('.bulk-checkbox:checked')).map(cb => cb.value);
+        }
+
+        function openBulkModal(action) {
+            const ids = getSelectedIds();
+            if (!ids.length) return;
+            document.getElementById('bulkActionCount').textContent = ids.length;
+            document.getElementById('bulkRejectReasonGroup').style.display = action === 'reject' ? 'block' : 'none';
+
+            const titleMap = {
+                approve: 'Approve Users',
+                reject: 'Reject Users',
+                delete: 'Delete Users'
+            };
+            const colorMap = {
+                approve: 'success',
+                reject: 'warning',
+                delete: 'danger'
+            };
+            const iconMap = {
+                approve: 'fa-check',
+                reject: 'fa-times',
+                delete: 'fa-trash'
+            };
+            const msgMap = {
+                approve: 'activate and approve',
+                reject: 'reject',
+                delete: 'move to recycle bin'
+            };
+
+            document.getElementById('bulkModalTitle').innerHTML =
+                `<i class="fas ${iconMap[action]} me-2"></i>${titleMap[action]}`;
+            document.getElementById('bulkModalHeader').className = `modal-header bg-${colorMap[action]} text-white`;
+            document.getElementById('bulkActionMessage').textContent =
+                `You are about to ${msgMap[action]} ${ids.length} user(s).`;
+            document.getElementById('bulkConfirmBtn').className = `btn btn-${colorMap[action]}`;
+            document.getElementById('bulkConfirmBtn').setAttribute('data-action', action);
+
+            new bootstrap.Modal(document.getElementById('bulkActionModal')).show();
+        }
+
+        async function confirmBulkAction() {
+            const btn = document.getElementById('bulkConfirmBtn');
+            const action = btn.getAttribute('data-action');
+            const ids = getSelectedIds();
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+            const urlMap = {
+                approve: '{{ route('admin.registrations.bulk-approve') }}',
+                reject: '{{ route('admin.registrations.bulk-reject') }}',
+                delete: '{{ route('admin.registrations.bulk-delete') }}'
+            };
+
+            const body = {
+                ids
+            };
+            if (action === 'reject') {
+                body.reason = document.getElementById('bulkRejectReason').value || 'Bulk rejected by admin';
+            }
+
+            try {
+                const response = await fetch(urlMap[action], {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                bootstrap.Modal.getInstance(document.getElementById('bulkActionModal')).hide();
+                if (data.success) {
+                    showToast ? showToast('success', data.message) : alert(data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast ? showToast('error', data.message) : alert(data.message);
+                }
+            } catch (e) {
+                showToast ? showToast('error', 'An error occurred') : alert('An error occurred');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check me-1"></i>Confirm';
+            }
+        }
     </script>
 @endsection

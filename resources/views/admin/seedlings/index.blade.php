@@ -194,13 +194,36 @@
         @if ($requests->count() > 0)
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <div></div>
-                    <div class="text-center flex-fill">
+                    <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
+                            id="bulkSelectAllBtn">
+                            <i class="fas fa-check-square me-1"></i>Select All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="bulkDeselectAll()"
+                            id="bulkDeselectAllBtn" style="display: none;">
+                            <i class="fas fa-square me-1"></i>Deselect All
+                        </button>
+                        <div class="btn-group" id="bulkActionsGroup" style="display: none;">
+                            <button type="button" class="btn btn-sm btn-outline-success"
+                                onclick="openBulkModal('approve')">
+                                <i class="fas fa-check me-1"></i>Approve
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning"
+                                onclick="openBulkModal('reject')">
+                                <i class="fas fa-times me-1"></i>Reject
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                onclick="openBulkModal('delete')">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-center" style="flex: 1;">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fas fa-seedling me-2"></i>Supply Requests
                         </h6>
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
                         <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
                             <i class="fas fa-user-plus me-2"></i>Add Request
                         </button>
@@ -218,6 +241,11 @@
                         <table class="table table-hover table-bordered align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
+                                    <th class="px-3 py-3 fw-medium text-white border-end text-center"
+                                        style="width: 40px;">
+                                        <input type="checkbox" id="bulkHeaderCheckbox"
+                                            onchange="toggleAllCheckboxes(this)">
+                                    </th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Date Applied</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Request #</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Name</th>
@@ -233,6 +261,10 @@
                                 @foreach ($requests as $request)
                                     <tr class="border-bottom" data-request-id="{{ $request->id }}"
                                         data-document-path="{{ $request->document_path }}">
+                                        <td class="px-3 py-3 border-end text-center align-middle">
+                                            <input type="checkbox" class="bulk-checkbox" value="{{ $request->id }}"
+                                                onchange="updateBulkVisibility()">
+                                        </td>
                                         <td class="px-3 py-3 border-end">
                                             <small
                                                 class="text-muted">{{ $request->created_at->format('M d, Y') }}</small><br>
@@ -258,17 +290,17 @@
                                                     @php
                                                         $firstItem = $items->first();
                                                         // Use snapshot or live data
-                                                        $categoryDisplayName = $firstItem->category_name 
-                                                            ?? $firstItem->category?->display_name 
-                                                            ?? 'Deleted Category';
-                                                        $categoryIcon = $firstItem->category_icon 
-                                                            ?? $firstItem->category?->icon 
-                                                            ?? 'fa-leaf';
+                                                        $categoryDisplayName =
+                                                            $firstItem->category_name ??
+                                                            ($firstItem->category?->display_name ?? 'Deleted Category');
+                                                        $categoryIcon =
+                                                            $firstItem->category_icon ??
+                                                            ($firstItem->category?->icon ?? 'fa-leaf');
 
-                                                            $approvedItems = $items->where('status', 'approved');
-                                                            $rejectedItems = $items->where('status', 'rejected');
-                                                            $pendingItems = $items->where('status', 'pending');
-                                                            $categoryTotal = $items->count();
+                                                        $approvedItems = $items->where('status', 'approved');
+                                                        $rejectedItems = $items->where('status', 'rejected');
+                                                        $pendingItems = $items->where('status', 'pending');
+                                                        $categoryTotal = $items->count();
                                                     @endphp
 
                                                     <div class="category-group mb-2">
@@ -278,8 +310,9 @@
                                                             data-bs-target="#items-{{ $request->id }}-{{ $categoryId }}"
                                                             aria-expanded="false">
                                                             <div class="d-flex align-items-center flex-grow-1">
-                                                              <i class="fas {{ $categoryIcon }} text-primary me-2"></i>
-                                                                <strong class="text-dark">{{ $categoryDisplayName }}</strong>
+                                                                <i class="fas {{ $categoryIcon }} text-primary me-2"></i>
+                                                                <strong
+                                                                    class="text-dark">{{ $categoryDisplayName }}</strong>
                                                                 <span class="badge bg-secondary ms-2"
                                                                     style="font-size: 0.7rem;">{{ $categoryTotal }}</span>
                                                             </div>
@@ -510,64 +543,67 @@
                         </table>
                     </div>
                 </div>
-                
+
                 @if ($requests->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination pagination-sm">
-                                    {{-- Previous Page Link --}}
-                                    @if ($requests->onFirstPage())
-                                        <li class="page-item disabled">
-                                            <span class="page-link">Back</span>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
-                                        </li>
-                                    @endif
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm">
+                                {{-- Previous Page Link --}}
+                                @if ($requests->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Back</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $requests->previousPageUrl() }}"
+                                            rel="prev">Back</a>
+                                    </li>
+                                @endif
 
-                                    {{-- Pagination Elements --}}
-                                    @php
-                                        $currentPage = $requests->currentPage();
-                                        $lastPage = $requests->lastPage();
-                                        $startPage = max(1, $currentPage - 2);
-                                        $endPage = min($lastPage, $currentPage + 2);
+                                {{-- Pagination Elements --}}
+                                @php
+                                    $currentPage = $requests->currentPage();
+                                    $lastPage = $requests->lastPage();
+                                    $startPage = max(1, $currentPage - 2);
+                                    $endPage = min($lastPage, $currentPage + 2);
 
-                                        if ($endPage - $startPage < 4) {
-                                            if ($startPage == 1) {
-                                                $endPage = min($lastPage, $startPage + 4);
-                                            } else {
-                                                $startPage = max(1, $endPage - 4);
-                                            }
+                                    if ($endPage - $startPage < 4) {
+                                        if ($startPage == 1) {
+                                            $endPage = min($lastPage, $startPage + 4);
+                                        } else {
+                                            $startPage = max(1, $endPage - 4);
                                         }
-                                    @endphp
+                                    }
+                                @endphp
 
-                                    @for ($page = $startPage; $page <= $endPage; $page++)
-                                        @if ($page == $currentPage)
-                                            <li class="page-item active">
-                                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
-                                            </li>
-                                        @else
-                                            <li class="page-item">
-                                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
-                                            </li>
-                                        @endif
-                                    @endfor
-
-                                    {{-- Next Page Link --}}
-                                    @if ($requests->hasMorePages())
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
+                                @for ($page = $startPage; $page <= $endPage; $page++)
+                                    @if ($page == $currentPage)
+                                        <li class="page-item active">
+                                            <span class="page-link bg-primary border-primary">{{ $page }}</span>
                                         </li>
                                     @else
-                                        <li class="page-item disabled">
-                                            <span class="page-link">Next</span>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="{{ $requests->url($page) }}">{{ $page }}</a>
                                         </li>
                                     @endif
-                                </ul>
-                            </nav>
-                        </div>
-                    @endif
+                                @endfor
+
+                                {{-- Next Page Link --}}
+                                @if ($requests->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $requests->nextPageUrl() }}"
+                                            rel="next">Next</a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Next</span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                @endif
             </div>
 
             <!-- Modals Section - OUTSIDE the table -->
@@ -822,19 +858,21 @@
                                                         $category = $items->first()->category;
                                                     @endphp
 
-                                                    @if(!$category)
+                                                    @if (!$category)
                                                         <div class="mb-4 p-3 border rounded alert alert-warning">
                                                             <strong class="text-warning">
                                                                 <i class="fas fa-exclamation-triangle me-2"></i>
                                                                 Deleted Category
                                                             </strong>
-                                                            <span class="badge bg-secondary">{{ $items->count() }} items</span>
-                                                            
+                                                            <span class="badge bg-secondary">{{ $items->count() }}
+                                                                items</span>
+
                                                             {{-- Show the items even though category is deleted --}}
                                                             <div class="ms-3 mt-2">
-                                                                @foreach($items as $item)
+                                                                @foreach ($items as $item)
                                                                     <span class="badge bg-secondary mb-1">
-                                                                        {{ $item->item_name }} ({{ $item->requested_quantity }})
+                                                                        {{ $item->item_name }}
+                                                                        ({{ $item->requested_quantity }})
                                                                     </span>
                                                                 @endforeach
                                                             </div>
@@ -848,7 +886,7 @@
                                                             class="d-flex justify-content-between align-items-center mb-3">
                                                             <strong class="text-primary">
                                                                 <i class="fas {{ $categoryIcon }} text-primary me-2"></i>
-                                                                {{  $categoryDisplayName  }}
+                                                                {{ $categoryDisplayName }}
                                                             </strong>
                                                             <span class="badge bg-secondary">{{ $items->count() }}
                                                                 items</span>
@@ -1478,12 +1516,12 @@
                                             @foreach ($itemsByCategory as $categoryId => $items)
                                                 @php
                                                     $firstItem = $items->first();
-                                                    $categoryDisplayName = $firstItem->category_name 
-                                                        ?? $firstItem->category?->display_name 
-                                                        ?? 'Deleted Category';
-                                                    $categoryIcon = $firstItem->category_icon 
-                                                        ?? $firstItem->category?->icon 
-                                                        ?? 'fa-leaf';
+                                                    $categoryDisplayName =
+                                                        $firstItem->category_name ??
+                                                        ($firstItem->category?->display_name ?? 'Deleted Category');
+                                                    $categoryIcon =
+                                                        $firstItem->category_icon ??
+                                                        ($firstItem->category?->icon ?? 'fa-leaf');
                                                 @endphp
                                                 <div class="mb-4 p-3 border-0 bg-white rounded-3 shadow-sm">
                                                     <h6 class="mb-3 fw-bold text-primary">
@@ -1685,9 +1723,9 @@
                     </div>
                 </div>
             @endforeach
-        </div>
     </div>
-</div>
+    </div>
+    </div>
 @else
     <div class="card">
         <div class="card-body text-center py-5">
@@ -1971,7 +2009,7 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
 
     <!-- Document Viewer Modal -->
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel"
@@ -2039,9 +2077,12 @@
                                     <i class="fas fa-info-circle me-2"></i>How to use bulk import
                                 </h6>
                                 <ol class="mb-0 ps-3">
-                                    <li class="mb-2">Click <strong>Download Template</strong> to get a pre-formatted CSV file.</li>
-                                    <li class="mb-2">Fill in the rows with applicant data. <em>Each row = ONE request. Add up to 5 items per row using item_1 through item_5 columns.</em></li>
-                                    <li class="mb-2">Save as <strong>CSV</strong> (.csv) or <strong>Excel</strong> (.xlsx).</li>
+                                    <li class="mb-2">Click <strong>Download Template</strong> to get a pre-formatted CSV
+                                        file.</li>
+                                    <li class="mb-2">Fill in the rows with applicant data. <em>Each row = ONE request.
+                                            Add up to 5 items per row using item_1 through item_5 columns.</em></li>
+                                    <li class="mb-2">Save as <strong>CSV</strong> (.csv) or <strong>Excel</strong>
+                                        (.xlsx).</li>
                                     <li>Upload the file and click <strong>Import</strong>.</li>
                                 </ol>
                             </div>
@@ -2051,13 +2092,15 @@
                             <div class="col-md-6">
                                 <div class="card border-danger h-100">
                                     <div class="card-header bg-danger text-white py-2">
-                                        <small class="fw-bold"><i class="fas fa-asterisk me-1"></i>Required Columns</small>
+                                        <small class="fw-bold"><i class="fas fa-asterisk me-1"></i>Required
+                                            Columns</small>
                                     </div>
                                     <div class="card-body py-2">
                                         <ul class="mb-0 ps-3 small">
                                             <li><code>first_name</code></li>
                                             <li><code>last_name</code></li>
-                                            <li><code>contact_number</code> <small class="text-muted">(09XXXXXXXXX)</small></li>
+                                            <li><code>contact_number</code> <small
+                                                    class="text-muted">(09XXXXXXXXX)</small></li>
                                             <li><code>barangay</code></li>
                                             <li><code>category_1</code></li>
                                             <li><code>item_1</code></li>
@@ -2074,12 +2117,15 @@
                                     <div class="card-body py-2">
                                         <ul class="mb-0 ps-3 small">
                                             <li><code>middle_name</code></li>
-                                            <li><code>extension_name</code> <small class="text-muted">(Jr., Sr., etc.)</small></li>
+                                            <li><code>extension_name</code> <small class="text-muted">(Jr., Sr.,
+                                                    etc.)</small></li>
                                             <li><code>category_2</code> to <code>category_5</code></li>
                                             <li><code>item_2</code> to <code>item_5</code></li>
                                             <li><code>quantity_2</code> to <code>quantity_5</code></li>
-                                            <li><code>pickup_date</code> <small class="text-muted">(YYYY-MM-DD)</small></li>
-                                            <li><code>status</code> <small class="text-muted">(defaults to pending)</small></li>
+                                            <li><code>pickup_date</code> <small class="text-muted">(YYYY-MM-DD)</small>
+                                            </li>
+                                            <li><code>status</code> <small class="text-muted">(defaults to
+                                                    pending)</small></li>
                                             <li><code>remarks</code></li>
                                         </ul>
                                     </div>
@@ -2088,7 +2134,7 @@
                         </div>
 
                         <a href="{{ route('admin.seedlings.import.template') }}"
-                        class="btn btn-outline-warning w-100 mb-3">
+                            class="btn btn-outline-warning w-100 mb-3">
                             <i class="fas fa-download me-2"></i>Download CSV Template
                         </a>
 
@@ -2099,17 +2145,16 @@
                                 </label>
                                 <div class="input-group">
                                     <input type="file" class="form-control" id="seedling_import_file_input"
-                                        accept=".csv,.xlsx,.xls,.txt"
-                                        onchange="onSeedlingImportFileSelected(this)">
-                                    <button class="btn btn-warning" type="button"
-                                            onclick="submitSeedlingImport()"
-                                            id="seedlingImportSubmitBtn" disabled
-                                            data-import-url="{{ route('admin.seedlings.import') }}">
+                                        accept=".csv,.xlsx,.xls,.txt" onchange="onSeedlingImportFileSelected(this)">
+                                    <button class="btn btn-warning" type="button" onclick="submitSeedlingImport()"
+                                        id="seedlingImportSubmitBtn" disabled
+                                        data-import-url="{{ route('admin.seedlings.import') }}">
                                         <i class="fas fa-upload me-1"></i>Import
                                     </button>
                                 </div>
                                 <div class="form-text">Accepted: CSV (.csv) or Excel (.xlsx / .xls) — Max 10 MB</div>
-                                <div id="seedlingImportFileError" class="text-danger small mt-1" style="display:none;"></div>
+                                <div id="seedlingImportFileError" class="text-danger small mt-1"
+                                    style="display:none;"></div>
 
                                 <div id="seedlingImportProgressWrap" class="mt-3" style="display:none;">
                                     <div class="progress" style="height: 8px;">
@@ -2151,11 +2196,12 @@
                 </div>
 
                 <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="seedlingImportCancelBtn">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        id="seedlingImportCancelBtn">
                         <i></i>Cancel
                     </button>
-                    <button type="button" class="btn btn-success" id="seedlingImportDoneBtn"
-                            style="display:none;" onclick="finishSeedlingImport()">
+                    <button type="button" class="btn btn-success" id="seedlingImportDoneBtn" style="display:none;"
+                        onclick="finishSeedlingImport()">
                         <i class="fas fa-check me-1"></i>Done – Reload Page
                     </button>
                 </div>
@@ -3146,24 +3192,25 @@
         .modal.show .modal-dialog {
             z-index: 1060 !important;
         }
+
         /* CRITICAL FIX: Force modal to display properly */
-#dateFilterModal {
-    z-index: 1060 !important;
-}
+        #dateFilterModal {
+            z-index: 1060 !important;
+        }
 
-#dateFilterModal.show {
-    display: block !important;
-}
+        #dateFilterModal.show {
+            display: block !important;
+        }
 
-#dateFilterModal .modal-dialog {
-    z-index: 1061 !important;
-}
+        #dateFilterModal .modal-dialog {
+            z-index: 1061 !important;
+        }
 
-.modal-backdrop {
-    z-index: 1055 !important;
-}
+        .modal-backdrop {
+            z-index: 1055 !important;
+        }
     </style>
-    
+
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
@@ -3263,7 +3310,31 @@
             </div>
         </div>
     </div>
-    @endsection
+
+    <!-- Bulk Action Confirmation Modal -->
+    <div class="modal fade" id="bulkActionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" id="bulkModalHeader">
+                    <h5 class="modal-title" id="bulkModalTitle">Confirm Bulk Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="bulkModalMessage"></p>
+                    <div id="bulkRejectReasonGroup" style="display: none;">
+                        <label for="bulkRejectReason" class="form-label">Reason for Rejection</label>
+                        <textarea class="form-control" id="bulkRejectReason" rows="3" placeholder="Enter reason for rejection..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn" id="bulkConfirmBtn"
+                        onclick="confirmBulkAction()">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
 @section('scripts')
     <script>
         let searchTimeout;
@@ -4942,7 +5013,7 @@
                 JSON.parse(submitBtn.dataset.changedFields) : [];
 
             const fieldLabels = {
-               'first_name': 'First Name',
+                'first_name': 'First Name',
                 'middle_name': 'Middle Name',
                 'last_name': 'Last Name',
                 'extension_name': 'Name Extension',
@@ -6055,220 +6126,223 @@
                 }, 500);
             }
         });
-// CRITICAL: Ensure date filter modal works
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded, initializing date filter...');
+        // CRITICAL: Ensure date filter modal works
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing date filter...');
 
-    // Cleanup on update modal hide
-    document.querySelectorAll('[id^="updateModal"]').forEach(modalElement => {
-        modalElement.addEventListener('hidden.bs.modal', function() {
-            setTimeout(() => {
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            }, 100);
-        });
-    });
-    
-    // Wait for Bootstrap to be fully loaded
-    const initDateFilter = () => {
-        const dateFilterBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
-        const dateFilterModal = document.getElementById('dateFilterModal');
-        
-        console.log('Date filter button found:', !!dateFilterBtn);
-        console.log('Date filter modal found:', !!dateFilterModal);
-        
-        if (dateFilterBtn && dateFilterModal) {
-            // Remove any existing click handlers
-            dateFilterBtn.replaceWith(dateFilterBtn.cloneNode(true));
-            const newBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
-            
-            newBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Date filter clicked!');
-                
-                try {
-                    // Ensure any existing modal instance is disposed
-                    const existingModal = bootstrap.Modal.getInstance(dateFilterModal);
-                    if (existingModal) {
-                        existingModal.dispose();
-                    }
-                    
-                    // Create new modal instance
-                    const modal = new bootstrap.Modal(dateFilterModal, {
-                        backdrop: true,
-                        keyboard: true,
-                        focus: true
-                    });
-                    
-                    modal.show();
-                    console.log('Modal show() called');
-                } catch (error) {
-                    console.error('Error showing modal:', error);
-                    alert('Error opening date filter. Please refresh the page.');
-                }
+            // Cleanup on update modal hide
+            document.querySelectorAll('[id^="updateModal"]').forEach(modalElement => {
+                modalElement.addEventListener('hidden.bs.modal', function() {
+                    setTimeout(() => {
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el
+                            .remove());
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }, 100);
+                });
             });
-            
-            console.log('Date filter initialized successfully');
-        } else {
-            console.error('Date filter elements not found!');
+
+            // Wait for Bootstrap to be fully loaded
+            const initDateFilter = () => {
+                const dateFilterBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
+                const dateFilterModal = document.getElementById('dateFilterModal');
+
+                console.log('Date filter button found:', !!dateFilterBtn);
+                console.log('Date filter modal found:', !!dateFilterModal);
+
+                if (dateFilterBtn && dateFilterModal) {
+                    // Remove any existing click handlers
+                    dateFilterBtn.replaceWith(dateFilterBtn.cloneNode(true));
+                    const newBtn = document.querySelector('[data-bs-target="#dateFilterModal"]');
+
+                    newBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Date filter clicked!');
+
+                        try {
+                            // Ensure any existing modal instance is disposed
+                            const existingModal = bootstrap.Modal.getInstance(dateFilterModal);
+                            if (existingModal) {
+                                existingModal.dispose();
+                            }
+
+                            // Create new modal instance
+                            const modal = new bootstrap.Modal(dateFilterModal, {
+                                backdrop: true,
+                                keyboard: true,
+                                focus: true
+                            });
+
+                            modal.show();
+                            console.log('Modal show() called');
+                        } catch (error) {
+                            console.error('Error showing modal:', error);
+                            alert('Error opening date filter. Please refresh the page.');
+                        }
+                    });
+
+                    console.log('Date filter initialized successfully');
+                } else {
+                    console.error('Date filter elements not found!');
+                }
+            };
+
+            // Initialize after a short delay to ensure Bootstrap is ready
+            if (typeof bootstrap !== 'undefined') {
+                setTimeout(initDateFilter, 100);
+            } else {
+                console.error('Bootstrap not loaded!');
+            }
+        });
+
+        // =============================================
+        // BULK IMPORT FOR SEEDLINGS
+        // =============================================
+
+        function showSeedlingImportModal() {
+            resetSeedlingImportModal();
+            new bootstrap.Modal(document.getElementById('importSeedlingModal')).show();
         }
-    };
-    
-    // Initialize after a short delay to ensure Bootstrap is ready
-    if (typeof bootstrap !== 'undefined') {
-        setTimeout(initDateFilter, 100);
-    } else {
-        console.error('Bootstrap not loaded!');
-    }
-});
 
-// =============================================
-// BULK IMPORT FOR SEEDLINGS
-// =============================================
+        function resetSeedlingImportModal() {
+            document.getElementById('seedlingImportPanel1').style.display = 'block';
+            document.getElementById('seedlingImportPanel2').style.display = 'none';
+            document.getElementById('seedlingImportSubmitBtn').disabled = true;
+            document.getElementById('seedlingImportCancelBtn').style.display = 'inline-block';
+            document.getElementById('seedlingImportDoneBtn').style.display = 'none';
+            document.getElementById('seedling_import_file_input').value = '';
+            document.getElementById('seedlingImportProgressWrap').style.display = 'none';
+            document.getElementById('seedlingImportProgressBar').style.width = '0%';
+            document.getElementById('seedlingImportProgressLabel').textContent = 'Uploading…';
+            document.getElementById('seedlingImportFileError').style.display = 'none';
+            document.getElementById('seedlingImportFileError').textContent = '';
+            setSeedlingImportStep(1);
+        }
 
-function showSeedlingImportModal() {
-    resetSeedlingImportModal();
-    new bootstrap.Modal(document.getElementById('importSeedlingModal')).show();
-}
+        function setSeedlingImportStep(step) {
+            const badges = [
+                document.querySelector('#seedlingImportStep1Indicator .badge'),
+                document.querySelector('#seedlingImportStep2Indicator .badge'),
+                document.querySelector('#seedlingImportStep3Indicator .badge'),
+            ];
+            const labels = [
+                document.querySelector('#seedlingImportStep1Indicator small'),
+                document.querySelector('#seedlingImportStep2Indicator small'),
+                document.querySelector('#seedlingImportStep3Indicator small'),
+            ];
+            badges.forEach((b, i) => {
+                const active = i < step;
+                b.classList.toggle('bg-warning', active);
+                b.classList.toggle('text-dark', active);
+                b.classList.toggle('bg-secondary', !active);
+            });
+            labels.forEach((l, i) => {
+                l.classList.toggle('text-muted', i >= step);
+                l.classList.toggle('fw-semibold', i < step);
+            });
+        }
 
-function resetSeedlingImportModal() {
-    document.getElementById('seedlingImportPanel1').style.display    = 'block';
-    document.getElementById('seedlingImportPanel2').style.display    = 'none';
-    document.getElementById('seedlingImportSubmitBtn').disabled      = true;
-    document.getElementById('seedlingImportCancelBtn').style.display = 'inline-block';
-    document.getElementById('seedlingImportDoneBtn').style.display   = 'none';
-    document.getElementById('seedling_import_file_input').value      = '';
-    document.getElementById('seedlingImportProgressWrap').style.display = 'none';
-    document.getElementById('seedlingImportProgressBar').style.width    = '0%';
-    document.getElementById('seedlingImportProgressLabel').textContent  = 'Uploading…';
-    document.getElementById('seedlingImportFileError').style.display    = 'none';
-    document.getElementById('seedlingImportFileError').textContent      = '';
-    setSeedlingImportStep(1);
-}
+        function onSeedlingImportFileSelected(input) {
+            const errEl = document.getElementById('seedlingImportFileError');
+            const btn = document.getElementById('seedlingImportSubmitBtn');
 
-function setSeedlingImportStep(step) {
-    const badges = [
-        document.querySelector('#seedlingImportStep1Indicator .badge'),
-        document.querySelector('#seedlingImportStep2Indicator .badge'),
-        document.querySelector('#seedlingImportStep3Indicator .badge'),
-    ];
-    const labels = [
-        document.querySelector('#seedlingImportStep1Indicator small'),
-        document.querySelector('#seedlingImportStep2Indicator small'),
-        document.querySelector('#seedlingImportStep3Indicator small'),
-    ];
-    badges.forEach((b, i) => {
-        const active = i < step;
-        b.classList.toggle('bg-warning', active);
-        b.classList.toggle('text-dark', active);
-        b.classList.toggle('bg-secondary', !active);
-    });
-    labels.forEach((l, i) => {
-        l.classList.toggle('text-muted', i >= step);
-        l.classList.toggle('fw-semibold', i < step);
-    });
-}
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+            btn.disabled = true;
 
-function onSeedlingImportFileSelected(input) {
-    const errEl = document.getElementById('seedlingImportFileError');
-    const btn   = document.getElementById('seedlingImportSubmitBtn');
+            if (!input.files || !input.files[0]) return;
 
-    errEl.style.display = 'none';
-    errEl.textContent   = '';
-    btn.disabled        = true;
+            const file = input.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const allowed = ['csv', 'xlsx', 'xls', 'txt'];
 
-    if (!input.files || !input.files[0]) return;
+            if (!allowed.includes(ext)) {
+                errEl.textContent = 'Invalid file type. Please upload a CSV or Excel file.';
+                errEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
 
-    const file    = input.files[0];
-    const ext     = file.name.split('.').pop().toLowerCase();
-    const allowed = ['csv', 'xlsx', 'xls', 'txt'];
+            if (file.size > 10 * 1024 * 1024) {
+                errEl.textContent = 'File is too large. Maximum size is 10 MB.';
+                errEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
 
-    if (!allowed.includes(ext)) {
-        errEl.textContent   = 'Invalid file type. Please upload a CSV or Excel file.';
-        errEl.style.display = 'block';
-        input.value = '';
-        return;
-    }
+            btn.disabled = false;
+            setSeedlingImportStep(2);
+        }
 
-    if (file.size > 10 * 1024 * 1024) {
-        errEl.textContent   = 'File is too large. Maximum size is 10 MB.';
-        errEl.style.display = 'block';
-        input.value = '';
-        return;
-    }
+        function submitSeedlingImport() {
+            const fileInput = document.getElementById('seedling_import_file_input');
+            if (!fileInput.files || !fileInput.files[0]) {
+                showToast('error', 'Please select a file first.');
+                return;
+            }
 
-    btn.disabled = false;
-    setSeedlingImportStep(2);
-}
+            const submitBtn = document.getElementById('seedlingImportSubmitBtn');
+            const progressWrap = document.getElementById('seedlingImportProgressWrap');
+            const progressBar = document.getElementById('seedlingImportProgressBar');
+            const progressLbl = document.getElementById('seedlingImportProgressLabel');
 
-function submitSeedlingImport() {
-    const fileInput = document.getElementById('seedling_import_file_input');
-    if (!fileInput.files || !fileInput.files[0]) {
-        showToast('error', 'Please select a file first.');
-        return;
-    }
+            submitBtn.disabled = true;
+            document.getElementById('seedling_import_file_input').disabled = true;
+            progressWrap.style.display = 'block';
 
-    const submitBtn     = document.getElementById('seedlingImportSubmitBtn');
-    const progressWrap  = document.getElementById('seedlingImportProgressWrap');
-    const progressBar   = document.getElementById('seedlingImportProgressBar');
-    const progressLbl   = document.getElementById('seedlingImportProgressLabel');
+            let fakeProgress = 0;
+            const progressInterval = setInterval(() => {
+                fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
+                progressBar.style.width = fakeProgress + '%';
+            }, 200);
 
-    submitBtn.disabled                                              = true;
-    document.getElementById('seedling_import_file_input').disabled = true;
-    progressWrap.style.display                                      = 'block';
+            const formData = new FormData();
+            formData.append('import_file', fileInput.files[0]);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-    let fakeProgress = 0;
-    const progressInterval = setInterval(() => {
-        fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
-        progressBar.style.width = fakeProgress + '%';
-    }, 200);
+            const importUrl = submitBtn.dataset.importUrl;
 
-    const formData = new FormData();
-    formData.append('import_file', fileInput.files[0]);
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            fetch(importUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    progressLbl.textContent = 'Processing complete!';
+                    setTimeout(() => {
+                        progressWrap.style.display = 'none';
+                        showSeedlingImportResults(data);
+                    }, 400);
+                })
+                .catch(err => {
+                    clearInterval(progressInterval);
+                    progressWrap.style.display = 'none';
+                    submitBtn.disabled = false;
+                    document.getElementById('seedling_import_file_input').disabled = false;
+                    showToast('error', 'Upload failed: ' + err.message);
+                    console.error('Seedling import error:', err);
+                });
+        }
 
-    const importUrl = submitBtn.dataset.importUrl;
+        function showSeedlingImportResults(data) {
+            document.getElementById('seedlingImportPanel1').style.display = 'none';
+            document.getElementById('seedlingImportPanel2').style.display = 'block';
+            document.getElementById('seedlingImportCancelBtn').style.display = 'none';
+            document.getElementById('seedlingImportDoneBtn').style.display = 'inline-block';
 
-    fetch(importUrl, {
-        method: 'POST',
-        body: formData,
-        headers: { 'Accept': 'application/json' }
-    })
-    .then(r => r.json())
-    .then(data => {
-        clearInterval(progressInterval);
-        progressBar.style.width    = '100%';
-        progressLbl.textContent    = 'Processing complete!';
-        setTimeout(() => {
-            progressWrap.style.display = 'none';
-            showSeedlingImportResults(data);
-        }, 400);
-    })
-    .catch(err => {
-        clearInterval(progressInterval);
-        progressWrap.style.display                                      = 'none';
-        submitBtn.disabled                                              = false;
-        document.getElementById('seedling_import_file_input').disabled = false;
-        showToast('error', 'Upload failed: ' + err.message);
-        console.error('Seedling import error:', err);
-    });
-}
+            setSeedlingImportStep(3);
 
-function showSeedlingImportResults(data) {
-    document.getElementById('seedlingImportPanel1').style.display    = 'none';
-    document.getElementById('seedlingImportPanel2').style.display    = 'block';
-    document.getElementById('seedlingImportCancelBtn').style.display = 'none';
-    document.getElementById('seedlingImportDoneBtn').style.display   = 'inline-block';
+            const cardsEl = document.getElementById('seedlingImportSummaryCards');
 
-    setSeedlingImportStep(3);
-
-    const cardsEl = document.getElementById('seedlingImportSummaryCards');
-
-    if (data.success || (data.imported ?? 0) > 0) {
-        cardsEl.innerHTML = `
+            if (data.success || (data.imported ?? 0) > 0) {
+                cardsEl.innerHTML = `
             <div class="col-6">
                 <div class="card border-success text-center">
                     <div class="card-body py-3">
@@ -6285,46 +6359,156 @@ function showSeedlingImportResults(data) {
                     </div>
                 </div>
             </div>`;
-    } else {
-        cardsEl.innerHTML = `
+            } else {
+                cardsEl.innerHTML = `
             <div class="col-12">
                 <div class="alert alert-danger mb-0">
                     <i class="fas fa-times-circle me-2"></i>
                     <strong>Import failed:</strong> ${data.message ?? 'Unknown error'}
                 </div>
             </div>`;
-    }
+            }
 
-    // Error rows table
-    const errorSection = document.getElementById('seedlingImportErrorSection');
-    const errorBody    = document.getElementById('seedlingImportErrorTableBody');
+            // Error rows table
+            const errorSection = document.getElementById('seedlingImportErrorSection');
+            const errorBody = document.getElementById('seedlingImportErrorTableBody');
 
-    if (data.errors && data.errors.length > 0) {
-        errorSection.style.display = 'block';
-        errorBody.innerHTML = data.errors.map(e => {
-            const name = [e.data?.first_name, e.data?.last_name].filter(Boolean).join(' ') || '(unknown)';
-            const msgs = Object.values(e.errors || {}).join(' · ');
-            return `<tr>
+            if (data.errors && data.errors.length > 0) {
+                errorSection.style.display = 'block';
+                errorBody.innerHTML = data.errors.map(e => {
+                    const name = [e.data?.first_name, e.data?.last_name].filter(Boolean).join(' ') || '(unknown)';
+                    const msgs = Object.values(e.errors || {}).join(' · ');
+                    return `<tr>
                 <td class="text-center fw-bold">${e.row}</td>
                 <td>${name}</td>
                 <td><small class="text-danger">${msgs}</small></td>
             </tr>`;
-        }).join('');
-    } else {
-        errorSection.style.display = 'none';
-    }
+                }).join('');
+            } else {
+                errorSection.style.display = 'none';
+            }
 
-    if ((data.imported ?? 0) > 0) {
-        showToast('success', data.message);
-    } else {
-        showToast('error', data.message);
-    }
-}
+            if ((data.imported ?? 0) > 0) {
+                showToast('success', data.message);
+            } else {
+                showToast('error', data.message);
+            }
+        }
 
-function finishSeedlingImport() {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('importSeedlingModal'));
-    if (modal) modal.hide();
-    window.location.reload();
-}
+        function finishSeedlingImport() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('importSeedlingModal'));
+            if (modal) modal.hide();
+            window.location.reload();
+        }
+
+        // ── Bulk Actions ───────────────────────────────────────────────────────
+        let currentBulkAction = null;
+
+        function toggleAllCheckboxes(source) {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = source.checked);
+            updateBulkVisibility();
+        }
+
+        function bulkSelectAll() {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = true);
+            const headerCb = document.getElementById('bulkHeaderCheckbox');
+            if (headerCb) headerCb.checked = true;
+            updateBulkVisibility();
+        }
+
+        function bulkDeselectAll() {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+            const headerCb = document.getElementById('bulkHeaderCheckbox');
+            if (headerCb) headerCb.checked = false;
+            updateBulkVisibility();
+        }
+
+        function updateBulkVisibility() {
+            const checked = document.querySelectorAll('.bulk-checkbox:checked').length;
+            document.getElementById('bulkActionsGroup').style.display = checked > 0 ? 'inline-flex' : 'none';
+            document.getElementById('bulkDeselectAllBtn').style.display = checked > 0 ? 'inline-block' : 'none';
+            document.getElementById('bulkSelectAllBtn').style.display = checked > 0 ? 'none' : 'inline-block';
+        }
+
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('.bulk-checkbox:checked')).map(cb => cb.value);
+        }
+
+        function openBulkModal(action) {
+            currentBulkAction = action;
+            const ids = getSelectedIds();
+            const modal = document.getElementById('bulkActionModal');
+            const title = document.getElementById('bulkModalTitle');
+            const message = document.getElementById('bulkModalMessage');
+            const header = document.getElementById('bulkModalHeader');
+            const confirmBtn = document.getElementById('bulkConfirmBtn');
+            const rejectGroup = document.getElementById('bulkRejectReasonGroup');
+
+            rejectGroup.style.display = 'none';
+
+            if (action === 'approve') {
+                title.textContent = 'Confirm Bulk Approve';
+                message.textContent = `Are you sure you want to approve ${ids.length} selected request(s)?`;
+                header.className = 'modal-header bg-success text-white';
+                confirmBtn.className = 'btn btn-success';
+                confirmBtn.textContent = 'Approve All';
+            } else if (action === 'reject') {
+                title.textContent = 'Confirm Bulk Reject';
+                message.textContent = `Are you sure you want to reject ${ids.length} selected request(s)?`;
+                header.className = 'modal-header bg-warning text-dark';
+                confirmBtn.className = 'btn btn-warning';
+                confirmBtn.textContent = 'Reject All';
+                rejectGroup.style.display = 'block';
+            } else if (action === 'delete') {
+                title.textContent = 'Confirm Bulk Delete';
+                message.textContent =
+                    `Are you sure you want to delete ${ids.length} selected request(s)? They will be moved to the recycle bin.`;
+                header.className = 'modal-header bg-danger text-white';
+                confirmBtn.className = 'btn btn-danger';
+                confirmBtn.textContent = 'Delete All';
+            }
+
+            new bootstrap.Modal(modal).show();
+        }
+
+        function confirmBulkAction() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) return;
+
+            let url = '';
+            let data = {
+                ids: ids
+            };
+
+            if (currentBulkAction === 'approve') {
+                url = '{{ route('admin.seedlings.bulk-approve') }}';
+            } else if (currentBulkAction === 'reject') {
+                url = '{{ route('admin.seedlings.bulk-reject') }}';
+                data.reason = document.getElementById('bulkRejectReason').value;
+            } else if (currentBulkAction === 'delete') {
+                url = '{{ route('admin.seedlings.bulk-delete') }}';
+            }
+
+            const confirmBtn = document.getElementById('bulkConfirmBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                success: function(response) {
+                    bootstrap.Modal.getInstance(document.getElementById('bulkActionModal')).hide();
+                    showToast('success', response.message || 'Bulk action completed successfully.');
+                    setTimeout(() => window.location.reload(), 1000);
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON?.message || 'An error occurred during the bulk action.';
+                    showToast('error', msg);
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = 'Confirm';
+                }
+            });
+        }
     </script>
 @endsection

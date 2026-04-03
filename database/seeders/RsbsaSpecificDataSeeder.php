@@ -60,6 +60,7 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'year' => 2025,
                 'commodity' => 'CROPS',
                 'main_livelihood' => 'Farmer',
+                'status' => 'pending',
             ],
             [
                 'last_name' => 'SOLER',
@@ -70,6 +71,7 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'year' => 2025,
                 'commodity' => 'CROPS',
                 'main_livelihood' => 'Farmer',
+                'status' => 'under_review',
             ],
             [
                 'last_name' => 'DE OCAMPO',
@@ -170,6 +172,7 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'year' => 2025,
                 'commodity' => 'FISHERFOLK',
                 'main_livelihood' => 'Fisherfolk',
+                'status' => 'pending',
             ],
         ];
 
@@ -192,13 +195,25 @@ class RsbsaSpecificDataSeeder extends Seeder
             $counter[$year]    = ($counter[$year] ?? 0) + 1;
             $dateOffset[$year] = ($dateOffset[$year] ?? 0) + 14;
 
+            $status = $data['status'] ?? 'approved';
             $applicationNumber = 'RSBSA-' . $year . '-' . str_pad($counter[$year], 3, '0', STR_PAD_LEFT);
 
             // ── KEY FIX: created_at is BEFORE approved_at ──────────────
             $processingDays = rand(7, 30);           // realistic 7–30 day window
-            $approvedAt     = Carbon::createFromDate($year, 1, 1)->addDays($dateOffset[$year]);
-            $createdAt      = $approvedAt->copy()->subDays($processingDays);
-            $reviewedAt     = $createdAt->copy()->addDays(rand(1, max(1, $processingDays - 1)));
+            $approvedAt     = Carbon::createFromDate($year, 1, 1)->addDays($dateOffset[$year])
+                ->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+            $createdAt      = $approvedAt->copy()->subDays($processingDays)
+                ->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+            $reviewedAt     = $createdAt->copy()->addDays(rand(1, max(1, $processingDays - 1)))
+                ->setTime(rand(8, 16), rand(0, 59), rand(0, 59));
+
+            // Non-approved records don't have approval/review dates yet
+            if ($status === 'pending') {
+                $reviewedAt  = null;
+                $approvedAt  = null;
+            } elseif ($status === 'under_review') {
+                $approvedAt  = null;
+            }
             // ──────────────────────────────────────────────────────────
 
             RsbsaApplication::create([
@@ -225,11 +240,11 @@ class RsbsaSpecificDataSeeder extends Seeder
                 'fisherfolk_activity' => $fisherfolkActivity,
 
                 // Status & dates — proper chronological order
-                'status'              => 'approved',
+                'status'              => $status,
                 'created_at'          => $createdAt,   // submitted first
                 'reviewed_at'         => $reviewedAt,  // reviewed in between
                 'approved_at'         => $approvedAt,  // approved last
-                'updated_at'          => $approvedAt,
+                'updated_at'          => $approvedAt ?? $reviewedAt ?? $createdAt,
                 'number_assigned_at'  => $approvedAt,
             ]);
         }

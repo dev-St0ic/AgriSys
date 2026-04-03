@@ -1107,7 +1107,7 @@ public function destroy($id)
     }
 
 
-    
+
     // Download CSV template for bulk import
     public function importTemplate()
     {
@@ -1280,6 +1280,111 @@ public function destroy($id)
                 'success' => false,
                 'message' => 'An unexpected error occurred during import: ' . $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Bulk approve FishR registrations
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:fishr_applications,id',
+        ]);
+
+        try {
+            $count = FishrApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'approved',
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                ]);
+
+            $this->logActivity('bulk_approved', 'FishrApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk approved {$count} FishR registrations");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully approved {$count} registration(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk approve FishR failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk approval failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk reject FishR registrations
+     */
+    public function bulkReject(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:fishr_applications,id',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $count = FishrApplication::whereIn('id', $request->ids)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->update([
+                    'status' => 'rejected',
+                    'remarks' => $request->input('reason', 'Bulk rejected by admin'),
+                    'reviewed_at' => now(),
+                    'reviewed_by' => auth()->id(),
+                ]);
+
+            $this->logActivity('bulk_rejected', 'FishrApplication', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+            ], "Bulk rejected {$count} FishR registrations");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully rejected {$count} registration(s)."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk reject FishR failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk rejection failed.'], 500);
+        }
+    }
+
+    /**
+     * Bulk delete FishR registrations (move to recycle bin)
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:fishr_applications,id',
+        ]);
+
+        try {
+            $registrations = FishrApplication::whereIn('id', $request->ids)->get();
+            $deleted = 0;
+
+            foreach ($registrations as $reg) {
+                if (\App\Services\RecycleBinService::softDelete($reg, 'Bulk deleted from FishR registrations')) {
+                    $deleted++;
+                }
+            }
+
+            $this->logActivity('bulk_deleted', 'FishrApplication', null, [
+                'count' => $deleted,
+                'ids' => $request->ids,
+            ], "Bulk deleted {$deleted} FishR registrations");
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$deleted} registration(s) moved to recycle bin."
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Bulk delete FishR failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Bulk deletion failed.'], 500);
         }
     }
 

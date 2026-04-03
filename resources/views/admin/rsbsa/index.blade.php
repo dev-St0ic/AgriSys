@@ -225,13 +225,33 @@
     <!-- Applications Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div></div>
-            <div class="text-center flex-fill">
+            <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
+                    id="bulkSelectAllBtn">
+                    <i class="fas fa-check-square me-1"></i>Select All
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="bulkDeselectAll()"
+                    id="bulkDeselectAllBtn" style="display: none;">
+                    <i class="fas fa-square me-1"></i>Deselect All
+                </button>
+                <div class="btn-group" id="bulkActionsGroup" style="display: none;">
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="openBulkModal('approve')">
+                        <i class="fas fa-check me-1"></i>Approve
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="openBulkModal('reject')">
+                        <i class="fas fa-times me-1"></i>Reject
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="openBulkModal('delete')">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+            <div class="text-center" style="flex: 1;">
                 <h6 class="m-0 font-weight-bold text-primary">
                     <i class="fas fa-file-alt me-2"></i>RSBSA Registrations
                 </h6>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddRsbsaModal()">
                     <i class="fas fa-user-plus me-2"></i>Add Registration
                 </button>
@@ -248,6 +268,9 @@
                 <table class="table table-bordered table-hover" id="applicationsTable">
                     <thead class="table-dark">
                         <tr>
+                            <th class="text-center" style="width: 40px;">
+                                <input type="checkbox" id="bulkHeaderCheckbox" onchange="toggleAllCheckboxes(this)">
+                            </th>
                             <th class="text-center">Date Applied</th>
                             <th class="text-center">Application #</th>
                             <th class="text-center">Name</th>
@@ -260,6 +283,10 @@
                     <tbody>
                         @forelse($applications as $application)
                             <tr data-id="{{ $application->id }}">
+                                <td class="text-center align-middle">
+                                    <input type="checkbox" class="bulk-checkbox" value="{{ $application->id }}"
+                                        onchange="updateBulkVisibility()">
+                                </td>
                                 <td class="text-start">{{ $application->created_at->format('M d, Y g:i A') }}</td>
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $application->application_number }}</strong>
@@ -457,9 +484,9 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                <small class="text-muted d-block">Application ID</small>
-                                                <strong id="updateAppId" class="text-primary">-</strong>
-                                            </div> -->
+                                                    <small class="text-muted d-block">Application ID</small>
+                                                    <strong id="updateAppId" class="text-primary">-</strong>
+                                                </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Application #</small>
                                         <strong id="updateAppNumber">-</strong>
@@ -471,9 +498,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                <small class="text-muted d-block">Application Type</small>
-                                                <strong id="updateAppType">-</strong>
-                                            </div> -->
+                                                    <small class="text-muted d-block">Application Type</small>
+                                                    <strong id="updateAppType">-</strong>
+                                                </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Barangay</small>
                                         <strong id="updateAppBarangay">-</strong>
@@ -1107,10 +1134,14 @@
                                     <i class="fas fa-info-circle me-2"></i>How to use bulk import
                                 </h6>
                                 <ol class="mb-0 ps-3">
-                                    <li class="mb-2">Click <strong>Download Template</strong> below to get a pre-formatted CSV file.</li>
-                                    <li class="mb-2">Open the file in Excel, Google Sheets, or any spreadsheet application.</li>
-                                    <li class="mb-2">Fill in the rows with applicant data. <em>Delete the sample rows before uploading.</em></li>
-                                    <li class="mb-2">Save the file as <strong>CSV</strong> (.csv) or <strong>Excel</strong> (.xlsx).</li>
+                                    <li class="mb-2">Click <strong>Download Template</strong> below to get a
+                                        pre-formatted CSV file.</li>
+                                    <li class="mb-2">Open the file in Excel, Google Sheets, or any spreadsheet
+                                        application.</li>
+                                    <li class="mb-2">Fill in the rows with applicant data. <em>Delete the sample rows
+                                            before uploading.</em></li>
+                                    <li class="mb-2">Save the file as <strong>CSV</strong> (.csv) or
+                                        <strong>Excel</strong> (.xlsx).</li>
                                     <li>Upload the file using the form below and click <strong>Import</strong>.</li>
                                 </ol>
                             </div>
@@ -1121,14 +1152,16 @@
                             <div class="col-md-6">
                                 <div class="card border-danger h-100">
                                     <div class="card-header bg-danger text-white py-2">
-                                        <small class="fw-bold"><i class="fas fa-asterisk me-1"></i>Required Columns</small>
+                                        <small class="fw-bold"><i class="fas fa-asterisk me-1"></i>Required
+                                            Columns</small>
                                     </div>
                                     <div class="card-body py-2">
                                         <ul class="mb-0 ps-3 small">
                                             <li><code>first_name</code></li>
                                             <li><code>last_name</code></li>
                                             <li><code>sex</code> <small class="text-muted">(Male / Female)</small></li>
-                                            <li><code>contact_number</code> <small class="text-muted">(09XXXXXXXXX)</small></li>
+                                            <li><code>contact_number</code> <small class="text-muted">(09XXXXXXXXX)</small>
+                                            </li>
                                             <li><code>barangay</code></li>
                                             <li><code>address</code></li>
                                             <li><code>main_livelihood</code></li>
@@ -1144,7 +1177,8 @@
                                     <div class="card-body py-2">
                                         <ul class="mb-0 ps-3 small">
                                             <li><code>middle_name</code>, <code>name_extension</code></li>
-                                            <li><code>status</code> <small class="text-muted">(defaults to pending)</small></li>
+                                            <li><code>status</code> <small class="text-muted">(defaults to pending)</small>
+                                            </li>
                                             <li><code>commodity</code></li>
                                             <li><code>farmer_crops</code>, <code>farmer_land_area</code>, etc.</li>
                                             <li><code>farmworker_type</code></li>
@@ -1156,8 +1190,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('admin.rsbsa.import.template') }}"
-                           class="btn btn-outline-warning w-100 mb-3">
+                        <a href="{{ route('admin.rsbsa.import.template') }}" class="btn btn-outline-warning w-100 mb-3">
                             <i class="fas fa-download me-2"></i>Download CSV Template
                         </a>
 
@@ -1169,26 +1202,24 @@
                                 </label>
                                 <div class="input-group">
                                     <input type="file" class="form-control" id="rsbsa_import_file_input"
-                                           accept=".csv,.xlsx,.xls,.txt"
-                                           onchange="onRsbsaImportFileSelected(this)">
-                                    <button class="btn btn-warning" type="button"
-                                            onclick="submitRsbsaImport()"
-                                            id="rsbsaImportSubmitBtn"
-                                            disabled
-                                            data-import-url="{{ route('admin.rsbsa.import') }}">
+                                        accept=".csv,.xlsx,.xls,.txt" onchange="onRsbsaImportFileSelected(this)">
+                                    <button class="btn btn-warning" type="button" onclick="submitRsbsaImport()"
+                                        id="rsbsaImportSubmitBtn" disabled
+                                        data-import-url="{{ route('admin.rsbsa.import') }}">
                                         <i class="fas fa-upload me-1"></i>Import
                                     </button>
                                 </div>
                                 <div class="form-text">
                                     Accepted formats: CSV (.csv) or Excel (.xlsx / .xls) — Max 10 MB
                                 </div>
-                                <div id="rsbsaImportFileError" class="text-danger small mt-1" style="display:none;"></div>
+                                <div id="rsbsaImportFileError" class="text-danger small mt-1" style="display:none;">
+                                </div>
 
                                 <!-- Progress bar -->
                                 <div id="rsbsaImportProgressWrap" class="mt-3" style="display:none;">
                                     <div class="progress" style="height: 8px;">
                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
-                                             id="rsbsaImportProgressBar" role="progressbar" style="width:0%"></div>
+                                            id="rsbsaImportProgressBar" role="progressbar" style="width:0%"></div>
                                     </div>
                                     <small class="text-muted mt-1 d-block text-center" id="rsbsaImportProgressLabel">
                                         Uploading…
@@ -1228,8 +1259,8 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="rsbsaImportCancelBtn">
                         Cancel
                     </button>
-                    <button type="button" class="btn btn-success" id="rsbsaImportDoneBtn"
-                            style="display:none;" onclick="finishRsbsaImport()">
+                    <button type="button" class="btn btn-success" id="rsbsaImportDoneBtn" style="display:none;"
+                        onclick="finishRsbsaImport()">
                         <i class="fas fa-check me-1"></i>Done – Reload Page
                     </button>
                 </div>
@@ -2037,7 +2068,7 @@
             border-color: #0dcaf0;
             color: white;
         }
-        
+
         /* Fix View Document button - center icon and text */
         #applicationDetails .card.border-secondary .btn-primary {
             display: inline-flex !important;
@@ -2131,8 +2162,8 @@
         }
 
         /* #updateModal .modal-header {
-                                                    border-bottom: 1px solid #dee2e6;
-                                                } */
+                                                        border-bottom: 1px solid #dee2e6;
+                                                    } */
 
         #updateModal .modal-header .modal-title {
             /* color: black; */
@@ -2832,7 +2863,8 @@
                                         </button>
                                         <hr class="my-3">
                                         <button type="button" class="btn btn-outline-secondary w-100"
-                                            style="border-radius: 8px; font-weight: 500;" onclick="clearDateRangeModal()">
+                                            style="border-radius: 8px; font-weight: 500;"
+                                            onclick="clearDateRangeModal()">
                                             <i class="fas fa-times me-2"></i>Clear Date Filter
                                         </button>
                                     </div>
@@ -2908,8 +2940,8 @@
                                         <label for="rsbsa_last_name" class="form-label fw-semibold">
                                             Last Name <span class="text-danger">*</span>
                                         </label>
-                                        <input type="text" class="form-control" id="rsbsa_last_name" name="last_name"
-                                            required maxlength="100" placeholder="Last name"
+                                        <input type="text" class="form-control" id="rsbsa_last_name"
+                                            name="last_name" required maxlength="100" placeholder="Last name"
                                             onblur="capitalizeRsbsaName(this)">
                                     </div>
                                     <div class="col-md-3 mb-3">
@@ -3317,6 +3349,30 @@
                             <span class="spinner-border spinner-border-sm me-2"></span>Creating...
                         </span>
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Action Confirmation Modal -->
+    <div class="modal fade" id="bulkActionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" id="bulkModalHeader">
+                    <h5 class="modal-title" id="bulkModalTitle">Confirm Bulk Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="bulkModalMessage"></p>
+                    <div id="bulkRejectReasonGroup" style="display: none;">
+                        <label for="bulkRejectReason" class="form-label">Reason for Rejection</label>
+                        <textarea class="form-control" id="bulkRejectReason" rows="3" placeholder="Enter reason for rejection..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn" id="bulkConfirmBtn"
+                        onclick="confirmBulkAction()">Confirm</button>
                 </div>
             </div>
         </div>
@@ -4143,7 +4199,7 @@
                             </div>
                         </div>
                     </div>
-                </div>     
+                </div>
 
                 <!-- Supporting Document Card -->
                 <div class="col-12">
@@ -7260,10 +7316,22 @@
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
             const iconMap = {
-                'success': { icon: 'fas fa-check-circle', color: 'success' },
-                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-                'info': { icon: 'fas fa-info-circle', color: 'info' }
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
             };
 
             const config = iconMap[type] || iconMap['info'];
@@ -7311,226 +7379,340 @@
             }, 300);
         }
 
-    // Bulk Import 
-    function showRsbsaImportModal() {
-        resetRsbsaImportModal();
-        new bootstrap.Modal(document.getElementById('importRsbsaModal')).show();
-    }
-
-    function resetRsbsaImportModal() {
-        document.getElementById('rsbsaImportPanel1').style.display = 'block';
-        document.getElementById('rsbsaImportPanel2').style.display = 'none';
-
-        document.getElementById('rsbsaImportSubmitBtn').disabled = true;
-        document.getElementById('rsbsaImportCancelBtn').style.display = 'inline-block';
-        document.getElementById('rsbsaImportDoneBtn').style.display   = 'none';
-
-        document.getElementById('rsbsa_import_file_input').value = '';
-
-        document.getElementById('rsbsaImportProgressWrap').style.display = 'none';
-        document.getElementById('rsbsaImportProgressBar').style.width    = '0%';
-        document.getElementById('rsbsaImportProgressLabel').textContent  = 'Uploading…';
-
-        document.getElementById('rsbsaImportFileError').style.display = 'none';
-        document.getElementById('rsbsaImportFileError').textContent   = '';
-
-        setRsbsaImportStep(1);
-    }
-
-    function setRsbsaImportStep(step) {
-        const badges = [
-            document.querySelector('#rsbsaImportStep1Indicator .badge'),
-            document.querySelector('#rsbsaImportStep2Indicator .badge'),
-            document.querySelector('#rsbsaImportStep3Indicator .badge'),
-        ];
-        const labels = [
-            document.querySelector('#rsbsaImportStep1Indicator small'),
-            document.querySelector('#rsbsaImportStep2Indicator small'),
-            document.querySelector('#rsbsaImportStep3Indicator small'),
-        ];
-
-        badges.forEach((b, i) => {
-            const active = i < step;
-            b.classList.toggle('bg-warning', active);
-            b.classList.toggle('text-dark',  active);
-            b.classList.toggle('bg-secondary', !active);
-        });
-        labels.forEach((l, i) => {
-            l.classList.toggle('text-muted',   i >= step);
-            l.classList.toggle('fw-semibold',  i < step);
-        });
-    }
-
-    function onRsbsaImportFileSelected(input) {
-        const errEl = document.getElementById('rsbsaImportFileError');
-        const btn   = document.getElementById('rsbsaImportSubmitBtn');
-
-        errEl.style.display = 'none';
-        errEl.textContent   = '';
-        btn.disabled        = true;
-
-        if (!input.files || !input.files[0]) return;
-
-        const file    = input.files[0];
-        const ext     = file.name.split('.').pop().toLowerCase();
-        const allowed = ['csv', 'xlsx', 'xls', 'txt'];
-
-        if (!allowed.includes(ext)) {
-            errEl.textContent   = 'Invalid file type. Please upload a CSV or Excel file.';
-            errEl.style.display = 'block';
-            input.value = '';
-            return;
+        // Bulk Import
+        function showRsbsaImportModal() {
+            resetRsbsaImportModal();
+            new bootstrap.Modal(document.getElementById('importRsbsaModal')).show();
         }
 
-        if (file.size > 10 * 1024 * 1024) {
-            errEl.textContent   = 'File is too large. Maximum size is 10 MB.';
-            errEl.style.display = 'block';
-            input.value = '';
-            return;
+        function resetRsbsaImportModal() {
+            document.getElementById('rsbsaImportPanel1').style.display = 'block';
+            document.getElementById('rsbsaImportPanel2').style.display = 'none';
+
+            document.getElementById('rsbsaImportSubmitBtn').disabled = true;
+            document.getElementById('rsbsaImportCancelBtn').style.display = 'inline-block';
+            document.getElementById('rsbsaImportDoneBtn').style.display = 'none';
+
+            document.getElementById('rsbsa_import_file_input').value = '';
+
+            document.getElementById('rsbsaImportProgressWrap').style.display = 'none';
+            document.getElementById('rsbsaImportProgressBar').style.width = '0%';
+            document.getElementById('rsbsaImportProgressLabel').textContent = 'Uploading…';
+
+            document.getElementById('rsbsaImportFileError').style.display = 'none';
+            document.getElementById('rsbsaImportFileError').textContent = '';
+
+            setRsbsaImportStep(1);
         }
 
-        btn.disabled = false;
-        setRsbsaImportStep(2);
-    }
+        function setRsbsaImportStep(step) {
+            const badges = [
+                document.querySelector('#rsbsaImportStep1Indicator .badge'),
+                document.querySelector('#rsbsaImportStep2Indicator .badge'),
+                document.querySelector('#rsbsaImportStep3Indicator .badge'),
+            ];
+            const labels = [
+                document.querySelector('#rsbsaImportStep1Indicator small'),
+                document.querySelector('#rsbsaImportStep2Indicator small'),
+                document.querySelector('#rsbsaImportStep3Indicator small'),
+            ];
 
-    function submitRsbsaImport() {
-        const fileInput = document.getElementById('rsbsa_import_file_input');
-        if (!fileInput.files || !fileInput.files[0]) {
-            showToast('error', 'Please select a file first.');
-            return;
+            badges.forEach((b, i) => {
+                const active = i < step;
+                b.classList.toggle('bg-warning', active);
+                b.classList.toggle('text-dark', active);
+                b.classList.toggle('bg-secondary', !active);
+            });
+            labels.forEach((l, i) => {
+                l.classList.toggle('text-muted', i >= step);
+                l.classList.toggle('fw-semibold', i < step);
+            });
         }
 
-        const submitBtn     = document.getElementById('rsbsaImportSubmitBtn');
-        const progressWrap  = document.getElementById('rsbsaImportProgressWrap');
-        const progressBar   = document.getElementById('rsbsaImportProgressBar');
-        const progressLbl   = document.getElementById('rsbsaImportProgressLabel');
+        function onRsbsaImportFileSelected(input) {
+            const errEl = document.getElementById('rsbsaImportFileError');
+            const btn = document.getElementById('rsbsaImportSubmitBtn');
 
-        submitBtn.disabled                                       = true;
-        document.getElementById('rsbsa_import_file_input').disabled = true;
-        progressWrap.style.display                               = 'block';
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+            btn.disabled = true;
 
-        let fakeProgress = 0;
-        const progressInterval = setInterval(() => {
-            fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
-            progressBar.style.width = fakeProgress + '%';
-        }, 200);
+            if (!input.files || !input.files[0]) return;
 
-        const importUrl = submitBtn.dataset.importUrl;
-        const formData  = new FormData();
-        formData.append('import_file', fileInput.files[0]);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            const file = input.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const allowed = ['csv', 'xlsx', 'xls', 'txt'];
 
-        fetch(importUrl, {
-            method:  'POST',
-            body:    formData,
-            headers: { 'Accept': 'application/json' },
-        })
-        .then(r => r.json())
-        .then(data => {
-            clearInterval(progressInterval);
-            progressBar.style.width = '100%';
-            progressLbl.textContent = 'Processing complete!';
-            setTimeout(() => {
-                progressWrap.style.display = 'none';
-                showRsbsaImportResults(data);
-            }, 400);
-        })
-        .catch(err => {
-            clearInterval(progressInterval);
-            progressWrap.style.display = 'none';
-            submitBtn.disabled         = false;
-            document.getElementById('rsbsa_import_file_input').disabled = false;
-            showToast('error', 'Upload failed: ' + err.message);
-            console.error('RSBSA Import error:', err);
-        });
-    }
+            if (!allowed.includes(ext)) {
+                errEl.textContent = 'Invalid file type. Please upload a CSV or Excel file.';
+                errEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
 
-  function showRsbsaImportResults(data) {
-        document.getElementById('rsbsaImportPanel1').style.display = 'none';
-        document.getElementById('rsbsaImportPanel2').style.display = 'block';
+            if (file.size > 10 * 1024 * 1024) {
+                errEl.textContent = 'File is too large. Maximum size is 10 MB.';
+                errEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
 
-        document.getElementById('rsbsaImportCancelBtn').style.display = 'none';
-        document.getElementById('rsbsaImportDoneBtn').style.display   = 'inline-block';
+            btn.disabled = false;
+            setRsbsaImportStep(2);
+        }
 
-        setRsbsaImportStep(3);
+        function submitRsbsaImport() {
+            const fileInput = document.getElementById('rsbsa_import_file_input');
+            if (!fileInput.files || !fileInput.files[0]) {
+                showToast('error', 'Please select a file first.');
+                return;
+            }
 
-        // ── Summary cards ──────────────────────────────────────────────────────
-        const cardsEl = document.getElementById('rsbsaImportSummaryCards');
-        if (data.success || (data.imported ?? 0) > 0) {
-            const skipped = data.skipped ?? 0;
-            cardsEl.innerHTML =
-                '<div class="col-6">' +
-                  '<div class="card border-success text-center">' +
+            const submitBtn = document.getElementById('rsbsaImportSubmitBtn');
+            const progressWrap = document.getElementById('rsbsaImportProgressWrap');
+            const progressBar = document.getElementById('rsbsaImportProgressBar');
+            const progressLbl = document.getElementById('rsbsaImportProgressLabel');
+
+            submitBtn.disabled = true;
+            document.getElementById('rsbsa_import_file_input').disabled = true;
+            progressWrap.style.display = 'block';
+
+            let fakeProgress = 0;
+            const progressInterval = setInterval(() => {
+                fakeProgress = Math.min(fakeProgress + Math.random() * 15, 85);
+                progressBar.style.width = fakeProgress + '%';
+            }, 200);
+
+            const importUrl = submitBtn.dataset.importUrl;
+            const formData = new FormData();
+            formData.append('import_file', fileInput.files[0]);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+            fetch(importUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                })
+                .then(r => r.json())
+                .then(data => {
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    progressLbl.textContent = 'Processing complete!';
+                    setTimeout(() => {
+                        progressWrap.style.display = 'none';
+                        showRsbsaImportResults(data);
+                    }, 400);
+                })
+                .catch(err => {
+                    clearInterval(progressInterval);
+                    progressWrap.style.display = 'none';
+                    submitBtn.disabled = false;
+                    document.getElementById('rsbsa_import_file_input').disabled = false;
+                    showToast('error', 'Upload failed: ' + err.message);
+                    console.error('RSBSA Import error:', err);
+                });
+        }
+
+        function showRsbsaImportResults(data) {
+            document.getElementById('rsbsaImportPanel1').style.display = 'none';
+            document.getElementById('rsbsaImportPanel2').style.display = 'block';
+
+            document.getElementById('rsbsaImportCancelBtn').style.display = 'none';
+            document.getElementById('rsbsaImportDoneBtn').style.display = 'inline-block';
+
+            setRsbsaImportStep(3);
+
+            // ── Summary cards ──────────────────────────────────────────────────────
+            const cardsEl = document.getElementById('rsbsaImportSummaryCards');
+            if (data.success || (data.imported ?? 0) > 0) {
+                const skipped = data.skipped ?? 0;
+                cardsEl.innerHTML =
+                    '<div class="col-6">' +
+                    '<div class="card border-success text-center">' +
                     '<div class="card-body py-3">' +
-                      '<div style="font-size:2rem;font-weight:700;color:#198754;">' + (data.imported ?? 0) + '</div>' +
-                      '<small class="text-success fw-semibold">Successfully Imported</small>' +
+                    '<div style="font-size:2rem;font-weight:700;color:#198754;">' + (data.imported ?? 0) + '</div>' +
+                    '<small class="text-success fw-semibold">Successfully Imported</small>' +
                     '</div>' +
-                  '</div>' +
-                '</div>' +
-                '<div class="col-6">' +
-                  '<div class="card border-' + (skipped > 0 ? 'warning' : 'secondary') + ' text-center">' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-6">' +
+                    '<div class="card border-' + (skipped > 0 ? 'warning' : 'secondary') + ' text-center">' +
                     '<div class="card-body py-3">' +
-                      '<div style="font-size:2rem;font-weight:700;color:' + (skipped > 0 ? '#ffc107' : '#6c757d') + ';">' + skipped + '</div>' +
-                      '<small class="fw-semibold" style="color:' + (skipped > 0 ? '#ffc107' : '#6c757d') + ';">Skipped (Errors)</small>' +
+                    '<div style="font-size:2rem;font-weight:700;color:' + (skipped > 0 ? '#ffc107' : '#6c757d') + ';">' +
+                    skipped + '</div>' +
+                    '<small class="fw-semibold" style="color:' + (skipped > 0 ? '#ffc107' : '#6c757d') +
+                    ';">Skipped (Errors)</small>' +
                     '</div>' +
-                  '</div>' +
-                '</div>';
-        } else {
-            const msg = (data.message || 'Import failed.').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            cardsEl.innerHTML =
-                '<div class="col-12">' +
-                  '<div class="alert alert-danger mb-0">' +
+                    '</div>' +
+                    '</div>';
+            } else {
+                const msg = (data.message || 'Import failed.').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                cardsEl.innerHTML =
+                    '<div class="col-12">' +
+                    '<div class="alert alert-danger mb-0">' +
                     '<i class="fas fa-times-circle me-2"></i>' +
                     '<strong>Import failed:</strong> ' + msg +
-                  '</div>' +
-                '</div>';
-        }
-
-        // ── Error rows ─────────────────────────────────────────────────────────
-        const errorSection = document.getElementById('rsbsaImportErrorSection');
-        const errorBody    = document.getElementById('rsbsaImportErrorTableBody');
-        const errorsArr    = Array.isArray(data.errors) ? data.errors : [];
-
-        if (errorsArr.length > 0) {
-            errorSection.style.display = 'block';
-            var rows = '';
-            for (var i = 0; i < errorsArr.length; i++) {
-                var e        = errorsArr[i];
-                var rowData  = e.data  || {};
-                var firstName = rowData.first_name || '';
-                var lastName  = rowData.last_name  || '';
-                var name      = (firstName + ' ' + lastName).trim() || '(unknown)';
-                var rawErrors = e.errors || {};
-                var msgParts  = Array.isArray(rawErrors) ? rawErrors : Object.values(rawErrors);
-                var msgs      = msgParts.join(' · ') || 'Unknown error';
-
-                // safe-encode for HTML
-                name = name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-                msgs = msgs.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-                rows += '<tr>' +
-                    '<td class="text-center fw-bold">' + (e.row || (i + 2)) + '</td>' +
-                    '<td>' + name + '</td>' +
-                    '<td><small class="text-danger">' + msgs + '</small></td>' +
-                    '</tr>';
+                    '</div>' +
+                    '</div>';
             }
-            errorBody.innerHTML = rows;
-        } else {
-            errorSection.style.display = 'none';
+
+            // ── Error rows ─────────────────────────────────────────────────────────
+            const errorSection = document.getElementById('rsbsaImportErrorSection');
+            const errorBody = document.getElementById('rsbsaImportErrorTableBody');
+            const errorsArr = Array.isArray(data.errors) ? data.errors : [];
+
+            if (errorsArr.length > 0) {
+                errorSection.style.display = 'block';
+                var rows = '';
+                for (var i = 0; i < errorsArr.length; i++) {
+                    var e = errorsArr[i];
+                    var rowData = e.data || {};
+                    var firstName = rowData.first_name || '';
+                    var lastName = rowData.last_name || '';
+                    var name = (firstName + ' ' + lastName).trim() || '(unknown)';
+                    var rawErrors = e.errors || {};
+                    var msgParts = Array.isArray(rawErrors) ? rawErrors : Object.values(rawErrors);
+                    var msgs = msgParts.join(' · ') || 'Unknown error';
+
+                    // safe-encode for HTML
+                    name = name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                    msgs = msgs.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+                    rows += '<tr>' +
+                        '<td class="text-center fw-bold">' + (e.row || (i + 2)) + '</td>' +
+                        '<td>' + name + '</td>' +
+                        '<td><small class="text-danger">' + msgs + '</small></td>' +
+                        '</tr>';
+                }
+                errorBody.innerHTML = rows;
+            } else {
+                errorSection.style.display = 'none';
+            }
+
+            // ── Toast ──────────────────────────────────────────────────────────────
+            if ((data.imported ?? 0) > 0) {
+                showToast('success', data.message);
+            } else {
+                showToast('error', data.message || 'Import completed with errors.');
+            }
         }
 
-        // ── Toast ──────────────────────────────────────────────────────────────
-        if ((data.imported ?? 0) > 0) {
-            showToast('success', data.message);
-        } else {
-            showToast('error', data.message || 'Import completed with errors.');
+        function finishRsbsaImport() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('importRsbsaModal'));
+            if (modal) modal.hide();
+            window.location.reload();
         }
-    }
 
-    function finishRsbsaImport() {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('importRsbsaModal'));
-        if (modal) modal.hide();
-        window.location.reload();
-    }
+        // ── Bulk Actions ───────────────────────────────────────────────────────
+        let currentBulkAction = null;
+
+        function toggleAllCheckboxes(source) {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = source.checked);
+            updateBulkVisibility();
+        }
+
+        function bulkSelectAll() {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = true);
+            const headerCb = document.getElementById('bulkHeaderCheckbox');
+            if (headerCb) headerCb.checked = true;
+            updateBulkVisibility();
+        }
+
+        function bulkDeselectAll() {
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+            const headerCb = document.getElementById('bulkHeaderCheckbox');
+            if (headerCb) headerCb.checked = false;
+            updateBulkVisibility();
+        }
+
+        function updateBulkVisibility() {
+            const checked = document.querySelectorAll('.bulk-checkbox:checked').length;
+            document.getElementById('bulkActionsGroup').style.display = checked > 0 ? 'inline-flex' : 'none';
+            document.getElementById('bulkDeselectAllBtn').style.display = checked > 0 ? 'inline-block' : 'none';
+            document.getElementById('bulkSelectAllBtn').style.display = checked > 0 ? 'none' : 'inline-block';
+        }
+
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('.bulk-checkbox:checked')).map(cb => cb.value);
+        }
+
+        function openBulkModal(action) {
+            currentBulkAction = action;
+            const ids = getSelectedIds();
+            const modal = document.getElementById('bulkActionModal');
+            const title = document.getElementById('bulkModalTitle');
+            const message = document.getElementById('bulkModalMessage');
+            const header = document.getElementById('bulkModalHeader');
+            const confirmBtn = document.getElementById('bulkConfirmBtn');
+            const rejectGroup = document.getElementById('bulkRejectReasonGroup');
+
+            rejectGroup.style.display = 'none';
+
+            if (action === 'approve') {
+                title.textContent = 'Confirm Bulk Approve';
+                message.textContent = `Are you sure you want to approve ${ids.length} selected registration(s)?`;
+                header.className = 'modal-header bg-success text-white';
+                confirmBtn.className = 'btn btn-success';
+                confirmBtn.textContent = 'Approve All';
+            } else if (action === 'reject') {
+                title.textContent = 'Confirm Bulk Reject';
+                message.textContent = `Are you sure you want to reject ${ids.length} selected registration(s)?`;
+                header.className = 'modal-header bg-warning text-dark';
+                confirmBtn.className = 'btn btn-warning';
+                confirmBtn.textContent = 'Reject All';
+                rejectGroup.style.display = 'block';
+            } else if (action === 'delete') {
+                title.textContent = 'Confirm Bulk Delete';
+                message.textContent =
+                    `Are you sure you want to delete ${ids.length} selected registration(s)? They will be moved to the recycle bin.`;
+                header.className = 'modal-header bg-danger text-white';
+                confirmBtn.className = 'btn btn-danger';
+                confirmBtn.textContent = 'Delete All';
+            }
+
+            new bootstrap.Modal(modal).show();
+        }
+
+        function confirmBulkAction() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) return;
+
+            let url = '';
+            let data = {
+                ids: ids
+            };
+
+            if (currentBulkAction === 'approve') {
+                url = '{{ route('admin.rsbsa.bulk-approve') }}';
+            } else if (currentBulkAction === 'reject') {
+                url = '{{ route('admin.rsbsa.bulk-reject') }}';
+                data.reason = document.getElementById('bulkRejectReason').value;
+            } else if (currentBulkAction === 'delete') {
+                url = '{{ route('admin.rsbsa.bulk-delete') }}';
+            }
+
+            const confirmBtn = document.getElementById('bulkConfirmBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                success: function(response) {
+                    bootstrap.Modal.getInstance(document.getElementById('bulkActionModal')).hide();
+                    showToast('success', response.message || 'Bulk action completed successfully.');
+                    setTimeout(() => window.location.reload(), 1000);
+                },
+                error: function(xhr) {
+                    const msg = xhr.responseJSON?.message || 'An error occurred during the bulk action.';
+                    showToast('error', msg);
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = 'Confirm';
+                }
+            });
+        }
     </script>
 @endsection

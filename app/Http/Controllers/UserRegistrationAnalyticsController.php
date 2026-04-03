@@ -118,7 +118,6 @@ class UserRegistrationAnalyticsController extends Controller
             $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
             $pending = (clone $baseQuery)->where('status', 'pending')->count();
             $unverified = (clone $baseQuery)->where('status', 'unverified')->count();
-            $banned = (clone $baseQuery)->where('status', 'banned')->count();
 
             // Profile completion stats (users who moved from unverified to pending/approved/rejected)
             $profileCompleted = (clone $baseQuery)->whereIn('status', ['pending', 'approved', 'rejected'])->count();
@@ -148,7 +147,6 @@ class UserRegistrationAnalyticsController extends Controller
                 'rejected_registrations' => $rejected,
                 'pending_registrations' => $pending,
                 'unverified_registrations' => $unverified,
-                'banned_registrations' => $banned,
                 'approval_rate' => $this->calculateApprovalRate($total, $approved),
                 'profile_completed' => $profileCompleted,
                 'profile_completion_rate' => $total > 0 ? round(($profileCompleted / $total) * 100, 2) : 0,
@@ -182,8 +180,7 @@ class UserRegistrationAnalyticsController extends Controller
                 'unverified' => 0,
                 'pending' => 0,
                 'approved' => 0,
-                'rejected' => 0,
-                'banned' => 0
+                'rejected' => 0
             ];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
 
@@ -202,8 +199,8 @@ class UserRegistrationAnalyticsController extends Controller
         } catch (\Exception $e) {
             Log::error('User Registration Status Analysis Error: ' . $e->getMessage());
             return [
-                'counts' => ['unverified' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0, 'banned' => 0],
-                'percentages' => ['unverified' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0, 'banned' => 0],
+                'counts' => ['unverified' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0],
+                'percentages' => ['unverified' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0],
                 'total' => 0
             ];
         }
@@ -223,7 +220,6 @@ class UserRegistrationAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
-                    DB::raw('SUM(CASE WHEN status = "banned" THEN 1 ELSE 0 END) as banned'),
                     DB::raw('SUM(CASE WHEN status IN ("pending", "approved", "rejected") THEN 1 ELSE 0 END) as profile_completed'),
                     DB::raw('COUNT(DISTINCT barangay) as unique_barangays'),
                     DB::raw('COUNT(DISTINCT user_type) as unique_user_types')
@@ -661,7 +657,6 @@ class UserRegistrationAnalyticsController extends Controller
             'rejected_registrations' => 0,
             'pending_registrations' => 0,
             'unverified_registrations' => 0,
-            'banned_registrations' => 0,
             'approval_rate' => 0,
             'profile_completed' => 0,
             'profile_completion_rate' => 0,
@@ -733,7 +728,6 @@ class UserRegistrationAnalyticsController extends Controller
                 fputcsv($file, ['Rejected Registrations',    $overview['rejected_registrations']]);
                 fputcsv($file, ['Pending Registrations',     $overview['pending_registrations']]);
                 fputcsv($file, ['Unverified Registrations',  $overview['unverified_registrations']]);
-                fputcsv($file, ['Banned Registrations',      $overview['banned_registrations']]);
                 fputcsv($file, ['Approval Rate',             $overview['approval_rate'] . '%']);
                 fputcsv($file, ['Profile Completed',         $overview['profile_completed']]);
                 fputcsv($file, ['Profile Completion Rate',   $overview['profile_completion_rate'] . '%']);
@@ -760,7 +754,7 @@ class UserRegistrationAnalyticsController extends Controller
 
                 // ── Monthly Trends ────────────────────────────────────
                 fputcsv($file, ['MONTHLY TRENDS']);
-                fputcsv($file, ['Month', 'Total Registrations', 'Unverified', 'Pending', 'Approved', 'Rejected', 'Banned', 'Profile Completed', 'Unique Barangays', 'Unique User Types']);
+                fputcsv($file, ['Month', 'Total Registrations', 'Unverified', 'Pending', 'Approved', 'Rejected', 'Profile Completed', 'Unique Barangays', 'Unique User Types']);
                 foreach ($monthlyTrends as $trend) {
                     fputcsv($file, [
                         $trend->month,
@@ -769,7 +763,6 @@ class UserRegistrationAnalyticsController extends Controller
                         $trend->pending,
                         $trend->approved,
                         $trend->rejected,
-                        $trend->banned,
                         $trend->profile_completed,
                         $trend->unique_barangays,
                         $trend->unique_user_types,
