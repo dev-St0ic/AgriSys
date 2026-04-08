@@ -394,7 +394,7 @@
                 <div class="card-body" style="max-height:420px;overflow-y:auto;">
                     @forelse($claimAnalysis['barangay_claim_rate'] ?? [] as $row)
                         @php$rate = $row->claim_rate ?? 0;
-                        $bc = $rate >= 80 ? 'success' : ($rate >= 50 ? 'warning' : 'danger'); @endphp
+                                                $bc = $rate >= 80 ? 'success' : ($rate >= 50 ? 'warning' : 'danger'); @endphp ?>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="fw-semibold">{{ $row->barangay }}</span>
