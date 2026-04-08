@@ -688,4 +688,86 @@ class AdminDashboardController extends Controller
             'new_url' => asset('images/services/' . $newFilename) . '?t=' . time(),
         ]);
     }
+
+    public function weatherProxy()
+    {
+        // wttr.in – free, no API key, coordinates for San Pedro, Laguna
+        $url = 'https://wttr.in/14.3596,121.0437?format=j1';
+
+        $ctx = stream_context_create([
+            'ssl'  => ['verify_peer' => false, 'verify_peer_name' => false],
+            'http' => ['timeout' => 10, 'header' => "User-Agent: AgriSys/1.0\r\n"],
+        ]);
+
+        $json = @file_get_contents($url, false, $ctx);
+
+        if ($json === false) {
+            return response()->json(['error' => 'Weather service unavailable'], 502);
+        }
+
+        $data = json_decode($json, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || empty($data['current_condition'])) {
+            return response()->json(['error' => 'Invalid weather response'], 502);
+        }
+
+        $current = $data['current_condition'][0];
+        $code    = (int) $current['weatherCode'];
+
+        // Map wttr.in codes to icons/descriptions
+        $iconMap = [
+            113 => ['description' => 'Sunny',               'icon' => 'fas fa-sun'],
+            116 => ['description' => 'Partly Cloudy',       'icon' => 'fas fa-cloud-sun'],
+            119 => ['description' => 'Cloudy',              'icon' => 'fas fa-cloud'],
+            122 => ['description' => 'Overcast',            'icon' => 'fas fa-cloud'],
+            143 => ['description' => 'Mist',                'icon' => 'fas fa-smog'],
+            176 => ['description' => 'Light Rain',          'icon' => 'fas fa-cloud-rain'],
+            200 => ['description' => 'Thunderstorm',        'icon' => 'fas fa-bolt'],
+            227 => ['description' => 'Blowing Snow',        'icon' => 'fas fa-wind'],
+            248 => ['description' => 'Fog',                 'icon' => 'fas fa-smog'],
+            260 => ['description' => 'Freezing Fog',        'icon' => 'fas fa-smog'],
+            263 => ['description' => 'Light Drizzle',       'icon' => 'fas fa-cloud-rain'],
+            266 => ['description' => 'Drizzle',             'icon' => 'fas fa-cloud-rain'],
+            293 => ['description' => 'Light Rain',          'icon' => 'fas fa-cloud-rain'],
+            296 => ['description' => 'Light Rain',          'icon' => 'fas fa-cloud-rain'],
+            299 => ['description' => 'Moderate Rain',       'icon' => 'fas fa-cloud-rain'],
+            302 => ['description' => 'Moderate Rain',       'icon' => 'fas fa-cloud-rain'],
+            305 => ['description' => 'Heavy Rain',          'icon' => 'fas fa-cloud-showers-heavy'],
+            308 => ['description' => 'Very Heavy Rain',     'icon' => 'fas fa-cloud-showers-heavy'],
+            350 => ['description' => 'Sleet',               'icon' => 'fas fa-cloud-rain'],
+            353 => ['description' => 'Light Showers',       'icon' => 'fas fa-cloud-rain'],
+            356 => ['description' => 'Moderate Showers',    'icon' => 'fas fa-cloud-rain'],
+            359 => ['description' => 'Heavy Showers',       'icon' => 'fas fa-cloud-showers-heavy'],
+            386 => ['description' => 'Thundery Rain',       'icon' => 'fas fa-bolt'],
+            389 => ['description' => 'Thundery Heavy Rain', 'icon' => 'fas fa-bolt'],
+        ];
+
+        $condition = $iconMap[$code] ?? [
+            'description' => $current['weatherDesc'][0]['value'] ?? 'Unknown',
+            'icon'        => 'fas fa-cloud',
+        ];
+
+        // Find the closest 3-hour slot to right now
+        $currentHour  = (int) date('H');
+        $hourlySlots  = $data['weather'][0]['hourly'] ?? [];
+        $closestSlot  = $hourlySlots[0] ?? [];
+        $minDiff      = PHP_INT_MAX;
+        foreach ($hourlySlots as $slot) {
+            $slotHour = (int) $slot['time'] / 100;
+            $diff     = abs($currentHour - $slotHour);
+            if ($diff < $minDiff) {
+                $minDiff     = $diff;
+                $closestSlot = $slot;
+            }
+        }
+
+        return response()->json([
+            'temperature' => (int) $current['temp_C'],
+            'humidity'    => (int) ($closestSlot['humidity'] ?? $current['humidity']),
+            'rain_chance' => (int) ($closestSlot['chanceofrain'] ?? 0),
+            'description' => $condition['description'],
+            'icon'        => $condition['icon'],
+            'time'        => now()->toIso8601String(),
+        ]);
+    }
 }

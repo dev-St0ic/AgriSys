@@ -95,10 +95,10 @@
                 <div class="service-overview-grid">
                     @php
                         $serviceImages = [
-                            'rsbsa'    => 'ServicesRSBSATemporary.jpg',
+                            'rsbsa' => 'ServicesRSBSATemporary.jpg',
                             'seedling' => 'ServicesSeedlingsTemporary.jpg',
-                            'fishr'    => 'ServicesFishrTemporary.jpg',
-                            'boatr'    => 'ServicesBoatrTemporary.jpg',
+                            'fishr' => 'ServicesFishrTemporary.jpg',
+                            'boatr' => 'ServicesBoatrTemporary.jpg',
                             'training' => 'ServicesTrainingTemporary.jpg',
                         ];
                         $serviceKeys = array_keys($serviceImages);
@@ -108,12 +108,10 @@
                     @foreach ($applicationStatus ?? [] as $key => $service)
                         <div class="service-card">
                             <div class="service-image-wrapper clickable-image-wrapper"
-                                data-service-key="{{ $key }}"
-                                data-service-name="{{ $service['name'] }}"
+                                data-service-key="{{ $key }}" data-service-name="{{ $service['name'] }}"
                                 title="Click to change image">
                                 <img src="{{ asset('images/services/' . ($serviceImages[$key] ?? 'default.jpg')) }}"
-                                    alt="{{ $service['name'] }}"
-                                    class="service-image"
+                                    alt="{{ $service['name'] }}" class="service-image"
                                     id="service-img-{{ $key }}">
                                 <div class="service-image-overlay"></div>
                                 <div class="image-change-hint">
@@ -146,14 +144,10 @@
 
                     <!-- Supply Management Card -->
                     <div class="service-card">
-                        <div class="service-image-wrapper clickable-image-wrapper"
-                            data-service-key="supply"
-                            data-service-name="Supply Management"
-                            title="Click to change image">
-                            <img src="{{ asset('images/services/SupplyManagement.png') }}"
-                                alt="Supply Management"
-                                class="service-image"
-                                id="service-img-supply">
+                        <div class="service-image-wrapper clickable-image-wrapper" data-service-key="supply"
+                            data-service-name="Supply Management" title="Click to change image">
+                            <img src="{{ asset('images/services/SupplyManagement.png') }}" alt="Supply Management"
+                                class="service-image" id="service-img-supply">
                             <div class="service-image-overlay"></div>
                             <div class="image-change-hint">
                                 <i class="fas fa-camera"></i>
@@ -172,7 +166,8 @@
                                     <div class="stat-label">Total Items</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value danger">{{ $supplyAlerts['total_out_of_stock_count'] ?? 0 }}</div>
+                                    <div class="stat-value danger">{{ $supplyAlerts['total_out_of_stock_count'] ?? 0 }}
+                                    </div>
                                     <div class="stat-label">Out of Supply</div>
                                 </div>
                             </div>
@@ -184,8 +179,8 @@
                 </div>
 
                 <!-- ============================================================
-                    IMAGE UPLOAD MODAL
-                    ============================================================ -->
+                        IMAGE UPLOAD MODAL
+                        ============================================================ -->
                 <div class="img-upload-overlay" id="imgUploadOverlay">
                     <div class="img-upload-modal" id="imgUploadModal">
 
@@ -240,7 +235,8 @@
                             <label for="iumFileInput" class="ium-browse-btn">
                                 <i class="fas fa-folder-open"></i> Browse File
                             </label>
-                            <input type="file" id="iumFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+                            <input type="file" id="iumFileInput" accept="image/jpeg,image/png,image/webp"
+                                style="display:none;">
 
                             <button class="ium-upload-btn" id="iumUploadBtn" disabled>
                                 <span class="ium-btn-text">
@@ -997,27 +993,12 @@
             };
 
             function updateWeather() {
-                fetch(
-                        'https://api.open-meteo.com/v1/forecast?latitude=14.3583&longitude=121.0161&current_weather=true&hourly=relativehumidity_2m,precipitation_probability&timezone=Asia/Manila'
-                    )
+                fetch('{{ route('admin.weather') }}')
                     .then(response => {
                         if (!response.ok) throw new Error('Weather API failed');
                         return response.json();
                     })
                     .then(data => {
-                        if (!data.current_weather) return;
-
-                        const w = data.current_weather;
-                        const condition = weatherConditions[w.weathercode] || {
-                            description: 'Unknown',
-                            icon: 'fas fa-cloud'
-                        };
-
-                        // Get current hour index for hourly data
-                        const now = new Date();
-                        const currentHourIndex = now.getHours();
-
-                        // Update all elements
                         const tempEl = document.getElementById('weatherTemp');
                         const iconEl = document.getElementById('weatherIcon');
                         const condEl = document.getElementById('weatherCondition');
@@ -1025,24 +1006,14 @@
                         const rainEl = document.getElementById('rainChance');
                         const timeEl = document.getElementById('weatherTime');
 
-                        if (tempEl) tempEl.textContent = Math.round(w.temperature);
-                        if (iconEl) iconEl.innerHTML = '<i class="' + condition.icon + '"></i>';
-                        if (condEl) condEl.textContent = condition.description;
-
-                        // Update humidity from hourly data
-                        if (humidityEl && data.hourly && data.hourly.relativehumidity_2m) {
-                            const humidity = data.hourly.relativehumidity_2m[currentHourIndex] || 0;
-                            humidityEl.textContent = Math.round(humidity) + '%';
-                        }
-
-                        // Update rain chance from hourly data
-                        if (rainEl && data.hourly && data.hourly.precipitation_probability) {
-                            const rainChance = data.hourly.precipitation_probability[currentHourIndex] || 0;
-                            rainEl.textContent = Math.round(rainChance) + '%';
-                        }
+                        if (tempEl) tempEl.textContent = data.temperature;
+                        if (iconEl) iconEl.innerHTML = '<i class="' + data.icon + '"></i>';
+                        if (condEl) condEl.textContent = data.description;
+                        if (humidityEl) humidityEl.textContent = data.humidity + '%';
+                        if (rainEl) rainEl.textContent = data.rain_chance + '%';
 
                         if (timeEl) {
-                            const time = new Date(w.time);
+                            const time = new Date(data.time);
                             timeEl.textContent = time.toLocaleTimeString('en-US', {
                                 hour: '2-digit',
                                 minute: '2-digit',
@@ -1082,34 +1053,34 @@
         /* ============================================================
         IMAGE UPLOAD MODAL LOGIC
         ============================================================ */
-        (function () {
-            const overlay      = document.getElementById('imgUploadOverlay');
-            const closeBtn     = document.getElementById('iumCloseBtn');
-            const fileInput    = document.getElementById('iumFileInput');
-            const previewImg   = document.getElementById('iumPreviewImg');
-            const placeholder  = document.getElementById('iumPreviewPlaceholder');
-            const fileMeta     = document.getElementById('iumFileMeta');
-            const fileName     = document.getElementById('iumFileName');
-            const fileSize     = document.getElementById('iumFileSize');
-            const removeBtn    = document.getElementById('iumRemoveFile');
-            const uploadBtn    = document.getElementById('iumUploadBtn');
-            const btnText      = uploadBtn.querySelector('.ium-btn-text');
-            const btnLoading   = uploadBtn.querySelector('.ium-btn-loading');
+        (function() {
+            const overlay = document.getElementById('imgUploadOverlay');
+            const closeBtn = document.getElementById('iumCloseBtn');
+            const fileInput = document.getElementById('iumFileInput');
+            const previewImg = document.getElementById('iumPreviewImg');
+            const placeholder = document.getElementById('iumPreviewPlaceholder');
+            const fileMeta = document.getElementById('iumFileMeta');
+            const fileName = document.getElementById('iumFileName');
+            const fileSize = document.getElementById('iumFileSize');
+            const removeBtn = document.getElementById('iumRemoveFile');
+            const uploadBtn = document.getElementById('iumUploadBtn');
+            const btnText = uploadBtn.querySelector('.ium-btn-text');
+            const btnLoading = uploadBtn.querySelector('.ium-btn-loading');
             const serviceLabel = document.getElementById('iumServiceName');
-            const dropZone     = document.getElementById('iumDropZone');
-            const toast        = document.getElementById('iumToast');
+            const dropZone = document.getElementById('iumDropZone');
+            const toast = document.getElementById('iumToast');
 
-            let currentServiceKey  = null;
-            let currentTargetImg   = null;
-            let selectedFile       = null;
-            const UPLOAD_URL       = '{{ route("admin.dashboard.upload-service-image") }}';
-            const CSRF_TOKEN       = '{{ csrf_token() }}';
+            let currentServiceKey = null;
+            let currentTargetImg = null;
+            let selectedFile = null;
+            const UPLOAD_URL = '{{ route('admin.dashboard.upload-service-image') }}';
+            const CSRF_TOKEN = '{{ csrf_token() }}';
 
             // ── Open modal on image wrapper click ──
             document.querySelectorAll('.clickable-image-wrapper').forEach(wrapper => {
                 wrapper.addEventListener('click', () => {
                     currentServiceKey = wrapper.dataset.serviceKey;
-                    currentTargetImg  = document.getElementById('service-img-' + currentServiceKey);
+                    currentTargetImg = document.getElementById('service-img-' + currentServiceKey);
                     serviceLabel.textContent = wrapper.dataset.serviceName;
 
                     // Show current image in preview
@@ -1135,8 +1106,12 @@
                 setTimeout(resetFileSelection, 300);
             }
             closeBtn.addEventListener('click', closeModal);
-            overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+            overlay.addEventListener('click', e => {
+                if (e.target === overlay) closeModal();
+            });
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') closeModal();
+            });
 
             // ── File selection via browse ──
             fileInput.addEventListener('change', () => {
@@ -1197,8 +1172,8 @@
                 fileInput.value = '';
                 fileMeta.style.display = 'none';
                 uploadBtn.disabled = true;
-                btnText.style.display = 'flex';       // ← force text back
-                btnLoading.style.display = 'none';    // ← force spinner hidden
+                btnText.style.display = 'flex'; // ← force text back
+                btnLoading.style.display = 'none'; // ← force spinner hidden
             }
 
             // ── Upload ──
@@ -1213,20 +1188,23 @@
                 formData.append('_token', CSRF_TOKEN);
 
                 try {
-                    const res  = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
+                    const res = await fetch(UPLOAD_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
                     const data = await res.json();
 
                     if (res.ok && data.success) {
                         // Update the card image instantly (cache-bust)
                         currentTargetImg.src = data.new_url;
-                        previewImg.src       = data.new_url;
+                        previewImg.src = data.new_url;
                         showToast('✓ ' + data.message, 'success');
                         resetFileSelection();
                         setTimeout(closeModal, 1400);
                     } else {
-                        const msg = data.errors
-                            ? Object.values(data.errors).flat().join(' ')
-                            : (data.message || 'Upload failed.');
+                        const msg = data.errors ?
+                            Object.values(data.errors).flat().join(' ') :
+                            (data.message || 'Upload failed.');
                         showToast(msg, 'error');
                     }
                 } catch (err) {
@@ -1239,8 +1217,8 @@
 
             function setLoading(on) {
                 uploadBtn.disabled = on;
-                btnText.style.display    = on ? 'none'         : 'flex';
-                btnLoading.style.display = on ? 'flex'         : 'none';
+                btnText.style.display = on ? 'none' : 'flex';
+                btnLoading.style.display = on ? 'flex' : 'none';
             }
 
             function showToast(msg, type) {
@@ -1250,8 +1228,8 @@
             }
 
             function formatBytes(bytes) {
-                if (bytes < 1024)       return bytes + ' B';
-                if (bytes < 1048576)    return (bytes / 1024).toFixed(1) + ' KB';
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
                 return (bytes / 1048576).toFixed(2) + ' MB';
             }
         })();
@@ -2254,6 +2232,7 @@
             cursor: pointer;
             position: relative;
         }
+
         .image-change-hint {
             position: absolute;
             inset: 0;
@@ -2262,7 +2241,7 @@
             align-items: center;
             justify-content: center;
             gap: 0.4rem;
-            background: rgba(0,0,0,0);
+            background: rgba(0, 0, 0, 0);
             color: transparent;
             font-size: 0.85rem;
             font-weight: 600;
@@ -2270,11 +2249,16 @@
             transition: background 0.3s, color 0.3s;
             z-index: 2;
         }
-        .image-change-hint i { font-size: 1.6rem; }
+
+        .image-change-hint i {
+            font-size: 1.6rem;
+        }
+
         .clickable-image-wrapper:hover .image-change-hint {
-            background: rgba(0,0,0,0.45);
+            background: rgba(0, 0, 0, 0.45);
             color: #fff;
         }
+
         .clickable-image-wrapper:hover .service-image {
             filter: brightness(0.75);
         }
@@ -2283,8 +2267,8 @@
         .img-upload-overlay {
             position: fixed;
             inset: 0;
-            visibility: hidden;   
-            background: rgba(10,14,20,0.65);
+            visibility: hidden;
+            background: rgba(10, 14, 20, 0.65);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             z-index: 9999;
@@ -2296,10 +2280,11 @@
             pointer-events: none;
             transition: opacity 0.25s ease;
         }
+
         .img-upload-overlay.active {
             opacity: 1;
             pointer-events: all;
-            visibility: visible;   
+            visibility: visible;
         }
 
         /* ── Modal Box ── */
@@ -2308,12 +2293,13 @@
             border-radius: 20px;
             width: 100%;
             max-width: 520px;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
             overflow: hidden;
             transform: translateY(24px) scale(0.97);
-            transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+            transition: transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
             position: relative;
         }
+
         .img-upload-overlay.active .img-upload-modal {
             transform: translateY(0) scale(1);
         }
@@ -2326,31 +2312,58 @@
             padding: 1.5rem 1.75rem 1.25rem;
             border-bottom: 1px solid #f0f2f5;
         }
-        .ium-header-left { display: flex; align-items: center; gap: 1rem; }
+
+        .ium-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
         .ium-icon-ring {
-            width: 48px; height: 48px;
+            width: 48px;
+            height: 48px;
             border-radius: 14px;
             background: linear-gradient(135deg, #4CAF50, #81C784);
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
             flex-shrink: 0;
         }
+
         .ium-title {
-            font-size: 1.05rem; font-weight: 700;
-            color: #111827; margin: 0 0 0.2rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 0.2rem;
         }
+
         .ium-subtitle {
-            font-size: 0.8rem; color: #6b7280; margin: 0;
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin: 0;
         }
+
         .ium-close-btn {
-            width: 36px; height: 36px;
-            border-radius: 10px; border: none;
-            background: #f3f4f6; color: #6b7280;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: #f3f4f6;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
             transition: background 0.2s, color 0.2s;
         }
-        .ium-close-btn:hover { background: #fee2e2; color: #dc2626; }
+
+        .ium-close-btn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
 
         /* ── Drop / Preview Zone ── */
         .ium-preview-zone {
@@ -2363,47 +2376,88 @@
             background: #f9fafb;
             transition: border-color 0.2s, background 0.2s;
         }
+
         .ium-preview-zone.drag-over {
             border-color: #4CAF50;
             background: #f0fdf4;
         }
+
         .ium-current-preview {
-            width: 100%; height: 220px;
-            display: flex; align-items: center; justify-content: center;
+            width: 100%;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
         }
+
         .ium-preview-img {
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             display: none;
             border-radius: 12px;
         }
-        .ium-preview-img.visible { display: block; }
-        .ium-preview-placeholder {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 0.5rem; color: #9ca3af;
-            text-align: center; padding: 1.5rem;
+
+        .ium-preview-img.visible {
+            display: block;
         }
-        .ium-preview-placeholder i { font-size: 2.5rem; color: #d1d5db; }
-        .ium-preview-placeholder p { margin: 0; font-size: 0.9rem; color: #6b7280; }
-        .ium-preview-placeholder span { font-size: 0.75rem; color: #9ca3af; }
+
+        .ium-preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #9ca3af;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .ium-preview-placeholder i {
+            font-size: 2.5rem;
+            color: #d1d5db;
+        }
+
+        .ium-preview-placeholder p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .ium-preview-placeholder span {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
 
         .ium-drop-indicator {
-            position: absolute; inset: 0;
-            background: rgba(76,175,80,0.15);
-            display: none; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 0.5rem; color: #4CAF50;
-            font-size: 0.95rem; font-weight: 600;
+            position: absolute;
+            inset: 0;
+            background: rgba(76, 175, 80, 0.15);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #4CAF50;
+            font-size: 0.95rem;
+            font-weight: 600;
             pointer-events: none;
         }
-        .ium-drop-indicator i { font-size: 2.5rem; }
-        .ium-preview-zone.drag-over .ium-drop-indicator { display: flex; }
+
+        .ium-drop-indicator i {
+            font-size: 2.5rem;
+        }
+
+        .ium-preview-zone.drag-over .ium-drop-indicator {
+            display: flex;
+        }
 
         /* ── File Meta Row ── */
         .ium-file-meta {
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin: 0.75rem 1.75rem 0;
             padding: 0.75rem 1rem;
             background: #f0fdf4;
@@ -2411,82 +2465,153 @@
             border-radius: 10px;
             gap: 1rem;
         }
-        .ium-file-info { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
-        .ium-file-info i { color: #4CAF50; font-size: 1.1rem; flex-shrink: 0; }
+
+        .ium-file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .ium-file-info i {
+            color: #4CAF50;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
         .ium-file-name {
-            font-size: 0.85rem; font-weight: 600; color: #111827;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #111827;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             max-width: 260px;
         }
-        .ium-file-size { font-size: 0.75rem; color: #6b7280; }
+
+        .ium-file-size {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
         .ium-remove-file-btn {
-            border: none; background: #fee2e2; color: #dc2626;
-            border-radius: 8px; padding: 0.4rem 0.6rem;
-            cursor: pointer; font-size: 0.8rem;
+            border: none;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 8px;
+            padding: 0.4rem 0.6rem;
+            cursor: pointer;
+            font-size: 0.8rem;
             flex-shrink: 0;
             transition: background 0.2s;
         }
-        .ium-remove-file-btn:hover { background: #fca5a5; }
+
+        .ium-remove-file-btn:hover {
+            background: #fca5a5;
+        }
 
         /* ── Actions ── */
         .ium-actions {
-            display: flex; gap: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
             padding: 1.25rem 1.75rem 1.75rem;
             align-items: center;
             justify-content: flex-start;
         }
+
         .ium-browse-btn {
-            display: inline-flex; align-items: center; gap: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             padding: 0.65rem 1.25rem;
-            align-items: center; 
+            align-items: center;
             border: 1.5px solid #d1d5db;
             border-radius: 10px;
-            font-size: 0.85rem; font-weight: 600; color: #374151;
-            cursor: pointer; background: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            background: #fff;
             transition: border-color 0.2s, background 0.2s;
             white-space: nowrap;
         }
+
         .ium-upload-btn .ium-btn-text {
             display: flex;
             align-items: center;
             gap: 8px;
         }
+
         .ium-btn-loading {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .ium-browse-btn:hover { border-color: #4CAF50; background: #f0fdf4; color: #4CAF50; }
+
+        .ium-browse-btn:hover {
+            border-color: #4CAF50;
+            background: #f0fdf4;
+            color: #4CAF50;
+        }
+
         .ium-upload-btn {
             flex: 1;
             padding: 0.65rem 1.5rem;
             background: linear-gradient(135deg, #4CAF50, #66BB6A);
-            color: #fff; border: none; border-radius: 10px;
-            font-size: 0.9rem; font-weight: 700;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             transition: opacity 0.2s, transform 0.15s;
         }
+
         .ium-upload-btn:disabled {
-            opacity: 0.45; cursor: not-allowed;
+            opacity: 0.45;
+            cursor: not-allowed;
         }
+
         .ium-upload-btn:not(:disabled):hover {
-            opacity: 0.9; transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(76,175,80,0.4);
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
         }
 
         /* ── Toast ── */
         .ium-toast {
-            position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
-            padding: 0.6rem 1.25rem; border-radius: 50px;
-            font-size: 0.82rem; font-weight: 600;
-            white-space: nowrap; pointer-events: none;
-            opacity: 0; transition: opacity 0.3s;
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.6rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
             z-index: 1;
         }
-        .ium-toast.show { opacity: 1; }
-        .ium-toast.success { background: #d1fae5; color: #065f46; }
-        .ium-toast.error   { background: #fee2e2; color: #991b1b; }
+
+        .ium-toast.show {
+            opacity: 1;
+        }
+
+        .ium-toast.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .ium-toast.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
     </style>
 
 @endsection

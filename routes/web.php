@@ -207,6 +207,7 @@ Route::middleware('admin')->group(function () {
      * Admin Dashboard
      */
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/weather', [AdminDashboardController::class, 'weatherProxy'])->name('admin.weather');
     Route::post('/admin/dashboard/upload-service-image', [AdminDashboardController::class, 'uploadServiceImage'])
     ->name('admin.dashboard.upload-service-image');
 
