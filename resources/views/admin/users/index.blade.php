@@ -4509,29 +4509,54 @@
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
 
+            // Clear prior validation state
+            const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+            if (existingFeedback) existingFeedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
             if (!input.files || !input.files[0]) {
-                if (preview) {
-                    preview.innerHTML = '';
-                    preview.style.display = 'none';
-                }
+                if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
                 return;
             }
 
             const file = input.files[0];
-            const reader = new FileReader();
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
 
+            if (!allowedTypes.includes(file.type)) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Only image files are allowed (JPG, PNG, GIF, WEBP)';
+                input.parentNode.appendChild(errorDiv);
+                if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
+                return;
+            }
+
+            if (file.size > maxSize) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'File must not exceed 10MB';
+                input.parentNode.appendChild(errorDiv);
+                if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
+                return;
+            }
+
+            input.classList.add('is-valid');
+
+            const reader = new FileReader();
             reader.onload = function(e) {
                 if (preview) {
                     preview.innerHTML = `
                         <div class="document-preview-item">
                             <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-                            <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
+                            <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name} (${(file.size / 1024).toFixed(1)} KB)</p>
                         </div>
                     `;
                     preview.style.display = 'block';
                 }
             };
-
             reader.readAsDataURL(file);
         }
 
@@ -4669,6 +4694,51 @@
                 }
             });
 
+            // Validate complete address minimum length
+            const addressInput = document.getElementById('add_complete_address');
+            if (addressInput) {
+                const addrFeedback = addressInput.parentNode.querySelector('.invalid-feedback');
+                if (addrFeedback) addrFeedback.remove();
+                addressInput.classList.remove('is-invalid', 'is-valid');
+                const addrVal = addressInput.value.trim();
+                if (!addrVal) {
+                    addressInput.classList.add('is-invalid');
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'invalid-feedback d-block';
+                    errDiv.textContent = 'Complete Address is required';
+                    addressInput.parentNode.appendChild(errDiv);
+                    isValid = false;
+                } else if (addrVal.length < 10) {
+                    addressInput.classList.add('is-invalid');
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'invalid-feedback d-block';
+                    errDiv.textContent = 'Complete Address must be at least 10 characters';
+                    addressInput.parentNode.appendChild(errDiv);
+                    isValid = false;
+                } else {
+                    addressInput.classList.add('is-valid');
+                }
+            }
+
+            // Validate required selects
+            ['add_user_type', 'add_barangay', 'add_sex'].forEach(selectId => {
+                const sel = document.getElementById(selectId);
+                if (!sel) return;
+                const selFeedback = sel.parentNode.querySelector('.invalid-feedback');
+                if (selFeedback) selFeedback.remove();
+                sel.classList.remove('is-invalid', 'is-valid');
+                if (!sel.value) {
+                    sel.classList.add('is-invalid');
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'invalid-feedback d-block';
+                    errDiv.textContent = sel.labels[0]?.textContent.replace(' *', '').trim() + ' is required';
+                    sel.parentNode.appendChild(errDiv);
+                    isValid = false;
+                } else {
+                    sel.classList.add('is-valid');
+                }
+            });
+
             // Validate documents (REQUIRED)
             if (!validateAddDocuments()) {
                 isValid = false;
@@ -4677,10 +4747,12 @@
             return isValid;
         }
         /**
-         * Validate all document uploads (required)
+         * Validate all document uploads (required) - with type and size checks
          */
         function validateAddDocuments() {
             let isValid = true;
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
 
             const documents = [{
                     id: 'add_id_front',
@@ -4709,6 +4781,28 @@
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
                     errorDiv.textContent = doc.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                    return;
+                }
+
+                const file = input.files[0];
+
+                if (!allowedTypes.includes(file.type)) {
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = doc.label + ': Only image files are allowed (JPG, PNG, GIF, WEBP)';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                    return;
+                }
+
+                if (file.size > maxSize) {
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = doc.label + ': File must not exceed 10MB';
                     input.parentNode.appendChild(errorDiv);
                     isValid = false;
                     return;
@@ -5247,18 +5341,77 @@
         // Apply to name fields on blur (when user leaves the field) for immediate effect
         document.getElementById('add_first_name')?.addEventListener('blur', function() {
             capitalizeName(this);
+            validateAddNameField(this);
         });
 
         document.getElementById('add_middle_name')?.addEventListener('blur', function() {
             capitalizeName(this);
+            validateAddNameField(this);
         });
 
         document.getElementById('add_last_name')?.addEventListener('blur', function() {
             capitalizeName(this);
+            validateAddNameField(this);
         });
 
         document.getElementById('add_emergency_contact_name')?.addEventListener('blur', function() {
             capitalizeName(this);
+            validateAddNameField(this);
+        });
+
+        // Real-time validation for complete address
+        document.getElementById('add_complete_address')?.addEventListener('input', function() {
+            const feedback = this.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            this.classList.remove('is-invalid', 'is-valid');
+            const val = this.value.trim();
+            if (val.length > 0 && val.length < 10) {
+                this.classList.add('is-invalid');
+                const errDiv = document.createElement('div');
+                errDiv.className = 'invalid-feedback d-block';
+                errDiv.textContent = 'Complete Address must be at least 10 characters';
+                this.parentNode.appendChild(errDiv);
+            } else if (val.length >= 10) {
+                this.classList.add('is-valid');
+            }
+        });
+
+        document.getElementById('add_complete_address')?.addEventListener('blur', function() {
+            const feedback = this.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            this.classList.remove('is-invalid', 'is-valid');
+            const val = this.value.trim();
+            if (!val) {
+                this.classList.add('is-invalid');
+                const errDiv = document.createElement('div');
+                errDiv.className = 'invalid-feedback d-block';
+                errDiv.textContent = 'Complete Address is required';
+                this.parentNode.appendChild(errDiv);
+            } else if (val.length < 10) {
+                this.classList.add('is-invalid');
+                const errDiv = document.createElement('div');
+                errDiv.className = 'invalid-feedback d-block';
+                errDiv.textContent = 'Complete Address must be at least 10 characters';
+                this.parentNode.appendChild(errDiv);
+            } else {
+                this.classList.add('is-valid');
+            }
+        });
+
+        // Real-time validation for required selects
+        ['add_user_type', 'add_barangay', 'add_sex'].forEach(function(selectId) {
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
+            sel.addEventListener('change', function() {
+                const feedback = this.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+                this.classList.remove('is-invalid', 'is-valid');
+                if (!this.value) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.add('is-valid');
+                }
+            });
         });
 
         /**

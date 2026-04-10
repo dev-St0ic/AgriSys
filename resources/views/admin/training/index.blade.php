@@ -1208,7 +1208,8 @@
                                     <li class="mb-2">Fill in the rows with applicant data. <em>Delete the sample rows
                                             before uploading.</em></li>
                                     <li class="mb-2">Save the file as <strong>CSV</strong> (.csv) or
-                                        <strong>Excel</strong> (.xlsx).</li>
+                                        <strong>Excel</strong> (.xlsx).
+                                    </li>
                                     <li>Upload the file using the form below and click <strong>Import</strong>.</li>
                                 </ol>
                             </div>
@@ -3174,8 +3175,16 @@
                 return;
             }
 
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-            const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+            // Validate file type (MIME check)
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                showToast('error', 'Only JPG, PNG, or PDF files are allowed');
+                input.value = '';
+                if (preview) preview.innerHTML = '';
+                return;
+            }
+
+            const isImage = file.type.startsWith('image/');
 
             if (isImage) {
                 const reader = new FileReader();
@@ -3272,6 +3281,34 @@
                     isValid = false;
                     errors.push('Contact Number');
                     console.log('❌ Contact number validation failed');
+                }
+            }
+
+            // VALIDATE DOCUMENT FILE if provided (optional field but must be valid type/size if supplied)
+            const docInput = document.getElementById('training_supporting_document');
+            if (docInput && docInput.files && docInput.files.length > 0) {
+                const file = docInput.files[0];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                const oldFeedback = docInput.parentNode.querySelector('.invalid-feedback');
+                if (oldFeedback) oldFeedback.remove();
+                docInput.classList.remove('is-invalid', 'is-valid');
+
+                if (file.size > 10 * 1024 * 1024) {
+                    docInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'File size must not exceed 10MB';
+                    docInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                    errors.push('Supporting Document');
+                } else if (!allowedTypes.includes(file.type)) {
+                    docInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'File must be JPG, PNG, or PDF format';
+                    docInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                    errors.push('Supporting Document');
                 }
             }
 
@@ -4228,16 +4265,16 @@
             const input = document.getElementById(fieldId);
             if (!input) return true;
 
-            // Remove old error
             const oldError = input.parentNode.querySelector('.invalid-feedback');
             if (oldError) oldError.remove();
             input.classList.remove('is-invalid', 'is-valid');
 
             const value = input.value.trim();
-            const isRequired = !fieldId.includes('middle');
+            const isMiddle = fieldId.includes('middle');
 
-            // Check if empty and required
-            if (!value && isRequired) {
+            if (!value && isMiddle) return true;
+
+            if (!value && !isMiddle) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
@@ -4247,21 +4284,39 @@
                 return false;
             }
 
-            // Check if has invalid characters (only allow letters, spaces, hyphens, apostrophes)
-            const nameRegex = /^[a-zA-Z\s\-']*$/;
-            if (value && !nameRegex.test(value)) {
+            if (!value) return true;
+
+            const errors = [];
+
+            if (/\d/.test(value)) {
+                errors.push('Name cannot contain numbers');
+            }
+            if (/[^a-zA-Z\s\-'.ñÑ]/.test(value)) {
+                errors.push('Name can only contain letters, spaces, hyphens, apostrophes, and periods');
+            }
+            if (value.length < 2) {
+                errors.push('Name must be at least 2 characters');
+            }
+            if (value.length > 100) {
+                errors.push('Name cannot exceed 100 characters');
+            }
+            if (/\s{2,}/.test(value)) {
+                errors.push('Name cannot contain consecutive spaces');
+            }
+            if (!/^[a-zA-ZñÑ]/.test(value)) {
+                errors.push('Name must start with a letter');
+            }
+
+            if (errors.length > 0) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Only letters, spaces, hyphens, and apostrophes are allowed';
+                errorDiv.textContent = errors[0];
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
 
-            // Valid
-            if (value) {
-                input.classList.add('is-valid');
-            }
+            input.classList.add('is-valid');
             return true;
         }
 
@@ -4564,6 +4619,11 @@
             if (trainingContactInput) {
                 trainingContactInput.addEventListener('blur', function() {
                     if (this.value) {
+                        validateTrainingContactNumber(this.value);
+                    }
+                });
+                trainingContactInput.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid')) {
                         validateTrainingContactNumber(this.value);
                     }
                 });
