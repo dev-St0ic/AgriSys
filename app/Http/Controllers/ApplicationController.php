@@ -1104,40 +1104,25 @@ private function generateUniqueApplicationNumber(string $boatClassification = ''
 {
     $year = now()->year;
     $prefix = $boatClassification === 'Motorized' ? 'M' : 'NM';
-    $pattern = "BOATR-{$year}-{$prefix}-%";
 
-    $last = BoatrApplication::where('application_number', 'like', $pattern)
-        ->orderByDesc('application_number')
-        ->value('application_number');
+    do {
+        $random = str_pad(random_int(10000, 99999), 5, '0', STR_PAD_LEFT);
+        $applicationNumber = "BOATR-{$year}-{$prefix}-{$random}";
+    } while (BoatrApplication::withTrashed()->where('application_number', $applicationNumber)->exists());
 
-    $nextSequence = $last
-        ? (int) substr($last, strrpos($last, '-') + 1) + 1
-        : 1;
-
-    if ($nextSequence > 9999) {
-        throw new \Exception("BoatR application number limit reached for {$prefix} in year {$year}.");
-    }
-
-    return "BOATR-{$year}-{$prefix}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+    return $applicationNumber;
 }
 
     private function generateUniqueRsbsaApplicationNumber(): string
     {
         $year = now()->year;
 
-        $last = RsbsaApplication::where('application_number', 'like', "RSBSA-{$year}-%")
-            ->orderByDesc('application_number')
-            ->value('application_number');
+        do {
+            $random = str_pad(random_int(10000, 99999), 5, '0', STR_PAD_LEFT);
+            $applicationNumber = "RSBSA-{$year}-{$random}";
+        } while (RsbsaApplication::withTrashed()->where('application_number', $applicationNumber)->exists());
 
-        $nextSequence = $last
-            ? (int) substr($last, strrpos($last, '-') + 1) + 1
-            : 1;
-
-        if ($nextSequence > 9999) {
-            throw new \Exception("RSBSA application number limit reached for year {$year}.");
-        }
-
-        return "RSBSA-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+        return $applicationNumber;
     }
 
     /**
@@ -1145,21 +1130,14 @@ private function generateUniqueApplicationNumber(string $boatClassification = ''
      */
     private function generateUniqueRegistrationNumber(): string
     {
-    $year = now()->year;
+        $year = now()->year;
 
-    $last = FishrApplication::where('registration_number', 'like', "FISHR-{$year}-%")
-        ->orderByDesc('registration_number')
-        ->value('registration_number');
+        do {
+            $random = str_pad(random_int(10000, 99999), 5, '0', STR_PAD_LEFT);
+            $registrationNumber = "FISHR-{$year}-{$random}";
+        } while (FishrApplication::withTrashed()->where('registration_number', $registrationNumber)->exists());
 
-    $nextSequence = $last
-        ? (int) substr($last, strrpos($last, '-') + 1) + 1
-        : 1;
-
-    if ($nextSequence > 9999) {
-        throw new \Exception("FishR registration number limit reached for year {$year}.");
-    }
-
-    return "FISHR-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+        return $registrationNumber;
     }
 
     /**
@@ -1167,24 +1145,17 @@ private function generateUniqueApplicationNumber(string $boatClassification = ''
      */
     private function generateUniqueRequestNumber(): string
     {
-     $year = now()->year;
+        $year = now()->year;
 
-    $last = SeedlingRequest::where('request_number', 'like', "REQ-{$year}-%")
-        ->orderByDesc('request_number')
-        ->value('request_number');
+        do {
+            $random = str_pad(random_int(10000, 99999), 5, '0', STR_PAD_LEFT);
+            $requestNumber = "REQ-{$year}-{$random}";
+        } while (SeedlingRequest::withTrashed()->where('request_number', $requestNumber)->exists());
 
-    $nextSequence = $last
-        ? (int) substr($last, strrpos($last, '-') + 1) + 1
-        : 1;
-
-    if ($nextSequence > 9999) {
-        throw new \Exception("Seedling request number limit reached for year {$year}.");
+        return $requestNumber;
     }
 
-    return "REQ-{$year}-" . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
-    }
 
-    
     /**
      * Generate unique request number for Training requests
      */
@@ -1192,19 +1163,12 @@ private function generateUniqueApplicationNumber(string $boatClassification = ''
     {
         $year = now()->year;
 
-        $last = TrainingApplication::where('application_number', 'like', "TRAIN-{$year}-%")
-            ->orderByDesc('application_number')
-            ->value('application_number');
+        do {
+            $random = str_pad(random_int(10000, 99999), 5, '0', STR_PAD_LEFT);
+            $applicationNumber = "TRAIN-{$year}-{$random}";
+        } while (TrainingApplication::withTrashed()->where('application_number', $applicationNumber)->exists());
 
-        $nextSequence = $last
-            ? (int) substr($last, strrpos($last, '-') + 1) + 1
-            : 1;
-
-        if ($nextSequence > 9999) {
-            throw new \Exception("Training application number limit reached for year {$year}.");
-        }
-
-        return "TRAIN-{$year}-" . str_pad($nextSequence, 3, '0', STR_PAD_LEFT);
+        return $applicationNumber;
     }
 
     /**
