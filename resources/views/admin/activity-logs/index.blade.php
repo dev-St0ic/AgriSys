@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Activity Logs')
 
@@ -1210,8 +1210,8 @@ if ($actionUser) {
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 

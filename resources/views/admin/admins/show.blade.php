@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'View Admin - AgriSys')
 @section('page-title', 'Admin Details')
@@ -203,7 +203,7 @@
 
         .list-group-item:hover {
             background-color: #f8f9fa;
-            border-left-color: #0d6efd;
+            border-left-color: #10b981;
             transform: translateX(5px);
         }
 

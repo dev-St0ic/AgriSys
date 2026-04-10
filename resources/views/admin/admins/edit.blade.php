@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Edit Admin - AgriSys')
 @section('page-title', 'Edit Admin User')
@@ -336,7 +336,7 @@
         }
 
         #current-password-feedback.text-info {
-            color: #0dcaf0 !important;
+            color: #34d399 !important;
         }
 
         /* Password validation feedback */

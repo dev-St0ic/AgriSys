@@ -1,4 +1,4 @@
-{{-- resources/views/admin/supply-management/index.blade.php --}}
+﻿{{-- resources/views/admin/supply-management/index.blade.php --}}
 
 @extends('layouts.app')
 
@@ -151,7 +151,7 @@
         @foreach ($categories as $category)
             <div class="category-content" id="category-{{ $category->id }}">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center ps-4" style="background: #f0f4ff; border-left: 4px solid #0d6efd;">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center ps-4" style="background: #f0fdf4; border-left: 4px solid #10b981;">
                         <div>
                             <h4 class="mb-1">
                                 <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
@@ -1493,7 +1493,7 @@
             submitBtn.innerHTML =
                 '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Creating...</span>';
             submitBtn.disabled = true;
-            submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
+            submitBtn.style.backgroundColor = '#10b981'; // Ensure bright blue background
 
             try {
                 const data = await makeRequest('/admin/seedlings/supply-management', {
@@ -1535,7 +1535,7 @@
             submitBtn.innerHTML =
                 '<i class="fas fa-spinner fa-spin me-2"></i><span style="color: #ffffff;">Adding...</span>';
             submitBtn.disabled = true;
-            submitBtn.style.backgroundColor = '#0d6efd'; // Ensure bright blue background
+            submitBtn.style.backgroundColor = '#10b981'; // Ensure bright blue background
 
             try {
                 const data = await makeRequest('/admin/seedlings/items', {
@@ -2968,11 +2968,11 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Confirmation Toast */
@@ -3094,7 +3094,7 @@
         /* Badge soft colors */
         .badge-primary-soft {
             background-color: rgba(13, 110, 253, 0.15);
-            color: #0d6efd;
+            color: #10b981;
         }
 
         .badge-success-soft {
@@ -3187,14 +3187,14 @@
 
         .category-tab-btn:hover {
             background: #f8f9fa;
-            border-color: #0d6efd;
-            color: #0d6efd;
+            border-color: #10b981;
+            color: #10b981;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .category-tab-btn.active {
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-            border-color: #0d6efd;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            border-color: #10b981;
             color: #ffffff;
             box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
         }
@@ -3226,7 +3226,7 @@
 
         .search-box .form-control:focus {
             box-shadow: none;
-            border-color: #0d6efd;
+            border-color: #10b981;
         }
 
         .search-box .input-group-text {
@@ -3464,7 +3464,7 @@
         }
 
         .card-header h6 {
-            color: #0d6efd;
+            color: #10b981;
             font-weight: 600;
             font-size: 1rem;
             letter-spacing: 0.3px;
@@ -3481,7 +3481,7 @@
 
         .form-select-sm:focus,
         .form-control-sm:focus {
-            border-color: #0d6efd;
+            border-color: #10b981;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
 
@@ -3521,8 +3521,8 @@
         }
 
         .pagination-controls .btn-outline-secondary:hover:not(:disabled) {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
+            background-color: #10b981;
+            border-color: #10b981;
             color: white;
         }
 
@@ -3589,7 +3589,7 @@
 
         #createCategoryModal .form-control:focus,
         #createCategoryModal .form-select:focus {
-            border-color: #0d6efd;
+            border-color: #10b981;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
 
@@ -3613,7 +3613,7 @@
         }
 
         #createItemModal textarea[name="description"]:focus {
-            border-color: #0d6efd;
+            border-color: #10b981;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
 
@@ -3675,7 +3675,7 @@
 
         /* Clickable category name hover effect */
         .card-header a.category-name:hover {
-            color: #0d6efd !important;
+            color: #10b981 !important;
             text-decoration: underline !important;
         }
 
@@ -3721,13 +3721,13 @@
             text-overflow: ellipsis !important;
             max-width: 100%;
             padding: 1rem 0.75rem;
-            background: #0a58ca;
+            background: #047857;
             color: #ffffff;
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid #0a58ca;
+            border-bottom: 2px solid #047857;
             word-break: break-word;
         }
 
@@ -4193,8 +4193,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 

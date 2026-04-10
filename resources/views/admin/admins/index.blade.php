@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Manage Admins - AgriSys')
 @section('page-icon', 'fas fa-users-cog')
@@ -7,13 +7,7 @@
 @section('content')
     <!-- Requests Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div></div>
-            <div class="text-center flex-fill">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-user-shield me-2"></i>Admin Users
-                </h6>
-            </div>
+        <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
             <div>
                 <a href="{{ route('admin.admins.create') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-user-plus me-2"></i>Add New Admin
@@ -71,8 +65,7 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @if ($admin->id !== auth()->id())
-                                                <button type="button" 
-                                                    class="btn btn-sm btn-outline-danger"
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
                                                     onclick="showDeleteAdminModal({{ $admin->id }}, '{{ $admin->name }}')"
                                                     title="Delete">
                                                     <i class="fas fa-trash"></i>
@@ -98,7 +91,8 @@
                                     </li>
                                 @else
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ $admins->previousPageUrl() }}" rel="prev">Back</a>
+                                        <a class="page-link" href="{{ $admins->previousPageUrl() }}"
+                                            rel="prev">Back</a>
                                     </li>
                                 @endif
 
@@ -169,7 +163,8 @@
                 <div class="modal-body">
                     <div class="alert alert-danger" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">Are you sure you want to delete this admin user? <strong id="delete_admin_name"></strong> will be moved to recycle bin.</p>
+                        <p class="mb-0">Are you sure you want to delete this admin user? <strong
+                                id="delete_admin_name"></strong> will be moved to recycle bin.</p>
                     </div>
                     <ul class="mb-0">
                         <li>Remove the admin user from the system</li>
@@ -179,9 +174,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmDeleteAdmin()" id="confirm_delete_admin_btn">
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteAdmin()"
+                        id="confirm_delete_admin_btn">
                         <span class="btn-text">Delete Admin</span>
-                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -196,7 +193,7 @@
 
         .avatar-title {
             align-items: center;
-            background-color:  #0040ff;
+            background-color: #0040ff;
             color: #fff;
             display: flex;
             font-size: 0.875rem;
@@ -233,8 +230,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -363,7 +360,8 @@
                 const response = await fetch(`/admin/admins/${currentDeleteAdminId}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     }
@@ -376,7 +374,7 @@
                 }
 
                 showToast('success', data.message || 'Admin user moved to recycle bin successfully');
-                
+
                 const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAdminModal'));
                 if (modal) modal.hide();
 
@@ -387,7 +385,7 @@
             } catch (error) {
                 console.error('Error:', error);
                 showToast('error', 'Error deleting admin: ' + error.message);
-                
+
                 const deleteBtn = document.getElementById('confirm_delete_admin_btn');
                 deleteBtn.querySelector('.btn-text').style.display = 'inline';
                 deleteBtn.querySelector('.btn-loader').style.display = 'none';
@@ -401,10 +399,22 @@
         function showToast(type, message) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
             const iconMap = {
-                'success': { icon: 'fas fa-check-circle', color: 'success' },
-                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-                'info': { icon: 'fas fa-info-circle', color: 'info' }
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
             };
 
             const config = iconMap[type] || iconMap['info'];

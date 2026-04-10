@@ -1,4 +1,4 @@
-{{-- resources/views/admin/fishr/index.blade.php --}}
+﻿{{-- resources/views/admin/fishr/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'FishR Registrations - AgriSys Admin')
@@ -227,8 +227,8 @@
 
     <!-- Registrations Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+        <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
+            <div class="d-flex gap-2 align-items-center">
                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
                     id="bulkSelectAllBtn">
                     <i class="fas fa-check-square me-1"></i>Select All
@@ -249,12 +249,7 @@
                     </button>
                 </div>
             </div>
-            <div class="text-center" style="flex: 1;">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-fish me-2"></i>FishR Registrations
-                </h6>
-            </div>
-            <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
+            <div class="d-flex gap-2">
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddFishrModal()">
                     <i class="fas fa-user-plus me-2"></i>Add Registration
                 </button>
@@ -777,7 +772,7 @@
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style="background: #0d6efd">
+                <div class="modal-header text-white" style="background: #10b981">
                     <h5 class="modal-title  w-100 text-center" id="documentModalLabel">
                         <i></i>Supporting Document
                     </h5>
@@ -1377,7 +1372,7 @@
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="alert alert-info mb-0"
-                                style="border-left: 4px solid #17a2b8; border-radius: 8px;">
+                                style="border-left: 4px solid #059669; border-radius: 8px;">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <span id="dateFilterStatus">
                                     @if (request('date_from') || request('date_to'))
@@ -2017,12 +2012,12 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i,
         .toast-notification.toast-info .toast-header i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Confirmation Toast */
@@ -2143,8 +2138,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -2319,7 +2314,7 @@
         }
 
         #annexesModal .card-header h6 {
-            color: #0d6efd;
+            color: #10b981;
             font-size: 0.95rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -2356,16 +2351,16 @@
         }
 
         #annexesModal .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
+            background-color: #10b981;
+            border-color: #10b981;
             padding: 0.75rem 1.5rem;
             font-weight: 600;
             transition: all 0.2s ease;
         }
 
         #annexesModal .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0b5ed7;
+            background-color: #059669;
+            border-color: #059669;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
@@ -2396,7 +2391,7 @@
 
         /* Spinner */
         #annexesModal .spinner-border {
-            color: #0d6efd;
+            color: #10b981;
         }
 
         /* Responsive */
@@ -2623,7 +2618,7 @@
         .fishr-mini-doc:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .fishr-mini-doc-icon {
@@ -2659,11 +2654,11 @@
         }
 
         .fishr-document-summary:hover {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .fishr-document-summary:hover small {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .fishr-no-documents {
@@ -2681,7 +2676,7 @@
 
         /* Document type specific colors for mini previews */
         .fishr-mini-doc[title*="Registration"] {
-            border-color: #17a2b8;
+            border-color: #059669;
         }
 
         .fishr-mini-doc[title*="Registration"]:hover {
@@ -2813,14 +2808,14 @@
         }
 
         .fishr-btn-primary {
-            background: #007bff;
+            background: #10b981;
             color: white;
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .fishr-btn-primary:hover {
-            background: #0056b3;
-            border-color: #0056b3;
+            background: #059669;
+            border-color: #059669;
             color: white;
             transform: translateY(-1px);
         }
@@ -3294,7 +3289,7 @@
                     if (data.document_path) {
                         docContainer.innerHTML = `
                             <div class="p-4 border border-primary rounded bg-light">
-                                <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                <i class="fas fa-file-alt fa-3x mb-3" style="color: #10b981;"></i>
                                 <h6>Supporting Document</h6>
                                 <span class="badge bg-primary mb-3">Uploaded</span>
                                 <br>

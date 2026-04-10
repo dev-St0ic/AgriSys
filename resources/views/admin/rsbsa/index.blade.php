@@ -1,4 +1,4 @@
-{{-- resources/views/admin/rsbsa_applications/index.blade.php --}}
+﻿{{-- resources/views/admin/rsbsa_applications/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'RSBSA Registrations - AgriSys Admin')
@@ -224,8 +224,8 @@
 
     <!-- Applications Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+        <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
+            <div class="d-flex gap-2 align-items-center">
                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
                     id="bulkSelectAllBtn">
                     <i class="fas fa-check-square me-1"></i>Select All
@@ -246,12 +246,7 @@
                     </button>
                 </div>
             </div>
-            <div class="text-center" style="flex: 1;">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-file-alt me-2"></i>RSBSA Registrations
-                </h6>
-            </div>
-            <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
+            <div class="d-flex gap-2">
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddRsbsaModal()">
                     <i class="fas fa-user-plus me-2"></i>Add Registration
                 </button>
@@ -484,9 +479,9 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                        <small class="text-muted d-block">Application ID</small>
-                                                        <strong id="updateAppId" class="text-primary">-</strong>
-                                                    </div> -->
+                                                            <small class="text-muted d-block">Application ID</small>
+                                                            <strong id="updateAppId" class="text-primary">-</strong>
+                                                        </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Application #</small>
                                         <strong id="updateAppNumber">-</strong>
@@ -498,9 +493,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                        <small class="text-muted d-block">Application Type</small>
-                                                        <strong id="updateAppType">-</strong>
-                                                    </div> -->
+                                                            <small class="text-muted d-block">Application Type</small>
+                                                            <strong id="updateAppType">-</strong>
+                                                        </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Barangay</small>
                                         <strong id="updateAppBarangay">-</strong>
@@ -1319,7 +1314,7 @@
         }
 
         .modal-header.bg-info {
-            background: linear-gradient(135deg, #17a2b8, #138496) !important;
+            background: linear-gradient(135deg, #059669, #047857) !important;
             border-radius: 15px 15px 0 0;
         }
 
@@ -1351,7 +1346,7 @@
         }
 
         input[type="date"].form-control:focus {
-            border-color: #17a2b8;
+            border-color: #059669;
             box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
         }
 
@@ -1359,7 +1354,7 @@
             background: linear-gradient(135deg, #d1ecf1, #bee5eb);
             border: none;
             border-radius: 10px;
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         /* Date range container styling */
@@ -1391,15 +1386,15 @@
 
         /* Date quick filter buttons */
         .btn-group .btn-outline-info {
-            border-color: #17a2b8;
-            color: #17a2b8;
+            border-color: #059669;
+            color: #059669;
             font-size: 0.8rem;
             padding: 0.375rem 0.5rem;
         }
 
         .btn-group .btn-outline-info:hover {
-            background-color: #17a2b8;
-            border-color: #17a2b8;
+            background-color: #059669;
+            border-color: #059669;
             color: white;
         }
 
@@ -1628,8 +1623,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -1833,12 +1828,12 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i,
         .toast-notification.toast-info .toast-header i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Confirmation Toast */
@@ -1904,8 +1899,8 @@
         }
 
         #applicationModal .modal-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-            border-bottom: 2px solid #0b5ed7;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-bottom: 2px solid #059669;
             padding: 1.5rem;
         }
 
@@ -1959,11 +1954,11 @@
         }
 
         #applicationDetails .card-header.bg-primary {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         }
 
         #applicationDetails .card-header.bg-info {
-            background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
+            background: linear-gradient(135deg, #34d399 0%, #6ee7b7 100%) !important;
         }
 
         #applicationDetails .card-header.bg-success {
@@ -2015,7 +2010,7 @@
         }
 
         #applicationDetails a {
-            color: #0d6efd;
+            color: #10b981;
             text-decoration: none;
         }
 
@@ -2058,15 +2053,15 @@
         }
 
         #applicationDetails .btn-outline-info {
-            color: #0dcaf0;
-            border-color: #0dcaf0;
+            color: #34d399;
+            border-color: #34d399;
             font-size: 0.85rem;
             padding: 0.35rem 0.75rem;
         }
 
         #applicationDetails .btn-outline-info:hover {
-            background-color: #0dcaf0;
-            border-color: #0dcaf0;
+            background-color: #34d399;
+            border-color: #34d399;
             color: white;
         }
 
@@ -2095,7 +2090,7 @@
         }
 
         #applicationDetails .card.border-secondary .card-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
             color: #ffffff !important;
         }
 
@@ -2163,8 +2158,8 @@
         }
 
         /* #updateModal .modal-header {
-                                                            border-bottom: 1px solid #dee2e6;
-                                                        } */
+                                                                border-bottom: 1px solid #dee2e6;
+                                                            } */
 
         #updateModal .modal-header .modal-title {
             /* color: black; */
@@ -2207,7 +2202,7 @@
         }
 
         #updateModal .card-title {
-            color: #007bff;
+            color: #10b981;
             font-weight: 600;
             font-size: 1rem;
             margin-bottom: 1.5rem;
@@ -2430,7 +2425,7 @@
         .rsbsa-mini-doc:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .rsbsa-mini-doc-icon {
@@ -2466,11 +2461,11 @@
         }
 
         .rsbsa-document-summary:hover {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .rsbsa-document-summary:hover small {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .rsbsa-no-documents {
@@ -2488,7 +2483,7 @@
 
         /* Document type specific colors for mini previews */
         .rsbsa-mini-doc[title*="Supporting"] {
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .rsbsa-mini-doc[title*="Supporting"]:hover {
@@ -2605,14 +2600,14 @@
         }
 
         .rsbsa-btn-primary {
-            background: #007bff;
+            background: #10b981;
             color: white;
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .rsbsa-btn-primary:hover {
-            background: #0056b3;
-            border-color: #0056b3;
+            background: #059669;
+            border-color: #059669;
             color: white;
             transform: translateY(-1px);
         }
@@ -2720,7 +2715,7 @@
         }
 
         #documentModal .modal-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
             border: none !important;
             padding: 1.5rem !important;
         }
@@ -2745,7 +2740,7 @@
         }
 
         #documentModal .modal-header.bg-primary {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         }
 
         #documentModal .modal-title {
@@ -2878,7 +2873,7 @@
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="alert alert-info mb-0"
-                                style="border-left: 4px solid #17a2b8; border-radius: 8px;">
+                                style="border-left: 4px solid #059669; border-radius: 8px;">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <span id="dateFilterStatus">
                                     @if (request('date_from') || request('date_to'))

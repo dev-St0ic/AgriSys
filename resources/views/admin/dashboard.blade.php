@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Admin Dashboard - AgriSys')
 @section('page-icon', 'fas fa-tachometer-alt')
@@ -371,7 +371,7 @@
                     </div>
                     <div class="chart-legend-list">
                         @php
-                            $serviceColors = ['#4CAF50', '#FFC107', '#2196F3', '#E91E63', '#9C27B0'];
+                            $serviceColors = ['#4CAF50', '#FFC107', '#10b981', '#E91E63', '#9C27B0'];
                             $services = $applicationStatus ?? [];
                             $totalRequests = collect($services)->sum(function ($s) {
                                 return $s['pending'] + $s['approved'];
@@ -637,7 +637,7 @@
                             labels: serviceLabels,
                             datasets: [{
                                 data: serviceData,
-                                backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#E91E63',
+                                backgroundColor: ['#4CAF50', '#FFC107', '#10b981', '#E91E63',
                                     '#9C27B0'
                                 ],
                                 borderWidth: 3,
@@ -876,7 +876,7 @@
                             geoChart.data.datasets[0].data = geoData[currentGeoView].data;
                             geoChart.data.datasets[0].label = isUsers ? 'Registered Users' :
                                 'Total Applications';
-                            geoChart.data.datasets[0].backgroundColor = isUsers ? '#4CAF50' : '#2196F3';
+                            geoChart.data.datasets[0].backgroundColor = isUsers ? '#4CAF50' : '#10b981';
                             geoChart.update();
                         });
                     }
@@ -1311,7 +1311,7 @@
         }
 
         .metric-icon-wrapper.blue {
-            background: linear-gradient(135deg, #2196F3, #42A5F5);
+            background: linear-gradient(135deg, #10b981, #34d399);
         }
 
         .metric-icon-wrapper.purple {
@@ -1525,7 +1525,7 @@
 
         .service-icon-badge.fishr,
         .service-icon-badge-overlay.fishr {
-            background: linear-gradient(135deg, #2196F3, #42A5F5);
+            background: linear-gradient(135deg, #10b981, #34d399);
         }
 
         .service-icon-badge.boatr,
@@ -2055,7 +2055,7 @@
         }
 
         .task-type-badge.info {
-            background: #2196F3;
+            background: #10b981;
         }
 
         .task-type-badge.danger {
@@ -2097,7 +2097,7 @@
         }
 
         .priority-badge.priority-low {
-            background: #E3F2FD;
+            background: #D1FAE5;
             color: #1976D2;
         }
 

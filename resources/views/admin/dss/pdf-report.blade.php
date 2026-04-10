@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -147,7 +147,7 @@
         }
 
         .stat-num.blue {
-            color: #1565C0;
+            color: #065f46;
         }
 
         .stat-lbl {
@@ -390,7 +390,7 @@
         }
 
         .badge-primary {
-            background: #1565C0;
+            background: #065f46;
             color: #fff;
         }
 
