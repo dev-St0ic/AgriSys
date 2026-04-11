@@ -208,9 +208,32 @@
                 <button type="button" class="btn btn-warning btn-sm" onclick="showBoatrImportModal()">
                     <i class="fas fa-file-upload me-2"></i>Bulk Import
                 </button>
-                <a href="{{ route('admin.boatr.export') }}" class="btn btn-success btn-sm">
-                    <i class="fas fa-download"></i> Export CSV
-                </a>
+                <div class="dropdown">
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.boatr.export', array_merge(request()->query(), ['format' => 'csv'])) }}">
+                                <i class="fas fa-file-csv me-2 text-success"></i>Download CSV
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.boatr.export', array_merge(request()->query(), ['format' => 'excel'])) }}">
+                                <i class="fas fa-file-excel me-2 text-success"></i>Download Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.boatr.export', array_merge(request()->query(), ['format' => 'pdf'])) }}">
+                                <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -2603,14 +2626,14 @@
         }
 
         /* Enhanced modal styling
-                            .modal-header {
-                                background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-                                color: white;
-                            } */
+                                    .modal-header {
+                                        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                                        color: white;
+                                    } */
 
         /* .modal-header .btn-close {
-                                filter: invert(1);
-                            } */
+                                        filter: invert(1);
+                                    } */
 
         /* Document list styling */
         .document-item {
@@ -3141,19 +3164,19 @@
         }
 
         /* close modal
-                            .modal-header .btn-close {
-                                background-color: rgba(255, 255, 255, 0.7);
-                                opacity: 1;
-                            }
+                                    .modal-header .btn-close {
+                                        background-color: rgba(255, 255, 255, 0.7);
+                                        opacity: 1;
+                                    }
 
-                            .modal-header .btn-close:hover {
-                                background-color: rgba(255, 255, 255, 1);
-                            }
+                                    .modal-header .btn-close:hover {
+                                        background-color: rgba(255, 255, 255, 1);
+                                    }
 
-                            .modal-header .btn-close:focus {
-                                background-color: rgba(255, 255, 255, 1);
-                                box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
-                            } */
+                                    .modal-header .btn-close:focus {
+                                        background-color: rgba(255, 255, 255, 1);
+                                        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
+                                    } */
 
         /* Document modal on top when opened from registration modal */
         #documentModal {
@@ -3912,12 +3935,12 @@
         }
 
         /* Alert Styling
-                        #inspectionModal .alert {
-                            border-radius: 8px;
-                            border-left: 4px solid #059669;
-                            background-color: #d1ecf1;
-                            color: #0c5460;
-                        } */
+                                #inspectionModal .alert {
+                                    border-radius: 8px;
+                                    border-left: 4px solid #059669;
+                                    background-color: #d1ecf1;
+                                    color: #0c5460;
+                                } */
 
         #inspectionModal .alert i {
             color: #059669;
@@ -7337,7 +7360,7 @@
             }
 
             // Validate format: FISHR-XXXXXXXX (8 alphanumeric characters)
-            const formatValid = /^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i.test(value);
+            const formatValid = /^FISHR-([A-Z0-9]{8}|\d{4}-\d{3,4})$/i.test(value);
 
             if (!formatValid) {
                 input.classList.add('is-invalid');
@@ -7661,7 +7684,7 @@
                 fishr?.classList.add('is-invalid');
                 errors.push('FishR number is required');
                 isValid = false;
-            } else if (!/^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i.test(fishr.value.trim())) {
+            } else if (!/^FISHR-([A-Z0-9]{8}|\d{4}-\d{3,4})$/i.test(fishr.value.trim())) {
                 fishr?.classList.add('is-invalid');
                 errors.push('Invalid FishR format (use FISHR-XXXX-XXX)');
                 isValid = false;

@@ -253,9 +253,32 @@
                 <button type="button" class="btn btn-warning btn-sm" onclick="showRsbsaImportModal()">
                     <i class="fas fa-file-upload me-2"></i>Bulk Import
                 </button>
-                <a href="{{ route('admin.rsbsa.export') }}" class="btn btn-success btn-sm">
-                    <i class="fas fa-download"></i> Export CSV
-                </a>
+                <div class="dropdown">
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.rsbsa.export', array_merge(request()->query(), ['format' => 'csv'])) }}">
+                                <i class="fas fa-file-csv me-2 text-success"></i>Download CSV
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.rsbsa.export', array_merge(request()->query(), ['format' => 'excel'])) }}">
+                                <i class="fas fa-file-excel me-2 text-success"></i>Download Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.rsbsa.export', array_merge(request()->query(), ['format' => 'pdf'])) }}">
+                                <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -479,9 +502,9 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                            <small class="text-muted d-block">Application ID</small>
-                                                            <strong id="updateAppId" class="text-primary">-</strong>
-                                                        </div> -->
+                                                                <small class="text-muted d-block">Application ID</small>
+                                                                <strong id="updateAppId" class="text-primary">-</strong>
+                                                            </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Application #</small>
                                         <strong id="updateAppNumber">-</strong>
@@ -493,9 +516,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                            <small class="text-muted d-block">Application Type</small>
-                                                            <strong id="updateAppType">-</strong>
-                                                        </div> -->
+                                                                <small class="text-muted d-block">Application Type</small>
+                                                                <strong id="updateAppType">-</strong>
+                                                            </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Barangay</small>
                                         <strong id="updateAppBarangay">-</strong>
@@ -2158,8 +2181,8 @@
         }
 
         /* #updateModal .modal-header {
-                                                                border-bottom: 1px solid #dee2e6;
-                                                            } */
+                                                                    border-bottom: 1px solid #dee2e6;
+                                                                } */
 
         #updateModal .modal-header .modal-title {
             /* color: black; */

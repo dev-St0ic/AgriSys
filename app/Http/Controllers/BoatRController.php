@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BoatrApplication;
 use App\Models\BoatrAnnex;
 use App\Services\NotificationService;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,8 @@ use App\Services\BoatrImportService;
 
 class BoatRController extends Controller
 {
+    use ExportableTrait;
+
     /**
      * Display a listing of BoatR registrations - ENHANCED for auto-refresh
      */
@@ -1283,103 +1286,89 @@ public function destroy(Request $request, $id)
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
-
             if ($request->filled('boat_type')) {
                 $query->where('boat_type', $request->boat_type);
             }
-
             if ($request->filled('primary_fishing_gear')) {
                 $query->where('primary_fishing_gear', $request->primary_fishing_gear);
             }
-
             if ($request->filled('barangay')) {
                 $query->where('barangay', $request->barangay);
             }
 
             $registrations = $query->orderBy('created_at', 'desc')->get();
 
-            $filename = 'boatr_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
-
-            // Log activity
             $this->logActivity('exported', 'BoatrApplication', null, [
-                'records_count' => count($registrations),
+                'records_count'   => count($registrations),
                 'filters_applied' => [
-                    'status' => $request->filled('status') ? $request->status : null,
+                    'status'    => $request->filled('status')    ? $request->status    : null,
                     'boat_type' => $request->filled('boat_type') ? $request->boat_type : null,
-                    'barangay' => $request->filled('barangay') ? $request->barangay : null
-                ]
-            ], 'Exported ' . count($registrations) . ' BoatR registrations to CSV');
+                    'barangay'  => $request->filled('barangay')  ? $request->barangay  : null,
+                ],
+            ], 'Exported ' . count($registrations) . ' BoatR registrations');
 
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            $format   = $request->input('format', 'csv');
+            $basename = 'boatr_registrations_' . now()->format('Y-m-d_H-i-s');
+
+            $columns = [
+                'Application Number', 'Full Name', 'Barangay', 'Contact Number',
+                'FishR Number', 'Vessel Name', 'Boat Type', 'Dimensions (L×W×D)',
+                'Engine Type', 'Engine HP', 'Primary Fishing Gear', 'Status',
+                'Has User Document', 'Inspection Documents Count', 'Inspection Completed',
+                'Documents Verified', 'Date Applied', 'Date Reviewed', 'Reviewed By', 'Inspector',
             ];
 
-            $callback = function() use ($registrations) {
+            $rows = $registrations->map(fn ($r) => [
+                $r->application_number,
+                $r->full_name,
+                $r->barangay ?? 'N/A',
+                $r->contact_number ?? 'N/A',
+                $r->fishr_number,
+                $r->vessel_name,
+                $r->boat_type,
+                $r->boat_dimensions,
+                $r->engine_type,
+                $r->engine_horsepower,
+                $r->primary_fishing_gear,
+                $r->formatted_status,
+                $r->hasUserDocument() ? 'Yes' : 'No',
+                count($r->inspection_documents ?? []),
+                $r->inspection_completed ? 'Yes' : 'No',
+                $r->documents_verified ? 'Yes' : 'No',
+                $r->created_at->format('M d, Y h:i A'),
+                $r->reviewed_at ? $r->reviewed_at->format('M d, Y h:i A') : 'N/A',
+                $r->reviewer?->name ?? 'N/A',
+                $r->inspector?->name ?? 'N/A',
+            ])->toArray();
+
+            if ($format === 'excel') {
+                return $this->exportToExcel($basename . '.xlsx', $columns, $rows, 'BoatR Registrations');
+            }
+            if ($format === 'pdf') {
+                return $this->exportToPdf($basename . '.pdf', 'BoatR Registrations Report', $columns, $rows);
+            }
+
+            // Default: CSV
+            $httpHeaders = [
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$basename}.csv\"",
+            ];
+            $callback = function () use ($columns, $rows) {
                 $file = fopen('php://output', 'w');
-
-                // CSV headers
-                fputcsv($file, [
-                    'Application Number',
-                    'Full Name',
-                    'Barangay',
-                    'Contact Number',
-                    'FishR Number',
-                    'Vessel Name',
-                    'Boat Type',
-                    'Dimensions (L×W×D)',
-                    'Engine Type',
-                    'Engine HP',
-                    'Primary Fishing Gear',
-                    'Status',
-                    'Has User Document',
-                    'Inspection Documents Count',
-                    'Inspection Completed',
-                    'Documents Verified',
-                    'Date Applied',
-                    'Date Reviewed',
-                    'Reviewed By',
-                    'Inspector'
-                ]);
-
-                // CSV data
-                foreach ($registrations as $registration) {
-                    fputcsv($file, [
-                        $registration->application_number,
-                        $registration->full_name,
-                        $registration->barangay ?? 'N/A',
-                        $registration->contact_number ?? 'N/A',
-                        $registration->fishr_number,
-                        $registration->vessel_name,
-                        $registration->boat_type,
-                        $registration->boat_dimensions,
-                        $registration->engine_type,
-                        $registration->engine_horsepower,
-                        $registration->primary_fishing_gear,
-                        $registration->formatted_status,
-                        $registration->hasUserDocument() ? 'Yes' : 'No',
-                        count($registration->inspection_documents ?? []),
-                        $registration->inspection_completed ? 'Yes' : 'No',
-                        $registration->documents_verified ? 'Yes' : 'No',
-                        $registration->created_at->format('M d, Y h:i A'),
-                        $registration->reviewed_at ?
-                            $registration->reviewed_at->format('M d, Y h:i A') : 'N/A',
-                        $registration->reviewer?->name ?? 'N/A',
-                        $registration->inspector?->name ?? 'N/A'
-                    ]);
+                fputcsv($file, $columns);
+                foreach ($rows as $row) {
+                    fputcsv($file, $row);
                 }
-
                 fclose($file);
             };
 
-            return response()->stream($callback, 200, $headers);
+            return response()->stream($callback, 200, $httpHeaders);
 
         } catch (\Exception $e) {
             Log::error('Error exporting BoatR registrations', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
         }
     }

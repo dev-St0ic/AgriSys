@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RsbsaApplication;
 use App\Services\NotificationService;
 use App\Services\RsbsaImportService;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,8 @@ use Illuminate\Support\Str;
 
 class RsbsaController extends Controller
 {
+    use ExportableTrait;
+
     /**
      * Display a listing of RSBSA applications
      */
@@ -723,11 +726,9 @@ class RsbsaController extends Controller
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
-
             if ($request->filled('barangay')) {
                 $query->where('barangay', $request->barangay);
             }
-
             if ($request->filled('main_livelihood')) {
                 $query->where('main_livelihood', $request->main_livelihood);
             }
@@ -736,66 +737,59 @@ class RsbsaController extends Controller
 
             $this->logActivity('exported', 'RsbsaApplication', null, [
                 'records_count' => $applications->count(),
-                'filters' => $request->all()
+                'filters'       => $request->all(),
             ]);
 
-            $filename = 'rsbsa_applications_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            $format   = $request->input('format', 'csv');
+            $basename = 'rsbsa_applications_' . now()->format('Y-m-d_H-i-s');
 
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            $columns = [
+                'Application Number', 'Full Name', 'Sex', 'Mobile Number',
+                'Barangay', 'Address', 'Main Livelihood', 'Land Area (ha)',
+                'Farm Location', 'Commodity', 'Status', 'Date Applied', 'Date Reviewed',
             ];
 
-            $callback = function() use ($applications) {
+            $rows = $applications->map(fn ($a) => [
+                $a->application_number,
+                $a->full_name_with_extension,
+                $a->sex,
+                $a->contact_number,
+                $a->barangay,
+                $a->address,
+                $a->main_livelihood,
+                $a->farmer_land_area,
+                $a->farm_location,
+                $a->commodity,
+                $a->formatted_status,
+                $a->created_at->format('M d, Y h:i A'),
+                $a->reviewed_at ? $a->reviewed_at->format('M d, Y h:i A') : 'N/A',
+            ])->toArray();
+
+            if ($format === 'excel') {
+                return $this->exportToExcel($basename . '.xlsx', $columns, $rows, 'RSBSA Applications');
+            }
+            if ($format === 'pdf') {
+                return $this->exportToPdf($basename . '.pdf', 'RSBSA Applications Report', $columns, $rows);
+            }
+
+            // Default: CSV
+            $httpHeaders = [
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$basename}.csv\"",
+            ];
+            $callback = function () use ($columns, $rows) {
                 $file = fopen('php://output', 'w');
-
-                // CSV headers
-                fputcsv($file, [
-                    'Application Number',
-                    'Full Name',
-                    'Sex',
-                    'Mobile Number',
-                    'Barangay',
-                    'Address',
-                    'Main Livelihood',
-                    'Land Area (ha)',
-                    'Farm Location',
-                    'Commodity',
-                    'Status',
-                    'Date Applied',
-                    'Date Reviewed'
-                ]);
-
-                // CSV data
-                foreach ($applications as $application) {
-                    fputcsv($file, [
-                        $application->application_number,
-                        $application->full_name_with_extension,
-                        $application->sex,
-                        $application->contact_number,
-                        $application->barangay,
-                        $application->address,
-                        $application->main_livelihood,
-                        $application->farmer_land_area,
-                        $application->farm_location,
-                        $application->commodity,
-                        $application->formatted_status,
-                        $application->created_at->format('M d, Y h:i A'),
-                        $application->reviewed_at ?
-                            $application->reviewed_at->format('M d, Y h:i A') : 'N/A'
-                    ]);
+                fputcsv($file, $columns);
+                foreach ($rows as $row) {
+                    fputcsv($file, $row);
                 }
-
                 fclose($file);
             };
 
-            return response()->stream($callback, 200, $headers);
+            return response()->stream($callback, 200, $httpHeaders);
 
         } catch (\Exception $e) {
-            Log::error('Error exporting RSBSA applications', [
-                'error' => $e->getMessage()
-            ]);
-
+            Log::error('Error exporting RSBSA applications', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
         }
     }

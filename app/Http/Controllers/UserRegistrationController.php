@@ -16,10 +16,13 @@ use App\Notifications\RegistrationApprovedNotification;
 use App\Notifications\RegistrationRejectedNotification;
 use Laravel\Socialite\Facades\Socialite;
 use App\Services\NotificationService;
+use App\Traits\ExportableTrait;
 
 
 class UserRegistrationController extends Controller
 {
+    use ExportableTrait;
+
     /**
      * Display a listing of user registrations (Admin only)
      */
@@ -1749,68 +1752,78 @@ public function getUserProfile(Request $request)
             abort(403, 'Access denied');
         }
 
-        $query = UserRegistration::query();
+        try {
+            $query = UserRegistration::query();
 
-        // Apply same filters as index method
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('user_type')) {
-            $query->where('user_type', $request->user_type);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
-
-        $registrations = $query->orderBy('created_at', 'desc')->get();
-
-        $filename = 'user_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ];
-
-        $callback = function() use ($registrations) {
-            $file = fopen('php://output', 'w');
-
-            // CSV Headers
-            fputcsv($file, [
-                'ID', 'Username', 'First Name', 'Last Name', 'Sex',
-                'User Type', 'Status', 'Contact Number', 'Barangay',
-                'Created At', 'Approved At', 'Rejected At', 'Banned At', 'Last Login'
-            ]);
-
-            // CSV Data
-            foreach ($registrations as $registration) {
-                fputcsv($file, [
-                    $registration->id,
-                    $registration->username,
-                    $registration->first_name,
-                    $registration->last_name,
-                    $registration->sex,
-                    $registration->user_type,
-                    $registration->status,
-                    $registration->contact_number,
-                    $registration->barangay,
-                    $registration->created_at ? $registration->created_at->format('Y-m-d H:i:s') : '',
-                    $registration->approved_at ? $registration->approved_at->format('Y-m-d H:i:s') : '',
-                    $registration->rejected_at ? $registration->rejected_at->format('Y-m-d H:i:s') : '',
-                    $registration->banned_at ? $registration->banned_at->format('Y-m-d H:i:s') : '',
-                    $registration->last_login_at ? $registration->last_login_at->format('Y-m-d H:i:s') : '',
-                ]);
+            // Apply same filters as index method
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            if ($request->filled('user_type')) {
+                $query->where('user_type', $request->user_type);
+            }
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
             }
 
-            fclose($file);
-        };
+            $registrations = $query->orderBy('created_at', 'desc')->get();
 
-        return response()->stream($callback, 200, $headers);
+            $format   = $request->input('format', 'csv');
+            $basename = 'user_registrations_' . now()->format('Y-m-d_H-i-s');
+
+            $columns = [
+                'ID', 'Username', 'First Name', 'Last Name', 'Sex',
+                'User Type', 'Status', 'Contact Number', 'Barangay',
+                'Created At', 'Approved At', 'Rejected At', 'Banned At', 'Last Login',
+            ];
+
+            $rows = $registrations->map(fn ($r) => [
+                $r->id,
+                $r->username,
+                $r->first_name,
+                $r->last_name,
+                $r->sex,
+                $r->user_type,
+                $r->status,
+                $r->contact_number,
+                $r->barangay,
+                $r->created_at    ? $r->created_at->format('Y-m-d H:i:s')    : '',
+                $r->approved_at   ? $r->approved_at->format('Y-m-d H:i:s')   : '',
+                $r->rejected_at   ? $r->rejected_at->format('Y-m-d H:i:s')   : '',
+                $r->banned_at     ? $r->banned_at->format('Y-m-d H:i:s')     : '',
+                $r->last_login_at ? $r->last_login_at->format('Y-m-d H:i:s') : '',
+            ])->toArray();
+
+            if ($format === 'excel') {
+                return $this->exportToExcel($basename . '.xlsx', $columns, $rows, 'User Registrations');
+            }
+            if ($format === 'pdf') {
+                return $this->exportToPdf($basename . '.pdf', 'User Registrations Report', $columns, $rows);
+            }
+
+            // Default: CSV
+            $httpHeaders = [
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$basename}.csv\"",
+            ];
+            $callback = function () use ($columns, $rows) {
+                $file = fopen('php://output', 'w');
+                fputcsv($file, $columns);
+                foreach ($rows as $row) {
+                    fputcsv($file, $row);
+                }
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $httpHeaders);
+
+        } catch (\Exception $e) {
+            Log::error('Error exporting user registrations', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
+        }
     }
 
     /**

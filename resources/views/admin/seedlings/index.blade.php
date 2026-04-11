@@ -225,10 +225,32 @@
                         <button type="button" class="btn btn-warning btn-sm" onclick="showSeedlingImportModal()">
                             <i class="fas fa-file-upload me-2"></i>Bulk Import
                         </button>
-                        <a href="{{ route('admin.seedlings.export', request()->query()) }}"
-                            class="btn btn-success btn-sm">
-                            <i class="fas fa-download"></i> Export CSV
-                        </a>
+                        <div class="dropdown">
+                            <button class="btn btn-success btn-sm dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-download me-1"></i>Export
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item"
+                                        href="{{ route('admin.seedlings.export', array_merge(request()->query(), ['format' => 'csv'])) }}">
+                                        <i class="fas fa-file-csv me-2 text-success"></i>Download CSV
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                        href="{{ route('admin.seedlings.export', array_merge(request()->query(), ['format' => 'excel'])) }}">
+                                        <i class="fas fa-file-excel me-2 text-success"></i>Download Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                        href="{{ route('admin.seedlings.export', array_merge(request()->query(), ['format' => 'pdf'])) }}">
+                                        <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
