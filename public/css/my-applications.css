@@ -20,24 +20,36 @@
 
 /* Ensure close button is clearly visible and has a good touch target */
 .applications-modal .modal-close {
-    color: rgba(255, 255, 255, 0.85);
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
+    color: white;
+    background: transparent;
+    border: none;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
     cursor: pointer;
     flex-shrink: 0;
-    transition: background 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    padding: 0;
+    outline: none;
+    opacity: 0.85;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.applications-modal .modal-close:hover,
-.applications-modal .modal-close:focus {
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
+.applications-modal .modal-close:hover {
+    opacity: 1;
+}
+
+.applications-modal .modal-close:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+.applications-modal .modal-close:active {
+    transform: scale(0.9);
 }
 
 /* ===== IMPROVED STATISTICS SECTION ===== */
@@ -713,6 +725,16 @@
         flex: 1 1 calc(50% - 3px);
     }
 
+    .service-filter-btn {
+        padding: 7px 10px;
+        font-size: 11px;
+        flex: 1 1 calc(50% - 3px);
+    }
+
+    #service-filter-bar #service-filter-container {
+        gap: 6px;
+    }
+
     .app-card {
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
@@ -934,12 +956,20 @@
 /* ===== TOUCH-FRIENDLY IMPROVEMENTS ===== */
 @media (hover: none) and (pointer: coarse) {
     .filter-btn,
+    .service-filter-btn,
     .action-btn,
     .primary-btn,
     .empty-filter-btn {
         padding: 10px 14px;
         min-height: 44px;
         border-radius: 8px;
+    }
+
+    .applications-modal .modal-close {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
     }
 
     .app-card {
@@ -991,80 +1021,42 @@
     }
 }
 
-   /* Service Filter Styling */
-    #service-filter-bar {
-        display: flex !important;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        padding: 15px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-    }
+/* ===== SERVICE FILTER BAR ===== */
+#service-filter-bar {
+    /* shown/hidden by JS; hidden by default via inline style in HTML */
+    flex-wrap: wrap;
+}
 
-    .service-filter-btn {
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        background-color: #fff;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
+#service-filter-bar #service-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 1;
+}
 
-    .service-filter-btn:hover {
-        border-color: #4CAF50;
-        color: #4CAF50;
-        background-color: #f0f8f5;
-    }
+.service-filter-btn {
+    padding: 9px 14px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4b5563;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+}
 
-    .service-filter-btn.active {
-        background-color: #4CAF50;
-        color: white;
-        border-color: #4CAF50;
-    }
+.service-filter-btn:hover {
+    border-color: #0A6953;
+    color: #0A6953;
+    background: #f0fdf4;
+}
 
-    /* Enhanced Filter Bar */
-    .filter-bar {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        padding: 15px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-    }
-
-    .filter-label {
-        font-weight: 600;
-        color: #333;
-        white-space: nowrap;
-    }
-
-    .filter-btn {
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        background-color: #fff;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .filter-btn:hover {
-        border-color: #4CAF50;
-        color: #4CAF50;
-        background-color: #f0f8f5;
-    }
-
-    .filter-btn.active {
-        background-color: #4CAF50;
-        color: white;
-        border-color: #4CAF50;
-    }
+.service-filter-btn.active {
+    background: linear-gradient(135deg, #0A6953 0%, #2d6a4f 100%);
+    color: white;
+    border-color: #0A6953;
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.2);
+}

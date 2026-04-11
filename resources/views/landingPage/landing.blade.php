@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>AgriSys - San Pedro City Agriculture Office</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logos/cago_web.png') }}">
-    
-      <script>
+
+    <script>
         console.log(
             '%cStop!',
             'color: red; font-size: 50px; font-weight: bold;'
@@ -17,13 +17,13 @@
             'font-size: 16px;'
         );
 
-        @if(app()->environment('production'))
-        // Suppress all other console output after the warning
-        console.log = function() {};
-        console.warn = function() {};
-        console.error = function() {};
-        console.info = function() {};
-        console.debug = function() {};
+        @if (app()->environment('production'))
+            // Suppress all other console output after the warning
+            console.log = function() {};
+            console.warn = function() {};
+            console.error = function() {};
+            console.info = function() {};
+            console.debug = function() {};
         @endif
     </script>
 
@@ -991,7 +991,14 @@
                 <!-- Modal Header -->
                 <div class="modal-header">
                     <h3>My Applications</h3>
-                    <span class="modal-close" onclick="closeApplicationsModal()">&times;</span>
+                    <button class="modal-close" onclick="closeApplicationsModal()" aria-label="Close"
+                        type="button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Modal Body -->
@@ -1546,8 +1553,8 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
-                                    autocomplete="new-password" placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password"
+                                    required autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('confirm-new-password')">
