@@ -167,9 +167,32 @@
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddUserModal()">
                     <i class="fas fa-user-plus me-2"></i>Add User
                 </button>
-                <a href="{{ route('admin.registrations.export') }}" class="btn btn-success btn-sm">
-                    <i class="fas fa-download"></i> Export CSV
-                </a>
+                <div class="dropdown">
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.registrations.export', array_merge(request()->query(), ['format' => 'csv'])) }}">
+                                <i class="fas fa-file-csv me-2 text-success"></i>Download CSV
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.registrations.export', array_merge(request()->query(), ['format' => 'excel'])) }}">
+                                <i class="fas fa-file-excel me-2 text-success"></i>Download Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('admin.registrations.export', array_merge(request()->query(), ['format' => 'pdf'])) }}">
+                                <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -3480,31 +3503,31 @@
                         documentsHtml = `
                             <div class="row g-3">
                                 ${docs.map(doc => `
-                                                        <div class="col-md-4">
-                                                            <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
-                                                                <div class="document-thumbnail-container">
-                                                                    <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
-                                                                        <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
-                                                                            <span class="visually-hidden">Loading...</span>
+                                                            <div class="col-md-4">
+                                                                <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
+                                                                    <div class="document-thumbnail-container">
+                                                                        <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
+                                                                            <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
+                                                                                <span class="visually-hidden">Loading...</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <img class="document-thumbnail-image"
+                                                                             id="thumb-${doc.type}"
+                                                                             style="display: none;"
+                                                                             alt="${doc.name}"
+                                                                             onload="showThumbnail('${doc.type}')"
+                                                                             onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
+                                                                        <div class="document-thumbnail-overlay">
+                                                                            <i class="fas fa-eye fa-2x text-white"></i>
                                                                         </div>
                                                                     </div>
-                                                                    <img class="document-thumbnail-image"
-                                                                         id="thumb-${doc.type}"
-                                                                         style="display: none;"
-                                                                         alt="${doc.name}"
-                                                                         onload="showThumbnail('${doc.type}')"
-                                                                         onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
-                                                                    <div class="document-thumbnail-overlay">
-                                                                        <i class="fas fa-eye fa-2x text-white"></i>
+                                                                    <div class="document-thumbnail-info">
+                                                                        <h6 class="document-thumbnail-title">${doc.name}</h6>
+                                                                        <small class="text-muted">Click to view full size</small>
                                                                     </div>
                                                                 </div>
-                                                                <div class="document-thumbnail-info">
-                                                                    <h6 class="document-thumbnail-title">${doc.name}</h6>
-                                                                    <small class="text-muted">Click to view full size</small>
-                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    `).join('')}
+                                                        `).join('')}
                             </div>
                         `;
                     } else {

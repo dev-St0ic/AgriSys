@@ -301,7 +301,7 @@ function handleFishRInput(event) {
     }
 
     // Check format in real-time
-    const formatValid = /^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i.test(number);
+    const formatValid = /^FISHR-([A-Z0-9]{8}|\d{4}-\d{3,4})$/i.test(number);
 
     if (number.length < 6) {
         // Too short - neutral state
@@ -369,18 +369,18 @@ async function validateFishRNumberSilent(fishRInput) {
         showValidationMessage(fishRInput, 'Validating FishR registration...', 'warning');
 
         const response = await fetch(`/validate-fishr/${encodeURIComponent(number)}`);
-        
+
         // Handle 401 (not authenticated)
         if (response.status === 401) {
             showValidationMessage(
-                fishRInput, 
-                'Please log in to validate FishR number', 
+                fishRInput,
+                'Please log in to validate FishR number',
                 'error'
             );
             fishRInput.dataset.validated = 'false';
             return;
         }
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -391,7 +391,7 @@ async function validateFishRNumberSilent(fishRInput) {
             // ALL CHECKS PASSED
             fishRInput.style.borderColor = '#28a745';
             fishRInput.style.backgroundColor = '#f8fff8';
-            
+
             fishRInput.dataset.validated = 'true';
             fishRInput.dataset.fishrData = JSON.stringify({
                 fishr_app_id: data.fishr_app_id,
@@ -401,8 +401,8 @@ async function validateFishRNumberSilent(fishRInput) {
             });
 
             showValidationMessage(
-                fishRInput, 
-                'Valid FishR number found', 
+                fishRInput,
+                'Valid FishR number found',
                 'success'
             );
 
@@ -410,8 +410,8 @@ async function validateFishRNumberSilent(fishRInput) {
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
-                fishRInput, 
-                'FishR number is not yet approved', 
+                fishRInput,
+                'FishR number is not yet approved',
                 'error'
             );
             fishRInput.dataset.validated = 'false';
@@ -420,8 +420,8 @@ async function validateFishRNumberSilent(fishRInput) {
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
-                fishRInput, 
-                'This FishR number has already been registered for a boat', 
+                fishRInput,
+                'This FishR number has already been registered for a boat',
                 'error'
             );
             fishRInput.dataset.validated = 'false';
@@ -430,8 +430,8 @@ async function validateFishRNumberSilent(fishRInput) {
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
-                fishRInput, 
-                'Your name does not match this FishR number', 
+                fishRInput,
+                'Your name does not match this FishR number',
                 'error'
             );
             fishRInput.dataset.validated = 'false';
@@ -440,8 +440,8 @@ async function validateFishRNumberSilent(fishRInput) {
             fishRInput.style.borderColor = '#dc3545';
             fishRInput.style.backgroundColor = '#fff8f8';
             showValidationMessage(
-                fishRInput, 
-                'FishR number not found', 
+                fishRInput,
+                'FishR number not found',
                 'error'
             );
             fishRInput.dataset.validated = 'false';
@@ -452,8 +452,8 @@ async function validateFishRNumberSilent(fishRInput) {
         fishRInput.style.borderColor = '#ffc107';
         fishRInput.style.backgroundColor = '#fffbf0';
         showValidationMessage(
-            fishRInput, 
-            'Unable to verify. Check your connection.', 
+            fishRInput,
+            'Unable to verify. Check your connection.',
             'warning'
         );
         fishRInput.dataset.validated = 'error';
@@ -465,20 +465,20 @@ async function validateFishRNumberSilent(fishRInput) {
  */
 function validateBoatrNamesMatchFishR() {
     const fishRInput = document.getElementById('boatr_fishr_number');
-    
+
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
         return true; // Skip if FishR not validated
     }
 
     try {
         const fishrData = JSON.parse(fishRInput.dataset.fishrData);
-        
+
         const firstNameInput = document.getElementById('boatr_first_name');
         const lastNameInput = document.getElementById('boatr_last_name');
 
         const boatrFirstName = firstNameInput.value.trim().toUpperCase();
         const boatrLastName = lastNameInput.value.trim().toUpperCase();
-        
+
         const fishrFirstName = (fishrData.first_name || '').trim().toUpperCase();
         const fishrLastName = (fishrData.last_name || '').trim().toUpperCase();
 
@@ -678,7 +678,7 @@ function submitBoatRForm(event) {
  */
 function validateBoatRForm(form) {
     const formData = new FormData(form);
-    
+
     // Base required fields
     const requiredFields = [
         'first_name',
@@ -730,7 +730,7 @@ function validateBoatRForm(form) {
     // ========== VALIDATE VESSEL NAME ==========
     const vesselName = formData.get('vessel_name');
     const vesselNamePattern = /^[a-zA-Z0-9\s\-']*$/;
-    
+
     if (!vesselNamePattern.test(vesselName)) {
         agrisysModal.warning('Vessel name contains invalid special characters. Only use letters, numbers, spaces, hyphens, and apostrophes.', { title: 'Invalid Vessel Name' });
         document.getElementById('boatr_vessel_name').focus();
@@ -743,7 +743,7 @@ function validateBoatRForm(form) {
 
     if (boatClassification === 'Motorized') {
         console.log('✅ Motorized boat detected - engine fields are REQUIRED');
-        
+
         const engineType = formData.get('engine_type');
         const engineHP = formData.get('engine_horsepower');
 
@@ -770,19 +770,17 @@ function validateBoatRForm(form) {
         // Engine fields should be empty and that's okay
     }
 
-    // Validate FishR number format
-    const fishRNumber = formData.get('fishr_number');
-    if (!fishRNumber.match(/^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i)) {
-        agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXX-XXX)', { title: 'Invalid Format' });
-        const fishRInput = form.querySelector('#boatr_fishr_number');
-        if (fishRInput) fishRInput.focus();
-        return false;
-    }
-
-    // CRITICAL: Check if FishR was validated
+    // Validate FishR number
     const fishRInput = form.querySelector('#boatr_fishr_number');
+    const fishRNumber = formData.get('fishr_number');
+
+    // If not server-validated, check format and reject
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
-        agrisysModal.error('Your FishR registration number has not been validated or is invalid.', { title: 'FishR Validation Required' });
+        if (!fishRNumber || !fishRNumber.match(/^FISHR-/i)) {
+            agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXX-XXX)', { title: 'Invalid Format' });
+        } else {
+            agrisysModal.error('Your FishR registration number has not been validated. Please verify it first.', { title: 'FishR Validation Required' });
+        }
         if (fishRInput) fishRInput.focus();
         return false;
     }
@@ -814,7 +812,7 @@ function validateBoatRForm(form) {
     // Validate primary fishing gear
     const fishingGear = formData.get('primary_fishing_gear');
     console.log('🎣 Primary Fishing Gear:', fishingGear);
-    
+
     if (!fishingGear || fishingGear.trim() === '') {
         agrisysModal.warning('Please select a primary fishing gear', { title: 'Missing Information' });
         document.getElementById('boatr_primary_fishing_gear').focus();
@@ -829,7 +827,7 @@ function validateBoatRForm(form) {
  */
 function validateBoatRFormUpdated(form) {
     const formData = new FormData(form);
-    
+
     // Base required fields
     const requiredFields = [
         'first_name',
@@ -881,7 +879,7 @@ function validateBoatRFormUpdated(form) {
     // ========== NEW: VALIDATE VESSEL NAME ==========
     const vesselName = formData.get('vessel_name');
     const vesselNamePattern = /^[a-zA-Z0-9\s\-']*$/;
-    
+
     if (!vesselNamePattern.test(vesselName)) {
         agrisysModal.warning('Vessel name contains invalid special characters. Only use letters, numbers, spaces, hyphens, and apostrophes.', { title: 'Invalid Vessel Name' });
         document.getElementById('boatr_vessel_name').focus();
@@ -894,7 +892,7 @@ function validateBoatRFormUpdated(form) {
 
     if (boatClassification === 'Motorized') {
         console.log('✅ Motorized boat detected - engine fields are REQUIRED');
-        
+
         const engineType = formData.get('engine_type');
         const engineHP = formData.get('engine_horsepower');
 
@@ -918,19 +916,17 @@ function validateBoatRFormUpdated(form) {
         }
     }
 
-    // Validate FishR number format
-    const fishRNumber = formData.get('fishr_number');
-    if (!fishRNumber.match(/^FISHR-([A-Z0-9]{8}|\d{4}-\d{3})$/i)) {
-        agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXX-XXX)', { title: 'Invalid Format' });
-        const fishRInput = form.querySelector('#boatr_fishr_number');
-        if (fishRInput) fishRInput.focus();
-        return false;
-    }
-
-    // CRITICAL: Check if FishR was validated
+    // Validate FishR number
     const fishRInput = form.querySelector('#boatr_fishr_number');
+    const fishRNumber = formData.get('fishr_number');
+
+    // If not server-validated, check format and reject
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
-        agrisysModal.error('Your FishR registration number has not been validated or is invalid.', { title: 'FishR Validation Required' });
+        if (!fishRNumber || !fishRNumber.match(/^FISHR-/i)) {
+            agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXX-XXX)', { title: 'Invalid Format' });
+        } else {
+            agrisysModal.error('Your FishR registration number has not been validated. Please verify it first.', { title: 'FishR Validation Required' });
+        }
         if (fishRInput) fishRInput.focus();
         return false;
     }

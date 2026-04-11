@@ -6,6 +6,7 @@ use App\Models\SeedlingRequest;
 use App\Models\SeedlingRequestItem;
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\NotificationService;
@@ -14,6 +15,8 @@ use App\Services\DSSDataService;
 
 class SeedlingRequestController extends Controller
 {
+    use ExportableTrait;
+
     /**
      * Display all supply requests with filtering and statistics
      */
@@ -820,18 +823,18 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             // Apply same filters as index method
             if ($request->has('search') && !empty($request->search)) {
                 $search = $request->search;
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('request_number', 'like', "%{$search}%")
-                    ->orWhere('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%")
-                    ->orWhere('barangay', 'like', "%{$search}%");
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('contact_number', 'like', "%{$search}%")
+                        ->orWhere('barangay', 'like', "%{$search}%");
                 });
             }
 
             if ($request->has('category') && !empty($request->category)) {
                 $categoryId = $request->category;
-                $query->whereHas('items', function($q) use ($categoryId) {
+                $query->whereHas('items', function ($q) use ($categoryId) {
                     $q->where('category_id', $categoryId);
                 });
             }
@@ -852,104 +855,83 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 $query->where('status', $request->status);
             }
 
-            $requests = $query->get();
+            $sreqs = $query->get();
 
             $this->logActivity('exported', 'SeedlingRequest', null, [
-                'records_count' => $requests->count(),
-                'filters' => $request->all()
+                'records_count' => $sreqs->count(),
+                'filters'       => $request->all(),
             ]);
 
-            // Create CSV
-            $fileName = 'seedling-requests-' . now()->format('Y-m-d-H-i-s') . '.csv';
+            $format   = $request->input('format', 'csv');
+            $basename = 'seedling-requests-' . now()->format('Y-m-d-H-i-s');
 
-            $headers = [
-                'Content-Type' => 'text/csv; charset=utf-8',
-                'Content-Disposition' => "attachment; filename=\"$fileName\"",
-                'Pragma' => 'no-cache',
-                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-                'Expires' => '0',
+            $columns = [
+                'Request #', 'Date Applied', 'Full Name', 'Contact Number',
+                'Barangay', 'Total Quantity', 'Items Requested',
+                'Status', 'Remarks', 'Created At', 'Updated At',
             ];
 
-            $callback = function() use ($requests) {
-                $file = fopen('php://output', 'w');
+            $rows = $sreqs->map(function ($sr) {
+                $itemsText = $sr->items->map(function ($item) {
+                    return sprintf('%s (%d %s) - %s',
+                        $item->item_name,
+                        $item->requested_quantity,
+                        $item->categoryItem->unit ?? 'pcs',
+                        ucfirst($item->status)
+                    );
+                })->implode('; ');
 
-                // Set UTF-8 BOM for Excel
-                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-
-                // Write headers
-                $headers = [
-                    'Request #',
-                    'Date Applied',
-                    'Full Name',
-                    'Contact Number',
-                    'Barangay',
-                    'Total Quantity',
-                    'Items Requested',
-                    'Status',
-                    'Remarks',
-                    'Created At',
-                    'Updated At'
+                return [
+                    $sr->request_number,
+                    $sr->created_at->format('M d, Y g:i A'),
+                    $sr->full_name,
+                    $sr->contact_number,
+                    $sr->barangay,
+                    $sr->total_quantity,
+                    $itemsText,
+                    ucfirst(str_replace('_', ' ', $sr->status)),
+                    $sr->remarks ?? 'N/A',
+                    $sr->created_at->format('M d, Y g:i A'),
+                    $sr->updated_at->format('M d, Y g:i A'),
                 ];
-                fputcsv($file, $headers);
+            })->toArray();
 
-                // Write data rows
-                foreach ($requests as $request) {
-                    // Format items
-                    $itemsFormatted = [];
-                    foreach ($request->items as $item) {
-                        $itemsFormatted[] = sprintf(
-                            '%s (%d %s) - %s',
-                            $item->item_name,
-                            $item->requested_quantity,
-                            $item->categoryItem->unit ?? 'pcs',
-                            ucfirst($item->status)
-                        );
-                    }
-                    $itemsText = implode('; ', $itemsFormatted);
+            if ($format === 'excel') {
+                return $this->exportToExcel($basename . '.xlsx', $columns, $rows, 'Seedling Requests');
+            }
 
-                    $row = [
-                        $request->request_number,
-                        $request->created_at->format('M d, Y g:i A'),
-                        $request->full_name,
-                        $request->contact_number,
-                        $request->barangay,
-                        $request->total_quantity,
-                        $itemsText,
-                        ucfirst(str_replace('_', ' ', $request->status)),
-                        $request->remarks ?? 'N/A',
-                        $request->created_at->format('M d, Y g:i A'),
-                        $request->updated_at->format('M d, Y g:i A')
-                    ];
+            if ($format === 'pdf') {
+                return $this->exportToPdf($basename . '.pdf', 'Seedling Requests Report', $columns, $rows);
+            }
 
+            // Default: CSV (with UTF-8 BOM for Excel compatibility)
+            $httpHeaders = [
+                'Content-Type'        => 'text/csv; charset=utf-8',
+                'Content-Disposition' => "attachment; filename=\"{$basename}.csv\"",
+                'Pragma'              => 'no-cache',
+                'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires'             => '0',
+            ];
+
+            $callback = function () use ($columns, $rows) {
+                $file = fopen('php://output', 'w');
+                fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // UTF-8 BOM
+                fputcsv($file, $columns);
+                foreach ($rows as $row) {
                     fputcsv($file, $row);
                 }
-
                 fclose($file);
             };
 
-            // Log export activity
-            $this->logActivity('exported', 'SeedlingRequest', null, [
-                'export_format' => 'csv',
-                'total_records' => $requests->count(),
-                'filters' => [
-                    'search' => $request->get('search'),
-                    'category' => $request->get('category'),
-                    'barangay' => $request->get('barangay'),
-                    'status' => $request->get('status'),
-                    'date_from' => $request->get('date_from'),
-                    'date_to' => $request->get('date_to'),
-                ]
-            ]);
-
-            return response()->stream($callback, 200, $headers);
+            return response()->stream($callback, 200, $httpHeaders);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to export supply requests: ' . $e->getMessage());
+            \Log::error('Failed to export seedling requests: ' . $e->getMessage());
 
             if (request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to export data: ' . $e->getMessage()
+                    'message' => 'Failed to export data: ' . $e->getMessage(),
                 ], 500);
             }
 

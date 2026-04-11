@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FishrApplication;
 use App\Models\FishrAnnex;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,8 @@ use  App\Services\NotificationService;
 
 class FishRController extends Controller
 {
+    use ExportableTrait;
+
     /**
      * Display a listing of FishR registrations
      */
@@ -697,11 +700,9 @@ public function destroy($id)
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
-
             if ($request->filled('barangay')) {
                 $query->where('barangay', $request->barangay);
             }
-
             if ($request->filled('livelihood')) {
                 $query->where('main_livelihood', $request->livelihood);
             }
@@ -710,64 +711,58 @@ public function destroy($id)
 
             $this->logActivity('exported', 'FishrApplication', null, [
                 'records_count' => $registrations->count(),
-                'filters' => $request->all()
+                'filters'       => $request->all(),
             ]);
 
-            $filename = 'fishr_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            $format   = $request->input('format', 'csv');
+            $basename = 'fishr_registrations_' . now()->format('Y-m-d_H-i-s');
 
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            $columns = [
+                'Registration Number', 'Full Name', 'Sex', 'Barangay', 'Contact Number',
+                'Main Livelihood', 'Livelihood Description', 'Secondary Livelihood',
+                'Secondary Livelihood Description', 'Status', 'Date Applied', 'Status Updated',
             ];
 
-            $callback = function() use ($registrations) {
+            $rows = $registrations->map(fn ($r) => [
+                $r->registration_number,
+                $r->full_name,
+                $r->sex,
+                $r->barangay,
+                $r->contact_number,
+                $r->main_livelihood,
+                $r->livelihood_description,
+                $r->secondary_livelihood ?? 'N/A',
+                $r->secondary_livelihood_description ?? 'N/A',
+                $r->formatted_status,
+                $r->created_at->format('M d, Y h:i A'),
+                $r->status_updated_at ? $r->status_updated_at->format('M d, Y h:i A') : 'N/A',
+            ])->toArray();
+
+            if ($format === 'excel') {
+                return $this->exportToExcel($basename . '.xlsx', $columns, $rows, 'FishR Registrations');
+            }
+            if ($format === 'pdf') {
+                return $this->exportToPdf($basename . '.pdf', 'FishR Registrations Report', $columns, $rows);
+            }
+
+            // Default: CSV
+            $httpHeaders = [
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$basename}.csv\"",
+            ];
+            $callback = function () use ($columns, $rows) {
                 $file = fopen('php://output', 'w');
-
-                // CSV headers
-                fputcsv($file, [
-                    'Registration Number',
-                    'Full Name',
-                    'Sex',
-                    'Barangay',
-                    'Contact Number',
-                    'Main Livelihood',
-                    'Livelihood Description',
-                    'Secondary Livelihood',
-                    'Secondary Livelihood Description',
-                    'Status',
-                    'Date Applied',
-                    'Status Updated'
-                ]);
-
-                // CSV data
-                foreach ($registrations as $registration) {
-                    fputcsv($file, [
-                        $registration->registration_number,
-                        $registration->full_name,
-                        $registration->sex,
-                        $registration->barangay,
-                        $registration->contact_number,
-                        $registration->main_livelihood,
-                        $registration->livelihood_description,
-                        $registration->secondary_livelihood ?? 'N/A',
-                        $registration->secondary_livelihood_description ?? 'N/A',
-                        $registration->formatted_status,
-                        $registration->created_at->format('M d, Y h:i A'),
-                        $registration->status_updated_at ?
-                            $registration->status_updated_at->format('M d, Y h:i A') : 'N/A'
-                    ]);
+                fputcsv($file, $columns);
+                foreach ($rows as $row) {
+                    fputcsv($file, $row);
                 }
-
                 fclose($file);
             };
 
-            return response()->stream($callback, 200, $headers);
+            return response()->stream($callback, 200, $httpHeaders);
 
         } catch (\Exception $e) {
-            Log::error('Error exporting FishR registrations', [
-                'error' => $e->getMessage()
-            ]);
-
+            Log::error('Error exporting FishR registrations', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
         }
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TrainingApplication;
+use App\Traits\ExportableTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,8 @@ use App\Services\TrainingImportService;
 
 class TrainingController extends Controller
 {
+    use ExportableTrait;
+
     /**
      * Display a listing of training applications
      */
@@ -544,19 +547,15 @@ public function destroy($id)
             if ($request->filled('search')) {
                 $query->search($request->search);
             }
-
             if ($request->filled('status')) {
                 $query->withStatus($request->status);
             }
-
             if ($request->filled('training_type')) {
                 $query->withTrainingType($request->training_type);
             }
-
             if ($request->filled('date_from')) {
                 $query->whereDate('created_at', '>=', $request->date_from);
             }
-
             if ($request->filled('date_to')) {
                 $query->whereDate('created_at', '<=', $request->date_to);
             }
@@ -565,53 +564,52 @@ public function destroy($id)
 
             $this->logActivity('exported', 'TrainingApplication', null, [
                 'records_count' => $applications->count(),
-                'filters' => $request->all()
+                'filters'       => $request->all(),
             ]);
 
-            $filename = 'training_applications_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            $format   = $request->input('format', 'csv');
+            $basename = 'training_applications_' . now()->format('Y-m-d_H-i-s');
 
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            $columns = [
+                'Application Number', 'Full Name', 'Contact Number', 'Training Type',
+                'Status', 'Has Document', 'Date Applied', 'Date Updated', 'Updated By', 'Remarks',
             ];
 
-            $callback = function() use ($applications) {
+            $rows = $applications->map(fn ($a) => [
+                $a->application_number,
+                $a->full_name,
+                $a->contact_number ?? 'N/A',
+                $a->training_type_display,
+                $a->formatted_status,
+                $a->hasDocument() ? 'Yes' : 'No',
+                $a->created_at->format('M d, Y h:i A'),
+                $a->updated_at->format('M d, Y h:i A'),
+                $a->updatedBy?->name ?? 'N/A',
+                $a->remarks ?? 'N/A',
+            ])->toArray();
+
+            if ($format === 'excel') {
+                return $this->exportToExcel($basename . '.xlsx', $columns, $rows, 'Training Applications');
+            }
+            if ($format === 'pdf') {
+                return $this->exportToPdf($basename . '.pdf', 'Training Applications Report', $columns, $rows);
+            }
+
+            // Default: CSV
+            $httpHeaders = [
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$basename}.csv\"",
+            ];
+            $callback = function () use ($columns, $rows) {
                 $file = fopen('php://output', 'w');
-
-                // CSV headers
-                fputcsv($file, [
-                    'Application Number',
-                    'Full Name',
-                    'Contact Number',
-                    'Training Type',
-                    'Status',
-                    'Has Document',
-                    'Date Applied',
-                    'Date Updated',
-                    'Updated By',
-                    'Remarks'
-                ]);
-
-                // CSV data
-                foreach ($applications as $application) {
-                    fputcsv($file, [
-                        $application->application_number,
-                        $application->full_name,
-                        $application->contact_number ?? 'N/A',
-                        $application->training_type_display,
-                        $application->formatted_status,
-                        $application->hasDocument() ? 'Yes' : 'No',
-                        $application->created_at->format('M d, Y h:i A'),
-                        $application->updated_at->format('M d, Y h:i A'),
-                        $application->updatedBy?->name ?? 'N/A',
-                        $application->remarks ?? 'N/A'
-                    ]);
+                fputcsv($file, $columns);
+                foreach ($rows as $row) {
+                    fputcsv($file, $row);
                 }
-
                 fclose($file);
             };
 
-            return response()->stream($callback, 200, $headers);
+            return response()->stream($callback, 200, $httpHeaders);
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
