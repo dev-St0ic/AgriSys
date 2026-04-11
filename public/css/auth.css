@@ -4551,7 +4551,7 @@ body:has(#verification-modal[style*="display: flex"]) {
     display: inline;
 }
 
-/* Responsive Design */
+/* Responsive Design - Tablet */
 @media (max-width: 640px) {
     .change-password-modal {
         width: 95%;
@@ -4567,24 +4567,186 @@ body:has(#verification-modal[style*="display: flex"]) {
     }
 
     .change-password-modal .modal-close {
-        right: 20px;
+        right: 16px;
+        width: 34px;
+        height: 34px;
+        font-size: 26px;
     }
 
     .security-info-banner {
         padding: 12px;
+        gap: 10px;
+        margin-bottom: 18px;
     }
 
     .security-info-banner p {
         font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .change-password-content .form-group {
+        margin-bottom: 16px;
     }
 
     .modal-actions {
         flex-direction: column-reverse;
+        gap: 10px;
+        margin-top: 16px;
     }
 
     .btn-secondary,
     .btn-primary {
         width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 13px 24px;
+    }
+}
+
+/* Responsive Design - Mobile (centered, not bottom sheet) */
+@media (max-width: 480px) {
+    /* Override the global bottom-sheet behavior — no padding so edge-to-edge centering */
+    #change-password-modal.modal-overlay {
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    #change-password-modal .change-password-modal {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        top: auto;
+        /* 12px equal margin on each side */
+        width: calc(100vw - 24px);
+        max-width: 440px;
+        max-height: 90vh;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+    }
+
+    /* Sticky header — close button always visible */
+    #change-password-modal .modal-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        padding: 14px 16px;
+        border-radius: 16px 16px 0 0;
+        flex-shrink: 0;
+    }
+
+    #change-password-modal .modal-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    /* Close button — clearly visible on green header */
+    .change-password-modal .modal-close {
+        position: absolute;
+        right: 14px;
+        width: 34px;
+        height: 34px;
+        font-size: 24px;
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+    }
+
+    .change-password-modal .modal-close:hover,
+    .change-password-modal .modal-close:focus {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* Scrollable body */
+    #change-password-modal .modal-body {
+        overflow-y: auto;
+        flex: 1;
+        padding: 16px 16px 24px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Compact security banner */
+    .security-info-banner {
+        padding: 10px 12px;
+        gap: 8px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+    }
+
+    .security-info-banner .banner-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .security-info-banner p {
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    /* Tighter form groups */
+    .change-password-content .form-group {
+        margin-bottom: 14px;
+    }
+
+    .change-password-content label {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    /* 16px font prevents iOS auto-zoom; 44px min-height for touch */
+    .change-password-content .password-input-container input {
+        padding: 11px 65px 11px 14px;
+        font-size: 16px;
+        min-height: 44px;
+        border-radius: 8px;
+    }
+
+    .change-password-content .password-toggle {
+        font-size: 12px;
+        padding: 4px 8px;
+        right: 10px;
+    }
+
+    /* Compact strength bar */
+    .new-password-strength {
+        margin-top: 6px;
+    }
+
+    .new-password-strength .strength-bar {
+        height: 4px;
+        margin-bottom: 4px;
+    }
+
+    .new-password-strength .strength-text {
+        font-size: 11px;
+    }
+
+    /* Compact match indicator */
+    .confirm-new-password-match {
+        font-size: 11px;
+        padding: 6px 10px;
+        margin-top: 6px;
+    }
+
+    /* Full-width stacked buttons */
+    .modal-actions {
+        flex-direction: column-reverse;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .change-password-modal .btn-primary,
+    .change-password-modal .btn-secondary {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 15px;
+        border-radius: 10px;
+        text-align: center;
         justify-content: center;
     }
 }

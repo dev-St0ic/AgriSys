@@ -3,6 +3,43 @@
    User-Friendly Improvements for All Screen Sizes
    ===================================================== */
 
+/* ===== CLOSE BUTTON ALWAYS VISIBLE FIX ===== */
+/* Prevent outer container from scrolling so the header/close button stays in view */
+.applications-modal {
+    overflow: hidden;
+}
+
+/* Keep the modal header (and close button) sticky so it never scrolls out of view */
+.applications-modal .modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, #0A6953, #2d6a4f);
+    flex-shrink: 0;
+}
+
+/* Ensure close button is clearly visible and has a good touch target */
+.applications-modal .modal-close {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+}
+
+.applications-modal .modal-close:hover,
+.applications-modal .modal-close:focus {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
 /* ===== IMPROVED STATISTICS SECTION ===== */
 .stats-section {
     display: grid;
