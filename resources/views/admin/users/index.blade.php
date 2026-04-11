@@ -1,4 +1,4 @@
-{{-- resources/views/admin/users/index.blade.php --}}
+﻿{{-- resources/views/admin/users/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'User Management - AgriSys Admin')
@@ -141,8 +141,8 @@
 
     <!-- Registrations Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+        <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
+            <div class="d-flex gap-2 align-items-center">
                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
                     id="bulkSelectAllBtn">
                     <i class="fas fa-check-square me-1"></i>Select All
@@ -163,12 +163,7 @@
                     </button>
                 </div>
             </div>
-            <div class="text-center" style="flex: 1;">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-user-edit me-2"></i>User Records
-                </h6>
-            </div>
-            <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
+            <div class="d-flex gap-2">
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddUserModal()">
                     <i class="fas fa-user-plus me-2"></i>Add User
                 </button>
@@ -209,9 +204,9 @@
                                             style="width: 35px; height: 35px;
                                             background-color:
                                             @if ($registration->user_type === 'farmer') #28a745
-                                                @elseif($registration->user_type === 'fisherfolk') #17a2b8
+                                                @elseif($registration->user_type === 'fisherfolk') #059669
                                                 @elseif($registration->user_type === 'general') #6c757d
-                                                @elseif($registration->user_type === 'agri-entrepreneur') #007bff
+                                                @elseif($registration->user_type === 'agri-entrepreneur') #10b981
                                                 @elseif($registration->user_type === 'cooperative-member') #ffc107
                                                 @elseif($registration->user_type === 'government-employee') #dc3545
                                                 @else #343a40 @endif">
@@ -1607,12 +1602,12 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i,
         .toast-notification.toast-info .toast-header i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Confirmation Toast */
@@ -1810,7 +1805,7 @@
         .document-thumbnail-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .document-thumbnail-container {
@@ -2023,14 +2018,14 @@
         }
 
         .fishr-btn-primary {
-            background: #007bff;
+            background: #10b981;
             color: white;
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .fishr-btn-primary:hover {
-            background: #0056b3;
-            border-color: #0056b3;
+            background: #059669;
+            border-color: #059669;
             color: white;
             transform: translateY(-1px);
         }
@@ -2121,7 +2116,7 @@
         .fishr-mini-doc:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .fishr-mini-doc-icon {
@@ -2157,11 +2152,11 @@
         }
 
         .fishr-document-summary:hover {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .fishr-document-summary:hover small {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .fishr-no-documents {
@@ -2179,7 +2174,7 @@
 
         /* Document type specific colors for mini previews */
         .fishr-mini-doc[title*="Location"] {
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .fishr-mini-doc[title*="Location"]:hover {
@@ -2195,7 +2190,7 @@
         }
 
         .fishr-mini-doc[title*="ID Back"] {
-            border-color: #17a2b8;
+            border-color: #059669;
         }
 
         .fishr-mini-doc[title*="ID Back"]:hover {
@@ -2221,7 +2216,7 @@
         /* Loading states */
         .loading-spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
+            border-top: 4px solid #10b981;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -2273,8 +2268,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -2307,7 +2302,7 @@
         }
 
         .alert-info {
-            border-left-color: #17a2b8;
+            border-left-color: #059669;
         }
 
         /* Enhanced modal styling */
@@ -2524,11 +2519,11 @@
         }
 
         #updateModal .alert-info {
-            border-left-color: #17a2b8;
+            border-left-color: #059669;
         }
 
         #updateModal .border-left-info {
-            border-left-color: #17a2b8 !important;
+            border-left-color: #059669 !important;
         }
 
         #updateModal textarea {
@@ -2655,11 +2650,11 @@
         }
 
         #editUserModal .alert-info {
-            border-left-color: #17a2b8;
+            border-left-color: #059669;
         }
 
         #editUserModal .border-left-info {
-            border-left-color: #17a2b8 !important;
+            border-left-color: #059669 !important;
         }
 
         #editUserModal textarea {
@@ -2737,7 +2732,7 @@
 
         .document-existing-badge {
             display: inline-block;
-            background-color: #e7f3ff;
+            background-color: #ecfdf5;
             border: 1px solid #b3d9ff;
             padding: 0.375rem 0.75rem;
             border-radius: 0.25rem;
@@ -2748,7 +2743,7 @@
 
         .document-existing-badge i {
             margin-right: 0.5rem;
-            color: #0056b3;
+            color: #059669;
         }
 
         /* Responsive adjustments */
@@ -3485,31 +3480,31 @@
                         documentsHtml = `
                             <div class="row g-3">
                                 ${docs.map(doc => `
-                                                    <div class="col-md-4">
-                                                        <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
-                                                            <div class="document-thumbnail-container">
-                                                                <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
-                                                                    <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
-                                                                        <span class="visually-hidden">Loading...</span>
+                                                        <div class="col-md-4">
+                                                            <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
+                                                                <div class="document-thumbnail-container">
+                                                                    <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
+                                                                        <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
+                                                                            <span class="visually-hidden">Loading...</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <img class="document-thumbnail-image"
+                                                                         id="thumb-${doc.type}"
+                                                                         style="display: none;"
+                                                                         alt="${doc.name}"
+                                                                         onload="showThumbnail('${doc.type}')"
+                                                                         onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
+                                                                    <div class="document-thumbnail-overlay">
+                                                                        <i class="fas fa-eye fa-2x text-white"></i>
                                                                     </div>
                                                                 </div>
-                                                                <img class="document-thumbnail-image"
-                                                                     id="thumb-${doc.type}"
-                                                                     style="display: none;"
-                                                                     alt="${doc.name}"
-                                                                     onload="showThumbnail('${doc.type}')"
-                                                                     onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
-                                                                <div class="document-thumbnail-overlay">
-                                                                    <i class="fas fa-eye fa-2x text-white"></i>
+                                                                <div class="document-thumbnail-info">
+                                                                    <h6 class="document-thumbnail-title">${doc.name}</h6>
+                                                                    <small class="text-muted">Click to view full size</small>
                                                                 </div>
                                                             </div>
-                                                            <div class="document-thumbnail-info">
-                                                                <h6 class="document-thumbnail-title">${doc.name}</h6>
-                                                                <small class="text-muted">Click to view full size</small>
-                                                            </div>
                                                         </div>
-                                                    </div>
-                                                `).join('')}
+                                                    `).join('')}
                             </div>
                         `;
                     } else {
@@ -4515,7 +4510,10 @@
             input.classList.remove('is-invalid', 'is-valid');
 
             if (!input.files || !input.files[0]) {
-                if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
                 return;
             }
 
@@ -4529,7 +4527,10 @@
                 errorDiv.className = 'invalid-feedback d-block';
                 errorDiv.textContent = 'Only image files are allowed (JPG, PNG, GIF, WEBP)';
                 input.parentNode.appendChild(errorDiv);
-                if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
                 return;
             }
 
@@ -4539,7 +4540,10 @@
                 errorDiv.className = 'invalid-feedback d-block';
                 errorDiv.textContent = 'File must not exceed 10MB';
                 input.parentNode.appendChild(errorDiv);
-                if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
                 return;
             }
 

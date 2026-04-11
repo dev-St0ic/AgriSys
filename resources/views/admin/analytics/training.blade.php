@@ -606,7 +606,7 @@
 
         .nav-pills .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.8);
-            color: #007bff;
+            color: #10b981;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }

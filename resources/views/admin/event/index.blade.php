@@ -1,4 +1,4 @@
-{{-- resources/views/admin/event/index.blade.php --}}
+﻿{{-- resources/views/admin/event/index.blade.php --}}
 {{-- Event Management Admin Page - With Archive Functionality --}}
 
 @extends('layouts.app')
@@ -69,61 +69,7 @@
             </div>
         </div>
 
-        <!-- Filters and Actions -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-filter me-2"></i>Filters & Search
-                </h6>
-            </div>
-            <div class="card-body">
-                <form method="GET" action="{{ route('admin.event.index') }}" id="filterForm">
-                    <!-- Hidden date inputs -->
-                    <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
-                    <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                    <div class="row">
-                        <div class="col-md-2">
-                            <select name="category" class="form-select form-select-sm"
-                                onchange="document.getElementById('filterForm').submit();">
-                                <option value="">All Events</option>
-                                <option value="announcement" {{ request('category') == 'announcement' ? 'selected' : '' }}>
-                                    Announcements</option>
-                                <option value="ongoing" {{ request('category') == 'ongoing' ? 'selected' : '' }}>Ongoing
-                                </option>
-                                <option value="upcoming" {{ request('category') == 'upcoming' ? 'selected' : '' }}>Upcoming
-                                </option>
-                                <option value="past" {{ request('category') == 'past' ? 'selected' : '' }}>Past</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-5">
-                            <div class="input-group input-group-sm">
-                                <input type="text" name="search" class="form-control"
-                                    placeholder="Search title, description, location..." value="{{ request('search') }}"
-                                    oninput="autoSearch()" id="searchInput">
-                                <button class="btn btn-outline-secondary" type="submit" title="Search" id="searchButton">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3">
-                            <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
-                                data-bs-target="#eventDateFilterModal">
-                                <i class="fas fa-calendar-alt me-1"></i>Date Filter
-                            </button>
-                        </div>
-
-                        <div class="col-md-2">
-                            <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
-                                <i></i> Clear
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
 
         <!-- Date Filter Modal -->
         <div class="modal fade" id="eventDateFilterModal" tabindex="-1" aria-labelledby="eventDateFilterModalLabel"
@@ -230,55 +176,87 @@
             </div>
         </div>
 
+        <!-- Filters & Search -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-filter me-2"></i>Filters & Search
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ route('admin.event.index') }}" id="filterForm">
+                    <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
+                    <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-2">
+                            <select name="category" class="form-select form-select-sm"
+                                onchange="document.getElementById('filterForm').submit();">
+                                <option value="">All Events</option>
+                                <option value="announcement"
+                                    {{ request('category') == 'announcement' ? 'selected' : '' }}>Announcements</option>
+                                <option value="ongoing" {{ request('category') == 'ongoing' ? 'selected' : '' }}>Ongoing
+                                </option>
+                                <option value="upcoming" {{ request('category') == 'upcoming' ? 'selected' : '' }}>
+                                    Upcoming</option>
+                                <option value="past" {{ request('category') == 'past' ? 'selected' : '' }}>Past</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="search" class="form-control"
+                                    placeholder="Search title, description..." value="{{ request('search') }}"
+                                    oninput="autoSearch()" id="searchInput">
+                                <button class="btn btn-outline-secondary" type="submit" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
+                                data-bs-target="#eventDateFilterModal">
+                                <i class="fas fa-calendar-alt me-1"></i>Date Filter
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
+                                <i class="fas fa-times me-1"></i>Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Events Table -->
         <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
                 <div class="d-flex gap-2 align-items-center">
-                    {{-- Select / Deselect All --}}
-                    <button type="button" class="btn btn-sm btn-outline-primary"
-                            onclick="selectAllEvents()" id="selectAllEventsBtn"
-                            title="Select All Events on This Page">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllEvents()"
+                        id="selectAllEventsBtn" title="Select All">
                         <i class="fas fa-check-square me-1"></i>Select All
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                            onclick="deselectAllEvents()" id="deselectAllEventsBtn"
-                            title="Deselect All" style="display: none;">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllEvents()"
+                        id="deselectAllEventsBtn" style="display: none;">
                         <i class="fas fa-square me-1"></i>Deselect All
                     </button>
-
-                    {{-- Bulk Actions (hidden until items are selected) --}}
-                    <div class="btn-group" role="group" id="eventBulkActionsGroup" style="display: none;">
-                        <button type="button" class="btn btn-sm btn-outline-success"
-                                onclick="openBulkActivateModal()" title="Activate Selected">
+                    <div class="btn-group" id="eventBulkActionsGroup" style="display: none;">
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="openBulkActivateModal()">
                             <i class="fas fa-power-off me-1"></i>Activate
                         </button>
                         <button type="button" class="btn btn-sm btn-outline-warning"
-                                onclick="openBulkDeactivateModal()" title="Deactivate Selected">
+                            onclick="openBulkDeactivateModal()">
                             <i class="fas fa-ban me-1"></i>Deactivate
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-dark"
-                                onclick="openBulkArchiveModal()" title="Archive Selected">
-                            <i class="fas fa-archive me-1"></i>Archive
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                onclick="openBulkDeleteModal()" title="Delete Selected">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="openBulkDeleteModal()">
                             <i class="fas fa-trash me-1"></i>Delete
                         </button>
                     </div>
                 </div>
-
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-calendar-day me-2"></i>Events List
-                </h6>
-
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                         data-bs-target="#createEventModal">
-                        <i class="fas fa-plus me-2"></i>Add Event
+                        <i class="fas fa-plus me-1"></i>Add Event
                     </button>
-                    <a href="{{ route('admin.event.archived') }}" class="btn btn-info btn-sm">
-                        <i class="fas fa-archive me-2"></i>View Archive ({{ $stats['archived'] ?? 0 }})
-                    </a>
                 </div>
             </div>
 
@@ -302,8 +280,7 @@
                             @forelse($events as $event)
                                 <tr data-id="{{ $event->id }}" class="event-table-row">
                                     <td class="text-center align-middle">
-                                        <input type="checkbox" class="event-checkbox"
-                                            value="{{ $event->id }}"
+                                        <input type="checkbox" class="event-checkbox" value="{{ $event->id }}"
                                             data-title="{{ $event->title }}"
                                             data-active="{{ $event->is_active ? '1' : '0' }}"
                                             onchange="updateEventBulkVisibility()">
@@ -353,11 +330,6 @@
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
 
-                                            <button class="btn btn-sm btn-outline-dark"
-                                                onclick="archiveEvent({{ $event->id }})" title="Archive">
-                                                <i class="fas fa-archive"></i> Archive
-                                            </button>
-
                                             <div class="btn-group" role="group">
                                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
                                                     type="button" data-bs-toggle="dropdown" aria-expanded="false"
@@ -368,7 +340,8 @@
                                                     <li>
                                                         <a class="dropdown-item" href="javascript:void(0)"
                                                             onclick="toggleEvent({{ $event->id }})">
-                                                            <i class="fas fa-power-off me-2" style="color: {{ $event->is_active ? '#ffc107' : '#28a745' }};"></i>
+                                                            <i class="fas fa-power-off me-2"
+                                                                style="color: {{ $event->is_active ? '#ffc107' : '#28a745' }};"></i>
                                                             {{ $event->is_active ? 'Deactivate' : 'Activate' }}
                                                         </a>
                                                     </li>
@@ -481,9 +454,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="confirmBulkActivate()" id="confirmBulkActivateBtn">
+                    <button type="button" class="btn btn-success" onclick="confirmBulkActivate()"
+                        id="confirmBulkActivateBtn">
                         <span class="btn-text"><i class="fas fa-power-off me-1"></i>Activate</span>
-                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Activating...</span>
+                        <span class="btn-loader" style="display:none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Activating...</span>
                     </button>
                 </div>
             </div>
@@ -509,9 +484,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning" onclick="confirmBulkDeactivate()" id="confirmBulkDeactivateBtn">
+                    <button type="button" class="btn btn-warning" onclick="confirmBulkDeactivate()"
+                        id="confirmBulkDeactivateBtn">
                         <span class="btn-text"><i class="fas fa-ban me-1"></i>Deactivate</span>
-                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Deactivating...</span>
+                        <span class="btn-loader" style="display:none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deactivating...</span>
                     </button>
                 </div>
             </div>
@@ -531,19 +508,22 @@
                 <div class="modal-body">
                     <div class="alert alert-info mb-3">
                         You are about to <strong>archive</strong> <strong id="bulkArchiveCount">0</strong> event(s).
-                        <br><small class="text-muted">Only <strong>inactive</strong> events can be archived. Active events in your selection will be skipped.</small>
+                        <br><small class="text-muted">Only <strong>inactive</strong> events can be archived. Active events
+                            in your selection will be skipped.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Reason for archiving (optional)</label>
                         <textarea id="bulkArchiveReason" class="form-control" rows="2"
-                                placeholder="e.g., Events completed, Seasonal cleanup..."></textarea>
+                            placeholder="e.g., Events completed, Seasonal cleanup..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-info" onclick="confirmBulkArchive()" id="confirmBulkArchiveBtn">
+                    <button type="button" class="btn btn-info" onclick="confirmBulkArchive()"
+                        id="confirmBulkArchiveBtn">
                         <span class="btn-text"><i class="fas fa-archive me-1"></i>Archive</span>
-                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Archiving...</span>
+                        <span class="btn-loader" style="display:none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Archiving...</span>
                     </button>
                 </div>
             </div>
@@ -564,15 +544,18 @@
                     <div class="alert alert-danger mb-3">
                         You are about to <strong>delete</strong> <strong id="bulkDeleteCount">0</strong> event(s).
                         They will be moved to the Recycle Bin.
-                        <br><small class="text-muted">Only <strong>inactive</strong> events can be deleted. Active events will be skipped.</small>
+                        <br><small class="text-muted">Only <strong>inactive</strong> events can be deleted. Active events
+                            will be skipped.</small>
                     </div>
                     <p class="mb-0">Are you sure you want to proceed?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()" id="confirmBulkDeleteBtn">
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()"
+                        id="confirmBulkDeleteBtn">
                         <span class="btn-text"><i class="fas fa-trash me-1"></i>Move to Recycle Bin</span>
-                        <span class="btn-loader" style="display:none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                        <span class="btn-loader" style="display:none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -600,8 +583,7 @@
                             </label>
                             <div class="input-group">
                                 <input type="text" name="title" id="create_title" class="form-control"
-                                    placeholder="Enter event title"
-                                     maxlength="100" required>
+                                    placeholder="Enter event title" maxlength="100" required>
                                 <span class="input-group-text">
                                     <small><span id="create_title_count">0</span>/100</small>
                                 </span>
@@ -610,7 +592,8 @@
                                 <i class="fas fa-info-circle me-1"></i>
                                 Clear and descriptive titles work best
                             </small>
-                            <div class="invalid-feedback d-block" id="create_title_feedback" style="display: none;"></div>
+                            <div class="invalid-feedback d-block" id="create_title_feedback" style="display: none;">
+                            </div>
                         </div>
 
                         <!-- Description -->
@@ -619,9 +602,8 @@
                                 <i class="fas fa-align-left me-1 text-primary"></i>Description
                                 <span class="text-danger">*</span>
                             </label>
-                            <textarea name="description" id="create_description" class="form-control"
-                                rows="4" placeholder="Enter event description"
-                                maxlength="1000" required></textarea>
+                            <textarea name="description" id="create_description" class="form-control" rows="4"
+                                placeholder="Enter event description" maxlength="1000" required></textarea>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <small class="text-muted">
                                     <i class="fas fa-info-circle me-1"></i>
@@ -631,7 +613,8 @@
                                     <span id="create_description_count">0</span>/1000
                                 </small>
                             </div>
-                            <div class="invalid-feedback d-block" id="create_description_feedback" style="display: none;"></div>
+                            <div class="invalid-feedback d-block" id="create_description_feedback"
+                                style="display: none;"></div>
                         </div>
 
                         <!-- Category and Status Row -->
@@ -648,7 +631,8 @@
                                     <option value="upcoming">Upcoming</option>
                                     <option value="past">Past</option>
                                 </select>
-                                <div class="invalid-feedback d-block" id="create_category_feedback" style="display: none;"></div>
+                                <div class="invalid-feedback d-block" id="create_category_feedback"
+                                    style="display: none;"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
@@ -686,7 +670,8 @@
                             <label class="form-label fw-semibold">
                                 <i class="fas fa-image me-1 text-primary"></i>Event Image
                             </label>
-                            <input type="file" name="image" id="create_image" class="form-control" accept="image/*">
+                            <input type="file" name="image" id="create_image" class="form-control"
+                                accept="image/*">
                             <small class="text-muted d-block mt-2">
                                 <i class="fas fa-info-circle me-1"></i>Maximum 10MB Supported formats: JPEG, PNG, GIF, WebP
                             </small>
@@ -785,16 +770,14 @@
                     <h5 class="modal-title w-100 text-center">
                         <i class="fas fa-image me-2"></i><span id="previewImageTitle">Image Preview</span>
                     </h5>
-                    <button type="button" class="btn btn-sm " data-bs-dismiss="modal" style="position: absolute; right: 1rem;">
+                    <button type="button" class="btn btn-sm " data-bs-dismiss="modal"
+                        style="position: absolute; right: 1rem;">
                         <i class="fas fa-times fa-lg"></i>
                     </button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="text-center">
-                        <img id="previewImage"
-                            src=""
-                            alt="Event Image"
-                            class="img-fluid rounded shadow-sm"
+                        <img id="previewImage" src="" alt="Event Image" class="img-fluid rounded shadow-sm"
                             style="max-height: 550px; object-fit: contain;">
                     </div>
                 </div>
@@ -830,7 +813,8 @@
                                 <i class="fas fa-heading me-1 text-primary"></i>Title
                                 <span class="text-danger">*</span>
                             </label>
-                            <input type="text" id="edit_title" name="title" class="form-control" placeholder="Enter event title" required>
+                            <input type="text" id="edit_title" name="title" class="form-control"
+                                placeholder="Enter event title" required>
                         </div>
 
                         <!-- Description -->
@@ -839,7 +823,8 @@
                                 <i class="fas fa-align-left me-1 text-primary"></i>Description
                                 <span class="text-danger">*</span>
                             </label>
-                            <textarea id="edit_description" name="description" class="form-control" rows="4" placeholder="Enter event description" required></textarea>
+                            <textarea id="edit_description" name="description" class="form-control" rows="4"
+                                placeholder="Enter event description" required></textarea>
                         </div>
 
                         <!-- Category and Status Row -->
@@ -874,13 +859,15 @@
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-calendar me-1 text-primary"></i>Date/Time
                                 </label>
-                                <input type="text" id="edit_date" name="date" class="form-control" placeholder="e.g., November 15, 2026 | 6:00 AM">
+                                <input type="text" id="edit_date" name="date" class="form-control"
+                                    placeholder="e.g., November 15, 2026 | 6:00 AM">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">
                                     <i class="fas fa-map-marker-alt me-1 text-primary"></i>Location
                                 </label>
-                                <input type="text" id="edit_location" name="location" class="form-control" placeholder="Enter event location">
+                                <input type="text" id="edit_location" name="location" class="form-control"
+                                    placeholder="Enter event location">
                             </div>
                         </div>
 
@@ -1119,7 +1106,8 @@
         }
 
         function addDetailRow(type = 'create') {
-            const container = type === 'create' ? document.getElementById('detailsContainer') : document.getElementById('editDetailsContainer');
+            const container = type === 'create' ? document.getElementById('detailsContainer') : document.getElementById(
+                'editDetailsContainer');
             const row = document.createElement('div');
             row.className = 'detail-row mb-3';
             row.innerHTML = `
@@ -1291,7 +1279,8 @@
                                     <dl class="row mb-0">
                     `;
                     for (const [key, value] of Object.entries(event.details)) {
-                        const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
+                        const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ')
+                            .slice(1);
                         detailsHtml += `
                             <dt class="col-sm-4 mb-2">${displayKey}:</dt>
                             <dd class="col-sm-8 mb-2">${value}</dd>
@@ -1311,17 +1300,17 @@
                         <div class="col-md-4">
                             ${event.image
                                 ? `<div class="position-relative" style="cursor: pointer;" onclick="previewEventImage('${event.image}', '${event.title.replace(/'/g, "\\'")}')">
-                                    <img src="${event.image}" alt="${event.title}" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
-                                    <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
-                                        <i class="fas fa-search-plus fa-2x text-white"></i>
-                                    </div>
-                                </div>`
+                                                            <img src="${event.image}" alt="${event.title}" class="img-fluid rounded shadow-sm w-100" style="max-height: 300px; object-fit: cover;">
+                                                            <div class="position-absolute top-50 start-50 translate-middle opacity-0 hover-overlay">
+                                                                <i class="fas fa-search-plus fa-2x text-white"></i>
+                                                            </div>
+                                                        </div>`
                                 : `<div class="bg-light rounded shadow-sm d-flex align-items-center justify-content-center" style="height: 300px;">
-                                    <div class="text-center">
-                                        <i class="fas fa-image fa-4x text-muted mb-2"></i>
-                                        <p class="text-muted mb-0">No image</p>
-                                    </div>
-                                </div>`
+                                                            <div class="text-center">
+                                                                <i class="fas fa-image fa-4x text-muted mb-2"></i>
+                                                                <p class="text-muted mb-0">No image</p>
+                                                            </div>
+                                                        </div>`
                             }
                         </div>
 
@@ -1355,31 +1344,31 @@
 
                                 <!-- Date -->
                                 ${event.date ? `
-                                <div class="col-sm-6">
-                                    <div class="card border-0 bg-light h-100">
-                                        <div class="card-body py-2">
-                                            <small class="text-muted d-block mb-1">
-                                                <i class="fas fa-calendar me-1"></i>Date/Time
-                                            </small>
-                                            <span class="fw-semibold">${event.date}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
+                                                        <div class="col-sm-6">
+                                                            <div class="card border-0 bg-light h-100">
+                                                                <div class="card-body py-2">
+                                                                    <small class="text-muted d-block mb-1">
+                                                                        <i class="fas fa-calendar me-1"></i>Date/Time
+                                                                    </small>
+                                                                    <span class="fw-semibold">${event.date}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        ` : ''}
 
                                 <!-- Location -->
                                 ${event.location ? `
-                                <div class="col-sm-6">
-                                    <div class="card border-0 bg-light h-100">
-                                        <div class="card-body py-2">
-                                            <small class="text-muted d-block mb-1">
-                                                <i class="fas fa-map-marker-alt me-1"></i>Location
-                                            </small>
-                                            <span class="fw-semibold">${event.location}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
+                                                        <div class="col-sm-6">
+                                                            <div class="card border-0 bg-light h-100">
+                                                                <div class="card-body py-2">
+                                                                    <small class="text-muted d-block mb-1">
+                                                                        <i class="fas fa-map-marker-alt me-1"></i>Location
+                                                                    </small>
+                                                                    <span class="fw-semibold">${event.location}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        ` : ''}
 
                                 <!-- Created Date -->
                                 <div class="col-sm-6">
@@ -2257,7 +2246,10 @@
         // --- Bulk Activate ---
         function openBulkActivateModal() {
             const ids = getSelectedEventIds();
-            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            if (!ids.length) {
+                showToast('warning', 'No events selected');
+                return;
+            }
             document.getElementById('bulkActivateCount').textContent = ids.length;
             new bootstrap.Modal(document.getElementById('bulkActivateModal')).show();
         }
@@ -2272,8 +2264,14 @@
             try {
                 const response = await fetch('/admin/events/bulk/activate', {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ ids })
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ids
+                    })
                 });
                 const data = await response.json();
                 bootstrap.Modal.getInstance(document.getElementById('bulkActivateModal')).hide();
@@ -2295,7 +2293,10 @@
         // --- Bulk Deactivate ---
         function openBulkDeactivateModal() {
             const ids = getSelectedEventIds();
-            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            if (!ids.length) {
+                showToast('warning', 'No events selected');
+                return;
+            }
             document.getElementById('bulkDeactivateCount').textContent = ids.length;
             new bootstrap.Modal(document.getElementById('bulkDeactivateModal')).show();
         }
@@ -2310,8 +2311,14 @@
             try {
                 const response = await fetch('/admin/events/bulk/deactivate', {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ ids })
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ids
+                    })
                 });
                 const data = await response.json();
                 bootstrap.Modal.getInstance(document.getElementById('bulkDeactivateModal')).hide();
@@ -2333,7 +2340,10 @@
         // --- Bulk Archive ---
         function openBulkArchiveModal() {
             const ids = getSelectedEventIds();
-            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            if (!ids.length) {
+                showToast('warning', 'No events selected');
+                return;
+            }
             document.getElementById('bulkArchiveCount').textContent = ids.length;
             document.getElementById('bulkArchiveReason').value = '';
             new bootstrap.Modal(document.getElementById('bulkArchiveModal')).show();
@@ -2350,8 +2360,15 @@
             try {
                 const response = await fetch('/admin/events/bulk/archive', {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ ids, reason })
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ids,
+                        reason
+                    })
                 });
                 const data = await response.json();
                 bootstrap.Modal.getInstance(document.getElementById('bulkArchiveModal')).hide();
@@ -2373,7 +2390,10 @@
         // --- Bulk Delete ---
         function openBulkDeleteModal() {
             const ids = getSelectedEventIds();
-            if (!ids.length) { showToast('warning', 'No events selected'); return; }
+            if (!ids.length) {
+                showToast('warning', 'No events selected');
+                return;
+            }
             document.getElementById('bulkDeleteCount').textContent = ids.length;
             new bootstrap.Modal(document.getElementById('bulkDeleteModal')).show();
         }
@@ -2388,8 +2408,14 @@
             try {
                 const response = await fetch('/admin/events/bulk/delete', {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ ids })
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ids
+                    })
                 });
                 const data = await response.json();
                 bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal')).hide();
@@ -2629,8 +2655,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -2654,7 +2680,7 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         /* Responsive */
@@ -2699,6 +2725,7 @@
         body.modal-open {
             overflow: hidden;
         }
+
         /* Image hover effect for preview */
         .position-relative:hover .hover-overlay {
             opacity: 1 !important;
@@ -2716,6 +2743,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             border-radius: 0.375rem;
+            pointer-events: none;
         }
 
         .position-relative:hover::after {
@@ -2728,9 +2756,9 @@
         }
 
         /* Image Preview Modal
-        #imagePreviewModal .modal-content {
-            background: rgba(0, 0, 0, 0.9) !important;
-        } */
+                                #imagePreviewModal .modal-content {
+                                    background: rgba(0, 0, 0, 0.9) !important;
+                                } */
 
         #imagePreviewModal .btn-close {
             background: rgba(255, 255, 255, 0.2);

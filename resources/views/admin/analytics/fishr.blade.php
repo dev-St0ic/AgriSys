@@ -589,7 +589,7 @@
 
         .nav-pills .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.8);
-            color: #007bff;
+            color: #10b981;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
@@ -1512,15 +1512,15 @@
         }
 
         .analytics-nav-btn.active {
-            background: #0d6efd;
-            border-color: #0d6efd;
+            background: #10b981;
+            border-color: #10b981;
             color: white;
             box-shadow: 0 2px 4px rgba(13, 110, 253, 0.25);
         }
 
         .analytics-nav-btn.active:hover {
-            background: #0b5ed7;
-            border-color: #0a58ca;
+            background: #059669;
+            border-color: #047857;
             color: white;
         }
 

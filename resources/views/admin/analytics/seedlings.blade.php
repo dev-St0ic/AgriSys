@@ -1,4 +1,4 @@
-{{-- resources/views/admin/analytics/seedlings.blade.php --}}
+﻿{{-- resources/views/admin/analytics/seedlings.blade.php --}}
 
 @php
     $overview = $overview ?? [];
@@ -744,7 +744,7 @@
 
         .nav-pills .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.8);
-            color: #007bff;
+            color: #10b981;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
@@ -793,7 +793,7 @@
 
         .form-select:focus,
         .form-control:focus {
-            border-color: #007bff;
+            border-color: #10b981;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
         }
 
@@ -803,7 +803,7 @@
         }
 
         #filter_summary {
-            border-left: 4px solid #007bff;
+            border-left: 4px solid #10b981;
             transition: all 0.3s ease;
         }
 
@@ -819,7 +819,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
         }
 
@@ -942,11 +942,11 @@
 
             // Color palette
             const colors = {
-                primary: '#007bff',
+                primary: '#10b981',
                 success: '#28a745',
                 danger: '#dc3545',
                 warning: '#ffc107',
-                info: '#17a2b8',
+                info: '#059669',
                 purple: '#6f42c1',
                 orange: '#fd7e14'
             };

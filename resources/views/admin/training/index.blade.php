@@ -1,4 +1,4 @@
-{{-- resources/views/admin/training/index.blade.php --}}
+﻿{{-- resources/views/admin/training/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Training Requests - AgriSys Admin')
@@ -148,8 +148,8 @@
 
     <!-- Requests Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+        <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
+            <div class="d-flex gap-2 align-items-center">
                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
                     id="bulkSelectAllBtn">
                     <i class="fas fa-check-square me-1"></i>Select All
@@ -170,12 +170,7 @@
                     </button>
                 </div>
             </div>
-            <div class="text-center" style="flex: 1;">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-graduation-cap me-2"></i>Training Requests
-                </h6>
-            </div>
-            <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
+            <div class="d-flex gap-2">
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddTrainingModal()">
                     <i class="fas fa-user-plus me-2"></i>Add Requests
                 </button>
@@ -519,7 +514,7 @@
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style="background: #0d6efd">
+                <div class="modal-header text-white" style="background: #10b981">
                     <h5 class="modal-title w-100 text-center" id="documentModalLabel">
                         <i class="fas fa-file-alt me-2"></i>Supporting Document
                     </h5>
@@ -1665,7 +1660,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #17a2b8;
+            border: 2px solid #059669;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1678,7 +1673,7 @@
         .training-mini-doc:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            border-color: #007bff;
+            border-color: #10b981;
         }
 
         .training-mini-doc-icon {
@@ -1714,11 +1709,11 @@
         }
 
         .training-document-summary:hover {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .training-document-summary:hover small {
-            color: #007bff !important;
+            color: #10b981 !important;
         }
 
         .training-no-documents {
@@ -1736,7 +1731,7 @@
 
         /* Document type specific colors for mini previews */
         .training-mini-doc[title*="Document 1"] {
-            border-color: #17a2b8;
+            border-color: #059669;
         }
 
         .training-mini-doc[title*="Document 1"]:hover {
@@ -1866,11 +1861,11 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Confirmation Toast */
@@ -1958,8 +1953,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -2267,7 +2262,7 @@
                                 </div>
                                 <div class="card-body text-center">
                                     <div class="p-4 border border-primary rounded bg-light">
-                                        <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                        <i class="fas fa-file-alt fa-3x mb-3" style="color: #10b981;"></i>
                                         <h6>Supporting Document</h6>
                                         <span class="badge bg-primary mb-3">Uploaded</span>
                                         <br>

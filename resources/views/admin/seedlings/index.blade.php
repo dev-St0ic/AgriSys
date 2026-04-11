@@ -1,4 +1,4 @@
-{{-- resources/views/admin/seedlings/index.blade.php --}}
+﻿{{-- resources/views/admin/seedlings/index.blade.php --}}
 
 @extends('layouts.app')
 
@@ -193,8 +193,8 @@
 
         @if ($requests->count() > 0)
             <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+                <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
+                    <div class="d-flex gap-2 align-items-center">
                         <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
                             id="bulkSelectAllBtn">
                             <i class="fas fa-check-square me-1"></i>Select All
@@ -218,12 +218,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="text-center" style="flex: 1;">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-seedling me-2"></i>Supply Requests
-                        </h6>
-                    </div>
-                    <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
+                    <div class="d-flex gap-2">
                         <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
                             <i class="fas fa-user-plus me-2"></i>Add Request
                         </button>
@@ -966,7 +961,7 @@
                                             <div class="card-body text-center">
                                                 @if ($request->hasDocuments())
                                                     <div class="p-4 border border-primary rounded bg-light">
-                                                        <i class="fas fa-file-alt fa-3x mb-3" style="color: #0d6efd;"></i>
+                                                        <i class="fas fa-file-alt fa-3x mb-3" style="color: #10b981;"></i>
                                                         <h6>Supporting Document</h6>
                                                         <span class="badge bg-primary mb-3">Uploaded</span>
                                                         <br>
@@ -2338,8 +2333,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -2407,7 +2402,7 @@
         }
 
         .category-group:hover {
-            border-left-color: #007bff;
+            border-left-color: #10b981;
         }
 
         .status-group .badge {
@@ -2503,12 +2498,12 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i,
         .toast-notification.toast-info .toast-header i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Confirmation Toast */
@@ -2589,7 +2584,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #007bff;
+            border: 2px solid #10b981;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2602,7 +2597,7 @@
         .seedling-mini-doc:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            border: 2px solid #007bff;
+            border: 2px solid #10b981;
         }
 
         .seedling-mini-doc-icon {
@@ -2726,8 +2721,8 @@
         }
 
         [id^="viewModal"] .modal-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
-            border-bottom: 2px solid #0b5ed7;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            border-bottom: 2px solid #059669;
             padding: 1.5rem;
         }
 
@@ -2772,7 +2767,7 @@
         }
 
         [id^="viewModal"] .card-header.bg-primary {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         }
 
         [id^="viewModal"] .card-header.bg-success {
@@ -2780,7 +2775,7 @@
         }
 
         [id^="viewModal"] .card-header.bg-info {
-            background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
+            background: linear-gradient(135deg, #34d399 0%, #6ee7b7 100%) !important;
         }
 
         [id^="viewModal"] .card-header.bg-warning {
@@ -2793,19 +2788,19 @@
         }
 
         [id^="viewModal"] .card-header.bg-light {
-            background: linear-gradient(135deg, #e7f3ff 0%, #d4e8ff 100%) !important;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d4e8ff 100%) !important;
             font-weight: 600;
-            color: #0d6efd !important;
+            color: #10b981 !important;
         }
 
         [id^="viewModal"] .card-header.bg-light h6 {
-            color: #0d6efd !important;
+            color: #10b981 !important;
             font-weight: 700;
             margin: 0;
         }
 
         [id^="viewModal"] .card-header.bg-light i {
-            color: #0d6efd !important;
+            color: #10b981 !important;
         }
 
         [id^="viewModal"] .card-body {
@@ -2840,7 +2835,7 @@
         }
 
         [id^="viewModal"] a {
-            color: #0d6efd;
+            color: #10b981;
             text-decoration: none;
         }
 
@@ -2974,7 +2969,7 @@
 
         #updateModal .card-title,
         #updateModal .card-header h6 {
-            color: #007bff;
+            color: #10b981;
             font-weight: 600;
             font-size: 1rem;
             margin-bottom: 1.5rem;
@@ -5459,7 +5454,7 @@
                                 </div>
                                 <div class="document-preview-item">
                                     <img src="${e.target.result}" alt="Preview"
-                                        style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid #007bff;">
+                                        style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid #10b981;">
                                     <p style="margin-top: 8px; font-size: 12px; color: #666;">
                                         <i class="fas fa-file-image me-1"></i>${file.name}
                                         <span class="text-muted">(${(file.size / 1024).toFixed(2)} KB)</span>

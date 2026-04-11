@@ -1,4 +1,4 @@
-{{-- resources/views/admin/recycle-bin/index.blade.php --}}
+﻿{{-- resources/views/admin/recycle-bin/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Recycle Bin - AgriSys Admin')
@@ -23,16 +23,28 @@
                         <div class="col-md-3">
                             <select name="type" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Types</option>
-                                <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>FishR Registrations</option>
-                                <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>FishR Annexes</option>
-                                <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR Registrations</option>
-                                <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>BoatR Annexes</option>
-                                <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA Registrations</option>
-                                <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training Requests</option>
-                                <option value="seedlings" {{ request('type') == 'seedlings' ? 'selected' : '' }}>Supply Requests</option>
-                                <option value="user_registration" {{ request('type') == 'user_registration' ? 'selected' : '' }}>User Registrations</option>
-                                <option value="category_item" {{ request('type') == 'category_item' ? 'selected' : '' }}>Supply Items</option>
-                                <option value="request_category" {{ request('type') == 'request_category' ? 'selected' : '' }}>Supply Categories</option>
+                                <option value="fishr" {{ request('type') == 'fishr' ? 'selected' : '' }}>FishR
+                                    Registrations</option>
+                                <option value="fishr_annex" {{ request('type') == 'fishr_annex' ? 'selected' : '' }}>FishR
+                                    Annexes</option>
+                                <option value="boatr" {{ request('type') == 'boatr' ? 'selected' : '' }}>BoatR
+                                    Registrations</option>
+                                <option value="boatr_annex" {{ request('type') == 'boatr_annex' ? 'selected' : '' }}>BoatR
+                                    Annexes</option>
+                                <option value="rsbsa" {{ request('type') == 'rsbsa' ? 'selected' : '' }}>RSBSA
+                                    Registrations</option>
+                                <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>Training
+                                    Requests</option>
+                                <option value="seedlings" {{ request('type') == 'seedlings' ? 'selected' : '' }}>Supply
+                                    Requests</option>
+                                <option value="user_registration"
+                                    {{ request('type') == 'user_registration' ? 'selected' : '' }}>User Registrations
+                                </option>
+                                <option value="category_item" {{ request('type') == 'category_item' ? 'selected' : '' }}>
+                                    Supply Items</option>
+                                <option value="request_category"
+                                    {{ request('type') == 'request_category' ? 'selected' : '' }}>Supply Categories
+                                </option>
                             </select>
                         </div>
 
@@ -48,14 +60,15 @@
                         </div>
 
                         <div class="col-md-3">
-                            <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#dateFilterModal">
+                            <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
+                                data-bs-target="#dateFilterModal">
                                 <i class="fas fa-calendar-alt me-1"></i>Date Filter
                             </button>
                         </div>
 
                         <div class="col-md-2">
                             <a href="{{ route('admin.recycle-bin.index') }}" class="btn btn-secondary btn-sm w-100">
-                                Clear 
+                                Clear
                             </a>
                         </div>
                     </div>
@@ -66,44 +79,30 @@
 
     <!-- Recycle Bin Items Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div></div>
-            <div class="text-center flex-fill">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-trash-alt me-2"></i>Recycle Bin Items
-                </h6>
-            </div>
+        <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
             <div class="d-flex gap-2">
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-primary"
-                            onclick="selectAllItems()"
-                            id="selectAllBtn"
-                            title="Select All Items on This Page">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllItems()"
+                        id="selectAllBtn" title="Select All Items on This Page">
                         <i class="fas fa-check-square me-1"></i>Select All
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                            onclick="deselectAllItems()"
-                            id="deselectAllBtn"
-                            title="Deselect All Items"
-                            style="display: none;">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllItems()"
+                        id="deselectAllBtn" title="Deselect All Items" style="display: none;">
                         <i class="fas fa-square me-1"></i>Deselect All
                     </button>
                 </div>
                 <div class="btn-group" role="group" id="bulkActionsGroup" style="display: none;">
-                    <button type="button" class="btn btn-sm btn-outline-success"
-                            onclick="openBulkRestoreModal()"
-                            title="Restore Selected Items">
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="openBulkRestoreModal()"
+                        title="Restore Selected Items">
                         <i class="fas fa-undo me-1"></i>Restore
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger"
-                            onclick="openBulkDeleteModal()"
-                            title="Delete Selected Items">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="openBulkDeleteModal()"
+                        title="Delete Selected Items">
                         <i class="fas fa-trash-alt me-1"></i>Delete
                     </button>
                 </div>
-                <button type="button" class="btn btn-danger btn-sm"
-                        onclick="openEmptyBinModal()"
-                        title="Empty Entire Recycle Bin">
+                <button type="button" class="btn btn-danger btn-sm" onclick="openEmptyBinModal()"
+                    title="Empty Entire Recycle Bin">
                     <i class="fas fa-broom me-1"></i>Empty Bin
                 </button>
             </div>
@@ -115,8 +114,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th class="text-center" style="width: 40px;">
-                                <input type="checkbox" id="checkboxHeaderRecycleBin"
-                                       onchange="toggleAllCheckboxes(this)">
+                                <input type="checkbox" id="checkboxHeaderRecycleBin" onchange="toggleAllCheckboxes(this)">
                             </th>
                             <th class="text-center">Type</th>
                             <th class="text-start">Item Name</th>
@@ -130,9 +128,8 @@
                         @forelse($items as $item)
                             <tr data-item-id="{{ $item->id }}" class="recycle-item">
                                 <td class="text-center">
-                                    <input type="checkbox" class="item-checkbox"
-                                           value="{{ $item->id }}"
-                                           onchange="updateBulkActionsVisibility()">
+                                    <input type="checkbox" class="item-checkbox" value="{{ $item->id }}"
+                                        onchange="updateBulkActionsVisibility()">
                                 </td>
                                 <td class="text-center">
                                     <span class="badge bg-secondary">{{ $item->type_name }}</span>
@@ -140,7 +137,7 @@
                                 <td class="text-start">
                                     <strong class="text-dark">{{ $item->item_name }}</strong>
                                 </td>
-                                 <td class="text-center">
+                                <td class="text-center">
                                     <small class="text-muted">{{ $item->deleted_at->format('M d, Y h:i A') }}</small>
                                 </td>
                                 <td class="text-start">
@@ -152,18 +149,17 @@
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <button class="btn btn-outline-primary"
-                                                onclick="viewRecycleBinItem({{ $item->id }})"
-                                                title="View Details">
+                                            onclick="viewRecycleBinItem({{ $item->id }})" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <button class="btn btn-outline-success"
-                                                onclick="restoreRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
-                                                title="Restore Item">
+                                            onclick="restoreRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
+                                            title="Restore Item">
                                             <i class="fas fa-undo"></i>
                                         </button>
                                         <button class="btn btn-outline-danger"
-                                                onclick="permanentlyDeleteRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
-                                                title="Delete">
+                                            onclick="permanentlyDeleteRecycleBinItem({{ $item->id }}, '{{ $item->item_name }}')"
+                                            title="Delete">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
@@ -333,9 +329,10 @@
                 <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()"
-                            id="confirmDeleteBtn">
+                        id="confirmDeleteBtn">
                         <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete</span>
-                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -354,16 +351,18 @@
                 <div class="modal-body">
                     <div class="alert alert-info mb-3" role="alert">
                         <!-- <i class="fas fa-info-circle me-2"></i> -->
-                        <p class="mb-0">You are about to restore <strong id="bulkRestoreCount">0</strong> item(s) from the recycle bin.</p>
+                        <p class="mb-0">You are about to restore <strong id="bulkRestoreCount">0</strong> item(s) from
+                            the recycle bin.</p>
                     </div>
                     <p class="mb-0">Are you sure you want to proceed?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-success" onclick="confirmBulkRestore()"
-                            id="confirmBulkRestoreBtn">
+                        id="confirmBulkRestoreBtn">
                         <span class="btn-text"><i class="fas fa-undo me-2"></i>Restore Items</span>
-                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Restoring...</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Restoring...</span>
                     </button>
                 </div>
             </div>
@@ -383,7 +382,8 @@
                 <div class="modal-body">
                     <div class="alert alert-danger mb-3" role="alert">
                         <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
-                        <p class="mb-0">This action cannot be undone. You will delete <strong id="bulkDeleteCount">0</strong> item(s).</p>
+                        <p class="mb-0">This action cannot be undone. You will delete <strong
+                                id="bulkDeleteCount">0</strong> item(s).</p>
                     </div>
                     <div class="alert alert-light border mb-0" role="alert">
                         <small class="text-muted">Are you sure you want to proceed?</small>
@@ -392,9 +392,10 @@
                 <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()"
-                            id="confirmBulkDeleteBtn">
+                        id="confirmBulkDeleteBtn">
                         <span class="btn-text"><i class="fas fa-trash-alt me-2"></i>Delete</span>
-                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
                     </button>
                 </div>
             </div>
@@ -423,10 +424,10 @@
                 </div>
                 <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmEmptyBin()"
-                            id="confirmEmptyBtn">
+                    <button type="button" class="btn btn-danger" onclick="confirmEmptyBin()" id="confirmEmptyBtn">
                         <span class="btn-text"><i class="fas fa-broom me-2"></i>Empty Bin</span>
-                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Emptying...</span>
+                        <span class="btn-loader" style="display: none;"><span
+                                class="spinner-border spinner-border-sm me-2"></span>Emptying...</span>
                     </button>
                 </div>
             </div>
@@ -444,23 +445,24 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="modal_date_from" class="form-label">From Date</label>
-                        <input type="date" class="form-control" id="modal_date_from" value="{{ request('date_from') }}">
+                        <input type="date" class="form-control" id="modal_date_from"
+                            value="{{ request('date_from') }}">
                     </div>
                     <div class="mb-3">
                         <label for="modal_date_to" class="form-label">To Date</label>
                         <input type="date" class="form-control" id="modal_date_to" value="{{ request('date_to') }}">
                     </div>
-                    @if(request('date_from') || request('date_to'))
+                    @if (request('date_from') || request('date_to'))
                         <div class="alert alert-info small mb-0">
                             <i class="fas fa-info-circle"></i>
                             Current filter:
-                            @if(request('date_from'))
+                            @if (request('date_from'))
                                 <strong>{{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}</strong>
                             @else
                                 <strong>Any date</strong>
                             @endif
                             to
-                            @if(request('date_to'))
+                            @if (request('date_to'))
                                 <strong>{{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}</strong>
                             @else
                                 <strong>Any date</strong>
@@ -491,11 +493,12 @@
             background-color: #fff3cd;
         }
 
-        .btn-group-sm > .btn {
+        .btn-group-sm>.btn {
             padding: 0.375rem 0.5rem;
             font-size: 0.75rem;
         }
-            #recycleBinDetailsModal .modal-header {
+
+        #recycleBinDetailsModal .modal-header {
             background-color: #dc3545 !important;
         }
 
@@ -522,6 +525,7 @@
         #detailsDeletedAt {
             color: #dc3545;
         }
+
         /* Custom Pagination Styles */
         .pagination {
             background-color: #f8f9fa;
@@ -549,8 +553,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -576,10 +580,22 @@
         function showToast(type, message) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
             const iconMap = {
-                'success': { icon: 'fas fa-check-circle', color: 'success' },
-                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-                'info': { icon: 'fas fa-info-circle', color: 'info' }
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
             };
 
             const config = iconMap[type] || iconMap['info'];
@@ -662,37 +678,40 @@
         }
 
         // View item details
-       function viewRecycleBinItem(id) {
+        function viewRecycleBinItem(id) {
             fetch(`/admin/recycle-bin/${id}`, {
-                method: 'GET',
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                credentials: 'same-origin'
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('detailsTypeName').textContent = data.data.type_name;
-                    document.getElementById('detailsItemName').textContent = data.data.item_name;
-                    document.getElementById('detailsReason').textContent = data.data.reason || 'No reason provided';
-                    document.getElementById('detailsDeletedBy').textContent = data.data.deleted_by_name;
-                    document.getElementById('detailsDeletedAt').textContent = data.data.deleted_at;
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('detailsTypeName').textContent = data.data.type_name;
+                        document.getElementById('detailsItemName').textContent = data.data.item_name;
+                        document.getElementById('detailsReason').textContent = data.data.reason || 'No reason provided';
+                        document.getElementById('detailsDeletedBy').textContent = data.data.deleted_by_name;
+                        document.getElementById('detailsDeletedAt').textContent = data.data.deleted_at;
 
-                    // Populate the data table with formatted data
-                    const dataTableBody = document.getElementById('dataTableBody');
-                    dataTableBody.innerHTML = '';
+                        // Populate the data table with formatted data
+                        const dataTableBody = document.getElementById('dataTableBody');
+                        dataTableBody.innerHTML = '';
 
-                    const itemData = data.data.data;
+                        const itemData = data.data.data;
 
-                    if (itemData && typeof itemData === 'object') {
-                        for (const [key, value] of Object.entries(itemData)) {
-                            // Skip certain system fields
-                            if (['created_at', 'updated_at', 'deleted_at'].includes(key)) continue;
+                        if (itemData && typeof itemData === 'object') {
+                            for (const [key, value] of Object.entries(itemData)) {
+                                // Skip certain system fields
+                                if (['created_at', 'updated_at', 'deleted_at'].includes(key)) continue;
 
-                            const row = document.createElement('tr');
-                            const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                            const formattedValue = formatValue(value);
+                                const row = document.createElement('tr');
+                                const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                const formattedValue = formatValue(value);
 
-                            row.innerHTML = `
+                                row.innerHTML = `
                                 <td style="width: 35%; word-break: break-word;">
                                     <small class="text-muted">${formattedKey}</small>
                                 </td>
@@ -701,14 +720,14 @@
                                 </td>
                             `;
 
-                            dataTableBody.appendChild(row);
+                                dataTableBody.appendChild(row);
+                            }
                         }
-                    }
 
-                    new bootstrap.Modal(document.getElementById('recycleBinDetailsModal')).show();
-                }
-            })
-            .catch(err => showToast('error', 'Error loading item details'));
+                        new bootstrap.Modal(document.getElementById('recycleBinDetailsModal')).show();
+                    }
+                })
+                .catch(err => showToast('error', 'Error loading item details'));
         }
 
         // Helper function to format values nicely
@@ -734,27 +753,28 @@
         // Restore single item
         function restoreRecycleBinItem(id, name) {
             fetch(`/admin/recycle-bin/${id}/restore`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', `"${name}" restored successfully`);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showToast('error', data.message || 'Failed to restore item');
-                }
-            })
-            .catch(err => showToast('error', 'Error restoring item'));
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', `"${name}" restored successfully`);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('error', data.message || 'Failed to restore item');
+                    }
+                })
+                .catch(err => showToast('error', 'Error restoring item'));
         }
 
         //delete single item
         let currentDeleteId = null;
+
         function permanentlyDeleteRecycleBinItem(id, name) {
             currentDeleteId = id;
             document.getElementById('deleteItemName').textContent = name;
@@ -769,31 +789,31 @@
             btn.disabled = true;
 
             fetch(`/admin/recycle-bin/${currentDeleteId}/permanently-delete`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('permanentDeleteModal'));
-                modal.hide();
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('permanentDeleteModal'));
+                    modal.hide();
 
-                if (data.success) {
-                    showToast('success', data.message || 'Item deleted');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showToast('error', data.message || 'Failed to delete item');
-                }
-            })
-            .catch(err => showToast('error', 'Error deleting item'))
-            .finally(() => {
-                btn.querySelector('.btn-text').style.display = 'inline';
-                btn.querySelector('.btn-loader').style.display = 'none';
-                btn.disabled = false;
-            });
+                    if (data.success) {
+                        showToast('success', data.message || 'Item deleted');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('error', data.message || 'Failed to delete item');
+                    }
+                })
+                .catch(err => showToast('error', 'Error deleting item'))
+                .finally(() => {
+                    btn.querySelector('.btn-text').style.display = 'inline';
+                    btn.querySelector('.btn-loader').style.display = 'none';
+                    btn.disabled = false;
+                });
         }
 
         // Bulk restore
@@ -816,32 +836,34 @@
             btn.disabled = true;
 
             fetch('/admin/recycle-bin/bulk/restore', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ ids })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('bulkRestoreModal'));
-                modal.hide();
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ids
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkRestoreModal'));
+                    modal.hide();
 
-                if (data.success) {
-                    showToast('success', data.message);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showToast('error', data.message || 'Failed to restore items');
-                }
-            })
-            .catch(err => showToast('error', 'Error restoring items'))
-            .finally(() => {
-                btn.querySelector('.btn-text').style.display = 'inline';
-                btn.querySelector('.btn-loader').style.display = 'none';
-                btn.disabled = false;
-            });
+                    if (data.success) {
+                        showToast('success', data.message);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('error', data.message || 'Failed to restore items');
+                    }
+                })
+                .catch(err => showToast('error', 'Error restoring items'))
+                .finally(() => {
+                    btn.querySelector('.btn-text').style.display = 'inline';
+                    btn.querySelector('.btn-loader').style.display = 'none';
+                    btn.disabled = false;
+                });
         }
 
         // Bulk permanent delete
@@ -864,32 +886,34 @@
             btn.disabled = true;
 
             fetch('/admin/recycle-bin/bulk/permanently-delete', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ ids })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal'));
-                modal.hide();
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ids
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkDeleteModal'));
+                    modal.hide();
 
-                if (data.success) {
-                    showToast('success', data.message);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showToast('error', data.message || 'Failed to delete items');
-                }
-            })
-            .catch(err => showToast('error', 'Error deleting items'))
-            .finally(() => {
-                btn.querySelector('.btn-text').style.display = 'inline';
-                btn.querySelector('.btn-loader').style.display = 'none';
-                btn.disabled = false;
-            });
+                    if (data.success) {
+                        showToast('success', data.message);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('error', data.message || 'Failed to delete items');
+                    }
+                })
+                .catch(err => showToast('error', 'Error deleting items'))
+                .finally(() => {
+                    btn.querySelector('.btn-text').style.display = 'inline';
+                    btn.querySelector('.btn-loader').style.display = 'none';
+                    btn.disabled = false;
+                });
         }
 
         // Empty recycle bin
@@ -911,34 +935,34 @@
             btn.disabled = true;
 
             fetch('/admin/recycle-bin/empty', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('emptyBinModal'));
-                modal.hide();
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('emptyBinModal'));
+                    modal.hide();
 
-                if (data.success) {
-                    showToast('success', data.message);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showToast('error', data.message || 'Failed to empty recycle bin');
-                }
-            })
-            .catch(err => showToast('error', 'Error emptying recycle bin'))
-            .finally(() => {
-                btn.querySelector('.btn-text').style.display = 'inline';
-                btn.querySelector('.btn-loader').style.display = 'none';
-                btn.disabled = false;
-            });
+                    if (data.success) {
+                        showToast('success', data.message);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('error', data.message || 'Failed to empty recycle bin');
+                    }
+                })
+                .catch(err => showToast('error', 'Error emptying recycle bin'))
+                .finally(() => {
+                    btn.querySelector('.btn-text').style.display = 'inline';
+                    btn.querySelector('.btn-loader').style.display = 'none';
+                    btn.disabled = false;
+                });
         }
         // auto searhc
-       let searchTimeout;
+        let searchTimeout;
 
         // Auto search functionality
         function autoSearch() {

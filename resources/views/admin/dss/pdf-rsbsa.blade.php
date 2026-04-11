@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -174,7 +174,7 @@
         }
 
         .badge-primary {
-            background: #1565C0;
+            background: #065f46;
             color: #fff;
         }
 

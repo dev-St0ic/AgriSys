@@ -1,4 +1,4 @@
-{{-- resources/views/admin/boatr/index.blade.php --}}
+﻿{{-- resources/views/admin/boatr/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'BoatR Registrations - AgriSys Admin')
@@ -179,8 +179,8 @@
 
     <!-- Applications Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+        <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
+            <div class="d-flex gap-2 align-items-center">
                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="bulkSelectAll()"
                     id="bulkSelectAllBtn">
                     <i class="fas fa-check-square me-1"></i>Select All
@@ -201,12 +201,7 @@
                     </button>
                 </div>
             </div>
-            <div class="text-center" style="flex: 1;">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-ship me-2"></i>BoatR Registrations
-                </h6>
-            </div>
-            <div class="d-flex gap-2" style="flex: 1; justify-content: flex-end;">
+            <div class="d-flex gap-2">
                 <button type="button" class="btn btn-primary btn-sm" onclick="showAddBoatrModal()">
                     <i class="fas fa-user-plus me-2"></i>Add Registration
                 </button>
@@ -461,7 +456,7 @@
     <div class="modal fade" id="addBoatrModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white" style="background: #0d6efd">
+                <div class="modal-header bg-primary text-white" style="background: #10b981">
                     <h5 class="modal-title w-100 text-center">
                         <i></i>Add New BoatR Registration
                     </h5>
@@ -959,7 +954,7 @@
     <div class="modal fade" id="inspectionModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white" style="background: #0d6efd">
+                <div class="modal-header bg-primary text-white" style="background: #10b981">
                     <h5 class="modal-title w-100 text-center">
                         <i></i>Complete Boat Inspection
                     </h5>
@@ -1288,7 +1283,7 @@
     <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style="background: #0d6efd">
+                <div class="modal-header text-white" style="background: #10b981">
                     <h5 class="modal-title w-100 text-center" id="documentModalLabel">
                         <i></i>Application Documents
                     </h5>
@@ -1318,7 +1313,7 @@
     <div class="modal fade" id="documentPreviewModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header text-white" style="background: #0d6efd">
+                <div class="modal-header text-white" style="background: #10b981">
                     <h5 class="modal-title w-100 text-center" id="documentPreviewTitle">
                         <i></i>Document Preview
                     </h5>
@@ -1485,7 +1480,7 @@
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header text-white" style="background: #0d6efd">
+                <div class="modal-header text-white" style="background: #10b981">
                     <h5 class="modal-title w-100 text-center" id="dateFilterModalLabel">
                         <i></i>Select Date Range
                     </h5>
@@ -1911,7 +1906,7 @@
 
                                 <!-- Current Inspection Document Display -->
                                 <div id="edit_boatr_inspection_doc_container"
-                                    style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #0d6efd;">
+                                    style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: #ecfdf5; border-radius: 8px; border-left: 4px solid #10b981;">
                                     <label class="form-label fw-semibold text-primary mb-2">Current Inspection
                                         Document</label>
                                     <div id="edit_boatr_inspection_doc_preview"></div>
@@ -2314,12 +2309,12 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i,
         .toast-notification.toast-info .toast-header i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Confirmation Toast */
@@ -2608,14 +2603,14 @@
         }
 
         /* Enhanced modal styling
-                        .modal-header {
-                            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-                            color: white;
-                        } */
+                            .modal-header {
+                                background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                                color: white;
+                            } */
 
         /* .modal-header .btn-close {
-                            filter: invert(1);
-                        } */
+                                filter: invert(1);
+                            } */
 
         /* Document list styling */
         .document-item {
@@ -2658,8 +2653,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -3032,7 +3027,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #0d6efd;
+            border: 2px solid #10b981;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -3146,19 +3141,19 @@
         }
 
         /* close modal
-                        .modal-header .btn-close {
-                            background-color: rgba(255, 255, 255, 0.7);
-                            opacity: 1;
-                        }
+                            .modal-header .btn-close {
+                                background-color: rgba(255, 255, 255, 0.7);
+                                opacity: 1;
+                            }
 
-                        .modal-header .btn-close:hover {
-                            background-color: rgba(255, 255, 255, 1);
-                        }
+                            .modal-header .btn-close:hover {
+                                background-color: rgba(255, 255, 255, 1);
+                            }
 
-                        .modal-header .btn-close:focus {
-                            background-color: rgba(255, 255, 255, 1);
-                            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
-                        } */
+                            .modal-header .btn-close:focus {
+                                background-color: rgba(255, 255, 255, 1);
+                                box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
+                            } */
 
         /* Document modal on top when opened from registration modal */
         #documentModal {
@@ -3185,7 +3180,7 @@
 
         /* Document type specific colors for mini previews */
         .boatr-mini-doc[title*="User"] {
-            border-color: #17a2b8;
+            border-color: #059669;
         }
 
         .boatr-mini-doc[title*="User"]:hover {
@@ -3403,8 +3398,8 @@
         }
 
         #registrationModal .modal-header {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-            border-bottom: 2px solid #0b5ed7;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-bottom: 2px solid #059669;
             padding: 1.5rem;
         }
 
@@ -3458,11 +3453,11 @@
         }
 
         #registrationModal .card-header.bg-primary {
-            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         }
 
         #registrationModal .card-header.bg-info {
-            background: linear-gradient(135deg, #0dcaf0 0%, #0bb5db 100%) !important;
+            background: linear-gradient(135deg, #34d399 0%, #6ee7b7 100%) !important;
         }
 
         #registrationModal .card-header.bg-success {
@@ -3524,7 +3519,7 @@
         }
 
         #registrationModal a {
-            color: #0d6efd;
+            color: #10b981;
             text-decoration: none;
         }
 
@@ -3567,15 +3562,15 @@
         }
 
         #registrationModal .btn-outline-info {
-            color: #0dcaf0;
-            border-color: #0dcaf0;
+            color: #34d399;
+            border-color: #34d399;
             font-size: 0.85rem;
             padding: 0.35rem 0.75rem;
         }
 
         #registrationModal .btn-outline-info:hover {
-            background-color: #0dcaf0;
-            border-color: #0dcaf0;
+            background-color: #34d399;
+            border-color: #34d399;
             color: white;
         }
 
@@ -3762,7 +3757,7 @@
         }
 
         #inspectionModal .modal-header {
-            border-bottom: 2px solid #0b5ed7;
+            border-bottom: 2px solid #059669;
             padding: 1.5rem;
         }
 
@@ -3811,7 +3806,7 @@
         }
 
         #inspectionModal .card-header h6 {
-            color: #0d6efd;
+            color: #10b981;
         }
 
         #inspectionModal .card-body {
@@ -3835,7 +3830,7 @@
 
         #inspectionModal .form-control:focus,
         #inspectionModal .form-select:focus {
-            border-color: #0d6efd;
+            border-color: #10b981;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
 
@@ -3877,7 +3872,7 @@
         }
 
         #inspectionCharCount {
-            color: #0d6efd;
+            color: #10b981;
             font-weight: 600;
         }
 
@@ -3886,7 +3881,7 @@
             padding: 0.75rem;
             background: #f8f9fa;
             border-radius: 6px;
-            /* border-left: 3px solid #0d6efd; */
+            /* border-left: 3px solid #10b981; */
         }
 
         #inspectionModal .form-check-input {
@@ -3897,8 +3892,8 @@
         }
 
         #inspectionModal .form-check-input:checked {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
+            background-color: #10b981;
+            border-color: #10b981;
         }
 
         #inspectionModal .form-check-label {
@@ -3917,15 +3912,15 @@
         }
 
         /* Alert Styling
-                    #inspectionModal .alert {
-                        border-radius: 8px;
-                        border-left: 4px solid #17a2b8;
-                        background-color: #d1ecf1;
-                        color: #0c5460;
-                    } */
+                        #inspectionModal .alert {
+                            border-radius: 8px;
+                            border-left: 4px solid #059669;
+                            background-color: #d1ecf1;
+                            color: #0c5460;
+                        } */
 
         #inspectionModal .alert i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         /* Modal Footer */
@@ -4063,7 +4058,7 @@
         }
 
         .boatr-mini-doc-inspection {
-            border: 2px solid #0dcaf0 !important;
+            border: 2px solid #34d399 !important;
         }
 
         .boatr-mini-doc-inspection:hover {
@@ -5294,9 +5289,9 @@
                     // Populate Boat Specifications
                     const dimensions = `
                     <div class="d-flex gap-3 flex-wrap mt-1">
-                        <div class="text-center px-3 py-2 rounded" style="background:#f0f4ff; border:1px solid #c7d4f5; min-width:80px;">
+                        <div class="text-center px-3 py-2 rounded" style="background:#f0fdf4; border:1px solid #c7d4f5; min-width:80px;">
                             <div style="font-size:0.7rem; color:#6c757d; text-transform:uppercase; letter-spacing:0.5px;">Length</div>
-                            <div style="font-size:1.1rem; font-weight:700; color:#0d6efd;">${data.boat_length || '0'}</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:#10b981;">${data.boat_length || '0'}</div>
                             <div style="font-size:0.7rem; color:#6c757d;">ft</div>
                         </div>
                         <div class="text-center px-3 py-2 rounded" style="background:#f0fff4; border:1px solid #b7e4c7; min-width:80px;">
@@ -7495,7 +7490,7 @@
                 },
                 info: {
                     bg: '#d1ecf1',
-                    border: '#17a2b8',
+                    border: '#059669',
                     text: '#0c5460'
                 }
             };

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Slideshow Management - AgriSys Admin')
 @section('page-icon', 'fas fa-images')
@@ -159,7 +159,7 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         /* Responsive */
@@ -208,8 +208,8 @@
 
         .pagination .page-item.active .page-link {
             color: white;
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #10b981;
+            border-color: #10b981;
             font-weight: 600;
         }
 
@@ -274,9 +274,8 @@
     <div class="row">
         <div class="col-12"> <!-- Slideshow Images Table -->
             <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <!-- LEFT: Bulk Selection Controls -->
-                    <div class="d-flex gap-2 align-items-center" style="flex: 1;">
+                <div class="card-header py-3 d-flex justify-content-center align-items-center flex-wrap gap-2">
+                    <div class="d-flex gap-2 align-items-center">
                         <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllSlides()"
                             id="selectAllSlidesBtn">
                             <i class="fas fa-check-square me-1"></i>Select All
@@ -300,10 +299,7 @@
                             </button>
                         </div>
                     </div>
-                    <h6 class="m-0 font-weight-bold text-primary text-center" style="flex: 1;">
-                        <i class="fas fa-list me-2"></i>Slideshow Images
-                    </h6>
-                    <div class="d-flex gap-2 flex-nowrap" style="flex: 1; justify-content: flex-end;">
+                    <div class="d-flex gap-2 flex-nowrap">
                         <button type="button" class="btn btn-primary btn-sm" id="addNewSlideBtn"><i
                                 class="fas fa-plus me-1"></i>Add New Slide</button>
                         <button type="button" class="btn btn-info btn-sm" id="previewSlideshowBtn"><i
@@ -516,7 +512,7 @@
                             <div class="col-lg-6">
                                 <div class="card h-100">
                                     <div class="card-header">
-                                        <h6 class="mb-0"><i class="fas fa-image me-2" style="color: #007bff;"></i>Image
+                                        <h6 class="mb-0"><i class="fas fa-image me-2" style="color: #10b981;"></i>Image
                                             Upload</h6>
                                     </div>
                                     <div class="card-body">
@@ -574,7 +570,7 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label for="newTitle" class="form-label">
-                                                <i class="fas fa-heading me-1" style="color: #007bff;"></i>Title
+                                                <i class="fas fa-heading me-1" style="color: #10b981;"></i>Title
                                             </label>
                                             <input type="text" class="form-control" id="newTitle" name="title"
                                                 placeholder="Enter slide title (optional)" maxlength="255">
@@ -583,7 +579,7 @@
 
                                         <div class="mb-3">
                                             <label for="newDescription" class="form-label">
-                                                <i class="fas fa-align-left me-1" style="color: #007bff;"></i>Description
+                                                <i class="fas fa-align-left me-1" style="color: #10b981;"></i>Description
                                             </label>
                                             <textarea class="form-control" id="newDescription" name="description" rows="4"
                                                 placeholder="Enter slide description (optional)" maxlength="1000"></textarea>
@@ -597,7 +593,7 @@
                                                 <div class="mb-3">
                                                     <label for="newOrder" class="form-label">
                                                         <i class="fas fa-sort-numeric-up me-1"
-                                                            style="color: #007bff;"></i>Display Order
+                                                            style="color: #10b981;"></i>Display Order
                                                     </label>
                                                     <input type="number" class="form-control" id="newOrder"
                                                         name="order" value="{{ $maxOrder + 1 }}" min="1">
@@ -690,7 +686,7 @@
 
                                 <div class="mb-3">
                                     <label for="editImage" class="form-label fw-bold">
-                                        <i class="fas fa-image me-1" style="color: #007bff;"></i>New Image (Optional)
+                                        <i class="fas fa-image me-1" style="color: #10b981;"></i>New Image (Optional)
                                     </label>
                                     <input type="file" class="form-control" id="editImage" name="image"
                                         accept="image/*" onchange="previewImage(this, 'editImagePreview')">
@@ -706,7 +702,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="editTitle" class="form-label fw-bold">
-                                        <i class="fas fa-heading me-1" style="color: #007bff;"></i>Title
+                                        <i class="fas fa-heading me-1" style="color: #10b981;"></i>Title
                                     </label>
                                     <input type="text" class="form-control" id="editTitle" name="title"
                                         placeholder="Enter slide title">
@@ -714,7 +710,7 @@
 
                                 <div class="mb-3">
                                     <label for="editDescription" class="form-label fw-bold">
-                                        <i class="fas fa-align-left me-1" style="color: #007bff;"></i>Description
+                                        <i class="fas fa-align-left me-1" style="color: #10b981;"></i>Description
                                     </label>
                                     <textarea class="form-control" id="editDescription" name="description" rows="3"
                                         placeholder="Enter slide description"></textarea>
@@ -722,7 +718,7 @@
 
                                 <div class="mb-3">
                                     <label for="editOrder" class="form-label fw-bold">
-                                        <i class="fas fa-sort-numeric-up me-1" style="color: #007bff;"></i>Display Order
+                                        <i class="fas fa-sort-numeric-up me-1" style="color: #10b981;"></i>Display Order
                                     </label>
                                     <input type="number" class="form-control" id="editOrder" name="order"
                                         min="1">

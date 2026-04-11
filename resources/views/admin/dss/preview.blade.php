@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'DSS Report Preview - AgriSys Admin')
 @section('page-icon', 'fas fa-brain')
@@ -446,11 +446,11 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         .toast-notification.toast-info .toast-content i {
-            color: #17a2b8;
+            color: #059669;
         }
 
         .btn-close-toast {

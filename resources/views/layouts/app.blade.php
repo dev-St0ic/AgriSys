@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,7 +8,7 @@
     <title>@yield('title', 'AgriSys Admin')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logos/cago_web.png') }}">
 
-       <script>
+    <script>
         console.log(
             '%cStop!',
             'color: red; font-size: 50px; font-weight: bold;'
@@ -18,13 +18,13 @@
             'font-size: 16px;'
         );
 
-        @if(app()->environment('production'))
-        // Suppress all other console output after the warning
-        console.log = function() {};
-        console.warn = function() {};
-        console.error = function() {};
-        console.info = function() {};
-        console.debug = function() {};
+        @if (app()->environment('production'))
+            // Suppress all other console output after the warning
+            console.log = function() {};
+            console.warn = function() {};
+            console.error = function() {};
+            console.info = function() {};
+            console.debug = function() {};
         @endif
     </script>
 
@@ -223,6 +223,256 @@
     </script>
 
     <style>
+        /* ===== AgriSys Green Theme — Bootstrap Primary Override ===== */
+        :root {
+            --bs-primary: #10b981;
+            --bs-primary-rgb: 16, 185, 129;
+            --bs-info: #059669;
+            --bs-info-rgb: 5, 150, 105;
+            --bs-link-color: #059669;
+            --bs-link-hover-color: #047857;
+            --bs-link-color-rgb: 5, 150, 105;
+        }
+
+        .btn-primary {
+            --bs-btn-bg: #10b981;
+            --bs-btn-border-color: #10b981;
+            --bs-btn-hover-bg: #059669;
+            --bs-btn-hover-border-color: #059669;
+            --bs-btn-focus-shadow-rgb: 16, 185, 129;
+            --bs-btn-active-bg: #047857;
+            --bs-btn-active-border-color: #047857;
+            --bs-btn-disabled-bg: #10b981;
+            --bs-btn-disabled-border-color: #10b981;
+        }
+
+        .btn-info {
+            --bs-btn-bg: #10b981;
+            --bs-btn-border-color: #10b981;
+            --bs-btn-color: #fff;
+            --bs-btn-hover-bg: #059669;
+            --bs-btn-hover-border-color: #059669;
+            --bs-btn-hover-color: #fff;
+            --bs-btn-focus-shadow-rgb: 16, 185, 129;
+            --bs-btn-active-bg: #047857;
+            --bs-btn-active-border-color: #047857;
+            --bs-btn-disabled-bg: #10b981;
+            --bs-btn-disabled-border-color: #10b981;
+        }
+
+        .btn-outline-info {
+            --bs-btn-color: #059669;
+            --bs-btn-border-color: #059669;
+            --bs-btn-hover-color: #fff;
+            --bs-btn-hover-bg: #059669;
+            --bs-btn-hover-border-color: #059669;
+            --bs-btn-focus-shadow-rgb: 5, 150, 105;
+            --bs-btn-active-color: #fff;
+            --bs-btn-active-bg: #047857;
+            --bs-btn-active-border-color: #047857;
+        }
+
+        .btn-outline-primary {
+            --bs-btn-color: #10b981;
+            --bs-btn-border-color: #10b981;
+            --bs-btn-hover-color: #fff;
+            --bs-btn-hover-bg: #10b981;
+            --bs-btn-hover-border-color: #10b981;
+            --bs-btn-focus-shadow-rgb: 16, 185, 129;
+            --bs-btn-active-color: #fff;
+            --bs-btn-active-bg: #059669;
+            --bs-btn-active-border-color: #059669;
+        }
+
+        .text-primary {
+            color: #10b981 !important;
+        }
+
+        .text-info {
+            color: #059669 !important;
+        }
+
+        .bg-primary {
+            background-color: #10b981 !important;
+        }
+
+        .bg-info {
+            background-color: #059669 !important;
+        }
+
+        .border-primary {
+            border-color: #10b981 !important;
+        }
+
+        .border-info {
+            border-color: #059669 !important;
+        }
+
+        .bg-primary-soft {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            color: #065f46 !important;
+        }
+
+        .bg-info-soft {
+            background-color: rgba(5, 150, 105, 0.1) !important;
+            color: #065f46 !important;
+        }
+
+        .badge.bg-primary,
+        span.badge.bg-primary {
+            background-color: #10b981 !important;
+        }
+
+        .badge.bg-info,
+        span.badge.bg-info {
+            background-color: #059669 !important;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #10b981;
+            color: #fff;
+        }
+
+        .form-check-input:checked {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+        }
+
+        .page-item.active .page-link {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+
+        .page-link {
+            color: #10b981;
+        }
+
+        .page-link:hover {
+            color: #059669;
+        }
+
+        .list-group-item.active {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+
+        .alert-primary {
+            --bs-alert-color: #065f46;
+            --bs-alert-bg: #d1fae5;
+            --bs-alert-border-color: #a7f3d0;
+        }
+
+        .progress-bar.bg-info {
+            background-color: #059669 !important;
+        }
+
+        a {
+            color: #059669;
+        }
+
+        a:hover {
+            color: #047857;
+        }
+
+        /* ===================================================== */
+
+        /* ===== Admin Table / Card Header Styling ===== */
+        .main-content .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+        }
+
+        .main-content .card-header {
+            background: #ffffff;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+            border-left: 4px solid #10b981;
+            padding: 0.85rem 1.25rem;
+        }
+
+        /* Toolbar-style card headers (contain filter forms) use a thinner accent */
+        .main-content .card-header:has(form) {
+            border-left: 4px solid #10b981;
+            padding: 0.6rem 1rem;
+            background: #f9fafb;
+        }
+
+        .main-content .card-header h6,
+        .main-content .card-header .h6 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            color: #059669 !important;
+        }
+
+        .main-content .card-header h6 i,
+        .main-content .card-header .h6 i {
+            color: #10b981;
+        }
+
+        /* Restore white text on colored/dark card headers */
+        .main-content .card-header.text-white h6,
+        .main-content .card-header.text-white .h6,
+        .main-content .card-header[class*="bg-"] h6,
+        .main-content .card-header[class*="bg-"] .h6 {
+            color: #ffffff !important;
+        }
+
+        .main-content .card-header.text-white h6 i,
+        .main-content .card-header.text-white .h6 i,
+        .main-content .card-header[class*="bg-"] h6 i,
+        .main-content .card-header[class*="bg-"] .h6 i {
+            color: #ffffff !important;
+        }
+
+        .main-content .card .table thead.table-dark th {
+            background-color: #065f46;
+            border-color: #047857;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .main-content .card .table thead.table-light th {
+            background-color: #f0fdf4;
+            color: #065f46;
+            border-bottom: 2px solid #10b981;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .main-content .card .table thead th {
+            font-size: 0.9rem;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .main-content .card .table tbody tr:hover {
+            background-color: rgba(16, 185, 129, 0.04);
+        }
+
+        .main-content .card .table-bordered {
+            border-color: rgba(0, 0, 0, 0.18);
+        }
+
+        .main-content .card .table-bordered th,
+        .main-content .card .table-bordered td {
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        /* ============================================= */
+
         body {
             overflow-x: auto;
         }
@@ -272,12 +522,12 @@
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(100, 181, 246, 0.3);
+            background: rgba(16, 185, 129, 0.3);
             border-radius: 2px;
         }
 
         .sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 181, 246, 0.5);
+            background: rgba(16, 185, 129, 0.5);
         }
 
         /* Update toggle icon rotation */
@@ -404,7 +654,7 @@
         }
 
         .sidebar.collapsed .nav-link:hover {
-            background: rgba(100, 181, 246, 0.2);
+            background: rgba(16, 185, 129, 0.2);
         }
 
         .sidebar.collapsed .nav-link.active {
@@ -501,17 +751,17 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
         }
 
         .sidebar-brand {
             padding: 1.5rem 1rem;
-            border-bottom: 1px solid rgba(100, 181, 246, 0.15);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.15);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -575,7 +825,7 @@
         }
 
         .sidebar-brand h4 i {
-            color: #64B5F6;
+            color: #10b981;
         }
 
         .sidebar-brand small {
@@ -688,11 +938,11 @@
 
         /* Improved collapsed state visibility */
         html.sidebar-collapsed-state .toggle-sidebar-btn {
-            background: rgba(100, 181, 246, 0.15);
+            background: rgba(16, 185, 129, 0.15);
         }
 
         html.sidebar-collapsed-state .toggle-sidebar-btn:hover {
-            background: rgba(100, 181, 246, 0.25);
+            background: rgba(16, 185, 129, 0.25);
         }
 
         .sidebar.collapsed .toggle-sidebar-btn .nav-link-text {
@@ -814,7 +1064,7 @@
         }
 
         .sidebar.collapsed .divider-line {
-            background: rgba(100, 181, 246, 0.2);
+            background: rgba(16, 185, 129, 0.2);
         }
 
         /* Enhanced mobile responsiveness */
@@ -979,18 +1229,18 @@
         /* Enhanced focus states for accessibility */
         .sidebar .nav-link:focus,
         .toggle-sidebar-btn:focus {
-            outline: 2px solid #64B5F6;
+            outline: 2px solid #10b981;
             outline-offset: 2px;
-            box-shadow: 0 0 0 4px rgba(100, 181, 246, 0.2);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
         }
 
         /* Add a subtle pulse effect for the toggle button */
         .toggle-sidebar-btn {
-            box-shadow: 0 2px 8px rgba(100, 181, 246, 0.15);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
         }
 
         .toggle-sidebar-btn:hover {
-            box-shadow: 0 4px 12px rgba(100, 181, 246, 0.25);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
         }
 
         /* Tooltip positioning for toggle button */
@@ -1204,7 +1454,7 @@
                                         <span class="nav-link-text">Recycle Bin</span>
                                     </a>
                                 </li>
-                                @if(auth()->user()->isSuperAdmin())
+                                @if (auth()->user()->isSuperAdmin())
                                 @endif
                             </ul>
                         </div>
@@ -1216,13 +1466,15 @@
                             <!-- Top navbar -->
                             <div
                                 class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                                <h1 class="h2" style="color: #4CAF50; display: flex; align-items: center; gap: 0.5rem;">
-                                    @if(trim($__env->yieldContent('page-icon')))
+                                <h1 class="h2"
+                                    style="color: #4CAF50; display: flex; align-items: center; gap: 0.5rem;">
+                                    @if (trim($__env->yieldContent('page-icon')))
                                         <i class="@yield('page-icon')" aria-hidden="true"></i>
                                     @endif
                                     @yield('page-title', '')
                                 </h1>
-                                <div class="btn-toolbar mb-2 mb-md-0">
+                                <div class="btn-toolbar mb-2 mb-md-0 gap-2 align-items-center">
+                                    @yield('page-actions')
                                     <div class="d-flex align-items-center profile-section">
                                         <!-- Language Selector -->
                                         <div class="admin-language-selector">
@@ -1312,7 +1564,8 @@
                                         <!-- Profile Dropdown -->
                                         <div class="dropdown d-flex align-items-center" style="gap: 0.75rem;">
                                             <!-- Clickable trigger: wraps avatar + name + dots together -->
-                                            <button type="button" class="btn btn-link p-0 d-flex align-items-center text-decoration-none"
+                                            <button type="button"
+                                                class="btn btn-link p-0 d-flex align-items-center text-decoration-none"
                                                 data-bs-toggle="dropdown" aria-expanded="false"
                                                 style="gap: 0.75rem; background: none; border: none; cursor: pointer;">
 
@@ -1345,7 +1598,9 @@
                                                         <i class="fas fa-user-edit me-2"></i>Edit Profile
                                                     </a>
                                                 </li>
-                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
                                                 <li>
                                                     <button type="button" class="dropdown-item d-flex align-items-center"
                                                         onclick="confirmLogout()">
@@ -1812,30 +2067,30 @@
                 });
         }
 
-            // Clear read notifications
-            function clearReadNotifications() {
+        // Clear read notifications
+        function clearReadNotifications() {
             showConfirmToast('Clear all read notifications?', function() {
                 fetch('/admin/notifications/clear-read', {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        loadNotifications();
-                    } else {
-                        showToast('error', 'Failed to clear notifications');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error clearing notifications:', error);
-                    showToast('error', 'Something went wrong');
-                });
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', data.message);
+                            loadNotifications();
+                        } else {
+                            showToast('error', 'Failed to clear notifications');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error clearing notifications:', error);
+                        showToast('error', 'Something went wrong');
+                    });
             });
         }
         // View all notifications page updated
@@ -1852,7 +2107,7 @@
             window.location.href = '/admin/notifications';
         }
 
-           function showConfirmToast(message, onConfirm) {
+        function showConfirmToast(message, onConfirm) {
             const existing = document.getElementById('confirmToastWrapper');
             if (existing) existing.remove();
 
@@ -1895,7 +2150,7 @@
                 });
             }, 0);
         }
-                        
+
         // // UPDATED handleNotificationClick to NOT mark read when viewing dropdown
         // function handleNotificationClick(notificationId, actionUrl) {
         //     // Mark as read
@@ -2047,7 +2302,7 @@
         }
 
         .notification-item.unread {
-            background-color: #e3f2fd;
+            background-color: #d1fae5;
         }
 
         .notification-item.unread::before {
@@ -2057,7 +2312,7 @@
             top: 0;
             bottom: 0;
             width: 3px;
-            background-color: #2196F3;
+            background-color: #10b981;
         }
 
         .notification-icon {
@@ -2178,12 +2433,12 @@
 
         /* Unread stays bright and highlighted */
         .notification-item.unread {
-            background-color: #e3f2fd;
+            background-color: #d1fae5;
             opacity: 1;
         }
 
         .notification-item.unread:hover {
-            background-color: #bbdefb;
+            background-color: #a7f3d0;
         }
 
         .notification-item.unread .notification-title {

@@ -1,4 +1,4 @@
-{{-- resources/views/admin/event/archived.blade.php --}}
+﻿{{-- resources/views/admin/event/archived.blade.php --}}
 {{-- Archived Events Management Page --}}
 
 @extends('layouts.app')
@@ -974,7 +974,7 @@
         }
 
         .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid #059669;
         }
 
         /* Modal Backdrop Fix */
