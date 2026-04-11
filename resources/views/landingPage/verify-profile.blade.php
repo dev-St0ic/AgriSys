@@ -363,13 +363,14 @@
         .form-group select.is-invalid,
         .form-group textarea.is-invalid {
             border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .1);
         }
 
-        .form-group small {
-            display: block;
-            font-size: 11px;
-            color: #999;
-            margin-top: 4px;
+        .form-group input.is-valid,
+        .form-group select.is-valid,
+        .form-group textarea.is-valid {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, .1);
         }
 
         .invalid-feedback {
@@ -397,6 +398,16 @@
         .file-upload-area:hover {
             border-color: #0A6953;
             background: #e8f5e9;
+        }
+
+        .file-upload-area.is-invalid {
+            border-color: #ef4444;
+            background: #fff5f5;
+        }
+
+        .file-upload-area.is-valid {
+            border-color: #10b981;
+            background: #f0fdf4;
         }
 
         .upload-icon {
@@ -734,14 +745,14 @@
                         <label for="firstName">First Name <span style="color:#ef4444">*</span></label>
                         <input type="text" id="firstName" name="firstName" required
                             placeholder="Enter your first name">
-                        <small>Letters and spaces only</small>
+                        <div class="form-text">Must be at least 2 characters. Letters and spaces only.</div>
                     </div>
                     <div class="form-group">
                         <label for="middleName">Middle Name <span
                                 style="color:#999;font-weight:400">(Optional)</span></label>
                         <input type="text" id="middleName" name="middleName"
                             placeholder="Enter your middle name">
-                        <small>Letters and spaces only</small>
+                        <div class="form-text">Optional. Letters and spaces only.</div>
                     </div>
                 </div>
 
@@ -750,7 +761,7 @@
                         <label for="lastName">Last Name <span style="color:#ef4444">*</span></label>
                         <input type="text" id="lastName" name="lastName" required
                             placeholder="Enter your last name">
-                        <small>Letters and spaces only</small>
+                        <div class="form-text">Must be at least 2 characters. Letters and spaces only.</div>
                     </div>
                     <div class="form-group">
                         <label for="extensionName">Name Extension</label>
@@ -775,7 +786,7 @@
                         <label for="age">Age</label>
                         <input type="number" id="age" name="age" min="18" max="100" readonly
                             placeholder="Auto-calculated">
-                        <small>Calculated automatically from date of birth</small>
+                        <div class="form-text">Calculated automatically from date of birth.</div>
                     </div>
                 </div>
 
@@ -871,14 +882,15 @@
                                 style="color:#ef4444">*</span></label>
                         <input type="text" id="emergencyContactName" name="emergencyContactName" required
                             placeholder="Full name of emergency contact">
-                        <small>Letters and spaces only</small>
+                        <div class="form-text">Full name of your emergency contact. Letters and spaces only.</div>
                     </div>
                     <div class="form-group">
                         <label for="emergencyContactPhone">Emergency Contact Phone <span
                                 style="color:#ef4444">*</span></label>
                         <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone" required
                             placeholder="09123456789" pattern="[0-9]{11}">
-                        <small>11-digit Philippine mobile number</small>
+                        <div class="form-text">11-digit Philippine mobile number starting with 09 (e.g. 09123456789).
+                        </div>
                     </div>
                 </div>
 
@@ -1011,6 +1023,17 @@
             const preview = document.getElementById(previewId);
             if (!preview) return;
             if (input.files && input.files[0]) {
+                // Clear any validation error and mark valid when a new file is chosen
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                const uploadArea = input.parentElement.querySelector('.file-upload-area');
+                if (uploadArea) {
+                    uploadArea.classList.remove('is-invalid');
+                    uploadArea.classList.add('is-valid');
+                }
+                const existingErr = input.parentElement.querySelector('.invalid-feedback');
+                if (existingErr) existingErr.remove();
+
                 const reader = new FileReader();
                 reader.onload = e => {
                     preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
@@ -1036,6 +1059,11 @@
             const field = document.querySelector(`[name="${fieldName}"]`);
             if (!field) return;
             field.classList.add('is-invalid');
+            // For hidden file inputs, also mark the visible upload area
+            if (field.type === 'file') {
+                const uploadArea = field.parentElement.querySelector('.file-upload-area');
+                if (uploadArea) uploadArea.classList.add('is-invalid');
+            }
             const existing = field.parentElement.querySelector('.invalid-feedback');
             if (existing) existing.remove();
             const err = document.createElement('div');
@@ -1046,6 +1074,10 @@
 
         function clearErrors() {
             document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
+            document.querySelectorAll('.file-upload-area.is-invalid, .file-upload-area.is-valid').forEach(el => {
+                el.classList.remove('is-invalid', 'is-valid');
+            });
             document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
         }
 
@@ -1080,6 +1112,8 @@
         function validateFile(input, label) {
             if (!input.files || input.files.length === 0) return `${label} is required`;
             const file = input.files[0];
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) return `${label} must be an image (JPG, PNG, GIF, or WEBP)`;
             if (file.size > 10 * 1024 * 1024) return `${label} must not exceed 10MB`;
             return null;
         }
@@ -1104,8 +1138,12 @@
                 ['role', validateRequired(f.querySelector('[name="role"]').value, 'Sector')],
                 ['dateOfBirth', validateDOB(f.querySelector('[name="dateOfBirth"]').value)],
                 ['barangay', validateRequired(f.querySelector('[name="barangay"]').value, 'Barangay')],
-                ['completeAddress', validateRequired(f.querySelector('[name="completeAddress"]').value,
-                    'Complete Address')],
+                ['completeAddress', (() => {
+                    const v = f.querySelector('[name="completeAddress"]').value.trim();
+                    if (!v) return 'Complete Address is required';
+                    if (v.length < 10) return 'Complete Address must be at least 10 characters';
+                    return null;
+                })()],
                 ['emergencyContactName', validateName(f.querySelector('[name="emergencyContactName"]').value,
                     'Emergency Contact Name')],
                 ['emergencyContactPhone', validatePhone(f.querySelector('[name="emergencyContactPhone"]')
@@ -1137,8 +1175,10 @@
             const btnText = btn.querySelector('.btn-text');
             const btnLoader = btn.querySelector('.btn-loader');
             btn.disabled = true;
-            if (btnText) btnText.style.visibility = 'hidden';
-            if (btnLoader) btnLoader.style.display = 'inline-block';
+            if (btnText) btnText.style.display = 'none';
+            if (btnLoader) btnLoader.style.display = 'inline-flex';
+            btnLoader.style.alignItems = 'center';
+            btnLoader.style.justifyContent = 'center';
 
             // Build FormData
             const formData = new FormData();
@@ -1184,7 +1224,7 @@
                     } else {
                         // Re-enable button
                         btn.disabled = false;
-                        if (btnText) btnText.style.visibility = 'visible';
+                        if (btnText) btnText.style.display = '';
                         if (btnLoader) btnLoader.style.display = 'none';
 
                         // Show field-level errors from server
@@ -1202,12 +1242,63 @@
                 })
                 .catch(() => {
                     btn.disabled = false;
-                    if (btnText) btnText.style.visibility = 'visible';
+                    if (btnText) btnText.style.display = '';
                     if (btnLoader) btnLoader.style.display = 'none';
                     if (typeof showNotification === 'function') {
                         showNotification('error', 'Network error. Please check your connection and try again.');
                     }
                 });
+        });
+
+        // ── Real-time blur validation ─────────────────────────────
+        function clearFieldError(fieldName) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (!field) return;
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+            if (field.type === 'file') {
+                const uploadArea = field.parentElement.querySelector('.file-upload-area');
+                if (uploadArea) {
+                    uploadArea.classList.remove('is-invalid');
+                    uploadArea.classList.add('is-valid');
+                }
+            }
+            const existing = field.parentElement.querySelector('.invalid-feedback');
+            if (existing) existing.remove();
+        }
+
+        const blurValidations = [
+            ['firstName', v => validateName(v, 'First Name')],
+            ['lastName', v => validateName(v, 'Last Name')],
+            ['middleName', v => (v && v.trim()) ? validateName(v, 'Middle Name') : null],
+            ['dateOfBirth', v => validateDOB(v)],
+            ['sex', v => validateRequired(v, 'Sex')],
+            ['role', v => validateRequired(v, 'Sector')],
+            ['barangay', v => validateRequired(v, 'Barangay')],
+            ['completeAddress', v => {
+                if (!v.trim()) return 'Complete Address is required';
+                if (v.trim().length < 10) return 'Complete Address must be at least 10 characters';
+                return null;
+            }],
+            ['emergencyContactName', v => validateName(v, 'Emergency Contact Name')],
+            ['emergencyContactPhone', v => validatePhone(v)],
+        ];
+
+        blurValidations.forEach(([name, fn]) => {
+            const el = document.querySelector(`[name="${name}"]`);
+            if (!el) return;
+            el.addEventListener('blur', function() {
+                const msg = fn(this.value);
+                if (msg) showFieldError(name, msg);
+                else clearFieldError(name);
+            });
+            // Also clear error on input/change so feedback disappears while typing
+            el.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid')) {
+                    const msg = fn(this.value);
+                    if (!msg) clearFieldError(name);
+                }
+            });
         });
     </script>
 

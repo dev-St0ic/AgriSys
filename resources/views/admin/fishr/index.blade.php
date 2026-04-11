@@ -4489,16 +4489,86 @@
             }
         }
 
+        // Name field character validation helper
+        function validateFishrNameField(input) {
+            if (!input) return true;
+
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const value = input.value.trim();
+            const isMiddle = input.id.includes('middle');
+
+            if (!value && isMiddle) return true;
+
+            if (!value && !isMiddle) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'This field is required';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            if (!value) return true;
+
+            const errors = [];
+
+            if (/\d/.test(value)) {
+                errors.push('Name cannot contain numbers');
+            }
+            if (/[^a-zA-Z\s\-'.ñÑ]/.test(value)) {
+                errors.push('Name can only contain letters, spaces, hyphens, apostrophes, and periods');
+            }
+            if (value.length < 2) {
+                errors.push('Name must be at least 2 characters');
+            }
+            if (value.length > 100) {
+                errors.push('Name cannot exceed 100 characters');
+            }
+            if (/\s{2,}/.test(value)) {
+                errors.push('Name cannot contain consecutive spaces');
+            }
+            if (!/^[a-zA-ZñÑ]/.test(value)) {
+                errors.push('Name must start with a letter');
+            }
+
+            if (errors.length > 0) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = errors[0];
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
         document.getElementById('fishr_first_name')?.addEventListener('blur', function() {
             capitalizeFishrName(this);
+            validateFishrNameField(this);
+        });
+        document.getElementById('fishr_first_name')?.addEventListener('input', function() {
+            validateFishrNameField(this);
         });
 
         document.getElementById('fishr_middle_name')?.addEventListener('blur', function() {
             capitalizeFishrName(this);
+            validateFishrNameField(this);
+        });
+        document.getElementById('fishr_middle_name')?.addEventListener('input', function() {
+            validateFishrNameField(this);
         });
 
         document.getElementById('fishr_last_name')?.addEventListener('blur', function() {
             capitalizeFishrName(this);
+            validateFishrNameField(this);
+        });
+        document.getElementById('fishr_last_name')?.addEventListener('input', function() {
+            validateFishrNameField(this);
         });
 
         // Document preview
@@ -4519,6 +4589,18 @@
             // Validate file size (10MB max)
             if (file.size > 10 * 1024 * 1024) {
                 showToast('error', 'File size must not exceed 10MB');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                showToast('error', 'Only JPG, PNG, or PDF files are allowed');
                 input.value = '';
                 if (preview) {
                     preview.innerHTML = '';
@@ -7599,6 +7681,34 @@
                 }
             }
 
+            // ========== DOCUMENT FILE VALIDATION (Add mode only) ==========
+            if (!isEditMode) {
+                const fileInput = document.getElementById('fishr_supporting_document');
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                    if (file.size > 10 * 1024 * 1024) {
+                        fileInput.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = 'File size must not exceed 10MB';
+                        const existing = fileInput.parentNode.querySelector('.invalid-feedback');
+                        if (existing) existing.remove();
+                        fileInput.parentNode.appendChild(errorDiv);
+                        isValid = false;
+                    } else if (!allowedTypes.includes(file.type)) {
+                        fileInput.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = 'File must be JPG, PNG, or PDF format';
+                        const existing = fileInput.parentNode.querySelector('.invalid-feedback');
+                        if (existing) existing.remove();
+                        fileInput.parentNode.appendChild(errorDiv);
+                        isValid = false;
+                    }
+                }
+            }
+
             console.log('✅ Validation complete. Result:', isValid);
             return isValid;
         }
@@ -7675,7 +7785,7 @@
         });
 
 
-        // Bulk Import 
+        // Bulk Import
         function showFishrImportModal() {
             resetFishrImportModal();
             new bootstrap.Modal(document.getElementById('importFishrModal')).show();

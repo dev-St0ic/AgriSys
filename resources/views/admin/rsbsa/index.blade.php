@@ -484,9 +484,9 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                    <small class="text-muted d-block">Application ID</small>
-                                                    <strong id="updateAppId" class="text-primary">-</strong>
-                                                </div> -->
+                                                        <small class="text-muted d-block">Application ID</small>
+                                                        <strong id="updateAppId" class="text-primary">-</strong>
+                                                    </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Application #</small>
                                         <strong id="updateAppNumber">-</strong>
@@ -498,9 +498,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <!-- <div class="mb-2">
-                                                    <small class="text-muted d-block">Application Type</small>
-                                                    <strong id="updateAppType">-</strong>
-                                                </div> -->
+                                                        <small class="text-muted d-block">Application Type</small>
+                                                        <strong id="updateAppType">-</strong>
+                                                    </div> -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Barangay</small>
                                         <strong id="updateAppBarangay">-</strong>
@@ -1141,7 +1141,8 @@
                                     <li class="mb-2">Fill in the rows with applicant data. <em>Delete the sample rows
                                             before uploading.</em></li>
                                     <li class="mb-2">Save the file as <strong>CSV</strong> (.csv) or
-                                        <strong>Excel</strong> (.xlsx).</li>
+                                        <strong>Excel</strong> (.xlsx).
+                                    </li>
                                     <li>Upload the file using the form below and click <strong>Import</strong>.</li>
                                 </ol>
                             </div>
@@ -2162,8 +2163,8 @@
         }
 
         /* #updateModal .modal-header {
-                                                        border-bottom: 1px solid #dee2e6;
-                                                    } */
+                                                            border-bottom: 1px solid #dee2e6;
+                                                        } */
 
         #updateModal .modal-header .modal-title {
             /* color: black; */
@@ -5187,6 +5188,19 @@
                 }
             });
 
+            // Validate address minimum length
+            const addressInput = document.getElementById('rsbsa_address');
+            if (addressInput && addressInput.value.trim() && addressInput.value.trim().length < 10) {
+                addressInput.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Address must be at least 10 characters';
+                const existing = addressInput.parentNode.querySelector('.invalid-feedback');
+                if (existing) existing.remove();
+                addressInput.parentNode.appendChild(errorDiv);
+                isValid = false;
+            }
+
             // Validate contact number format
             const contactInput = document.getElementById('rsbsa_contact_number');
             if (contactInput && contactInput.value.trim()) {
@@ -7079,23 +7093,72 @@
             }
         }
         /**
+         * Real-time name field validation (consistent with all other forms)
+         */
+        function validateRsbsaNameField(input, fieldName) {
+            if (!input) return true;
+
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const value = input.value.trim();
+            const isMiddle = input.id.includes('middle');
+
+            if (!value && isMiddle) return true;
+            if (!value) return true; // required check handled by submit-time validateRsbsaForm
+
+            const errors = [];
+
+            if (/\d/.test(value)) {
+                errors.push('Name cannot contain numbers');
+            }
+            if (/[^a-zA-Z\s\-'.ñÑ]/.test(value)) {
+                errors.push('Name can only contain letters, spaces, hyphens, apostrophes, and periods');
+            }
+            if (value.length < 2) {
+                errors.push('Name must be at least 2 characters');
+            }
+            if (value.length > 100) {
+                errors.push('Name cannot exceed 100 characters');
+            }
+            if (/\s{2,}/.test(value)) {
+                errors.push('Name cannot contain consecutive spaces');
+            }
+            if (!/^[a-zA-ZñÑ]/.test(value)) {
+                errors.push('Name must start with a letter');
+            }
+
+            if (errors.length > 0) {
+                input.classList.add('is-invalid');
+                input.style.borderColor = '#dc3545';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = errors[0];
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            input.style.borderColor = '';
+            return true;
+        }
+
+        /**
          * Real-time validation for Add RSBSA modal
          */
         function setupAddRsbsaRealTimeValidation() {
             // Name fields validation
             const nameFields = [{
                     id: 'rsbsa_first_name',
-                    pattern: /^[a-zA-Z\s\'-]*$/,
                     label: 'First Name'
                 },
                 {
                     id: 'rsbsa_middle_name',
-                    pattern: /^[a-zA-Z\s\'-]*$/,
                     label: 'Middle Name'
                 },
                 {
                     id: 'rsbsa_last_name',
-                    pattern: /^[a-zA-Z\s\'-]*$/,
                     label: 'Last Name'
                 }
             ];
@@ -7103,11 +7166,11 @@
             nameFields.forEach(field => {
                 const input = document.getElementById(field.id);
                 if (input) {
-                    input.addEventListener('input', function(e) {
-                        validateFieldRealTime(this, field.pattern, field.label);
+                    input.addEventListener('input', function() {
+                        validateRsbsaNameField(this, field.label);
                     });
-                    input.addEventListener('blur', function(e) {
-                        if (this.value) validateFieldRealTime(this, field.pattern, field.label);
+                    input.addEventListener('blur', function() {
+                        if (this.value) validateRsbsaNameField(this, field.label);
                     });
                 }
             });
@@ -7127,6 +7190,17 @@
                 addressInput.addEventListener('input', function(e) {
                     const pattern = /^[a-zA-Z0-9\s,.\'-]*$/;
                     validateFieldRealTime(this, pattern, 'Address');
+                    // Also enforce minimum length when field has value
+                    if (this.value.trim() && this.value.trim().length < 10 && pattern.test(this.value)) {
+                        this.classList.add('is-invalid');
+                        const existing = this.parentNode.querySelector('.invalid-feedback');
+                        if (!existing) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback d-block';
+                            errorDiv.textContent = 'Address must be at least 10 characters';
+                            this.parentNode.appendChild(errorDiv);
+                        }
+                    }
                 });
             }
         }

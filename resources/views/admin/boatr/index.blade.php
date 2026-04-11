@@ -2608,14 +2608,14 @@
         }
 
         /* Enhanced modal styling
-                    .modal-header {
-                        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-                        color: white;
-                    } */
+                        .modal-header {
+                            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                            color: white;
+                        } */
 
         /* .modal-header .btn-close {
-                        filter: invert(1);
-                    } */
+                            filter: invert(1);
+                        } */
 
         /* Document list styling */
         .document-item {
@@ -3146,19 +3146,19 @@
         }
 
         /* close modal
-                    .modal-header .btn-close {
-                        background-color: rgba(255, 255, 255, 0.7);
-                        opacity: 1;
-                    }
+                        .modal-header .btn-close {
+                            background-color: rgba(255, 255, 255, 0.7);
+                            opacity: 1;
+                        }
 
-                    .modal-header .btn-close:hover {
-                        background-color: rgba(255, 255, 255, 1);
-                    }
+                        .modal-header .btn-close:hover {
+                            background-color: rgba(255, 255, 255, 1);
+                        }
 
-                    .modal-header .btn-close:focus {
-                        background-color: rgba(255, 255, 255, 1);
-                        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
-                    } */
+                        .modal-header .btn-close:focus {
+                            background-color: rgba(255, 255, 255, 1);
+                            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
+                        } */
 
         /* Document modal on top when opened from registration modal */
         #documentModal {
@@ -3917,12 +3917,12 @@
         }
 
         /* Alert Styling
-                #inspectionModal .alert {
-                    border-radius: 8px;
-                    border-left: 4px solid #17a2b8;
-                    background-color: #d1ecf1;
-                    color: #0c5460;
-                } */
+                    #inspectionModal .alert {
+                        border-radius: 8px;
+                        border-left: 4px solid #17a2b8;
+                        background-color: #d1ecf1;
+                        color: #0c5460;
+                    } */
 
         #inspectionModal .alert i {
             color: #17a2b8;
@@ -6585,16 +6585,86 @@
             }
         }
 
+        // Name field character validation helper
+        function validateBoatrNameField(input) {
+            if (!input) return true;
+
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const value = input.value.trim();
+            const isMiddle = input.id.includes('middle');
+
+            if (!value && isMiddle) return true;
+
+            if (!value && !isMiddle) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'This field is required';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            if (!value) return true;
+
+            const errors = [];
+
+            if (/\d/.test(value)) {
+                errors.push('Name cannot contain numbers');
+            }
+            if (/[^a-zA-Z\s\-'.ñÑ]/.test(value)) {
+                errors.push('Name can only contain letters, spaces, hyphens, apostrophes, and periods');
+            }
+            if (value.length < 2) {
+                errors.push('Name must be at least 2 characters');
+            }
+            if (value.length > 100) {
+                errors.push('Name cannot exceed 100 characters');
+            }
+            if (/\s{2,}/.test(value)) {
+                errors.push('Name cannot contain consecutive spaces');
+            }
+            if (!/^[a-zA-ZñÑ]/.test(value)) {
+                errors.push('Name must start with a letter');
+            }
+
+            if (errors.length > 0) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = errors[0];
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
         document.getElementById('boatr_first_name')?.addEventListener('blur', function() {
             capitalizeBoatrName(this);
+            validateBoatrNameField(this);
+        });
+        document.getElementById('boatr_first_name')?.addEventListener('input', function() {
+            validateBoatrNameField(this);
         });
 
         document.getElementById('boatr_middle_name')?.addEventListener('blur', function() {
             capitalizeBoatrName(this);
+            validateBoatrNameField(this);
+        });
+        document.getElementById('boatr_middle_name')?.addEventListener('input', function() {
+            validateBoatrNameField(this);
         });
 
         document.getElementById('boatr_last_name')?.addEventListener('blur', function() {
             capitalizeBoatrName(this);
+            validateBoatrNameField(this);
+        });
+        document.getElementById('boatr_last_name')?.addEventListener('input', function() {
+            validateBoatrNameField(this);
         });
 
         // Document preview
@@ -6615,6 +6685,18 @@
             // Validate file size (10MB max)
             if (file.size > 10 * 1024 * 1024) {
                 showToast('error', 'File size must not exceed 10MB');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                showToast('error', 'Only JPG, PNG, or PDF files are allowed');
                 input.value = '';
                 if (preview) {
                     preview.innerHTML = '';
@@ -7686,7 +7768,35 @@
                 isValid = false;
             }
 
-            // === STEP 6: Show Errors ===
+            // === STEP 6: Validate Document File ===
+            const docInput = document.getElementById('boatr_user_document');
+            if (docInput && docInput.files && docInput.files.length > 0) {
+                const file = docInput.files[0];
+                const allowedDocTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                if (file.size > 10 * 1024 * 1024) {
+                    docInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Document file must not exceed 10MB';
+                    const existing = docInput.parentNode.querySelector('.invalid-feedback');
+                    if (existing) existing.remove();
+                    docInput.parentNode.appendChild(errorDiv);
+                    errors.push('Document file must not exceed 10MB');
+                    isValid = false;
+                } else if (!allowedDocTypes.includes(file.type)) {
+                    docInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Document must be JPG, PNG, or PDF format';
+                    const existing = docInput.parentNode.querySelector('.invalid-feedback');
+                    if (existing) existing.remove();
+                    docInput.parentNode.appendChild(errorDiv);
+                    errors.push('Document must be JPG, PNG, or PDF format');
+                    isValid = false;
+                }
+            }
+
+            // === STEP 7: Show Errors ===
             // if (!isValid && errors.length > 0) {
             //     console.log('Validation errors:', errors);
             //     showToast('error', errors[0]);
