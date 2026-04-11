@@ -110,17 +110,21 @@ function populateServiceFilters(applications) {
 
     // Get unique services from applications
     const uniqueServices = [...new Set(applications.map(app => app.type).filter(Boolean))];
-    
+
     if (uniqueServices.length === 0) return;
 
     let filterHTML = '<button class="service-filter-btn active" onclick="filterApplicationsByService(\'all\', this)">All Services</button>';
-    
+
     uniqueServices.forEach(service => {
         const serviceId = service.toLowerCase().replace(/\s+/g, '-');
         filterHTML += `<button class="service-filter-btn" onclick="filterApplicationsByService('${serviceId}', this)" data-service="${service}">${service}</button>`;
     });
 
     serviceFilterContainer.innerHTML = filterHTML;
+
+    // Show the service filter bar now that it has content
+    const serviceFilterBar = document.getElementById('service-filter-bar');
+    if (serviceFilterBar) serviceFilterBar.style.display = 'flex';
 }
 
 /**
@@ -242,14 +246,14 @@ function handleResubmit(applicationType) {
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        
+
         // Create synthetic event
         const syntheticEvent = new Event('click');
         syntheticEvent.preventDefault = () => {};
-        
+
         // Call the form open function
         formConfig.openFunction(syntheticEvent);
-        
+
         // Scroll to the form after a small delay to ensure it's displayed
         setTimeout(() => {
             const formElement = document.getElementById(formConfig.formId);
@@ -262,7 +266,7 @@ function handleResubmit(applicationType) {
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        
+
         const servicesSection = document.getElementById('services');
         if (servicesSection) {
             servicesSection.scrollIntoView({ behavior: 'smooth' });
@@ -334,15 +338,15 @@ function formatApplicationDate(dateString) {
     try {
         const date = new Date(dateString);
         const now = new Date();
-        
+
         // Convert to Philippine timezone (Asia/Manila = UTC+8)
         const phDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
         const phNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-        
+
         // Compare only calendar dates (ignore time of day)
         const phDateOnly = new Date(phDate.getFullYear(), phDate.getMonth(), phDate.getDate());
         const phNowOnly = new Date(phNow.getFullYear(), phNow.getMonth(), phNow.getDate());
-        
+
         // Calculate difference in calendar days
         const diffTime = phNowOnly - phDateOnly;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // Use Math.floor()
@@ -351,7 +355,7 @@ function formatApplicationDate(dateString) {
         if (diffDays === 1) return 'Yesterday';    // 1 calendar day ago in PH
         if (diffDays < 7) return `${diffDays}d ago`;
         if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-        
+
         // For older dates, show formatted date in Philippine timezone
         return phDate.toLocaleDateString('en-US', {
             year: 'numeric',
@@ -374,7 +378,7 @@ function filterApplicationsByStatus(status) {
 
     // Remove active class from all buttons
     buttons.forEach(btn => btn.classList.remove('active'));
-    
+
     // Add active class to clicked button
     if (event && event.target) {
         event.target.classList.add('active');
@@ -415,7 +419,7 @@ function filterApplicationsByService(serviceId, buttonElement) {
 
     // Remove active class from all service filter buttons
     buttons.forEach(btn => btn.classList.remove('active'));
-    
+
     // Add active class to clicked button
     if (buttonElement) {
         buttonElement.classList.add('active');
@@ -556,7 +560,7 @@ function removeEmptyFilterMessage() {
 function resetStatusFilters() {
     const buttons = document.querySelectorAll('.filter-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
-    
+
     const allButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'All Applications');
     if (allButton) {
         allButton.classList.add('active');
@@ -571,7 +575,7 @@ function resetStatusFilters() {
 function resetServiceFilters() {
     const buttons = document.querySelectorAll('.service-filter-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
-    
+
     const allButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'All Services');
     if (allButton) {
         allButton.classList.add('active');
@@ -587,14 +591,14 @@ function resetApplicationFilters() {
     // Reset status filters
     const statusButtons = document.querySelectorAll('.filter-btn');
     console.log('Resetting status filters - found', statusButtons.length, 'buttons');
-    
+
     statusButtons.forEach((btn, index) => {
         if (btn.classList.contains('active')) {
             console.log('Removing active from status button', index, '(' + btn.textContent.trim() + ')');
             btn.classList.remove('active');
         }
     });
-    
+
     const allStatusButton = Array.from(statusButtons).find(btn => btn.textContent.trim() === 'All Applications');
     if (allStatusButton) {
         allStatusButton.classList.add('active');
@@ -606,14 +610,14 @@ function resetApplicationFilters() {
     // Reset service filters
     const serviceButtons = document.querySelectorAll('.service-filter-btn');
     console.log('Resetting service filters - found', serviceButtons.length, 'buttons');
-    
+
     serviceButtons.forEach((btn, index) => {
         if (btn.classList.contains('active')) {
             console.log('Removing active from service button', index, '(' + btn.textContent.trim() + ')');
             btn.classList.remove('active');
         }
     });
-    
+
     const allServiceButton = Array.from(serviceButtons).find(btn => btn.textContent.trim() === 'All Services');
     if (allServiceButton) {
         allServiceButton.classList.add('active');
@@ -621,13 +625,17 @@ function resetApplicationFilters() {
     } else if (serviceButtons.length > 0) {
         serviceButtons[0].classList.add('active');
     }
-    
+
     // Show all application cards
     const cards = document.querySelectorAll('.app-card');
     cards.forEach(card => {
         card.style.display = '';
     });
-    
+
+    // Hide service filter bar until repopulated
+    const serviceFilterBar = document.getElementById('service-filter-bar');
+    if (serviceFilterBar) serviceFilterBar.style.display = 'none';
+
     console.log('Filter reset complete - showing', cards.length, 'cards');
 }
 
