@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1975,8 +1975,8 @@
         <div class="notification-item ${notif.is_read ? 'read' : 'unread'}"
             onclick="handleNotificationClick(${notif.id}, '${notif.action_url || '#'}', this)">
             <div class="d-flex align-items-start gap-3">
-                <div class="notification-icon bg-${notif.color} bg-opacity-10">
-                    <i class="fas ${notif.icon} text-${notif.color}"></i>
+                <div class="notification-icon">
+                    <i class="fas fa-bell text-muted"></i>
                 </div>
                 <div class="notification-content">
                     <div class="notification-title">${notif.title}</div>
@@ -2302,7 +2302,7 @@
         }
 
         .notification-item.unread {
-            background-color: #d1fae5;
+            background-color: transparent;
         }
 
         .notification-item.unread::before {
@@ -2312,13 +2312,22 @@
             top: 0;
             bottom: 0;
             width: 3px;
+            background-color: transparent;
+        }
+
+        .notification-unread-indicator {
+            width: 10px;
+            height: 10px;
             background-color: #10b981;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-left: auto;
         }
 
         .notification-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: auto;
+            height: auto;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2433,12 +2442,12 @@
 
         /* Unread stays bright and highlighted */
         .notification-item.unread {
-            background-color: #d1fae5;
+            background-color: transparent;
             opacity: 1;
         }
 
         .notification-item.unread:hover {
-            background-color: #a7f3d0;
+            background-color: #f8f9fa;
         }
 
         .notification-item.unread .notification-title {

@@ -180,7 +180,7 @@ class SeedlingRequest extends Model
     public function getStatusColorAttribute(): string
     {
         return match($this->status) {
-            'pending' => 'secondary',
+            'pending' => 'warning',
             'approved' => 'success',
             'partially_approved' => 'warning',
             'rejected' => 'danger',

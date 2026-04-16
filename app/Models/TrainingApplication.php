@@ -66,7 +66,7 @@ class TrainingApplication extends Model
     public function getStatusColorAttribute()
     {
         return match($this->status) {
-            'pending' => 'info',
+            'pending' => 'warning',
             'under_review' => 'warning',
             'approved' => 'success',
             'rejected' => 'danger',

@@ -70,26 +70,41 @@ class AdminNotification extends Model
 
     public function getIconAttribute(): string
     {
-        return match($this->type) {
-            'seedling_request_new' => 'fa-seedling',
-            'seedling_request_approved' => 'fa-check-circle',
-            'seedling_request_rejected' => 'fa-times-circle',
-            'seedling_request_updated' => 'fa-edit',
-            'seedling_stock_low' => 'fa-exclamation-triangle',
-            'seedling_stock_out' => 'fa-box-open',
-            default => 'fa-bell'
-        };
+        // All notifications show the bell icon
+        return 'fa-bell';
     }
 
     public function getColorAttribute(): string
     {
         return match($this->type) {
+            // Seedling/Supply Requests
             'seedling_request_new' => 'primary',
             'seedling_request_approved' => 'success',
             'seedling_request_rejected' => 'danger',
             'seedling_request_updated' => 'info',
+            'seedling_request_document_updated' => 'info',
             'seedling_stock_low' => 'warning',
             'seedling_stock_out' => 'danger',
+            'seedling_bulk_imported' => 'success',
+            // Supply Management - Categories
+            'supply_category_created' => 'primary',
+            'supply_category_updated' => 'info',
+            'supply_category_deleted' => 'danger',
+            'supply_category_activated' => 'success',
+            'supply_category_deactivated' => 'warning',
+            // Supply Management - Items
+            'supply_item_created' => 'primary',
+            'supply_item_updated' => 'info',
+            'supply_item_deleted' => 'danger',
+            'supply_item_activated' => 'success',
+            'supply_item_deactivated' => 'warning',
+            // Training Applications
+            'training_application_new' => 'primary',
+            'training_application_approved' => 'success',
+            'training_application_rejected' => 'danger',
+            'training_application_updated' => 'info',
+            'training_application_document_updated' => 'info',
+            'training_bulk_imported' => 'success',
             default => 'secondary'
         };
     }
