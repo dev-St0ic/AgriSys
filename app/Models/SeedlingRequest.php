@@ -361,23 +361,23 @@ class SeedlingRequest extends Model
      */
     public static function generateRequestNumber(): string
     {
-    $year = now()->year;
+        $year = now()->year;
+        $prefix = "REQ-{$year}-";
 
-    $last = static::where('request_number', 'like', "REQ-{$year}-%")
-        ->orderByDesc('request_number')
-        ->value('request_number');
+        $lastSequence = static::where('request_number', 'like', "{$prefix}%")
+            ->whereRaw("request_number REGEXP ?", ["^{$prefix}[0-9]{5}$"])
+            ->lockForUpdate()
+            ->selectRaw("MAX(CAST(SUBSTRING(request_number, ?) AS UNSIGNED)) as max_seq", [strlen($prefix) + 1])
+            ->value('max_seq');
 
-    $nextSequence = $last
-        ? (int) substr($last, strrpos($last, '-') + 1) + 1
-        : 1;
+        $nextSequence = ($lastSequence ?? 0) + 1;
 
-    if ($nextSequence > 9999) {
-        throw new \Exception("Request number limit reached for year {$year}.");
+        if ($nextSequence > 9999) {
+            throw new \Exception("Request number limit reached for year {$year}.");
+        }
+
+        return $prefix . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
     }
-
-    return "REQ-{$year}-" . str_pad($nextSequence, 5, '0', STR_PAD_LEFT);
-    }
-
     /**
      * Boot method
      */
